@@ -11,19 +11,16 @@ export class YugiohDatabase {
   }
 
   public initializeAllTables(): void {
-    // Cambiado a público
-    // Tabla de arquetipos (la que ya necesitas)
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS archetypes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT UNIQUE NOT NULL,
         registered BOOLEAN DEFAULT FALSE,
+        pending_requests INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-
-    console.log("✅ Todas las tablas inicializadas correctamente");
   }
 
   public getConnection(): Database.Database {

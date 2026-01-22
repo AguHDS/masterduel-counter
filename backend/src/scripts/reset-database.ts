@@ -8,10 +8,8 @@ function resetDatabase() {
     db.exec(`DROP TABLE IF EXISTS archetypes`);
 
     database.initializeAllTables();
-
-    console.log("DB successfully reset");
   } catch (error) {
-    console.error("Error:", error);
+    console.error("❌ Error:", error);
   } finally {
     database.close();
   }

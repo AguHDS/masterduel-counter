@@ -8,6 +8,8 @@ async function populateArchetypes() {
   const db = database.getConnection();
 
   try {
+    console.log("📡 Obteniendo arquetipos de la API externa...");
+
     const response = await fetch(
       "https://db.ygoprodeck.com/api/v7/archetypes.php",
     );
@@ -22,9 +24,11 @@ async function populateArchetypes() {
       .map((item) => item.archetype_name)
       .filter((name) => name && name.trim() !== "");
 
+    console.log(`📊 Se obtuvieron ${archetypeNames.length} arquetipos`);
+
     const insertStmt = db.prepare(`
-      INSERT OR IGNORE INTO archetypes (name, registered) 
-      VALUES (?, FALSE)
+      INSERT OR IGNORE INTO archetypes (name) 
+      VALUES (?)
     `);
 
     db.transaction(() => {
@@ -33,15 +37,33 @@ async function populateArchetypes() {
       }
     })();
 
-    const countStmt = db.prepare("SELECT COUNT(*) as count FROM archetypes");
-    const result = countStmt.get() as { count: number };
+    const sampleQuery = db.prepare(`
+      SELECT name, registered, pending_requests 
+      FROM archetypes 
+      WHERE name LIKE '%Blue%' 
+      LIMIT 3
+    `);
 
-    console.log(`archetypes in the database: ${result.count}`);
+    const sampleResults = sampleQuery.all() as Array<{
+      name: string;
+      registered: number;
+      pending_requests: number;
+    }>;
+
+    if (sampleResults.length > 0) {
+      console.log("\n🔍 Ejemplo de datos insertados:");
+      sampleResults.forEach((row) => {
+        console.log(
+          `  - ${row.name}: registered=${row.registered === 1}, pending_requests=${row.pending_requests}`,
+        );
+      });
+    }
   } catch (error) {
-    console.error("Error:", error);
+    console.error("❌ Error:", error);
     process.exit(1);
   } finally {
     database.close();
+    console.log("🔒 Conexión a base de datos cerrada");
   }
 }
 
