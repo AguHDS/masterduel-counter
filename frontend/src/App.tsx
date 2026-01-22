@@ -13,7 +13,7 @@ function App() {
               <Layers className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white">
-              Yu-Gi-Oh! Card Finder
+              Masterduel Counter
             </h1>
           </div>
         </div>
@@ -66,7 +66,7 @@ function App() {
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2">
               <Layers className="w-5 h-5 text-blue-400" />
-              <span className="font-semibold text-lg text-white">Yu-Gi-Oh! Card Finder</span>
+              <span className="font-semibold text-lg text-white">Masterduel Counter</span>
             </div>
 
             <div className="flex items-center space-x-6 text-sm">
@@ -84,7 +84,7 @@ function App() {
             </div>
 
             <p className="text-sm text-blue-500">
-              © 2024 All rights reserved
+              © 2026 All rights reserved
             </p>
           </div>
         </div>
