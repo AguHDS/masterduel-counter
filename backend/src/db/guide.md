@@ -12,7 +12,7 @@ backend\src\data\database.db > `sqlite3 database.db`
 salida mas legible:
 `.headers on`
 `.mode column`
-`SELECT * FROM nombre_tabla;`
+`SELECT id, name, registered FROM table_name LIMIT 10;`
 
 ▶️ limpiar datos de una tabla (mantiene la tabla)
 `DELETE FROM nombre_tabla;`
