@@ -1,7 +1,14 @@
 import Database from "better-sqlite3";
 import path from "path";
 
-export class YugiohDatabase {
+// Interfaz abstracta para la base de datos (puerto)
+export interface DatabasePort {
+  getConnection(): Database.Database;
+  close(): void;
+}
+
+// Implementación concreta de la base de datos (adaptador)
+export class YugiohDatabase implements DatabasePort {
   private db: Database.Database;
 
   constructor() {
@@ -31,3 +38,11 @@ export class YugiohDatabase {
     this.db.close();
   }
 }
+
+// Función factory para crear la base de datos (opcional, para programación funcional)
+export const createYugiohDatabase = (): DatabasePort => {
+  return new YugiohDatabase();
+};
+
+// También podemos exportar solo la función si prefieres no usar la clase
+export type DatabaseConnection = Database.Database;

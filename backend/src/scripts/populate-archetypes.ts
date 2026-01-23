@@ -1,4 +1,4 @@
-import { YugiohDatabase } from "../db/database";
+import { YugiohDatabase } from "@/database/database";
 
 /** Populate the database with archetypes from YGOProdeck external API */
 async function populateArchetypes() {

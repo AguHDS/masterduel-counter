@@ -1,29 +1,20 @@
-import { ArchetypeRepository } from "@/repositories/ArchetypeRepository";
+import { ArchetypeServicePort } from "@/application/ports/ArchetypeService";
+import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import {
   Archetype,
+  ArchetypeCreateDTO,
   ArchetypeUpdateDTO,
   ArchetypeRequestDTO,
   ArchetypeRequestResponse,
 } from "@/domain/Archetype";
-import Database from "better-sqlite3";
-import path from "path";
 
-export class ArchetypeService {
+export class ArchetypeService implements ArchetypeServicePort {
   private repository: ArchetypeRepository;
 
-  constructor(db?: Database.Database) {
-    const database = db || this.createDatabaseConnection();
-    this.repository = new ArchetypeRepository(database);
+  constructor(repository: ArchetypeRepository) {
+    this.repository = repository;
   }
 
-  private createDatabaseConnection(): Database.Database {
-    const dbPath = path.join(__dirname, "../../../src/data/database.db");
-    return new Database(dbPath);
-  }
-
-  /**
-   * Busca arquetipos por término de búsqueda
-   */
   async searchArchetypes(
     searchTerm: string,
     limit: number = 50,
@@ -41,9 +32,6 @@ export class ArchetypeService {
     return this.repository.searchByName(trimmedTerm, limit);
   }
 
-  /**
-   * Obtiene un arquetipo por ID
-   */
   async getArchetypeById(id: number): Promise<Archetype | null> {
     if (!id || id <= 0) {
       throw new Error("ID inválido");
@@ -52,9 +40,6 @@ export class ArchetypeService {
     return this.repository.findById(id);
   }
 
-  /**
-   * Obtiene un arquetipo por nombre exacto
-   */
   async getArchetypeByName(name: string): Promise<Archetype | null> {
     if (!name || name.trim() === "") {
       throw new Error("Nombre inválido");
@@ -63,13 +48,29 @@ export class ArchetypeService {
     return this.repository.findByName(name.trim());
   }
 
-  /**
-   * Solicita registro de un arquetipo (incrementa pending_requests)
-   */
+  async createArchetype(archetypeData: ArchetypeCreateDTO): Promise<Archetype> {
+    if (!archetypeData.name || archetypeData.name.trim() === "") {
+      throw new Error("El nombre del arquetipo es requerido");
+    }
+
+    const name = archetypeData.name.trim();
+    const exists = await this.repository.existsByName(name);
+
+    if (exists) {
+      throw new Error(`Ya existe un arquetipo con el nombre "${name}"`);
+    }
+
+    return this.repository.create({
+      ...archetypeData,
+      name,
+      registered: archetypeData.registered ?? false,
+      pending_requests: archetypeData.pending_requests ?? 0,
+    });
+  }
+
   async requestArchetypeRegistration(
     requestData: ArchetypeRequestDTO,
   ): Promise<ArchetypeRequestResponse> {
-    // Buscar el arquetipo por ID o nombre
     let archetype: Archetype | null = null;
 
     if (requestData.archetype_id) {
@@ -82,7 +83,6 @@ export class ArchetypeService {
       throw new Error("Arquetipo no encontrado");
     }
 
-    // Verificar si ya está registrado
     if (archetype.registered) {
       return {
         success: false,
@@ -92,8 +92,9 @@ export class ArchetypeService {
       };
     }
 
-    // Incrementar el contador de solicitudes
-    const updated = this.repository.incrementPendingRequests(archetype.id);
+    const updated = await this.repository.incrementPendingRequests(
+      archetype.id,
+    );
 
     if (!updated) {
       throw new Error("Error al procesar la solicitud");
@@ -107,15 +108,12 @@ export class ArchetypeService {
     };
   }
 
-  /**
-   * Aprueba un arquetipo (lo marca como registrado y resetea pending_requests)
-   */
   async approveArchetypeRegistration(id: number): Promise<Archetype | null> {
     if (!id || id <= 0) {
       throw new Error("ID inválido");
     }
 
-    const result = this.repository.markAsRegistered(id);
+    const result = await this.repository.markAsRegistered(id);
 
     if (!result) {
       throw new Error(`Arquetipo con ID ${id} no encontrado`);
@@ -124,22 +122,16 @@ export class ArchetypeService {
     return result;
   }
 
-  /**
-   * Obtiene arquetipos con solicitudes pendientes
-   */
   async getPendingArchetypes(limit?: number): Promise<Archetype[]> {
     return this.repository.findWithPendingRequests(limit);
   }
 
-  /**
-   * Limpia las solicitudes pendientes de un arquetipo
-   */
   async clearPendingRequests(id: number): Promise<Archetype | null> {
     if (!id || id <= 0) {
       throw new Error("ID inválido");
     }
 
-    const result = this.repository.resetPendingRequests(id);
+    const result = await this.repository.resetPendingRequests(id);
 
     if (!result) {
       throw new Error(`Arquetipo con ID ${id} no encontrado`);
@@ -148,9 +140,6 @@ export class ArchetypeService {
     return result;
   }
 
-  /**
-   * Obtiene estadísticas mejoradas
-   */
   async getStatistics(): Promise<{
     total: number;
     registered: number;
@@ -161,9 +150,6 @@ export class ArchetypeService {
     return this.repository.getStatistics();
   }
 
-  /**
-   * Resto de métodos existentes (sin cambios)...
-   */
   async advancedSearch(options: {
     searchTerm?: string;
     registered?: boolean;
@@ -174,18 +160,18 @@ export class ArchetypeService {
     let total = 0;
 
     if (options.searchTerm) {
-      results = this.repository.searchByName(
+      results = await this.repository.searchByName(
         options.searchTerm,
         options.limit || 50,
       );
-      const allResults = this.repository.searchByName(
+      const allResults = await this.repository.searchByName(
         options.searchTerm,
         10000,
       );
       total = allResults.length;
     } else {
-      results = this.repository.findAll(options.limit, options.offset);
-      const allResults = this.repository.findAll();
+      results = await this.repository.findAll(options.limit, options.offset);
+      const allResults = await this.repository.findAll();
       total = allResults.length;
     }
 
@@ -221,7 +207,7 @@ export class ArchetypeService {
 
     if (archetypeData.name && archetypeData.name.trim() !== existing.name) {
       const newName = archetypeData.name.trim();
-      const existingWithName = this.repository.findByName(newName);
+      const existingWithName = await this.repository.findByName(newName);
 
       if (existingWithName && existingWithName.id !== id) {
         throw new Error(`Ya existe un arquetipo con el nombre "${newName}"`);
@@ -238,7 +224,7 @@ export class ArchetypeService {
       throw new Error("ID inválido");
     }
 
-    const result = this.repository.markAsUnregistered(id);
+    const result = await this.repository.markAsUnregistered(id);
 
     if (!result) {
       throw new Error(`Arquetipo con ID ${id} no encontrado`);
