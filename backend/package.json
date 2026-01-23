@@ -2,30 +2,32 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "type": "module",
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "dev": "tsx watch --tsconfig tsconfig.json src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "populate-archetypes": "ts-node src/scripts/populate-archetypes.ts",
-    "reset-db": "ts-node src/scripts/reset-database.ts"
+    "populate-archetypes": "ts-node-esm -r tsconfig-paths/register src/scripts/populate-archetypes.ts",
+    "reset-db": "ts-node-esm -r tsconfig-paths/register src/scripts/reset-database.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.9",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "better-sqlite3": "^12.6.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "tsconfig-paths": "^4.2.0"
   }
 }

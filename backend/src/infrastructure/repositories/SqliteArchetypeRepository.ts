@@ -1,21 +1,22 @@
-import Database from "better-sqlite3";
+import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import {
   Archetype,
   ArchetypeCreateDTO,
   ArchetypeUpdateDTO,
 } from "@/domain/Archetype";
+import Database from "better-sqlite3";
 
-export class ArchetypeRepository {
+export class SqliteArchetypeRepository implements ArchetypeRepository {
   private db: Database.Database;
 
   constructor(db: Database.Database) {
     this.db = db;
   }
 
-  /**
-   * Busca arquetipos por nombre (Case-Insensitive)
-   */
-  searchByName(searchTerm: string, limit: number = 50): Archetype[] {
+  async searchByName(
+    searchTerm: string,
+    limit: number = 50,
+  ): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered, pending_requests,
              created_at, updated_at
@@ -28,10 +29,10 @@ export class ArchetypeRepository {
     return stmt.all(`%${searchTerm}%`, limit) as Archetype[];
   }
 
-  /**
-   * Busca arquetipos que comiencen con el término (autocomplete)
-   */
-  searchAutocomplete(searchTerm: string, limit: number = 10): Archetype[] {
+  async searchAutocomplete(
+    searchTerm: string,
+    limit: number = 10,
+  ): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered, pending_requests,
              created_at, updated_at
@@ -44,10 +45,7 @@ export class ArchetypeRepository {
     return stmt.all(`${searchTerm}%`, limit) as Archetype[];
   }
 
-  /**
-   * Obtiene un arquetipo por su ID
-   */
-  findById(id: number): Archetype | null {
+  async findById(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered, pending_requests,
              created_at, updated_at
@@ -59,10 +57,7 @@ export class ArchetypeRepository {
     return result || null;
   }
 
-  /**
-   * Obtiene un arquetipo por su nombre exacto
-   */
-  findByName(name: string): Archetype | null {
+  async findByName(name: string): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered, pending_requests,
              created_at, updated_at
@@ -74,10 +69,23 @@ export class ArchetypeRepository {
     return result || null;
   }
 
-  /**
-   * Obtiene todos los arquetipos (con paginación opcional)
-   */
-  findAll(limit?: number, offset?: number): Archetype[] {
+  async create(archetypeData: ArchetypeCreateDTO): Promise<Archetype> {
+    const stmt = this.db.prepare(`
+      INSERT INTO archetypes (name, registered, pending_requests)
+      VALUES (?, ?, ?)
+      RETURNING id, name, registered, pending_requests, created_at, updated_at
+    `);
+
+    const result = stmt.get(
+      archetypeData.name,
+      archetypeData.registered ? 1 : 0,
+      archetypeData.pending_requests || 0,
+    ) as Archetype;
+
+    return result;
+  }
+
+  async findAll(limit?: number, offset?: number): Promise<Archetype[]> {
     let sql = `
       SELECT id, name, registered, pending_requests,
              created_at, updated_at
@@ -96,10 +104,10 @@ export class ArchetypeRepository {
     return stmt.all() as Archetype[];
   }
 
-  /**
-   * Actualiza un arquetipo existente
-   */
-  update(id: number, archetypeData: ArchetypeUpdateDTO): Archetype | null {
+  async update(
+    id: number,
+    archetypeData: ArchetypeUpdateDTO,
+  ): Promise<Archetype | null> {
     const updates: string[] = [];
     const params: any[] = [];
 
@@ -138,10 +146,7 @@ export class ArchetypeRepository {
     return result || null;
   }
 
-  /**
-   * Marca un arquetipo como registrado (para tu funcionalidad principal)
-   */
-  markAsRegistered(id: number): Archetype | null {
+  async markAsRegistered(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       UPDATE archetypes 
       SET registered = 1, pending_requests = 0, updated_at = CURRENT_TIMESTAMP
@@ -153,10 +158,7 @@ export class ArchetypeRepository {
     return result || null;
   }
 
-  /**
-   * Marca un arquetipo como no registrado
-   */
-  markAsUnregistered(id: number): Archetype | null {
+  async markAsUnregistered(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       UPDATE archetypes 
       SET registered = 0, updated_at = CURRENT_TIMESTAMP
@@ -168,10 +170,7 @@ export class ArchetypeRepository {
     return result || null;
   }
 
-  /**
-   * Incrementa el contador de solicitudes pendientes
-   */
-  incrementPendingRequests(id: number): Archetype | null {
+  async incrementPendingRequests(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       UPDATE archetypes 
       SET pending_requests = pending_requests + 1, 
@@ -184,10 +183,7 @@ export class ArchetypeRepository {
     return result || null;
   }
 
-  /**
-   * Decrementa el contador de solicitudes pendientes
-   */
-  decrementPendingRequests(id: number): Archetype | null {
+  async decrementPendingRequests(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       UPDATE archetypes 
       SET pending_requests = MAX(pending_requests - 1, 0), 
@@ -200,10 +196,7 @@ export class ArchetypeRepository {
     return result || null;
   }
 
-  /**
-   * Resetea el contador de solicitudes pendientes a 0
-   */
-  resetPendingRequests(id: number): Archetype | null {
+  async resetPendingRequests(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       UPDATE archetypes 
       SET pending_requests = 0, updated_at = CURRENT_TIMESTAMP
@@ -215,10 +208,7 @@ export class ArchetypeRepository {
     return result || null;
   }
 
-  /**
-   * Obtiene arquetipos con solicitudes pendientes
-   */
-  findWithPendingRequests(limit?: number): Archetype[] {
+  async findWithPendingRequests(limit?: number): Promise<Archetype[]> {
     let sql = `
       SELECT id, name, registered, pending_requests,
              created_at, updated_at
@@ -235,16 +225,13 @@ export class ArchetypeRepository {
     return stmt.all() as Archetype[];
   }
 
-  /**
-   * Obtiene estadísticas de los arquetipos
-   */
-  getStatistics(): {
+  async getStatistics(): Promise<{
     total: number;
     registered: number;
     unregistered: number;
     pending_requests_total: number;
     archetypes_with_requests: number;
-  } {
+  }> {
     const totalStmt = this.db.prepare(
       "SELECT COUNT(*) as count FROM archetypes",
     );
@@ -272,10 +259,7 @@ export class ArchetypeRepository {
     };
   }
 
-  /**
-   * Verifica si un arquetipo existe por nombre
-   */
-  existsByName(name: string): boolean {
+  async existsByName(name: string): Promise<boolean> {
     const stmt = this.db.prepare("SELECT 1 FROM archetypes WHERE name = ?");
     const result = stmt.get(name);
     return !!result;

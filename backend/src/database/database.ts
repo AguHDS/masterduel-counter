@@ -1,7 +1,16 @@
 import Database from "better-sqlite3";
 import path from "path";
+import { fileURLToPath } from "url";
 
-export class YugiohDatabase {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export interface DatabasePort {
+  getConnection(): Database.Database;
+  close(): void;
+}
+
+export class YugiohDatabase implements DatabasePort {
   private db: Database.Database;
 
   constructor() {
@@ -31,3 +40,9 @@ export class YugiohDatabase {
     this.db.close();
   }
 }
+
+export const createYugiohDatabase = (): DatabasePort => {
+  return new YugiohDatabase();
+};
+
+export type DatabaseConnection = Database.Database;

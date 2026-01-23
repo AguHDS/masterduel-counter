@@ -1,4 +1,4 @@
-import { YugiohDatabase } from "../db/database";
+import { YugiohDatabase } from "../infrastructure/database/database";
 
 function resetDatabase() {
   const database = new YugiohDatabase();
