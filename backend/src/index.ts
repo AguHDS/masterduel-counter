@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT ?? 3001;
 const NODE_ENV = process.env.NODE_ENV ?? "development";
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? "*";
-import { searchArchetype } from "./routes/index";
+import { searchArchetype, signAsAdmin } from "./routes/index";
 
 app.use(
   cors({
@@ -17,6 +17,7 @@ app.use(
 app.use(express.json());
 
 app.use("/api/searchArchetype", searchArchetype);
+app.use("/api/signAsAdmin", signAsAdmin);
 
 app.listen(PORT, () => {
   console.log(`Listening to: http://localhost:${PORT}`);

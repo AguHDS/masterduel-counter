@@ -1,4 +1,4 @@
-import { Search as SearchIcon } from "lucide-react";
+import { Search } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 interface SearchInputProps {
@@ -38,7 +38,8 @@ export const SearchInput = ({
       <div className="p-6 border-b border-blue-700 bg-gradient-to-r from-blue-900/50 to-slate-900/50">
         <div className="max-w-2xl mx-auto">
           <div className="relative">
-            <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-400 z-10 pointer-events-none" />
+
             <input
               type="text"
               value={searchQuery}

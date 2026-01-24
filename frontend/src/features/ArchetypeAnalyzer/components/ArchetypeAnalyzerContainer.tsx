@@ -41,7 +41,7 @@ export const ArchetypeAnalyzerContainer = () => {
       <SearchInput
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
-        placeholder="Search for archetypes (e.g., 'Blue-Eyes', 'Dark Magician')..."
+        placeholder="Search for archetypes to learn how to counter them"
         showResults={true}
       >
         <SearchResults
@@ -81,7 +81,7 @@ export const ArchetypeAnalyzerContainer = () => {
                   >
                     {selectedArchetype.registered
                       ? "Registered"
-                      : "Unregistered"}
+                      : "Not registered"}
                   </span>
                 </div>
                 {selectedArchetype.pending_requests > 0 && (
