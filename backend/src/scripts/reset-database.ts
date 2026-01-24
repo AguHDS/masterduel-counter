@@ -1,4 +1,4 @@
-import { YugiohDatabase } from "../infrastructure/database/database";
+import { YugiohDatabase } from "../database/database";
 
 function resetDatabase() {
   const database = new YugiohDatabase();
@@ -6,6 +6,7 @@ function resetDatabase() {
 
   try {
     db.exec(`DROP TABLE IF EXISTS archetypes`);
+    db.exec(`DROP TABLE IF EXISTS admins`);
 
     database.initializeAllTables();
   } catch (error) {

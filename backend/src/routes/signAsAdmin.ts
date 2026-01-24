@@ -4,6 +4,6 @@ import { signAsAdminController } from "../http/controllers/signAsAdminController
 
 const router = express.Router();
 
-router.get("/", signAsAdminMiddleware, signAsAdminController);
+router.post("/", signAsAdminMiddleware, signAsAdminController);
 
 export default router;

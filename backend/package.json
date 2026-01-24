@@ -9,25 +9,32 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "populate-archetypes": "ts-node-esm -r tsconfig-paths/register src/scripts/populate-archetypes.ts",
-    "reset-db": "ts-node-esm -r tsconfig-paths/register src/scripts/reset-database.ts"
+    "reset-db": "ts-node-esm -r tsconfig-paths/register src/scripts/reset-database.ts",
+    "create-admin": "ts-node-esm -r tsconfig-paths/register src/scripts/create-admin.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/better-sqlite3": "^7.6.13",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.0.9",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.6.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "tsconfig-paths": "^4.2.0"
   }
 }
