@@ -8,7 +8,8 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-export const authMiddleware = (
+/** Check if the user is authenticated as an Admin */
+export const verifyAdminAuthMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction,

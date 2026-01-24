@@ -1,9 +1,9 @@
 import express from "express";
-import { authMiddleware } from "../http/middlewares/authMiddleware";
-import { verifyAuthController } from "../http/controllers/verifyAuthController";
+import { verifyAdminAuthMiddleware } from "../http/middlewares/verifyAdminAuthMiddleware";
+import { verifyAdminAuthController } from "../http/controllers/verifyAdminAuthController";
 
 const router = express.Router();
 
-router.get("/", authMiddleware, verifyAuthController);
+router.get("/", verifyAdminAuthMiddleware, verifyAdminAuthController);
 
 export default router;
