@@ -1,4 +1,4 @@
-import { useAuth } from "../features/AdminAuth/hooks/useAuth";
+import { useAuth } from "../features/AdminAuth";
 import { LogOut } from "lucide-react";
 
 export const Navbar = () => {
