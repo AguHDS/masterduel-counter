@@ -14,6 +14,7 @@ dist-ssr
 TODO.md
 /backend/.env
 /frontend/.env
+backend/memory.md
 
 # Editor directories and files
 .vscode/*
