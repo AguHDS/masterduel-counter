@@ -16,6 +16,12 @@ TODO.md
 /frontend/.env
 backend/memory.md
 
+# Database files
+/backend/src/data/*.db
+/backend/src/data/*.db-*
+*.sqlite
+*.sqlite3
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
