@@ -1,7 +1,12 @@
-import { useAuth } from "../features/AdminAuth/hooks/useAuth";
+import { useAuth } from "../features/AdminAuth";
 import { LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
 
-export const Navbar = () => {
+interface NavbarProps {
+  onLogoClick?: () => void;
+}
+
+export const Navbar = ({ onLogoClick }: NavbarProps = {}) => {
   const { isAuthenticated, admin, logout, isLoading } = useAuth();
 
   const handleLogout = async () => {
@@ -12,10 +17,10 @@ export const Navbar = () => {
     <header className="bg-slate-900 border-b border-blue-800 sticky top-0 z-10 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <Link to="/" onClick={onLogoClick} className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
             <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-2 rounded-lg shadow-md"></div>
             <h1 className="text-2xl font-bold text-white">Masterduel Counter</h1>
-          </div>
+          </Link>
 
           {!isLoading && isAuthenticated && admin && (
             <div className="flex items-center space-x-4">

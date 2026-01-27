@@ -10,7 +10,7 @@ export class AuthServiceImpl implements AuthService {
 
   constructor(adminRepository: AdminRepository) {
     this.adminRepository = adminRepository;
-    this.jwtSecret = process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
+    this.jwtSecret = process.env.JWT_SECRET || "secret-key";
   }
 
   async login(credentials: AdminLoginDTO): Promise<AdminLoginResponse> {
@@ -65,7 +65,7 @@ export class AuthServiceImpl implements AuthService {
         adminId: decoded.adminId,
         username: decoded.username
       };
-    } catch (error) {
+    } catch {
       return {
         valid: false
       };

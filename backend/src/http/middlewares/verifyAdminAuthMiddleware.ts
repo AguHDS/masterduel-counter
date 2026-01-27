@@ -25,13 +25,13 @@ export const verifyAdminAuthMiddleware = (
       });
     }
 
-    const jwtSecret = process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
+    const jwtSecret = process.env.JWT_SECRET || "secret-key";
     
     try {
       const decoded = jwt.verify(token, jwtSecret) as { adminId: number; username: string };
       (req as AuthenticatedRequest).admin = decoded;
       next();
-    } catch (error) {
+    } catch {
       return res.status(401).json({
         success: false,
         error: "Unauthorized",

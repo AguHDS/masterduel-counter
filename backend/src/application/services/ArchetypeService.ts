@@ -1,5 +1,10 @@
-import { ArchetypeServicePort } from "@/application/ports/ArchetypeService";
+import {
+  ArchetypeServicePort,
+  RegisterArchetypeDTO,
+} from "@/application/ports/ArchetypeService";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
+import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
+import { CardServicePort } from "@/application/ports/CardService";
 import {
   Archetype,
   ArchetypeCreateDTO,
@@ -10,9 +15,17 @@ import {
 
 export class ArchetypeService implements ArchetypeServicePort {
   private repository: ArchetypeRepository;
+  private cardPairRepository: ArchetypeCardPairRepository;
+  private cardService: CardServicePort;
 
-  constructor(repository: ArchetypeRepository) {
+  constructor(
+    repository: ArchetypeRepository,
+    cardPairRepository: ArchetypeCardPairRepository,
+    cardService: CardServicePort,
+  ) {
     this.repository = repository;
+    this.cardPairRepository = cardPairRepository;
+    this.cardService = cardService;
   }
 
   async searchArchetypes(
@@ -251,5 +264,75 @@ export class ArchetypeService implements ArchetypeServicePort {
 
     const trimmedTerm = partialName.trim();
     return this.repository.searchAutocomplete(trimmedTerm, limit);
+  }
+
+  async registerArchetypeWithPairs(
+    registerData: RegisterArchetypeDTO,
+  ): Promise<Archetype> {
+    const { archetypeId, cardPairs, headerCardId, userId } = registerData;
+
+    // Validar que el arquetipo existe
+    const archetype = await this.repository.findById(archetypeId);
+    if (!archetype) {
+      throw new Error(`Arquetipo con ID ${archetypeId} no encontrado`);
+    }
+
+    // Si no hay pares, eliminar pares existentes y marcar como no registrado
+    if (!cardPairs || cardPairs.length === 0) {
+      await this.cardPairRepository.deleteByArchetypeId(archetypeId);
+      await this.repository.update(archetypeId, { 
+        header_card_id: null,
+        registered: false,
+      });
+
+      const updatedArchetype = await this.repository.findById(archetypeId);
+      if (!updatedArchetype) {
+        throw new Error("Error al actualizar el arquetipo");
+      }
+      return updatedArchetype;
+    }
+
+    // Extraer todos los IDs únicos de cartas (incluyendo la header si existe)
+    const cardIds = Array.from(
+      new Set([
+        ...cardPairs.flatMap((pair) => [pair.topCardId, pair.bottomCardId]),
+        ...(headerCardId ? [headerCardId] : []),
+      ]),
+    );
+
+    // Confirmar todas las cartas (marcarlas como permanentes)
+    await this.cardService.confirmSelectedCards(cardIds);
+
+    // Eliminar pares existentes si los hay (permitir re-registro)
+    await this.cardPairRepository.deleteByArchetypeId(archetypeId);
+
+    // Crear los nuevos pares de cartas
+    const pairsToCreate = cardPairs.map((pair, index) => ({
+      archetype_id: archetypeId,
+      top_card_id: pair.topCardId,
+      bottom_card_id: pair.bottomCardId,
+      pair_order: index + 1,
+      effectiveness: pair.effectiveness || null,
+      comment: pair.comment || null,
+    }));
+
+    await this.cardPairRepository.createMany(pairsToCreate);
+
+    // Actualizar el header_card_id si se proporcionó
+    if (headerCardId !== undefined) {
+      await this.repository.update(archetypeId, { header_card_id: headerCardId });
+    }
+
+    // Marcar el arquetipo como registrado
+    const updatedArchetype = await this.repository.markAsRegistered(
+      archetypeId,
+      userId,
+    );
+
+    if (!updatedArchetype) {
+      throw new Error("Error al marcar el arquetipo como registrado");
+    }
+
+    return updatedArchetype;
   }
 }
