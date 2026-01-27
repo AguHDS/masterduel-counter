@@ -27,9 +27,11 @@ export class YugiohDatabase implements DatabasePort {
         registered BOOLEAN DEFAULT FALSE,
         pending_requests INTEGER DEFAULT 0,
         header_card_id INTEGER DEFAULT NULL,
+        created_by_user_id INTEGER DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (header_card_id) REFERENCES cards(id) ON DELETE SET NULL
+        FOREIGN KEY (header_card_id) REFERENCES cards(id) ON DELETE SET NULL,
+        FOREIGN KEY (created_by_user_id) REFERENCES admins(id) ON DELETE SET NULL
       )
     `);
 

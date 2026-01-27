@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT_BACKEND ?? 3001;
 const NODE_ENV = process.env.NODE_ENV ?? "dev";
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? "*";
-import { searchArchetype, signAsAdmin, verifyAuth, logout, searchCards, selectCard, confirmCards, registerArchetype } from "./routes/index";
+import { searchArchetype, signAsAdmin, verifyAuth, logout, searchCards, selectCard, confirmCards, registerArchetype, registeredArchetypes } from "./routes/index";
 
 app.use(
   cors({
@@ -24,6 +24,7 @@ app.use("/api/searchArchetype", searchArchetype);
 
 // Archetypes
 app.use("/api/archetypes", registerArchetype);
+app.use("/api/archetypes", registeredArchetypes);
 
 // Cards
 app.use("/api/cards/search", searchCards);

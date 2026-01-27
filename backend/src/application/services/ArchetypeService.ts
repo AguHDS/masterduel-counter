@@ -269,7 +269,7 @@ export class ArchetypeService implements ArchetypeServicePort {
   async registerArchetypeWithPairs(
     registerData: RegisterArchetypeDTO,
   ): Promise<Archetype> {
-    const { archetypeId, cardPairs, headerCardId } = registerData;
+    const { archetypeId, cardPairs, headerCardId, userId } = registerData;
 
     // Validar que el arquetipo existe
     const archetype = await this.repository.findById(archetypeId);
@@ -326,6 +326,7 @@ export class ArchetypeService implements ArchetypeServicePort {
     // Marcar el arquetipo como registrado
     const updatedArchetype = await this.repository.markAsRegistered(
       archetypeId,
+      userId,
     );
 
     if (!updatedArchetype) {

@@ -17,6 +17,7 @@ export interface RegisterArchetypeDTO {
   archetypeId: number;
   cardPairs: CardPairDTO[];
   headerCardId?: number;
+  userId?: number;
 }
 
 export interface ArchetypeServicePort {

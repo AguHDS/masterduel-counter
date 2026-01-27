@@ -5,13 +5,13 @@ import { SearchInput } from "@/layouts/Search";
 import { SearchResults } from "./SearchResults";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
+import { RegisteredArchetypesList } from "./RegisteredArchetypesList";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import { useAuth } from "@/features/AdminAuth/hooks/useAuth";
 import {
   registerArchetype,
   getArchetypeCardPairs,
   getArchetypeWithHeaderCard,
-  searchArchetypes,
   type Archetype,
 } from "../api/archetypeApi";
 import { type Card } from "../api/cardApi";
@@ -40,7 +40,11 @@ interface HeaderCard {
   imageUrl: string;
 }
 
-export const ArchetypeAnalyzerContainer = () => {
+interface ArchetypeAnalyzerContainerProps {
+  resetSearchRef?: React.MutableRefObject<(() => void) | null>;
+}
+
+export const ArchetypeAnalyzerContainer = ({ resetSearchRef }: ArchetypeAnalyzerContainerProps = {}) => {
   const { archetypeId } = useParams<{ archetypeId: string }>();
   const navigate = useNavigate();
   
@@ -63,15 +67,18 @@ export const ArchetypeAnalyzerContainer = () => {
   // Cargar arquetipo desde URL al montar el componente
   useEffect(() => {
     const loadArchetypeFromUrl = async () => {
-      if (archetypeId && !selectedArchetype) {
+      if (archetypeId) {
         try {
-          const response = await searchArchetypes(archetypeId);
-          if (response.data.archetypes.length > 0) {
-            setSelectedArchetype(response.data.archetypes[0]);
+          const response = await getArchetypeWithHeaderCard(Number(archetypeId));
+          if (response.success) {
+            setSelectedArchetype(response.archetype);
           }
         } catch (error) {
           console.error("Error loading archetype from URL:", error);
         }
+      } else {
+        // Si no hay archetypeId en la URL, limpiar el arquetipo seleccionado
+        setSelectedArchetype(null);
       }
     };
 
@@ -139,10 +146,34 @@ export const ArchetypeAnalyzerContainer = () => {
     setSearchQuery(value);
   };
 
+  const handleResetSearch = () => {
+    setSearchQuery("");
+  };
+
+  // Asignar handleResetSearch al ref para que pueda ser llamado desde fuera
+  useEffect(() => {
+    if (resetSearchRef) {
+      resetSearchRef.current = handleResetSearch;
+    }
+  }, [resetSearchRef]);
+
   const handleSelectArchetype = (archetype: Archetype) => {
     setSelectedArchetype(archetype);
     setIsEditMode(false);
     navigate(`/archetype/${archetype.id}`);
+  };
+
+  const handleSelectArchetypeFromList = async (archetypeId: number) => {
+    try {
+      const response = await getArchetypeWithHeaderCard(archetypeId);
+      if (response.success) {
+        setSelectedArchetype(response.archetype);
+        setIsEditMode(false);
+        navigate(`/archetype/${archetypeId}`);
+      }
+    } catch (error) {
+      console.error("Error loading archetype:", error);
+    }
   };
 
   const handleManualSearch = () => {
@@ -227,7 +258,9 @@ export const ArchetypeAnalyzerContainer = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-900 to-slate-900 shadow-2xl border-t border-b border-blue-700 overflow-hidden flex flex-col min-h-[600px] relative">
+    <div className="bg-gradient-to-br from-blue-900 to-slate-900 shadow-2xl border-t border-b border-blue-700 overflow-hidden flex flex-col min-h-[600px] relative" style={{ 
+      boxShadow: '0 -20px 40px -20px rgba(0, 0, 0, 0.5), 0 20px 40px -20px rgba(0, 0, 0, 0.5)' 
+    }}>
       <SearchInput
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
@@ -329,32 +362,34 @@ export const ArchetypeAnalyzerContainer = () => {
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center space-y-4">
-              <div className="bg-gradient-to-br from-blue-800 to-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto border border-blue-600">
-                <Layers className="w-10 h-10 text-blue-300" />
-              </div>
-              <p className="text-blue-200 text-lg font-medium">
-                {searchQuery
-                  ? "Search for archetypes above"
-                  : "Card collection will appear here"}
-              </p>
-              <p className="text-blue-400 text-sm">
-                {searchQuery
-                  ? "Select an archetype from the search results to view details"
-                  : "Use the search bar above to find your favorite cards"}
-              </p>
+          <>
+            {!searchQuery ? (
+              <RegisteredArchetypesList onSelectArchetype={handleSelectArchetypeFromList} />
+            ) : (
+              <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center space-y-4">
+                  <div className="bg-gradient-to-br from-blue-800 to-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto border border-blue-600">
+                    <Layers className="w-10 h-10 text-blue-300" />
+                  </div>
+                  <p className="text-blue-200 text-lg font-medium">
+                    Search for archetypes above
+                  </p>
+                  <p className="text-blue-400 text-sm">
+                    Select an archetype from the search results to view details
+                  </p>
 
-              {searchQuery.trim() && (
-                <button
-                  onClick={handleManualSearch}
-                  className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  Search Now
-                </button>
-              )}
-            </div>
-          </div>
+                  {searchQuery.trim() && (
+                    <button
+                      onClick={handleManualSearch}
+                      className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      Search Now
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 

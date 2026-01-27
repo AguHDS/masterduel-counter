@@ -1,4 +1,4 @@
-import { Archetype, ArchetypeCreateDTO, ArchetypeUpdateDTO, ArchetypeWithHeaderCard } from "../Archetype";
+import { Archetype, ArchetypeCreateDTO, ArchetypeUpdateDTO, ArchetypeWithHeaderCard, ArchetypeWithCreator } from "../Archetype";
 
 export interface ArchetypeRepository {
   searchByName(searchTerm: string, limit?: number): Promise<Archetype[]>;
@@ -7,9 +7,10 @@ export interface ArchetypeRepository {
   findByIdWithHeaderCard(id: number): Promise<ArchetypeWithHeaderCard | null>;
   findByName(name: string): Promise<Archetype | null>;
   findAll(limit?: number, offset?: number): Promise<Archetype[]>;
+  findAllRegisteredWithCreator(): Promise<ArchetypeWithCreator[]>;
   create(archetypeData: ArchetypeCreateDTO): Promise<Archetype>;
   update(id: number, archetypeData: ArchetypeUpdateDTO): Promise<Archetype | null>;
-  markAsRegistered(id: number): Promise<Archetype | null>;
+  markAsRegistered(id: number, userId?: number): Promise<Archetype | null>;
   markAsUnregistered(id: number): Promise<Archetype | null>;
   incrementPendingRequests(id: number): Promise<Archetype | null>;
   decrementPendingRequests(id: number): Promise<Archetype | null>;

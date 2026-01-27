@@ -145,8 +145,11 @@ export const CardPairItem = ({
               rows={3}
             />
           ) : comment ? (
-            <div className="w-full px-2 py-1 text-slate-300 text-sm italic">
-              {comment}
+            <div className="w-full flex flex-col items-center space-y-1">
+              <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Tip</span>
+              <div className="text-center px-2 py-1 text-slate-300 text-sm italic">
+                {comment}
+              </div>
             </div>
           ) : null}
         </div>

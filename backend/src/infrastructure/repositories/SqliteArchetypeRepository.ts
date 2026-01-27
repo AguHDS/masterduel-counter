@@ -4,6 +4,7 @@ import {
   ArchetypeCreateDTO,
   ArchetypeUpdateDTO,
   ArchetypeWithHeaderCard,
+  ArchetypeWithCreator,
 } from "@/domain/Archetype";
 import Database from "better-sqlite3";
 
@@ -20,7 +21,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
   ): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered, pending_requests, header_card_id,
-             created_at, updated_at
+             created_by_user_id, created_at, updated_at
       FROM archetypes 
       WHERE LOWER(name) LIKE LOWER(?) 
       ORDER BY name 
@@ -36,7 +37,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
   ): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered, pending_requests, header_card_id,
-             created_at, updated_at
+             created_by_user_id, created_at, updated_at
       FROM archetypes 
       WHERE LOWER(name) LIKE LOWER(?) 
       ORDER BY name 
@@ -49,7 +50,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
   async findById(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered, pending_requests, header_card_id,
-             created_at, updated_at
+             created_by_user_id, created_at, updated_at
       FROM archetypes 
       WHERE id = ?
     `);
@@ -66,6 +67,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
         a.registered,
         a.pending_requests,
         a.header_card_id,
+        a.created_by_user_id,
         a.created_at,
         a.updated_at,
         c.name as header_card_name,
@@ -83,7 +85,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
   async findByName(name: string): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered, pending_requests, header_card_id,
-             created_at, updated_at
+             created_by_user_id, created_at, updated_at
       FROM archetypes 
       WHERE name = ?
     `);
@@ -112,7 +114,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
   async findAll(limit?: number, offset?: number): Promise<Archetype[]> {
     let sql = `
       SELECT id, name, registered, pending_requests, header_card_id,
-             created_at, updated_at
+             created_by_user_id, created_at, updated_at
       FROM archetypes 
       ORDER BY name
     `;
@@ -126,6 +128,27 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
 
     const stmt = this.db.prepare(sql);
     return stmt.all() as Archetype[];
+  }
+
+  async findAllRegisteredWithCreator(): Promise<ArchetypeWithCreator[]> {
+    const stmt = this.db.prepare(`
+      SELECT 
+        a.id, 
+        a.name, 
+        a.registered, 
+        a.pending_requests, 
+        a.header_card_id,
+        a.created_by_user_id,
+        a.created_at, 
+        a.updated_at,
+        ad.username as created_by_username
+      FROM archetypes a
+      LEFT JOIN admins ad ON a.created_by_user_id = ad.id
+      WHERE a.registered = 1
+      ORDER BY a.created_at DESC
+    `);
+
+    return stmt.all() as ArchetypeWithCreator[];
   }
 
   async update(
@@ -175,15 +198,18 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async markAsRegistered(id: number): Promise<Archetype | null> {
+  async markAsRegistered(id: number, userId?: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       UPDATE archetypes 
-      SET registered = 1, pending_requests = 0, updated_at = CURRENT_TIMESTAMP
+      SET registered = 1, 
+          pending_requests = 0, 
+          created_by_user_id = COALESCE(?, created_by_user_id),
+          updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-      RETURNING id, name, registered, pending_requests, header_card_id, created_at, updated_at
+      RETURNING id, name, registered, pending_requests, header_card_id, created_by_user_id, created_at, updated_at
     `);
 
-    const result = stmt.get(id) as Archetype | undefined;
+    const result = stmt.get(userId || null, id) as Archetype | undefined;
     return result || null;
   }
 

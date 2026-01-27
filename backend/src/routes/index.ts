@@ -6,6 +6,7 @@ import searchCards from "./searchCards";
 import selectCard from "./selectCard";
 import confirmCards from "./confirmCards";
 import registerArchetype from "./registerArchetype";
+import registeredArchetypes from "./registeredArchetypes";
 
 export {
   searchArchetype,
@@ -16,4 +17,5 @@ export {
   selectCard,
   confirmCards,
   registerArchetype,
+  registeredArchetypes,
 };

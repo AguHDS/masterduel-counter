@@ -119,28 +119,22 @@ export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPa
         </div>
       )}
 
-      {/* Add Pair Button */}
+      {/* Action Buttons */}
       {isEditMode && (
-        <div className="flex justify-center pt-7">
+        <div className="flex justify-center gap-4 pt-7">
           <button
             onClick={addPair}
-            className="flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-lg"
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-lg text-sm"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             <span>Add Card Pair</span>
           </button>
-        </div>
-      )}
-
-      {/* Save Button */}
-      {isEditMode && (
-        <div className="flex justify-center pt-4">
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center space-x-2 px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg transition-colors shadow-lg font-semibold"
+            className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg transition-colors shadow-lg text-sm"
           >
-            <Save className="w-5 h-5" />
+            <Save className="w-4 h-4" />
             <span>{saving ? "Saving..." : "Save Changes"}</span>
           </button>
         </div>

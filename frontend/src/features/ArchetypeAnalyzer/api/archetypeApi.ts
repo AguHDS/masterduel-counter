@@ -4,6 +4,11 @@ export interface Archetype {
   registered: boolean;
   pending_requests: number;
   header_card_id: number | null;
+  created_by_user_id: number | null;
+}
+
+export interface ArchetypeWithCreator extends Archetype {
+  created_by_username?: string;
 }
 
 export interface SearchResponse {
@@ -11,6 +16,13 @@ export interface SearchResponse {
     archetypes: Archetype[];
   };
   message?: string;
+}
+
+export interface RegisteredArchetypesResponse {
+  success: boolean;
+  data: {
+    archetypes: ArchetypeWithCreator[];
+  };
 }
 
 export interface CardPairDTO {
@@ -183,6 +195,34 @@ export const getArchetypeCardPairs = async (
     return await response.json();
   } catch (error) {
     console.error("Error fetching archetype card pairs:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get all registered archetypes with creator information
+ */
+export const getRegisteredArchetypes = async (): Promise<RegisteredArchetypesResponse> => {
+  try {
+    const API_BASE =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const url = `${API_BASE}/api/archetypes/registered`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Error ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching registered archetypes:", error);
     throw error;
   }
 };

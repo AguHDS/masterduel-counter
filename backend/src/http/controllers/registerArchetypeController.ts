@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 import { RegisterArchetypeDTO } from "@/application/ports/ArchetypeService";
+import { AuthenticatedRequest } from "../middlewares/verifyAdminAuthMiddleware";
 
 export const registerArchetypeController = async (
   req: Request,
@@ -14,11 +15,13 @@ export const registerArchetypeController = async (
     }
     const archetypeId = parseInt(id);
     const { cardPairs, headerCardId } = req.body;
+    const userId = (req as AuthenticatedRequest).admin?.adminId;
 
     const registerData: RegisterArchetypeDTO = {
       archetypeId,
       cardPairs,
       headerCardId,
+      userId,
     };
 
     const archetypeService = getDependencies().getArchetypeService();
