@@ -1,47 +1,33 @@
-import { useState } from "react";
-import { loginAdmin, type AdminLoginCredentials } from "../api/authApi";
+import { useLoginAdmin } from "./useAuthQueries";
 import { useAuth } from "./useAuth";
+import type { AdminLoginCredentials } from "../api/authApi";
 
 export const useAdminAuth = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { setAuthenticated } = useAuth();
+  const loginMutation = useLoginAdmin();
+  const { refetch } = useAuth();
 
   const login = async (credentials: AdminLoginCredentials) => {
-    setIsLoading(true);
-    setError(null);
-
     try {
-      const response = await loginAdmin(credentials);
+      const response = await loginMutation.mutateAsync(credentials);
 
-      if (response.success) {
-        // Token is stored in httpOnly cookie by the server
-        // Optionally store only non-sensitive user info
-        if (response.admin?.username) {
-          localStorage.setItem("adminUsername", response.admin.username);
-          // Update global auth context
-          setAuthenticated({
-            id: response.admin.id,
-            username: response.admin.username,
-          });
-        }
+      if (response.success && response.admin?.username) {
+        localStorage.setItem("adminUsername", response.admin.username);
+        // Refetch auth state to update context
+        refetch();
         return { success: true };
       } else {
-        setError(response.message);
         return { success: false, error: response.message };
       }
-    } catch {
-      const errorMessage = "An unexpected error occurred";
-      setError(errorMessage);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
       return { success: false, error: errorMessage };
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return {
     login,
-    isLoading,
-    error,
+    isLoading: loginMutation.isPending,
+    error: loginMutation.error?.message ?? null,
   };
 };
+

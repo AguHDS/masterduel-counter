@@ -1,4 +1,4 @@
-import { getDependencies } from "@/compositionRoot";
+import { getDependencies } from "../compositionRoot";
 
 async function cleanupTemporaryCards() {
   console.log("Starting cleanup of temporary cards...");

@@ -9,10 +9,10 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts",
-    "populate-archetypes": "ts-node-esm -r tsconfig-paths/register src/scripts/populate-archetypes.ts",
-    "reset-db": "ts-node-esm -r tsconfig-paths/register src/scripts/reset-database.ts",
-    "create-admin": "ts-node-esm -r tsconfig-paths/register src/scripts/create-admin.ts",
-    "cleanup-cards": "ts-node-esm -r tsconfig-paths/register src/scripts/cleanup-temporary-cards.ts"
+    "populate-archetypes": "tsx src/scripts/populate-archetypes.ts",
+    "reset-db": "tsx src/scripts/reset-database.ts",
+    "create-admin": "tsx src/scripts/create-admin.ts",
+    "cleanup-cards": "tsx src/scripts/cleanup-temporary-cards.ts"
   },
   "keywords": [],
   "author": "",
@@ -37,7 +37,9 @@
     "typescript-eslint": "^8.53.1"
   },
   "dependencies": {
+    "@prisma/client": "^7.3.0",
     "bcrypt": "^6.0.0",
+    "better-auth": "^1.4.17",
     "better-sqlite3": "^12.6.2",
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
@@ -47,6 +49,7 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.0",
     "node-cron": "^3.0.3",
+    "prisma": "^7.3.0",
     "streamifier": "^0.1.1",
     "tsconfig-paths": "^4.2.0"
   }

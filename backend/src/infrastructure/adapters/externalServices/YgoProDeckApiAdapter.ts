@@ -9,7 +9,7 @@ export class YgoProDeckApiAdapter implements CardApiService {
       const response = await fetch(url);
 
       if (!response.ok) {
-        if (response.status === 404) {
+        if (response.status === 404 || response.status === 400) {
           return [];
         }
         throw new Error(`API request failed: ${response.status} ${response.statusText}`);
@@ -23,7 +23,7 @@ export class YgoProDeckApiAdapter implements CardApiService {
         card_images: card.card_images,
       }));
     } catch (error) {
-      if (error instanceof Error && error.message.includes("404")) {
+      if (error instanceof Error && (error.message.includes("404") || error.message.includes("400"))) {
         return [];
       }
       throw new Error(`Failed to search cards: ${error instanceof Error ? error.message : "Unknown error"}`);
