@@ -1,5 +1,5 @@
 import { Plus, Save } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CardPairItem } from "./CardPairItem";
 import { CardSearchModal } from "./CardSearchModal";
 import { type Card } from "../api/cardApi";
@@ -8,25 +8,35 @@ interface CardPair {
   id: string;
   topCard: Card | null;
   bottomCard: Card | null;
+  effectiveness?: string;
+  comment?: string;
 }
 
 interface CardPairEditorProps {
   isEditMode: boolean;
   onSave: (pairs: CardPair[]) => Promise<void>;
+  initialPairs?: CardPair[];
 }
 
 type SelectingPosition = { pairId: string; position: "top" | "bottom" } | null;
 
-export const CardPairEditor = ({ isEditMode, onSave }: CardPairEditorProps) => {
-  const [pairs, setPairs] = useState<CardPair[]>([]);
+export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPairEditorProps) => {
+  const [pairs, setPairs] = useState<CardPair[]>(initialPairs);
   const [selectingPosition, setSelectingPosition] = useState<SelectingPosition>(null);
   const [saving, setSaving] = useState(false);
+
+  // Actualizar pares cuando cambian los initialPairs
+  useEffect(() => {
+    setPairs(initialPairs);
+  }, [initialPairs]);
 
   const addPair = () => {
     const newPair: CardPair = {
       id: `pair-${Date.now()}`,
       topCard: null,
       bottomCard: null,
+      effectiveness: undefined,
+      comment: undefined,
     };
     setPairs([...pairs, newPair]);
   };
@@ -57,17 +67,26 @@ export const CardPairEditor = ({ isEditMode, onSave }: CardPairEditorProps) => {
     setSelectingPosition(null);
   };
 
-  const handleSave = async () => {
-    // Validación: al menos 1 par completo
-    const completePairs = pairs.filter((p) => p.topCard && p.bottomCard);
-    
-    if (completePairs.length === 0) {
-      alert("Please add at least one complete card pair before saving.");
-      return;
-    }
+  const handleEffectivenessChange = (pairId: string, effectiveness: string) => {
+    setPairs(
+      pairs.map((pair) =>
+        pair.id === pairId ? { ...pair, effectiveness } : pair
+      )
+    );
+  };
 
+  const handleCommentChange = (pairId: string, comment: string) => {
+    setPairs(
+      pairs.map((pair) =>
+        pair.id === pairId ? { ...pair, comment } : pair
+      )
+    );
+  };
+
+  const handleSave = async () => {
     setSaving(true);
     try {
+      const completePairs = pairs.filter((p) => p.topCard && p.bottomCard);
       await onSave(completePairs);
     } catch (error) {
       console.error("Error saving pairs:", error);
@@ -87,8 +106,12 @@ export const CardPairEditor = ({ isEditMode, onSave }: CardPairEditorProps) => {
               key={pair.id}
               topCard={pair.topCard}
               bottomCard={pair.bottomCard}
+              effectiveness={pair.effectiveness}
+              comment={pair.comment}
               onSelectTop={() => openCardSelection(pair.id, "top")}
               onSelectBottom={() => openCardSelection(pair.id, "bottom")}
+              onEffectivenessChange={(value) => handleEffectivenessChange(pair.id, value)}
+              onCommentChange={(value) => handleCommentChange(pair.id, value)}
               onRemove={() => removePair(pair.id)}
               isEditMode={isEditMode}
             />
@@ -98,7 +121,7 @@ export const CardPairEditor = ({ isEditMode, onSave }: CardPairEditorProps) => {
 
       {/* Add Pair Button */}
       {isEditMode && (
-        <div className="flex justify-center">
+        <div className="flex justify-center pt-7">
           <button
             onClick={addPair}
             className="flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-lg"
@@ -110,7 +133,7 @@ export const CardPairEditor = ({ isEditMode, onSave }: CardPairEditorProps) => {
       )}
 
       {/* Save Button */}
-      {isEditMode && pairs.length > 0 && (
+      {isEditMode && (
         <div className="flex justify-center pt-4">
           <button
             onClick={handleSave}

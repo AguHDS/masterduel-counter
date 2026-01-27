@@ -9,6 +9,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/archetype/:archetypeId" element={<HomePage />} />
           <Route path="/signAsAdmin" element={<SignAsAdminPage />} />
         </Routes>
       </Router>

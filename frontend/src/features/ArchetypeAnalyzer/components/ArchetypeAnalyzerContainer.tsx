@@ -1,23 +1,57 @@
-import { useState } from "react";
-import { Layers, Edit3 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Layers, Edit3, Image } from "lucide-react";
 import { SearchInput } from "@/layouts/Search";
 import { SearchResults } from "./SearchResults";
 import { CardPairEditor } from "./CardPairEditor";
+import { CardSearchModal } from "./CardSearchModal";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import { useAuth } from "@/features/AdminAuth/hooks/useAuth";
-import { confirmCards } from "../api/cardApi";
-import { type Archetype } from "../api/archetypeApi";
+import {
+  registerArchetype,
+  getArchetypeCardPairs,
+  getArchetypeWithHeaderCard,
+  searchArchetypes,
+  type Archetype,
+} from "../api/archetypeApi";
+import { type Card } from "../api/cardApi";
 
 interface CardPair {
   id: string;
-  topCard: { id: number; name: string; imageUrl: string; imageUrlSmall: string } | null;
-  bottomCard: { id: number; name: string; imageUrl: string; imageUrlSmall: string } | null;
+  topCard: {
+    id: number;
+    name: string;
+    imageUrl: string;
+    imageUrlSmall: string;
+  } | null;
+  bottomCard: {
+    id: number;
+    name: string;
+    imageUrl: string;
+    imageUrlSmall: string;
+  } | null;
+  effectiveness?: string;
+  comment?: string;
+}
+
+interface HeaderCard {
+  id: number;
+  name: string;
+  imageUrl: string;
 }
 
 export const ArchetypeAnalyzerContainer = () => {
+  const { archetypeId } = useParams<{ archetypeId: string }>();
+  const navigate = useNavigate();
+  
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedArchetype, setSelectedArchetype] = useState<Archetype | null>(null);
+  const [selectedArchetype, setSelectedArchetype] = useState<Archetype | null>(
+    null,
+  );
   const [isEditMode, setIsEditMode] = useState(false);
+  const [loadedPairs, setLoadedPairs] = useState<CardPair[]>([]);
+  const [headerCard, setHeaderCard] = useState<HeaderCard | null>(null);
+  const [isSelectingHeader, setIsSelectingHeader] = useState(false);
   const { isAuthenticated } = useAuth();
 
   const { results, loading, error, performSearch } = useArchetypeSearch({
@@ -26,6 +60,81 @@ export const ArchetypeAnalyzerContainer = () => {
     limit: 20,
   });
 
+  // Cargar arquetipo desde URL al montar el componente
+  useEffect(() => {
+    const loadArchetypeFromUrl = async () => {
+      if (archetypeId && !selectedArchetype) {
+        try {
+          const response = await searchArchetypes(archetypeId);
+          if (response.data.archetypes.length > 0) {
+            setSelectedArchetype(response.data.archetypes[0]);
+          }
+        } catch (error) {
+          console.error("Error loading archetype from URL:", error);
+        }
+      }
+    };
+
+    loadArchetypeFromUrl();
+  }, [archetypeId]);
+
+  // Cargar pares de cartas y carta header cuando se selecciona un arquetipo registrado
+  useEffect(() => {
+    const loadArchetypeData = async () => {
+      if (selectedArchetype && selectedArchetype.registered) {
+        try {
+          // Cargar pares de cartas
+          const pairsResponse = await getArchetypeCardPairs(
+            selectedArchetype.id,
+          );
+          const pairs: CardPair[] = pairsResponse.cardPairs.map((pair) => ({
+            id: pair.id.toString(),
+            topCard: {
+              id: pair.top_card_id,
+              name: pair.top_card_name,
+              imageUrl: pair.top_card_image_url,
+              imageUrlSmall: pair.top_card_image_url_small,
+            },
+            bottomCard: {
+              id: pair.bottom_card_id,
+              name: pair.bottom_card_name,
+              imageUrl: pair.bottom_card_image_url,
+              imageUrlSmall: pair.bottom_card_image_url_small,
+            },
+            effectiveness: pair.effectiveness || undefined,
+            comment: pair.comment || undefined,
+          }));
+          setLoadedPairs(pairs);
+
+          // Cargar carta header si existe
+          if (selectedArchetype.header_card_id) {
+            const headerResponse = await getArchetypeWithHeaderCard(
+              selectedArchetype.id,
+            );
+            if (headerResponse.archetype.header_card_image_url) {
+              setHeaderCard({
+                id: headerResponse.archetype.header_card_id!,
+                name: headerResponse.archetype.header_card_name!,
+                imageUrl: headerResponse.archetype.header_card_image_url,
+              });
+            }
+          } else {
+            setHeaderCard(null);
+          }
+        } catch (error) {
+          console.error("Error loading archetype data:", error);
+          setLoadedPairs([]);
+          setHeaderCard(null);
+        }
+      } else {
+        setLoadedPairs([]);
+        setHeaderCard(null);
+      }
+    };
+
+    loadArchetypeData();
+  }, [selectedArchetype]);
+
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
   };
@@ -33,6 +142,7 @@ export const ArchetypeAnalyzerContainer = () => {
   const handleSelectArchetype = (archetype: Archetype) => {
     setSelectedArchetype(archetype);
     setIsEditMode(false);
+    navigate(`/archetype/${archetype.id}`);
   };
 
   const handleManualSearch = () => {
@@ -49,34 +159,75 @@ export const ArchetypeAnalyzerContainer = () => {
     setIsEditMode(true);
   };
 
+  const handleHeaderCardSelected = (card: Card) => {
+    setHeaderCard({
+      id: card.id,
+      name: card.name,
+      imageUrl: card.imageUrl,
+    });
+    setIsSelectingHeader(false);
+  };
+
   const handleSaveCards = async (pairs: CardPair[]) => {
     if (!selectedArchetype) return;
 
+    // Si no hay pares, marcar como no registrado
+    if (pairs.length === 0) {
+      try {
+        const response = await registerArchetype(selectedArchetype.id, []);
+        alert("Archetype unmarked as registered successfully");
+        setSelectedArchetype(response.archetype);
+        setHeaderCard(null);
+        setIsEditMode(false);
+      } catch (error) {
+        console.error("Error unmarking archetype:", error);
+        alert(
+          error instanceof Error
+            ? error.message
+            : "Failed to update archetype. Please try again.",
+        );
+      }
+      return;
+    }
+
+    if (!headerCard) {
+      alert("Please select a header card for this archetype.");
+      return;
+    }
+
     try {
-      // Extraer todos los IDs de cartas para confirmarlos en el backend
-      const cardIds = pairs.flatMap((pair) => {
-        const ids: number[] = [];
-        if (pair.topCard) ids.push(pair.topCard.id);
-        if (pair.bottomCard) ids.push(pair.bottomCard.id);
-        return ids;
-      });
+      // Preparar los pares de cartas en el formato del backend
+      const cardPairs = pairs.map((pair) => ({
+        topCardId: pair.topCard!.id,
+        bottomCardId: pair.bottomCard!.id,
+        effectiveness: pair.effectiveness,
+        comment: pair.comment,
+      }));
 
-      // Confirmar cartas en Cloudinary (marcarlas como permanentes)
-      await confirmCards(cardIds);
+      // Registrar el arquetipo con los pares y la carta header en el backend
+      // Esto confirmará las cartas, guardará los pares, y marcará el arquetipo como registrado
+      const response = await registerArchetype(
+        selectedArchetype.id,
+        cardPairs,
+        headerCard.id,
+      );
 
-      // Aquí podrías hacer una llamada adicional para marcar el arquetipo como registrado
-      // Por ahora, simplemente actualizamos el estado local
-      alert("Archetype registered successfully!");
-      setSelectedArchetype({ ...selectedArchetype, registered: true });
+      alert(response.message);
+      setSelectedArchetype(response.archetype);
       setIsEditMode(false);
     } catch (error) {
       console.error("Error saving archetype:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to register archetype. Please try again.",
+      );
       throw error;
     }
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-900 to-slate-900 rounded-2xl shadow-2xl border border-blue-700 overflow-hidden flex flex-col min-h-[600px] relative">
+    <div className="bg-gradient-to-br from-blue-900 to-slate-900 shadow-2xl border-t border-b border-blue-700 overflow-hidden flex flex-col min-h-[600px] relative">
       <SearchInput
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
@@ -95,55 +246,78 @@ export const ArchetypeAnalyzerContainer = () => {
         {selectedArchetype ? (
           <div className="space-y-6">
             <div className="text-center space-y-6">
-              <div className="bg-gradient-to-br from-blue-800 to-slate-800 w-24 h-24 rounded-full flex items-center justify-center mx-auto border-2 border-blue-500">
-                <Layers className="w-12 h-12 text-blue-300" />
-              </div>
-
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">
                   {selectedArchetype.name}
                 </h2>
-                <div className="inline-flex items-center space-x-4 bg-slate-800/50 px-4 py-2 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-slate-400">ID:</span>
-                    <span className="text-blue-300 font-mono">
-                      {selectedArchetype.id}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-slate-400">Status:</span>
-                    <span
-                      className={
-                        selectedArchetype.registered
-                          ? "text-green-400"
-                          : "text-red-400"
-                      }
-                    >
-                      {selectedArchetype.registered
-                        ? "Registered"
-                        : "Not registered"}
-                    </span>
-                  </div>
-                  {selectedArchetype.pending_requests > 0 && (
-                    <div className="flex items-center space-x-2">
-                      <span className="text-slate-400">Requests:</span>
-                      <span className="text-yellow-400">
-                        {selectedArchetype.pending_requests}
-                      </span>
-                    </div>
-                  )}
-                </div>
               </div>
+              {/* Header Card Image o Ícono */}
+              <div className="relative">
+                {headerCard ? (
+                  <div className="w-48 h-auto mx-auto rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
+                    <img
+                      src={headerCard.imageUrl}
+                      alt={headerCard.name}
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="bg-gradient-to-br from-blue-800 to-slate-800 w-24 h-24 rounded-full flex items-center justify-center mx-auto border-2 border-blue-500">
+                    <Layers className="w-12 h-12 text-blue-300" />
+                  </div>
+                )}
 
-              <div className="flex items-center justify-center space-x-4">
-                <button
-                  onClick={() => setSelectedArchetype(null)}
-                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
-                >
-                  Back to Search
-                </button>
+                {/* Botón para seleccionar header card en modo edición */}
+                {isEditMode && (
+                  <button
+                    onClick={() => setIsSelectingHeader(true)}
+                    className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors shadow-lg"
+                  >
+                    <Image className="w-4 h-4" />
+                    <span>
+                      {headerCard ? "Change Header" : "Select Header"}
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
 
-                {isAuthenticated && !selectedArchetype.registered && !isEditMode && (
+            {/* Card Pair Editor */}
+            <div className="mt-8">
+              <CardPairEditor
+                isEditMode={isEditMode}
+                onSave={handleSaveCards}
+                initialPairs={loadedPairs}
+              />
+            </div>
+
+            {/* Botones de navegación */}
+            <div className="flex items-center justify-center space-x-4 mt-8">
+              <button
+                onClick={() => {
+                  setSelectedArchetype(null);
+                  navigate("/");
+                }}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+              >
+                Back to Search
+              </button>
+
+              {isAuthenticated &&
+                selectedArchetype.registered &&
+                !isEditMode && (
+                  <button
+                    onClick={() => setIsEditMode(true)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    <span>Edit Archetype</span>
+                  </button>
+                )}
+
+              {isAuthenticated &&
+                !selectedArchetype.registered &&
+                !isEditMode && (
                   <button
                     onClick={handleRegisterClick}
                     className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
@@ -152,12 +326,6 @@ export const ArchetypeAnalyzerContainer = () => {
                     <span>Register Archetype</span>
                   </button>
                 )}
-              </div>
-            </div>
-
-            {/* Card Pair Editor */}
-            <div className="mt-8">
-              <CardPairEditor isEditMode={isEditMode} onSave={handleSaveCards} />
             </div>
           </div>
         ) : (
@@ -189,6 +357,16 @@ export const ArchetypeAnalyzerContainer = () => {
           </div>
         )}
       </div>
+
+      {/* Modal para seleccionar carta header */}
+      {isSelectingHeader && (
+        <CardSearchModal
+          isOpen={true}
+          onClose={() => setIsSelectingHeader(false)}
+          onSelectCard={handleHeaderCardSelected}
+          title="Select Header Card"
+        />
+      )}
     </div>
   );
 };

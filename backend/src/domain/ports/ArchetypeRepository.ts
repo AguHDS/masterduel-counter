@@ -1,9 +1,10 @@
-import { Archetype, ArchetypeCreateDTO, ArchetypeUpdateDTO } from "../Archetype";
+import { Archetype, ArchetypeCreateDTO, ArchetypeUpdateDTO, ArchetypeWithHeaderCard } from "../Archetype";
 
 export interface ArchetypeRepository {
   searchByName(searchTerm: string, limit?: number): Promise<Archetype[]>;
   searchAutocomplete(searchTerm: string, limit?: number): Promise<Archetype[]>;
   findById(id: number): Promise<Archetype | null>;
+  findByIdWithHeaderCard(id: number): Promise<ArchetypeWithHeaderCard | null>;
   findByName(name: string): Promise<Archetype | null>;
   findAll(limit?: number, offset?: number): Promise<Archetype[]>;
   create(archetypeData: ArchetypeCreateDTO): Promise<Archetype>;

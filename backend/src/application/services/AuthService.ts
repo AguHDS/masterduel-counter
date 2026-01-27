@@ -65,7 +65,7 @@ export class AuthServiceImpl implements AuthService {
         adminId: decoded.adminId,
         username: decoded.username
       };
-    } catch (error) {
+    } catch {
       return {
         valid: false
       };

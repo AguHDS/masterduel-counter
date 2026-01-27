@@ -3,6 +3,7 @@ import {
   Archetype,
   ArchetypeCreateDTO,
   ArchetypeUpdateDTO,
+  ArchetypeWithHeaderCard,
 } from "@/domain/Archetype";
 import Database from "better-sqlite3";
 
@@ -18,7 +19,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     limit: number = 50,
   ): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
-      SELECT id, name, registered, pending_requests,
+      SELECT id, name, registered, pending_requests, header_card_id,
              created_at, updated_at
       FROM archetypes 
       WHERE LOWER(name) LIKE LOWER(?) 
@@ -34,7 +35,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     limit: number = 10,
   ): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
-      SELECT id, name, registered, pending_requests,
+      SELECT id, name, registered, pending_requests, header_card_id,
              created_at, updated_at
       FROM archetypes 
       WHERE LOWER(name) LIKE LOWER(?) 
@@ -47,7 +48,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
 
   async findById(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
-      SELECT id, name, registered, pending_requests,
+      SELECT id, name, registered, pending_requests, header_card_id,
              created_at, updated_at
       FROM archetypes 
       WHERE id = ?
@@ -57,9 +58,31 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
+  async findByIdWithHeaderCard(id: number): Promise<ArchetypeWithHeaderCard | null> {
+    const stmt = this.db.prepare(`
+      SELECT 
+        a.id,
+        a.name,
+        a.registered,
+        a.pending_requests,
+        a.header_card_id,
+        a.created_at,
+        a.updated_at,
+        c.name as header_card_name,
+        c.image_url as header_card_image_url,
+        c.image_url_small as header_card_image_url_small
+      FROM archetypes a
+      LEFT JOIN cards c ON a.header_card_id = c.id
+      WHERE a.id = ?
+    `);
+
+    const result = stmt.get(id) as ArchetypeWithHeaderCard | undefined;
+    return result || null;
+  }
+
   async findByName(name: string): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
-      SELECT id, name, registered, pending_requests,
+      SELECT id, name, registered, pending_requests, header_card_id,
              created_at, updated_at
       FROM archetypes 
       WHERE name = ?
@@ -71,15 +94,16 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
 
   async create(archetypeData: ArchetypeCreateDTO): Promise<Archetype> {
     const stmt = this.db.prepare(`
-      INSERT INTO archetypes (name, registered, pending_requests)
-      VALUES (?, ?, ?)
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
+      INSERT INTO archetypes (name, registered, pending_requests, header_card_id)
+      VALUES (?, ?, ?, ?)
+      RETURNING id, name, registered, pending_requests, header_card_id, created_at, updated_at
     `);
 
     const result = stmt.get(
       archetypeData.name,
       archetypeData.registered ? 1 : 0,
       archetypeData.pending_requests || 0,
+      archetypeData.header_card_id || null,
     ) as Archetype;
 
     return result;
@@ -87,7 +111,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
 
   async findAll(limit?: number, offset?: number): Promise<Archetype[]> {
     let sql = `
-      SELECT id, name, registered, pending_requests,
+      SELECT id, name, registered, pending_requests, header_card_id,
              created_at, updated_at
       FROM archetypes 
       ORDER BY name
@@ -109,7 +133,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     archetypeData: ArchetypeUpdateDTO,
   ): Promise<Archetype | null> {
     const updates: string[] = [];
-    const params: any[] = [];
+    const params: (string | number | null)[] = [];
 
     if (archetypeData.name !== undefined) {
       updates.push("name = ?");
@@ -126,6 +150,11 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       params.push(archetypeData.pending_requests);
     }
 
+    if (archetypeData.header_card_id !== undefined) {
+      updates.push("header_card_id = ?");
+      params.push(archetypeData.header_card_id);
+    }
+
     if (updates.length === 0) {
       return this.findById(id);
     }
@@ -137,7 +166,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       UPDATE archetypes 
       SET ${updates.join(", ")}
       WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
+      RETURNING id, name, registered, pending_requests, header_card_id, created_at, updated_at
     `;
 
     const stmt = this.db.prepare(sql);
@@ -151,7 +180,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       UPDATE archetypes 
       SET registered = 1, pending_requests = 0, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
+      RETURNING id, name, registered, pending_requests, header_card_id, created_at, updated_at
     `);
 
     const result = stmt.get(id) as Archetype | undefined;
@@ -163,7 +192,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       UPDATE archetypes 
       SET registered = 0, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
+      RETURNING id, name, registered, pending_requests, header_card_id, created_at, updated_at
     `);
 
     const result = stmt.get(id) as Archetype | undefined;
@@ -176,7 +205,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       SET pending_requests = pending_requests + 1, 
           updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
+      RETURNING id, name, registered, pending_requests, header_card_id, created_at, updated_at
     `);
 
     const result = stmt.get(id) as Archetype | undefined;
@@ -189,7 +218,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       SET pending_requests = MAX(pending_requests - 1, 0), 
           updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
+      RETURNING id, name, registered, pending_requests, header_card_id, created_at, updated_at
     `);
 
     const result = stmt.get(id) as Archetype | undefined;
@@ -201,7 +230,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       UPDATE archetypes 
       SET pending_requests = 0, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
+      RETURNING id, name, registered, pending_requests, header_card_id, created_at, updated_at
     `);
 
     const result = stmt.get(id) as Archetype | undefined;
@@ -210,7 +239,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
 
   async findWithPendingRequests(limit?: number): Promise<Archetype[]> {
     let sql = `
-      SELECT id, name, registered, pending_requests,
+      SELECT id, name, registered, pending_requests, header_card_id,
              created_at, updated_at
       FROM archetypes 
       WHERE pending_requests > 0

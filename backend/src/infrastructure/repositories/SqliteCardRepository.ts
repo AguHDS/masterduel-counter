@@ -12,13 +12,13 @@ export class SqliteCardRepository implements CardRepository {
       ORDER BY is_temporary ASC, created_at DESC
     `);
     
-    const rows = stmt.all(`%${name}%`) as any[];
+    const rows = stmt.all(`%${name}%`) as unknown[];
     return rows.map(this.mapRowToCard);
   }
 
   async findById(id: number): Promise<Card | null> {
     const stmt = this.db.prepare("SELECT * FROM cards WHERE id = ?");
-    const row = stmt.get(id) as any;
+    const row = stmt.get(id);
     
     if (!row) {
       return null;
@@ -73,7 +73,7 @@ export class SqliteCardRepository implements CardRepository {
       AND datetime(created_at) <= datetime('now', '-' || ? || ' hours')
     `);
     
-    const rows = stmt.all(hours) as any[];
+    const rows = stmt.all(hours) as unknown[];
     return rows.map(this.mapRowToCard);
   }
 
@@ -82,16 +82,26 @@ export class SqliteCardRepository implements CardRepository {
     stmt.run(id);
   }
 
-  private mapRowToCard(row: any): Card {
+  private mapRowToCard(row: unknown): Card {
+    const r = row as {
+      id: number;
+      name: string;
+      image_url: string;
+      image_url_small: string;
+      cloudinary_public_id: string;
+      cloudinary_public_id_small: string;
+      is_temporary: number;
+      created_at: string;
+    };
     return {
-      id: row.id,
-      name: row.name,
-      imageUrl: row.image_url,
-      imageUrlSmall: row.image_url_small,
-      cloudinaryPublicId: row.cloudinary_public_id,
-      cloudinaryPublicIdSmall: row.cloudinary_public_id_small,
-      isTemporary: row.is_temporary === 1,
-      createdAt: row.created_at,
+      id: r.id,
+      name: r.name,
+      imageUrl: r.image_url,
+      imageUrlSmall: r.image_url_small,
+      cloudinaryPublicId: r.cloudinary_public_id,
+      cloudinaryPublicIdSmall: r.cloudinary_public_id_small,
+      isTemporary: r.is_temporary === 1,
+      createdAt: r.created_at,
     };
   }
 }

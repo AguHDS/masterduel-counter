@@ -2,12 +2,14 @@ import { DatabasePort, createYugiohDatabase } from "@/database/database";
 import { SqliteArchetypeRepository } from "@/infrastructure/repositories/SqliteArchetypeRepository";
 import { SqliteAdminRepository } from "@/infrastructure/repositories/SqliteAdminRepository";
 import { SqliteCardRepository } from "@/infrastructure/repositories/SqliteCardRepository";
+import { SqliteArchetypeCardPairRepository } from "@/infrastructure/repositories/SqliteArchetypeCardPairRepository";
 import { ArchetypeService } from "@/application/services/ArchetypeService";
 import { AuthServiceImpl } from "@/application/services/AuthService";
 import { CardServiceImpl } from "@/application/services/CardService";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import { AdminRepository } from "@/domain/ports/AdminRepository";
 import { CardRepository } from "@/domain/ports/CardRepository";
+import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
 import { AuthService } from "@/application/ports/AuthService";
 import { CardService } from "@/application/ports/CardService";
 import { CardApiService } from "@/domain/ports/externalServices/CardApiService";
@@ -20,6 +22,7 @@ export class Dependencies {
   private archetypeRepository: ArchetypeRepository | null = null;
   private adminRepository: AdminRepository | null = null;
   private cardRepository: CardRepository | null = null;
+  private cardPairRepository: ArchetypeCardPairRepository | null = null;
   private archetypeService: ArchetypeService | null = null;
   private authService: AuthService | null = null;
   private cardService: CardService | null = null;
@@ -57,6 +60,15 @@ export class Dependencies {
     return this.cardRepository;
   }
 
+  getCardPairRepository(): ArchetypeCardPairRepository {
+    if (!this.cardPairRepository) {
+      this.cardPairRepository = new SqliteArchetypeCardPairRepository(
+        this.database.getConnection(),
+      );
+    }
+    return this.cardPairRepository;
+  }
+
   getCardApiService(): CardApiService {
     if (!this.cardApiService) {
       this.cardApiService = new YgoProDeckApiAdapter();
@@ -75,6 +87,8 @@ export class Dependencies {
     if (!this.archetypeService) {
       this.archetypeService = new ArchetypeService(
         this.getArchetypeRepository(),
+        this.getCardPairRepository(),
+        this.getCardService(),
       );
     }
     return this.archetypeService;

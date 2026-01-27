@@ -7,7 +7,7 @@ export const HomePage = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }}>
         <ArchetypeAnalyzerContainer />
       </main>
 

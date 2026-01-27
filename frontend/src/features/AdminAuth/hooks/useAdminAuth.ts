@@ -30,7 +30,7 @@ export const useAdminAuth = () => {
         setError(response.message);
         return { success: false, error: response.message };
       }
-    } catch (err) {
+    } catch {
       const errorMessage = "An unexpected error occurred";
       setError(errorMessage);
       return { success: false, error: errorMessage };

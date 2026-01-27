@@ -17,7 +17,7 @@ export class YgoProDeckApiAdapter implements CardApiService {
 
       const data = await response.json();
       
-      return data.data.map((card: any) => ({
+      return data.data.map((card: { id: number; name: string; card_images: unknown[] }) => ({
         id: card.id,
         name: card.name,
         card_images: card.card_images,
