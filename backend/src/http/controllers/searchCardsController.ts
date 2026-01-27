@@ -10,7 +10,25 @@ export const searchCardsController = async (req: Request, res: Response) => {
     
     res.json({ results });
   } catch (error) {
+    // If it's a 400 error from the API, it's not a critical error (just no results)
+    if (error instanceof Error && error.message.includes("400 Bad Request")) {
+      return res.status(400).json({ 
+        error: "Search failed",
+        message: "Unable to search cards. Please try a different query."
+      });
+    }
+    
+    // Log real errors
     console.error("Error searching cards:", error);
+    
+    // If it's any other API error, return a more specific message
+    if (error instanceof Error && error.message.includes("API request failed")) {
+      return res.status(400).json({ 
+        error: "Search failed",
+        message: "Unable to search cards. Please try a different query."
+      });
+    }
+    
     res.status(500).json({ 
       error: "Failed to search cards",
       message: error instanceof Error ? error.message : "Unknown error"

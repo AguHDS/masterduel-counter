@@ -37,7 +37,9 @@
     "typescript-eslint": "^8.53.1"
   },
   "dependencies": {
+    "@prisma/client": "^7.3.0",
     "bcrypt": "^6.0.0",
+    "better-auth": "^1.4.17",
     "better-sqlite3": "^12.6.2",
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
@@ -47,6 +49,7 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.0",
     "node-cron": "^3.0.3",
+    "prisma": "^7.3.0",
     "streamifier": "^0.1.1",
     "tsconfig-paths": "^4.2.0"
   }

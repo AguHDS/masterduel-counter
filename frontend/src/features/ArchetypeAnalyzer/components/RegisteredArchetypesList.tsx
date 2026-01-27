@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { getRegisteredArchetypes, type ArchetypeWithCreator } from "../api/archetypeApi";
+import { useRegisteredArchetypes } from "../hooks/useArchetypeQueries";
 
 interface RegisteredArchetypesListProps {
   onSelectArchetype: (archetypeId: number) => void;
@@ -9,29 +9,10 @@ interface RegisteredArchetypesListProps {
 const ITEMS_PER_PAGE = 10;
 
 export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchetypesListProps) => {
-  const [archetypes, setArchetypes] = useState<ArchetypeWithCreator[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const { data, isLoading, error } = useRegisteredArchetypes();
 
-  useEffect(() => {
-    const loadRegisteredArchetypes = async () => {
-      try {
-        setLoading(true);
-        const response = await getRegisteredArchetypes();
-        setArchetypes(response.data.archetypes);
-      } catch (err) {
-        console.error("Error loading registered archetypes:", err);
-        setError("Failed to load registered archetypes");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRegisteredArchetypes();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-blue-300 text-lg">Loading archetypes...</div>
@@ -42,10 +23,12 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-red-400 text-lg">{error}</div>
+        <div className="text-red-400 text-lg">Failed to load registered archetypes</div>
       </div>
     );
   }
+
+  const archetypes = data?.data.archetypes || [];
 
   if (archetypes.length === 0) {
     return (
@@ -73,18 +56,14 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
       {/* Título */}
       <h2 className="text-base font-semibold text-blue-400 mb-2 self-start ml-[5%]">Registered Decks</h2>
       
-      {/* Contenedor exterior (90% del padre) */}
       <div className="w-[90%] bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-xl p-6">
-        {/* Lista interior (95% del contenedor) */}
         <div className="w-[95%] mx-auto">
-          {/* Header de la lista */}
           <div className="grid grid-cols-[60px_1fr_200px] gap-4 mb-4 pb-3 border-b border-blue-600">
             <div className="text-blue-300 font-semibold text-sm">ID</div>
             <div className="text-blue-300 font-semibold text-sm">Name</div>
             <div className="text-blue-300 font-semibold text-sm">Created by</div>
           </div>
 
-          {/* Items de la lista */}
           <div className="space-y-2">
             {currentArchetypes.map((archetype, index) => (
               <button
@@ -101,7 +80,6 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
             ))}
           </div>
 
-          {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-4 mt-6">
               <button

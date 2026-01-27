@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import { searchArchetypes, type Archetype } from "../api/archetypeApi";
+import { useState, useEffect } from "react";
+import { useSearchArchetypes } from "./useArchetypeQueries";
+import type { Archetype } from "../api/archetypeApi";
 
 interface UseArchetypeSearchProps {
   searchQuery: string;
@@ -12,63 +13,25 @@ export const useArchetypeSearch = ({
   debounceDelay = 300,
   limit = 50,
 }: UseArchetypeSearchProps) => {
-  const [results, setResults] = useState<Archetype[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastSearch, setLastSearch] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
 
-  const performSearch = useCallback(
-    async (query: string) => {
-      if (!query.trim()) {
-        setResults([]);
-        setLastSearch("");
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-      setLastSearch(query);
-
-      try {
-        const response = await searchArchetypes(query, limit);
-        setResults(response.data.archetypes);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to search archetypes",
-        );
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [limit],
-  );
-
-  // Debounce to avoid excessive calls
+  // Debounce the search query
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (searchQuery !== lastSearch) {
-        performSearch(searchQuery);
-      }
+      setDebouncedQuery(searchQuery);
     }, debounceDelay);
 
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchQuery, debounceDelay, lastSearch, performSearch]);
+    return () => clearTimeout(handler);
+  }, [searchQuery, debounceDelay]);
 
-  useEffect(() => {
-    if (!searchQuery.trim() && results.length > 0) {
-      setResults([]);
-      setLastSearch("");
-    }
-  }, [searchQuery, results.length]);
+  // Use TanStack Query hook with debounced query
+  const { data, isLoading, error } = useSearchArchetypes(debouncedQuery, limit);
+
+  const results: Archetype[] = data?.data?.archetypes || [];
 
   return {
     results,
-    loading,
-    error,
-    lastSearch,
-    performSearch: () => performSearch(searchQuery),
+    loading: isLoading,
+    error: error?.message || null,
   };
 };

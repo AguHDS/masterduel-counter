@@ -1,3 +1,5 @@
+import { axiosClient } from "@/lib/http";
+
 export interface Archetype {
   id: number;
   name: string;
@@ -71,31 +73,18 @@ export const searchArchetypes = async (
   searchTerm: string,
   limit: number = 50,
 ): Promise<SearchResponse> => {
-  try {
-    if (!searchTerm || searchTerm.trim() === "") {
-      return { data: { archetypes: [] } };
-    }
-
-    const API_BASE =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const url = `${API_BASE}/api/searchArchetype?name=${encodeURIComponent(searchTerm)}&limit=${limit}`;
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error searching archetypes:", error);
-    throw error;
+  if (!searchTerm || searchTerm.trim() === "") {
+    return { data: { archetypes: [] } };
   }
+
+  const response = await axiosClient.get<SearchResponse>("/api/searchArchetype", {
+    params: {
+      name: searchTerm,
+      limit,
+    },
+  });
+  
+  return response.data;
 };
 
 /**
@@ -106,30 +95,12 @@ export const registerArchetype = async (
   cardPairs: CardPairDTO[],
   headerCardId?: number,
 ): Promise<RegisterArchetypeResponse> => {
-  try {
-    const API_BASE =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const url = `${API_BASE}/api/archetypes/${archetypeId}/register`;
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ cardPairs, headerCardId }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `Error ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error registering archetype:", error);
-    throw error;
-  }
+  const response = await axiosClient.post<RegisterArchetypeResponse>(
+    `/api/archetypes/${archetypeId}/register`,
+    { cardPairs, headerCardId }
+  );
+  
+  return response.data;
 };
 
 /**
@@ -145,28 +116,8 @@ export const getArchetypeWithHeaderCard = async (
     header_card_image_url_small?: string;
   };
 }> => {
-  try {
-    const API_BASE =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const url = `${API_BASE}/api/archetypes/${archetypeId}/with-header`;
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `Error ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching archetype with header:", error);
-    throw error;
-  }
+  const response = await axiosClient.get(`/api/archetypes/${archetypeId}/with-header`);
+  return response.data;
 };
 
 /**
@@ -175,54 +126,20 @@ export const getArchetypeWithHeaderCard = async (
 export const getArchetypeCardPairs = async (
   archetypeId: number,
 ): Promise<GetCardPairsResponse> => {
-  try {
-    const API_BASE =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const url = `${API_BASE}/api/archetypes/${archetypeId}/card-pairs`;
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `Error ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching archetype card pairs:", error);
-    throw error;
-  }
+  const response = await axiosClient.get<GetCardPairsResponse>(
+    `/api/archetypes/${archetypeId}/card-pairs`
+  );
+  
+  return response.data;
 };
 
 /**
  * Get all registered archetypes with creator information
  */
 export const getRegisteredArchetypes = async (): Promise<RegisteredArchetypesResponse> => {
-  try {
-    const API_BASE =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const url = `${API_BASE}/api/archetypes/registered`;
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `Error ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching registered archetypes:", error);
-    throw error;
-  }
+  const response = await axiosClient.get<RegisteredArchetypesResponse>(
+    "/api/archetypes/registered"
+  );
+  
+  return response.data;
 };

@@ -1,7 +1,5 @@
-import { createContext, useState, useEffect } from "react";
-import type { ReactNode } from "react";
-import { verifyAuth } from "../api/verifyAuthApi";
-import { logoutAdmin } from "../api/logoutApi";
+import { createContext, type ReactNode } from "react";
+import { useVerifyAuth, useLogoutAdmin } from "../hooks/useAuthQueries";
 
 export interface Admin {
   id: number;
@@ -12,9 +10,8 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   admin: Admin | null;
-  logout: () => Promise<{ success: boolean }>;
-  refetch: () => Promise<void>;
-  setAuthenticated: (admin: Admin) => void;
+  logout: () => void;
+  refetch: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -26,52 +23,21 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [admin, setAdmin] = useState<Admin | null>(null);
+  const { data: authData, isLoading, refetch } = useVerifyAuth();
+  const logoutMutation = useLogoutAdmin();
 
-  const checkAuth = async () => {
-    setIsLoading(true);
-    try {
-      const result = await verifyAuth();
-      setIsAuthenticated(result.authenticated);
-      if (result.authenticated && result.admin) {
-        setAdmin(result.admin);
-      } else {
-        setAdmin(null);
-      }
-    } catch (error) {
-      console.error("Error verifying authentication:", error);
-      setIsAuthenticated(false);
-      setAdmin(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const isAuthenticated = authData?.authenticated ?? false;
+  const admin = authData?.admin ?? null;
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const logout = async () => {
-    try {
-      const result = await logoutAdmin();
-      if (result.success) {
-        setIsAuthenticated(false);
-        setAdmin(null);
-        localStorage.removeItem("adminUsername");
-        window.location.href = "/";
-      }
-      return result;
-    } catch (error) {
-      console.error("Error during logout:", error);
-      return { success: false };
-    }
-  };
-
-  const setAuthenticated = (adminData: Admin) => {
-    setIsAuthenticated(true);
-    setAdmin(adminData);
+  const logout = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result.success) {
+          localStorage.removeItem("adminUsername");
+          window.location.href = "/";
+        }
+      },
+    });
   };
 
   const value: AuthContextType = {
@@ -79,9 +45,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isLoading,
     admin,
     logout,
-    refetch: checkAuth,
-    setAuthenticated,
+    refetch,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+

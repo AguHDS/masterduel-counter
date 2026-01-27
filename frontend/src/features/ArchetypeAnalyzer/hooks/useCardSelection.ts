@@ -1,55 +1,45 @@
-import { useState, useCallback } from "react";
-import { searchCards, selectCard, type CardSearchResult, type Card } from "../api/cardApi";
+import { useState, useEffect } from "react";
+import { useSearchCards, useSelectCard } from "./useCardQueries";
+import type { Card } from "../api/cardApi";
 
 export const useCardSelection = () => {
-  const [searchResults, setSearchResults] = useState<CardSearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  
+  const { data: searchResults = [], isLoading, error } = useSearchCards(debouncedQuery);
+  const selectMutation = useSelectCard();
 
-  const search = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
 
-    setLoading(true);
-    setError(null);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
+  const search = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const select = async (cardId: number): Promise<Card | null> => {
     try {
-      const results = await searchCards(query);
-      setSearchResults(results);
+      return await selectMutation.mutateAsync(cardId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to search cards");
-      setSearchResults([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const select = useCallback(async (cardId: number): Promise<Card | null> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const card = await selectCard(cardId);
-      return card;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to select card");
+      console.error("Failed to select card:", err);
       return null;
-    } finally {
-      setLoading(false);
     }
-  }, []);
+  };
 
-  const clearSearch = useCallback(() => {
-    setSearchResults([]);
-    setError(null);
-  }, []);
+  const clearSearch = () => {
+    setSearchQuery("");
+    setDebouncedQuery("");
+  };
 
   return {
     searchResults,
-    loading,
-    error,
+    loading: isLoading || selectMutation.isPending,
+    error: error?.message || selectMutation.error?.message || null,
     search,
     select,
     clearSearch,
