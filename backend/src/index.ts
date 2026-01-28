@@ -18,6 +18,7 @@ import {
   registerArchetype,
   registeredArchetypes,
   deleteUserInstance,
+  instanceLikes,
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
   createCreateOrUpdateInstanceRoute,
@@ -43,6 +44,7 @@ app.use("/api/logout", logout);
 app.use("/api/archetypes", registerArchetype);
 app.use("/api/archetypes", registeredArchetypes);
 app.use("/api", deleteUserInstance);
+app.use("/api", instanceLikes);
 app.use("/api", createGetArchetypeInstancesRoute(getDependencies()));
 app.use("/api", createGetUserInstancesRoute(getDependencies()));
 app.use("/api", createCreateOrUpdateInstanceRoute(getDependencies()));

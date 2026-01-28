@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, ArrowUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { instanceApi, type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
@@ -26,6 +26,7 @@ export const ArchetypeInstancesList = ({
     queryKey: ["archetypeInstances", archetypeId],
     queryFn: () => instanceApi.getInstancesByArchetypeId(archetypeId),
     enabled: !!archetypeId,
+    staleTime: 0, // Always refetch to ensure likes are up to date
   });
 
   // Check if current user already has an instance
@@ -50,14 +51,14 @@ export const ArchetypeInstancesList = ({
   if (!instances || instances.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <div className="text-blue-300 text-lg">No instances created yet for {archetypeName}</div>
+        <div className="text-blue-300 text-lg">No guides created yet for {archetypeName}</div>
         {isAuthenticated && (
           <button
             onClick={onCreateInstance}
-            className="flex items-center space-x-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-lg"
+            className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-lg"
           >
             <Plus className="w-5 h-5" />
-            <span>Be the first to create an instance!</span>
+            <span>Be the first to create a guide!</span>
           </button>
         )}
       </div>
@@ -79,18 +80,22 @@ export const ArchetypeInstancesList = ({
 
   return (
     <div className="flex flex-col items-center p-8">
+      <h1 className="text-2xl font-bold text-white mb-2">
+        {archetypeName}
+      </h1>
+      
       <div className="w-full flex items-center justify-between mb-4 px-[5%]">
         <h2 className="text-base font-semibold text-blue-400">
-          {archetypeName} - User Instances ({instances.length})
+          All Guides ({instances.length})
         </h2>
         
         {isAuthenticated && !userHasInstance && (
           <button
             onClick={onCreateInstance}
-            className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-lg"
+            className="flex items-center space-x-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm"
           >
-            <Plus className="w-4 h-4" />
-            <span>Create My Instance</span>
+            <Plus className="w-3 h-3" />
+            <span>Create</span>
           </button>
         )}
       </div>
@@ -127,7 +132,10 @@ export const ArchetypeInstancesList = ({
                   <div className="text-blue-300 text-sm">
                     {new Date(instance.updatedAt).toLocaleDateString()}
                   </div>
-                  <div className="text-blue-300 text-sm">{instance.likes}</div>
+                  <div className="text-green-400 text-sm flex items-center gap-1">
+                    <ArrowUp className="w-3 h-3" />
+                    <span>{instance.likes}</span>
+                  </div>
                 </button>
               );
             })}

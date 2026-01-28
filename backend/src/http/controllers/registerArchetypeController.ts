@@ -56,7 +56,7 @@ export const registerArchetypeController = async (
       // Extraer IDs de cartas únicas
       const cardIds = Array.from(
         new Set([
-          ...cardPairs.flatMap((pair: { topCardId: number; bottomCardId: number }) => [pair.topCardId, pair.bottomCardId]),
+          ...cardPairs.flatMap((pair: { topCardIds: number[]; bottomCardIds: number[] }) => [...pair.topCardIds, ...pair.bottomCardIds]),
           ...(headerCardId ? [headerCardId] : []),
         ]),
       );
@@ -68,10 +68,10 @@ export const registerArchetypeController = async (
       await cardPairRepository.deleteByInstanceId(instance.id);
 
       // Crear nuevos pares
-      const pairsToCreate = cardPairs.map((pair: { topCardId: number; bottomCardId: number; effectiveness?: string; comment?: string }, index: number) => ({
+      const pairsToCreate = cardPairs.map((pair: { topCardIds: number[]; bottomCardIds: number[]; effectiveness?: string; comment?: string }, index: number) => ({
         instance_id: instance.id,
-        top_card_id: pair.topCardId,
-        bottom_card_id: pair.bottomCardId,
+        top_card_ids: pair.topCardIds,
+        bottom_card_ids: pair.bottomCardIds,
         pair_order: index + 1,
         effectiveness: pair.effectiveness || null,
         comment: pair.comment || null,

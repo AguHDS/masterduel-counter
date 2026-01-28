@@ -36,18 +36,18 @@ export interface UserInstanceWithCardPairs {
   } | null;
   cardPairs: Array<{
     id: number;
-    topCard: {
+    topCards: Array<{
       id: number;
       name: string;
       imageUrl: string;
       imageUrlSmall: string;
-    } | null;
-    bottomCard: {
+    }>;
+    bottomCards: Array<{
       id: number;
       name: string;
       imageUrl: string;
       imageUrlSmall: string;
-    } | null;
+    }>;
     effectiveness?: string;
     comment?: string;
   }>;
@@ -88,6 +88,25 @@ export const instanceApi = {
   deleteUserInstance: async (archetypeId: number, userId: string): Promise<{ success: boolean; message: string }> => {
     const response = await axios.delete<{ success: boolean; message: string }>(
       `${API_BASE_URL}/api/archetypes/${archetypeId}/users/${userId}/instance`,
+      { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  // Toggle like on an instance (add if not exists, remove if exists)
+  toggleInstanceLike: async (archetypeId: number, instanceId: number): Promise<{ success: boolean; liked: boolean; likes: number }> => {
+    const response = await axios.post<{ success: boolean; liked: boolean; likes: number }>(
+      `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/like`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  // Check if current user has liked an instance
+  getInstanceLikeStatus: async (archetypeId: number, instanceId: number): Promise<{ success: boolean; liked: boolean }> => {
+    const response = await axios.get<{ success: boolean; liked: boolean }>(
+      `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/like/status`,
       { withCredentials: true }
     );
     return response.data;

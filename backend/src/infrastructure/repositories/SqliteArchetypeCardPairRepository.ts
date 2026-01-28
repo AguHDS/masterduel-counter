@@ -18,67 +18,115 @@ export class SqliteArchetypeCardPairRepository
   async createMany(
     pairs: ArchetypeCardPairCreateDTO[],
   ): Promise<ArchetypeCardPair[]> {
-    const stmt = this.db.prepare(`
-      INSERT INTO archetype_card_pairs (instance_id, top_card_id, bottom_card_id, pair_order, effectiveness, comment)
-      VALUES (?, ?, ?, ?, ?, ?)
-      RETURNING id, instance_id, top_card_id, bottom_card_id, pair_order, effectiveness, comment, created_at
+    const pairStmt = this.db.prepare(`
+      INSERT INTO archetype_card_pairs (instance_id, pair_order, effectiveness, comment)
+      VALUES (?, ?, ?, ?)
+      RETURNING id, instance_id, pair_order, effectiveness, comment, created_at
     `);
 
-    const results: ArchetypeCardPair[]= [];
+    const topStmt = this.db.prepare(`
+      INSERT INTO card_pair_top (pair_id, card_id, position)
+      VALUES (?, ?, ?)
+    `);
+
+    const bottomStmt = this.db.prepare(`
+      INSERT INTO card_pair_bottom (pair_id, card_id, position)
+      VALUES (?, ?, ?)
+    `);
+
+    const results: ArchetypeCardPair[] = [];
 
     for (const pair of pairs) {
-      const result = stmt.get(
+      // Create the pair
+      const result = pairStmt.get(
         pair.instance_id,
-        pair.top_card_id,
-        pair.bottom_card_id,
         pair.pair_order,
         pair.effectiveness || null,
         pair.comment || null,
-      ) as ArchetypeCardPair;
-      results.push(result);
+      ) as Omit<ArchetypeCardPair, 'top_card_ids' | 'bottom_card_ids'>;
+
+      pair.top_card_ids.forEach((cardId, index) => {
+        topStmt.run(result.id, cardId, index);
+      });
+
+      pair.bottom_card_ids.forEach((cardId, index) => {
+        bottomStmt.run(result.id, cardId, index);
+      });
+
+      results.push({
+        ...result,
+        top_card_ids: pair.top_card_ids,
+        bottom_card_ids: pair.bottom_card_ids,
+      });
     }
 
     return results;
   }
 
   async findByInstanceId(instanceId: number): Promise<ArchetypeCardPair[]> {
-    const stmt = this.db.prepare(`
-      SELECT id, instance_id, top_card_id, bottom_card_id, pair_order, effectiveness, comment, created_at
+    const pairStmt = this.db.prepare(`
+      SELECT id, instance_id, pair_order, effectiveness, comment, created_at
       FROM archetype_card_pairs
       WHERE instance_id = ?
       ORDER BY pair_order
     `);
 
-    return stmt.all(instanceId) as ArchetypeCardPair[];
+    const topStmt = this.db.prepare(`
+      SELECT card_id
+      FROM card_pair_top
+      WHERE pair_id = ?
+      ORDER BY position
+    `);
+
+    const bottomStmt = this.db.prepare(`
+      SELECT card_id
+      FROM card_pair_bottom
+      WHERE pair_id = ?
+      ORDER BY position
+    `);
+
+    const pairs = pairStmt.all(instanceId) as Omit<ArchetypeCardPair, 'top_card_ids' | 'bottom_card_ids'>[];
+
+    return pairs.map((pair) => ({
+      ...pair,
+      top_card_ids: (topStmt.all(pair.id) as Array<{ card_id: number }>).map(r => r.card_id),
+      bottom_card_ids: (bottomStmt.all(pair.id) as Array<{ card_id: number }>).map(r => r.card_id),
+    }));
   }
 
   async findByInstanceIdWithDetails(
     instanceId: number,
   ): Promise<ArchetypeCardPairWithDetails[]> {
-    const stmt = this.db.prepare(`
-      SELECT 
-        acp.id,
-        acp.instance_id,
-        acp.top_card_id,
-        acp.bottom_card_id,
-        acp.pair_order,
-        acp.effectiveness,
-        acp.comment,
-        acp.created_at,
-        tc.name as top_card_name,
-        tc.image_url as top_card_image_url,
-        tc.image_url_small as top_card_image_url_small,
-        bc.name as bottom_card_name,
-        bc.image_url as bottom_card_image_url,
-        bc.image_url_small as bottom_card_image_url_small
-      FROM archetype_card_pairs acp
-      INNER JOIN cards tc ON acp.top_card_id = tc.id
-      INNER JOIN cards bc ON acp.bottom_card_id = bc.id
-      WHERE acp.instance_id = ?
-      ORDER BY acp.pair_order
+    const pairStmt = this.db.prepare(`
+      SELECT id, instance_id, pair_order, effectiveness, comment, created_at
+      FROM archetype_card_pairs
+      WHERE instance_id = ?
+      ORDER BY pair_order
     `);
 
-    return stmt.all(instanceId) as ArchetypeCardPairWithDetails[];
+    const topStmt = this.db.prepare(`
+      SELECT c.id, c.name, c.image_url, c.image_url_small
+      FROM card_pair_top cpt
+      INNER JOIN cards c ON cpt.card_id = c.id
+      WHERE cpt.pair_id = ?
+      ORDER BY cpt.position
+    `);
+
+    const bottomStmt = this.db.prepare(`
+      SELECT c.id, c.name, c.image_url, c.image_url_small
+      FROM card_pair_bottom cpb
+      INNER JOIN cards c ON cpb.card_id = c.id
+      WHERE cpb.pair_id = ?
+      ORDER BY cpb.position
+    `);
+
+    const pairs = pairStmt.all(instanceId) as Omit<ArchetypeCardPairWithDetails, 'top_cards' | 'bottom_cards'>[];
+
+    return pairs.map((pair) => ({
+      ...pair,
+      top_cards: topStmt.all(pair.id) as Array<{ id: number; name: string; image_url: string; image_url_small: string }>,
+      bottom_cards: bottomStmt.all(pair.id) as Array<{ id: number; name: string; image_url: string; image_url_small: string }>,
+    }));
   }
 
   async deleteByInstanceId(instanceId: number): Promise<void> {

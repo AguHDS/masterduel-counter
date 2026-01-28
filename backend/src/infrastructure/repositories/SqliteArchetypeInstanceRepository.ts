@@ -65,7 +65,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       JOIN users u ON ai.user_id = u.id
       LEFT JOIN cards c ON ai.header_card_id = c.id
       WHERE ai.archetype_id = ?
-      ORDER BY ai.updated_at DESC
+      ORDER BY ai.likes DESC, ai.updated_at DESC
     `);
 
     interface InstanceRow {

@@ -5,7 +5,7 @@ import { CardRepository } from "../../domain/ports/CardRepository";
 import { ArchetypeRepository } from "../../domain/ports/ArchetypeRepository";
 import { UserRepository } from "../../domain/ports/UserRepository";
 
-/** Obtiene la instancia completa de un usuario para un arquetipo (card pairs, header, comentarios, efectividad) */
+/** Gets the full instance of a user for an archetype (card pairs, header, comments, effectiveness) */
 export const createGetUserInstanceController = (
   instanceRepository: ArchetypeInstanceRepository,
   cardPairRepository: ArchetypeCardPairRepository,
@@ -87,18 +87,18 @@ export const createGetUserInstanceController = (
         headerCard,
         cardPairs: cardPairs.map(pair => ({
           id: pair.id,
-          topCard: {
-            id: pair.top_card_id,
-            name: pair.top_card_name,
-            imageUrl: pair.top_card_image_url,
-            imageUrlSmall: pair.top_card_image_url_small,
-          },
-          bottomCard: {
-            id: pair.bottom_card_id,
-            name: pair.bottom_card_name,
-            imageUrl: pair.bottom_card_image_url,
-            imageUrlSmall: pair.bottom_card_image_url_small,
-          },
+          topCards: pair.top_cards.map(card => ({
+            id: card.id,
+            name: card.name,
+            imageUrl: card.image_url,
+            imageUrlSmall: card.image_url_small,
+          })),
+          bottomCards: pair.bottom_cards.map(card => ({
+            id: card.id,
+            name: card.name,
+            imageUrl: card.image_url,
+            imageUrlSmall: card.image_url_small,
+          })),
           effectiveness: pair.effectiveness,
           comment: pair.comment,
         })),

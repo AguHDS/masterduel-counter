@@ -52,13 +52,13 @@ export const useArchetypeWithHeader = (archetypeId: number | undefined) => {
 
 /**
  * Hook to get user instance with card pairs
- * Uses DEFAULT stale time
+ * Uses staleTime: 0 to always refetch and ensure likes are up to date
  */
 export const useUserInstance = (archetypeId: number | undefined, userId: string | undefined) => {
   return useQuery<UserInstanceWithCardPairs>({
     queryKey: ["userInstance", archetypeId, userId],
     queryFn: () => instanceApi.getUserInstance(archetypeId!, userId!),
-    staleTime: QUERY_STALE_TIME.DEFAULT,
+    staleTime: 0, // Always refetch to ensure likes and data are up to date
     enabled: !!archetypeId && !!userId,
   });
 };

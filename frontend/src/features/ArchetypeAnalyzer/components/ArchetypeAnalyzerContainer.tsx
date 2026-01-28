@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Layers, Edit3, Image, Trash2 } from "lucide-react";
+import { Layers, Plus, Edit3, Image, Trash2, ThumbsUp } from "lucide-react";
 import { SearchInput } from "@/layouts/Search";
 import { SearchResults } from "./SearchResults";
 import { CardPairEditor } from "./CardPairEditor";
@@ -11,6 +11,7 @@ import { ArchetypeInstancesList } from "./ArchetypeInstancesList";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import { useAuth } from "@/features/auth";
 import { instanceApi } from "@/lib/http/instanceApi";
+import { useQueryClient } from "@tanstack/react-query";
 import { 
   useRegisterArchetype, 
   useArchetypeWithHeader,
@@ -21,18 +22,18 @@ import { type Card } from "../api/cardApi";
 
 interface CardPair {
   id: string;
-  topCard: {
+  topCards: Array<{
     id: number;
     name: string;
     imageUrl: string;
     imageUrlSmall: string;
-  } | null;
-  bottomCard: {
+  }>;
+  bottomCards: Array<{
     id: number;
     name: string;
     imageUrl: string;
     imageUrlSmall: string;
-  } | null;
+  }>;
   effectiveness?: string;
   comment?: string;
 }
@@ -59,7 +60,10 @@ export const ArchetypeAnalyzerContainer = ({
   const [loadedPairs, setLoadedPairs] = useState<CardPair[]>([]);
   const [headerCard, setHeaderCard] = useState<HeaderCard | null>(null);
   const [isSelectingHeader, setIsSelectingHeader] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
   const { isAuthenticated, user } = useAuth();
+  const queryClient = useQueryClient();
 
   // TanStack Query hooks
   const registerMutation = useRegisterArchetype();
@@ -108,12 +112,13 @@ export const ArchetypeAnalyzerContainer = ({
     if (instanceUserId && userInstanceData) {
       const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
-        topCard: pair.topCard,
-        bottomCard: pair.bottomCard,
+        topCards: pair.topCards,
+        bottomCards: pair.bottomCards,
         effectiveness: pair.effectiveness,
         comment: pair.comment,
       }));
       setLoadedPairs(pairs);
+      setLikeCount(userInstanceData.instance.likes);
 
       // Load header card if it exists
       if (userInstanceData.headerCard) {
@@ -125,11 +130,22 @@ export const ArchetypeAnalyzerContainer = ({
       } else {
         setHeaderCard(null);
       }
+
+      // Load like status if authenticated and not owner
+      if (isAuthenticated && !isOwner && archetypeId) {
+        instanceApi.getInstanceLikeStatus(parseInt(archetypeId), userInstanceData.instance.id)
+          .then(response => setLiked(response.liked))
+          .catch(error => console.error("Error loading like status:", error));
+      } else {
+        setLiked(false);
+      }
     } else {
       setLoadedPairs([]);
       setHeaderCard(null);
+      setLiked(false);
+      setLikeCount(0);
     }
-  }, [instanceUserId, userInstanceData]);
+  }, [instanceUserId, userInstanceData, isAuthenticated, isOwner, archetypeId]);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -182,8 +198,8 @@ export const ArchetypeAnalyzerContainer = ({
     if (instanceUserId && userInstanceData) {
       const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
-        topCard: pair.topCard,
-        bottomCard: pair.bottomCard,
+        topCards: pair.topCards,
+        bottomCards: pair.bottomCards,
         effectiveness: pair.effectiveness,
         comment: pair.comment,
       }));
@@ -213,15 +229,32 @@ export const ArchetypeAnalyzerContainer = ({
     try {
       await instanceApi.deleteUserInstance(parseInt(archetypeId), user.id);
       alert("Instance deleted successfully");
-      // Navigate back to the archetype list or main page
-      navigate("/");
+      window.location.href = "/";
     } catch (error) {
       console.error("Error deleting instance:", error);
       alert("Failed to delete instance. Please try again.");
     }
   };
 
-  // Helper to show archetype instances list
+  const handleToggleLike = async () => {
+    if (!isAuthenticated || !userInstanceData || !archetypeId) return;
+
+    try {
+      const response = await instanceApi.toggleInstanceLike(
+        parseInt(archetypeId),
+        userInstanceData.instance.id
+      );
+      setLiked(response.liked);
+      setLikeCount(response.likes);
+      
+      // Invalidate instances list query to update likes count everywhere
+      queryClient.invalidateQueries({ queryKey: ["archetypeInstances", parseInt(archetypeId)] });
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      alert("Failed to update like. Please try again.");
+    }
+  };
+
   const showArchetypeInstancesList = !userId && archetypeId && !instanceUserId && selectedArchetype?.registered;
 
   const handleRegisterClick = () => {
@@ -261,8 +294,8 @@ export const ArchetypeAnalyzerContainer = ({
 
     try {
       const cardPairs = pairs.map((pair) => ({
-        topCardId: pair.topCard!.id,
-        bottomCardId: pair.bottomCard!.id,
+        topCardIds: pair.topCards.map(card => card.id),
+        bottomCardIds: pair.bottomCards.map(card => card.id),
         effectiveness: pair.effectiveness,
         comment: pair.comment,
       }));
@@ -273,21 +306,19 @@ export const ArchetypeAnalyzerContainer = ({
         headerCardId: headerCard.id,
       });
 
-      alert(response.message);
       setSelectedArchetype(response.archetype);
       setIsEditMode(false);
       
-      // Navigate to the user's instance after successful registration
+      // Reload to show fresh data
       if (user?.id) {
-        navigate(`/archetype/${selectedArchetype.id}/instance/${user.id}`);
+        window.location.href = `/archetype/${selectedArchetype.id}/instance/${user.id}`;
       }
     } catch (error) {
       console.error("Error saving archetype:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Failed to register archetype. Please try again.",
-      );
+      const errorMessage = error instanceof Error
+        ? error.message
+        : "Failed to register archetype. Please try again.";
+      alert(errorMessage);
       throw error;
     }
   };
@@ -316,6 +347,22 @@ export const ArchetypeAnalyzerContainer = ({
       <div className="flex-1 p-8 overflow-auto">
         {(selectedArchetype && instanceUserId) || (selectedArchetype && !selectedArchetype.registered) ? (
           <div className="space-y-6">
+            {instanceUserId && !isOwner && isAuthenticated && selectedArchetype.registered && (
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={handleToggleLike}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors shadow-lg ${
+                    liked 
+                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                      : 'bg-slate-700 hover:bg-slate-600 text-white'
+                  }`}
+                >
+                  <ThumbsUp className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+                  <span>{likeCount}</span>
+                </button>
+              </div>
+            )}
+
             <div className="text-center space-y-6">
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">
@@ -333,20 +380,25 @@ export const ArchetypeAnalyzerContainer = ({
                     />
                   </div>
                 ) : (
-                  <div className="bg-gradient-to-br from-blue-800 to-slate-800 w-24 h-24 rounded-full flex items-center justify-center mx-auto border-2 border-blue-500">
-                    <Layers className="w-12 h-12 text-blue-300" />
-                  </div>
+                  <button
+                    onClick={() => isEditMode && setIsSelectingHeader(true)}
+                    disabled={!isEditMode}
+                    className={`bg-gradient-to-br from-blue-800 to-slate-800 w-24 h-24 rounded-full flex items-center justify-center mx-auto border-2 border-blue-500 ${
+                      isEditMode ? 'cursor-pointer hover:border-purple-500 transition-colors' : 'cursor-default'
+                    }`}
+                    title={isEditMode ? "Select Header Card" : ""}
+                  >
+                    <Plus className={`w-12 h-12 ${isEditMode ? 'text-purple-400' : 'text-blue-300'}`} />
+                  </button>
                 )}
 
-                {isEditMode && (
+                {isEditMode && headerCard && (
                   <button
                     onClick={() => setIsSelectingHeader(true)}
                     className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors shadow-lg"
                   >
                     <Image className="w-4 h-4" />
-                    <span>
-                      {headerCard ? "Change Header" : "Select Header"}
-                    </span>
+                    <span>Change Header</span>
                   </button>
                 )}
               </div>

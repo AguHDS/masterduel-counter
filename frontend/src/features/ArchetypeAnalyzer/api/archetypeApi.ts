@@ -27,8 +27,8 @@ export interface RegisteredArchetypesResponse {
 }
 
 export interface CardPairDTO {
-  topCardId: number;
-  bottomCardId: number;
+  topCardIds: number[];
+  bottomCardIds: number[];
   effectiveness?: string;
   comment?: string;
 }

@@ -1,13 +1,15 @@
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { type Card } from "../api/cardApi";
 
 interface CardPairItemProps {
-  topCard: Card | null;
-  bottomCard: Card | null;
+  topCards: Card[];
+  bottomCards: Card[];
   effectiveness?: string;
   comment?: string;
   onSelectTop: () => void;
   onSelectBottom: () => void;
+  onRemoveTopCard: (index: number) => void;
+  onRemoveBottomCard: (index: number) => void;
   onEffectivenessChange: (value: string) => void;
   onCommentChange: (value: string) => void;
   onRemove: () => void;
@@ -22,12 +24,14 @@ const EFFECTIVENESS_OPTIONS = [
 ];  
 
 export const CardPairItem = ({
-  topCard,
-  bottomCard,
+  topCards,
+  bottomCards,
   effectiveness,
   comment,
   onSelectTop,
   onSelectBottom,
+  onRemoveTopCard,
+  onRemoveBottomCard,
   onEffectivenessChange,
   onCommentChange,
   onRemove,
@@ -36,26 +40,28 @@ export const CardPairItem = ({
   const selectedOption = EFFECTIVENESS_OPTIONS.find((opt) => opt.value === effectiveness);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4 max-w-fit">
       {/* Effectiveness Label */}
-      {isEditMode ? (
-        <select
-          value={effectiveness || ""}
-          onChange={(e) => onEffectivenessChange(e.target.value)}
-          className="w-full px-3 py-2 bg-slate-700 text-white text-center font-bold text-sm rounded border-2 border-slate-600 focus:outline-none focus:border-blue-500"
-        >
-          <option value="" className="bg-slate-800">Select Effectiveness</option>
-          {EFFECTIVENESS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value} className="bg-slate-800">
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      ) : effectiveness ? (
-        <div className={`w-full text-center text-xl font-bold uppercase tracking-wide ${selectedOption?.color || "text-slate-400"}`}>
-          {selectedOption?.label}
-        </div>
-      ) : null}
+      <div className="min-h-[40px] flex items-center justify-center">
+        {isEditMode ? (
+          <select
+            value={effectiveness || ""}
+            onChange={(e) => onEffectivenessChange(e.target.value)}
+            className="w-full min-w-[280px] px-3 py-2 bg-slate-700 text-white text-center font-bold text-sm rounded border-2 border-slate-600 focus:outline-none focus:border-blue-500"
+          >
+            <option value="" className="bg-slate-800">Select Effectiveness</option>
+            {EFFECTIVENESS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value} className="bg-slate-800">
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        ) : effectiveness ? (
+          <div className={`w-full text-center text-xl font-bold uppercase tracking-wide ${selectedOption?.color || "text-slate-400"}`}>
+            {selectedOption?.label}
+          </div>
+        ) : null}
+      </div>
 
       {/* Card Pair Container */}
       <div className="relative bg-slate-800/50 p-4 rounded-lg border border-slate-700">
@@ -69,36 +75,46 @@ export const CardPairItem = ({
           </button>
         )}
 
-        <div className="flex flex-col items-center space-y-3">
-          {/* Top Card (Target) */}
-          <button
-            onClick={onSelectTop}
-            disabled={!isEditMode}
-            className={`relative w-32 h-44 rounded-lg border-2 overflow-hidden transition-all ${
-              topCard
-                ? "border-blue-500"
-                : "border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50"
-            } ${isEditMode ? "cursor-pointer" : "cursor-default"}`}
-          >
-            {topCard ? (
-              <img
-                src={topCard.imageUrlSmall}
-                alt={topCard.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">
-                Target Card
-              </div>
-            )}
-          </button>
+        <div className="flex flex-col items-center space-y-4">
+          {/* Top Cards (Target) */}
+          <div className="flex flex-col items-center">
+            <div className="text-sm text-slate-400 mb-2 text-center">Target</div>
+            <div className="flex flex-wrap gap-2 justify-center items-center min-w-[140px]" style={{ minHeight: topCards.length > 0 ? 'auto' : '180px' }}>
+              {topCards.map((card, index) => (
+                <div key={index} className="relative group">
+                  {isEditMode && (
+                    <button
+                      onClick={() => onRemoveTopCard(index)}
+                      className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100"
+                      title="Remove card"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                  <img
+                    src={card.imageUrlSmall}
+                    alt={card.name}
+                    className="w-32 h-44 object-cover rounded-lg border-2 border-blue-500"
+                  />
+                </div>
+              ))}
+              {isEditMode && (
+                <button
+                  onClick={onSelectTop}
+                  className="w-32 h-44 rounded-lg border-2 border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                >
+                  <Plus className="w-8 h-8 text-slate-400" />
+                </button>
+              )}
+            </div>
+          </div>
 
           {/* Arrow Icon */}
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center py-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="32"
+              height="32"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -112,30 +128,42 @@ export const CardPairItem = ({
             </svg>
           </div>
 
-          {/* Bottom Card (Counter) */}
-          <button
-            onClick={onSelectBottom}
-            disabled={!isEditMode}
-            className={`relative w-32 h-44 rounded-lg border-2 overflow-hidden transition-all ${
-              bottomCard
-                ? "border-green-500"
-                : "border-dashed border-slate-600 hover:border-green-500 bg-slate-700/50"
-            } ${isEditMode ? "cursor-pointer" : "cursor-default"}`}
-          >
-            {bottomCard ? (
-              <img
-                src={bottomCard.imageUrlSmall}
-                alt={bottomCard.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs text-center px-2">
-                Counter Card
-              </div>
-            )}
-          </button>
+          {/* Bottom Cards (Counter) */}
+          <div className="flex flex-col items-center">
+            <div className="text-sm text-slate-400 mb-2 text-center">Counter</div>
+            <div className="flex flex-wrap gap-2 justify-center items-center min-w-[140px]" style={{ minHeight: bottomCards.length > 0 ? 'auto' : '180px' }}>
+              {bottomCards.map((card, index) => (
+                <div key={index} className="relative group">
+                  {isEditMode && (
+                    <button
+                      onClick={() => onRemoveBottomCard(index)}
+                      className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100"
+                      title="Remove card"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                  <img
+                    src={card.imageUrlSmall}
+                    alt={card.name}
+                    className="w-32 h-44 object-cover rounded-lg border-2 border-purple-500"
+                  />
+                </div>
+              ))}
+              {isEditMode && (
+                <button
+                  onClick={onSelectBottom}
+                  className="w-32 h-44 rounded-lg border-2 border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                >
+                  <Plus className="w-8 h-8 text-slate-400" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
-          {/* Comment Field */}
+        {/* Comment Field */}
+        <div className="min-h-[60px] flex items-center justify-center mt-4">
           {isEditMode ? (
             <textarea
               value={comment || ""}
@@ -144,14 +172,14 @@ export const CardPairItem = ({
               className="w-full px-3 py-2 bg-slate-700/50 text-white text-sm rounded border border-slate-600 focus:outline-none focus:border-blue-500 resize-none"
               rows={3}
             />
-          ) : comment ? (
+          ) : (
             <div className="w-full flex flex-col items-center space-y-1">
               <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Tip</span>
-              <div className="text-center px-2 py-1 text-slate-300 text-sm italic">
-                {comment}
+              <div className="text-center px-2 py-1 text-slate-300 text-sm italic max-w-[280px] max-h-[80px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-800 scrollbar-track-slate-700">
+                {comment || "No description"}
               </div>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </div>
