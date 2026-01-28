@@ -9,7 +9,16 @@ const app = express();
 const PORT = process.env.PORT_BACKEND ?? 3001;
 const NODE_ENV = process.env.NODE_ENV ?? "dev";
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? "*";
-import { searchArchetype, signAsAdmin, verifyAuth, logout, searchCards, selectCard, confirmCards, registerArchetype, registeredArchetypes } from "./routes/index";
+import {
+  searchArchetype,
+  logout,
+  searchCards,
+  selectCard,
+  confirmCards,
+  registerArchetype,
+  registeredArchetypes,
+} from "./routes/index";
+import auth from "./routes/auth";
 
 app.use(
   cors({
@@ -20,21 +29,19 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 
-app.use("/api/searchArchetype", searchArchetype);
+// BetterAuth routes (handles /api/auth/*)
+app.use("/api/auth", auth);
+app.use("/api/logout", logout);
 
 // Archetypes
 app.use("/api/archetypes", registerArchetype);
 app.use("/api/archetypes", registeredArchetypes);
+app.use("/api/searchArchetype", searchArchetype);
 
 // Cards
 app.use("/api/cards/search", searchCards);
 app.use("/api/cards/select", selectCard);
 app.use("/api/cards/confirm", confirmCards);
-
-// Admin
-app.use("/api/signAsAdmin", signAsAdmin);
-app.use("/api/verifyAuth", verifyAuth);
-app.use("/api/logout", logout);
 
 // Cron job: Cleaning temporary cards every 24 hours (at 3:00 AM)
 cron.schedule("0 3 * * *", async () => {
@@ -42,7 +49,9 @@ cron.schedule("0 3 * * *", async () => {
   try {
     const cardService = getDependencies().getCardService();
     const deletedCount = await cardService.cleanupTemporaryCards();
-    console.log(`[Cron] Cleanup completed: ${deletedCount} temporary card(s) deleted`);
+    console.log(
+      `[Cron] Cleanup completed: ${deletedCount} temporary card(s) deleted`,
+    );
   } catch (error) {
     console.error("[Cron] Error during cleanup:", error);
   }
@@ -50,5 +59,7 @@ cron.schedule("0 3 * * *", async () => {
 
 app.listen(PORT, () => {
   console.log(`Listening to: http://localhost:${PORT}`);
-  console.log("Temporary card cleaning cron job activated (every day at 3:00 AM)");
+  console.log(
+    "Temporary card cleaning cron job activated (every day at 3:00 AM)",
+  );
 });

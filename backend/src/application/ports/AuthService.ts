@@ -1,6 +1,8 @@
-import { AdminLoginDTO, AdminLoginResponse } from "@/domain/Admin";
+import { UserLoginDTO, UserLoginResponse } from "@/domain/User";
 
 export interface AuthService {
-  login(credentials: AdminLoginDTO): Promise<AdminLoginResponse>;
-  verifyToken(token: string): Promise<{ valid: boolean; adminId?: number; username?: string }>;
+  login(credentials: UserLoginDTO): Promise<UserLoginResponse>;
+  verifyToken(
+    token: string,
+  ): Promise<{ valid: boolean; userId?: string; username?: string; role?: string }>;
 }

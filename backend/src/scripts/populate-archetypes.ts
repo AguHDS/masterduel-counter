@@ -1,15 +1,12 @@
-import { YugiohDatabase } from "../database/database";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 /** Populate the database with archetypes from YGOProdeck external API */
 async function populateArchetypes() {
   console.log("🔄 Iniciando población de arquetipos...");
 
-  const database = new YugiohDatabase();
-  const db = database.getConnection();
-
   try {
-    console.log("📡 Obteniendo arquetipos de la API externa...");
-
     const response = await fetch(
       "https://db.ygoprodeck.com/api/v7/archetypes.php",
     );
@@ -24,37 +21,39 @@ async function populateArchetypes() {
       .map((item) => item.archetype_name)
       .filter((name) => name && name.trim() !== "");
 
-    console.log(`📊 Se obtuvieron ${archetypeNames.length} arquetipos`);
+    let insertedCount = 0;
+    let skippedCount = 0;
 
-    const insertStmt = db.prepare(`
-      INSERT OR IGNORE INTO archetypes (name) 
-      VALUES (?)
-    `);
-
-    db.transaction(() => {
-      for (const name of archetypeNames) {
-        insertStmt.run(name);
+    for (const name of archetypeNames) {
+      try {
+        await prisma.archetype.create({
+          data: {
+            name,
+          },
+        });
+        insertedCount++;
+      } catch (error) {
+        skippedCount++;
       }
-    })();
+    }
 
-    const sampleQuery = db.prepare(`
-      SELECT name, registered, pending_requests 
-      FROM archetypes 
-      WHERE name LIKE '%Blue%' 
-      LIMIT 3
-    `);
+    console.log(`Inserted: ${insertedCount} archetypes`);
+    console.log(`Skipped (already existed): ${skippedCount} archetypes`);
 
-    const sampleResults = sampleQuery.all() as Array<{
-      name: string;
-      registered: number;
-      pending_requests: number;
-    }>;
+    const sampleResults = await prisma.archetype.findMany({
+      where: {
+        name: {
+          contains: "Blue",
+        },
+      },
+      take: 3,
+    });
 
     if (sampleResults.length > 0) {
-      console.log("\n🔍 Ejemplo de datos insertados:");
+      console.log("\n Example of inserted data:");
       sampleResults.forEach((row) => {
         console.log(
-          `  - ${row.name}: registered=${row.registered === 1}, pending_requests=${row.pending_requests}`,
+          `  - ${row.name}: registered=${row.registered}, pending_requests=${row.pendingRequests}`,
         );
       });
     }
@@ -62,8 +61,7 @@ async function populateArchetypes() {
     console.error("❌ Error:", error);
     process.exit(1);
   } finally {
-    database.close();
-    console.log("🔒 Conexión a base de datos cerrada");
+    await prisma.$disconnect();
   }
 }
 

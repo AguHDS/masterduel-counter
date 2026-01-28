@@ -1,0 +1,133 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String   @id
+  name          String   @map("namedb")
+  email         String   @unique @map("emaildb")
+  emailVerified Boolean  @default(false) @map("email_verified")
+  image         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  role          String   @default("user")
+  lastUsernameChange DateTime? @map("last_username_change")
+  lastActiveAt DateTime? @map("last_active_at")
+
+  sessions     Session[]
+  accounts     Account[]
+  verification Verification[]
+
+  banned     Boolean?  @default(false)
+  banReason  String?   @map("ban_reason")
+  banExpires DateTime? @map("ban_expires")
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime @map("expires_at")
+  token     String   @unique
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String? @map("impersonated_by")
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id")
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  expiresAt             DateTime? @map("expires_at")
+  password              String?
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime  @map("expires_at")
+  createdAt  DateTime? @map("created_at")
+  updatedAt  DateTime? @map("updated_at")
+  userId     String?   @map("user_id")
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification")
+}
+
+model Archetype {
+  id               Int       @id @default(autoincrement())
+  name             String    @unique
+  registered       Boolean   @default(false)
+  pendingRequests  Int       @default(0) @map("pending_requests")
+  headerCardId     Int?      @map("header_card_id")
+  createdByUserId  String?   @map("created_by_user_id")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @default(now()) @map("updated_at")
+
+  headerCard       Card?     @relation("ArchetypeHeaderCard", fields: [headerCardId], references: [id], onDelete: SetNull)
+  cardPairs        ArchetypeCardPair[]
+
+  @@map("archetypes")
+}
+
+model Card {
+  id                     Int       @id
+  name                   String
+  imageUrl               String    @map("image_url")
+  imageUrlSmall          String    @map("image_url_small")
+  cloudinaryPublicId     String    @map("cloudinary_public_id")
+  cloudinaryPublicIdSmall String   @map("cloudinary_public_id_small")
+  isTemporary            Boolean   @default(true) @map("is_temporary")
+  createdAt              DateTime  @default(now()) @map("created_at")
+
+  archetypeHeaders       Archetype[] @relation("ArchetypeHeaderCard")
+  topCardPairs           ArchetypeCardPair[] @relation("TopCard")
+  bottomCardPairs        ArchetypeCardPair[] @relation("BottomCard")
+
+  @@index([name])
+  @@index([isTemporary, createdAt])
+  @@map("cards")
+}
+
+model ArchetypeCardPair {
+  id            Int       @id @default(autoincrement())
+  archetypeId   Int       @map("archetype_id")
+  topCardId     Int       @map("top_card_id")
+  bottomCardId  Int       @map("bottom_card_id")
+  pairOrder     Int       @map("pair_order")
+  effectiveness String?
+  comment       String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  archetype     Archetype @relation(fields: [archetypeId], references: [id], onDelete: Cascade)
+  topCard       Card      @relation("TopCard", fields: [topCardId], references: [id], onDelete: Cascade)
+  bottomCard    Card      @relation("BottomCard", fields: [bottomCardId], references: [id], onDelete: Cascade)
+
+  @@index([archetypeId])
+  @@map("archetype_card_pairs")
+}

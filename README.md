@@ -15,14 +15,16 @@ Edit-mode
 
 For now, only admins can create archetypes and mark them as registered, but this will change in future updates when we have user system implemented.
 
-### Admin Login System
-
-To create an admin user in the database, `backend/npm run create-admin`
-You can access to the login page at `http://localhost:5173/signAsAdmin`
-
 ### Backend Scripts
 
-`npm run reset-db` -> Resets database to initial state and cloudinary storage. Run this to create backend\src\data\database.db file if you don't have it
+`npm run reset-db` -> Resets database to initial state and cloudinary storage. Run this to create backend\src\data\database.db file if you don't have it. This also DROPS some tables so they are newly created, so run `npx prisma db push` -> `npx prisma generate`.
 `npm run populate-archetypes` -> Populates archetypes from YGOProDeck API to archetypes table
-`npm run create-admin` -> Creates an admin user in the database
 `npm run cleanup-cards` -> Force clean up temporary cards from the database and cloudinary storage
+
+When editing database Schema or using `reset-db`:
+`npx prisma db push` -> `npx prisma generate` -> 
+
+
+### Stack used
+- Frontend: React, Vite, cloudinary react, TailwindCSS, Tanstack/query, Axios
+- Backend: Node.js, Express, better-sqlite3, BetterAuth, Prisma, Cloudinary 
