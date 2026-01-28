@@ -1,35 +1,39 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Layers, Edit3, Image } from "lucide-react";
+import { Layers, Plus, Edit3, Image, Trash2, ThumbsUp } from "lucide-react";
 import { SearchInput } from "@/layouts/Search";
 import { SearchResults } from "./SearchResults";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
 import { RegisteredArchetypesList } from "./RegisteredArchetypesList";
+import { UserInstancesList } from "./UserInstancesList";
+import { ArchetypeInstancesList } from "./ArchetypeInstancesList";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import { useAuth } from "@/features/auth";
+import { instanceApi } from "@/lib/http/instanceApi";
+import { useQueryClient } from "@tanstack/react-query";
 import { 
   useRegisterArchetype, 
-  useArchetypeCardPairs, 
-  useArchetypeWithHeader 
+  useArchetypeWithHeader,
+  useUserInstance 
 } from "../hooks/useArchetypeQueries";
 import type { Archetype } from "../api/archetypeApi";
 import { type Card } from "../api/cardApi";
 
 interface CardPair {
   id: string;
-  topCard: {
+  topCards: Array<{
     id: number;
     name: string;
     imageUrl: string;
     imageUrlSmall: string;
-  } | null;
-  bottomCard: {
+  }>;
+  bottomCards: Array<{
     id: number;
     name: string;
     imageUrl: string;
     imageUrlSmall: string;
-  } | null;
+  }>;
   effectiveness?: string;
   comment?: string;
 }
@@ -47,7 +51,7 @@ interface ArchetypeAnalyzerContainerProps {
 export const ArchetypeAnalyzerContainer = ({ 
   resetSearchRef 
 }: ArchetypeAnalyzerContainerProps = {}) => {
-  const { archetypeId } = useParams<{ archetypeId: string }>();
+  const { archetypeId, userId, instanceUserId } = useParams<{ archetypeId: string; userId: string; instanceUserId: string }>();
   const navigate = useNavigate();
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,7 +60,10 @@ export const ArchetypeAnalyzerContainer = ({
   const [loadedPairs, setLoadedPairs] = useState<CardPair[]>([]);
   const [headerCard, setHeaderCard] = useState<HeaderCard | null>(null);
   const [isSelectingHeader, setIsSelectingHeader] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const { isAuthenticated, user } = useAuth();
+  const queryClient = useQueryClient();
 
   // TanStack Query hooks
   const registerMutation = useRegisterArchetype();
@@ -68,9 +75,18 @@ export const ArchetypeAnalyzerContainer = ({
   const { data: archetypeWithHeaderData } = useArchetypeWithHeader(
     archetypeIdNum
   );
-  const { data: cardPairsData } = useArchetypeCardPairs(
-    archetypeIdNum && selectedArchetype?.registered ? archetypeIdNum : undefined
+  
+  // Fetch user instance - ONLY if instanceUserId is specified in URL
+  // This means we're viewing a specific instance, not listing all instances
+  const shouldLoadInstance = archetypeIdNum && instanceUserId;
+  const { data: userInstanceData } = useUserInstance(
+    shouldLoadInstance ? archetypeIdNum : undefined,
+    instanceUserId
   );
+  
+  // Check if current user owns this instance
+  // If there's no instanceUserId (new archetype registration), consider user as owner
+  const isOwner = isAuthenticated && (!instanceUserId || user?.id === instanceUserId);
 
   const { results, loading, error } = useArchetypeSearch({
     searchQuery,
@@ -87,46 +103,49 @@ export const ArchetypeAnalyzerContainer = ({
     }
   }, [archetypeId, archetypeWithHeaderData]);
 
-  // Load card pairs and card header when a registered archetype is selected
+  // Load card pairs and card header when a specific instance is being viewed
   useEffect(() => {
-    if (selectedArchetype?.registered && cardPairsData) {
-      const pairs: CardPair[] = cardPairsData.cardPairs.map((pair) => ({
+    // Reset edit mode when changing instances
+    setIsEditMode(false);
+    
+    // Only load pairs if we're viewing a specific instance (instanceUserId is set)
+    if (instanceUserId && userInstanceData) {
+      const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
-        topCard: {
-          id: pair.top_card_id,
-          name: pair.top_card_name,
-          imageUrl: pair.top_card_image_url,
-          imageUrlSmall: pair.top_card_image_url_small,
-        },
-        bottomCard: {
-          id: pair.bottom_card_id,
-          name: pair.bottom_card_name,
-          imageUrl: pair.bottom_card_image_url,
-          imageUrlSmall: pair.bottom_card_image_url_small,
-        },
-        effectiveness: pair.effectiveness || undefined,
-        comment: pair.comment || undefined,
+        topCards: pair.topCards,
+        bottomCards: pair.bottomCards,
+        effectiveness: pair.effectiveness,
+        comment: pair.comment,
       }));
       setLoadedPairs(pairs);
+      setLikeCount(userInstanceData.instance.likes);
 
       // Load header card if it exists
-      if (
-        selectedArchetype.header_card_id && 
-        archetypeWithHeaderData?.archetype.header_card_image_url
-      ) {
+      if (userInstanceData.headerCard) {
         setHeaderCard({
-          id: archetypeWithHeaderData.archetype.header_card_id!,
-          name: archetypeWithHeaderData.archetype.header_card_name!,
-          imageUrl: archetypeWithHeaderData.archetype.header_card_image_url,
+          id: userInstanceData.headerCard.id,
+          name: userInstanceData.headerCard.name,
+          imageUrl: userInstanceData.headerCard.imageUrl,
         });
       } else {
         setHeaderCard(null);
       }
+
+      // Load like status if authenticated and not owner
+      if (isAuthenticated && !isOwner && archetypeId) {
+        instanceApi.getInstanceLikeStatus(parseInt(archetypeId), userInstanceData.instance.id)
+          .then(response => setLiked(response.liked))
+          .catch(error => console.error("Error loading like status:", error));
+      } else {
+        setLiked(false);
+      }
     } else {
       setLoadedPairs([]);
       setHeaderCard(null);
+      setLiked(false);
+      setLikeCount(0);
     }
-  }, [selectedArchetype, cardPairsData, archetypeWithHeaderData]);
+  }, [instanceUserId, userInstanceData, isAuthenticated, isOwner, archetypeId]);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -150,17 +169,104 @@ export const ArchetypeAnalyzerContainer = ({
     navigate(`/archetype/${archetype.id}`);
   };
 
-  const handleSelectArchetypeFromList = (archetypeId: number) => {
-    // Data is already in cache
-    navigate(`/archetype/${archetypeId}`);
+  const handleSelectArchetypeFromList = (archetypeId: number, userId: string | null) => {
+    // Navigate to specific user's instance if userId provided
+    if (userId) {
+      navigate(`/archetype/${archetypeId}/instance/${userId}`);
+    } else {
+      navigate(`/archetype/${archetypeId}`);
+    }
   };
+
+  const handleSelectInstanceFromArchetype = (userId: string) => {
+    // Navigate to specific instance
+    if (selectedArchetype) {
+      navigate(`/archetype/${selectedArchetype.id}/instance/${userId}`);
+    }
+  };
+
+  const handleCreateInstance = () => {
+    // Navigate to the user's own instance to create/edit it
+    if (user?.id && archetypeId) {
+      navigate(`/archetype/${archetypeId}/instance/${user.id}`);
+    }
+  };
+  
+  const handleCancel = () => {
+    setIsEditMode(false);
+    // Reset to loaded data
+    if (instanceUserId && userInstanceData) {
+      const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
+        id: pair.id.toString(),
+        topCards: pair.topCards,
+        bottomCards: pair.bottomCards,
+        effectiveness: pair.effectiveness,
+        comment: pair.comment,
+      }));
+      setLoadedPairs(pairs);
+      if (userInstanceData.headerCard) {
+        setHeaderCard({
+          id: userInstanceData.headerCard.id,
+          name: userInstanceData.headerCard.name,
+          imageUrl: userInstanceData.headerCard.imageUrl,
+        });
+      }
+    } else {
+      // If it's a new registration, go back
+      navigate(-1);
+    }
+  };
+
+  const handleDeleteInstance = async () => {
+    if (!selectedArchetype || !user?.id || !archetypeId) return;
+
+    const confirmed = confirm(
+      "Are you sure you want to delete your instance? This action cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await instanceApi.deleteUserInstance(parseInt(archetypeId), user.id);
+      alert("Instance deleted successfully");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error deleting instance:", error);
+      alert("Failed to delete instance. Please try again.");
+    }
+  };
+
+  const handleToggleLike = async () => {
+    if (!isAuthenticated || !userInstanceData || !archetypeId) return;
+
+    try {
+      const response = await instanceApi.toggleInstanceLike(
+        parseInt(archetypeId),
+        userInstanceData.instance.id
+      );
+      setLiked(response.liked);
+      setLikeCount(response.likes);
+      
+      // Invalidate instances list query to update likes count everywhere
+      queryClient.invalidateQueries({ queryKey: ["archetypeInstances", parseInt(archetypeId)] });
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      alert("Failed to update like. Please try again.");
+    }
+  };
+
+  const showArchetypeInstancesList = !userId && archetypeId && !instanceUserId && selectedArchetype?.registered;
 
   const handleRegisterClick = () => {
     if (!isAuthenticated) {
       alert("You must be logged in to register archetypes.");
       return;
     }
-    setIsEditMode(true);
+    
+    // Only allow edit mode if user is the owner or it's a new registration
+    if (!selectedArchetype?.registered || isOwner) {
+      setIsEditMode(true);
+    }
   };
 
   const handleHeaderCardSelected = (card: Card) => {
@@ -175,25 +281,9 @@ export const ArchetypeAnalyzerContainer = ({
   const handleSaveCards = async (pairs: CardPair[]) => {
     if (!selectedArchetype) return;
 
-    // If no pairs, mark as unregistered
+    // Validate at least one pair
     if (pairs.length === 0) {
-      try {
-        const response = await registerMutation.mutateAsync({
-          archetypeId: selectedArchetype.id,
-          cardPairs: [],
-        });
-        alert("Archetype unmarked as registered successfully");
-        setSelectedArchetype(response.archetype);
-        setHeaderCard(null);
-        setIsEditMode(false);
-      } catch (error) {
-        console.error("Error unmarking archetype:", error);
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Failed to update archetype. Please try again.",
-        );
-      }
+      alert("Please add at least one card pair before saving.");
       return;
     }
 
@@ -204,8 +294,8 @@ export const ArchetypeAnalyzerContainer = ({
 
     try {
       const cardPairs = pairs.map((pair) => ({
-        topCardId: pair.topCard!.id,
-        bottomCardId: pair.bottomCard!.id,
+        topCardIds: pair.topCards.map(card => card.id),
+        bottomCardIds: pair.bottomCards.map(card => card.id),
         effectiveness: pair.effectiveness,
         comment: pair.comment,
       }));
@@ -216,16 +306,19 @@ export const ArchetypeAnalyzerContainer = ({
         headerCardId: headerCard.id,
       });
 
-      alert(response.message);
       setSelectedArchetype(response.archetype);
       setIsEditMode(false);
+      
+      // Reload to show fresh data
+      if (user?.id) {
+        window.location.href = `/archetype/${selectedArchetype.id}/instance/${user.id}`;
+      }
     } catch (error) {
       console.error("Error saving archetype:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Failed to register archetype. Please try again.",
-      );
+      const errorMessage = error instanceof Error
+        ? error.message
+        : "Failed to register archetype. Please try again.";
+      alert(errorMessage);
       throw error;
     }
   };
@@ -252,8 +345,24 @@ export const ArchetypeAnalyzerContainer = ({
       </SearchInput>
 
       <div className="flex-1 p-8 overflow-auto">
-        {selectedArchetype ? (
+        {(selectedArchetype && instanceUserId) || (selectedArchetype && !selectedArchetype.registered) ? (
           <div className="space-y-6">
+            {instanceUserId && !isOwner && isAuthenticated && selectedArchetype.registered && (
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={handleToggleLike}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors shadow-lg ${
+                    liked 
+                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                      : 'bg-slate-700 hover:bg-slate-600 text-white'
+                  }`}
+                >
+                  <ThumbsUp className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+                  <span>{likeCount}</span>
+                </button>
+              </div>
+            )}
+
             <div className="text-center space-y-6">
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">
@@ -271,20 +380,25 @@ export const ArchetypeAnalyzerContainer = ({
                     />
                   </div>
                 ) : (
-                  <div className="bg-gradient-to-br from-blue-800 to-slate-800 w-24 h-24 rounded-full flex items-center justify-center mx-auto border-2 border-blue-500">
-                    <Layers className="w-12 h-12 text-blue-300" />
-                  </div>
+                  <button
+                    onClick={() => isEditMode && setIsSelectingHeader(true)}
+                    disabled={!isEditMode}
+                    className={`bg-gradient-to-br from-blue-800 to-slate-800 w-24 h-24 rounded-full flex items-center justify-center mx-auto border-2 border-blue-500 ${
+                      isEditMode ? 'cursor-pointer hover:border-purple-500 transition-colors' : 'cursor-default'
+                    }`}
+                    title={isEditMode ? "Select Header Card" : ""}
+                  >
+                    <Plus className={`w-12 h-12 ${isEditMode ? 'text-purple-400' : 'text-blue-300'}`} />
+                  </button>
                 )}
 
-                {isEditMode && (
+                {isEditMode && headerCard && (
                   <button
                     onClick={() => setIsSelectingHeader(true)}
                     className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors shadow-lg"
                   >
                     <Image className="w-4 h-4" />
-                    <span>
-                      {headerCard ? "Change Header" : "Select Header"}
-                    </span>
+                    <span>Change Header</span>
                   </button>
                 )}
               </div>
@@ -292,8 +406,9 @@ export const ArchetypeAnalyzerContainer = ({
 
             <div className="mt-8">
               <CardPairEditor
-                isEditMode={isEditMode}
+                isEditMode={isEditMode && isOwner}
                 onSave={handleSaveCards}
+                onCancel={handleCancel}
                 initialPairs={loadedPairs}
               />
             </div>
@@ -308,18 +423,38 @@ export const ArchetypeAnalyzerContainer = ({
                 Back to Search
               </button>
 
+              {/* Show message if viewing someone else's instance */}
+              {instanceUserId && !isOwner && (
+                <div className="text-blue-300 text-sm">
+                  Viewing <span className="font-semibold">{userInstanceData?.userName || 'another user'}'s</span> version (read-only)
+                </div>
+              )}
+
+              {/* Edit button - only show if owner of the instance */}
               {isAuthenticated &&
                 selectedArchetype.registered &&
-                !isEditMode && (
-                  <button
-                    onClick={() => setIsEditMode(true)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                    <span>Edit Archetype</span>
-                  </button>
+                !isEditMode &&
+                instanceUserId &&
+                isOwner && (
+                  <>
+                    <button
+                      onClick={() => setIsEditMode(true)}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      <span>Edit Archetype</span>
+                    </button>
+                    <button
+                      onClick={handleDeleteInstance}
+                      className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete Instance</span>
+                    </button>
+                  </>
                 )}
 
+              {/* Register button - only show for unregistered archetypes */}
               {isAuthenticated &&
                 !selectedArchetype.registered &&
                 !isEditMode && (
@@ -335,9 +470,31 @@ export const ArchetypeAnalyzerContainer = ({
           </div>
         ) : (
           <>
-            {!searchQuery ? (
-              <RegisteredArchetypesList onSelectArchetype={handleSelectArchetypeFromList} />
-            ) : (
+            {!searchQuery && (
+              <>
+                {userId && (
+                  <UserInstancesList 
+                    userId={userId} 
+                    onSelectArchetype={(archetypeId, instanceUserId) => handleSelectArchetypeFromList(archetypeId, instanceUserId)} 
+                  />
+                )}
+                
+                {showArchetypeInstancesList && selectedArchetype && (
+                  <ArchetypeInstancesList
+                    archetypeId={parseInt(archetypeId!)}
+                    archetypeName={(selectedArchetype as Archetype).name}
+                    onSelectInstance={handleSelectInstanceFromArchetype}
+                    onCreateInstance={handleCreateInstance}
+                  />
+                )}
+                
+                {!userId && !archetypeId && (
+                  <RegisteredArchetypesList onSelectArchetype={handleSelectArchetypeFromList} />
+                )}
+              </>
+            )}
+            
+            {searchQuery && (
               <div className="flex items-center justify-center min-h-[400px]">
                 <div className="text-center space-y-4">
                   <div className="bg-gradient-to-br from-blue-800 to-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto border border-blue-600">

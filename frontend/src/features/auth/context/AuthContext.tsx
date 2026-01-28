@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     id: session.user.id,
     name: session.user.name,
     email: session.user.email,
-    role: (session.user as any).role,
+    role: (session.user as { role?: string }).role,
   } : null;
 
   const logout = () => {

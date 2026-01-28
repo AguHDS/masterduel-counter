@@ -44,20 +44,41 @@ export const registerArchetypeMiddleware = (
   for (let i = 0; i < cardPairs.length; i++) {
     const pair = cardPairs[i];
 
-    if (!pair.topCardId || typeof pair.topCardId !== "number") {
+    if (!pair.topCardIds || !Array.isArray(pair.topCardIds) || pair.topCardIds.length === 0) {
       res.status(400).json({
         success: false,
-        error: `Invalid topCardId in pair at index ${i}`,
+        error: `Invalid topCardIds in pair at index ${i}`,
       });
       return;
     }
 
-    if (!pair.bottomCardId || typeof pair.bottomCardId !== "number") {
+    if (!pair.bottomCardIds || !Array.isArray(pair.bottomCardIds) || pair.bottomCardIds.length === 0) {
       res.status(400).json({
         success: false,
-        error: `Invalid bottomCardId in pair at index ${i}`,
+        error: `Invalid bottomCardIds in pair at index ${i}`,
       });
       return;
+    }
+
+    // Validate each card ID is a valid number
+    for (const cardId of pair.topCardIds) {
+      if (typeof cardId !== "number" || cardId <= 0) {
+        res.status(400).json({
+          success: false,
+          error: `Invalid card ID in topCardIds at pair index ${i}`,
+        });
+        return;
+      }
+    }
+
+    for (const cardId of pair.bottomCardIds) {
+      if (typeof cardId !== "number" || cardId <= 0) {
+        res.status(400).json({
+          success: false,
+          error: `Invalid card ID in bottomCardIds at pair index ${i}`,
+        });
+        return;
+      }
     }
   }
 

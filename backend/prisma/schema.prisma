@@ -22,6 +22,8 @@ model User {
   sessions     Session[]
   accounts     Account[]
   verification Verification[]
+  archetypeInstances ArchetypeInstance[]
+  instanceLikes InstanceLike[]
 
   banned     Boolean?  @default(false)
   banReason  String?   @map("ban_reason")
@@ -84,15 +86,33 @@ model Archetype {
   name             String    @unique
   registered       Boolean   @default(false)
   pendingRequests  Int       @default(0) @map("pending_requests")
-  headerCardId     Int?      @map("header_card_id")
-  createdByUserId  String?   @map("created_by_user_id")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @default(now()) @map("updated_at")
 
-  headerCard       Card?     @relation("ArchetypeHeaderCard", fields: [headerCardId], references: [id], onDelete: SetNull)
-  cardPairs        ArchetypeCardPair[]
+  instances        ArchetypeInstance[]
 
   @@map("archetypes")
+}
+
+model ArchetypeInstance {
+  id               Int       @id @default(autoincrement())
+  archetypeId      Int       @map("archetype_id")
+  userId           String    @map("user_id")
+  headerCardId     Int?      @map("header_card_id")
+  likes            Int       @default(0)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  archetype        Archetype @relation(fields: [archetypeId], references: [id], onDelete: Cascade)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headerCard       Card?     @relation("InstanceHeaderCard", fields: [headerCardId], references: [id], onDelete: SetNull)
+  cardPairs        ArchetypeCardPair[]
+  likeRecords      InstanceLike[]
+
+  @@unique([archetypeId, userId])
+  @@index([userId])
+  @@index([archetypeId])
+  @@map("archetype_instances")
 }
 
 model Card {
@@ -105,9 +125,9 @@ model Card {
   isTemporary            Boolean   @default(true) @map("is_temporary")
   createdAt              DateTime  @default(now()) @map("created_at")
 
-  archetypeHeaders       Archetype[] @relation("ArchetypeHeaderCard")
-  topCardPairs           ArchetypeCardPair[] @relation("TopCard")
-  bottomCardPairs        ArchetypeCardPair[] @relation("BottomCard")
+  instanceHeaders        ArchetypeInstance[] @relation("InstanceHeaderCard")
+  topCardPairs           CardPairTop[] @relation("TopCardPairs")
+  bottomCardPairs        CardPairBottom[] @relation("BottomCardPairs")
 
   @@index([name])
   @@index([isTemporary, createdAt])
@@ -116,18 +136,59 @@ model Card {
 
 model ArchetypeCardPair {
   id            Int       @id @default(autoincrement())
-  archetypeId   Int       @map("archetype_id")
-  topCardId     Int       @map("top_card_id")
-  bottomCardId  Int       @map("bottom_card_id")
+  instanceId    Int       @map("instance_id")
   pairOrder     Int       @map("pair_order")
   effectiveness String?
   comment       String?
   createdAt     DateTime  @default(now()) @map("created_at")
 
-  archetype     Archetype @relation(fields: [archetypeId], references: [id], onDelete: Cascade)
-  topCard       Card      @relation("TopCard", fields: [topCardId], references: [id], onDelete: Cascade)
-  bottomCard    Card      @relation("BottomCard", fields: [bottomCardId], references: [id], onDelete: Cascade)
+  instance      ArchetypeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  topCards      CardPairTop[]
+  bottomCards   CardPairBottom[]
 
-  @@index([archetypeId])
+  @@index([instanceId])
   @@map("archetype_card_pairs")
+}
+
+model CardPairTop {
+  id        Int       @id @default(autoincrement())
+  pairId    Int       @map("pair_id")
+  cardId    Int       @map("card_id")
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  pair      ArchetypeCardPair @relation(fields: [pairId], references: [id], onDelete: Cascade)
+  card      Card      @relation("TopCardPairs", fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([pairId])
+  @@map("card_pair_top")
+}
+
+model CardPairBottom {
+  id        Int       @id @default(autoincrement())
+  pairId    Int       @map("pair_id")
+  cardId    Int       @map("card_id")
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  pair      ArchetypeCardPair @relation(fields: [pairId], references: [id], onDelete: Cascade)
+  card      Card      @relation("BottomCardPairs", fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([pairId])
+  @@map("card_pair_bottom")
+}
+
+model InstanceLike {
+  id          Int       @id @default(autoincrement())
+  instanceId  Int       @map("instance_id")
+  userId      String    @map("user_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  instance    ArchetypeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([instanceId, userId])
+  @@index([instanceId])
+  @@index([userId])
+  @@map("instance_likes")
 }

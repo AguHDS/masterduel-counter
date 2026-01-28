@@ -3,11 +3,39 @@ import { RegisterUserWithBetterAuthUseCase } from "../../application/services/Re
 import { SqliteUserRepository } from "../../infrastructure/repositories/SqliteUserRepository";
 import { PrismaClient } from "@prisma/client";
 
+/** Registra un nuevo usuario en el sistema */
 // Dependency injection
 const prisma = new PrismaClient();
 const registerUserUseCase = new RegisterUserWithBetterAuthUseCase(
   new SqliteUserRepository(prisma),
 );
+
+type BetterAuthErrorBody = {
+  message?: string;
+  errors?: Array<string | { message?: string }>;
+  code?: string;
+};
+
+type BetterAuthError = {
+  body?: BetterAuthErrorBody;
+  statusCode?: number;
+};
+
+const getBetterAuthErrorMessage = (
+  errors?: Array<string | { message?: string }>,
+): string | undefined => {
+  if (!errors || !Array.isArray(errors) || errors.length === 0)
+    return undefined;
+
+  const firstError = errors[0];
+
+  if (typeof firstError === "string") return firstError;
+  if (firstError && typeof firstError === "object" && "message" in firstError) {
+    return firstError.message;
+  }
+
+  return undefined;
+};
 
 /** Register new user with BetterAuth */
 export const registerUserController = async (req: Request, res: Response) => {
@@ -33,23 +61,19 @@ export const registerUserController = async (req: Request, res: Response) => {
       user: result.user,
     });
   } catch (error) {
+    // BetterAuth error handling
     if (error && typeof error === "object" && "body" in error) {
-      const betterAuthError = error as any;
+      const betterAuthError = error as BetterAuthError;
+
       const statusCode = betterAuthError.statusCode || 400;
       let errorMessage = "Registration failed";
 
-      if (
-        betterAuthError.body?.errors &&
-        Array.isArray(betterAuthError.body.errors)
-      ) {
-        errorMessage =
-          betterAuthError.body.errors[0]?.message ||
-          betterAuthError.body.errors[0] ||
-          errorMessage;
-      } else if (betterAuthError.body?.message) {
-        errorMessage = betterAuthError.body.message;
-      } else if (typeof betterAuthError.body === "string") {
-        errorMessage = betterAuthError.body;
+      const body = betterAuthError.body;
+
+      if (body?.errors) {
+        errorMessage = getBetterAuthErrorMessage(body.errors) ?? errorMessage;
+      } else if (body?.message) {
+        errorMessage = body.message;
       }
 
       res.status(statusCode).json({
@@ -59,6 +83,7 @@ export const registerUserController = async (req: Request, res: Response) => {
       return;
     }
 
+    // Domain / use case errors
     if (error instanceof Error) {
       switch (error.message) {
         case "USERNAME_TAKEN":

@@ -19,6 +19,8 @@ backend/memory.md
 # Database files
 /backend/src/data/*.db
 /backend/src/data/*.db-*
+/backend/prisma/src/data/*.db
+/backend/prisma/src/data/*.db-*
 *.sqlite
 *.sqlite3
 

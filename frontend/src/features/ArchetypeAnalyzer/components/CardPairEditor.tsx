@@ -1,4 +1,4 @@
-import { Plus, Save } from "lucide-react";
+import { Plus, Save, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CardPairItem } from "./CardPairItem";
 import { CardSearchModal } from "./CardSearchModal";
@@ -6,8 +6,8 @@ import { type Card } from "../api/cardApi";
 
 interface CardPair {
   id: string;
-  topCard: Card | null;
-  bottomCard: Card | null;
+  topCards: Card[];
+  bottomCards: Card[];
   effectiveness?: string;
   comment?: string;
 }
@@ -15,12 +15,13 @@ interface CardPair {
 interface CardPairEditorProps {
   isEditMode: boolean;
   onSave: (pairs: CardPair[]) => Promise<void>;
+  onCancel?: () => void;
   initialPairs?: CardPair[];
 }
 
 type SelectingPosition = { pairId: string; position: "top" | "bottom" } | null;
 
-export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPairEditorProps) => {
+export const CardPairEditor = ({ isEditMode, onSave, onCancel, initialPairs = [] }: CardPairEditorProps) => {
   const [pairs, setPairs] = useState<CardPair[]>(initialPairs);
   const [selectingPosition, setSelectingPosition] = useState<SelectingPosition>(null);
   const [saving, setSaving] = useState(false);
@@ -33,8 +34,8 @@ export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPa
   const addPair = () => {
     const newPair: CardPair = {
       id: `pair-${Date.now()}`,
-      topCard: null,
-      bottomCard: null,
+      topCards: [],
+      bottomCards: [],
       effectiveness: undefined,
       comment: undefined,
     };
@@ -43,6 +44,20 @@ export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPa
 
   const removePair = (pairId: string) => {
     setPairs(pairs.filter((p) => p.id !== pairId));
+  };
+
+  const removeCard = (pairId: string, position: "top" | "bottom", cardIndex: number) => {
+    setPairs(pairs.map((pair) => {
+      if (pair.id === pairId) {
+        const cards = position === "top" ? [...pair.topCards] : [...pair.bottomCards];
+        cards.splice(cardIndex, 1);
+        return {
+          ...pair,
+          [position === "top" ? "topCards" : "bottomCards"]: cards,
+        };
+      }
+      return pair;
+    }));
   };
 
   const openCardSelection = (pairId: string, position: "top" | "bottom") => {
@@ -55,9 +70,10 @@ export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPa
     setPairs(
       pairs.map((pair) => {
         if (pair.id === selectingPosition.pairId) {
+          const currentCards = selectingPosition.position === "top" ? pair.topCards : pair.bottomCards;
           return {
             ...pair,
-            [selectingPosition.position === "top" ? "topCard" : "bottomCard"]: card,
+            [selectingPosition.position === "top" ? "topCards" : "bottomCards"]: [...currentCards, card],
           };
         }
         return pair;
@@ -84,9 +100,15 @@ export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPa
   };
 
   const handleSave = async () => {
+    const completePairs = pairs.filter((p) => p.topCards.length > 0 && p.bottomCards.length > 0);
+    
+    if (completePairs.length === 0) {
+      alert("Please add at least one complete card pair before saving.");
+      return;
+    }
+    
     setSaving(true);
     try {
-      const completePairs = pairs.filter((p) => p.topCard && p.bottomCard);
       await onSave(completePairs);
     } catch (error) {
       console.error("Error saving pairs:", error);
@@ -97,34 +119,37 @@ export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPa
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col min-h-[400px]">
       {/* Card Pairs Grid */}
-      {pairs.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {pairs.map((pair) => (
-            <CardPairItem
-              key={pair.id}
-              topCard={pair.topCard}
-              bottomCard={pair.bottomCard}
-              effectiveness={pair.effectiveness}
-              comment={pair.comment}
-              onSelectTop={() => openCardSelection(pair.id, "top")}
-              onSelectBottom={() => openCardSelection(pair.id, "bottom")}
-              onEffectivenessChange={(value) => handleEffectivenessChange(pair.id, value)}
-              onCommentChange={(value) => handleCommentChange(pair.id, value)}
-              onRemove={() => removePair(pair.id)}
-              isEditMode={isEditMode}
-            />
-          ))}
-        </div>
-      )}
+      <div className="flex-1">
+        {pairs.length > 0 && (
+          <div className="flex flex-wrap gap-10 justify-center">
+            {pairs.map((pair) => (
+              <CardPairItem
+                key={pair.id}
+                topCards={pair.topCards}
+                bottomCards={pair.bottomCards}
+                effectiveness={pair.effectiveness}
+                comment={pair.comment}
+                onSelectTop={() => openCardSelection(pair.id, "top")}
+                onSelectBottom={() => openCardSelection(pair.id, "bottom")}
+                onRemoveTopCard={(index) => removeCard(pair.id, "top", index)}
+                onRemoveBottomCard={(index) => removeCard(pair.id, "bottom", index)}
+                onEffectivenessChange={(value) => handleEffectivenessChange(pair.id, value)}
+                onCommentChange={(value) => handleCommentChange(pair.id, value)}
+                onRemove={() => removePair(pair.id)}
+                isEditMode={isEditMode}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Action Buttons */}
       {isEditMode && (
-        <div className="flex justify-center gap-4 pt-7">
+        <div className="flex justify-center gap-4 pt-8 mt-auto">
           <button
             onClick={addPair}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-lg text-sm"
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg transition-colors shadow-lg text-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Add Card Pair</span>
@@ -132,15 +157,24 @@ export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPa
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg transition-colors shadow-lg text-sm"
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 disabled:bg-gray-600 text-white rounded-lg transition-colors shadow-lg text-sm"
           >
             <Save className="w-4 h-4" />
             <span>{saving ? "Saving..." : "Save Changes"}</span>
           </button>
+          {onCancel && (
+            <button
+              onClick={onCancel}
+              disabled={saving}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 disabled:bg-gray-600 text-white rounded-lg transition-colors shadow-lg text-sm"
+            >
+              <X className="w-4 h-4" />
+              <span>Cancel</span>
+            </button>
+          )}
         </div>
       )}
 
-      {/* Card Search Modal */}
       {selectingPosition && (
         <CardSearchModal
           isOpen={!!selectingPosition}

@@ -6,20 +6,6 @@ import {
   ArchetypeCreateDTO,
 } from "@/domain/Archetype";
 
-export interface CardPairDTO {
-  topCardId: number;
-  bottomCardId: number;
-  effectiveness?: string;
-  comment?: string;
-}
-
-export interface RegisterArchetypeDTO {
-  archetypeId: number;
-  cardPairs: CardPairDTO[];
-  headerCardId?: number;
-  userId?: number;
-}
-
 export interface ArchetypeServicePort {
   /**
    * Searches archetypes by a search term using partial matching
@@ -146,14 +132,4 @@ export interface ArchetypeServicePort {
    * @returns Array of suggested archetypes
    */
   suggestArchetypes(partialName: string, limit?: number): Promise<Archetype[]>;
-
-  /**
-   * Registers an archetype with its card pairs
-   * Confirms the cards (marks them as permanent), saves the pairs, and marks the archetype as registered
-   * @param registerData - Registration data (archetype ID and card pairs)
-   * @returns Updated archetype
-   */
-  registerArchetypeWithPairs(
-    registerData: RegisterArchetypeDTO,
-  ): Promise<Archetype>;
 }

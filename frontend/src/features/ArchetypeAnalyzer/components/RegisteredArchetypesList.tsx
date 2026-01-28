@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRegisteredArchetypes } from "../hooks/useArchetypeQueries";
 
 interface RegisteredArchetypesListProps {
-  onSelectArchetype: (archetypeId: number) => void;
+  onSelectArchetype: (archetypeId: number, userId: string | null) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -54,27 +54,27 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
   return (
     <div className="flex flex-col items-center p-8">
       {/* Título */}
-      <h2 className="text-base font-semibold text-blue-400 mb-2 self-start ml-[5%]">Registered Decks</h2>
+      <h2 className="text-base font-semibold text-blue-400 mb-2 self-start ml-[5%]">Last Registered Decks</h2>
       
       <div className="w-[90%] bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-xl p-6">
         <div className="w-[95%] mx-auto">
           <div className="grid grid-cols-[60px_1fr_200px] gap-4 mb-4 pb-3 border-b border-blue-600">
             <div className="text-blue-300 font-semibold text-sm">ID</div>
             <div className="text-blue-300 font-semibold text-sm">Name</div>
-            <div className="text-blue-300 font-semibold text-sm">Created by</div>
+            <div className="text-blue-300 font-semibold text-sm">Instances</div>
           </div>
 
           <div className="space-y-2">
             {currentArchetypes.map((archetype, index) => (
               <button
                 key={archetype.id}
-                onClick={() => onSelectArchetype(archetype.id)}
+                onClick={() => onSelectArchetype(archetype.id, null)}
                 className="w-full grid grid-cols-[60px_1fr_200px] gap-4 p-3 bg-blue-900 hover:bg-blue-800 rounded transition-colors text-left"
               >
                 <div className="text-blue-200 text-sm">{startIndex + index + 1}</div>
                 <div className="text-white font-medium text-sm">{archetype.name}</div>
                 <div className="text-blue-300 text-sm">
-                  {archetype.created_by_username || "Unknown"}
+                  {archetype.instance_count || 0} {archetype.instance_count === 1 ? 'instance' : 'instances'}
                 </div>
               </button>
             ))}

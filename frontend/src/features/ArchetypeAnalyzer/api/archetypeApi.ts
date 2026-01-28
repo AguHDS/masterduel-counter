@@ -5,8 +5,7 @@ export interface Archetype {
   name: string;
   registered: boolean;
   pending_requests: number;
-  header_card_id: number | null;
-  created_by_user_id: number | null;
+  instance_count?: number;
 }
 
 export interface ArchetypeWithCreator extends Archetype {
@@ -28,8 +27,8 @@ export interface RegisteredArchetypesResponse {
 }
 
 export interface CardPairDTO {
-  topCardId: number;
-  bottomCardId: number;
+  topCardIds: number[];
+  bottomCardIds: number[];
   effectiveness?: string;
   comment?: string;
 }
@@ -42,28 +41,6 @@ export interface RegisterArchetypeResponse {
   success: boolean;
   archetype: Archetype;
   message: string;
-}
-
-export interface ArchetypeCardPairWithDetails {
-  id: number;
-  archetype_id: number;
-  top_card_id: number;
-  bottom_card_id: number;
-  pair_order: number;
-  effectiveness: string | null;
-  comment: string | null;
-  created_at: string;
-  top_card_name: string;
-  top_card_image_url: string;
-  top_card_image_url_small: string;
-  bottom_card_name: string;
-  bottom_card_image_url: string;
-  bottom_card_image_url_small: string;
-}
-
-export interface GetCardPairsResponse {
-  success: boolean;
-  cardPairs: ArchetypeCardPairWithDetails[];
 }
 
 /**
@@ -117,19 +94,6 @@ export const getArchetypeWithHeaderCard = async (
   };
 }> => {
   const response = await axiosClient.get(`/api/archetypes/${archetypeId}/with-header`);
-  return response.data;
-};
-
-/**
- * Get card pairs for an archetype
- */
-export const getArchetypeCardPairs = async (
-  archetypeId: number,
-): Promise<GetCardPairsResponse> => {
-  const response = await axiosClient.get<GetCardPairsResponse>(
-    `/api/archetypes/${archetypeId}/card-pairs`
-  );
-  
   return response.data;
 };
 

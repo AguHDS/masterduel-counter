@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 
+/** Confirma las cartas seleccionadas convirtiéndolas de temporales a permanentes */
 export const confirmCardsController = async (req: Request, res: Response) => {
   try {
     const { cardIds } = req.body;

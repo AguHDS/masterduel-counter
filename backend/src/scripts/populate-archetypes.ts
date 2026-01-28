@@ -32,7 +32,7 @@ async function populateArchetypes() {
           },
         });
         insertedCount++;
-      } catch (error) {
+      } catch {
         skippedCount++;
       }
     }

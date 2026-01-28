@@ -1,16 +1,15 @@
-import { Archetype, ArchetypeCreateDTO, ArchetypeUpdateDTO, ArchetypeWithHeaderCard, ArchetypeWithCreator } from "../Archetype";
+import { Archetype, ArchetypeCreateDTO, ArchetypeUpdateDTO } from "../Archetype";
 
 export interface ArchetypeRepository {
   searchByName(searchTerm: string, limit?: number): Promise<Archetype[]>;
   searchAutocomplete(searchTerm: string, limit?: number): Promise<Archetype[]>;
   findById(id: number): Promise<Archetype | null>;
-  findByIdWithHeaderCard(id: number): Promise<ArchetypeWithHeaderCard | null>;
   findByName(name: string): Promise<Archetype | null>;
   findAll(limit?: number, offset?: number): Promise<Archetype[]>;
-  findAllRegisteredWithCreator(): Promise<ArchetypeWithCreator[]>;
+  findAllRegistered(): Promise<Archetype[]>;
   create(archetypeData: ArchetypeCreateDTO): Promise<Archetype>;
   update(id: number, archetypeData: ArchetypeUpdateDTO): Promise<Archetype | null>;
-  markAsRegistered(id: number, userId?: number): Promise<Archetype | null>;
+  markAsRegistered(id: number, userId?: string): Promise<Archetype | null>;
   markAsUnregistered(id: number): Promise<Archetype | null>;
   incrementPendingRequests(id: number): Promise<Archetype | null>;
   decrementPendingRequests(id: number): Promise<Archetype | null>;

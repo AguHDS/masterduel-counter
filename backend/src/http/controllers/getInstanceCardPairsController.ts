@@ -1,32 +1,33 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 
-export const getArchetypeCardPairsController = async (
+/** Obtiene los pares de cartas de una instancia específica por su ID */
+export const getInstanceCardPairsController = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
     const id = req.params.id;
     if (typeof id !== 'string') {
-      res.status(400).json({ success: false, error: "Invalid archetype ID" });
+      res.status(400).json({ success: false, error: "Invalid instance ID" });
       return;
     }
-    const archetypeId = parseInt(id);
+    const instanceId = parseInt(id);
 
-    if (isNaN(archetypeId) || archetypeId <= 0) {
-      res.status(400).json({ success: false, error: "Invalid archetype ID" });
+    if (isNaN(instanceId) || instanceId <= 0) {
+      res.status(400).json({ success: false, error: "Invalid instance ID" });
       return;
     }
 
     const cardPairRepository = getDependencies().getCardPairRepository();
-    const cardPairs = await cardPairRepository.findByArchetypeIdWithDetails(archetypeId);
+    const cardPairs = await cardPairRepository.findByInstanceIdWithDetails(instanceId);
 
     res.status(200).json({
       success: true,
       cardPairs,
     });
   } catch (error) {
-    console.error("Error fetching archetype card pairs:", error);
+    console.error("Error fetching instance card pairs:", error);
 
     if (error instanceof Error) {
       res.status(400).json({
