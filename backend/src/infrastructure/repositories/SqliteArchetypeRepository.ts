@@ -198,7 +198,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async markAsRegistered(id: number, userId?: number): Promise<Archetype | null> {
+  async markAsRegistered(id: number, userId?: string): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       UPDATE archetypes 
       SET registered = 1, 

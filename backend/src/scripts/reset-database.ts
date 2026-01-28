@@ -37,12 +37,12 @@ async function cleanCloudinaryFolder() {
     try {
       await cloudinary.api.delete_folder(folderPath);
       console.log(`Cloudinary folder deleted`);
-    } catch (error) {
+    } catch {
       // Not critical if the folder cannot be deleted
       console.log("Cloudinary folder not deleted (may not be empty)");
     }
-  } catch (error) {
-    console.error("Error cleaning Cloudinary:", error);
+  } catch {
+    console.error("Error cleaning Cloudinary");
     console.log("Continuing with the database reset...");
   }
 }

@@ -4,7 +4,7 @@ import {
 } from "@/application/ports/ArchetypeService";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
-import { CardServicePort } from "@/application/ports/CardService";
+import { CardService } from "@/application/ports/CardService";
 import {
   Archetype,
   ArchetypeCreateDTO,
@@ -16,12 +16,12 @@ import {
 export class ArchetypeService implements ArchetypeServicePort {
   private repository: ArchetypeRepository;
   private cardPairRepository: ArchetypeCardPairRepository;
-  private cardService: CardServicePort;
+  private cardService: CardService;
 
   constructor(
     repository: ArchetypeRepository,
     cardPairRepository: ArchetypeCardPairRepository,
-    cardService: CardServicePort,
+    cardService: CardService,
   ) {
     this.repository = repository;
     this.cardPairRepository = cardPairRepository;

@@ -10,7 +10,7 @@ export interface ArchetypeRepository {
   findAllRegisteredWithCreator(): Promise<ArchetypeWithCreator[]>;
   create(archetypeData: ArchetypeCreateDTO): Promise<Archetype>;
   update(id: number, archetypeData: ArchetypeUpdateDTO): Promise<Archetype | null>;
-  markAsRegistered(id: number, userId?: number): Promise<Archetype | null>;
+  markAsRegistered(id: number, userId?: string): Promise<Archetype | null>;
   markAsUnregistered(id: number): Promise<Archetype | null>;
   incrementPendingRequests(id: number): Promise<Archetype | null>;
   decrementPendingRequests(id: number): Promise<Archetype | null>;
