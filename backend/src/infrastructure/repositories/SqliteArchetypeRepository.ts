@@ -141,9 +141,9 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
         a.created_by_user_id,
         a.created_at, 
         a.updated_at,
-        ad.username as created_by_username
+        u.namedb as created_by_username
       FROM archetypes a
-      LEFT JOIN admins ad ON a.created_by_user_id = ad.id
+      LEFT JOIN users u ON a.created_by_user_id = u.id
       WHERE a.registered = 1
       ORDER BY a.created_at DESC
     `);

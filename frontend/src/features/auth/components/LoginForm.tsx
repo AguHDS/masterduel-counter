@@ -1,34 +1,42 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAdminAuth } from "../hooks/useAdminAuth";
+import { Link } from "react-router-dom";
+import { useLogin } from "../hooks/useAuthQueries";
 import { Lock, User } from "lucide-react";
 
-export const AdminLoginForm = () => {
+export const LoginForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { login, isLoading, error } = useAdminAuth();
-  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { mutate: login, isPending } = useLogin();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
 
-    const result = await login({ username, password });
-
-    if (result.success) {
-      navigate("/");
-    }
+    login(
+      { username, password },
+      {
+        onSuccess: () => {
+          window.location.href = "/";
+        },
+        onError: (error: any) => {
+          const message = error?.response?.data?.message || error?.message || "Login failed";
+          setErrorMessage(message);
+        },
+      }
+    );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex items-center justify-center px-4">
+    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 to-blue-950 flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
-            Admin Login
+            Sign In
           </h2>
           <p className="mt-2 text-center text-sm text-gray-400">
-            Sign in to access the admin panel
+            Welcome back! Sign in to your account
           </p>
         </div>
 
@@ -79,20 +87,32 @@ export const AdminLoginForm = () => {
             </div>
           </div>
 
-          {error && (
+          {errorMessage && (
             <div className="rounded-md bg-red-900/50 border border-red-700 p-4">
-              <p className="text-sm text-red-200">{error}</p>
+              <p className="text-sm text-red-200">{errorMessage}</p>
             </div>
           )}
 
           <div>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isPending}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isLoading ? "Signing in..." : "Sign in"}
+              {isPending ? "Signing in..." : "Sign in"}
             </button>
+          </div>
+
+          <div className="text-center">
+            <p className="text-sm text-gray-400">
+              Don't have an account?{" "}
+              <Link
+                to="/signup"
+                className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                Sign up
+              </Link>
+            </p>
           </div>
         </form>
       </div>

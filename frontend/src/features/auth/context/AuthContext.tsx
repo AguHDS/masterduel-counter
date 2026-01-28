@@ -1,17 +1,19 @@
 import { createContext, type ReactNode } from "react";
-import { useVerifyAuth, useLogoutAdmin } from "../hooks/useAuthQueries";
+import { useSession } from "@/lib/auth-client";
+import { useLogout } from "../hooks/useAuthQueries";
 
-export interface Admin {
-  id: number;
-  username: string;
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
 }
 
 export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
-  admin: Admin | null;
+  user: User | null;
   logout: () => void;
-  refetch: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -23,29 +25,30 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const { data: authData, isLoading, refetch } = useVerifyAuth();
-  const logoutMutation = useLogoutAdmin();
+  const { data: session, isPending } = useSession();
+  const logoutMutation = useLogout();
 
-  const isAuthenticated = authData?.authenticated ?? false;
-  const admin = authData?.admin ?? null;
+  const isAuthenticated = !!session?.user;
+  const user = session?.user ? {
+    id: session.user.id,
+    name: session.user.name,
+    email: session.user.email,
+    role: (session.user as any).role,
+  } : null;
 
   const logout = () => {
     logoutMutation.mutate(undefined, {
-      onSuccess: (result) => {
-        if (result.success) {
-          localStorage.removeItem("adminUsername");
-          window.location.href = "/";
-        }
+      onSuccess: () => {
+        window.location.href = "/";
       },
     });
   };
 
   const value: AuthContextType = {
     isAuthenticated,
-    isLoading,
-    admin,
+    isLoading: isPending,
+    user,
     logout,
-    refetch,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
