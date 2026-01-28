@@ -99,6 +99,7 @@ model ArchetypeInstance {
   archetypeId      Int       @map("archetype_id")
   userId           String    @map("user_id")
   headerCardId     Int?      @map("header_card_id")
+  generalTip       String?   @map("general_tip")
   likes            Int       @default(0)
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")

@@ -99,6 +99,24 @@ export const CardPairEditor = ({ isEditMode, onSave, onCancel, initialPairs = []
     );
   };
 
+  const movePairLeft = (pairId: string) => {
+    const index = pairs.findIndex(p => p.id === pairId);
+    if (index > 0) {
+      const newPairs = [...pairs];
+      [newPairs[index - 1], newPairs[index]] = [newPairs[index], newPairs[index - 1]];
+      setPairs(newPairs);
+    }
+  };
+
+  const movePairRight = (pairId: string) => {
+    const index = pairs.findIndex(p => p.id === pairId);
+    if (index < pairs.length - 1) {
+      const newPairs = [...pairs];
+      [newPairs[index], newPairs[index + 1]] = [newPairs[index + 1], newPairs[index]];
+      setPairs(newPairs);
+    }
+  };
+
   const handleSave = async () => {
     const completePairs = pairs.filter((p) => p.topCards.length > 0 && p.bottomCards.length > 0);
     
@@ -124,7 +142,7 @@ export const CardPairEditor = ({ isEditMode, onSave, onCancel, initialPairs = []
       <div className="flex-1">
         {pairs.length > 0 && (
           <div className="flex flex-wrap gap-10 justify-center">
-            {pairs.map((pair) => (
+            {pairs.map((pair, index) => (
               <CardPairItem
                 key={pair.id}
                 topCards={pair.topCards}
@@ -133,11 +151,15 @@ export const CardPairEditor = ({ isEditMode, onSave, onCancel, initialPairs = []
                 comment={pair.comment}
                 onSelectTop={() => openCardSelection(pair.id, "top")}
                 onSelectBottom={() => openCardSelection(pair.id, "bottom")}
-                onRemoveTopCard={(index) => removeCard(pair.id, "top", index)}
-                onRemoveBottomCard={(index) => removeCard(pair.id, "bottom", index)}
+                onRemoveTopCard={(cardIndex) => removeCard(pair.id, "top", cardIndex)}
+                onRemoveBottomCard={(cardIndex) => removeCard(pair.id, "bottom", cardIndex)}
                 onEffectivenessChange={(value) => handleEffectivenessChange(pair.id, value)}
                 onCommentChange={(value) => handleCommentChange(pair.id, value)}
                 onRemove={() => removePair(pair.id)}
+                onMoveLeft={() => movePairLeft(pair.id)}
+                onMoveRight={() => movePairRight(pair.id)}
+                canMoveLeft={index > 0}
+                canMoveRight={index < pairs.length - 1}
                 isEditMode={isEditMode}
               />
             ))}
@@ -149,7 +171,7 @@ export const CardPairEditor = ({ isEditMode, onSave, onCancel, initialPairs = []
         <div className="flex justify-center gap-4 pt-8 mt-auto">
           <button
             onClick={addPair}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg transition-colors shadow-lg text-sm"
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Add Card Pair</span>
@@ -157,7 +179,7 @@ export const CardPairEditor = ({ isEditMode, onSave, onCancel, initialPairs = []
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 disabled:bg-gray-600 text-white rounded-lg transition-colors shadow-lg text-sm"
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 disabled:bg-gray-600/50 text-white rounded-lg transition-colors shadow-md text-sm"
           >
             <Save className="w-4 h-4" />
             <span>{saving ? "Saving..." : "Save Changes"}</span>
@@ -166,7 +188,7 @@ export const CardPairEditor = ({ isEditMode, onSave, onCancel, initialPairs = []
             <button
               onClick={onCancel}
               disabled={saving}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 disabled:bg-gray-600 text-white rounded-lg transition-colors shadow-lg text-sm"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 disabled:bg-gray-600/50 text-white rounded-lg transition-colors shadow-md text-sm"
             >
               <X className="w-4 h-4" />
               <span>Cancel</span>

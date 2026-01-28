@@ -71,10 +71,11 @@ export const registerArchetype = async (
   archetypeId: number,
   cardPairs: CardPairDTO[],
   headerCardId?: number,
+  generalTip?: string,
 ): Promise<RegisterArchetypeResponse> => {
   const response = await axiosClient.post<RegisterArchetypeResponse>(
     `/api/archetypes/${archetypeId}/register`,
-    { cardPairs, headerCardId }
+    { cardPairs, headerCardId, generalTip }
   );
   
   return response.data;

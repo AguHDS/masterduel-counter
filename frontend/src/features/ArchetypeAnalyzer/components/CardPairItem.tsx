@@ -1,4 +1,4 @@
-import { X, Plus } from "lucide-react";
+import { X, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { type Card } from "../api/cardApi";
 
 interface CardPairItemProps {
@@ -13,14 +13,18 @@ interface CardPairItemProps {
   onEffectivenessChange: (value: string) => void;
   onCommentChange: (value: string) => void;
   onRemove: () => void;
+  onMoveLeft?: () => void;
+  onMoveRight?: () => void;
+  canMoveLeft?: boolean;
+  canMoveRight?: boolean;
   isEditMode: boolean;
 }
 
 const EFFECTIVENESS_OPTIONS = [
   { value: "BAD", label: "BAD", color: "text-red-500" },
   { value: "MEDIUM", label: "MEDIUM", color: "text-yellow-400" },
-  { value: "EFFECTIVE", label: "GOOD", color: "text-green-400" },
-  { value: "VERY_EFFECTIVE", label: "VERY GOOD", color: "text-green-500" },
+  { value: "EFFECTIVE", label: "GOOD", color: "text-[#80ff82]" },
+  { value: "VERY_EFFECTIVE", label: "PERFECT", color: "text-[#30ff34]" },
 ];  
 
 export const CardPairItem = ({
@@ -35,6 +39,10 @@ export const CardPairItem = ({
   onEffectivenessChange,
   onCommentChange,
   onRemove,
+  onMoveLeft,
+  onMoveRight,
+  canMoveLeft,
+  canMoveRight,
   isEditMode,
 }: CardPairItemProps) => {
   const selectedOption = EFFECTIVENESS_OPTIONS.find((opt) => opt.value === effectiveness);
@@ -42,12 +50,21 @@ export const CardPairItem = ({
   return (
     <div className="space-y-4 max-w-fit">
       {/* Effectiveness Label */}
-      <div className="min-h-[40px] flex items-center justify-center">
+      <div className="min-h-[40px] flex items-center justify-center gap-2">
+        {isEditMode && onMoveLeft && canMoveLeft && (
+          <button
+            onClick={onMoveLeft}
+            className="bg-blue-700 hover:bg-blue-600 text-white rounded p-1 transition-colors"
+            title="Move left"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        )}
         {isEditMode ? (
           <select
             value={effectiveness || ""}
             onChange={(e) => onEffectivenessChange(e.target.value)}
-            className="w-full min-w-[280px] px-3 py-2 bg-slate-700 text-white text-center font-bold text-sm rounded border-2 border-slate-600 focus:outline-none focus:border-blue-500"
+            className="w-full min-w-[280px] px-3 py-2 bg-slate-800 text-white text-center font-bold text-sm rounded border-2 border-slate-600 focus:outline-none focus:border-blue-500"
           >
             <option value="" className="bg-slate-800">Select Effectiveness</option>
             {EFFECTIVENESS_OPTIONS.map((opt) => (
@@ -61,6 +78,15 @@ export const CardPairItem = ({
             {selectedOption?.label}
           </div>
         ) : null}
+        {isEditMode && onMoveRight && canMoveRight && (
+          <button
+            onClick={onMoveRight}
+            className="bg-blue-700 hover:bg-blue-600 text-white rounded p-1 transition-colors"
+            title="Move right"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Card Pair Container */}
@@ -163,19 +189,32 @@ export const CardPairItem = ({
         </div>
 
         {/* Comment Field */}
-        <div className="min-h-[60px] flex items-center justify-center mt-4">
+        <div className="flex items-center justify-center mt-4">
           {isEditMode ? (
             <textarea
               value={comment || ""}
               onChange={(e) => onCommentChange(e.target.value)}
-              placeholder="Add a comment..."
+              maxLength={2000}
+              placeholder="Add a comment (Max. 2000 characters)..."
               className="w-full px-3 py-2 bg-slate-700/50 text-white text-sm rounded border border-slate-600 focus:outline-none focus:border-blue-500 resize-none"
               rows={3}
             />
           ) : (
             <div className="w-full flex flex-col items-center space-y-1">
               <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Tip</span>
-              <div className="text-center px-2 py-1 text-slate-300 text-sm italic max-w-[280px] max-h-[80px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-800 scrollbar-track-slate-700">
+              <div 
+                className="text-center px-3 py-2 text-slate-300 text-sm italic w-[280px] overflow-y-auto"
+                style={{
+                  maxHeight: '5.6em',
+                  lineHeight: '1.4em',
+                  overflowY: 'auto',
+                  overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
+                  whiteSpace: 'normal',
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#1e293b #0f172a'
+                }}
+              >
                 {comment || "No description"}
               </div>
             </div>

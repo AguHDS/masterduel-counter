@@ -72,10 +72,10 @@ export const useRegisterArchetype = () => {
   return useMutation<
     RegisterArchetypeResponse,
     Error,
-    { archetypeId: number; cardPairs: CardPairDTO[]; headerCardId?: number }
+    { archetypeId: number; cardPairs: CardPairDTO[]; headerCardId?: number; generalTip?: string }
   >({
-    mutationFn: ({ archetypeId, cardPairs, headerCardId }) =>
-      registerArchetype(archetypeId, cardPairs, headerCardId),
+    mutationFn: ({ archetypeId, cardPairs, headerCardId, generalTip }) =>
+      registerArchetype(archetypeId, cardPairs, headerCardId, generalTip),
     onSuccess: (_data, variables) => {
       // Invalidate related queries
       queryClient.invalidateQueries({

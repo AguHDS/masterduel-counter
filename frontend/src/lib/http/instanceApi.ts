@@ -7,6 +7,7 @@ export interface ArchetypeInstanceWithDetails {
   archetypeId: number;
   userId: string;
   headerCardId: number | null;
+  generalTip?: string | null;
   likes: number;
   createdAt: string;
   updatedAt: string;
@@ -22,6 +23,7 @@ export interface UserInstanceWithCardPairs {
     archetypeId: number;
     userId: string;
     headerCardId: number | null;
+    generalTip?: string | null;
     likes: number;
     createdAt: string;
     updatedAt: string;
