@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Layers, Plus, Edit3, Image, Trash2, ThumbsUp } from "lucide-react";
+import { Layers, Plus, Edit3, Trash2, ThumbsUp } from "lucide-react";
 import { SearchInput } from "@/layouts/Search";
 import { SearchResults } from "./SearchResults";
 import { CardPairEditor } from "./CardPairEditor";
@@ -59,6 +59,7 @@ export const ArchetypeAnalyzerContainer = ({
   const [isEditMode, setIsEditMode] = useState(false);
   const [loadedPairs, setLoadedPairs] = useState<CardPair[]>([]);
   const [headerCard, setHeaderCard] = useState<HeaderCard | null>(null);
+  const [generalTip, setGeneralTip] = useState<string>("");
   const [isSelectingHeader, setIsSelectingHeader] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -119,6 +120,7 @@ export const ArchetypeAnalyzerContainer = ({
       }));
       setLoadedPairs(pairs);
       setLikeCount(userInstanceData.instance.likes);
+      setGeneralTip(userInstanceData.instance.generalTip || "");
 
       // Load header card if it exists
       if (userInstanceData.headerCard) {
@@ -142,6 +144,7 @@ export const ArchetypeAnalyzerContainer = ({
     } else {
       setLoadedPairs([]);
       setHeaderCard(null);
+      setGeneralTip("");
       setLiked(false);
       setLikeCount(0);
     }
@@ -204,6 +207,7 @@ export const ArchetypeAnalyzerContainer = ({
         comment: pair.comment,
       }));
       setLoadedPairs(pairs);
+      setGeneralTip(userInstanceData.instance.generalTip || "");
       if (userInstanceData.headerCard) {
         setHeaderCard({
           id: userInstanceData.headerCard.id,
@@ -304,6 +308,7 @@ export const ArchetypeAnalyzerContainer = ({
         archetypeId: selectedArchetype.id,
         cardPairs,
         headerCardId: headerCard.id,
+        generalTip: generalTip || undefined,
       });
 
       setSelectedArchetype(response.archetype);
@@ -363,27 +368,59 @@ export const ArchetypeAnalyzerContainer = ({
               </div>
             )}
 
-            <div className="text-center space-y-6">
-              <div className="space-y-2">
+            {/* Header Section - New Layout */}
+            <div className="flex items-start justify-center gap-8 mb-8 w-full px-4">
+              {/* Left Side: Title and General Tip */}
+              <div className="space-y-4 flex-1 max-w-4xl">
                 <h2 className="text-2xl font-bold text-white">
                   {selectedArchetype.name}
                 </h2>
+                
+                {/* General Tip Section */}
+                <div className="w-full">
+                  {isEditMode && isOwner ? (
+                    <textarea
+                      value={generalTip}
+                      onChange={(e) => setGeneralTip(e.target.value)}
+                      maxLength={5000}
+                      placeholder="Add optional tip for this guide (Max. )..."
+                      className="w-full px-4 py-3 bg-slate-800/40 text-white text-lg rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 resize-none shadow-sm min-h-[120px]"
+                      rows={5}
+                    />
+                  ) : (
+                    <div className="py-4 border-t border-blue-400/30">
+                      <p className="text-slate-300 text-base leading-relaxed break-words">
+                        {generalTip || "No description"}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-              
-              <div className="relative">
+
+              {/* Right Side: Header Card */}
+              <div className="relative flex-shrink-0 group">
                 {headerCard ? (
-                  <div className="w-48 h-auto mx-auto rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
+                  <div className="relative w-48 h-auto rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
                     <img
                       src={headerCard.imageUrl}
                       alt={headerCard.name}
                       className="w-full h-auto object-cover"
                     />
+                    {isEditMode && (
+                      <button
+                        onClick={() => setIsSelectingHeader(true)}
+                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Change Header Card"
+                      >
+                        <Plus className="w-12 h-12 text-white" />
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <button
                     onClick={() => isEditMode && setIsSelectingHeader(true)}
                     disabled={!isEditMode}
-                    className={`bg-gradient-to-br from-blue-800 to-slate-800 w-24 h-24 rounded-full flex items-center justify-center mx-auto border-2 border-blue-500 ${
+                    className={`bg-gradient-to-br from-blue-800 to-slate-800 w-24 h-24 rounded-full flex items-center justify-center border-2 border-blue-500 ${
                       isEditMode ? 'cursor-pointer hover:border-purple-500 transition-colors' : 'cursor-default'
                     }`}
                     title={isEditMode ? "Select Header Card" : ""}
@@ -391,17 +428,12 @@ export const ArchetypeAnalyzerContainer = ({
                     <Plus className={`w-12 h-12 ${isEditMode ? 'text-purple-400' : 'text-blue-300'}`} />
                   </button>
                 )}
-
-                {isEditMode && headerCard && (
-                  <button
-                    onClick={() => setIsSelectingHeader(true)}
-                    className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors shadow-lg"
-                  >
-                    <Image className="w-4 h-4" />
-                    <span>Change Header</span>
-                  </button>
-                )}
               </div>
+            </div>
+
+            {/* Separator */}
+            <div className="flex justify-center my-8">
+              <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
             </div>
 
             <div className="mt-8">
@@ -413,16 +445,7 @@ export const ArchetypeAnalyzerContainer = ({
               />
             </div>
 
-            <div className="flex items-center justify-center space-x-4 mt-8">
-              <button
-                onClick={() => {
-                  window.location.href = "/";
-                }}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
-              >
-                Back to Search
-              </button>
-
+            <div className="flex items-center justify-center space-x-4 mt-16">
               {/* Show message if viewing someone else's instance */}
               {instanceUserId && !isOwner && (
                 <div className="text-blue-300 text-sm">
@@ -439,17 +462,17 @@ export const ArchetypeAnalyzerContainer = ({
                   <>
                     <button
                       onClick={() => setIsEditMode(true)}
-                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
                     >
                       <Edit3 className="w-4 h-4" />
                       <span>Edit Archetype</span>
                     </button>
                     <button
                       onClick={handleDeleteInstance}
-                      className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
                     >
                       <Trash2 className="w-4 h-4" />
-                      <span>Delete Instance</span>
+                      <span>Delete guide</span>
                     </button>
                   </>
                 )}

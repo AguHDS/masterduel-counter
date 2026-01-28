@@ -48,34 +48,90 @@ async function resetDatabase() {
     console.log("Cleaning database tables...");
     
     // Delete all records in the correct order (respecting foreign keys)
-    await prisma.archetypeCardPair.deleteMany({});
-    console.log("✓ Deleted all archetype card pairs");
+    // First, delete junction tables that reference card pairs
+    try {
+      await prisma.cardPairTop.deleteMany({});
+      console.log("✓ Deleted all card pair tops");
+    } catch (e) {
+      console.log("ℹ Table card_pair_top doesn't exist yet (will be created after db push)");
+    }
     
-    await prisma.archetypeInstance.deleteMany({});
-    console.log("✓ Deleted all archetype instances");
+    try {
+      await prisma.cardPairBottom.deleteMany({});
+      console.log("✓ Deleted all card pair bottoms");
+    } catch (e) {
+      console.log("ℹ Table card_pair_bottom doesn't exist yet (will be created after db push)");
+    }
     
-    await prisma.card.deleteMany({});
-    console.log("✓ Deleted all cards");
+    try {
+      await prisma.archetypeCardPair.deleteMany({});
+      console.log("✓ Deleted all archetype card pairs");
+    } catch (e) {
+      console.log("ℹ Table archetype_card_pairs doesn't exist yet (will be created after db push)");
+    }
     
-    await prisma.archetype.deleteMany({});
-    console.log("✓ Deleted all archetypes");
+    try {
+      await prisma.instanceLike.deleteMany({});
+      console.log("✓ Deleted all instance likes");
+    } catch (e) {
+      console.log("ℹ Table instance_likes doesn't exist yet (will be created after db push)");
+    }
     
-    await prisma.verification.deleteMany({});
-    console.log("✓ Deleted all verifications");
+    try {
+      await prisma.archetypeInstance.deleteMany({});
+      console.log("✓ Deleted all archetype instances");
+    } catch (e) {
+      console.log("ℹ Table archetype_instances doesn't exist yet (will be created after db push)");
+    }
     
-    await prisma.session.deleteMany({});
-    console.log("✓ Deleted all sessions");
+    try {
+      await prisma.card.deleteMany({});
+      console.log("✓ Deleted all cards");
+    } catch (e) {
+      console.log("ℹ Table cards doesn't exist yet (will be created after db push)");
+    }
     
-    await prisma.account.deleteMany({});
-    console.log("✓ Deleted all accounts");
+    try {
+      await prisma.archetype.deleteMany({});
+      console.log("✓ Deleted all archetypes");
+    } catch (e) {
+      console.log("ℹ Table archetypes doesn't exist yet (will be created after db push)");
+    }
     
-    await prisma.user.deleteMany({});
-    console.log("✓ Deleted all users");
+    try {
+      await prisma.verification.deleteMany({});
+      console.log("✓ Deleted all verifications");
+    } catch (e) {
+      console.log("ℹ Table verification doesn't exist yet (will be created after db push)");
+    }
+    
+    try {
+      await prisma.session.deleteMany({});
+      console.log("✓ Deleted all sessions");
+    } catch (e) {
+      console.log("ℹ Table session doesn't exist yet (will be created after db push)");
+    }
+    
+    try {
+      await prisma.account.deleteMany({});
+      console.log("✓ Deleted all accounts");
+    } catch (e) {
+      console.log("ℹ Table account doesn't exist yet (will be created after db push)");
+    }
+    
+    try {
+      await prisma.user.deleteMany({});
+      console.log("✓ Deleted all users");
+    } catch (e) {
+      console.log("ℹ Table user doesn't exist yet (will be created after db push)");
+    }
 
     console.log("\n✅ Database reset completed successfully!");
     console.log("\n📋 Next steps:");
-    console.log("1. Run: npm run populate-archetypes (to populate archetype data)");
-    console.log("2. Run: npm run dev (to start the server)");
+    console.log("1. Run: npx prisma db push (to create/update database tables)");
+    console.log("2. Run: npx prisma generate (to generate Prisma Client)");
+    console.log("3. Run: npm run populate-archetypes (to populate archetype data)");
+    console.log("4. Run: npm run dev (to start the server)");
   } catch (error) {
     console.error("Error:", error);
   } finally {

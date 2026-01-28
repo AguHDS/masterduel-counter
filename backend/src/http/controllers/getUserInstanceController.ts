@@ -78,6 +78,7 @@ export const createGetUserInstanceController = (
           archetypeId: instance.archetypeId,
           userId: instance.userId,
           headerCardId: instance.headerCardId,
+          generalTip: instance.generalTip,
           likes: instance.likes,
           createdAt: instance.createdAt,
           updatedAt: instance.updatedAt,

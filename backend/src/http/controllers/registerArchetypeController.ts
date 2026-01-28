@@ -14,7 +14,7 @@ export const registerArchetypeController = async (
       return;
     }
     const archetypeId = parseInt(id);
-    const { cardPairs, headerCardId } = req.body;
+    const { cardPairs, headerCardId, generalTip } = req.body;
     const userId = (req as AuthenticatedRequest).user?.id;
 
     if (!userId) {
@@ -46,6 +46,7 @@ export const registerArchetypeController = async (
       archetypeId,
       userId,
       headerCardId: headerCardId || null,
+      generalTip: generalTip || null,
     });
 
     // Confirmar cartas y guardar pares
