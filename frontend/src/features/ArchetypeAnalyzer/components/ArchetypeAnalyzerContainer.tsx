@@ -1,17 +1,20 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Layers, Edit3, Image } from "lucide-react";
+import { Layers, Edit3, Image, Trash2 } from "lucide-react";
 import { SearchInput } from "@/layouts/Search";
 import { SearchResults } from "./SearchResults";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
 import { RegisteredArchetypesList } from "./RegisteredArchetypesList";
+import { UserInstancesList } from "./UserInstancesList";
+import { ArchetypeInstancesList } from "./ArchetypeInstancesList";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import { useAuth } from "@/features/auth";
+import { instanceApi } from "@/lib/http/instanceApi";
 import { 
   useRegisterArchetype, 
-  useArchetypeCardPairs, 
-  useArchetypeWithHeader 
+  useArchetypeWithHeader,
+  useUserInstance 
 } from "../hooks/useArchetypeQueries";
 import type { Archetype } from "../api/archetypeApi";
 import { type Card } from "../api/cardApi";
@@ -47,7 +50,7 @@ interface ArchetypeAnalyzerContainerProps {
 export const ArchetypeAnalyzerContainer = ({ 
   resetSearchRef 
 }: ArchetypeAnalyzerContainerProps = {}) => {
-  const { archetypeId } = useParams<{ archetypeId: string }>();
+  const { archetypeId, userId, instanceUserId } = useParams<{ archetypeId: string; userId: string; instanceUserId: string }>();
   const navigate = useNavigate();
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,7 +59,7 @@ export const ArchetypeAnalyzerContainer = ({
   const [loadedPairs, setLoadedPairs] = useState<CardPair[]>([]);
   const [headerCard, setHeaderCard] = useState<HeaderCard | null>(null);
   const [isSelectingHeader, setIsSelectingHeader] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   // TanStack Query hooks
   const registerMutation = useRegisterArchetype();
@@ -68,9 +71,18 @@ export const ArchetypeAnalyzerContainer = ({
   const { data: archetypeWithHeaderData } = useArchetypeWithHeader(
     archetypeIdNum
   );
-  const { data: cardPairsData } = useArchetypeCardPairs(
-    archetypeIdNum && selectedArchetype?.registered ? archetypeIdNum : undefined
+  
+  // Fetch user instance - ONLY if instanceUserId is specified in URL
+  // This means we're viewing a specific instance, not listing all instances
+  const shouldLoadInstance = archetypeIdNum && instanceUserId;
+  const { data: userInstanceData } = useUserInstance(
+    shouldLoadInstance ? archetypeIdNum : undefined,
+    instanceUserId
   );
+  
+  // Check if current user owns this instance
+  // If there's no instanceUserId (new archetype registration), consider user as owner
+  const isOwner = isAuthenticated && (!instanceUserId || user?.id === instanceUserId);
 
   const { results, loading, error } = useArchetypeSearch({
     searchQuery,
@@ -87,37 +99,28 @@ export const ArchetypeAnalyzerContainer = ({
     }
   }, [archetypeId, archetypeWithHeaderData]);
 
-  // Load card pairs and card header when a registered archetype is selected
+  // Load card pairs and card header when a specific instance is being viewed
   useEffect(() => {
-    if (selectedArchetype?.registered && cardPairsData) {
-      const pairs: CardPair[] = cardPairsData.cardPairs.map((pair) => ({
+    // Reset edit mode when changing instances
+    setIsEditMode(false);
+    
+    // Only load pairs if we're viewing a specific instance (instanceUserId is set)
+    if (instanceUserId && userInstanceData) {
+      const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
-        topCard: {
-          id: pair.top_card_id,
-          name: pair.top_card_name,
-          imageUrl: pair.top_card_image_url,
-          imageUrlSmall: pair.top_card_image_url_small,
-        },
-        bottomCard: {
-          id: pair.bottom_card_id,
-          name: pair.bottom_card_name,
-          imageUrl: pair.bottom_card_image_url,
-          imageUrlSmall: pair.bottom_card_image_url_small,
-        },
-        effectiveness: pair.effectiveness || undefined,
-        comment: pair.comment || undefined,
+        topCard: pair.topCard,
+        bottomCard: pair.bottomCard,
+        effectiveness: pair.effectiveness,
+        comment: pair.comment,
       }));
       setLoadedPairs(pairs);
 
       // Load header card if it exists
-      if (
-        selectedArchetype.header_card_id && 
-        archetypeWithHeaderData?.archetype.header_card_image_url
-      ) {
+      if (userInstanceData.headerCard) {
         setHeaderCard({
-          id: archetypeWithHeaderData.archetype.header_card_id!,
-          name: archetypeWithHeaderData.archetype.header_card_name!,
-          imageUrl: archetypeWithHeaderData.archetype.header_card_image_url,
+          id: userInstanceData.headerCard.id,
+          name: userInstanceData.headerCard.name,
+          imageUrl: userInstanceData.headerCard.imageUrl,
         });
       } else {
         setHeaderCard(null);
@@ -126,7 +129,7 @@ export const ArchetypeAnalyzerContainer = ({
       setLoadedPairs([]);
       setHeaderCard(null);
     }
-  }, [selectedArchetype, cardPairsData, archetypeWithHeaderData]);
+  }, [instanceUserId, userInstanceData]);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -150,17 +153,87 @@ export const ArchetypeAnalyzerContainer = ({
     navigate(`/archetype/${archetype.id}`);
   };
 
-  const handleSelectArchetypeFromList = (archetypeId: number) => {
-    // Data is already in cache
-    navigate(`/archetype/${archetypeId}`);
+  const handleSelectArchetypeFromList = (archetypeId: number, userId: string | null) => {
+    // Navigate to specific user's instance if userId provided
+    if (userId) {
+      navigate(`/archetype/${archetypeId}/instance/${userId}`);
+    } else {
+      navigate(`/archetype/${archetypeId}`);
+    }
   };
+
+  const handleSelectInstanceFromArchetype = (userId: string) => {
+    // Navigate to specific instance
+    if (selectedArchetype) {
+      navigate(`/archetype/${selectedArchetype.id}/instance/${userId}`);
+    }
+  };
+
+  const handleCreateInstance = () => {
+    // Navigate to the user's own instance to create/edit it
+    if (user?.id && archetypeId) {
+      navigate(`/archetype/${archetypeId}/instance/${user.id}`);
+    }
+  };
+  
+  const handleCancel = () => {
+    setIsEditMode(false);
+    // Reset to loaded data
+    if (instanceUserId && userInstanceData) {
+      const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
+        id: pair.id.toString(),
+        topCard: pair.topCard,
+        bottomCard: pair.bottomCard,
+        effectiveness: pair.effectiveness,
+        comment: pair.comment,
+      }));
+      setLoadedPairs(pairs);
+      if (userInstanceData.headerCard) {
+        setHeaderCard({
+          id: userInstanceData.headerCard.id,
+          name: userInstanceData.headerCard.name,
+          imageUrl: userInstanceData.headerCard.imageUrl,
+        });
+      }
+    } else {
+      // If it's a new registration, go back
+      navigate(-1);
+    }
+  };
+
+  const handleDeleteInstance = async () => {
+    if (!selectedArchetype || !user?.id || !archetypeId) return;
+
+    const confirmed = confirm(
+      "Are you sure you want to delete your instance? This action cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await instanceApi.deleteUserInstance(parseInt(archetypeId), user.id);
+      alert("Instance deleted successfully");
+      // Navigate back to the archetype list or main page
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting instance:", error);
+      alert("Failed to delete instance. Please try again.");
+    }
+  };
+
+  // Helper to show archetype instances list
+  const showArchetypeInstancesList = !userId && archetypeId && !instanceUserId && selectedArchetype?.registered;
 
   const handleRegisterClick = () => {
     if (!isAuthenticated) {
       alert("You must be logged in to register archetypes.");
       return;
     }
-    setIsEditMode(true);
+    
+    // Only allow edit mode if user is the owner or it's a new registration
+    if (!selectedArchetype?.registered || isOwner) {
+      setIsEditMode(true);
+    }
   };
 
   const handleHeaderCardSelected = (card: Card) => {
@@ -175,25 +248,9 @@ export const ArchetypeAnalyzerContainer = ({
   const handleSaveCards = async (pairs: CardPair[]) => {
     if (!selectedArchetype) return;
 
-    // If no pairs, mark as unregistered
+    // Validate at least one pair
     if (pairs.length === 0) {
-      try {
-        const response = await registerMutation.mutateAsync({
-          archetypeId: selectedArchetype.id,
-          cardPairs: [],
-        });
-        alert("Archetype unmarked as registered successfully");
-        setSelectedArchetype(response.archetype);
-        setHeaderCard(null);
-        setIsEditMode(false);
-      } catch (error) {
-        console.error("Error unmarking archetype:", error);
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Failed to update archetype. Please try again.",
-        );
-      }
+      alert("Please add at least one card pair before saving.");
       return;
     }
 
@@ -219,6 +276,11 @@ export const ArchetypeAnalyzerContainer = ({
       alert(response.message);
       setSelectedArchetype(response.archetype);
       setIsEditMode(false);
+      
+      // Navigate to the user's instance after successful registration
+      if (user?.id) {
+        navigate(`/archetype/${selectedArchetype.id}/instance/${user.id}`);
+      }
     } catch (error) {
       console.error("Error saving archetype:", error);
       alert(
@@ -252,7 +314,7 @@ export const ArchetypeAnalyzerContainer = ({
       </SearchInput>
 
       <div className="flex-1 p-8 overflow-auto">
-        {selectedArchetype ? (
+        {(selectedArchetype && instanceUserId) || (selectedArchetype && !selectedArchetype.registered) ? (
           <div className="space-y-6">
             <div className="text-center space-y-6">
               <div className="space-y-2">
@@ -292,8 +354,9 @@ export const ArchetypeAnalyzerContainer = ({
 
             <div className="mt-8">
               <CardPairEditor
-                isEditMode={isEditMode}
+                isEditMode={isEditMode && isOwner}
                 onSave={handleSaveCards}
+                onCancel={handleCancel}
                 initialPairs={loadedPairs}
               />
             </div>
@@ -308,18 +371,38 @@ export const ArchetypeAnalyzerContainer = ({
                 Back to Search
               </button>
 
+              {/* Show message if viewing someone else's instance */}
+              {instanceUserId && !isOwner && (
+                <div className="text-blue-300 text-sm">
+                  Viewing <span className="font-semibold">{userInstanceData?.userName || 'another user'}'s</span> version (read-only)
+                </div>
+              )}
+
+              {/* Edit button - only show if owner of the instance */}
               {isAuthenticated &&
                 selectedArchetype.registered &&
-                !isEditMode && (
-                  <button
-                    onClick={() => setIsEditMode(true)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                    <span>Edit Archetype</span>
-                  </button>
+                !isEditMode &&
+                instanceUserId &&
+                isOwner && (
+                  <>
+                    <button
+                      onClick={() => setIsEditMode(true)}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      <span>Edit Archetype</span>
+                    </button>
+                    <button
+                      onClick={handleDeleteInstance}
+                      className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete Instance</span>
+                    </button>
+                  </>
                 )}
 
+              {/* Register button - only show for unregistered archetypes */}
               {isAuthenticated &&
                 !selectedArchetype.registered &&
                 !isEditMode && (
@@ -335,9 +418,31 @@ export const ArchetypeAnalyzerContainer = ({
           </div>
         ) : (
           <>
-            {!searchQuery ? (
-              <RegisteredArchetypesList onSelectArchetype={handleSelectArchetypeFromList} />
-            ) : (
+            {!searchQuery && (
+              <>
+                {userId && (
+                  <UserInstancesList 
+                    userId={userId} 
+                    onSelectArchetype={(archetypeId, instanceUserId) => handleSelectArchetypeFromList(archetypeId, instanceUserId)} 
+                  />
+                )}
+                
+                {showArchetypeInstancesList && selectedArchetype && (
+                  <ArchetypeInstancesList
+                    archetypeId={parseInt(archetypeId!)}
+                    archetypeName={(selectedArchetype as Archetype).name}
+                    onSelectInstance={handleSelectInstanceFromArchetype}
+                    onCreateInstance={handleCreateInstance}
+                  />
+                )}
+                
+                {!userId && !archetypeId && (
+                  <RegisteredArchetypesList onSelectArchetype={handleSelectArchetypeFromList} />
+                )}
+              </>
+            )}
+            
+            {searchQuery && (
               <div className="flex items-center justify-center min-h-[400px]">
                 <div className="text-center space-y-4">
                   <div className="bg-gradient-to-br from-blue-800 to-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto border border-blue-600">

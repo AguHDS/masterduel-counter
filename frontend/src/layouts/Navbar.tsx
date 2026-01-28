@@ -1,5 +1,5 @@
 import { useAuth } from "../features/auth";
-import { LogOut, LogIn, UserPlus } from "lucide-react";
+import { LogOut, LogIn, UserPlus, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface NavbarProps {
@@ -28,6 +28,14 @@ export const Navbar = ({ onLogoClick }: NavbarProps = {}) => {
                 <span className="text-sm text-gray-300">
                   Welcome, <span className="font-semibold text-blue-400">{user.name}</span>
                 </span>
+                <Link
+                  to={`/user/${user.id}/instances`}
+                  className="flex items-center space-x-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                  title="My Profile"
+                >
+                  <User className="h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-2 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"

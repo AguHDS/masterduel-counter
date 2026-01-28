@@ -22,6 +22,7 @@ model User {
   sessions     Session[]
   accounts     Account[]
   verification Verification[]
+  archetypeInstances ArchetypeInstance[]
 
   banned     Boolean?  @default(false)
   banReason  String?   @map("ban_reason")
@@ -84,15 +85,32 @@ model Archetype {
   name             String    @unique
   registered       Boolean   @default(false)
   pendingRequests  Int       @default(0) @map("pending_requests")
-  headerCardId     Int?      @map("header_card_id")
-  createdByUserId  String?   @map("created_by_user_id")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @default(now()) @map("updated_at")
 
-  headerCard       Card?     @relation("ArchetypeHeaderCard", fields: [headerCardId], references: [id], onDelete: SetNull)
-  cardPairs        ArchetypeCardPair[]
+  instances        ArchetypeInstance[]
 
   @@map("archetypes")
+}
+
+model ArchetypeInstance {
+  id               Int       @id @default(autoincrement())
+  archetypeId      Int       @map("archetype_id")
+  userId           String    @map("user_id")
+  headerCardId     Int?      @map("header_card_id")
+  likes            Int       @default(0)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  archetype        Archetype @relation(fields: [archetypeId], references: [id], onDelete: Cascade)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headerCard       Card?     @relation("InstanceHeaderCard", fields: [headerCardId], references: [id], onDelete: SetNull)
+  cardPairs        ArchetypeCardPair[]
+
+  @@unique([archetypeId, userId])
+  @@index([userId])
+  @@index([archetypeId])
+  @@map("archetype_instances")
 }
 
 model Card {
@@ -105,7 +123,7 @@ model Card {
   isTemporary            Boolean   @default(true) @map("is_temporary")
   createdAt              DateTime  @default(now()) @map("created_at")
 
-  archetypeHeaders       Archetype[] @relation("ArchetypeHeaderCard")
+  instanceHeaders        ArchetypeInstance[] @relation("InstanceHeaderCard")
   topCardPairs           ArchetypeCardPair[] @relation("TopCard")
   bottomCardPairs        ArchetypeCardPair[] @relation("BottomCard")
 
@@ -116,7 +134,7 @@ model Card {
 
 model ArchetypeCardPair {
   id            Int       @id @default(autoincrement())
-  archetypeId   Int       @map("archetype_id")
+  instanceId    Int       @map("instance_id")
   topCardId     Int       @map("top_card_id")
   bottomCardId  Int       @map("bottom_card_id")
   pairOrder     Int       @map("pair_order")
@@ -124,10 +142,10 @@ model ArchetypeCardPair {
   comment       String?
   createdAt     DateTime  @default(now()) @map("created_at")
 
-  archetype     Archetype @relation(fields: [archetypeId], references: [id], onDelete: Cascade)
+  instance      ArchetypeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
   topCard       Card      @relation("TopCard", fields: [topCardId], references: [id], onDelete: Cascade)
   bottomCard    Card      @relation("BottomCard", fields: [bottomCardId], references: [id], onDelete: Cascade)
 
-  @@index([archetypeId])
+  @@index([instanceId])
   @@map("archetype_card_pairs")
 }

@@ -1,4 +1,4 @@
-import { Plus, Save } from "lucide-react";
+import { Plus, Save, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CardPairItem } from "./CardPairItem";
 import { CardSearchModal } from "./CardSearchModal";
@@ -15,12 +15,13 @@ interface CardPair {
 interface CardPairEditorProps {
   isEditMode: boolean;
   onSave: (pairs: CardPair[]) => Promise<void>;
+  onCancel?: () => void;
   initialPairs?: CardPair[];
 }
 
 type SelectingPosition = { pairId: string; position: "top" | "bottom" } | null;
 
-export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPairEditorProps) => {
+export const CardPairEditor = ({ isEditMode, onSave, onCancel, initialPairs = [] }: CardPairEditorProps) => {
   const [pairs, setPairs] = useState<CardPair[]>(initialPairs);
   const [selectingPosition, setSelectingPosition] = useState<SelectingPosition>(null);
   const [saving, setSaving] = useState(false);
@@ -84,9 +85,15 @@ export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPa
   };
 
   const handleSave = async () => {
+    const completePairs = pairs.filter((p) => p.topCard && p.bottomCard);
+    
+    if (completePairs.length === 0) {
+      alert("Please add at least one complete card pair before saving.");
+      return;
+    }
+    
     setSaving(true);
     try {
-      const completePairs = pairs.filter((p) => p.topCard && p.bottomCard);
       await onSave(completePairs);
     } catch (error) {
       console.error("Error saving pairs:", error);
@@ -137,6 +144,16 @@ export const CardPairEditor = ({ isEditMode, onSave, initialPairs = [] }: CardPa
             <Save className="w-4 h-4" />
             <span>{saving ? "Saving..." : "Save Changes"}</span>
           </button>
+          {onCancel && (
+            <button
+              onClick={onCancel}
+              disabled={saving}
+              className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 text-white rounded-lg transition-colors shadow-lg text-sm"
+            >
+              <X className="w-4 h-4" />
+              <span>Cancel</span>
+            </button>
+          )}
         </div>
       )}
 

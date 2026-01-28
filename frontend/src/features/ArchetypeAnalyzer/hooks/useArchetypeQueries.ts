@@ -4,14 +4,13 @@ import {
   searchArchetypes,
   registerArchetype,
   getArchetypeWithHeaderCard,
-  getArchetypeCardPairs,
   getRegisteredArchetypes,
   type SearchResponse,
   type RegisterArchetypeResponse,
-  type GetCardPairsResponse,
   type RegisteredArchetypesResponse,
   type CardPairDTO,
 } from "../api/archetypeApi";
+import { instanceApi, type UserInstanceWithCardPairs } from "@/lib/http/instanceApi";
 
 /**
  * Hook to search archetypes
@@ -52,15 +51,15 @@ export const useArchetypeWithHeader = (archetypeId: number | undefined) => {
 };
 
 /**
- * Hook to get archetype card pairs
- * Uses LONG stale time since pairs don't change often
+ * Hook to get user instance with card pairs
+ * Uses DEFAULT stale time
  */
-export const useArchetypeCardPairs = (archetypeId: number | undefined) => {
-  return useQuery<GetCardPairsResponse>({
-    queryKey: queryKeys.archetypes.cardPairs(archetypeId!),
-    queryFn: () => getArchetypeCardPairs(archetypeId!),
-    staleTime: QUERY_STALE_TIME.LONG,
-    enabled: !!archetypeId,
+export const useUserInstance = (archetypeId: number | undefined, userId: string | undefined) => {
+  return useQuery<UserInstanceWithCardPairs>({
+    queryKey: ["userInstance", archetypeId, userId],
+    queryFn: () => instanceApi.getUserInstance(archetypeId!, userId!),
+    staleTime: QUERY_STALE_TIME.DEFAULT,
+    enabled: !!archetypeId && !!userId,
   });
 };
 

@@ -20,7 +20,7 @@ export const LoginForm = () => {
         onSuccess: () => {
           window.location.href = "/";
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
           const message = error?.response?.data?.message || error?.message || "Login failed";
           setErrorMessage(message);
         },

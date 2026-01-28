@@ -17,8 +17,14 @@ import {
   confirmCards,
   registerArchetype,
   registeredArchetypes,
+  deleteUserInstance,
+  createGetArchetypeInstancesRoute,
+  createGetUserInstancesRoute,
+  createCreateOrUpdateInstanceRoute,
+  createGetUserInstanceRoute,
 } from "./routes/index";
 import auth from "./routes/auth";
+import getInstanceCardPairs from "./routes/getInstanceCardPairs";
 
 app.use(
   cors({
@@ -33,9 +39,15 @@ app.use(express.json());
 app.use("/api/auth", auth);
 app.use("/api/logout", logout);
 
-// Archetypes
+// Archetypes & Instances
 app.use("/api/archetypes", registerArchetype);
 app.use("/api/archetypes", registeredArchetypes);
+app.use("/api", deleteUserInstance);
+app.use("/api", createGetArchetypeInstancesRoute(getDependencies()));
+app.use("/api", createGetUserInstancesRoute(getDependencies()));
+app.use("/api", createCreateOrUpdateInstanceRoute(getDependencies()));
+app.use("/api", createGetUserInstanceRoute(getDependencies()));
+app.use("/api", getInstanceCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 
 // Cards

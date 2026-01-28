@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 import { ArchetypeService } from "@/application/services/ArchetypeService";
 
+/** Busca arquetipos por nombre con filtros opcionales */
 let archetypeService: ArchetypeService | null = null;
 
 const getArchetypeService = (): ArchetypeService => {
@@ -31,7 +32,6 @@ export const searchArchetypeController = async (
           name: archetype.name,
           registered: archetype.registered,
           pending_requests: archetype.pending_requests,
-          header_card_id: archetype.header_card_id,
         })),
       },
     };

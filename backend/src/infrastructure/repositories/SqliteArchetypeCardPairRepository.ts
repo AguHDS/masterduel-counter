@@ -19,16 +19,16 @@ export class SqliteArchetypeCardPairRepository
     pairs: ArchetypeCardPairCreateDTO[],
   ): Promise<ArchetypeCardPair[]> {
     const stmt = this.db.prepare(`
-      INSERT INTO archetype_card_pairs (archetype_id, top_card_id, bottom_card_id, pair_order, effectiveness, comment)
+      INSERT INTO archetype_card_pairs (instance_id, top_card_id, bottom_card_id, pair_order, effectiveness, comment)
       VALUES (?, ?, ?, ?, ?, ?)
-      RETURNING id, archetype_id, top_card_id, bottom_card_id, pair_order, effectiveness, comment, created_at
+      RETURNING id, instance_id, top_card_id, bottom_card_id, pair_order, effectiveness, comment, created_at
     `);
 
-    const results: ArchetypeCardPair[] = [];
+    const results: ArchetypeCardPair[]= [];
 
     for (const pair of pairs) {
       const result = stmt.get(
-        pair.archetype_id,
+        pair.instance_id,
         pair.top_card_id,
         pair.bottom_card_id,
         pair.pair_order,
@@ -41,24 +41,24 @@ export class SqliteArchetypeCardPairRepository
     return results;
   }
 
-  async findByArchetypeId(archetypeId: number): Promise<ArchetypeCardPair[]> {
+  async findByInstanceId(instanceId: number): Promise<ArchetypeCardPair[]> {
     const stmt = this.db.prepare(`
-      SELECT id, archetype_id, top_card_id, bottom_card_id, pair_order, effectiveness, comment, created_at
+      SELECT id, instance_id, top_card_id, bottom_card_id, pair_order, effectiveness, comment, created_at
       FROM archetype_card_pairs
-      WHERE archetype_id = ?
+      WHERE instance_id = ?
       ORDER BY pair_order
     `);
 
-    return stmt.all(archetypeId) as ArchetypeCardPair[];
+    return stmt.all(instanceId) as ArchetypeCardPair[];
   }
 
-  async findByArchetypeIdWithDetails(
-    archetypeId: number,
+  async findByInstanceIdWithDetails(
+    instanceId: number,
   ): Promise<ArchetypeCardPairWithDetails[]> {
     const stmt = this.db.prepare(`
       SELECT 
         acp.id,
-        acp.archetype_id,
+        acp.instance_id,
         acp.top_card_id,
         acp.bottom_card_id,
         acp.pair_order,
@@ -74,20 +74,20 @@ export class SqliteArchetypeCardPairRepository
       FROM archetype_card_pairs acp
       INNER JOIN cards tc ON acp.top_card_id = tc.id
       INNER JOIN cards bc ON acp.bottom_card_id = bc.id
-      WHERE acp.archetype_id = ?
+      WHERE acp.instance_id = ?
       ORDER BY acp.pair_order
     `);
 
-    return stmt.all(archetypeId) as ArchetypeCardPairWithDetails[];
+    return stmt.all(instanceId) as ArchetypeCardPairWithDetails[];
   }
 
-  async deleteByArchetypeId(archetypeId: number): Promise<void> {
+  async deleteByInstanceId(instanceId: number): Promise<void> {
     const stmt = this.db.prepare(`
       DELETE FROM archetype_card_pairs
-      WHERE archetype_id = ?
+      WHERE instance_id = ?
     `);
 
-    stmt.run(archetypeId);
+    stmt.run(instanceId);
   }
 
   async deleteById(id: number): Promise<void> {

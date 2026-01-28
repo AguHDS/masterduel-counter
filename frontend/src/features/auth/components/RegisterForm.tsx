@@ -23,7 +23,7 @@ export const RegisterForm = () => {
           // Redirect to login after successful registration
           navigate("/signin");
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
           const message = error?.response?.data?.message || error?.message || "Registration failed";
           setErrorMessage(message);
         },

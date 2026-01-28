@@ -3,6 +3,7 @@ import { RegisterUserWithBetterAuthUseCase } from "../../application/services/Re
 import { SqliteUserRepository } from "../../infrastructure/repositories/SqliteUserRepository";
 import { PrismaClient } from "@prisma/client";
 
+/** Registra un nuevo usuario en el sistema */
 // Dependency injection
 const prisma = new PrismaClient();
 const registerUserUseCase = new RegisterUserWithBetterAuthUseCase(

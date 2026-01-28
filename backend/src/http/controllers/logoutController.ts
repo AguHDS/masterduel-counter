@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { auth } from "@/lib/auth";
 
+/** Cierra la sesión del usuario actual */
 export const logoutController = async (req: Request, res: Response) => {
   try {
     // Use BetterAuth's signOut endpoint to properly clear session

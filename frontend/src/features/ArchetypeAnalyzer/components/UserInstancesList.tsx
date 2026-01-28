@@ -1,21 +1,28 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRegisteredArchetypes } from "../hooks/useArchetypeQueries";
+import { useQuery } from "@tanstack/react-query";
+import { instanceApi, type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 
-interface RegisteredArchetypesListProps {
+interface UserInstancesListProps {
+  userId: string;
   onSelectArchetype: (archetypeId: number, userId: string | null) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
 
-export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchetypesListProps) => {
+export const UserInstancesList = ({ userId, onSelectArchetype }: UserInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const { data, isLoading, error } = useRegisteredArchetypes();
+  
+  const { data: instances, isLoading, error } = useQuery<ArchetypeInstanceWithDetails[]>({
+    queryKey: ["userInstances", userId],
+    queryFn: () => instanceApi.getInstancesByUserId(userId),
+    enabled: !!userId,
+  });
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-blue-300 text-lg">Loading archetypes...</div>
+        <div className="text-blue-300 text-lg">Loading user instances...</div>
       </div>
     );
   }
@@ -23,25 +30,23 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-red-400 text-lg">Failed to load registered archetypes</div>
+        <div className="text-red-400 text-lg">Failed to load user instances</div>
       </div>
     );
   }
 
-  const archetypes = data?.data.archetypes || [];
-
-  if (archetypes.length === 0) {
+  if (!instances || instances.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-blue-300 text-lg">No registered archetypes yet</div>
+        <div className="text-blue-300 text-lg">This user hasn't created any archetype instances yet</div>
       </div>
     );
   }
 
-  const totalPages = Math.ceil(archetypes.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(instances.length / ITEMS_PER_PAGE);
   const startIndex = currentPage * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentArchetypes = archetypes.slice(startIndex, endIndex);
+  const currentInstances = instances.slice(startIndex, endIndex);
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(0, prev - 1));
@@ -53,29 +58,32 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
 
   return (
     <div className="flex flex-col items-center p-8">
-      {/* Título */}
-      <h2 className="text-base font-semibold text-blue-400 mb-2 self-start ml-[5%]">Last Registered Decks</h2>
+      <h2 className="text-base font-semibold text-blue-400 mb-2 self-start ml-[5%]">
+        {instances[0]?.userName}'s Archetype Instances
+      </h2>
       
       <div className="w-[90%] bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-xl p-6">
         <div className="w-[95%] mx-auto">
-          <div className="grid grid-cols-[60px_1fr_200px] gap-4 mb-4 pb-3 border-b border-blue-600">
-            <div className="text-blue-300 font-semibold text-sm">ID</div>
-            <div className="text-blue-300 font-semibold text-sm">Name</div>
-            <div className="text-blue-300 font-semibold text-sm">Instances</div>
+          <div className="grid grid-cols-[60px_1fr_150px_100px] gap-4 mb-4 pb-3 border-b border-blue-600">
+            <div className="text-blue-300 font-semibold text-sm">#</div>
+            <div className="text-blue-300 font-semibold text-sm">Archetype</div>
+            <div className="text-blue-300 font-semibold text-sm">Last Updated</div>
+            <div className="text-blue-300 font-semibold text-sm">Likes</div>
           </div>
 
           <div className="space-y-2">
-            {currentArchetypes.map((archetype, index) => (
+            {currentInstances.map((instance, index) => (
               <button
-                key={archetype.id}
-                onClick={() => onSelectArchetype(archetype.id, null)}
-                className="w-full grid grid-cols-[60px_1fr_200px] gap-4 p-3 bg-blue-900 hover:bg-blue-800 rounded transition-colors text-left"
+                key={instance.id}
+                onClick={() => onSelectArchetype(instance.archetypeId, instance.userId)}
+                className="w-full grid grid-cols-[60px_1fr_150px_100px] gap-4 p-3 bg-blue-900 hover:bg-blue-800 rounded transition-colors text-left"
               >
                 <div className="text-blue-200 text-sm">{startIndex + index + 1}</div>
-                <div className="text-white font-medium text-sm">{archetype.name}</div>
+                <div className="text-white font-medium text-sm">{instance.archetypeName}</div>
                 <div className="text-blue-300 text-sm">
-                  {archetype.instance_count || 0} {archetype.instance_count === 1 ? 'instance' : 'instances'}
+                  {new Date(instance.updatedAt).toLocaleDateString()}
                 </div>
+                <div className="text-blue-300 text-sm">{instance.likes}</div>
               </button>
             ))}
           </div>

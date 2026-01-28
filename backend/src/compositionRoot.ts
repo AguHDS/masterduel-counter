@@ -3,15 +3,19 @@ import { SqliteArchetypeRepository } from "@/infrastructure/repositories/SqliteA
 import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRepository";
 import { SqliteCardRepository } from "@/infrastructure/repositories/SqliteCardRepository";
 import { SqliteArchetypeCardPairRepository } from "@/infrastructure/repositories/SqliteArchetypeCardPairRepository";
+import { SqliteArchetypeInstanceRepository } from "@/infrastructure/repositories/SqliteArchetypeInstanceRepository";
 import { ArchetypeService } from "@/application/services/ArchetypeService";
+import { ArchetypeInstanceService } from "@/application/services/ArchetypeInstanceService";
 import { AuthServiceImpl } from "@/application/services/AuthService";
 import { CardServiceImpl } from "@/application/services/CardService";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import { UserRepository } from "@/domain/ports/UserRepository";
 import { CardRepository } from "@/domain/ports/CardRepository";
 import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
+import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository";
 import { AuthService } from "@/application/ports/AuthService";
 import { CardService } from "@/application/ports/CardService";
+import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService";
 import { CardApiService } from "@/domain/ports/externalServices/CardApiService";
 import { ImageStorageService } from "@/domain/ports/externalServices/ImageStorageService";
 import { YgoProDeckApiAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckApiAdapter";
@@ -25,7 +29,9 @@ export class Dependencies {
   private userRepository: UserRepository | null = null;
   private cardRepository: CardRepository | null = null;
   private cardPairRepository: ArchetypeCardPairRepository | null = null;
+  private instanceRepository: ArchetypeInstanceRepository | null = null;
   private archetypeService: ArchetypeService | null = null;
+  private instanceService: ArchetypeInstanceServicePort | null = null;
   private authService: AuthService | null = null;
   private cardService: CardService | null = null;
   private cardApiService: CardApiService | null = null;
@@ -75,6 +81,15 @@ export class Dependencies {
     return this.cardPairRepository;
   }
 
+  getInstanceRepository(): ArchetypeInstanceRepository {
+    if (!this.instanceRepository) {
+      this.instanceRepository = new SqliteArchetypeInstanceRepository(
+        this.database.getConnection(),
+      );
+    }
+    return this.instanceRepository;
+  }
+
   getCardApiService(): CardApiService {
     if (!this.cardApiService) {
       this.cardApiService = new YgoProDeckApiAdapter();
@@ -98,6 +113,15 @@ export class Dependencies {
       );
     }
     return this.archetypeService;
+  }
+
+  getInstanceService(): ArchetypeInstanceServicePort {
+    if (!this.instanceService) {
+      this.instanceService = new ArchetypeInstanceService(
+        this.getInstanceRepository(),
+      );
+    }
+    return this.instanceService;
   }
 
   getAuthService(): AuthService {

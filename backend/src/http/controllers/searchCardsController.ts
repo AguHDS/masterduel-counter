@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 
+/** Busca cartas por nombre en la base de datos local y/o API externa */
 export const searchCardsController = async (req: Request, res: Response) => {
   try {
     const { query } = req.query;

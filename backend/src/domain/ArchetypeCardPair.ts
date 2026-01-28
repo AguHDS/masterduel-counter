@@ -1,6 +1,6 @@
 export interface ArchetypeCardPair {
   id: number;
-  archetype_id: number;
+  instance_id: number;
   top_card_id: number;
   bottom_card_id: number;
   pair_order: number;
@@ -10,7 +10,7 @@ export interface ArchetypeCardPair {
 }
 
 export interface ArchetypeCardPairCreateDTO {
-  archetype_id: number;
+  instance_id: number;
   top_card_id: number;
   bottom_card_id: number;
   pair_order: number;

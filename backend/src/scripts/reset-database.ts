@@ -1,14 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -51,20 +45,37 @@ async function resetDatabase() {
   try {
     await cleanCloudinaryFolder();
 
-    console.log("Deleting database file...");
-    const dbPath = path.join(__dirname, "../data/database.db");
-    if (fs.existsSync(dbPath)) {
-      fs.unlinkSync(dbPath);
-      console.log("Database file deleted");
-    }
+    console.log("Cleaning database tables...");
+    
+    // Delete all records in the correct order (respecting foreign keys)
+    await prisma.archetypeCardPair.deleteMany({});
+    console.log("✓ Deleted all archetype card pairs");
+    
+    await prisma.archetypeInstance.deleteMany({});
+    console.log("✓ Deleted all archetype instances");
+    
+    await prisma.card.deleteMany({});
+    console.log("✓ Deleted all cards");
+    
+    await prisma.archetype.deleteMany({});
+    console.log("✓ Deleted all archetypes");
+    
+    await prisma.verification.deleteMany({});
+    console.log("✓ Deleted all verifications");
+    
+    await prisma.session.deleteMany({});
+    console.log("✓ Deleted all sessions");
+    
+    await prisma.account.deleteMany({});
+    console.log("✓ Deleted all accounts");
+    
+    await prisma.user.deleteMany({});
+    console.log("✓ Deleted all users");
 
-    console.log("Running Prisma migrations...");
-    // We can't run prisma migrate directly from code, so we just instruct the user
     console.log("\n✅ Database reset completed successfully!");
     console.log("\n📋 Next steps:");
-    console.log("1. Run: npx prisma migrate dev --name init");
-    console.log("   OR: npx prisma db push (if you don't want migrations)");
-    console.log("2. Run: npm run populate-archetypes");
+    console.log("1. Run: npm run populate-archetypes (to populate archetype data)");
+    console.log("2. Run: npm run dev (to start the server)");
   } catch (error) {
     console.error("Error:", error);
   } finally {

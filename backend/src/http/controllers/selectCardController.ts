@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 
+/** Selecciona una carta (creándola temporalmente si no existe en la base de datos) */
 export const selectCardController = async (req: Request, res: Response) => {
   try {
     const { cardId } = req.body;
