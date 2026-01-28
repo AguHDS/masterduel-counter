@@ -1,13 +1,13 @@
 import { DatabasePort, createYugiohDatabase } from "@/database/database";
 import { SqliteArchetypeRepository } from "@/infrastructure/repositories/SqliteArchetypeRepository";
-import { SqliteAdminRepository } from "@/infrastructure/repositories/SqliteAdminRepository";
+import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRepository";
 import { SqliteCardRepository } from "@/infrastructure/repositories/SqliteCardRepository";
 import { SqliteArchetypeCardPairRepository } from "@/infrastructure/repositories/SqliteArchetypeCardPairRepository";
 import { ArchetypeService } from "@/application/services/ArchetypeService";
 import { AuthServiceImpl } from "@/application/services/AuthService";
 import { CardServiceImpl } from "@/application/services/CardService";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
-import { AdminRepository } from "@/domain/ports/AdminRepository";
+import { UserRepository } from "@/domain/ports/UserRepository";
 import { CardRepository } from "@/domain/ports/CardRepository";
 import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
 import { AuthService } from "@/application/ports/AuthService";
@@ -16,11 +16,13 @@ import { CardApiService } from "@/domain/ports/externalServices/CardApiService";
 import { ImageStorageService } from "@/domain/ports/externalServices/ImageStorageService";
 import { YgoProDeckApiAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckApiAdapter";
 import { CloudinaryAdapter } from "@/infrastructure/adapters/externalServices/CloudinaryAdapter";
+import { PrismaClient } from "@prisma/client";
 
 export class Dependencies {
   private database: DatabasePort;
+  private prisma: PrismaClient;
   private archetypeRepository: ArchetypeRepository | null = null;
-  private adminRepository: AdminRepository | null = null;
+  private userRepository: UserRepository | null = null;
   private cardRepository: CardRepository | null = null;
   private cardPairRepository: ArchetypeCardPairRepository | null = null;
   private archetypeService: ArchetypeService | null = null;
@@ -31,6 +33,7 @@ export class Dependencies {
 
   constructor() {
     this.database = createYugiohDatabase();
+    this.prisma = new PrismaClient();
   }
 
   getArchetypeRepository(): ArchetypeRepository {
@@ -42,13 +45,16 @@ export class Dependencies {
     return this.archetypeRepository;
   }
 
-  getAdminRepository(): AdminRepository {
-    if (!this.adminRepository) {
-      this.adminRepository = new SqliteAdminRepository(
-        this.database.getConnection(),
-      );
+  getUserRepository(): UserRepository {
+    if (!this.userRepository) {
+      this.userRepository = new SqliteUserRepository(this.prisma);
     }
-    return this.adminRepository;
+    return this.userRepository;
+  }
+
+  // Backward compatibility - alias for getUserRepository
+  getAdminRepository(): UserRepository {
+    return this.getUserRepository();
   }
 
   getCardRepository(): CardRepository {

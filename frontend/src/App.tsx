@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./features/AdminAuth";
+import { AuthProvider } from "./features/auth";
 import { HomePage } from "./pages/HomePage";
-import { SignAsAdminPage } from "./pages/SignAsAdminPage";
+import { SignInPage } from "./pages/SignInPage";
+import { SignUpPage } from "./pages/SignUpPage";
 
 function App() {
   return (
@@ -10,7 +11,8 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/archetype/:archetypeId" element={<HomePage />} />
-          <Route path="/signAsAdmin" element={<SignAsAdminPage />} />
+          <Route path="/signin" element={<SignInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
         </Routes>
       </Router>
     </AuthProvider>

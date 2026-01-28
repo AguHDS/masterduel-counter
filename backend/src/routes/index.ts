@@ -1,6 +1,4 @@
 import searchArchetype from "./searchArchetype";
-import signAsAdmin from "./signAsAdmin";
-import verifyAuth from "./verifyAuth";
 import logout from "./logout";
 import searchCards from "./searchCards";
 import selectCard from "./selectCard";
@@ -10,8 +8,6 @@ import registeredArchetypes from "./registeredArchetypes";
 
 export {
   searchArchetype,
-  signAsAdmin,
-  verifyAuth,
   logout,
   searchCards,
   selectCard,

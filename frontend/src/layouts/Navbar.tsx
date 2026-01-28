@@ -1,5 +1,5 @@
-import { useAuth } from "../features/AdminAuth";
-import { LogOut } from "lucide-react";
+import { useAuth } from "../features/auth";
+import { LogOut, LogIn, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface NavbarProps {
@@ -7,7 +7,7 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ onLogoClick }: NavbarProps = {}) => {
-  const { isAuthenticated, admin, logout, isLoading } = useAuth();
+  const { isAuthenticated, user, logout, isLoading } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -22,21 +22,40 @@ export const Navbar = ({ onLogoClick }: NavbarProps = {}) => {
             <h1 className="text-2xl font-bold text-white">Masterduel Counter</h1>
           </Link>
 
-          {!isLoading && isAuthenticated && admin && (
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-300">
-                Logged as Admin: <span className="font-semibold text-green-400">{admin.username}</span>
-              </span>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
-                title="Logout"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </button>
-            </div>
-          )}
+          <div className="flex items-center space-x-4">
+            {!isLoading && isAuthenticated && user ? (
+              <>
+                <span className="text-sm text-gray-300">
+                  Welcome, <span className="font-semibold text-blue-400">{user.name}</span>
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                  title="Logout"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : !isLoading ? (
+              <>
+                <Link
+                  to="/signin"
+                  className="flex items-center space-x-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span>Sign In</span>
+                </Link>
+                <Link
+                  to="/signup"
+                  className="flex items-center space-x-2 px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  <span>Sign Up</span>
+                </Link>
+              </>
+            ) : null}
+          </div>
         </div>
       </div>
     </header>

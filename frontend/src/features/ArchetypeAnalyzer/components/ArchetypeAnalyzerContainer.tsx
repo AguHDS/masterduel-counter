@@ -7,7 +7,7 @@ import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
 import { RegisteredArchetypesList } from "./RegisteredArchetypesList";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
-import { useAuth } from "@/features/AdminAuth/hooks/useAuth";
+import { useAuth } from "@/features/auth";
 import { 
   useRegisterArchetype, 
   useArchetypeCardPairs, 
@@ -157,7 +157,7 @@ export const ArchetypeAnalyzerContainer = ({
 
   const handleRegisterClick = () => {
     if (!isAuthenticated) {
-      alert("You must be logged in as an admin to register archetypes.");
+      alert("You must be logged in to register archetypes.");
       return;
     }
     setIsEditMode(true);
