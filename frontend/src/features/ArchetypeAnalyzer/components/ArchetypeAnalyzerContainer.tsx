@@ -8,6 +8,7 @@ import { CardSearchModal } from "./CardSearchModal";
 import { RegisteredArchetypesList } from "./RegisteredArchetypesList";
 import { UserInstancesList } from "./UserInstancesList";
 import { ArchetypeInstancesList } from "./ArchetypeInstancesList";
+import { CardTooltip } from "./CardTooltip";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import { useAuth } from "@/features/auth";
 import { instanceApi } from "@/lib/http/instanceApi";
@@ -462,11 +463,13 @@ export const ArchetypeAnalyzerContainer = ({
               <div className="relative flex-shrink-0 group">
                 {headerCard ? (
                   <div className="relative w-48 h-auto rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
-                    <img
-                      src={headerCard.imageUrl}
-                      alt={headerCard.name}
-                      className="w-full h-auto object-cover"
-                    />
+                    <CardTooltip imageUrl={headerCard.imageUrl} cardName={headerCard.name} cardId={headerCard.id}>
+                      <img
+                        src={headerCard.imageUrl}
+                        alt={headerCard.name}
+                        className="w-full h-auto object-cover cursor-pointer"
+                      />
+                    </CardTooltip>
                     {isEditMode && (
                       <button
                         onClick={() => setIsSelectingHeader(true)}

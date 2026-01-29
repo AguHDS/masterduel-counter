@@ -1,6 +1,6 @@
 import { CardApiService, RawCardData } from "@/domain/ports/externalServices/CardApiService";
 
-export class YgoProDeckApiAdapter implements CardApiService {
+export class YgoProDeckCardPreviewAdapter implements CardApiService {
   private readonly baseUrl = "https://db.ygoprodeck.com/api/v7/cardinfo.php";
 
   async searchByName(name: string): Promise<RawCardData[]> {

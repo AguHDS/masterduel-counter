@@ -7,6 +7,7 @@ import registerArchetype from "./registerArchetype";
 import registeredArchetypes from "./registeredArchetypes";
 import deleteUserInstance from "./deleteUserInstance";
 import instanceLikes from "./instanceLikes";
+import getCardDetails from "./getCardDetails";
 import { createGetArchetypeInstancesRoute } from "./getArchetypeInstances";
 import { createGetUserInstancesRoute } from "./getUserInstances";
 import { createCreateOrUpdateInstanceRoute } from "./createOrUpdateInstance";
@@ -22,6 +23,7 @@ export {
   registeredArchetypes,
   deleteUserInstance,
   instanceLikes,
+  getCardDetails,
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
   createCreateOrUpdateInstanceRoute,

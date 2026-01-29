@@ -1,5 +1,6 @@
 import { X, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { type Card } from "../api/cardApi";
+import { CardTooltip } from "./CardTooltip";
 
 interface CardPairItemProps {
   topCards: Card[];
@@ -117,11 +118,13 @@ export const CardPairItem = ({
                       <X className="w-3 h-3" />
                     </button>
                   )}
-                  <img
-                    src={card.imageUrlSmall}
-                    alt={card.name}
-                    className="w-32 h-44 object-cover rounded-lg border-2 border-blue-500"
-                  />
+                  <CardTooltip imageUrl={card.imageUrl} cardName={card.name} cardId={card.id}>
+                    <img
+                      src={card.imageUrlSmall}
+                      alt={card.name}
+                      className="w-32 h-44 object-cover rounded-lg border-2 border-blue-500 cursor-pointer"
+                    />
+                  </CardTooltip>
                 </div>
               ))}
               {isEditMode && (
@@ -169,11 +172,13 @@ export const CardPairItem = ({
                       <X className="w-3 h-3" />
                     </button>
                   )}
-                  <img
-                    src={card.imageUrlSmall}
-                    alt={card.name}
-                    className="w-32 h-44 object-cover rounded-lg border-2 border-purple-500"
-                  />
+                  <CardTooltip imageUrl={card.imageUrl} cardName={card.name} cardId={card.id}>
+                    <img
+                      src={card.imageUrlSmall}
+                      alt={card.name}
+                      className="w-32 h-44 object-cover rounded-lg border-2 border-purple-500 cursor-pointer"
+                    />
+                  </CardTooltip>
                 </div>
               ))}
               {isEditMode && (

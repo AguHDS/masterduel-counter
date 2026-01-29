@@ -19,6 +19,7 @@ import {
   registeredArchetypes,
   deleteUserInstance,
   instanceLikes,
+  getCardDetails,
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
   createCreateOrUpdateInstanceRoute,
@@ -56,6 +57,7 @@ app.use("/api/searchArchetype", searchArchetype);
 app.use("/api/cards/search", searchCards);
 app.use("/api/cards/select", selectCard);
 app.use("/api/cards/confirm", confirmCards);
+app.use("/api/cards", getCardDetails);
 
 // Cron job: Cleaning temporary cards every 24 hours (at 3:00 AM)
 cron.schedule("0 3 * * *", async () => {
