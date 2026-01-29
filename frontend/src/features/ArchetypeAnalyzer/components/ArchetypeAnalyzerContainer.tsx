@@ -81,7 +81,7 @@ export const ArchetypeAnalyzerContainer = ({
   // Fetch user instance - ONLY if instanceUserId is specified in URL
   // This means we're viewing a specific instance, not listing all instances
   const shouldLoadInstance = archetypeIdNum && instanceUserId;
-  const { data: userInstanceData } = useUserInstance(
+  const { data: userInstanceData, isError } = useUserInstance(
     shouldLoadInstance ? archetypeIdNum : undefined,
     instanceUserId
   );
@@ -143,6 +143,19 @@ export const ArchetypeAnalyzerContainer = ({
       } else {
         setLiked(false);
       }
+    } else if (instanceUserId && isOwner && isError) {
+      // New instance: user is owner but instance doesn't exist yet (404 error)
+      // Activate edit mode automatically for new instances
+      setIsEditMode(true);
+      setLoadedPairs([]);
+      setHeaderCard(null);
+      setTitle("Title");
+      setGeneralTip("");
+      setLiked(false);
+      setLikeCount(0);
+    } else if (instanceUserId && !userInstanceData && !isError) {
+      // Still loading, don't reset state yet
+      // This prevents flickering while data is being fetched
     } else {
       setLoadedPairs([]);
       setHeaderCard(null);
@@ -151,7 +164,7 @@ export const ArchetypeAnalyzerContainer = ({
       setLiked(false);
       setLikeCount(0);
     }
-  }, [instanceUserId, userInstanceData, isAuthenticated, isOwner, archetypeId]);
+  }, [instanceUserId, userInstanceData, isAuthenticated, isOwner, archetypeId, isError]);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -379,7 +392,7 @@ export const ArchetypeAnalyzerContainer = ({
               </button>
             )}
           </div>
-        ) : (selectedArchetype && instanceUserId && userInstanceData) || (selectedArchetype && !selectedArchetype.registered && instanceUserId) ? (
+        ) : (selectedArchetype && instanceUserId && (userInstanceData || isOwner)) || (selectedArchetype && !selectedArchetype.registered && instanceUserId) ? (
           <div className="space-y-6">
             {instanceUserId && !isOwner && isAuthenticated && selectedArchetype.registered && (
               <div className="flex justify-end mb-4">

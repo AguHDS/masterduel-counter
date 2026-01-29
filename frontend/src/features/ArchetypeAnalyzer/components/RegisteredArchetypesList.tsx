@@ -54,7 +54,7 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
   return (
     <div className="flex flex-col items-center p-8">
       {/* Título */}
-      <h2 className="text-base font-semibold text-blue-400 mb-2 self-start ml-[5%]">Last Registered Decks</h2>
+      <h2 className="text-base font-semibold text-blue-400 mb-2 self-start ml-[5%]">Latest Registered Archetypes</h2>
       
       <div className="w-[90%] bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-xl p-6">
         <div className="w-[95%] mx-auto">

@@ -31,16 +31,16 @@ export const LoginForm = () => {
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 to-blue-950 flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
+        <header>
+          <h1 className="mt-6 text-center text-3xl font-extrabold text-white">
             Sign In
-          </h2>
+          </h1>
           <p className="mt-2 text-center text-sm text-gray-400">
             Welcome back! Sign in to your account
           </p>
-        </div>
+        </header>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} aria-label="Sign in form">
           <div className="rounded-md shadow-sm space-y-4">
             <div>
               <label htmlFor="username" className="sr-only">
@@ -48,7 +48,7 @@ export const LoginForm = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-gray-400" aria-hidden="true" />
                 </div>
                 <input
                   id="username"
@@ -60,6 +60,7 @@ export const LoginForm = () => {
                   onChange={(e) => setUsername(e.target.value)}
                   className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-700 placeholder-gray-500 text-white bg-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                   placeholder="Username"
+                  aria-label="Enter your username"
                 />
               </div>
             </div>
@@ -70,7 +71,7 @@ export const LoginForm = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
                 </div>
                 <input
                   id="password"
@@ -82,6 +83,7 @@ export const LoginForm = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-700 placeholder-gray-500 text-white bg-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                   placeholder="Password"
+                  aria-label="Enter your password"
                 />
               </div>
             </div>
