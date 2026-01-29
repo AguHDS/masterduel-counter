@@ -17,9 +17,13 @@ import { AuthService } from "@/application/ports/AuthService";
 import { CardService } from "@/application/ports/CardService";
 import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService";
 import { CardApiService } from "@/domain/ports/externalServices/CardApiService";
+import { CardDetailsApiService } from "@/domain/ports/externalServices/CardDetailsApiService";
 import { ImageStorageService } from "@/domain/ports/externalServices/ImageStorageService";
-import { YgoProDeckApiAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckApiAdapter";
+import { YgoProDeckCardPreviewAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckCardPreviewAdapter";
+import { YgoProDeckCardDetailsAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckCardDetailsAdapter";
 import { CloudinaryAdapter } from "@/infrastructure/adapters/externalServices/CloudinaryAdapter";
+import { GetCardDetailsService } from "@/application/services/GetCardDetailsService";
+import { GetCardDetailsPort } from "@/application/ports/GetCardDetailsPort";
 import { PrismaClient } from "@prisma/client";
 
 export class Dependencies {
@@ -35,6 +39,8 @@ export class Dependencies {
   private authService: AuthService | null = null;
   private cardService: CardService | null = null;
   private cardApiService: CardApiService | null = null;
+  private cardDetailsApiService: CardDetailsApiService | null = null;
+  private getCardDetailsService: GetCardDetailsPort | null = null;
   private imageStorageService: ImageStorageService | null = null;
 
   constructor() {
@@ -92,7 +98,7 @@ export class Dependencies {
 
   getCardApiService(): CardApiService {
     if (!this.cardApiService) {
-      this.cardApiService = new YgoProDeckApiAdapter();
+      this.cardApiService = new YgoProDeckCardPreviewAdapter();
     }
     return this.cardApiService;
   }
@@ -102,6 +108,22 @@ export class Dependencies {
       this.imageStorageService = new CloudinaryAdapter();
     }
     return this.imageStorageService;
+  }
+
+  getCardDetailsApiService(): CardDetailsApiService {
+    if (!this.cardDetailsApiService) {
+      this.cardDetailsApiService = new YgoProDeckCardDetailsAdapter();
+    }
+    return this.cardDetailsApiService;
+  }
+
+  getGetCardDetailsService(): GetCardDetailsPort {
+    if (!this.getCardDetailsService) {
+      this.getCardDetailsService = new GetCardDetailsService(
+        this.getCardDetailsApiService()
+      );
+    }
+    return this.getCardDetailsService;
   }
 
   getArchetypeService(): ArchetypeService {
@@ -165,4 +187,8 @@ export const getDependencies = (): Dependencies => {
 
 export const initializeDependencies = (): void => {
   dependenciesInstance = new Dependencies();
+};
+
+export const compositionRoot = {
+  getCardDetailsService: getDependencies().getGetCardDetailsService(),
 };

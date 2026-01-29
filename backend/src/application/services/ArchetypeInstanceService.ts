@@ -22,6 +22,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     if (existing) {
       // Update existing instance
       return this.instanceRepository.update(existing.id, {
+        title: data.title,
         headerCardId: data.headerCardId,
         generalTip: data.generalTip,
       });

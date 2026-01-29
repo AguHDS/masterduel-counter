@@ -12,11 +12,11 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
 
   async create(data: ArchetypeInstanceCreateDTO): Promise<ArchetypeInstance> {
     const stmt = this.db.prepare(`
-      INSERT INTO archetype_instances (archetype_id, user_id, header_card_id, general_tip, likes, updated_at)
-      VALUES (?, ?, ?, ?, 0, CURRENT_TIMESTAMP)
+      INSERT INTO archetype_instances (archetype_id, user_id, title, header_card_id, general_tip, likes, updated_at)
+      VALUES (?, ?, ?, ?, ?, 0, CURRENT_TIMESTAMP)
     `);
 
-    const result = stmt.run(data.archetypeId, data.userId, data.headerCardId, data.generalTip || null);
+    const result = stmt.run(data.archetypeId, data.userId, data.title, data.headerCardId, data.generalTip || null);
 
     return this.findById(result.lastInsertRowid as number) as Promise<ArchetypeInstance>;
   }
@@ -32,6 +32,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       id: number;
       archetype_id: number;
       user_id: string;
+      title: string;
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
@@ -46,6 +47,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       id: row.id,
       archetypeId: row.archetype_id,
       userId: row.user_id,
+      title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
@@ -74,6 +76,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       id: number;
       archetype_id: number;
       user_id: string;
+      title: string;
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
@@ -91,6 +94,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       id: row.id,
       archetypeId: row.archetype_id,
       userId: row.user_id,
+      title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
@@ -123,6 +127,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       id: number;
       archetype_id: number;
       user_id: string;
+      title: string;
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
@@ -140,6 +145,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       id: row.id,
       archetypeId: row.archetype_id,
       userId: row.user_id,
+      title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
@@ -166,6 +172,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       id: number;
       archetype_id: number;
       user_id: string;
+      title: string;
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
@@ -180,6 +187,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       id: row.id,
       archetypeId: row.archetype_id,
       userId: row.user_id,
+      title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
@@ -191,6 +199,11 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
   async update(id: number, data: ArchetypeInstanceUpdateDTO): Promise<ArchetypeInstance> {
     const updates: string[] = [];
     const values: (number | string | null)[] = [];
+
+    if (data.title !== undefined) {
+      updates.push("title = ?");
+      values.push(data.title);
+    }
 
     if (data.headerCardId !== undefined) {
       updates.push("header_card_id = ?");

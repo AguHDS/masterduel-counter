@@ -8,6 +8,7 @@ import { CardSearchModal } from "./CardSearchModal";
 import { RegisteredArchetypesList } from "./RegisteredArchetypesList";
 import { UserInstancesList } from "./UserInstancesList";
 import { ArchetypeInstancesList } from "./ArchetypeInstancesList";
+import { CardTooltip } from "./CardTooltip";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import { useAuth } from "@/features/auth";
 import { instanceApi } from "@/lib/http/instanceApi";
@@ -59,6 +60,7 @@ export const ArchetypeAnalyzerContainer = ({
   const [isEditMode, setIsEditMode] = useState(false);
   const [loadedPairs, setLoadedPairs] = useState<CardPair[]>([]);
   const [headerCard, setHeaderCard] = useState<HeaderCard | null>(null);
+  const [title, setTitle] = useState<string>("Title");
   const [generalTip, setGeneralTip] = useState<string>("");
   const [isSelectingHeader, setIsSelectingHeader] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -80,7 +82,7 @@ export const ArchetypeAnalyzerContainer = ({
   // Fetch user instance - ONLY if instanceUserId is specified in URL
   // This means we're viewing a specific instance, not listing all instances
   const shouldLoadInstance = archetypeIdNum && instanceUserId;
-  const { data: userInstanceData } = useUserInstance(
+  const { data: userInstanceData, isError } = useUserInstance(
     shouldLoadInstance ? archetypeIdNum : undefined,
     instanceUserId
   );
@@ -120,6 +122,7 @@ export const ArchetypeAnalyzerContainer = ({
       }));
       setLoadedPairs(pairs);
       setLikeCount(userInstanceData.instance.likes);
+      setTitle(userInstanceData.instance.title || "Title");
       setGeneralTip(userInstanceData.instance.generalTip || "");
 
       // Load header card if it exists
@@ -141,14 +144,28 @@ export const ArchetypeAnalyzerContainer = ({
       } else {
         setLiked(false);
       }
+    } else if (instanceUserId && isOwner && isError) {
+      // New instance: user is owner but instance doesn't exist yet (404 error)
+      // Activate edit mode automatically for new instances
+      setIsEditMode(true);
+      setLoadedPairs([]);
+      setHeaderCard(null);
+      setTitle("Title");
+      setGeneralTip("");
+      setLiked(false);
+      setLikeCount(0);
+    } else if (instanceUserId && !userInstanceData && !isError) {
+      // Still loading, don't reset state yet
+      // This prevents flickering while data is being fetched
     } else {
       setLoadedPairs([]);
       setHeaderCard(null);
+      setTitle("Title");
       setGeneralTip("");
       setLiked(false);
       setLikeCount(0);
     }
-  }, [instanceUserId, userInstanceData, isAuthenticated, isOwner, archetypeId]);
+  }, [instanceUserId, userInstanceData, isAuthenticated, isOwner, archetypeId, isError]);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -207,6 +224,7 @@ export const ArchetypeAnalyzerContainer = ({
         comment: pair.comment,
       }));
       setLoadedPairs(pairs);
+      setTitle(userInstanceData.instance.title || "Title");
       setGeneralTip(userInstanceData.instance.generalTip || "");
       if (userInstanceData.headerCard) {
         setHeaderCard({
@@ -296,6 +314,16 @@ export const ArchetypeAnalyzerContainer = ({
       return;
     }
 
+    if (!title || title.trim().length === 0) {
+      alert("Please provide a title for your guide.");
+      return;
+    }
+
+    if (title.length > 100) {
+      alert("Title must be 100 characters or less.");
+      return;
+    }
+
     try {
       const cardPairs = pairs.map((pair) => ({
         topCardIds: pair.topCards.map(card => card.id),
@@ -307,6 +335,7 @@ export const ArchetypeAnalyzerContainer = ({
       const response = await registerMutation.mutateAsync({
         archetypeId: selectedArchetype.id,
         cardPairs,
+        title: title.trim(),
         headerCardId: headerCard.id,
         generalTip: generalTip || undefined,
       });
@@ -350,7 +379,21 @@ export const ArchetypeAnalyzerContainer = ({
       </SearchInput>
 
       <div className="flex-1 p-8 overflow-auto">
-        {(selectedArchetype && instanceUserId) || (selectedArchetype && !selectedArchetype.registered) ? (
+        {/* Show message for unregistered archetypes with no instance */}
+        {selectedArchetype && !selectedArchetype.registered && !instanceUserId ? (
+          <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+            <div className="text-blue-300 text-lg">No guides created yet for {selectedArchetype.name}</div>
+            {isAuthenticated && (
+              <button
+                onClick={handleCreateInstance}
+                className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-lg"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Be the first to create a guide!</span>
+              </button>
+            )}
+          </div>
+        ) : (selectedArchetype && instanceUserId && (userInstanceData || isOwner)) || (selectedArchetype && !selectedArchetype.registered && instanceUserId) ? (
           <div className="space-y-6">
             {instanceUserId && !isOwner && isAuthenticated && selectedArchetype.registered && (
               <div className="flex justify-end mb-4">
@@ -370,11 +413,30 @@ export const ArchetypeAnalyzerContainer = ({
 
             {/* Header Section - New Layout */}
             <div className="flex items-start justify-center gap-8 mb-8 w-full px-4">
-              {/* Left Side: Title and General Tip */}
+              {/* Left Side: Archetype Name, Title and General Tip */}
               <div className="space-y-4 flex-1 max-w-4xl">
-                <h2 className="text-2xl font-bold text-white">
+                {/* Archetype Name - Bold and larger */}
+                <h1 className="text-3xl font-bold text-white">
                   {selectedArchetype.name}
-                </h2>
+                </h1>
+                
+                {/* Title Section */}
+                <div className="w-full">
+                  {isEditMode && isOwner ? (
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      maxLength={100}
+                      placeholder="Enter a title for your guide (Max. 100 characters)"
+                      className="w-full px-4 py-2 bg-slate-800/40 text-white text-xl font-normal rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 shadow-sm"
+                    />
+                  ) : (
+                    <h2 className="text-2xl text-white">
+                      {title}
+                    </h2>
+                  )}
+                </div>
                 
                 {/* General Tip Section */}
                 <div className="w-full">
@@ -383,8 +445,8 @@ export const ArchetypeAnalyzerContainer = ({
                       value={generalTip}
                       onChange={(e) => setGeneralTip(e.target.value)}
                       maxLength={5000}
-                      placeholder="Add optional tip for this guide (Max. )..."
-                      className="w-full px-4 py-3 bg-slate-800/40 text-white text-lg rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 resize-none shadow-sm min-h-[120px]"
+                      placeholder="Add optional tip for this guide (Max. 5000 characters)..."
+                      className="w-full px-4 py-3 bg-slate-800/40 text-white text-base rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 resize-none shadow-sm min-h-[120px]"
                       rows={5}
                     />
                   ) : (
@@ -401,11 +463,13 @@ export const ArchetypeAnalyzerContainer = ({
               <div className="relative flex-shrink-0 group">
                 {headerCard ? (
                   <div className="relative w-48 h-auto rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
-                    <img
-                      src={headerCard.imageUrl}
-                      alt={headerCard.name}
-                      className="w-full h-auto object-cover"
-                    />
+                    <CardTooltip imageUrl={headerCard.imageUrl} cardName={headerCard.name} cardId={headerCard.id}>
+                      <img
+                        src={headerCard.imageUrl}
+                        alt={headerCard.name}
+                        className="w-full h-auto object-cover cursor-pointer"
+                      />
+                    </CardTooltip>
                     {isEditMode && (
                       <button
                         onClick={() => setIsSelectingHeader(true)}

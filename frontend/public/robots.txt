@@ -1,0 +1,7 @@
+# robots.txt for Masterduel Counter
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://masterduel-counter.com/sitemap.xml

@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, ArrowUp } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { instanceApi, type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
+import { InstancesTable } from "./InstancesTable";
 
 interface ArchetypeInstancesListProps {
   archetypeId: number;
@@ -65,19 +66,6 @@ export const ArchetypeInstancesList = ({
     );
   }
 
-  const totalPages = Math.ceil(instances.length / ITEMS_PER_PAGE);
-  const startIndex = currentPage * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentInstances = instances.slice(startIndex, endIndex);
-
-  const handlePreviousPage = () => {
-    setCurrentPage((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
-  };
-
   return (
     <div className="flex flex-col items-center p-8">
       <h1 className="text-2xl font-bold text-white mb-2">
@@ -100,72 +88,14 @@ export const ArchetypeInstancesList = ({
         )}
       </div>
       
-      <div className="w-[90%] bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-xl p-6">
-        <div className="w-[95%] mx-auto">
-          <div className="grid grid-cols-[60px_1fr_150px_100px] gap-4 mb-4 pb-3 border-b border-blue-600">
-            <div className="text-blue-300 font-semibold text-sm">#</div>
-            <div className="text-blue-300 font-semibold text-sm">Created by</div>
-            <div className="text-blue-300 font-semibold text-sm">Last Updated</div>
-            <div className="text-blue-300 font-semibold text-sm">Likes</div>
-          </div>
-
-          <div className="space-y-2">
-            {currentInstances.map((instance, index) => {
-              const isCurrentUser = user?.id === instance.userId;
-              return (
-                <button
-                  key={instance.id}
-                  onClick={() => onSelectInstance(instance.userId)}
-                  className={`w-full grid grid-cols-[60px_1fr_150px_100px] gap-4 p-3 rounded transition-colors text-left ${
-                    isCurrentUser 
-                      ? 'bg-green-900 hover:bg-green-800 border border-green-600' 
-                      : 'bg-blue-900 hover:bg-blue-800'
-                  }`}
-                >
-                  <div className="text-blue-200 text-sm">{startIndex + index + 1}</div>
-                  <div className="text-white font-medium text-sm flex items-center gap-2">
-                    {instance.userName}
-                    {isCurrentUser && (
-                      <span className="text-xs bg-green-700 px-2 py-0.5 rounded">You</span>
-                    )}
-                  </div>
-                  <div className="text-blue-300 text-sm">
-                    {new Date(instance.updatedAt).toLocaleDateString()}
-                  </div>
-                  <div className="text-green-400 text-sm flex items-center gap-1">
-                    <ArrowUp className="w-3 h-3" />
-                    <span>{instance.likes}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 mt-6">
-              <button
-                onClick={handlePreviousPage}
-                disabled={currentPage === 0}
-                className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <span className="text-blue-300 text-sm font-medium">
-                Page {currentPage + 1} of {totalPages}
-              </span>
-              <button
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages - 1}
-                className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
-                aria-label="Next page"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+      <InstancesTable
+        instances={instances}
+        currentPage={currentPage}
+        itemsPerPage={ITEMS_PER_PAGE}
+        onSelectInstance={(userId) => onSelectInstance(userId)}
+        onPageChange={setCurrentPage}
+        showArchetypeName={false}
+      />
     </div>
   );
 };

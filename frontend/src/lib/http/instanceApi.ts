@@ -6,6 +6,7 @@ export interface ArchetypeInstanceWithDetails {
   id: number;
   archetypeId: number;
   userId: string;
+  title: string;
   headerCardId: number | null;
   generalTip?: string | null;
   likes: number;
@@ -22,6 +23,7 @@ export interface UserInstanceWithCardPairs {
     id: number;
     archetypeId: number;
     userId: string;
+    title: string;
     headerCardId: number | null;
     generalTip?: string | null;
     likes: number;
@@ -77,10 +79,13 @@ export const instanceApi = {
   },
 
   // Create a new instance or update an existing instance with a header card
-  createOrUpdateInstance: async (archetypeId: number, headerCardId: number | null): Promise<{ instance: ArchetypeInstanceWithDetails }> => {
+  createOrUpdateInstance: async (
+    archetypeId: number,
+    data: { title: string; headerCardId: number | null; generalTip?: string | null }
+  ): Promise<{ instance: ArchetypeInstanceWithDetails }> => {
     const response = await axios.post<{ instance: ArchetypeInstanceWithDetails }>(
       `${API_BASE_URL}/api/archetypes/${archetypeId}/instances`,
-      { headerCardId },
+      data,
       { withCredentials: true }
     );
     return response.data;
