@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, ArrowUp } from "lucide-react";
 import { type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
+import { useNavigate } from "react-router-dom";
 
 interface InstancesTableProps {
   instances: ArchetypeInstanceWithDetails[];
@@ -20,6 +21,7 @@ export const InstancesTable = ({
   showArchetypeName = false,
 }: InstancesTableProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const totalPages = Math.ceil(instances.length / itemsPerPage);
   const startIndex = currentPage * itemsPerPage;
@@ -32,6 +34,11 @@ export const InstancesTable = ({
 
   const handleNextPage = () => {
     onPageChange(Math.min(totalPages - 1, currentPage + 1));
+  };
+
+  const handleUserNameClick = (e: React.MouseEvent, userId: string) => {
+    e.stopPropagation();
+    navigate(`/profile/${userId}`);
   };
 
   return (
@@ -81,7 +88,12 @@ export const InstancesTable = ({
                     instance.archetypeName
                   ) : (
                     <>
-                      {instance.userName}
+                      <span
+                        onClick={(e) => handleUserNameClick(e, instance.userId)}
+                        className="hover:text-blue-400 hover:underline transition-colors cursor-pointer"
+                      >
+                        {instance.userName}
+                      </span>
                       {isCurrentUser && (
                         <span className="text-xs bg-green-700 px-2 py-0.5 rounded">You</span>
                       )}

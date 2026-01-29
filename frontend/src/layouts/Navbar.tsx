@@ -29,7 +29,7 @@ export const Navbar = ({ onLogoClick }: NavbarProps = {}) => {
                   Welcome, <span className="font-semibold text-blue-400">{user.name}</span>
                 </span>
                 <Link
-                  to={`/user/${user.id}/instances`}
+                  to={`/profile/${user.id}`}
                   className="flex items-center space-x-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
                   aria-label="View my profile and instances"
                 >

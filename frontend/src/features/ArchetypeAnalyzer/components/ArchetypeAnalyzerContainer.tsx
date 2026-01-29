@@ -6,7 +6,7 @@ import { SearchResults } from "./SearchResults";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
 import { RegisteredArchetypesList } from "./RegisteredArchetypesList";
-import { UserInstancesList } from "./UserInstancesList";
+import { UserInstancesList } from "@/features/profile/components/UserInstancesList";
 import { ArchetypeInstancesList } from "./ArchetypeInstancesList";
 import { CardTooltip } from "./CardTooltip";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
