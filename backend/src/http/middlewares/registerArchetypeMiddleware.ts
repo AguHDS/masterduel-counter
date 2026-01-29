@@ -44,18 +44,15 @@ export const registerArchetypeMiddleware = (
   for (let i = 0; i < cardPairs.length; i++) {
     const pair = cardPairs[i];
 
-    if (!pair.topCardIds || !Array.isArray(pair.topCardIds) || pair.topCardIds.length === 0) {
-      res.status(400).json({
-        success: false,
-        error: `Invalid topCardIds in pair at index ${i}`,
-      });
-      return;
-    }
 
-    if (!pair.bottomCardIds || !Array.isArray(pair.bottomCardIds) || pair.bottomCardIds.length === 0) {
+    // At least one card in top or bottom
+    if (
+      (!pair.topCardIds || !Array.isArray(pair.topCardIds) || pair.topCardIds.length === 0) &&
+      (!pair.bottomCardIds || !Array.isArray(pair.bottomCardIds) || pair.bottomCardIds.length === 0)
+    ) {
       res.status(400).json({
         success: false,
-        error: `Invalid bottomCardIds in pair at index ${i}`,
+        error: `Each pair must have at least one card in top or bottom at index ${i}`,
       });
       return;
     }

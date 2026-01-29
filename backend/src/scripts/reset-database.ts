@@ -13,12 +13,12 @@ cloudinary.config({
 const prisma = new PrismaClient();
 
 async function cleanCloudinaryFolder() {
-  const folderPath = "masterduel-counter/cards";
+  const folderPath = "masterduel-counter";
 
   try {
     console.log(`Deleting Cloudinary resources in: ${folderPath}`);
 
-    // Delete all resources in the folder
+    // Delete all resources in the folder (cards and profile pictures)
     const result = await cloudinary.api.delete_resources_by_prefix(folderPath, {
       resource_type: "image",
     });
@@ -96,6 +96,13 @@ async function resetDatabase() {
       console.log("✓ Deleted all archetypes");
     } catch (e) {
       console.log("ℹ Table archetypes doesn't exist yet (will be created after db push)");
+    }
+    
+    try {
+      await prisma.profile.deleteMany({});
+      console.log("✓ Deleted all profiles");
+    } catch (e) {
+      console.log("ℹ Table profiles doesn't exist yet (will be created after db push)");
     }
     
     try {

@@ -1,0 +1,108 @@
+import type { ProfileService } from "@/application/ports/ProfileService";
+import type { ProfileRepository } from "@/domain/ports/ProfileRepository";
+import type { ImageStorageService } from "@/domain/ports/externalServices/ImageStorageService";
+import type { Profile } from "@/domain/Profile";
+
+export class ProfileServiceImpl implements ProfileService {
+  constructor(
+    private profileRepository: ProfileRepository,
+    private imageStorageService: ImageStorageService
+  ) {}
+
+  async getProfile(userId: string): Promise<Profile | null> {
+    let profile = await this.profileRepository.findByUserId(userId);
+
+    // Create profile if it doesn't exist
+    if (!profile) {
+      profile = await this.profileRepository.create({ userId });
+    }
+
+    return profile;
+  }
+
+  async updateBio(userId: string, bio: string): Promise<Profile> {
+    if (bio.length > 1000) {
+      throw new Error("Bio must be 1000 characters or less");
+    }
+
+    // Ensure profile exists
+    let profile = await this.profileRepository.findByUserId(userId);
+    if (!profile) {
+      profile = await this.profileRepository.create({ userId, bio });
+      return profile;
+    }
+
+    return await this.profileRepository.update(userId, { bio });
+  }
+
+  async uploadProfilePicture(
+    userId: string,
+    file: Express.Multer.File
+  ): Promise<Profile> {
+    // Validate file size (3MB max)
+    const maxSize = 3 * 1024 * 1024; // 3MB in bytes
+    if (file.size > maxSize) {
+      throw new Error("Profile picture must be 3MB or less");
+    }
+
+    // Validate file type
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new Error("Profile picture must be a valid image (JPEG, PNG, WEBP)");
+    }
+
+    // Ensure profile exists
+    let profile = await this.profileRepository.findByUserId(userId);
+    if (!profile) {
+      profile = await this.profileRepository.create({ userId });
+    }
+
+    // Delete old profile picture if exists
+    if (profile.cloudinaryPublicId) {
+      try {
+        await this.imageStorageService.deleteImage(profile.cloudinaryPublicId);
+      } catch (error) {
+        console.error("Error deleting old profile picture:", error);
+        // Continue even if deletion fails
+      }
+    }
+
+    // Upload new profile picture
+    const publicId = `profile`;
+    const folder = `masterduel-counter/${userId}/profile_picture`;
+    const uploadResult = await this.imageStorageService.uploadImage(
+      file.buffer,
+      publicId,
+      folder
+    );
+
+    // Update profile with new picture
+    return await this.profileRepository.update(userId, {
+      profilePictureUrl: uploadResult.url,
+      cloudinaryPublicId: uploadResult.publicId,
+    });
+  }
+
+  async deleteProfilePicture(userId: string): Promise<Profile> {
+    const profile = await this.profileRepository.findByUserId(userId);
+
+    if (!profile) {
+      throw new Error("Profile not found");
+    }
+
+    if (!profile.cloudinaryPublicId) {
+      throw new Error("No profile picture to delete");
+    }
+
+    // Delete from Cloudinary
+    try {
+      await this.imageStorageService.deleteImage(profile.cloudinaryPublicId);
+    } catch (error) {
+      console.error("Error deleting profile picture from Cloudinary:", error);
+      // Continue even if deletion fails
+    }
+
+    // Update profile
+    return await this.profileRepository.deleteProfilePicture(userId);
+  }
+}

@@ -3,13 +3,15 @@ import { cloudinary } from "@/services/cloudinary";
 import streamifier from "streamifier";
 
 export class CloudinaryAdapter implements ImageStorageService {
-  private readonly folder = "masterduel-counter/cards";
+  private readonly baseFolder = "masterduel-counter";
 
-  async uploadImage(buffer: Buffer, publicId: string): Promise<UploadResult> {
+  async uploadImage(buffer: Buffer, publicId: string, customFolder?: string): Promise<UploadResult> {
+    const folder = customFolder || `${this.baseFolder}/cards`;
+    
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          folder: this.folder,
+          folder,
           public_id: publicId,
           overwrite: true,
           resource_type: "image",

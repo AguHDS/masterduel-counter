@@ -28,15 +28,20 @@ export const InstanceHeader = ({
   onGeneralTipChange,
   onSelectHeaderCard,
 }: InstanceHeaderProps) => {
+
   return (
     <div className="flex items-start justify-center gap-8 mb-8 w-full px-4">
       {/* Left Side: Archetype Name, Title and General Tip */}
-      <div className="space-y-4 flex-1 max-w-4xl">
-        {/* Archetype Name - Bold and larger */}
-        <h1 className="text-3xl font-bold text-white">{archetypeName}</h1>
-
+      <div className="flex-1 max-w-4xl">
+        {/* Archetype Name and Separator */}
+        <div className="w-full max-w-2xl flex flex-col items-start mb-2">
+          <h1 className="text-3xl font-bold text-white mb-1">{archetypeName}</h1>
+          <div className="flex w-full">
+            <div className="ml-0 mt-1 w-2/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent" />
+          </div>
+        </div>
         {/* Title Section */}
-        <div className="w-full">
+        <div className="w-full max-w-2xl">
           {isEditMode ? (
             <input
               type="text"
@@ -44,26 +49,27 @@ export const InstanceHeader = ({
               onChange={(e) => onTitleChange(e.target.value)}
               maxLength={100}
               placeholder="Enter a title for your guide (Max. 100 characters)"
-              className="w-full px-4 py-2 bg-slate-800/40 text-white text-xl font-normal rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 shadow-sm"
+              className="w-full px-4 py-2 bg-slate-800/40 text-white text-xl font-normal rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 shadow-sm break-words"
+              style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
             />
           ) : (
-            <h2 className="text-2xl text-white">{title}</h2>
+            <h2 className="text-2xl text-white break-words max-w-2xl" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{title}</h2>
           )}
         </div>
-
-        {/* General Tip Section */}
-        <div className="w-full">
+        {/* Description Section */}
+        <div className="w-full mt-2">
+          <label className="text-blue-400 font-semibold text-xs mb-1 block">Description</label>
           {isEditMode ? (
             <textarea
               value={generalTip}
               onChange={(e) => onGeneralTipChange(e.target.value)}
               maxLength={5000}
-              placeholder="Add optional tip for this guide (Max. 5000 characters)..."
+              placeholder="Add optional description for this guide (Max. 5000 characters)..."
               className="w-full px-4 py-3 bg-slate-800/40 text-white text-base rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 resize-none shadow-sm min-h-[120px]"
               rows={5}
             />
           ) : (
-            <div className="py-4 border-t border-blue-400/30">
+            <div className="py-4 border-l-2 border-r-2 border-blue-700/30 bg-slate-900/30 px-4 rounded">
               <p className="text-slate-300 text-base leading-relaxed break-words">
                 {generalTip || "No description"}
               </p>
@@ -71,9 +77,8 @@ export const InstanceHeader = ({
           )}
         </div>
       </div>
-
       {/* Right Side: Header Card */}
-      <div className="relative flex-shrink-0 group">
+      <div className="flex flex-col items-center w-56">
         {headerCard ? (
           <div className="relative w-48 h-auto rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
             <CardTooltip

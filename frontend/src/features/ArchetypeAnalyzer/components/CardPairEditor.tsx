@@ -117,17 +117,33 @@ export const CardPairEditor = ({ isEditMode, onSave, onCancel, initialPairs = []
     }
   };
 
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Limpiar errores de validación al salir de modo edición
+  useEffect(() => {
+    if (!isEditMode) {
+      setValidationError(null);
+    }
+  }, [isEditMode]);
+
   const handleSave = async () => {
-    const completePairs = pairs.filter((p) => p.topCards.length > 0 && p.bottomCards.length > 0);
-    
-    if (completePairs.length === 0) {
-      alert("Please add at least one complete card pair before saving.");
+    // Validar que haya al menos un par con al menos una carta en top o bottom
+    const validPairs = pairs.filter((p) => p.topCards.length > 0 || p.bottomCards.length > 0);
+    if (validPairs.length === 0) {
+      setValidationError("Please add at least one card (top or bottom) in at least one pair before saving.");
       return;
     }
-    
+    // Validar que cada par tenga al menos una carta en top o bottom
+    for (let i = 0; i < pairs.length; i++) {
+      if (pairs[i].topCards.length === 0 && pairs[i].bottomCards.length === 0) {
+        setValidationError(`Pair #${i + 1} must have at least one card in Top or Bottom.`);
+        return;
+      }
+    }
+    setValidationError(null);
     setSaving(true);
     try {
-      await onSave(completePairs);
+      await onSave(validPairs);
     } catch (error) {
       console.error("Error saving pairs:", error);
       alert("Failed to save card pairs. Please try again.");
@@ -138,6 +154,9 @@ export const CardPairEditor = ({ isEditMode, onSave, onCancel, initialPairs = []
 
   return (
     <div className="flex flex-col min-h-[400px]">
+      {validationError && (
+        <div className="mb-4 text-red-400 font-semibold text-sm text-center">{validationError}</div>
+      )}
       {/* Card Pairs Grid */}
       <div className="flex-1">
         {pairs.length > 0 && (

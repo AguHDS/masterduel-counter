@@ -27,6 +27,7 @@ import {
 } from "./routes/index";
 import auth from "./routes/auth";
 import getInstanceCardPairs from "./routes/getInstanceCardPairs";
+import profile from "./routes/profile";
 
 app.use(
   cors({
@@ -40,6 +41,9 @@ app.use(express.json());
 // BetterAuth routes (handles /api/auth/*)
 app.use("/api/auth", auth);
 app.use("/api/logout", logout);
+
+// Profile
+app.use("/api/profile", profile);
 
 // Archetypes & Instances
 app.use("/api/archetypes", registerArchetype);

@@ -62,7 +62,7 @@ export const InstancesTable = ({
               <button
                 key={instance.id}
                 onClick={() => onSelectInstance(instance.userId, instance.archetypeId)}
-                className={`w-full grid grid-cols-[60px_40px_1fr_1fr_150px_100px] gap-3 py-2 px-3 rounded transition-colors text-left items-center h-12 ${
+                className={`w-full grid grid-cols-[60px_40px_1fr_1fr_150px_100px] gap-3 py-2 px-3 rounded transition-colors text-left items-center min-h-12 ${
                   isCurrentUser
                     ? "bg-green-900 hover:bg-green-800 border border-green-600"
                     : "bg-blue-900 hover:bg-blue-800"
@@ -82,7 +82,9 @@ export const InstancesTable = ({
                     </div>
                   )}
                 </div>
-                <div className="text-white text-sm truncate">{instance.title}</div>
+                <div className="text-white text-sm pr-2 truncate" style={{ maxWidth: '180px' }} title={instance.title}>
+                  {instance.title.length > 25 ? instance.title.slice(0, 25) + '...' : instance.title}
+                </div>
                 <div className="text-white font-medium text-sm flex items-center gap-2">
                   {showArchetypeName ? (
                     instance.archetypeName

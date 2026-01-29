@@ -45,8 +45,8 @@ export const UserInstancesList = ({ userId, onSelectArchetype }: UserInstancesLi
 
   return (
     <div className="flex flex-col items-center p-8">
-      <h2 className="text-base font-semibold text-blue-400 mb-2 self-start ml-[5%]">
-        {instances[0]?.userName}'s Archetype Instances
+      <h2 className="text-2xl font-bold text-blue-400 mb-6 text-center">
+        {instances[0]?.userName}'s Counter Guides
       </h2>
       
       <InstancesTable

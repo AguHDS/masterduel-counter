@@ -40,6 +40,16 @@ export const validateInstanceData = (
     };
   }
 
+  // Each pair must have at least one card in top or bottom
+  for (const pair of pairs) {
+    if ((pair.topCards.length === 0) && (pair.bottomCards.length === 0)) {
+      return {
+        isValid: false,
+        errorMessage: "Each card pair must have at least one card in Top or Bottom.",
+      };
+    }
+  }
+
   if (!headerCard) {
     return {
       isValid: false,
