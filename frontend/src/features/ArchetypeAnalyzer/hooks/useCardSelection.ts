@@ -1,22 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchCards, useSelectCard } from "./useCardQueries";
 import type { Card } from "../api/cardApi";
 
 export const useCardSelection = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
   
-  const { data: searchResults = [], isLoading, error } = useSearchCards(debouncedQuery);
+  const { data: searchResults = [], isLoading, error } = useSearchCards(searchQuery);
   const selectMutation = useSelectCard();
-
-  // Debounce search query
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, 300);
-
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
 
   const search = (query: string) => {
     setSearchQuery(query);
@@ -33,7 +23,6 @@ export const useCardSelection = () => {
 
   const clearSearch = () => {
     setSearchQuery("");
-    setDebouncedQuery("");
   };
 
   return {

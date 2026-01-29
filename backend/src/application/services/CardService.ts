@@ -17,6 +17,8 @@ export class CardServiceImpl implements CardService {
     return cards.map(card => ({
       id: card.id,
       name: card.name,
+      imageUrlExternal: card.card_images?.[0]?.image_url,
+      imageUrlSmallExternal: card.card_images?.[0]?.image_url_small,
     }));
   }
 
