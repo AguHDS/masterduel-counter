@@ -98,6 +98,7 @@ model ArchetypeInstance {
   id               Int       @id @default(autoincrement())
   archetypeId      Int       @map("archetype_id")
   userId           String    @map("user_id")
+  title            String    @default("Title")
   headerCardId     Int?      @map("header_card_id")
   generalTip       String?   @map("general_tip")
   likes            Int       @default(0)

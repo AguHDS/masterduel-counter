@@ -20,12 +20,14 @@ export const createCreateOrUpdateInstanceController =
         return;
       }
 
-      const { headerCardId } = req.body;
+      const { title, headerCardId, generalTip } = req.body;
 
       const instance = await instanceService.createOrUpdateInstance({
         archetypeId,
         userId,
+        title: title || "Title",
         headerCardId: headerCardId || null,
+        generalTip: generalTip || null,
       });
 
       res.status(200).json(instance);

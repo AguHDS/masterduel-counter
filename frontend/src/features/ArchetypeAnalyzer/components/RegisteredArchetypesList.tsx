@@ -60,7 +60,7 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
         <div className="w-[95%] mx-auto">
           <div className="grid grid-cols-[60px_1fr_200px] gap-4 mb-4 pb-3 border-b border-blue-600">
             <div className="text-blue-300 font-semibold text-sm">ID</div>
-            <div className="text-blue-300 font-semibold text-sm">Name</div>
+            <div className="text-blue-300 font-semibold text-sm">Archetype</div>
             <div className="text-blue-300 font-semibold text-sm">Instances</div>
           </div>
 

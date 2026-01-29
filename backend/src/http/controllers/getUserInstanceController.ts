@@ -77,6 +77,7 @@ export const createGetUserInstanceController = (
           id: instance.id,
           archetypeId: instance.archetypeId,
           userId: instance.userId,
+          title: instance.title,
           headerCardId: instance.headerCardId,
           generalTip: instance.generalTip,
           likes: instance.likes,

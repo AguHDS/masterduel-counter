@@ -14,7 +14,7 @@ export const registerArchetypeController = async (
       return;
     }
     const archetypeId = parseInt(id);
-    const { cardPairs, headerCardId, generalTip } = req.body;
+    const { cardPairs, title, headerCardId, generalTip } = req.body;
     const userId = (req as AuthenticatedRequest).user?.id;
 
     if (!userId) {
@@ -40,11 +40,29 @@ export const registerArchetypeController = async (
       return;
     }
 
+    // Validate that title is provided
+    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+      res.status(400).json({ 
+        success: false, 
+        error: "Title is required to register an archetype" 
+      });
+      return;
+    }
+
+    if (title.length > 100) {
+      res.status(400).json({ 
+        success: false, 
+        error: "Title must be 100 characters or less" 
+      });
+      return;
+    }
+
     // Crear o actualizar la instancia
     const instanceService = getDependencies().getInstanceService();
     const instance = await instanceService.createOrUpdateInstance({
       archetypeId,
       userId,
+      title: title.trim(),
       headerCardId: headerCardId || null,
       generalTip: generalTip || null,
     });
