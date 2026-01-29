@@ -102,8 +102,9 @@ export const ArchetypeInstancesList = ({
       
       <div className="w-[90%] bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-xl p-6">
         <div className="w-[95%] mx-auto">
-          <div className="grid grid-cols-[60px_1fr_1fr_150px_100px] gap-4 mb-4 pb-3 border-b border-blue-600">
+          <div className="grid grid-cols-[60px_40px_1fr_1fr_150px_100px] gap-3 mb-4 pb-3 border-b border-blue-600">
             <div className="text-blue-300 font-semibold text-sm">#</div>
+            <div></div>
             <div className="text-blue-300 font-semibold text-sm">Title</div>
             <div className="text-blue-300 font-semibold text-sm">Created by</div>
             <div className="text-blue-300 font-semibold text-sm">Last Updated</div>
@@ -117,13 +118,26 @@ export const ArchetypeInstancesList = ({
                 <button
                   key={instance.id}
                   onClick={() => onSelectInstance(instance.userId)}
-                  className={`w-full grid grid-cols-[60px_1fr_1fr_150px_100px] gap-4 p-3 rounded transition-colors text-left ${
+                  className={`w-full grid grid-cols-[50px_40px_1fr_1fr_130px_100px] gap-3 py-2 px-3 rounded transition-colors text-left items-center h-12 ${
                     isCurrentUser 
                       ? 'bg-green-900 hover:bg-green-800 border border-green-600' 
                       : 'bg-blue-900 hover:bg-blue-800'
                   }`}
                 >
                   <div className="text-blue-200 text-sm">{startIndex + index + 1}</div>
+                  <div className="flex items-center justify-start h-full">
+                    {instance.headerCardImageUrl ? (
+                      <img
+                        src={instance.headerCardImageUrl}
+                        alt={instance.headerCardName || "Header card"}
+                        className="h-9 relative right-10 bottom-[2px] w-auto object-contain rounded border border-blue-500 shadow-sm"
+                      />
+                    ) : (
+                      <div className="w-6 h-9 bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
+                        <span className="text-slate-500 text-[10px]">-</span>
+                      </div>
+                    )}
+                  </div>
                   <div className="text-white text-sm truncate">{instance.title}</div>
                   <div className="text-white font-medium text-sm flex items-center gap-2">
                     {instance.userName}
