@@ -28,9 +28,28 @@ router.delete("/instances/:instanceId", requireAuth, async (req: Request, res: R
       return;
     }
 
-    // Delete the instance (with ownership verification in service)
+    // Get instance data before deleting (to get archetypeId)
     const instanceService = getDependencies().getInstanceService();
+    const instance = await instanceService.getInstanceById(instanceId);
+    
+    if (!instance) {
+      res.status(404).json({ success: false, error: "Instance not found" });
+      return;
+    }
+
+    const archetypeId = instance.archetypeId;
+
+    // Delete the instance (with ownership verification in service)
     await instanceService.deleteInstance(instanceId, userId);
+
+    // Check if there are any remaining instances for this archetype
+    const remainingInstances = await instanceService.getInstancesByArchetypeId(archetypeId);
+    
+    // If no instances left, mark archetype as not registered
+    if (remainingInstances.length === 0) {
+      const archetypeRepository = getDependencies().getArchetypeRepository();
+      await archetypeRepository.update(archetypeId, { registered: false });
+    }
 
     res.status(200).json({
       success: true,
