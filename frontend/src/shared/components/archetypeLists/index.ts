@@ -1,0 +1,1 @@
+export { InstancesTable } from "./InstancesTable";

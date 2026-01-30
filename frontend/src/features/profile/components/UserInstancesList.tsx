@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { instanceApi, type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
-import { InstancesTable } from "@/features/archetypeLists/InstancesTable";
+import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTable";
 import { FramedContainer } from "@/layouts/FramedContainer";
 
 interface UserInstancesListProps {

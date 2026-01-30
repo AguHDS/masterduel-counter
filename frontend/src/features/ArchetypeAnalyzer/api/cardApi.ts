@@ -12,6 +12,7 @@ export interface Card {
   name: string;
   imageUrl: string;
   imageUrlSmall: string;
+  imageUrlCropped: string;
 }
 
 // Search for cards by name query

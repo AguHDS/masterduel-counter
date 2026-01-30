@@ -105,7 +105,7 @@ export class SqliteArchetypeCardPairRepository
     `);
 
     const topStmt = this.db.prepare(`
-      SELECT c.id, c.name, c.image_url, c.image_url_small
+      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped
       FROM card_pair_top cpt
       INNER JOIN cards c ON cpt.card_id = c.id
       WHERE cpt.pair_id = ?
@@ -113,7 +113,7 @@ export class SqliteArchetypeCardPairRepository
     `);
 
     const bottomStmt = this.db.prepare(`
-      SELECT c.id, c.name, c.image_url, c.image_url_small
+      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped
       FROM card_pair_bottom cpb
       INNER JOIN cards c ON cpb.card_id = c.id
       WHERE cpb.pair_id = ?
@@ -124,8 +124,8 @@ export class SqliteArchetypeCardPairRepository
 
     return pairs.map((pair) => ({
       ...pair,
-      top_cards: topStmt.all(pair.id) as Array<{ id: number; name: string; image_url: string; image_url_small: string }>,
-      bottom_cards: bottomStmt.all(pair.id) as Array<{ id: number; name: string; image_url: string; image_url_small: string }>,
+      top_cards: topStmt.all(pair.id) as Array<{ id: number; name: string; image_url: string; image_url_small: string; image_url_cropped: string }>,
+      bottom_cards: bottomStmt.all(pair.id) as Array<{ id: number; name: string; image_url: string; image_url_small: string; image_url_cropped: string }>,
     }));
   }
 

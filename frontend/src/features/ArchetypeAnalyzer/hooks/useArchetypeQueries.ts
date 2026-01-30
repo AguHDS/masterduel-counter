@@ -4,36 +4,28 @@ import {
   searchArchetypes,
   registerArchetype,
   getArchetypeWithHeaderCard,
-  getRegisteredArchetypes,
   type SearchResponse,
   type RegisterArchetypeResponse,
-  type RegisteredArchetypesResponse,
   type CardPairDTO,
 } from "../api/archetypeApi";
-import { instanceApi, type UserInstanceWithCardPairs } from "@/lib/http/instanceApi";
+import {
+  instanceApi,
+  type UserInstanceWithCardPairs,
+} from "@/lib/http/instanceApi";
 
 /**
  * Hook to search archetypes
  * Uses SHORT stale time for real-time search experience
  */
-export const useSearchArchetypes = (searchQuery: string, limit: number = 50) => {
+export const useSearchArchetypes = (
+  searchQuery: string,
+  limit: number = 50,
+) => {
   return useQuery<SearchResponse>({
     queryKey: queryKeys.archetypes.search(searchQuery, limit),
     queryFn: () => searchArchetypes(searchQuery, limit),
     staleTime: QUERY_STALE_TIME.SHORT,
     enabled: searchQuery.trim().length > 0,
-  });
-};
-
-/**
- * Hook to get all registered archetypes
- * Uses DEFAULT stale time (5 minutes)
- */
-export const useRegisteredArchetypes = () => {
-  return useQuery<RegisteredArchetypesResponse>({
-    queryKey: queryKeys.archetypes.registered(),
-    queryFn: getRegisteredArchetypes,
-    staleTime: QUERY_STALE_TIME.DEFAULT,
   });
 };
 
@@ -54,7 +46,10 @@ export const useArchetypeWithHeader = (archetypeId: number | undefined) => {
  * Hook to get user instance with card pairs
  * Uses staleTime: 0 to always refetch and ensure likes are up to date
  */
-export const useUserInstance = (archetypeId: number | undefined, userId: string | undefined) => {
+export const useUserInstance = (
+  archetypeId: number | undefined,
+  userId: string | undefined,
+) => {
   return useQuery<UserInstanceWithCardPairs>({
     queryKey: ["userInstance", archetypeId, userId],
     queryFn: () => instanceApi.getUserInstance(archetypeId!, userId!),
@@ -72,10 +67,22 @@ export const useRegisterArchetype = () => {
   return useMutation<
     RegisterArchetypeResponse,
     Error,
-    { archetypeId: number; cardPairs: CardPairDTO[]; title: string; headerCardId?: number; generalTip?: string }
+    {
+      archetypeId: number;
+      cardPairs: CardPairDTO[];
+      title: string;
+      headerCardId?: number;
+      generalTip?: string;
+    }
   >({
     mutationFn: ({ archetypeId, cardPairs, title, headerCardId, generalTip }) =>
-      registerArchetype(archetypeId, cardPairs, title, headerCardId, generalTip),
+      registerArchetype(
+        archetypeId,
+        cardPairs,
+        title,
+        headerCardId,
+        generalTip,
+      ),
     onSuccess: (_data, variables) => {
       // Invalidate related queries
       queryClient.invalidateQueries({

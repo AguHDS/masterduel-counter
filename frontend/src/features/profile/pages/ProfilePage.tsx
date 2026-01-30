@@ -81,19 +81,16 @@ export const ProfilePage = () => {
       <div className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex flex-col">
         <Navbar />
         <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
-          <div 
-            className="bg-gradient-to-br from-blue-900 to-slate-900 shadow-2xl border-t border-b border-blue-700 overflow-hidden flex flex-col min-h-[600px] relative" 
-            style={{ 
-              boxShadow: '0 -20px 40px -20px rgba(0, 0, 0, 0.5), 0 20px 40px -20px rgba(0, 0, 0, 0.5)' 
-            }}
-          >
-            {/* Profile Section */}
-            <div className="p-8 border-b border-blue-700/50">
+          <section className="w-full relative flex justify-center">
+            <div className="relative w-full max-w-[1120px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
+              <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden bg-gradient-to-br from-[#030717] via-[#0a0f2c] to-[#1a1743] py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
+                {/* Profile Section */}
+                <div className="pb-8 border-b border-blue-700/50">
               <div className="flex items-start gap-8">
                 {/* Profile Picture */}
                 <div className="flex-shrink-0">
                   <div className="relative">
-                    <div className="w-40 h-52 overflow-hidden bg-slate-800 border-4 border-blue-500 rounded">
+                    <div className="w-48 h-52 overflow-hidden bg-slate-800 border-2 border-[#4d77ff] rounded">
                       {displayPhotoUrl ? (
                         <img 
                           src={displayPhotoUrl} 
@@ -142,19 +139,19 @@ export const ProfilePage = () => {
                 </div>
 
                 {/* User Info */}
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start mb-4">
                     <h1 className="text-3xl font-bold text-white">{profile?.userName || userId}</h1>
                     {isOwner && !isEditMode && (
                       <button
                         onClick={() => toggleEditMode(profile?.bio || "")}
-                        className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                        className="text-blue-400 hover:text-blue-300 font-medium transition-colors text-sm ml-4 flex-shrink-0"
                       >
                         Edit Profile
                       </button>
                     )}
                     {isOwner && isEditMode && (
-                      <div className="flex gap-3">
+                      <div className="flex gap-3 ml-4 flex-shrink-0">
                         <button
                           onClick={handleSaveChanges}
                           disabled={isSaving}
@@ -191,22 +188,24 @@ export const ProfilePage = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="border-l-2 border-r-2 border-blue-700/30 bg-slate-900/30 px-4 py-3 rounded">
-                        <p className="text-gray-300 whitespace-pre-wrap">
+                      <div className="border-l-2 border-r-2 border-blue-700/30 bg-slate-700/40 px-4 py-3 rounded overflow-hidden">
+                        <p className="text-gray-300 whitespace-pre-wrap break-words word-wrap" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                           {profile?.bio || (isOwner ? "No bio available" : "No bio yet.")}
                         </p>
                       </div>
                     )}
                   </div>
                 </div>
+                </div>
+              </div>
+
+              {/* Archetype Instances Section */}
+              <div className="pt-8">
+                <UserInstancesList userId={userId} onSelectArchetype={handleSelectArchetype} />
               </div>
             </div>
-
-            {/* Archetype Instances Section */}
-            <div className="p-8">
-              <UserInstancesList userId={userId} onSelectArchetype={handleSelectArchetype} />
-            </div>
           </div>
+        </section>
         </main>
         <Footer />
       </div>
