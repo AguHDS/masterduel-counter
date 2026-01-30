@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 
 interface TurnstileProps {
   siteKey: string;
@@ -29,7 +29,7 @@ declare global {
   }
 }
 
-export const Turnstile = ({
+const TurnstileComponent = ({
   siteKey,
   onVerify,
   onError,
@@ -86,3 +86,6 @@ export const Turnstile = ({
 
   return <div ref={containerRef} />;
 };
+
+// Memoize component to prevent unnecessary re-renders
+export const Turnstile = memo(TurnstileComponent);

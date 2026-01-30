@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useLogin } from "../hooks/useAuthQueries";
 import { Lock, User, CheckCircle } from "lucide-react";
+import { ForgotPasswordModal } from "./ForgotPasswordModal";
 
 export const LoginForm = () => {
   const location = useLocation();
@@ -10,6 +11,7 @@ export const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const { mutate: login, isPending } = useLogin();
 
   useEffect(() => {
@@ -117,6 +119,16 @@ export const LoginForm = () => {
             </div>
           )}
 
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setIsForgotPasswordOpen(true)}
+              className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              Forgot password?
+            </button>
+          </div>
+
           <div>
             <button
               type="submit"
@@ -139,6 +151,11 @@ export const LoginForm = () => {
             </p>
           </div>
         </form>
+
+        <ForgotPasswordModal 
+          isOpen={isForgotPasswordOpen}
+          onClose={() => setIsForgotPasswordOpen(false)}
+        />
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { ProfilePage } from "./features/profile/pages/ProfilePage";
 import { ArchetypeInstancesPage } from "./features/archetypeInstances";
 import { InstanceEditorPage } from "./features/ArchetypeAnalyzer";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Routes>
       </Router>
     </AuthProvider>
