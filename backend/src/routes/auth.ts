@@ -6,6 +6,7 @@ import loginRouter from "./login";
 
 const router = express.Router();
 
+// Custom routes
 router.use("/register", registerRouter);
 router.use("/login", loginRouter);
 

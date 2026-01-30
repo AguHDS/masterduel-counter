@@ -94,7 +94,7 @@ export const InstancesTable = ({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-[0.25rem]">
         {currentInstances.map((instance, index) => {
           const isCurrentUser = user?.id === instance.userId;
           const positionLabel = startIndex + index + 1;
