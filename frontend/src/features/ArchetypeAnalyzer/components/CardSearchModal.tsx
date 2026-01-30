@@ -3,6 +3,7 @@ import { X, Search, Loader2 } from "lucide-react";
 import { Virtuoso } from "react-virtuoso";
 import { useCardSelection } from "../hooks/useCardSelection";
 import { type Card } from "../api/cardApi";
+import { CardTooltip } from "./CardTooltip";
 
 interface CardSearchModalProps {
   isOpen: boolean;
@@ -163,44 +164,57 @@ export const CardSearchModal = ({
                       justifyContent: 'start',
                     }}
                   >
-                    {row.map((result) => (
-                      <button
-                        key={result.id}
-                        onClick={() => handleSelectCard(result.id)}
-                        className="group relative bg-slate-700/50 hover:bg-slate-600/50 rounded-lg transition-all duration-200 border-2 border-slate-600 hover:border-blue-500 overflow-hidden flex flex-col flex-shrink-0"
-                        style={{ width: cardWidth, height: cardHeight }}
-                        title={result.name}
-                      >
-                        {/* Card Image */}
-                        <div className="relative bg-slate-800" style={{ height: cardImageHeight }}>
-                          {result.imageUrlSmallExternal ? (
-                            <img
-                              src={result.imageUrlSmallExternal}
-                              alt={result.name}
-                              className="w-full h-full object-contain"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-500">
-                              <span className="text-xs">No image</span>
+                    {row.map((result) => {
+                      const tooltipImage = result.imageUrlExternal ?? result.imageUrlSmallExternal ?? "";
+                      return (
+                        <CardTooltip
+                          key={result.id}
+                          cardId={result.id}
+                          imageUrl={tooltipImage}
+                          cardName={result.name}
+                        >
+                          <div
+                            className="flex-shrink-0"
+                            style={{ width: cardWidth, height: cardHeight }}
+                          >
+                            <button
+                              onClick={() => handleSelectCard(result.id)}
+                              className="group relative bg-slate-700/50 hover:bg-slate-600/50 rounded-lg transition-all duration-200 border-2 border-slate-600 hover:border-blue-500 overflow-hidden flex flex-col w-full h-full"
+                              title={result.name}
+                            >
+                            {/* Card Image */}
+                            <div className="relative bg-slate-800" style={{ height: cardImageHeight }}>
+                              {result.imageUrlSmallExternal ? (
+                                <img
+                                  src={result.imageUrlSmallExternal}
+                                  alt={result.name}
+                                  className="w-full h-full object-contain"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-slate-500">
+                                  <span className="text-xs">No image</span>
+                                </div>
+                              )}
+                              {/* Hover overlay */}
+                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-white text-xs font-medium px-2 text-center">
+                                  Select
+                                </span>
+                              </div>
                             </div>
-                          )}
-                          {/* Hover overlay */}
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span className="text-white text-xs font-medium px-2 text-center">
-                              Select
-                            </span>
+
+                            {/* Card Name */}
+                            <div className="px-2 py-1.5 bg-slate-800/80 flex-shrink-0 flex items-center" style={{ height: cardTextHeight }}>
+                              <p className="text-xs text-white font-medium truncate leading-tight">
+                                {result.name}
+                              </p>
+                            </div>
+                            </button>
                           </div>
-                        </div>
-                        
-                        {/* Card Name */}
-                        <div className="px-2 py-1.5 bg-slate-800/80 flex-shrink-0 flex items-center" style={{ height: cardTextHeight }}>
-                          <p className="text-xs text-white font-medium truncate leading-tight">
-                            {result.name}
-                          </p>
-                        </div>
-                      </button>
-                    ))}
+                        </CardTooltip>
+                      );
+                    })}
                   </div>
                 );
               }}

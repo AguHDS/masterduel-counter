@@ -15,6 +15,7 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
   const containerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafRef = useRef<number | null>(null);
   
   // Fetch card details when tooltip is visible
   const { data: cardDetails, isLoading } = useCardDetails(isVisible ? cardId : null);
@@ -23,66 +24,69 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
     // Delay showing tooltip slightly to avoid flickering on quick hover
     hoverTimeoutRef.current = setTimeout(() => {
       setIsVisible(true);
-      updatePosition(e);
-    }, 150);
+      schedulePositionUpdate(e.clientX, e.clientY);
+    }, 120);
   };
 
   const handleMouseLeave = () => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
     }
     setIsVisible(false);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isVisible) {
-      updatePosition(e);
+      schedulePositionUpdate(e.clientX, e.clientY);
     }
   };
 
-  const updatePosition = (e: React.MouseEvent) => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
-
-    // Tooltip dimensions - wider for card info
-    const tooltipWidth = 700;
-    const tooltipHeight = 500;
-    const offset = 20;
-
-    // Calculate position relative to viewport
-    let x = mouseX + offset;
-    let y = mouseY + offset;
-
-    // Check if tooltip would go off screen horizontally
-    if (x + tooltipWidth > window.innerWidth) {
-      x = mouseX - tooltipWidth - offset;
+  const schedulePositionUpdate = (mouseX: number, mouseY: number) => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
     }
 
-    // Check if tooltip would go off screen vertically
-    if (y + tooltipHeight > window.innerHeight) {
-      y = mouseY - tooltipHeight - offset;
-    }
+    rafRef.current = requestAnimationFrame(() => {
+      const tooltipWidth = 640;
+      const tooltipHeight = 420;
+      const offset = 20;
 
-    // Ensure tooltip doesn't go off left edge
-    if (x < 0) {
-      x = offset;
-    }
+      let x = mouseX + offset;
+      let y = mouseY + offset;
 
-    // Ensure tooltip doesn't go off top edge
-    if (y < 0) {
-      y = offset;
-    }
+      if (x + tooltipWidth > window.innerWidth) {
+        x = mouseX - tooltipWidth - offset;
+      }
 
-    setPosition({ x, y });
+      if (y + tooltipHeight > window.innerHeight) {
+        y = mouseY - tooltipHeight - offset;
+      }
+
+      if (x < 0) {
+        x = offset;
+      }
+
+      if (y < 0) {
+        y = offset;
+      }
+
+      setPosition({ x, y });
+      rafRef.current = null;
+    });
   };
 
   useEffect(() => {
     return () => {
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
+      }
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
       }
     };
   }, []);
@@ -110,7 +114,7 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
           role="tooltip"
           aria-label={`Card preview: ${cardName}`}
         >
-          <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-blue-950 rounded-xl shadow-2xl border-2 border-blue-500/50 overflow-hidden flex max-w-[700px]">
+          <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-blue-950 rounded-xl shadow-2xl border-2 border-blue-500/50 overflow-hidden flex max-w-[640px]">
             {/* Left side: Card Image */}
             <div className="flex-shrink-0 bg-slate-900/50 p-3">
               <img

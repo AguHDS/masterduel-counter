@@ -1,4 +1,4 @@
-import { type Archetype } from "../api/archetypeApi";
+import { type Archetype } from "@/features/ArchetypeAnalyzer/api/archetypeApi";
 import { Search, CheckCircle, XCircle, Clock } from "lucide-react";
 
 interface SearchResultsProps {

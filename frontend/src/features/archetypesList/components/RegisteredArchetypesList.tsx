@@ -5,13 +5,14 @@ import { useRegisteredArchetypes } from "@/features/ArchetypeAnalyzer/hooks/useA
 import instanceItemBg from "@/assets/Bluebackground_elements.webp";
 
 interface RegisteredArchetypesListProps {
-  onSelectArchetype: (archetypeId: number, userId: string | null) => void;
+  onSelectArchetype: (archetypeId: number) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
 
 export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchetypesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [hoveredArchetype, setHoveredArchetype] = useState<number | null>(null);
   const { data, isLoading, error } = useRegisteredArchetypes();
 
   if (isLoading) {
@@ -80,7 +81,9 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
           return (
             <button
               key={archetype.id}
-              onClick={() => onSelectArchetype(archetype.id, null)}
+              onClick={() => onSelectArchetype(archetype.id)}
+              onMouseEnter={() => setHoveredArchetype(archetype.id)}
+              onMouseLeave={() => setHoveredArchetype(null)}
               className="group relative w-full overflow-hidden rounded-xl border border-transparent transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
             >
               <img
@@ -90,6 +93,14 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
                 className="absolute inset-0 h-full w-full"
               />
               <div className="absolute inset-0 bg-black/35 group-hover:bg-black/10 group-active:bg-black/40" />
+
+              {/* Tooltip */}
+              {hoveredArchetype === archetype.id && (
+                <div className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gradient-to-br from-slate-800 via-blue-900 to-purple-900 text-white text-sm rounded-lg shadow-lg border border-blue-500/50 whitespace-nowrap pointer-events-none">
+                  {archetype.name}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-purple-900"></div>
+                </div>
+              )}
 
               <div className="relative z-10 flex flex-col gap-3 p-4 md:p-0 md:gap-0">
                 <div className="flex items-center gap-3 md:hidden">

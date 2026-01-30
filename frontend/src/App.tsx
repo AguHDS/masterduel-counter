@@ -4,6 +4,8 @@ import { HomePage } from "./pages/HomePage";
 import { SignInPage } from "./pages/SignInPage";
 import { SignUpPage } from "./pages/SignUpPage";
 import { ProfilePage } from "./features/profile/pages/ProfilePage";
+import { ArchetypeInstancesPage } from "./features/archetypeInstances";
+import { InstanceEditorPage } from "./features/ArchetypeAnalyzer";
 
 function App() {
   return (
@@ -11,8 +13,8 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/archetype/:archetypeId" element={<HomePage />} />
-          <Route path="/archetype/:archetypeId/instance/:instanceUserId" element={<HomePage />} />
+          <Route path="/archetype/:archetypeId" element={<ArchetypeInstancesPage />} />
+          <Route path="/archetype/:archetypeId/instance/:instanceUserId" element={<InstanceEditorPage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
