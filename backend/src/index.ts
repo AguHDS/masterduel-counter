@@ -18,12 +18,14 @@ import {
   registerArchetype,
   registeredArchetypes,
   deleteUserInstance,
+  deleteInstance,
   instanceLikes,
   getCardDetails,
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
   createCreateOrUpdateInstanceRoute,
   createGetUserInstanceRoute,
+  createGetInstanceByIdRoute,
 } from "./routes/index";
 import auth from "./routes/auth";
 import getInstanceCardPairs from "./routes/getInstanceCardPairs";
@@ -49,11 +51,13 @@ app.use("/api/profile", profile);
 app.use("/api/archetypes", registerArchetype);
 app.use("/api/archetypes", registeredArchetypes);
 app.use("/api", deleteUserInstance);
+app.use("/api", deleteInstance);
 app.use("/api", instanceLikes);
 app.use("/api", createGetArchetypeInstancesRoute(getDependencies()));
 app.use("/api", createGetUserInstancesRoute(getDependencies()));
 app.use("/api", createCreateOrUpdateInstanceRoute(getDependencies()));
 app.use("/api", createGetUserInstanceRoute(getDependencies()));
+app.use("/api", createGetInstanceByIdRoute(getDependencies()));
 app.use("/api", getInstanceCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 

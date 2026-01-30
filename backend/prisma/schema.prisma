@@ -126,7 +126,6 @@ model ArchetypeInstance {
   cardPairs        ArchetypeCardPair[]
   likeRecords      InstanceLike[]
 
-  @@unique([archetypeId, userId])
   @@index([userId])
   @@index([archetypeId])
   @@map("archetype_instances")

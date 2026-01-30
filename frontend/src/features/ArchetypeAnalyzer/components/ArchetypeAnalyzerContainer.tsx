@@ -39,9 +39,9 @@ interface CardPair {
 }
 
 export const ArchetypeAnalyzerContainer = () => {
-  const { archetypeId, instanceUserId } = useParams<{
+  const { archetypeId, instanceId } = useParams<{
     archetypeId: string;
-    instanceUserId: string;
+    instanceId: string;
   }>();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
@@ -52,20 +52,25 @@ export const ArchetypeAnalyzerContainer = () => {
 
   // Parse archetypeId from URL
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
+  
+  // Determine if we're creating new or editing existing
+  const isCreatingNew = instanceId === 'new';
+  const instanceIdNum = !isCreatingNew && instanceId ? parseInt(instanceId) : undefined;
 
   // Fetch archetype data from URL parameter
   const { data: archetypeWithHeaderData } =
     useArchetypeWithHeader(archetypeIdNum);
 
-  // Fetch user instance
+  // Fetch instance data based on mode
+  // When creating new, don't fetch. When editing, fetch by instanceId
   const { data: userInstanceData, isError } = useUserInstance(
     archetypeIdNum,
-    instanceUserId,
+    isCreatingNew ? undefined : instanceIdNum,
   );
 
   // Check if current user owns this instance
   const isOwner =
-    isAuthenticated && (!instanceUserId || user?.id === instanceUserId);
+    isAuthenticated && (isCreatingNew || user?.id === userInstanceData?.instance.userId);
 
   const selectedArchetype = archetypeWithHeaderData?.archetype;
 
@@ -78,7 +83,7 @@ export const ArchetypeAnalyzerContainer = () => {
 
   // Load instance data
   useInstanceData({
-    instanceUserId,
+    isCreatingNew,
     userInstanceData,
     isError,
     isOwner,
@@ -120,7 +125,7 @@ export const ArchetypeAnalyzerContainer = () => {
   const handleCancel = () => {
     editor.setIsEditMode(false);
     // Reset to loaded data
-    if (instanceUserId && userInstanceData) {
+    if (!isCreatingNew && userInstanceData) {
       const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
         topCards: pair.topCards,
@@ -147,7 +152,7 @@ export const ArchetypeAnalyzerContainer = () => {
   };
 
   const handleDeleteInstance = async () => {
-    if (!selectedArchetype || !user?.id || !archetypeId) return;
+    if (!selectedArchetype || !userInstanceData?.instance.id || !archetypeId) return;
 
     const confirmed = confirm(
       "Are you sure you want to delete your instance? This action cannot be undone.",
@@ -156,7 +161,7 @@ export const ArchetypeAnalyzerContainer = () => {
     if (!confirmed) return;
 
     try {
-      await instanceApi.deleteUserInstance(parseInt(archetypeId), user.id);
+      await instanceApi.deleteInstance(userInstanceData.instance.id);
       alert("Instance deleted successfully");
       window.location.href = "/";
     } catch (error) {
@@ -194,19 +199,20 @@ export const ArchetypeAnalyzerContainer = () => {
     try {
       const cardPairs = transformPairsForApi(pairs);
 
-      await registerMutation.mutateAsync({
+      const response = await registerMutation.mutateAsync({
         archetypeId: selectedArchetype.id,
         cardPairs,
         title: editor.title.trim(),
         headerCardId: editor.headerCard!.id,
         generalTip: editor.generalTip || undefined,
+        instanceId: isCreatingNew ? undefined : instanceIdNum,
       });
 
       editor.setIsEditMode(false);
 
       // Reload to show fresh data
-      if (user?.id) {
-        window.location.href = `/archetype/${selectedArchetype.id}/instance/${user.id}`;
+      if (response.instance?.id) {
+        window.location.href = `/archetype/${selectedArchetype.id}/instance/${response.instance.id}`;
       }
     } catch (error) {
       console.error("Error saving archetype:", error);
@@ -233,7 +239,7 @@ export const ArchetypeAnalyzerContainer = () => {
         <div className="relative w-full max-w-[1120px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
           <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden bg-gradient-to-br from-[#030717] via-[#0a0f2c] to-[#1a1743] py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
             <div className="space-y-6">
-              {instanceUserId &&
+              {!isCreatingNew &&
                 !isOwner &&
                 isAuthenticated &&
                 selectedArchetype.registered && (
@@ -279,7 +285,7 @@ export const ArchetypeAnalyzerContainer = () => {
               </div>
 
               <div className="flex items-center justify-center space-x-4 mt-16">
-                {instanceUserId && !isOwner && (
+                {!isCreatingNew && !isOwner && (
                   <div className="text-blue-300 text-sm">
                     Viewing{" "}
                     <span className="font-semibold">
@@ -292,7 +298,7 @@ export const ArchetypeAnalyzerContainer = () => {
                 {isAuthenticated &&
                   selectedArchetype.registered &&
                   !editor.isEditMode &&
-                  instanceUserId &&
+                  !isCreatingNew &&
                   isOwner && (
                     <>
                       <button

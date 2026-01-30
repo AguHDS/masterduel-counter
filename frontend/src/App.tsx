@@ -16,7 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/archetype/:archetypeId" element={<ArchetypeInstancesPage />} />
-          <Route path="/archetype/:archetypeId/instance/:instanceUserId" element={<InstanceEditorPage />} />
+          <Route path="/archetype/:archetypeId/instance/:instanceId" element={<InstanceEditorPage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />

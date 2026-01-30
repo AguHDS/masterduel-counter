@@ -14,7 +14,7 @@ import type { Archetype } from "@/features/ArchetypeAnalyzer/api/archetypeApi";
 export const ArchetypeInstancesPage = () => {
   const { archetypeId } = useParams<{ archetypeId: string }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -22,15 +22,15 @@ export const ArchetypeInstancesPage = () => {
   const { data: archetypeWithHeaderData, isLoading, error } = useArchetypeWithHeader(archetypeIdNum);
   const { results, loading: searchLoading, error: searchError } = useArchetypeSearch({ searchQuery, debounceDelay: 300, limit: 20 });
 
-  const handleSelectInstance = (userId: string) => {
+  const handleSelectInstance = (instanceId: number) => {
     if (archetypeId) {
-      navigate(`/archetype/${archetypeId}/instance/${userId}`);
+      navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
     }
   };
 
   const handleCreateInstance = () => {
-    if (user?.id && archetypeId) {
-      navigate(`/archetype/${archetypeId}/instance/${user.id}`);
+    if (archetypeId) {
+      navigate(`/archetype/${archetypeId}/instance/new`);
     }
   };
 
@@ -92,8 +92,8 @@ export const ArchetypeInstancesPage = () => {
   const archetype = archetypeWithHeaderData.archetype;
 
   // Si el arquetipo no está registrado, redirigir a crear instancia si está autenticado
-  if (!archetype.registered && isAuthenticated && user?.id) {
-    navigate(`/archetype/${archetypeId}/instance/${user.id}`, { replace: true });
+  if (!archetype.registered && isAuthenticated) {
+    navigate(`/archetype/${archetypeId}/instance/new`, { replace: true });
     return null;
   }
 

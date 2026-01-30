@@ -12,7 +12,7 @@ import { FramedContainer } from "@/layouts/FramedContainer";
 interface ArchetypeInstancesListProps {
   archetypeId: number;
   archetypeName: string;
-  onSelectInstance: (userId: string) => void;
+  onSelectInstance: (instanceId: number) => void;
   onCreateInstance: () => void;
 }
 
@@ -25,7 +25,7 @@ export const ArchetypeInstancesList = ({
   onCreateInstance,
 }: ArchetypeInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const {
     data: instances,
@@ -40,9 +40,7 @@ export const ArchetypeInstancesList = ({
 
   // Validaciones centralizadas
   const hasInstances = !!instances && instances.length > 0;
-  const userHasInstance =
-    instances?.some((instance) => instance.userId === user?.id) ?? false;
-  const canCreateInstance = isAuthenticated && !userHasInstance;
+  const canCreateInstance = isAuthenticated;
 
   // Loading state
   if (isLoading) {
@@ -118,7 +116,7 @@ export const ArchetypeInstancesList = ({
           instances={instances}
           currentPage={currentPage}
           itemsPerPage={ITEMS_PER_PAGE}
-          onSelectInstance={(userId) => onSelectInstance(userId)}
+          onSelectInstance={(instanceId) => onSelectInstance(instanceId)}
           onPageChange={setCurrentPage}
           showArchetypeName={false}
         />

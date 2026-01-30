@@ -61,7 +61,7 @@ interface UserInstanceData {
 }
 
 interface UseInstanceDataProps {
-  instanceUserId?: string;
+  isCreatingNew: boolean;
   userInstanceData?: UserInstanceData;
   isError: boolean;
   isOwner: boolean;
@@ -77,16 +77,18 @@ interface UseInstanceDataProps {
 }
 
 export const useInstanceData = ({
-  instanceUserId,
+  isCreatingNew,
   userInstanceData,
   isError,
-  isOwner,
   onDataLoaded,
   onNewInstance,
   onReset,
 }: UseInstanceDataProps) => {
   useEffect(() => {
-    if (instanceUserId && userInstanceData) {
+    if (isCreatingNew) {
+      // Creating new instance
+      onNewInstance();
+    } else if (userInstanceData) {
       // Load existing instance data
       const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
@@ -111,14 +113,9 @@ export const useInstanceData = ({
         headerCard,
         likes: userInstanceData.instance.likes,
       });
-    } else if (instanceUserId && isOwner && isError) {
-      // New instance: user is owner but instance doesn't exist yet (404 error)
-      onNewInstance();
-    } else if (instanceUserId && !userInstanceData && !isError) {
-      // Still loading, don't reset state yet
-      // This prevents flickering while data is being fetched
-    } else {
+    } else if (!isCreatingNew && isError) {
+      // Error loading existing instance
       onReset();
     }
-  }, [instanceUserId, userInstanceData, isError, isOwner]);
+  }, [isCreatingNew, userInstanceData, isError]);
 };

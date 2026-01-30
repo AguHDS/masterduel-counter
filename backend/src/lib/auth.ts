@@ -21,7 +21,7 @@ export const auth = betterAuth({
       url: string;
       token: string;
     }) => {
-      const { user, url, token } = params;
+      const { user, token } = params;
       const frontendUrl = `${getFrontendUrl()}/verify-email?token=${token}`;
 
       if (config.nodeEnv === "development") {
@@ -46,7 +46,7 @@ export const auth = betterAuth({
       url: string;
       token: string;
     }) => {
-      const { user, url, token } = params;
+      const { user, token } = params;
       const frontendUrl = `${getFrontendUrl()}/reset-password?token=${token}`;
 
       if (config.nodeEnv === "development") {

@@ -36,12 +36,8 @@ export const ProfilePage = () => {
     cancelEdit,
   } = useProfileEditor(userId!);
 
-  const handleSelectArchetype = (archetypeId: number, userId: string | null) => {
-    if (userId) {
-      navigate(`/archetype/${archetypeId}/instance/${userId}`);
-    } else {
-      navigate(`/archetype/${archetypeId}`);
-    }
+  const handleSelectArchetype = (archetypeId: number, instanceId: number) => {
+    navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

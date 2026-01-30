@@ -6,7 +6,7 @@ import { FramedContainer } from "@/layouts/FramedContainer";
 
 interface UserInstancesListProps {
   userId: string;
-  onSelectArchetype: (archetypeId: number, userId: string | null) => void;
+  onSelectArchetype: (archetypeId: number, instanceId: number) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -55,7 +55,7 @@ export const UserInstancesList = ({ userId, onSelectArchetype }: UserInstancesLi
           instances={instances}
           currentPage={currentPage}
           itemsPerPage={ITEMS_PER_PAGE}
-          onSelectInstance={(profileUserId, archetypeId) => onSelectArchetype(archetypeId, profileUserId)}
+          onSelectInstance={(instanceId, archetypeId) => onSelectArchetype(archetypeId, instanceId)}
           onPageChange={setCurrentPage}
           showArchetypeName={true}
         />

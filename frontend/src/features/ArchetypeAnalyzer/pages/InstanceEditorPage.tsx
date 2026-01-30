@@ -11,17 +11,25 @@ import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import type { Archetype } from "../api/archetypeApi";
 
 export const InstanceEditorPage = () => {
-  const { archetypeId } = useParams<{
+  const { archetypeId, instanceId: _instanceId } = useParams<{
     archetypeId: string;
-    instanceUserId: string;
+    instanceId: string;
   }>();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
-  const { data: archetypeWithHeaderData, isLoading, error } = useArchetypeWithHeader(archetypeIdNum);
-  const { results, loading: searchLoading, error: searchError } = useArchetypeSearch({ searchQuery, debounceDelay: 300, limit: 20 });
+  const {
+    data: archetypeWithHeaderData,
+    isLoading,
+    error,
+  } = useArchetypeWithHeader(archetypeIdNum);
+  const {
+    results,
+    loading: searchLoading,
+    error: searchError,
+  } = useArchetypeSearch({ searchQuery, debounceDelay: 300, limit: 20 });
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -48,7 +56,12 @@ export const InstanceEditorPage = () => {
         </Helmet>
         <div className="min-h-screen bg-gradient-to-b flex flex-col">
           <Navbar />
-          <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
+          <main
+            className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
+            style={{ maxWidth: "87.5rem" }}
+            role="main"
+            aria-label="Main content"
+          >
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-blue-300 text-lg">Loading...</div>
             </div>
@@ -67,7 +80,12 @@ export const InstanceEditorPage = () => {
         </Helmet>
         <div className="min-h-screen bg-gradient-to-b flex flex-col">
           <Navbar />
-          <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
+          <main
+            className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
+            style={{ maxWidth: "87.5rem" }}
+            role="main"
+            aria-label="Main content"
+          >
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-red-400 text-lg">Archetype not found</div>
             </div>
@@ -84,7 +102,10 @@ export const InstanceEditorPage = () => {
     <>
       <Helmet>
         <title>{archetype.name} - Instance Editor - Masterduel Counter</title>
-        <meta name="description" content={`Create or edit your guide for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`} />
+        <meta
+          name="description"
+          content={`Create or edit your guide for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`}
+        />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />
@@ -92,7 +113,10 @@ export const InstanceEditorPage = () => {
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
           placeholder="Search for archetypes to counter..."
-          isDropdownOpen={isDropdownOpen && (searchLoading || searchError !== null || results.length > 0)}
+          isDropdownOpen={
+            isDropdownOpen &&
+            (searchLoading || searchError !== null || results.length > 0)
+          }
           onRequestClose={() => setIsDropdownOpen(false)}
           onInputFocus={() => {
             if (searchQuery.trim()) {
@@ -109,7 +133,12 @@ export const InstanceEditorPage = () => {
             />
           )}
         </SearchInput>
-        <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
+        <main
+          className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
+          style={{ maxWidth: "87.5rem" }}
+          role="main"
+          aria-label="Main content"
+        >
           <ArchetypeAnalyzerContainer />
         </main>
         <Footer />

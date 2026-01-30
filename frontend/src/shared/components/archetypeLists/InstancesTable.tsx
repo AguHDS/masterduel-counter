@@ -10,7 +10,7 @@ interface InstancesTableProps {
   instances: ArchetypeInstanceWithDetails[];
   currentPage: number;
   itemsPerPage: number;
-  onSelectInstance: (userId: string, archetypeId: number) => void;
+  onSelectInstance: (instanceId: number, archetypeId: number) => void;
   onPageChange: (page: number) => void;
   showArchetypeName?: boolean;
 }
@@ -107,7 +107,7 @@ export const InstancesTable = ({
             <button
               key={instance.id}
               onClick={() =>
-                onSelectInstance(instance.userId, instance.archetypeId)
+                onSelectInstance(instance.id, instance.archetypeId)
               }
               onMouseEnter={() => setHoveredInstance(instance.id)}
               onMouseLeave={() => setHoveredInstance(null)}

@@ -82,6 +82,14 @@ export const instanceApi = {
     return response.data;
   },
 
+  // Get a specific instance by its ID
+  getInstanceById: async (instanceId: number): Promise<UserInstanceWithCardPairs> => {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/instances/${instanceId}`
+    );
+    return response.data;
+  },
+
   // Create a new instance or update an existing instance with a header card
   createOrUpdateInstance: async (
     archetypeId: number,
@@ -99,6 +107,15 @@ export const instanceApi = {
   deleteUserInstance: async (archetypeId: number, userId: string): Promise<{ success: boolean; message: string }> => {
     const response = await axios.delete<{ success: boolean; message: string }>(
       `${API_BASE_URL}/api/archetypes/${archetypeId}/users/${userId}/instance`,
+      { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  // Delete an instance by its ID
+  deleteInstance: async (instanceId: number): Promise<{ success: boolean; message: string }> => {
+    const response = await axios.delete<{ success: boolean; message: string }>(
+      `${API_BASE_URL}/api/instances/${instanceId}`,
       { withCredentials: true }
     );
     return response.data;
