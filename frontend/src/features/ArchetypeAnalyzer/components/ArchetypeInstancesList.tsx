@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { instanceApi, type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
-import { InstancesTable } from "@/features/archetypeLists/InstancesTable";
+import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTable";
 import { FramedContainer } from "@/layouts/FramedContainer";
 
 interface ArchetypeInstancesListProps {

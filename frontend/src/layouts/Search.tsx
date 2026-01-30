@@ -1,5 +1,5 @@
 import lupaImg from "../assets/Lupa.webp";
-import Searchbar_WithBlueBackground from "../assets/Searchbar_WithBlueBackground.webp";
+import Searchbar_WithBlueBackground from "../assets/Bluesearch.webp";
 import { useEffect, useRef } from "react";
 
 interface SearchInputProps {

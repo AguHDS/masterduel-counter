@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Layers, Edit3, Trash2, ThumbsUp } from "lucide-react";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
-import { RegisteredArchetypesList } from "@/features/archetypeLists/RegisteredArchetypesList";
+import { RegisteredArchetypesList } from "@/shared/components/archetypeLists/RegisteredArchetypesList";
 import { UserInstancesList } from "@/features/profile/components/UserInstancesList";
 import { ArchetypeInstancesList } from "./ArchetypeInstancesList";
 import { InstanceHeader } from "./InstanceHeader";
