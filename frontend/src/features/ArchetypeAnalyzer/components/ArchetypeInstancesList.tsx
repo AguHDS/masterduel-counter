@@ -3,7 +3,8 @@ import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { instanceApi, type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
-import { InstancesTable } from "./InstancesTable";
+import { InstancesTable } from "@/features/archetypeLists/InstancesTable";
+import { FramedContainer } from "@/layouts/FramedContainer";
 
 interface ArchetypeInstancesListProps {
   archetypeId: number;
@@ -67,35 +68,37 @@ export const ArchetypeInstancesList = ({
   }
 
   return (
-    <div className="flex flex-col items-center p-8">
-      <h1 className="text-2xl font-bold text-white mb-2">
-        {archetypeName}
-      </h1>
-      
-      <div className="w-full flex items-center justify-between mb-4 px-[5%]">
-        <h2 className="text-base font-semibold text-blue-400">
-          All Guides ({instances.length})
-        </h2>
-        
-        {isAuthenticated && !userHasInstance && (
-          <button
-            onClick={onCreateInstance}
-            className="flex items-center space-x-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm"
-          >
-            <Plus className="w-3 h-3" />
-            <span>Create</span>
-          </button>
-        )}
-      </div>
-      
-      <InstancesTable
-        instances={instances}
-        currentPage={currentPage}
-        itemsPerPage={ITEMS_PER_PAGE}
-        onSelectInstance={(userId) => onSelectInstance(userId)}
-        onPageChange={setCurrentPage}
-        showArchetypeName={false}
-      />
+    <div className="flex flex-col items-start p-4 w-full">
+      <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center items-start gap-2 sm:gap-4 w-full">
+          <h1 className="text-2xl font-bold text-white w-full sm:w-auto whitespace-normal sm:whitespace-nowrap">
+            {archetypeName}
+          </h1>
+          <span className="text-base font-semibold text-blue-400 w-full sm:w-auto whitespace-nowrap">
+            All Guides ({instances.length})
+          </span>
+          {isAuthenticated && !userHasInstance && (
+            <button
+              onClick={onCreateInstance}
+              className="flex items-center space-x-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm"
+            >
+              <Plus className="w-3 h-3" />
+              <span>Create</span>
+            </button>
+          )}
+        </div>
+
+        <div className="w-full h-1" style={{ background: "linear-gradient(90deg, #ff6600 0%, #ffb347 100%)" }} />
+
+        <InstancesTable
+          instances={instances}
+          currentPage={currentPage}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onSelectInstance={(userId) => onSelectInstance(userId)}
+          onPageChange={setCurrentPage}
+          showArchetypeName={false}
+        />
+      </FramedContainer>
     </div>
   );
 };
