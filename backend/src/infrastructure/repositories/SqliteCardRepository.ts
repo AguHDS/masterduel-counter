@@ -30,16 +30,18 @@ export class SqliteCardRepository implements CardRepository {
   async save(card: Card): Promise<void> {
     const stmt = this.db.prepare(`
       INSERT INTO cards (
-        id, name, image_url, image_url_small, 
-        cloudinary_public_id, cloudinary_public_id_small, 
+        id, name, image_url, image_url_small, image_url_cropped,
+        cloudinary_public_id, cloudinary_public_id_small, cloudinary_public_id_cropped,
         is_temporary, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
         image_url = excluded.image_url,
         image_url_small = excluded.image_url_small,
+        image_url_cropped = excluded.image_url_cropped,
         cloudinary_public_id = excluded.cloudinary_public_id,
         cloudinary_public_id_small = excluded.cloudinary_public_id_small,
+        cloudinary_public_id_cropped = excluded.cloudinary_public_id_cropped,
         is_temporary = excluded.is_temporary
     `);
 
@@ -48,8 +50,10 @@ export class SqliteCardRepository implements CardRepository {
       card.name,
       card.imageUrl,
       card.imageUrlSmall,
+      card.imageUrlCropped,
       card.cloudinaryPublicId,
       card.cloudinaryPublicIdSmall,
+      card.cloudinaryPublicIdCropped,
       card.isTemporary ? 1 : 0,
       card.createdAt
     );
@@ -88,8 +92,10 @@ export class SqliteCardRepository implements CardRepository {
       name: string;
       image_url: string;
       image_url_small: string;
+      image_url_cropped: string;
       cloudinary_public_id: string;
       cloudinary_public_id_small: string;
+      cloudinary_public_id_cropped: string;
       is_temporary: number;
       created_at: string;
     };
@@ -98,8 +104,10 @@ export class SqliteCardRepository implements CardRepository {
       name: r.name,
       imageUrl: r.image_url,
       imageUrlSmall: r.image_url_small,
+      imageUrlCropped: r.image_url_cropped,
       cloudinaryPublicId: r.cloudinary_public_id,
       cloudinaryPublicIdSmall: r.cloudinary_public_id_small,
+      cloudinaryPublicIdCropped: r.cloudinary_public_id_cropped,
       isTemporary: r.is_temporary === 1,
       createdAt: r.created_at,
     };

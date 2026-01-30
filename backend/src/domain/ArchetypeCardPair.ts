@@ -24,11 +24,13 @@ export interface ArchetypeCardPairWithDetails extends Omit<ArchetypeCardPair, 't
     name: string;
     image_url: string;
     image_url_small: string;
+    image_url_cropped: string;
   }>;
   bottom_cards: Array<{
     id: number;
     name: string;
     image_url: string;
     image_url_small: string;
+    image_url_cropped: string;
   }>;
 }

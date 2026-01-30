@@ -86,13 +86,13 @@ export const ArchetypeInstancesList = ({
   // Normal state (hay instancias)
   return (
     <div className="flex flex-col items-start p-4 w-full">
-      <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
+      <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6 relative z-0">
         <div className="flex flex-col sm:flex-row sm:items-center items-start gap-2 sm:gap-4 w-full">
           <h1 className="text-2xl font-bold text-white w-full sm:w-auto whitespace-normal sm:whitespace-nowrap">
             {archetypeName}
           </h1>
 
-          <span className="text-base font-semibold text-blue-400 w-full sm:w-auto whitespace-nowrap">
+          <span className="text-base relative top-1 font-semibold text-blue-400 w-full sm:w-auto whitespace-nowrap">
             All Guides ({instances.length})
           </span>
 
@@ -108,9 +108,9 @@ export const ArchetypeInstancesList = ({
         </div>
 
         <div
-          className="w-full h-1"
+          className="w-full h-[2px]"
           style={{
-            background: "linear-gradient(90deg, #ff6600 0%, #ffb347 100%)",
+            background: "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
           }}
         />
 

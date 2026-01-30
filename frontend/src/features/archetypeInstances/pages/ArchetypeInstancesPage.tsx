@@ -3,12 +3,12 @@ import { Helmet } from "react-helmet-async";
 import { useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
-import { ArchetypeInstancesList } from "@/features/ArchetypeAnalyzer/components/ArchetypeInstancesList";
+import { ArchetypeInstancesList } from "../components/ArchetypeInstancesList";
 import { useArchetypeWithHeader } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeQueries";
+import { useArchetypeSearch } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeSearch";
 import { useAuth } from "@/features/auth";
 import { SearchInput } from "@/shared/components/Search/Search";
 import { SearchResults } from "@/shared/components/Search/SearchResults";
-import { useArchetypeSearch } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeSearch";
 import type { Archetype } from "@/features/ArchetypeAnalyzer/api/archetypeApi";
 
 export const ArchetypeInstancesPage = () => {

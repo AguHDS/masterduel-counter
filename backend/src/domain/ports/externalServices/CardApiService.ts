@@ -4,6 +4,7 @@ export interface RawCardData {
   card_images: Array<{
     image_url: string;
     image_url_small: string;
+    image_url_cropped: string;
   }>;
 }
 

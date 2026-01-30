@@ -29,7 +29,10 @@ export const SearchInput = ({
     }
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (!containerRef.current || containerRef.current.contains(event.target as Node)) {
+      if (
+        !containerRef.current ||
+        containerRef.current.contains(event.target as Node)
+      ) {
         return;
       }
       onRequestClose?.();
@@ -51,9 +54,8 @@ export const SearchInput = ({
   }, [isDropdownOpen, onRequestClose]);
 
   return (
-    <div ref={containerRef} className="flex justify-center py-8 px-4 pb-0">
-      <div className="relative w-full max-w-[1040px] h-[144px]">
-        
+    <div ref={containerRef} className="flex justify-center py-4 sm:py-8 px-2 sm:px-4 pb-0">
+      <div className="relative w-full max-w-[1040px] h-[100px] sm:h-[144px]">
         {/* Background image */}
         <img
           src={Searchbar_WithBlueBackground}
@@ -67,7 +69,7 @@ export const SearchInput = ({
         <img
           src={lupaImg}
           alt="lupa"
-          className="absolute left-[120px] top-[66px] -translate-y-1/2 w-14 h-14 pointer-events-none select-none"
+          className="absolute left-[8%] sm:left-[120px] top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 pointer-events-none select-none"
           draggable="false"
           style={{ zIndex: 2 }}
         />
@@ -84,14 +86,14 @@ export const SearchInput = ({
           aria-label="Search for Yu-Gi-Oh archetypes"
           role="searchbox"
           spellCheck="false"
-          className="w-full h-full pr-24 text-2xl py-8 bg-transparent border-none text-white placeholder-blue-200 rounded-2xl focus:outline-none focus:ring-0 focus:border-transparent"
+          className="w-full h-full pr-16 sm:pr-24 text-base sm:text-2xl bg-transparent border-none text-white placeholder-blue-200 rounded-2xl focus:outline-none focus:ring-0 focus:border-transparent [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
           style={{
             fontWeight: 600,
             zIndex: 3,
-            position: 'relative',
-            paddingLeft: "12rem",
-            paddingTop: "1rem",
-            WebkitTapHighlightColor: 'transparent',
+            position: "relative",
+            paddingLeft: "calc(14% + 3rem)",
+            bottom: 4,
+            WebkitTapHighlightColor: "transparent",
           }}
         />
 
@@ -99,7 +101,7 @@ export const SearchInput = ({
         {searchQuery && (
           <button
             onClick={() => onSearchChange("")}
-            className="absolute right-32 top-1/2 -translate-y-1/2 text-blue-200 hover:text-blue-100 transition-colors text-xl"
+            className="absolute right-4 sm:right-36 top-1/2 -translate-y-1/2 text-blue-200/80 hover:text-blue-100 transition-colors text-sm sm:text-xl"
             style={{ fontWeight: 500, zIndex: 4 }}
           >
             Clear

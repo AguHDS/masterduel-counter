@@ -31,6 +31,7 @@ export class CardServiceImpl implements CardService {
         name: existingCard.name,
         imageUrl: existingCard.imageUrl,
         imageUrlSmall: existingCard.imageUrlSmall,
+        imageUrlCropped: existingCard.imageUrlCropped,
       };
     }
 
@@ -46,17 +47,20 @@ export class CardServiceImpl implements CardService {
 
     const imageData = cardData.card_images[0];
     
-    const [imageBuffer, imageSmallBuffer] = await Promise.all([
+    const [imageBuffer, imageSmallBuffer, imageCroppedBuffer] = await Promise.all([
       this.cardApiService.downloadImage(imageData.image_url),
       this.cardApiService.downloadImage(imageData.image_url_small),
+      this.cardApiService.downloadImage(imageData.image_url_cropped),
     ]);
 
     const publicIdBase = `card-${cardId}`;
     const publicIdSmallBase = `card-${cardId}-small`;
+    const publicIdCroppedBase = `card-${cardId}-cropped`;
 
-    const [uploadResult, uploadResultSmall] = await Promise.all([
+    const [uploadResult, uploadResultSmall, uploadResultCropped] = await Promise.all([
       this.imageStorageService.uploadImage(imageBuffer, publicIdBase),
       this.imageStorageService.uploadImage(imageSmallBuffer, publicIdSmallBase),
+      this.imageStorageService.uploadImage(imageCroppedBuffer, publicIdCroppedBase),
     ]);
 
     const card: Card = {
@@ -64,8 +68,10 @@ export class CardServiceImpl implements CardService {
       name: cardData.name,
       imageUrl: uploadResult.url,
       imageUrlSmall: uploadResultSmall.url,
+      imageUrlCropped: uploadResultCropped.url,
       cloudinaryPublicId: uploadResult.publicId,
       cloudinaryPublicIdSmall: uploadResultSmall.publicId,
+      cloudinaryPublicIdCropped: uploadResultCropped.publicId,
       isTemporary: true,
       createdAt: new Date().toISOString(),
     };
@@ -77,6 +83,7 @@ export class CardServiceImpl implements CardService {
       name: card.name,
       imageUrl: card.imageUrl,
       imageUrlSmall: card.imageUrlSmall,
+      imageUrlCropped: card.imageUrlCropped,
     };
   }
 
@@ -95,6 +102,7 @@ export class CardServiceImpl implements CardService {
       try {
         await this.imageStorageService.deleteImage(card.cloudinaryPublicId);
         await this.imageStorageService.deleteImage(card.cloudinaryPublicIdSmall);
+        await this.imageStorageService.deleteImage(card.cloudinaryPublicIdCropped);
       } catch (error) {
         console.error(`Failed to delete images for card ${card.id}:`, error);
       }
@@ -112,6 +120,7 @@ export class CardServiceImpl implements CardService {
       try {
         await this.imageStorageService.deleteImage(card.cloudinaryPublicId);
         await this.imageStorageService.deleteImage(card.cloudinaryPublicIdSmall);
+        await this.imageStorageService.deleteImage(card.cloudinaryPublicIdCropped);
         await this.cardRepository.deleteById(card.id);
         deletedCount++;
       } catch (error) {

@@ -25,12 +25,14 @@ interface CardPair {
     name: string;
     imageUrl: string;
     imageUrlSmall: string;
+    imageUrlCropped: string;
   }>;
   bottomCards: Array<{
     id: number;
     name: string;
     imageUrl: string;
     imageUrlSmall: string;
+    imageUrlCropped: string;
   }>;
   effectiveness?: string;
   comment?: string;

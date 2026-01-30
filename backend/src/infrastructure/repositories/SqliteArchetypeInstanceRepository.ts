@@ -63,7 +63,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
         a.name as archetype_name,
         u.namedb as user_name,
         c.name as header_card_name,
-        c.image_url as header_card_image_url
+        c.image_url_cropped as header_card_image_url
       FROM archetype_instances ai
       JOIN archetypes a ON ai.archetype_id = a.id
       JOIN users u ON ai.user_id = u.id
@@ -114,7 +114,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
         a.name as archetype_name,
         u.namedb as user_name,
         c.name as header_card_name,
-        c.image_url as header_card_image_url
+        c.image_url_cropped as header_card_image_url
       FROM archetype_instances ai
       JOIN archetypes a ON ai.archetype_id = a.id
       JOIN users u ON ai.user_id = u.id

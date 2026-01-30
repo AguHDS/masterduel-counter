@@ -3,8 +3,10 @@ export interface Card {
   name: string;
   imageUrl: string;
   imageUrlSmall: string;
+  imageUrlCropped: string;
   cloudinaryPublicId: string;
   cloudinaryPublicIdSmall: string;
+  cloudinaryPublicIdCropped: string;
   isTemporary: boolean;
   createdAt: string;
 }
@@ -21,6 +23,7 @@ export interface CardPreviewDTO {
   name: string;
   imageUrl: string;
   imageUrlSmall: string;
+  imageUrlCropped: string;
 }
 
 export interface CardCreateDTO {
@@ -28,7 +31,9 @@ export interface CardCreateDTO {
   name: string;
   imageUrl: string;
   imageUrlSmall: string;
+  imageUrlCropped: string;
   cloudinaryPublicId: string;
   cloudinaryPublicIdSmall: string;
+  cloudinaryPublicIdCropped: string;
   isTemporary: boolean;
 }

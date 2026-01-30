@@ -15,7 +15,7 @@ export const SearchResults = ({
   onSelectArchetype
 }: SearchResultsProps) => {
   const baseWrapperClass =
-    "absolute left-1/2 top-[calc(100%-32px)] z-50 w-[88%] sm:w-[80%] md:w-[720px] -translate-x-1/2";
+    "absolute left-1/2 top-[calc(100%-32px)] z-[100] w-[88%] sm:w-[80%] md:w-[720px] -translate-x-1/2";
   const basePanelClass =
     "rounded-2xl border border-[#5a3bcb]/60 bg-[#120b2f]/95 shadow-[0_20px_45px_rgba(13,7,30,0.6)] backdrop-blur-md overflow-hidden";
 

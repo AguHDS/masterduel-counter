@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FramedContainer } from "@/layouts/FramedContainer";
-import { useRegisteredArchetypes } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeQueries";
+import { useRegisteredArchetypes } from "../hooks/useRegisteredArchetypes";
 import instanceItemBg from "@/assets/Bluebackground_elements.webp";
 
 interface RegisteredArchetypesListProps {
@@ -66,7 +66,7 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
 
       <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 mb-3 border-b border-blue-600 bg-black/60 rounded-t-lg md:px-6 md:py-4">
         <div className="text-blue-300 font-semibold text-lg">ID</div>
-        <div className="text-blue-300 font-semibold text-lg">Archetype</div>
+        <div className="text-blue-300 font-semibold text-lg relative left-20">Archetype</div>
         <div className="text-blue-300 font-semibold text-lg text-right">Instances</div>
       </div>
 
