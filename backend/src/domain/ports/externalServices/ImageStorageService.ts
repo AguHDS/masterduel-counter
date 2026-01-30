@@ -4,6 +4,6 @@ export interface UploadResult {
 }
 
 export interface ImageStorageService {
-  uploadImage(buffer: Buffer, publicId: string): Promise<UploadResult>;
+  uploadImage(buffer: Buffer, publicId: string, customFolder?: string): Promise<UploadResult>;
   deleteImage(publicId: string): Promise<void>;
 }

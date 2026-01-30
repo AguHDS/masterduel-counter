@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRegisteredArchetypes } from "../hooks/useArchetypeQueries";
-import instanceItemBg from "@/assets/background-item-instance.webp";
 import { FramedContainer } from "@/layouts/FramedContainer";
+import { useRegisteredArchetypes } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeQueries";
+import instanceItemBg from "@/assets/background-item-instance.webp";
 
 interface RegisteredArchetypesListProps {
   onSelectArchetype: (archetypeId: number, userId: string | null) => void;
@@ -71,11 +71,11 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
 
       <div className="flex flex-col gap-4">
         {currentArchetypes.map((archetype, index) => {
-            const positionLabel = startIndex + index + 1;
-            const instanceCount = archetype.instance_count || 0;
-            const instanceLabel = `${instanceCount} ${instanceCount === 1 ? "instance" : "instances"}`;
+          const positionLabel = startIndex + index + 1;
+          const instanceCount = archetype.instance_count || 0;
+          const instanceLabel = `${instanceCount} ${instanceCount === 1 ? "instance" : "instances"}`;
 
-            const badgeContent = archetype.name.charAt(0).toUpperCase();
+          const badgeContent = archetype.name.charAt(0).toUpperCase();
 
           return (
             <button
@@ -83,50 +83,48 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
               onClick={() => onSelectArchetype(archetype.id, null)}
               className="group relative w-full overflow-hidden rounded-xl border border-transparent transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
             >
-                <img
-                  src={instanceItemBg}
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute inset-0 h-full w-full object-cover pointer-events-none select-none"
-                />
-                <div className="absolute inset-0 bg-black/35 group-hover:bg-black/10 group-active:bg-black/40" />
+              <img
+                src={instanceItemBg}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full object-cover pointer-events-none select-none"
+              />
+              <div className="absolute inset-0 bg-black/35 group-hover:bg-black/10 group-active:bg-black/40" />
 
-                <div className="relative z-10 flex flex-col gap-3 p-4 md:p-0 md:gap-0">
-                  <div className="flex items-center gap-3 md:hidden">
-                    <span className="text-[#FFD700] text-xl font-bold drop-shadow-md">{positionLabel}</span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/70 to-blue-500/70 flex items-center justify-center text-white font-semibold text-lg">
-                        {badgeContent}
-                      </div>
-                      <span className="text-white text-base font-semibold leading-tight truncate" title={archetype.name}>
-                        {archetype.name}
-                      </span>
+              <div className="relative z-10 flex flex-col gap-3 p-4 md:p-0 md:gap-0">
+                <div className="flex items-center gap-3 md:hidden">
+                  <span className="text-[#FFD700] text-xl font-bold drop-shadow-md">{positionLabel}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/70 to-blue-500/70 flex items-center justify-center text-white font-semibold text-lg">
+                      {badgeContent}
                     </div>
-                  </div>
-
-                  <div className="hidden md:grid md:grid-cols-[60px_minmax(220px,1fr)_160px] md:gap-3 md:items-center md:px-6 md:py-4">
-                    <div className="text-[#FFD700] text-2xl font-bold drop-shadow-md">{positionLabel}</div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/70 to-blue-500/70 flex items-center justify-center text-white font-semibold text-xl">
-                        {badgeContent}
-                      </div>
-                      <span className="text-white text-lg font-semibold truncate" title={archetype.name}>
-                        {archetype.name}
-                      </span>
-                    </div>
-                    <div className="text-blue-200 text-lg text-right">
-                      {instanceLabel}
-                    </div>
-                  </div>
-
-                  <div className="md:hidden grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
-                    <span className="text-blue-300">Archetype</span>
-                    <span className="text-white text-right" title={archetype.name}>{archetype.name}</span>
-                    <span className="text-blue-300">Instances</span>
-                    <span className="text-blue-100 text-right">{instanceLabel}</span>
+                    <span className="text-white text-base font-semibold leading-tight truncate" title={archetype.name}>
+                      {archetype.name}
+                    </span>
                   </div>
                 </div>
-              </button>
+
+                <div className="hidden md:grid md:grid-cols-[60px_minmax(220px,1fr)_160px] md:gap-3 md:items-center md:px-6 md:py-4">
+                  <div className="text-[#FFD700] text-2xl font-bold drop-shadow-md">{positionLabel}</div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/70 to-blue-500/70 flex items-center justify-center text-white font-semibold text-xl">
+                      {badgeContent}
+                    </div>
+                    <span className="text-white text-lg font-semibold truncate" title={archetype.name}>
+                      {archetype.name}
+                    </span>
+                  </div>
+                  <div className="text-blue-200 text-lg text-right">{instanceLabel}</div>
+                </div>
+
+                <div className="md:hidden grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
+                  <span className="text-blue-300">Archetype</span>
+                  <span className="text-white text-right" title={archetype.name}>{archetype.name}</span>
+                  <span className="text-blue-300">Instances</span>
+                  <span className="text-blue-100 text-right">{instanceLabel}</span>
+                </div>
+              </div>
+            </button>
           );
         })}
       </div>

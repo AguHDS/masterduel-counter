@@ -4,17 +4,21 @@ import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRe
 import { SqliteCardRepository } from "@/infrastructure/repositories/SqliteCardRepository";
 import { SqliteArchetypeCardPairRepository } from "@/infrastructure/repositories/SqliteArchetypeCardPairRepository";
 import { SqliteArchetypeInstanceRepository } from "@/infrastructure/repositories/SqliteArchetypeInstanceRepository";
+import { SqliteProfileRepository } from "@/infrastructure/repositories/SqliteProfileRepository";
 import { ArchetypeService } from "@/application/services/ArchetypeService";
 import { ArchetypeInstanceService } from "@/application/services/ArchetypeInstanceService";
 import { AuthServiceImpl } from "@/application/services/AuthService";
 import { CardServiceImpl } from "@/application/services/CardService";
+import { ProfileServiceImpl } from "@/application/services/ProfileService";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import { UserRepository } from "@/domain/ports/UserRepository";
 import { CardRepository } from "@/domain/ports/CardRepository";
 import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
 import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository";
+import { ProfileRepository } from "@/domain/ports/ProfileRepository";
 import { AuthService } from "@/application/ports/AuthService";
 import { CardService } from "@/application/ports/CardService";
+import { ProfileService } from "@/application/ports/ProfileService";
 import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService";
 import { CardApiService } from "@/domain/ports/externalServices/CardApiService";
 import { CardDetailsApiService } from "@/domain/ports/externalServices/CardDetailsApiService";
@@ -34,10 +38,12 @@ export class Dependencies {
   private cardRepository: CardRepository | null = null;
   private cardPairRepository: ArchetypeCardPairRepository | null = null;
   private instanceRepository: ArchetypeInstanceRepository | null = null;
+  private profileRepository: ProfileRepository | null = null;
   private archetypeService: ArchetypeService | null = null;
   private instanceService: ArchetypeInstanceServicePort | null = null;
   private authService: AuthService | null = null;
   private cardService: CardService | null = null;
+  private profileService: ProfileService | null = null;
   private cardApiService: CardApiService | null = null;
   private cardDetailsApiService: CardDetailsApiService | null = null;
   private getCardDetailsService: GetCardDetailsPort | null = null;
@@ -94,6 +100,13 @@ export class Dependencies {
       );
     }
     return this.instanceRepository;
+  }
+
+  getProfileRepository(): ProfileRepository {
+    if (!this.profileRepository) {
+      this.profileRepository = new SqliteProfileRepository(this.prisma);
+    }
+    return this.profileRepository;
   }
 
   getCardApiService(): CardApiService {
@@ -164,6 +177,16 @@ export class Dependencies {
       );
     }
     return this.cardService;
+  }
+
+  getProfileService(): ProfileService {
+    if (!this.profileService) {
+      this.profileService = new ProfileServiceImpl(
+        this.getProfileRepository(),
+        this.getImageStorageService(),
+      );
+    }
+    return this.profileService;
   }
 
   getDatabase(): DatabasePort {

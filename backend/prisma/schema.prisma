@@ -24,12 +24,27 @@ model User {
   verification Verification[]
   archetypeInstances ArchetypeInstance[]
   instanceLikes InstanceLike[]
+  profile      Profile?
 
   banned     Boolean?  @default(false)
   banReason  String?   @map("ban_reason")
   banExpires DateTime? @map("ban_expires")
 
   @@map("users")
+}
+
+model Profile {
+  id                    Int       @id @default(autoincrement())
+  userId                String    @unique @map("user_id")
+  bio                   String?
+  profilePictureUrl     String?   @map("profile_picture_url")
+  cloudinaryPublicId    String?   @map("cloudinary_public_id")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
 }
 
 model Session {

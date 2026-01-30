@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { InfoModal, AboutContent, TermsContent, ContactContent } from "@/features/info";
 
@@ -15,9 +16,10 @@ export const Footer = () => {
     setOpenModal(null);
   };
 
+
   return (
     <>
-      <footer className="bg-slate-900 border-t border-blue-800 mt-8" role="contentinfo">
+      <footer className="mt-8 bg-[#18121a]/90 border-t-4 border-[#c2901c]" role="contentinfo">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2">

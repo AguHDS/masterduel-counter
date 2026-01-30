@@ -196,17 +196,20 @@ export const CardPairItem = ({
         {/* Comment Field */}
         <div className="flex items-center justify-center mt-4">
           {isEditMode ? (
-            <textarea
-              value={comment || ""}
-              onChange={(e) => onCommentChange(e.target.value)}
-              maxLength={2000}
-              placeholder="Add a comment (Max. 2000 characters)..."
-              className="w-full px-3 py-2 bg-slate-700/50 text-white text-sm rounded border border-slate-600 focus:outline-none focus:border-blue-500 resize-none"
-              rows={3}
-            />
+            <div className="w-full">
+              <label className="text-blue-400 font-semibold text-xs mb-1 block">Description</label>
+              <textarea
+                value={comment || ""}
+                onChange={(e) => onCommentChange(e.target.value)}
+                maxLength={2000}
+                placeholder="Add a comment (Max. 2000 characters)..."
+                className="w-full px-3 py-2 bg-slate-700/50 text-white text-sm rounded border border-slate-600 focus:outline-none focus:border-blue-500 resize-none"
+                rows={3}
+              />
+            </div>
           ) : (
             <div className="w-full flex flex-col items-center space-y-1">
-              <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Tip</span>
+              <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Description</span>
               <div 
                 className="text-center px-3 py-2 text-slate-300 text-sm italic w-[280px] overflow-y-auto"
                 style={{

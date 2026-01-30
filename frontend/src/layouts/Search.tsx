@@ -1,73 +1,113 @@
-import { Search } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import lupaImg from "../assets/Lupa.webp";
+import Searchbar_WithBlueBackground from "../assets/Searchbar_WithBlueBackground.webp";
+import { useEffect, useRef } from "react";
 
 interface SearchInputProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
   placeholder?: string;
-  showResults?: boolean;
   children?: React.ReactNode;
+  isDropdownOpen?: boolean;
+  onRequestClose?: () => void;
+  onInputFocus?: () => void;
 }
 
 export const SearchInput = ({
   searchQuery,
   onSearchChange,
   placeholder = "Search for archetypes...",
-  showResults = true,
   children,
+  isDropdownOpen = false,
+  onRequestClose,
+  onInputFocus,
 }: SearchInputProps) => {
-  const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isDropdownOpen) {
+      return;
+    }
+
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsFocused(false);
+      if (!containerRef.current || containerRef.current.contains(event.target as Node)) {
+        return;
+      }
+      onRequestClose?.();
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onRequestClose?.();
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isDropdownOpen, onRequestClose]);
 
   return (
-    <div ref={containerRef} className="relative">
-      <div className="p-6 border-b border-blue-700 bg-gradient-to-r from-blue-900/50 to-slate-900/50">
-        <div className="max-w-2xl mx-auto">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-400 z-10 pointer-events-none" aria-hidden="true" />
+    <div ref={containerRef} className="flex justify-center py-8 px-4 pb-0">
+      <div className="relative w-full max-w-[1040px] h-[144px]">
+        
+        {/* Background image */}
+        <img
+          src={Searchbar_WithBlueBackground}
+          alt="searchbar background"
+          className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+          draggable="false"
+          style={{ zIndex: 1 }}
+        />
 
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              onFocus={() => setIsFocused(true)}
-              placeholder={placeholder}
-              className="w-full pl-12 pr-4 py-4 bg-slate-800/70 border-2 border-blue-600/50 rounded-2xl text-white placeholder-blue-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-200 backdrop-blur-sm"
-              autoComplete="off"
-              aria-label="Search for Yu-Gi-Oh archetypes"
-              role="searchbox"
-              spellCheck="false"
-            />
+        {/* Lens icon */}
+        <img
+          src={lupaImg}
+          alt="lupa"
+          className="absolute left-[120px] top-[66px] -translate-y-1/2 w-14 h-14 pointer-events-none select-none"
+          draggable="false"
+          style={{ zIndex: 2 }}
+        />
 
-            {searchQuery && (
-              <button
-                onClick={() => onSearchChange("")}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
+        {/* Input */}
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          onFocus={() => onInputFocus?.()}
+          onClick={() => onInputFocus?.()}
+          placeholder={placeholder}
+          autoComplete="off"
+          aria-label="Search for Yu-Gi-Oh archetypes"
+          role="searchbox"
+          spellCheck="false"
+          className="w-full h-full pr-24 text-2xl py-8 bg-transparent border-none text-white placeholder-blue-200 rounded-2xl focus:outline-none focus:ring-0 focus:border-transparent"
+          style={{
+            fontWeight: 600,
+            zIndex: 3,
+            position: 'relative',
+            paddingLeft: "12rem",
+            paddingTop: "1rem",
+            WebkitTapHighlightColor: 'transparent',
+          }}
+        />
+
+        {/* Clear button */}
+        {searchQuery && (
+          <button
+            onClick={() => onSearchChange("")}
+            className="absolute right-32 top-1/2 -translate-y-1/2 text-blue-200 hover:text-blue-100 transition-colors text-xl"
+            style={{ fontWeight: 500, zIndex: 4 }}
+          >
+            Clear
+          </button>
+        )}
+
+        {isDropdownOpen && children}
       </div>
-
-      {showResults && isFocused && searchQuery.trim() && children && (
-        <div className="absolute top-full left-0 right-0 z-50">{children}</div>
-      )}
     </div>
   );
 };
