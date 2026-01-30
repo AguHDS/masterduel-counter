@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { RegisterUserWithBetterAuthUseCase } from "../../application/services/RegisterUserWithBetterAuth";
 import { SqliteUserRepository } from "../../infrastructure/repositories/SqliteUserRepository";
 import { PrismaClient } from "@prisma/client";
+import { verifyTurnstileToken } from "../../services/turnstile";
 
 /** Registra un nuevo usuario en el sistema */
 // Dependency injection
@@ -47,6 +48,19 @@ export const registerUserController = async (req: Request, res: Response) => {
   }
 
   const { user, email, password } = req.userSession;
+  const { turnstileToken } = req.body;
+
+  // Verify CAPTCHA token
+  if (!turnstileToken) {
+    res.status(400).json({ message: "CAPTCHA verification is required" });
+    return;
+  }
+
+  const isCaptchaValid = await verifyTurnstileToken(turnstileToken);
+  if (!isCaptchaValid) {
+    res.status(400).json({ message: "CAPTCHA verification failed. Please try again." });
+    return;
+  }
 
   console.log(`Registering user: ${user} with email: ${email}`);
 

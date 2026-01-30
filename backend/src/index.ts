@@ -7,7 +7,7 @@ import { getDependencies } from "./compositionRoot";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT_BACKEND ?? 3001;
-const NODE_ENV = process.env.NODE_ENV ?? "dev";
+const NODE_ENV = process.env.NODE_ENV ?? "development";
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? "*";
 import {
   searchArchetype,
@@ -31,7 +31,7 @@ import profile from "./routes/profile";
 
 app.use(
   cors({
-    origin: NODE_ENV === "dev" ? true : CORS_ORIGIN.split(","),
+    origin: NODE_ENV === "development" ? true : CORS_ORIGIN.split(","),
     credentials: true,
   }),
 );

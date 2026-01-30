@@ -70,7 +70,7 @@ export const RegisteredArchetypesList = ({ onSelectArchetype }: RegisteredArchet
         <div className="text-blue-300 font-semibold text-lg text-right">Instances</div>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-[0.25rem]">
         {currentArchetypes.map((archetype, index) => {
           const positionLabel = startIndex + index + 1;
           const instanceCount = archetype.instance_count || 0;

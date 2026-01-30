@@ -3,11 +3,15 @@ import type { FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useRegister } from "../hooks/useAuthQueries";
 import { Lock, User, Mail } from "lucide-react";
+import { Turnstile } from "@/shared/components/Turnstile";
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
 
 export const RegisterForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { mutate: register, isPending } = useRegister();
   const navigate = useNavigate();
@@ -16,16 +20,25 @@ export const RegisterForm = () => {
     e.preventDefault();
     setErrorMessage(null);
 
+    if (!turnstileToken) {
+      setErrorMessage("Please complete the CAPTCHA verification");
+      return;
+    }
+
     register(
-      { username, email, password },
+      { username, email, password, turnstileToken },
       {
         onSuccess: () => {
           // Redirect to login after successful registration
-          navigate("/signin");
+          navigate("/signin", { 
+            state: { message: "Account created! Please check your email to verify your account." }
+          });
         },
         onError: (error: Error & { response?: { data?: { message?: string } } }) => {
           const message = error?.response?.data?.message || error?.message || "Registration failed";
           setErrorMessage(message);
+          // Reset CAPTCHA on error
+          setTurnstileToken(null);
         },
       }
     );
@@ -120,10 +133,24 @@ export const RegisterForm = () => {
             </div>
           )}
 
+          {/* Cloudflare Turnstile CAPTCHA */}
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={TURNSTILE_SITE_KEY}
+              onVerify={(token) => setTurnstileToken(token)}
+              onError={() => {
+                setTurnstileToken(null);
+                setErrorMessage("CAPTCHA verification failed. Please try again.");
+              }}
+              onExpire={() => setTurnstileToken(null)}
+              theme="dark"
+            />
+          </div>
+
           <div>
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || !turnstileToken}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isPending ? "Creating account..." : "Sign up"}

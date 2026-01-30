@@ -54,7 +54,7 @@ export const SearchInput = ({
   }, [isDropdownOpen, onRequestClose]);
 
   return (
-    <div ref={containerRef} className="flex justify-center py-4 sm:py-8 px-2 sm:px-4 pb-0">
+    <div ref={containerRef} className="flex justify-center py-4 sm:py-8 px-2 sm:px-4">
       <div className="relative w-full max-w-[1040px] h-[100px] sm:h-[144px]">
         {/* Background image */}
         <img

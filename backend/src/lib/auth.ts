@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { admin } from "better-auth/plugins";
 import { PrismaClient } from "@prisma/client";
 import config from "@/infrastructure/config/environmentVars";
+import { getFrontendUrl } from "@/infrastructure/config/urlHelpers";
 
 const prisma = new PrismaClient();
 
@@ -13,39 +14,70 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: process.env.REQUIRE_EMAIL_VERIFICATION === "true",
 
-    sendResetPassword: async ({ user, url, token }) => {
-      console.log(`📧 Password reset email for: ${user.email}`);
-      console.log(`🔗 BetterAuth URL: ${url}`);
-      console.log(`🔐 Token: ${token}`);
+    sendVerificationEmail: async (params: {
+      user: any;
+      url: string;
+      token: string;
+    }) => {
+      const { user, url, token } = params;
+      console.log(`Verification email for: ${user.email}`);
+      console.log(`BetterAuth URL: ${url}`);
+      console.log(`Token: ${token}`);
 
-      const frontendBaseUrl =
-        process.env.FRONTEND_URL || `http://localhost:${config.portFrontend}`;
-      const frontendUrl = `${frontendBaseUrl}/reset-password?token=${token}`;
+      const frontendUrl = `${getFrontendUrl()}/verify-email?token=${token}`;
 
-      console.log(`🎯 Frontend URL (para tu app): ${frontendUrl}`);
+      console.log(`🎯 Frontend verification URL: ${frontendUrl}`);
 
-      // Log adicional para debugging del envío real
-      console.log(`📤 Email será enviado por BetterAuth usando:`);
+      // Log SMTP config for debugging
+      console.log(`Email will be sent via Brevo SMTP:`);
       console.log(
-        `   - SMTP Host: ${process.env.SMTP_HOST || "No configurado"}`,
+        `   - SMTP Host: ${process.env.SMTP_HOST || "Not configured"}`,
       );
       console.log(
-        `   - From: ${process.env.SMTP_FROM_EMAIL || "No configurado"}`,
+        `   - From: ${process.env.SMTP_FROM_EMAIL || "Not configured"}`,
       );
 
-      // IMPORTANT: NO retornes nada - BetterAuth maneja el envío automáticamente
-      // La configuración SMTP en el objeto 'email' será usada automáticamente
+      // BetterAuth handles the actual email sending automatically
+      // using the 'email' configuration below
     },
 
-    onPasswordReset: async ({ user }) => {
+    sendResetPassword: async (params: {
+      user: any;
+      url: string;
+      token: string;
+    }) => {
+      const { user, url, token } = params;
+      console.log(`Password reset email for: ${user.email}`);
+      console.log(`BetterAuth URL: ${url}`);
+      console.log(`Token: ${token}`);
+
+      const frontendUrl = `${getFrontendUrl()}/reset-password?token=${token}`;
+
+      console.log(`Frontend URL (for your app): ${frontendUrl}`);
+
+      // Additional log for debugging the actual sending
+      console.log(`Email will be sent by BetterAuth using:`);
+      console.log(
+        `   - SMTP Host: ${process.env.SMTP_HOST || "Not configured"}`,
+      );
+      console.log(
+        `   - From: ${process.env.SMTP_FROM_EMAIL || "Not configured"}`,
+      );
+
+      // Do NOT return anything - BetterAuth handles sending automatically
+      // The SMTP configuration in the 'email' object will be used automatically
+    },
+
+    onPasswordReset: async (params: { user: any }) => {
+      const { user } = params;
       console.log(`✅ Password reset completed for user: ${user.email}`);
     },
   },
 
   email: {
-    // Usa las variables de entorno directamente
+    // Use environment variables directly
     from: process.env.SMTP_FROM_EMAIL
       ? `masterduelcounter <${process.env.SMTP_FROM_EMAIL}>`
       : "masterduelcounter <noreply@masterduelcounter.com>",
@@ -53,24 +85,23 @@ export const auth = betterAuth({
     server: {
       host: process.env.SMTP_HOST || "smtp.ethereal.email",
       port: parseInt(process.env.SMTP_PORT || "587"),
-      secure: false, // 587 usa STARTTLS, no SSL directo
+      secure: false, // 587 uses STARTTLS, not direct SSL
       auth: {
         user: process.env.SMTP_USER || "test@ethereal.email",
         pass: process.env.SMTP_PASSWORD || "test123",
       },
     },
 
-    // Configuración adicional para mejor deliverability
+    // Additional configuration for better deliverability
     tls: {
-      rejectUnauthorized: false, // Útil para desarrollo/auto-signed certs
+      rejectUnauthorized: false, // Useful for development/auto-signed certificates
     },
   },
 
   trustedOrigins: [
-    `http://localhost:${config.portFrontend}`,
-    config.nodeEnv === "production" ? "https://backupstorage.com" : null,
+    getFrontendUrl(),
+    config.nodeEnv === "production" ? "https://masterduelcounter.com" : null,
   ].filter(Boolean) as string[],
-
   session: {
     expiresIn: 60 * 60 * 24 * 30,
     updateAge: 60 * 60 * 24,

@@ -1,18 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useLogin } from "../hooks/useAuthQueries";
-import { Lock, User } from "lucide-react";
+import { Lock, User, CheckCircle } from "lucide-react";
 
 export const LoginForm = () => {
+  const location = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { mutate: login, isPending } = useLogin();
+
+  useEffect(() => {
+    // Check if there's a success message from navigation state (e.g., after email verification)
+    const state = location.state as { message?: string } | null;
+    if (state?.message) {
+      setSuccessMessage(state.message);
+      // Clear the message from location state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setSuccessMessage(null);
 
     login(
       { username, password },
@@ -88,6 +101,15 @@ export const LoginForm = () => {
               </div>
             </div>
           </div>
+
+          {successMessage && (
+            <div className="rounded-md bg-green-900/50 border border-green-700 p-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <p className="text-sm text-green-200">{successMessage}</p>
+              </div>
+            </div>
+          )}
 
           {errorMessage && (
             <div className="rounded-md bg-red-900/50 border border-red-700 p-4">
