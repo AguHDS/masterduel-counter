@@ -9,6 +9,7 @@ export interface RegisterCredentials {
   username: string;
   email: string;
   password: string;
+  turnstileToken: string;
 }
 
 export interface LoginResponse {
@@ -43,6 +44,7 @@ export const registerUser = async (credentials: RegisterCredentials): Promise<Re
     user: credentials.username,
     email: credentials.email,
     password: credentials.password,
+    turnstileToken: credentials.turnstileToken,
   });
   return response.data;
 };

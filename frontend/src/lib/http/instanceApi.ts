@@ -1,6 +1,7 @@
 import axios from "axios";
+import { getBackendUrl } from "@/lib/config/urlHelpers";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const API_BASE_URL = getBackendUrl();
 
 export interface ArchetypeInstanceWithDetails {
   id: number;

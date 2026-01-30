@@ -6,8 +6,9 @@ import type {
 } from "axios";
 import { authInterceptor } from "./interceptors/auth";
 import { errorInterceptor } from "./interceptors/error";
+import { getBackendUrl } from "@/lib/config/urlHelpers";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE_URL = getBackendUrl();
 
 const REQUEST_TIMEOUT = 30000;
 

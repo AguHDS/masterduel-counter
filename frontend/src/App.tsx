@@ -6,6 +6,7 @@ import { SignUpPage } from "./pages/SignUpPage";
 import { ProfilePage } from "./features/profile/pages/ProfilePage";
 import { ArchetypeInstancesPage } from "./features/archetypeInstances";
 import { InstanceEditorPage } from "./features/ArchetypeAnalyzer";
+import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
         </Routes>
       </Router>
     </AuthProvider>

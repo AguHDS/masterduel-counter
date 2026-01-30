@@ -22,7 +22,7 @@ interface EnvironmentVars {
 const config: EnvironmentVars = {
   portFrontend: parseInt(process.env.PORT_FRONTEND || "5173", 10),
   portBackend: parseInt(process.env.PORT_BACKEND || "3001", 10),
-  nodeEnv: process.env.NODE_ENV || "dev",
+  nodeEnv: process.env.NODE_ENV || "development",
   jwtSecret: process.env.JWT_SECRET || "",
   betterAuthSecret: process.env.BETTER_AUTH_SECRET || "",
   cloudinaryName: process.env.CLOUDINARY_NAME || "",
