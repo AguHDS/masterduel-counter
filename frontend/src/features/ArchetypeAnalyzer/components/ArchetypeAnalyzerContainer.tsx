@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Edit3, Trash2, ThumbsUp } from "lucide-react";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
@@ -51,61 +51,91 @@ export const ArchetypeAnalyzerContainer = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
 
-  // Custom hooks
   const editor = useInstanceEditor();
   const registerMutation = useRegisterArchetype();
 
-  // Parse archetypeId from URL
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
-  
-  // Determine if we're creating new or editing existing
-  const isCreatingNew = instanceId === 'new';
-  const instanceIdNum = !isCreatingNew && instanceId ? parseInt(instanceId) : undefined;
 
-  // Fetch archetype data from URL parameter
+  const isCreatingNew = instanceId === "new";
+  const instanceIdNum =
+    !isCreatingNew && instanceId ? parseInt(instanceId) : undefined;
+
   const { data: archetypeWithHeaderData } =
     useArchetypeWithHeader(archetypeIdNum);
 
-  // Fetch instance data based on mode
-  // When creating new, don't fetch. When editing, fetch by instanceId
   const { data: userInstanceData, isError } = useUserInstance(
     archetypeIdNum,
     isCreatingNew ? undefined : instanceIdNum,
   );
 
-  // Check if current user owns this instance
   const isOwner =
-    isAuthenticated && (isCreatingNew || user?.id === userInstanceData?.instance.userId);
+    isAuthenticated &&
+    (isCreatingNew || user?.id === userInstanceData?.instance.userId);
 
   const selectedArchetype = archetypeWithHeaderData?.archetype;
 
-  // Likes management
   const likes = useInstanceLikes({
     isAuthenticated,
     archetypeId,
     instanceId: userInstanceData?.instance.id,
   });
 
-  // Recommended deck management
   const recommendedDeck = useRecommendedDeck(instanceIdNum, isOwner);
-  
-  // Memoize deck arrays to prevent infinite loops in RecommendedDeckEditor
-  const memoizedMainDeck = useMemo(() => recommendedDeck.deck?.mainDeck || [], [recommendedDeck.deck?.mainDeck]);
-  const memoizedExtraDeck = useMemo(() => recommendedDeck.deck?.extraDeck || [], [recommendedDeck.deck?.extraDeck]);
-  
-  // Track deck changes in edit mode
-  const [deckTitle, setDeckTitle] = useState<string>();
-  const [deckMainCards, setDeckMainCards] = useState<Array<{id: number; name: string; imageUrl: string; imageUrlSmall: string; imageUrlCropped: string}>>([]);
-  const [deckExtraCards, setDeckExtraCards] = useState<Array<{id: number; name: string; imageUrl: string; imageUrlSmall: string; imageUrlCropped: string}>>([]);
 
-  // Memoize the deck change handler to prevent infinite loops
-  const handleDeckChange = useCallback((title: string, mainDeck: typeof deckMainCards, extraDeck: typeof deckExtraCards) => {
-    setDeckTitle(title);
-    setDeckMainCards(mainDeck);
-    setDeckExtraCards(extraDeck);
-  }, []);
+  const memoizedMainDeck = useMemo(
+    () => recommendedDeck.deck?.mainDeck || [],
+    [recommendedDeck.deck?.mainDeck],
+  );
+  const memoizedExtraDeck = useMemo(
+    () => recommendedDeck.deck?.extraDeck || [],
+    [recommendedDeck.deck?.extraDeck],
+  );
 
-  // Load instance data
+  const [deckTitle, setDeckTitle] = useState<string>(
+    recommendedDeck.deck?.title || "Recommended Deck",
+  );
+  const [deckMainCards, setDeckMainCards] =
+    useState<
+      Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      }>
+    >(memoizedMainDeck);
+  const [deckExtraCards, setDeckExtraCards] =
+    useState<
+      Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      }>
+    >(memoizedExtraDeck);
+
+  useEffect(() => {
+    if (!editor.isEditMode || !isOwner) {
+      setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
+      setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
+      setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
+    }
+  }, [recommendedDeck.deck, editor.isEditMode, isOwner]);
+
+  const handleDeckChange = useCallback(
+    (
+      title: string,
+      mainDeck: typeof deckMainCards,
+      extraDeck: typeof deckExtraCards,
+    ) => {
+      setDeckTitle(title);
+      setDeckMainCards(mainDeck);
+      setDeckExtraCards(extraDeck);
+    },
+    [],
+  );
+
   useInstanceData({
     isCreatingNew,
     userInstanceData,
@@ -119,7 +149,6 @@ export const ArchetypeAnalyzerContainer = () => {
       likes.setLikeCount(data.likes);
       editor.setIsEditMode(false);
 
-      // Load like status if authenticated and not owner
       if (isAuthenticated && !isOwner) {
         likes.loadLikeStatus();
       } else {
@@ -127,7 +156,6 @@ export const ArchetypeAnalyzerContainer = () => {
       }
     },
     onNewInstance: () => {
-      // New instance: activate edit mode automatically
       editor.setIsEditMode(true);
       editor.setLoadedPairs([]);
       editor.setHeaderCard(null);
@@ -148,7 +176,6 @@ export const ArchetypeAnalyzerContainer = () => {
 
   const handleCancel = () => {
     editor.setIsEditMode(false);
-    // Reset to loaded data
     if (!isCreatingNew && userInstanceData) {
       const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
@@ -169,14 +196,18 @@ export const ArchetypeAnalyzerContainer = () => {
             }
           : null,
       });
+
+      setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
+      setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
+      setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
     } else {
-      // If it's a new registration, go back
       navigate(-1);
     }
   };
 
   const handleDeleteInstance = async () => {
-    if (!selectedArchetype || !userInstanceData?.instance.id || !archetypeId) return;
+    if (!selectedArchetype || !userInstanceData?.instance.id || !archetypeId)
+      return;
 
     const confirmed = confirm(
       "Are you sure you want to delete your instance? This action cannot be undone.",
@@ -200,7 +231,6 @@ export const ArchetypeAnalyzerContainer = () => {
       return;
     }
 
-    // Only allow edit mode if user is the owner or it's a new registration
     if (!selectedArchetype?.registered || isOwner) {
       editor.setIsEditMode(true);
     }
@@ -223,34 +253,27 @@ export const ArchetypeAnalyzerContainer = () => {
     try {
       const cardPairs = transformPairsForApi(pairs);
 
-      // Collect ALL card IDs that need to be confirmed
       const allCardIds: number[] = [];
-      
-      // Add header card
+
       if (editor.headerCard) {
         allCardIds.push(editor.headerCard.id);
       }
-      
-      // Add cards from pairs
-      cardPairs.forEach(pair => {
+
+      cardPairs.forEach((pair) => {
         allCardIds.push(...pair.topCardIds, ...pair.bottomCardIds);
       });
-      
-      // Add cards from deck if there are any
+
       const hasMainDeck = deckMainCards.length > 0;
       const hasExtraDeck = deckExtraCards.length > 0;
-      
+
       if (hasMainDeck || hasExtraDeck) {
-        const mainDeckIds = deckMainCards.map(c => c.id);
-        const extraDeckIds = deckExtraCards.map(c => c.id);
+        const mainDeckIds = deckMainCards.map((c) => c.id);
+        const extraDeckIds = deckExtraCards.map((c) => c.id);
         allCardIds.push(...mainDeckIds, ...extraDeckIds);
       }
-      
-      // Remove duplicates using Set
+
       const uniqueCardIds = [...new Set(allCardIds)];
-      
-      // Confirm ALL cards at once BEFORE saving anything
-      // This ensures all foreign keys are satisfied
+
       console.log("Confirming all cards before saving:", uniqueCardIds);
       await confirmCards(uniqueCardIds);
       console.log("All cards confirmed successfully");
@@ -264,27 +287,34 @@ export const ArchetypeAnalyzerContainer = () => {
         instanceId: isCreatingNew ? undefined : instanceIdNum,
       });
 
-      // Save recommended deck if there are cards
       if (hasMainDeck || hasExtraDeck) {
         const savedInstanceId = response.instance?.id || instanceIdNum;
         console.log("Saving deck for instance:", savedInstanceId);
         if (savedInstanceId) {
           try {
-            const mainDeckIds = deckMainCards.map(c => c.id);
-            const extraDeckIds = deckExtraCards.map(c => c.id);
-            console.log("Saving deck with:", { savedInstanceId, deckTitle, mainDeckIds, extraDeckIds });
-            await recommendedDeckApi.saveDeck(savedInstanceId, deckTitle, mainDeckIds, extraDeckIds);
+            const mainDeckIds = deckMainCards.map((c) => c.id);
+            const extraDeckIds = deckExtraCards.map((c) => c.id);
+            console.log("Saving deck with:", {
+              savedInstanceId,
+              deckTitle,
+              mainDeckIds,
+              extraDeckIds,
+            });
+            await recommendedDeckApi.saveDeck(
+              savedInstanceId,
+              deckTitle,
+              mainDeckIds,
+              extraDeckIds,
+            );
             console.log("Deck saved successfully");
           } catch (deckError) {
             console.error("Error saving recommended deck:", deckError);
-            // Don't block the main save if deck save fails
           }
         }
       }
 
       editor.setIsEditMode(false);
 
-      // Reload to show fresh data
       if (response.instance?.id) {
         window.location.href = `/archetype/${selectedArchetype.id}/instance/${response.instance.id}`;
       }
@@ -307,12 +337,27 @@ export const ArchetypeAnalyzerContainer = () => {
     );
   }
 
+  const displayMainDeck =
+    editor.isEditMode && isOwner ? deckMainCards : memoizedMainDeck;
+  const displayExtraDeck =
+    editor.isEditMode && isOwner ? deckExtraCards : memoizedExtraDeck;
+  const displayTitle =
+    editor.isEditMode && isOwner ? deckTitle : recommendedDeck.deck?.title;
+
   return (
     <>
       <section className="w-full relative bottom-5 flex justify-center px-4 sm:px-6 lg:px-8">
         <div className="relative w-full max-w-[1120px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
-          <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden bg-gradient-to-br from-[#030717] via-[#0a0f2c] to-[#1a1743] py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
-            <div className="space-y-6">
+          <div
+            className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden bg-cover bg-center py-10 sm:py-12 px-4 sm:px-6 lg:px-10"
+            style={{
+              backgroundImage: "url('/src/assets/Instance_purplebackground.webp')",
+            }}
+          >
+            {/* Overlay oscuro para mejorar legibilidad */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80"></div>
+
+            <div className="relative z-10 space-y-6">
               {!isCreatingNew &&
                 !isOwner &&
                 isAuthenticated &&
@@ -362,16 +407,14 @@ export const ArchetypeAnalyzerContainer = () => {
                 <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
               </div>
 
-              <div className="mt-8">
-                <RecommendedDeckEditor
-                  isEditMode={editor.isEditMode && isOwner}
-                  initialTitle={recommendedDeck.deck?.title}
-                  initialMainDeck={memoizedMainDeck}
-                  initialExtraDeck={memoizedExtraDeck}
-                  onDeckChange={handleDeckChange}
-                  onDelete={recommendedDeck.deleteDeck}
-                />
-              </div>
+              <RecommendedDeckEditor
+                isEditMode={editor.isEditMode && isOwner}
+                initialTitle={displayTitle}
+                initialMainDeck={displayMainDeck}
+                initialExtraDeck={displayExtraDeck}
+                onDeckChange={handleDeckChange}
+                onDelete={recommendedDeck.deleteDeck}
+              />
 
               <div className="flex items-center justify-center space-x-4 mt-16">
                 {!isCreatingNew && !isOwner && (

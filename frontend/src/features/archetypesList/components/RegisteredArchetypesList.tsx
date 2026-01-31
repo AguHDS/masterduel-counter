@@ -110,14 +110,6 @@ export const RegisteredArchetypesList = ({
               />
               <div className="absolute inset-0 bg-black/35 group-hover:bg-black/10 group-active:bg-black/40" />
 
-              {/* Tooltip */}
-              {hoveredArchetype === archetype.id && (
-                <div className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gradient-to-br from-slate-800 via-blue-900 to-purple-900 text-white text-sm rounded-lg shadow-lg border border-blue-500/50 whitespace-nowrap pointer-events-none">
-                  {archetype.name}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-purple-900"></div>
-                </div>
-              )}
-
               <div className="relative z-10 flex flex-col gap-3 p-4 md:p-0 md:gap-0">
                 <div className="flex items-center gap-3 md:hidden">
                   <span className="text-[#FFD700] text-xl font-bold drop-shadow-md">

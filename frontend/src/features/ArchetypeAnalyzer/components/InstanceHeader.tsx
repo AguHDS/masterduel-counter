@@ -80,7 +80,7 @@ export const InstanceHeader = ({
       {/* Right Side: Header Card */}
       <div className="flex flex-col items-center w-56">
         {headerCard ? (
-          <div className="relative w-48 h-auto rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
+          <div className="relative w-48 h-auto rounded-lg overflow-hidden border-2 border-yellow-600 shadow-lg">
             <CardTooltip
               imageUrl={headerCard.imageUrl}
               cardName={headerCard.name}
