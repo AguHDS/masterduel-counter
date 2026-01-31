@@ -1,6 +1,12 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import multer from "multer";
-import { getDependencies } from "@/compositionRoot";
+import { getProfileController } from "@/http/controllers/getProfileController";
+import { updateBioController } from "@/http/controllers/updateBioController";
+import { uploadProfilePictureController } from "@/http/controllers/uploadProfilePictureController";
+import { deleteProfilePictureController } from "@/http/controllers/deleteProfilePictureController";
+import { validateUserIdMiddleware } from "@/http/middlewares/validateUserIdMiddleware";
+import { validateBioMiddleware } from "@/http/middlewares/validateBioMiddleware";
+import { validateFileUploadMiddleware } from "@/http/middlewares/validateFileUploadMiddleware";
 
 const router = express.Router();
 
@@ -13,147 +19,30 @@ const upload = multer({
 });
 
 // GET /api/profile/:userId - Get user profile
-router.get("/:userId", async (req: Request, res: Response) => {
-  try {
-    const userIdParam = req.params.userId;
-    if (!userIdParam || Array.isArray(userIdParam)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-      });
-    }
-    const userId: string = userIdParam;
-
-    const profileService = getDependencies().getProfileService();
-    const profile = await profileService.getProfile(userId);
-
-    return res.json({
-      success: true,
-      profile,
-    });
-  } catch (error) {
-    console.error("Error getting profile:", error);
-    return res.status(500).json({
-      success: false,
-      message:
-        error instanceof Error ? error.message : "Failed to get profile",
-    });
-  }
-});
+router.get("/:userId", validateUserIdMiddleware, getProfileController);
 
 // PUT /api/profile/:userId/bio - Update bio
-router.put("/:userId/bio", async (req: Request, res: Response) => {
-  try {
-    const userIdParam = req.params.userId;
-    const { bio } = req.body;
-
-    if (!userIdParam || Array.isArray(userIdParam)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-      });
-    }
-    const userId: string = userIdParam;
-
-    if (typeof bio !== "string") {
-      return res.status(400).json({
-        success: false,
-        message: "Bio must be a string",
-      });
-    }
-
-    const profileService = getDependencies().getProfileService();
-    const profile = await profileService.updateBio(userId, bio);
-
-    return res.json({
-      success: true,
-      profile,
-    });
-  } catch (error) {
-    console.error("Error updating bio:", error);
-    return res.status(500).json({
-      success: false,
-      message:
-        error instanceof Error ? error.message : "Failed to update bio",
-    });
-  }
-});
+router.put(
+  "/:userId/bio",
+  validateUserIdMiddleware,
+  validateBioMiddleware,
+  updateBioController
+);
 
 // POST /api/profile/:userId/upload-photo - Upload profile picture
 router.post(
   "/:userId/upload-photo",
+  validateUserIdMiddleware,
   upload.single("profilePicture"),
-  async (req: Request, res: Response) => {
-    try {
-      const userIdParam = req.params.userId;
-
-      if (!userIdParam || Array.isArray(userIdParam)) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid user ID",
-        });
-      }
-      const userId: string = userIdParam;
-
-      if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          message: "No file uploaded",
-        });
-      }
-
-      const profileService = getDependencies().getProfileService();
-      const profile = await profileService.uploadProfilePicture(
-        userId,
-        req.file
-      );
-
-      return res.json({
-        success: true,
-        profile,
-      });
-    } catch (error) {
-      console.error("Error uploading profile picture:", error);
-      return res.status(500).json({
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to upload profile picture",
-      });
-    }
-  }
+  validateFileUploadMiddleware,
+  uploadProfilePictureController
 );
 
 // DELETE /api/profile/:userId/photo - Delete profile picture
-router.delete("/:userId/photo", async (req: Request, res: Response) => {
-  try {
-    const userIdParam = req.params.userId;
-    if (!userIdParam || Array.isArray(userIdParam)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-      });
-    }
-    const userId: string = userIdParam;
-
-    const profileService = getDependencies().getProfileService();
-    const profile = await profileService.deleteProfilePicture(userId);
-
-    return res.json({
-      success: true,
-      profile,
-    });
-  } catch (error) {
-    console.error("Error deleting profile picture:", error);
-    return res.status(500).json({
-      success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : "Failed to delete profile picture",
-    });
-  }
-});
+router.delete(
+  "/:userId/photo",
+  validateUserIdMiddleware,
+  deleteProfilePictureController
+);
 
 export default router;

@@ -48,6 +48,19 @@ router.post("/instances/:instanceId/recommended-deck", requireAuth, async (req: 
       return;
     }
 
+
+    // If both arrays(Main and Extra deck) are empty, reject the request
+    // User must use the DELETE endpoint to delete the deck
+    const hasContent = mainDeckCards.length > 0 || extraDeckCards.length > 0;
+    
+    if (!hasContent) {
+      res.status(400).json({ 
+        success: false, 
+        error: "Cannot save deck with no cards. Use the DELETE endpoint to remove the deck." 
+      });
+      return;
+    }
+
     const deckService = getDependencies().getRecommendedDeckService();
     
     // Check if deck exists

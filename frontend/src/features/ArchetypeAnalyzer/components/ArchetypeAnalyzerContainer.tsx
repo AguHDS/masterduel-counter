@@ -120,6 +120,11 @@ export const ArchetypeAnalyzerContainer = () => {
       setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
       setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
       setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
+    } else if (recommendedDeck.deck === null) {
+      // If the deck was deleted (deck is null), empty the arrays even in edit mode
+      setDeckTitle("Recommended Deck");
+      setDeckMainCards([]);
+      setDeckExtraCards([]);
     }
   }, [recommendedDeck.deck, editor.isEditMode, isOwner]);
 
@@ -263,20 +268,18 @@ export const ArchetypeAnalyzerContainer = () => {
         allCardIds.push(...pair.topCardIds, ...pair.bottomCardIds);
       });
 
-      const hasMainDeck = deckMainCards.length > 0;
-      const hasExtraDeck = deckExtraCards.length > 0;
+      const mainDeckIds = deckMainCards.map((c) => c.id);
+      const extraDeckIds = deckExtraCards.map((c) => c.id);
+      const hasDeckContent = mainDeckIds.length > 0 || extraDeckIds.length > 0;
 
-      if (hasMainDeck || hasExtraDeck) {
-        const mainDeckIds = deckMainCards.map((c) => c.id);
-        const extraDeckIds = deckExtraCards.map((c) => c.id);
+      // Add deck cards to confirmation array only if there is content
+      if (hasDeckContent) {
         allCardIds.push(...mainDeckIds, ...extraDeckIds);
       }
 
       const uniqueCardIds = [...new Set(allCardIds)];
 
-      console.log("Confirming all cards before saving:", uniqueCardIds);
       await confirmCards(uniqueCardIds);
-      console.log("All cards confirmed successfully");
 
       const response = await registerMutation.mutateAsync({
         archetypeId: selectedArchetype.id,
@@ -287,29 +290,20 @@ export const ArchetypeAnalyzerContainer = () => {
         instanceId: isCreatingNew ? undefined : instanceIdNum,
       });
 
-      if (hasMainDeck || hasExtraDeck) {
-        const savedInstanceId = response.instance?.id || instanceIdNum;
-        console.log("Saving deck for instance:", savedInstanceId);
-        if (savedInstanceId) {
-          try {
-            const mainDeckIds = deckMainCards.map((c) => c.id);
-            const extraDeckIds = deckExtraCards.map((c) => c.id);
-            console.log("Saving deck with:", {
-              savedInstanceId,
-              deckTitle,
-              mainDeckIds,
-              extraDeckIds,
-            });
-            await recommendedDeckApi.saveDeck(
-              savedInstanceId,
-              deckTitle,
-              mainDeckIds,
-              extraDeckIds,
-            );
-            console.log("Deck saved successfully");
-          } catch (deckError) {
-            console.error("Error saving recommended deck:", deckError);
-          }
+      // Save or delete recommended deck based on content
+      const savedInstanceId = response.instance?.id || instanceIdNum;
+      if (savedInstanceId) {
+        if (hasDeckContent) {
+          // There is content, save or update the deck
+          await recommendedDeckApi.saveDeck(
+            savedInstanceId,
+            deckTitle,
+            mainDeckIds,
+            extraDeckIds,
+          );
+        } else if (recommendedDeck.deck) {
+          // No content and a deck exists, delete it
+          await recommendedDeckApi.deleteDeck(savedInstanceId);
         }
       }
 

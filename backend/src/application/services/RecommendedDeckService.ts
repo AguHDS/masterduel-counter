@@ -15,6 +15,7 @@ export class RecommendedDeckService implements RecommendedDeckServicePort {
   ) {}
 
   async createDeck(data: RecommendedDeckCreateDTO): Promise<RecommendedDeck> {
+    // Permitir crear deck vacío (el usuario puede agregar cartas después)
     // Validate max cards
     if (data.mainDeckCards.length > 60) {
       throw new Error("Main deck cannot have more than 60 cards");
