@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useSearchCards, useSelectCard } from "./useCardQueries";
 import type { Card } from "../api/cardApi";
 
@@ -8,22 +8,22 @@ export const useCardSelection = () => {
   const { data: searchResults = [], isLoading, error } = useSearchCards(searchQuery);
   const selectMutation = useSelectCard();
 
-  const search = (query: string) => {
+  const search = useCallback((query: string) => {
     setSearchQuery(query);
-  };
+  }, []);
 
-  const select = async (cardId: number): Promise<Card | null> => {
+  const select = useCallback(async (cardId: number): Promise<Card | null> => {
     try {
       return await selectMutation.mutateAsync(cardId);
     } catch (err) {
       console.error("Failed to select card:", err);
       return null;
     }
-  };
+  }, [selectMutation]);
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setSearchQuery("");
-  };
+  }, []);
 
   return {
     searchResults,

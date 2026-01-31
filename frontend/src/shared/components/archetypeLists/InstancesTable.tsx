@@ -1,5 +1,4 @@
 import type { MouseEvent } from "react";
-import { useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowUp } from "lucide-react";
 import { type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
@@ -10,7 +9,7 @@ interface InstancesTableProps {
   instances: ArchetypeInstanceWithDetails[];
   currentPage: number;
   itemsPerPage: number;
-  onSelectInstance: (userId: string, archetypeId: number) => void;
+  onSelectInstance: (instanceId: number, archetypeId: number) => void;
   onPageChange: (page: number) => void;
   showArchetypeName?: boolean;
 }
@@ -27,7 +26,6 @@ export const InstancesTable = ({
 }: InstancesTableProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [hoveredInstance, setHoveredInstance] = useState<number | null>(null);
 
   const totalPages = Math.ceil(instances.length / itemsPerPage);
   const startIndex = currentPage * itemsPerPage;
@@ -98,19 +96,20 @@ export const InstancesTable = ({
         {currentInstances.map((instance, index) => {
           const isCurrentUser = user?.id === instance.userId;
           const positionLabel = startIndex + index + 1;
-          const formattedDate = new Date(instance.updatedAt).toLocaleDateString();
-          const truncatedTitle = instance.title.length > MAX_CHARS_TITLE
-            ? instance.title.slice(0, MAX_CHARS_TITLE) + "…"
-            : instance.title;
+          const formattedDate = new Date(
+            instance.updatedAt,
+          ).toLocaleDateString();
+          const truncatedTitle =
+            instance.title.length > MAX_CHARS_TITLE
+              ? instance.title.slice(0, MAX_CHARS_TITLE) + "…"
+              : instance.title;
 
           return (
             <button
               key={instance.id}
               onClick={() =>
-                onSelectInstance(instance.userId, instance.archetypeId)
+                onSelectInstance(instance.id, instance.archetypeId)
               }
-              onMouseEnter={() => setHoveredInstance(instance.id)}
-              onMouseLeave={() => setHoveredInstance(null)}
               className="group relative w-full overflow-hidden rounded-xl border border-blue-500/40 bg-[#070B29]/80 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
               <img
@@ -120,14 +119,6 @@ export const InstancesTable = ({
                 className="absolute inset-0 h-full w-full pointer-events-none select-none"
               />
               <div className="absolute inset-0 z-10 pointer-events-none mix-blend-normal transition-colors duration-200 group-hover:bg-[#0b1546]/80 group-active:bg-[#030512]/95" />
-
-              {/* Tooltip */}
-              {hoveredInstance === instance.id && (
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gradient-to-br from-slate-800 via-blue-900 to-purple-900 text-white text-sm rounded-lg shadow-lg border border-blue-500/50 whitespace-nowrap pointer-events-none z-20">
-                  {instance.title}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-purple-900"></div>
-                </div>
-              )}
 
               <div className="relative z-10 flex flex-col gap-3 p-4 md:p-0 md:gap-0">
                 {/* Mobile Layout - Column Format */}
@@ -149,18 +140,23 @@ export const InstancesTable = ({
                       </div>
                     )}
                     <div className="flex items-center gap-2">
-                      <ArrowUp className="w-4 h-4 text-green-400" aria-hidden="true" />
-                      <span className="text-green-400 text-base font-semibold">{instance.likes}</span>
+                      <ArrowUp
+                        className="w-4 h-4 text-green-400"
+                        aria-hidden="true"
+                      />
+                      <span className="text-green-400 text-base font-semibold">
+                        {instance.likes}
+                      </span>
                     </div>
                   </div>
-                  
+
                   {/* Title */}
                   <div className="w-full">
                     <h3 className="text-white text-base font-bold leading-tight break-words">
                       {instance.title}
                     </h3>
                   </div>
-                  
+
                   {/* Details */}
                   <div className="flex flex-col gap-1.5 text-sm">
                     <div className="flex items-start gap-2">
@@ -169,11 +165,15 @@ export const InstancesTable = ({
                       </span>
                       <div className="flex items-center gap-1.5 flex-1">
                         {showArchetypeName ? (
-                          <span className="text-white break-words">{instance.archetypeName}</span>
+                          <span className="text-white break-words">
+                            {instance.archetypeName}
+                          </span>
                         ) : (
                           <>
                             <span
-                              onClick={(e) => handleUserNameClick(e, instance.userId)}
+                              onClick={(e) =>
+                                handleUserNameClick(e, instance.userId)
+                              }
                               className="text-white hover:text-blue-400 hover:underline transition-colors cursor-pointer break-words"
                             >
                               {instance.userName}
@@ -188,7 +188,9 @@ export const InstancesTable = ({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-blue-300 font-medium min-w-[90px]">Updated:</span>
+                      <span className="text-blue-300 font-medium min-w-[90px]">
+                        Updated:
+                      </span>
                       <span className="text-blue-100">{formattedDate}</span>
                     </div>
                   </div>
@@ -226,7 +228,9 @@ export const InstancesTable = ({
                     ) : (
                       <>
                         <span
-                          onClick={(e) => handleUserNameClick(e, instance.userId)}
+                          onClick={(e) =>
+                            handleUserNameClick(e, instance.userId)
+                          }
                           className="hover:text-blue-400 hover:underline transition-colors cursor-pointer relative left-28"
                         >
                           {instance.userName}

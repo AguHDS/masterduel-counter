@@ -31,6 +31,15 @@ export interface RegisterResponse {
   };
 }
 
+export interface RequestPasswordResetRequest {
+  email: string;
+}
+
+export interface RequestPasswordResetResponse {
+  message: string;
+  success: boolean;
+}
+
 export const loginUser = async (credentials: LoginCredentials): Promise<LoginResponse> => {
   const response = await axiosClient.post<LoginResponse>("/api/auth/login", {
     user: credentials.username,
@@ -46,5 +55,18 @@ export const registerUser = async (credentials: RegisterCredentials): Promise<Re
     password: credentials.password,
     turnstileToken: credentials.turnstileToken,
   });
+  return response.data;
+};
+
+export const requestPasswordReset = async (
+  data: RequestPasswordResetRequest
+): Promise<RequestPasswordResetResponse> => {
+  const response = await axiosClient.post<RequestPasswordResetResponse>(
+    "/api/auth/request-password-reset",
+    {
+      email: data.email,
+      redirectTo: `${window.location.origin}/reset-password`,
+    }
+  );
   return response.data;
 };

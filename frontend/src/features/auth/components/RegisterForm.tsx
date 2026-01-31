@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useRegister } from "../hooks/useAuthQueries";
@@ -15,6 +15,20 @@ export const RegisterForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { mutate: register, isPending } = useRegister();
   const navigate = useNavigate();
+
+  // Memoize callbacks to prevent Turnstile re-render
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
+
+  const handleTurnstileError = useCallback(() => {
+    setTurnstileToken(null);
+    setErrorMessage("CAPTCHA verification failed. Please try again.");
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken(null);
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -37,8 +51,6 @@ export const RegisterForm = () => {
         onError: (error: Error & { response?: { data?: { message?: string } } }) => {
           const message = error?.response?.data?.message || error?.message || "Registration failed";
           setErrorMessage(message);
-          // Reset CAPTCHA on error
-          setTurnstileToken(null);
         },
       }
     );
@@ -137,12 +149,9 @@ export const RegisterForm = () => {
           <div className="flex justify-center">
             <Turnstile
               siteKey={TURNSTILE_SITE_KEY}
-              onVerify={(token) => setTurnstileToken(token)}
-              onError={() => {
-                setTurnstileToken(null);
-                setErrorMessage("CAPTCHA verification failed. Please try again.");
-              }}
-              onExpire={() => setTurnstileToken(null)}
+              onVerify={handleTurnstileVerify}
+              onError={handleTurnstileError}
+              onExpire={handleTurnstileExpire}
               theme="dark"
             />
           </div>
@@ -150,7 +159,7 @@ export const RegisterForm = () => {
           <div>
             <button
               type="submit"
-              disabled={isPending || !turnstileToken}
+              disabled={!turnstileToken}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isPending ? "Creating account..." : "Sign up"}

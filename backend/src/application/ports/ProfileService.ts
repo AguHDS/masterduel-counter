@@ -1,4 +1,3 @@
-import type { ProfileRepository } from "@/domain/ports/ProfileRepository";
 import type { Profile } from "@/domain/Profile";
 
 export interface ProfileService {

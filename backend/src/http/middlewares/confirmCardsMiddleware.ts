@@ -15,18 +15,16 @@ export const confirmCardsMiddleware = (
     return;
   }
 
-  if (cardIds.length === 0) {
+  // Allow up to 200 unique cards:
+  // - 1 header card
+  // - Unlimited pairs (user can add as many as needed)
+  // - 60 main deck cards (Deck limit)
+  // - 15 extra deck cards (Deck limit)
+  // With deduplication, actual count will be lower
+  if (cardIds.length > 200) {
     res.status(400).json({ 
       error: "Validation error",
-      message: "cardIds array must contain at least one element" 
-    });
-    return;
-  }
-
-  if (cardIds.length > 50) {
-    res.status(400).json({ 
-      error: "Validation error",
-      message: "cardIds array must not exceed 50 elements" 
+      message: "cardIds array must not exceed 200 elements" 
     });
     return;
   }

@@ -6,7 +6,7 @@ import { FramedContainer } from "@/layouts/FramedContainer";
 
 interface UserInstancesListProps {
   userId: string;
-  onSelectArchetype: (archetypeId: number, userId: string | null) => void;
+  onSelectArchetype: (archetypeId: number, instanceId: number) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -46,8 +46,8 @@ export const UserInstancesList = ({ userId, onSelectArchetype }: UserInstancesLi
 
   return (
     <div className="flex flex-col items-center p-8 w-full">
-      <h2 className="text-2xl font-bold text-blue-400 mb-6 text-center">
-        {instances[0]?.userName}'s Counter Guides
+      <h2 className="text-2xl font-bold text-yellow-500 mb-3 text-center">
+        {instances[0]?.userName}'s Guides
       </h2>
 
       <FramedContainer contentClassName="px-3 sm:px-4 md:px-[5%] py-4">
@@ -55,7 +55,7 @@ export const UserInstancesList = ({ userId, onSelectArchetype }: UserInstancesLi
           instances={instances}
           currentPage={currentPage}
           itemsPerPage={ITEMS_PER_PAGE}
-          onSelectInstance={(profileUserId, archetypeId) => onSelectArchetype(archetypeId, profileUserId)}
+          onSelectInstance={(instanceId, archetypeId) => onSelectArchetype(archetypeId, instanceId)}
           onPageChange={setCurrentPage}
           showArchetypeName={true}
         />

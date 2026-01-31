@@ -13,22 +13,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
   async createOrUpdateInstance(
     data: ArchetypeInstanceCreateDTO
   ): Promise<ArchetypeInstance> {
-    // Check if instance already exists
-    const existing = await this.instanceRepository.findByArchetypeAndUser(
-      data.archetypeId,
-      data.userId
-    );
-
-    if (existing) {
-      // Update existing instance
-      return this.instanceRepository.update(existing.id, {
-        title: data.title,
-        headerCardId: data.headerCardId,
-        generalTip: data.generalTip,
-      });
-    }
-
-    // Create new instance
+    // Always create new instance
     return this.instanceRepository.create(data);
   }
 

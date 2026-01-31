@@ -29,6 +29,10 @@ import { CloudinaryAdapter } from "@/infrastructure/adapters/externalServices/Cl
 import { GetCardDetailsService } from "@/application/services/GetCardDetailsService";
 import { GetCardDetailsPort } from "@/application/ports/GetCardDetailsPort";
 import { PrismaClient } from "@prisma/client";
+import { PrismaRecommendedDeckRepository } from "@/infrastructure/repositories/PrismaRecommendedDeckRepository";
+import { RecommendedDeckRepository } from "@/domain/ports/RecommendedDeckRepository";
+import { RecommendedDeckService } from "@/application/services/RecommendedDeckService";
+import { RecommendedDeckServicePort } from "@/application/ports/RecommendedDeckService";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -39,11 +43,13 @@ export class Dependencies {
   private cardPairRepository: ArchetypeCardPairRepository | null = null;
   private instanceRepository: ArchetypeInstanceRepository | null = null;
   private profileRepository: ProfileRepository | null = null;
+  private recommendedDeckRepository: RecommendedDeckRepository | null = null;
   private archetypeService: ArchetypeService | null = null;
   private instanceService: ArchetypeInstanceServicePort | null = null;
   private authService: AuthService | null = null;
   private cardService: CardService | null = null;
   private profileService: ProfileService | null = null;
+  private recommendedDeckService: RecommendedDeckServicePort | null = null;
   private cardApiService: CardApiService | null = null;
   private cardDetailsApiService: CardDetailsApiService | null = null;
   private getCardDetailsService: GetCardDetailsPort | null = null;
@@ -187,6 +193,23 @@ export class Dependencies {
       );
     }
     return this.profileService;
+  }
+
+  getRecommendedDeckRepository(): RecommendedDeckRepository {
+    if (!this.recommendedDeckRepository) {
+      this.recommendedDeckRepository = new PrismaRecommendedDeckRepository(this.prisma);
+    }
+    return this.recommendedDeckRepository;
+  }
+
+  getRecommendedDeckService(): RecommendedDeckServicePort {
+    if (!this.recommendedDeckService) {
+      this.recommendedDeckService = new RecommendedDeckService(
+        this.getRecommendedDeckRepository(),
+        this.getCardRepository(),
+      );
+    }
+    return this.recommendedDeckService;
   }
 
   getDatabase(): DatabasePort {

@@ -14,7 +14,7 @@ export const registerArchetypeController = async (
       return;
     }
     const archetypeId = parseInt(id);
-    const { cardPairs, title, headerCardId, generalTip } = req.body;
+    const { cardPairs, title, headerCardId, generalTip, instanceId } = req.body;
     const userId = (req as AuthenticatedRequest).user?.id;
 
     if (!userId) {
@@ -57,31 +57,44 @@ export const registerArchetypeController = async (
       return;
     }
 
-    // Crear o actualizar la instancia
+    // Create or update archetype instance
     const instanceService = getDependencies().getInstanceService();
-    const instance = await instanceService.createOrUpdateInstance({
-      archetypeId,
-      userId,
-      title: title.trim(),
-      headerCardId: headerCardId || null,
-      generalTip: generalTip || null,
-    });
+    let instance;
+    
+    if (instanceId) {
+      // Editing existing instance - verify ownership
+      const existingInstance = await instanceService.getInstanceById(instanceId);
+      if (!existingInstance) {
+        res.status(404).json({ success: false, error: "Instance not found" });
+        return;
+      }
+      if (existingInstance.userId !== userId) {
+        res.status(403).json({ success: false, error: "You can only edit your own instances" });
+        return;
+      }
+      // Update the existing instance
+      instance = await instanceService.updateInstance(instanceId, userId, {
+        title: title.trim(),
+        headerCardId: headerCardId || null,
+        generalTip: generalTip || null,
+      });
+    } else {
+      // Creating new instance
+      instance = await instanceService.createOrUpdateInstance({
+        archetypeId,
+        userId,
+        title: title.trim(),
+        headerCardId: headerCardId || null,
+        generalTip: generalTip || null,
+      });
+    }
 
     // Confirmar cartas y guardar pares
     if (cardPairs && cardPairs.length > 0) {
-      const cardService = getDependencies().getCardService();
       const cardPairRepository = getDependencies().getCardPairRepository();
 
-      // Extraer IDs de cartas únicas
-      const cardIds = Array.from(
-        new Set([
-          ...cardPairs.flatMap((pair: { topCardIds: number[]; bottomCardIds: number[] }) => [...pair.topCardIds, ...pair.bottomCardIds]),
-          ...(headerCardId ? [headerCardId] : []),
-        ]),
-      );
-
-      // Confirmar cartas
-      await cardService.confirmSelectedCards(cardIds);
+      // NOTE: Cards are already confirmed by the frontend before this controller is called
+      // So we don't need to confirm them again here
 
       // Eliminar pares existentes de esta instancia
       await cardPairRepository.deleteByInstanceId(instance.id);

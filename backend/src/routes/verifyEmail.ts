@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
 
     // Use BetterAuth's verify email functionality
     const result = await auth.api.verifyEmail({
-      body: { token },
+      query: { token },
     });
 
     if (!result) {

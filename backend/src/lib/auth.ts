@@ -21,26 +21,24 @@ export const auth = betterAuth({
       url: string;
       token: string;
     }) => {
-      const { user, url, token } = params;
-      console.log(`Verification email for: ${user.email}`);
-      console.log(`BetterAuth URL: ${url}`);
-      console.log(`Token: ${token}`);
-
+      const { user, token } = params;
       const frontendUrl = `${getFrontendUrl()}/verify-email?token=${token}`;
 
-      console.log(`🎯 Frontend verification URL: ${frontendUrl}`);
+      if (config.nodeEnv === "development") {
+        console.log("\n===== EMAIL VERIFICATION FOR SIGN UP (DEVELOPMENT MODE) =====");
+        console.log(`User: ${user.email}`);
+        console.log(`Verification URL: ${frontendUrl}`);
+        console.log(`Token: ${token}`);
+        console.log(`In development, copy the URL above and paste in your browser`);
+        console.log("============================================\n");
+      } else {
+        console.log(`Verification email sent to: ${user.email}`);
+        console.log(`Verification link: ${frontendUrl}`);
+        console.log(`SMTP Host: ${process.env.SMTP_HOST}`);
+        console.log(`From: ${process.env.SMTP_FROM_EMAIL}`);
+      }
 
-      // Log SMTP config for debugging
-      console.log(`Email will be sent via Brevo SMTP:`);
-      console.log(
-        `   - SMTP Host: ${process.env.SMTP_HOST || "Not configured"}`,
-      );
-      console.log(
-        `   - From: ${process.env.SMTP_FROM_EMAIL || "Not configured"}`,
-      );
-
-      // BetterAuth handles the actual email sending automatically
-      // using the 'email' configuration below
+      // BetterAuth handles email sending automatically in production
     },
 
     sendResetPassword: async (params: {
@@ -48,26 +46,25 @@ export const auth = betterAuth({
       url: string;
       token: string;
     }) => {
-      const { user, url, token } = params;
-      console.log(`Password reset email for: ${user.email}`);
-      console.log(`BetterAuth URL: ${url}`);
-      console.log(`Token: ${token}`);
-
+      const { user, token } = params;
       const frontendUrl = `${getFrontendUrl()}/reset-password?token=${token}`;
 
-      console.log(`Frontend URL (for your app): ${frontendUrl}`);
+      if (config.nodeEnv === "development") {
+        console.log("\n ===== PASSWORD RESET REQUEST (DEVELOPMENT MODE) =====");
+        console.log(`User: ${user.email}`);
+        console.log(`Reset URL: ${frontendUrl}`);
+        console.log(`Token: ${token}`);
+        console.log(`In development, copy the URL above and paste in your browser`);
+        console.log("============================================\n");
+      } else {
+        console.log(`Password reset email sent to: ${user.email}`);
+        console.log(`Reset link: ${frontendUrl}`);
+        console.log(`SMTP Host: ${process.env.SMTP_HOST}`);
+        console.log(`From: ${process.env.SMTP_FROM_EMAIL}`);
+      }
 
-      // Additional log for debugging the actual sending
-      console.log(`Email will be sent by BetterAuth using:`);
-      console.log(
-        `   - SMTP Host: ${process.env.SMTP_HOST || "Not configured"}`,
-      );
-      console.log(
-        `   - From: ${process.env.SMTP_FROM_EMAIL || "Not configured"}`,
-      );
-
-      // Do NOT return anything - BetterAuth handles sending automatically
-      // The SMTP configuration in the 'email' object will be used automatically
+      // BetterAuth handles email sending automatically in production
+      // using the 'email' configuration below
     },
 
     onPasswordReset: async (params: { user: any }) => {

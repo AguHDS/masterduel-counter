@@ -39,7 +39,18 @@ export interface RegisterArchetypeRequest {
 
 export interface RegisterArchetypeResponse {
   success: boolean;
-  archetype: Archetype;
+  archetype?: Archetype;
+  instance?: {
+    id: number;
+    archetypeId: number;
+    userId: string;
+    title: string;
+    headerCardId: number | null;
+    generalTip: string | null;
+    likes: number;
+    createdAt: string;
+    updatedAt: string;
+  };
   message: string;
 }
 
@@ -73,10 +84,11 @@ export const registerArchetype = async (
   title: string,
   headerCardId?: number,
   generalTip?: string,
+  instanceId?: number,
 ): Promise<RegisterArchetypeResponse> => {
   const response = await axiosClient.post<RegisterArchetypeResponse>(
     `/api/archetypes/${archetypeId}/register`,
-    { cardPairs, title, headerCardId, generalTip }
+    { cardPairs, title, headerCardId, generalTip, instanceId }
   );
   
   return response.data;

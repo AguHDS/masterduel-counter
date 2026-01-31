@@ -23,12 +23,13 @@ Set the environment to production to automatically switch URLs:
 NODE_ENV=production
 VITE_QUERY_ENV=production
 ```
-
 This will:
 
 - Switch all URLs from `http://localhost:*` to `https://masterduelcounter.com`
 - Enable secure cookies
 - Use production CORS settings
+- Use terminal instead of real email verification for password recovery
+- Enable Sentry environment error reporting for Error Boundary in the frontend
 
 ### Troubleshooting
 

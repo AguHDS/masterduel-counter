@@ -55,11 +55,17 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
       const tooltipWidth = 640;
       const tooltipHeight = 420;
       const offset = 20;
+      const edgeThreshold = 500;
 
       let x = mouseX + offset;
       let y = mouseY + offset;
 
-      if (x + tooltipWidth > window.innerWidth) {
+      // Check if we're near the right edge of the screen
+      if (mouseX > window.innerWidth - edgeThreshold) {
+        // Always show on the left when near right edge
+        x = mouseX - tooltipWidth - offset;
+      } else if (x + tooltipWidth > window.innerWidth) {
+        // Otherwise, flip to left only if it would overflow
         x = mouseX - tooltipWidth - offset;
       }
 

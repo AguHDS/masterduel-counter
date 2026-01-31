@@ -12,7 +12,7 @@ import { FramedContainer } from "@/layouts/FramedContainer";
 interface ArchetypeInstancesListProps {
   archetypeId: number;
   archetypeName: string;
-  onSelectInstance: (userId: string) => void;
+  onSelectInstance: (instanceId: number) => void;
   onCreateInstance: () => void;
 }
 
@@ -25,26 +25,22 @@ export const ArchetypeInstancesList = ({
   onCreateInstance,
 }: ArchetypeInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const {
-    data: instances,
+    data = [], // ← nunca undefined
     isLoading,
     error,
   } = useQuery<ArchetypeInstanceWithDetails[]>({
     queryKey: ["archetypeInstances", archetypeId],
     queryFn: () => instanceApi.getInstancesByArchetypeId(archetypeId),
-    enabled: !!archetypeId,
+    enabled: Number.isFinite(archetypeId),
     staleTime: 0,
   });
 
-  // Validaciones centralizadas
-  const hasInstances = !!instances && instances.length > 0;
-  const userHasInstance =
-    instances?.some((instance) => instance.userId === user?.id) ?? false;
-  const canCreateInstance = isAuthenticated && !userHasInstance;
+  const hasInstances = data.length > 0;
+  const canCreateInstance = isAuthenticated;
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -53,7 +49,6 @@ export const ArchetypeInstancesList = ({
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -62,46 +57,73 @@ export const ArchetypeInstancesList = ({
     );
   }
 
-  // Empty state (sin componente externo)
   if (!hasInstances) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <div className="text-blue-300 text-lg">
-          No guides created yet for {archetypeName}
-        </div>
+      <div className="flex flex-col items-start p-4 w-full">
+        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
+          <div className="flex items-center w-full justify-between gap-4">
+            <h1 className="text-2xl relative top-[7px] font-bold text-white">
+              {archetypeName}
+            </h1>
 
-        {canCreateInstance && (
-          <button
-            onClick={onCreateInstance}
-            className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-lg"
-          >
-            <Plus className="w-5 h-5" />
-            <span>Be the first to create a guide!</span>
-          </button>
-        )}
+            {canCreateInstance && (
+              <button
+                onClick={onCreateInstance}
+              className="flex relative top-[7px] px-2 py-1 items-center bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create</span>
+              </button>
+            )}
+          </div>
+
+          <div
+            className="w-full h-[2px]"
+            style={{
+              background:
+                "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
+            }}
+          />
+
+          <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
+            <div className="text-blue-300 text-lg text-center">
+              No guides created yet for {archetypeName}
+            </div>
+            {canCreateInstance && (
+              <button
+                onClick={onCreateInstance}
+                className="flex items-center space-x-1 px-2 py-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors shadow-lg"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Be the first to create a guide!</span>
+              </button>
+            )}
+          </div>
+        </FramedContainer>
       </div>
     );
   }
 
-  // Normal state (hay instancias)
   return (
     <div className="flex flex-col items-start p-4 w-full">
-      <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6 relative z-0">
-        <div className="flex flex-col sm:flex-row sm:items-center items-start gap-2 sm:gap-4 w-full">
-          <h1 className="text-2xl font-bold text-white w-full sm:w-auto whitespace-normal sm:whitespace-nowrap">
-            {archetypeName}
-          </h1>
+      <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
+        <div className="flex items-center w-full justify-between gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
+            <h1 className="text-2xl relative top-[7px] font-bold text-white">
+              {archetypeName}
+            </h1>
 
-          <span className="text-base relative top-1 font-semibold text-blue-400 w-full sm:w-auto whitespace-nowrap">
-            All Guides ({instances.length})
-          </span>
+            <span className="text-base relative top-[11px] font-semibold text-blue-400">
+              All Guides ({data.length})
+            </span>
+          </div>
 
           {canCreateInstance && (
             <button
               onClick={onCreateInstance}
-              className="flex items-center space-x-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm"
+              className="flex relative top-[7px] px-2 py-1 items-center bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded transition-colors shadow text-sm"
             >
-              <Plus className="w-3 h-3" />
+              <Plus className="w-4 h-4" />
               <span>Create</span>
             </button>
           )}
@@ -110,15 +132,16 @@ export const ArchetypeInstancesList = ({
         <div
           className="w-full h-[2px]"
           style={{
-            background: "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
+            background:
+              "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
           }}
         />
 
         <InstancesTable
-          instances={instances}
+          instances={data}
           currentPage={currentPage}
           itemsPerPage={ITEMS_PER_PAGE}
-          onSelectInstance={(userId) => onSelectInstance(userId)}
+          onSelectInstance={onSelectInstance}
           onPageChange={setCurrentPage}
           showArchetypeName={false}
         />

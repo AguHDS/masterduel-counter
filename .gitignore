@@ -15,6 +15,7 @@ TODO.md
 /backend/.env
 /frontend/.env
 backend/memory.md
+Mejoras_antes_de_prod.md
 
 # Database files
 /backend/src/data/*.db
