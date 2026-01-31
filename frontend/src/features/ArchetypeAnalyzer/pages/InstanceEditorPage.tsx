@@ -11,7 +11,7 @@ import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import type { Archetype } from "../api/archetypeApi";
 
 export const InstanceEditorPage = () => {
-  const { archetypeId, instanceId: _instanceId } = useParams<{
+  const { archetypeId, instanceId: instanceId } = useParams<{
     archetypeId: string;
     instanceId: string;
   }>();

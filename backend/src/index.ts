@@ -20,6 +20,7 @@ import {
   deleteUserInstance,
   deleteInstance,
   instanceLikes,
+  recommendedDeck,
   getCardDetails,
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
@@ -53,6 +54,7 @@ app.use("/api/archetypes", registeredArchetypes);
 app.use("/api", deleteUserInstance);
 app.use("/api", deleteInstance);
 app.use("/api", instanceLikes);
+app.use("/api", recommendedDeck);
 app.use("/api", createGetArchetypeInstancesRoute(getDependencies()));
 app.use("/api", createGetUserInstancesRoute(getDependencies()));
 app.use("/api", createCreateOrUpdateInstanceRoute(getDependencies()));
@@ -67,9 +69,11 @@ app.use("/api/cards/select", selectCard);
 app.use("/api/cards/confirm", confirmCards);
 app.use("/api/cards", getCardDetails);
 
-// Cron job: Cleaning temporary cards every 24 hours (at 3:00 AM)
+// Cron job: Failsafe cleanup of temporary cards every 24 hours (at 3:00 AM)
+// Cards are created as temporary only when confirmCards is called.
+// This cleans up cards that weren't confirmed due to crashes, errors, or user cancellation.
 cron.schedule("0 3 * * *", async () => {
-  console.log("[Cron] Starting cleanup of temporary cards...");
+  console.log("[Cron] Starting failsafe cleanup of temporary cards...");
   try {
     const cardService = getDependencies().getCardService();
     const deletedCount = await cardService.cleanupTemporaryCards();
@@ -84,6 +88,6 @@ cron.schedule("0 3 * * *", async () => {
 app.listen(PORT, () => {
   console.log(`Listening to: http://localhost:${PORT}`);
   console.log(
-    "Temporary card cleaning cron job activated (every day at 3:00 AM)",
+    "Failsafe temporary card cleanup cron job activated (every day at 3:00 AM)",
   );
 });

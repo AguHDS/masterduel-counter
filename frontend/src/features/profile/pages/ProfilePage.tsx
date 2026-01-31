@@ -7,7 +7,7 @@ import { UserInstancesList } from "../components/UserInstancesList";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
 import { useSession } from "@/lib/auth-client";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -69,6 +69,9 @@ export const ProfilePage = () => {
   const profile = profileData?.profile;
   const displayPhotoUrl = previewUrl || profile?.profilePictureUrl;
 
+  useEffect(()=> {
+    console.log(profile)
+  },[])
   return (
     <>
       <Helmet>

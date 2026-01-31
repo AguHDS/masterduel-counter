@@ -65,11 +65,13 @@ export class SqliteCardRepository implements CardRepository {
     return !!row;
   }
 
+  // Mark card as permanent (not temporary) after successful save
   async updateToPermament(id: number): Promise<void> {
     const stmt = this.db.prepare("UPDATE cards SET is_temporary = 0 WHERE id = ?");
     stmt.run(id);
   }
 
+  // Find temporary cards older than specified hours - used by cleanup cron job
   async findTemporaryOlderThan(hours: number): Promise<Card[]> {
     const stmt = this.db.prepare(`
       SELECT * FROM cards 
@@ -81,6 +83,7 @@ export class SqliteCardRepository implements CardRepository {
     return rows.map(this.mapRowToCard);
   }
 
+  // Delete card from database (cleanup also deletes from Cloudinary)
   async deleteById(id: number): Promise<void> {
     const stmt = this.db.prepare("DELETE FROM cards WHERE id = ?");
     stmt.run(id);

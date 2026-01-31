@@ -8,6 +8,7 @@ import registeredArchetypes from "./registeredArchetypes";
 import deleteUserInstance from "./deleteUserInstance";
 import deleteInstance from "./deleteInstance";
 import instanceLikes from "./instanceLikes";
+import recommendedDeck from "./recommendedDeck";
 import getCardDetails from "./getCardDetails";
 import { createGetArchetypeInstancesRoute } from "./getArchetypeInstances";
 import { createGetUserInstancesRoute } from "./getUserInstances";
@@ -26,6 +27,7 @@ export {
   deleteUserInstance,
   deleteInstance,
   instanceLikes,
+  recommendedDeck,
   getCardDetails,
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,

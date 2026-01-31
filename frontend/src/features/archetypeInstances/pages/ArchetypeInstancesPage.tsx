@@ -6,7 +6,6 @@ import { Footer } from "@/layouts/Footer";
 import { ArchetypeInstancesList } from "../components/ArchetypeInstancesList";
 import { useArchetypeWithHeader } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeQueries";
 import { useArchetypeSearch } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeSearch";
-import { useAuth } from "@/features/auth";
 import { SearchInput } from "@/shared/components/Search/Search";
 import { SearchResults } from "@/shared/components/Search/SearchResults";
 import type { Archetype } from "@/features/ArchetypeAnalyzer/api/archetypeApi";
@@ -14,7 +13,6 @@ import type { Archetype } from "@/features/ArchetypeAnalyzer/api/archetypeApi";
 export const ArchetypeInstancesPage = () => {
   const { archetypeId } = useParams<{ archetypeId: string }>();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -90,34 +88,6 @@ export const ArchetypeInstancesPage = () => {
   }
 
   const archetype = archetypeWithHeaderData.archetype;
-
-  // Si el arquetipo no está registrado, redirigir a crear instancia si está autenticado
-  if (!archetype.registered && isAuthenticated) {
-    navigate(`/archetype/${archetypeId}/instance/new`, { replace: true });
-    return null;
-  }
-
-  // Si no está registrado y no está autenticado, mostrar mensaje
-  if (!archetype.registered) {
-    return (
-      <>
-        <Helmet>
-          <title>{archetype.name} - Masterduel Counter</title>
-        </Helmet>
-        <div className="min-h-screen bg-gradient-to-b flex flex-col">
-          <Navbar />
-          <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="text-blue-300 text-lg">
-                This archetype is not registered yet. Please sign in to create the first guide.
-              </div>
-            </div>
-          </main>
-          <Footer />
-        </div>
-      </>
-    );
-  }
 
   return (
     <>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { X, Search, Loader2 } from "lucide-react";
 import { Virtuoso } from "react-virtuoso";
-import { useCardSelection } from "../hooks/useCardSelection";
+import { useSearchCards } from "../hooks/useCardQueries";
 import { type Card } from "../api/cardApi";
 import { CardTooltip } from "./CardTooltip";
 
@@ -10,6 +10,7 @@ interface CardSearchModalProps {
   onClose: () => void;
   onSelectCard: (card: Card) => void;
   title: string;
+  keepOpenAfterSelect?: boolean;
 }
 
 export const CardSearchModal = ({
@@ -17,22 +18,23 @@ export const CardSearchModal = ({
   onClose,
   onSelectCard,
   title,
+  keepOpenAfterSelect = false,
 }: CardSearchModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { searchResults, loading, error, search, select, clearSearch } = useCardSelection();
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-
+  
+  // Debounce search query
   useEffect(() => {
-    if (searchQuery.trim()) {
-      const timer = setTimeout(() => {
-        search(searchQuery);
-      }, 300);
-      return () => clearTimeout(timer);
-    } else {
-      clearSearch();
-    }
-  }, [searchQuery, search, clearSearch]);
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+  
+  // Use the query hook directly - results only update when debouncedQuery changes
+  const { data: searchResults = [], isLoading, error } = useSearchCards(debouncedQuery);
 
   // Measure container size for responsive grid
   useEffect(() => {
@@ -52,18 +54,24 @@ export const CardSearchModal = ({
     return () => window.removeEventListener('resize', updateSize);
   }, [isOpen]);
 
-  const handleSelectCard = async (cardId: number) => {
-    const card = await select(cardId);
-    if (card) {
-      onSelectCard(card);
+  const handleSelectCard = (cardId: number, cardName: string, imageUrl?: string, imageUrlSmall?: string) => {
+    // Create card object instantly using external URLs from search results
+    // When user saves changes, backend will confirm and upload to Cloudinary
+    const card: Card = {
+      id: cardId,
+      name: cardName,
+      imageUrl: imageUrl || '',
+      imageUrlSmall: imageUrlSmall || '',
+      imageUrlCropped: imageUrl || '', // Use full image as cropped for now
+    };
+    onSelectCard(card);
+    if (!keepOpenAfterSelect) {
       setSearchQuery("");
-      clearSearch();
     }
   };
 
   const handleClose = () => {
     setSearchQuery("");
-    clearSearch();
     onClose();
   };
 
@@ -131,7 +139,7 @@ export const CardSearchModal = ({
 
         {/* Search Results */}
         <div ref={containerRef} className="relative flex-1 overflow-hidden bg-slate-900/20">
-          {loading && (
+          {isLoading && (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
             </div>
@@ -139,17 +147,17 @@ export const CardSearchModal = ({
 
           {error && (
             <div className="text-center py-8 text-red-400">
-              {error}
+              {error.message}
             </div>
           )}
 
-          {!loading && !error && searchQuery && searchResults.length === 0 && (
+          {!isLoading && !error && searchQuery && searchResults.length === 0 && (
             <div className="text-center py-8 text-slate-400">
               No cards found. Try a different search term.
             </div>
           )}
 
-          {!loading && !error && searchResults.length > 0 && containerSize.width > 0 && containerSize.height > 0 && (
+          {!isLoading && !error && searchResults.length > 0 && containerSize.width > 0 && containerSize.height > 0 && (
             <Virtuoso
               style={{ height: containerSize.height }}
               totalCount={cardRows.length}
@@ -178,7 +186,12 @@ export const CardSearchModal = ({
                             style={{ width: cardWidth, height: cardHeight }}
                           >
                             <button
-                              onClick={() => handleSelectCard(result.id)}
+                              onClick={() => handleSelectCard(
+                                result.id,
+                                result.name,
+                                result.imageUrlExternal,
+                                result.imageUrlSmallExternal
+                              )}
                               className="group relative bg-slate-700/50 hover:bg-slate-600/50 rounded-lg transition-all duration-200 border-2 border-slate-600 hover:border-blue-500 overflow-hidden flex flex-col w-full h-full"
                               title={result.name}
                             >
@@ -223,7 +236,7 @@ export const CardSearchModal = ({
             />
           )}
 
-          {!loading && !error && !searchQuery && (
+          {!isLoading && !error && !searchQuery && (
             <div className="text-center py-8 text-slate-400">
               Start typing to search for cards...
             </div>

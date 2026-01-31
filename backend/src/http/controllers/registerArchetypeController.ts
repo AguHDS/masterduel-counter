@@ -91,19 +91,10 @@ export const registerArchetypeController = async (
 
     // Confirmar cartas y guardar pares
     if (cardPairs && cardPairs.length > 0) {
-      const cardService = getDependencies().getCardService();
       const cardPairRepository = getDependencies().getCardPairRepository();
 
-      // Extraer IDs de cartas únicas
-      const cardIds = Array.from(
-        new Set([
-          ...cardPairs.flatMap((pair: { topCardIds: number[]; bottomCardIds: number[] }) => [...pair.topCardIds, ...pair.bottomCardIds]),
-          ...(headerCardId ? [headerCardId] : []),
-        ]),
-      );
-
-      // Confirmar cartas
-      await cardService.confirmSelectedCards(cardIds);
+      // NOTE: Cards are already confirmed by the frontend before this controller is called
+      // So we don't need to confirm them again here
 
       // Eliminar pares existentes de esta instancia
       await cardPairRepository.deleteByInstanceId(instance.id);

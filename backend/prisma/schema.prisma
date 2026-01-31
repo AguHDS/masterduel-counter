@@ -125,12 +125,19 @@ model ArchetypeInstance {
   headerCard       Card?     @relation("InstanceHeaderCard", fields: [headerCardId], references: [id], onDelete: SetNull)
   cardPairs        ArchetypeCardPair[]
   likeRecords      InstanceLike[]
+  recommendedDeck  RecommendedDeck?
 
   @@index([userId])
   @@index([archetypeId])
   @@map("archetype_instances")
 }
 
+// Card storage with Cloudinary integration
+// isTemporary: Failsafe flag used ONLY during confirmSelectedCards process:
+//              1. Cards are created with isTemporary=true
+//              2. Then marked isTemporary=false after successful creation
+//              If server crashes DURING this process, cards remain temporary and are cleaned by cron.
+//              Cards selected but never saved don't reach DB at all (only in browser memory).
 model Card {
   id                      Int       @id
   name                    String
@@ -140,7 +147,7 @@ model Card {
   cloudinaryPublicId      String    @map("cloudinary_public_id")
   cloudinaryPublicIdSmall String    @map("cloudinary_public_id_small")
   cloudinaryPublicIdCropped String  @map("cloudinary_public_id_cropped")
-  isTemporary             Boolean   @default(true) @map("is_temporary")
+  isTemporary             Boolean   @default(true) @map("is_temporary") // Failsafe cleanup flag
   createdAt               DateTime  @default(now()) @map("created_at")
 
   instanceHeaders        ArchetypeInstance[] @relation("InstanceHeaderCard")
@@ -148,7 +155,7 @@ model Card {
   bottomCardPairs        CardPairBottom[] @relation("BottomCardPairs")
 
   @@index([name])
-  @@index([isTemporary, createdAt])
+  @@index([isTemporary, createdAt]) // For efficient cleanup queries
   @@map("cards")
 }
 
@@ -209,4 +216,18 @@ model InstanceLike {
   @@index([instanceId])
   @@index([userId])
   @@map("instance_likes")
+}
+
+model RecommendedDeck {
+  id              Int       @id @default(autoincrement())
+  instanceId      Int       @unique @map("instance_id")
+  title           String?   @default("Recommended Deck")
+  mainDeckCards   String    @map("main_deck_cards") // JSON array of card IDs in order
+  extraDeckCards  String    @map("extra_deck_cards") // JSON array of card IDs in order
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  instance        ArchetypeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@map("recommended_decks")
 }

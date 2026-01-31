@@ -78,6 +78,13 @@ async function resetDatabase() {
     }
     
     try {
+      await prisma.recommendedDeck.deleteMany({});
+      console.log("✓ Deleted all recommended decks");
+    } catch (e) {
+      console.log(`${e} ℹ Table recommended_decks doesn't exist yet (will be created after db push)`);
+    }
+    
+    try {
       await prisma.archetypeInstance.deleteMany({});
       console.log("✓ Deleted all archetype instances");
     } catch (e) {

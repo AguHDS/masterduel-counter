@@ -1,13 +1,18 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState, useCallback, useMemo } from "react";
 import { Edit3, Trash2, ThumbsUp } from "lucide-react";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
 import { InstanceHeader } from "./InstanceHeader";
+import { RecommendedDeckEditor } from "./RecommendedDeckEditor";
 import { useInstanceEditor } from "../hooks/useInstanceEditor";
 import { useInstanceLikes } from "../hooks/useInstanceLikes";
 import { useInstanceData } from "../hooks/useInstanceData";
+import { useRecommendedDeck } from "../hooks/useRecommendedDeck";
 import { useAuth } from "@/features/auth";
 import { instanceApi } from "@/lib/http/instanceApi";
+import { recommendedDeckApi } from "@/lib/http/recommendedDeckApi";
+import { confirmCards } from "../api/cardApi";
 import {
   useRegisterArchetype,
   useArchetypeWithHeader,
@@ -80,6 +85,25 @@ export const ArchetypeAnalyzerContainer = () => {
     archetypeId,
     instanceId: userInstanceData?.instance.id,
   });
+
+  // Recommended deck management
+  const recommendedDeck = useRecommendedDeck(instanceIdNum, isOwner);
+  
+  // Memoize deck arrays to prevent infinite loops in RecommendedDeckEditor
+  const memoizedMainDeck = useMemo(() => recommendedDeck.deck?.mainDeck || [], [recommendedDeck.deck?.mainDeck]);
+  const memoizedExtraDeck = useMemo(() => recommendedDeck.deck?.extraDeck || [], [recommendedDeck.deck?.extraDeck]);
+  
+  // Track deck changes in edit mode
+  const [deckTitle, setDeckTitle] = useState<string>();
+  const [deckMainCards, setDeckMainCards] = useState<Array<{id: number; name: string; imageUrl: string; imageUrlSmall: string; imageUrlCropped: string}>>([]);
+  const [deckExtraCards, setDeckExtraCards] = useState<Array<{id: number; name: string; imageUrl: string; imageUrlSmall: string; imageUrlCropped: string}>>([]);
+
+  // Memoize the deck change handler to prevent infinite loops
+  const handleDeckChange = useCallback((title: string, mainDeck: typeof deckMainCards, extraDeck: typeof deckExtraCards) => {
+    setDeckTitle(title);
+    setDeckMainCards(mainDeck);
+    setDeckExtraCards(extraDeck);
+  }, []);
 
   // Load instance data
   useInstanceData({
@@ -199,6 +223,38 @@ export const ArchetypeAnalyzerContainer = () => {
     try {
       const cardPairs = transformPairsForApi(pairs);
 
+      // Collect ALL card IDs that need to be confirmed
+      const allCardIds: number[] = [];
+      
+      // Add header card
+      if (editor.headerCard) {
+        allCardIds.push(editor.headerCard.id);
+      }
+      
+      // Add cards from pairs
+      cardPairs.forEach(pair => {
+        allCardIds.push(...pair.topCardIds, ...pair.bottomCardIds);
+      });
+      
+      // Add cards from deck if there are any
+      const hasMainDeck = deckMainCards.length > 0;
+      const hasExtraDeck = deckExtraCards.length > 0;
+      
+      if (hasMainDeck || hasExtraDeck) {
+        const mainDeckIds = deckMainCards.map(c => c.id);
+        const extraDeckIds = deckExtraCards.map(c => c.id);
+        allCardIds.push(...mainDeckIds, ...extraDeckIds);
+      }
+      
+      // Remove duplicates using Set
+      const uniqueCardIds = [...new Set(allCardIds)];
+      
+      // Confirm ALL cards at once BEFORE saving anything
+      // This ensures all foreign keys are satisfied
+      console.log("Confirming all cards before saving:", uniqueCardIds);
+      await confirmCards(uniqueCardIds);
+      console.log("All cards confirmed successfully");
+
       const response = await registerMutation.mutateAsync({
         archetypeId: selectedArchetype.id,
         cardPairs,
@@ -207,6 +263,24 @@ export const ArchetypeAnalyzerContainer = () => {
         generalTip: editor.generalTip || undefined,
         instanceId: isCreatingNew ? undefined : instanceIdNum,
       });
+
+      // Save recommended deck if there are cards
+      if (hasMainDeck || hasExtraDeck) {
+        const savedInstanceId = response.instance?.id || instanceIdNum;
+        console.log("Saving deck for instance:", savedInstanceId);
+        if (savedInstanceId) {
+          try {
+            const mainDeckIds = deckMainCards.map(c => c.id);
+            const extraDeckIds = deckExtraCards.map(c => c.id);
+            console.log("Saving deck with:", { savedInstanceId, deckTitle, mainDeckIds, extraDeckIds });
+            await recommendedDeckApi.saveDeck(savedInstanceId, deckTitle, mainDeckIds, extraDeckIds);
+            console.log("Deck saved successfully");
+          } catch (deckError) {
+            console.error("Error saving recommended deck:", deckError);
+            // Don't block the main save if deck save fails
+          }
+        }
+      }
 
       editor.setIsEditMode(false);
 
@@ -281,6 +355,21 @@ export const ArchetypeAnalyzerContainer = () => {
                   onSave={handleSaveCards}
                   onCancel={handleCancel}
                   initialPairs={editor.loadedPairs}
+                />
+              </div>
+
+              <div className="flex justify-center my-8">
+                <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+              </div>
+
+              <div className="mt-8">
+                <RecommendedDeckEditor
+                  isEditMode={editor.isEditMode && isOwner}
+                  initialTitle={recommendedDeck.deck?.title}
+                  initialMainDeck={memoizedMainDeck}
+                  initialExtraDeck={memoizedExtraDeck}
+                  onDeckChange={handleDeckChange}
+                  onDelete={recommendedDeck.deleteDeck}
                 />
               </div>
 
