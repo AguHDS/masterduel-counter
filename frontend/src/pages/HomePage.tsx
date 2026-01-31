@@ -7,6 +7,7 @@ import { RegisteredArchetypesList } from "../features/archetypesList";
 import { SearchInput } from "../shared/components/Search/Search";
 import { SearchResults } from "../shared/components/Search/SearchResults";
 import { useArchetypeSearch } from "../features/ArchetypeAnalyzer/hooks/useArchetypeSearch";
+import { FeatureErrorBoundary } from "../shared/components";
 import type { Archetype } from "../features/ArchetypeAnalyzer/api/archetypeApi";
 
 export const HomePage = () => {
@@ -66,7 +67,9 @@ export const HomePage = () => {
           )}
         </SearchInput>
         <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
-          <RegisteredArchetypesList onSelectArchetype={handleSelectRegisteredArchetype} />
+          <FeatureErrorBoundary featureName="Archetypes List">
+            <RegisteredArchetypesList onSelectArchetype={handleSelectRegisteredArchetype} />
+          </FeatureErrorBoundary>
         </main>
         <Footer />
       </div>

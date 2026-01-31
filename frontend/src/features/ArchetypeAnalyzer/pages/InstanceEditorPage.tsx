@@ -8,6 +8,7 @@ import { useArchetypeWithHeader } from "../hooks/useArchetypeQueries";
 import { SearchInput } from "@/shared/components/Search/Search";
 import { SearchResults } from "@/shared/components/Search/SearchResults";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
+import { FeatureErrorBoundary } from "@/shared/components";
 import type { Archetype } from "../api/archetypeApi";
 
 export const InstanceEditorPage = () => {
@@ -139,7 +140,9 @@ export const InstanceEditorPage = () => {
           role="main"
           aria-label="Main content"
         >
-          <ArchetypeAnalyzerContainer />
+          <FeatureErrorBoundary featureName="Instance Editor">
+            <ArchetypeAnalyzerContainer />
+          </FeatureErrorBoundary>
         </main>
         <Footer />
       </div>

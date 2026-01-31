@@ -8,6 +8,7 @@ import { useArchetypeWithHeader } from "@/features/ArchetypeAnalyzer/hooks/useAr
 import { useArchetypeSearch } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeSearch";
 import { SearchInput } from "@/shared/components/Search/Search";
 import { SearchResults } from "@/shared/components/Search/SearchResults";
+import { FeatureErrorBoundary } from "@/shared/components";
 import type { Archetype } from "@/features/ArchetypeAnalyzer/api/archetypeApi";
 
 export const ArchetypeInstancesPage = () => {
@@ -119,12 +120,14 @@ export const ArchetypeInstancesPage = () => {
           )}
         </SearchInput>
         <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
-          <ArchetypeInstancesList
-            archetypeId={parseInt(archetypeId!)}
-            archetypeName={archetype.name}
-            onSelectInstance={handleSelectInstance}
-            onCreateInstance={handleCreateInstance}
-          />
+          <FeatureErrorBoundary featureName="Archetype Instances">
+            <ArchetypeInstancesList
+              archetypeId={parseInt(archetypeId!)}
+              archetypeName={archetype.name}
+              onSelectInstance={handleSelectInstance}
+              onCreateInstance={handleCreateInstance}
+            />
+          </FeatureErrorBoundary>
         </main>
         <Footer />
       </div>

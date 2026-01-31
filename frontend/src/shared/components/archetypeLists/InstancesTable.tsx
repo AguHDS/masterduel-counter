@@ -1,5 +1,4 @@
 import type { MouseEvent } from "react";
-import { useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowUp } from "lucide-react";
 import { type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
@@ -27,7 +26,6 @@ export const InstancesTable = ({
 }: InstancesTableProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [hoveredInstance, setHoveredInstance] = useState<number | null>(null);
 
   const totalPages = Math.ceil(instances.length / itemsPerPage);
   const startIndex = currentPage * itemsPerPage;
@@ -112,8 +110,6 @@ export const InstancesTable = ({
               onClick={() =>
                 onSelectInstance(instance.id, instance.archetypeId)
               }
-              onMouseEnter={() => setHoveredInstance(instance.id)}
-              onMouseLeave={() => setHoveredInstance(null)}
               className="group relative w-full overflow-hidden rounded-xl border border-blue-500/40 bg-[#070B29]/80 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
               <img

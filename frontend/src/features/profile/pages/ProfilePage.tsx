@@ -7,6 +7,7 @@ import { UserInstancesList } from "../components/UserInstancesList";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
 import { useSession } from "@/lib/auth-client";
+import { FeatureErrorBoundary } from "@/shared/components";
 import { useRef } from "react";
 
 export const ProfilePage = () => {
@@ -77,7 +78,8 @@ export const ProfilePage = () => {
       <div className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex flex-col">
         <Navbar />
         <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
-          <section className="w-full flex justify-center px-4 sm:px-6 lg:px-8">
+          <FeatureErrorBoundary featureName="Profile">
+            <section className="w-full flex justify-center px-4 sm:px-6 lg:px-8">
             <div className="relative w-full max-w-[1120px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
               <div
                 className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden bg-cover bg-center py-10 sm:py-12 px-4 sm:px-6 lg:px-10"
@@ -212,6 +214,7 @@ export const ProfilePage = () => {
               </div>
             </div>
           </section>
+          </FeatureErrorBoundary>
         </main>
         <Footer />
       </div>

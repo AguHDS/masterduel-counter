@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { LoginForm } from "../features/auth/components/LoginForm";
 import { Navbar } from "../layouts/Navbar";
+import { FeatureErrorBoundary } from "../shared/components";
 
 export const SignInPage = () => {
   return (
@@ -13,7 +14,9 @@ export const SignInPage = () => {
       <div className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex flex-col">
         <Navbar />
         <main role="main" aria-label="Sign in page">
-          <LoginForm />
+          <FeatureErrorBoundary featureName="Sign In">
+            <LoginForm />
+          </FeatureErrorBoundary>
         </main>
       </div>
     </>
