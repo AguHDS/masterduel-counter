@@ -48,7 +48,7 @@ export const HomePage = () => {
         <SearchInput
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
-          placeholder="Search for archetypes to counter..."
+          placeholder="Search for archetypes"
           isDropdownOpen={isDropdownOpen && (loading || error !== null || results.length > 0)}
           onRequestClose={() => setIsDropdownOpen(false)}
           onInputFocus={() => {

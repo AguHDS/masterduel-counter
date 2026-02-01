@@ -108,13 +108,13 @@ export const ArchetypeInstancesList = ({
     <div className="flex flex-col items-start p-4 w-full">
       <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
         <div className="flex items-center w-full justify-between gap-4">
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-2xl relative top-[7px] font-bold text-white">
-              {archetypeName}
+              {archetypeName} •
             </h1>
 
-            <span className="text-base relative top-[11px] font-semibold text-blue-400">
-              All Guides ({data.length})
+            <span className="text-base relative top-[10px] font-semibold text-blue-400">
+              Guides ({data.length})
             </span>
           </div>
 
