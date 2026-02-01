@@ -5,7 +5,6 @@ import { useAuth } from "@/features/auth";
 import { useNavigate } from "react-router-dom";
 import instanceItemBg from "@/assets/background_instanceitem.webp";
 import instanceItemPlaneBg from "@/assets/background_instanceitem_plane.webp";
-import styles from "./InstancesTable.module.css";
 
 interface InstancesTableProps {
   instances: ArchetypeInstanceWithDetails[];
@@ -18,20 +17,14 @@ interface InstancesTableProps {
   disableTabletResponsive?: boolean;
 }
 
-// Configuración base (para páginas normales)
 const BASE_CONFIG = {
-  maxCharsTitle: 52,
+  maxCharsTitle: 65,
   maxCharsTitleTablet: 30,
-  createdByHeaderLeft: "left-56",
-  idPositionClass: "right-2",
 };
 
-// Configuración para perfil
 const PROFILE_CONFIG = {
-  maxCharsTitle: 42,
+  maxCharsTitle: 60,
   maxCharsTitleTablet: 30,
-  createdByHeaderLeft: "left-48",
-  idPositionClass: "right-3",
 };
 
 export const InstancesTable = ({
@@ -47,7 +40,6 @@ export const InstancesTable = ({
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Seleccionar configuración basada en si es perfil o no
   const config = isProfilePage ? PROFILE_CONFIG : BASE_CONFIG;
 
   const totalPages = Math.ceil(instances.length / itemsPerPage);
@@ -68,16 +60,10 @@ export const InstancesTable = ({
     navigate(`/profile/${userId}`);
   };
 
-  // Determina qué background usar:
-  // - En perfil: plane para mobile, normal para desktop
-  // - NO en perfil: plane para mobile (<1024px), normal para desktop (≥1024px)
   const getBackgroundForView = () => {
-    // Para mobile (<1024px) siempre usa plane, sin importar si es perfil o no
     const mobileBackground = instanceItemPlaneBg;
-    
-    // Para desktop (≥1024px)
     const desktopBackground = instanceItemBg;
-    
+
     return { mobileBackground, desktopBackground };
   };
 
@@ -93,38 +79,42 @@ export const InstancesTable = ({
           : "Archetype instances list"
       }
     >
-      {/* Desktop headers - mostrar SIEMPRE en ≥1024px */}
+      {/* Desktop headers */}
       <div
-        className="hidden lg:grid grid-cols-[60px_48px_minmax(160px,1fr)_minmax(120px,1fr)_minmax(120px,0.8fr)_96px] gap-3 mb-6 pb-3 border-b border-blue-600 bg-black/60 rounded-t-lg"
+        className={`hidden lg:grid gap-3 mb-6 pb-3 border-b border-blue-600 bg-black/60 rounded-t-lg px-6 ${
+          isProfilePage
+            ? "grid-cols-[60px_48px_minmax(220px,1fr)_minmax(90px,0.7fr)_minmax(100px,0.75fr)_96px]"
+            : "grid-cols-[60px_48px_minmax(200px,1fr)_minmax(95px,0.8fr)_minmax(105px,0.8fr)_96px]"
+        }`}
         role="row"
       >
         <div
-          className="text-blue-300 font-semibold text-lg relative left-10"
+          className="text-blue-300 font-semibold text-lg"
           role="columnheader"
         >
           ID
         </div>
         <div role="columnheader" aria-hidden="true" />
         <div
-          className="text-blue-300 font-semibold text-lg relative left-16"
+          className="text-blue-300 font-semibold text-lg"
           role="columnheader"
         >
           Title
         </div>
         <div
-          className={`text-blue-300 font-semibold text-lg relative ${config.createdByHeaderLeft}`}
+          className="text-blue-300 m-auto text-right font-semibold text-lg"
           role="columnheader"
         >
           {showArchetypeName ? "Archetype" : "Created by"}
         </div>
         <div
-          className="text-blue-300 font-semibold text-lg relative left-24"
+          className="text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg"
           role="columnheader"
         >
           Last Updated
         </div>
         <div
-          className="text-blue-300 font-semibold text-lg relative left-9"
+          className="text-blue-300 font-semibold text-lg text-right"
           role="columnheader"
         >
           Likes
@@ -155,14 +145,12 @@ export const InstancesTable = ({
               }
               className="group relative w-full overflow-hidden rounded-xl border border-blue-500/40 bg-[#070B29]/80 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
-              {/* Background image - plane para mobile, normal para desktop */}
               <img
                 src={desktopBackground}
                 alt=""
                 aria-hidden="true"
                 className="absolute inset-0 h-full w-full pointer-events-none select-none hidden lg:block"
               />
-              {/* Background plane para mobile (<1024px) - siempre se usa */}
               <img
                 src={mobileBackground}
                 alt=""
@@ -172,7 +160,7 @@ export const InstancesTable = ({
               <div className="absolute inset-0 z-10 pointer-events-none mix-blend-normal transition-colors duration-200 group-hover:bg-[#0b1546]/80 group-active:bg-[#030512]/95" />
 
               <div className="relative z-10 flex flex-col gap-3 p-4 lg:p-0 lg:gap-0">
-                {/* Mobile Layout - Column Format (hasta 1023px) */}
+                {/* Mobile Layout */}
                 <div className="flex relative flex-col gap-4 lg:hidden">
                   <div className="flex items-start gap-3 w-full">
                     {instance.headerCardImageUrl ? (
@@ -186,9 +174,9 @@ export const InstancesTable = ({
                         <span className="text-slate-400 text-sm">-</span>
                       </div>
                     )}
-                    
+
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-white text-lg font-bold leading-tight break-words">
+                      <h3 className="text-white relative top-4 text-lg font-bold leading-tight break-words">
                         {instance.title}
                       </h3>
                     </div>
@@ -248,15 +236,18 @@ export const InstancesTable = ({
                   </div>
                 </div>
 
-                {/* Desktop Layout (≥1024px) - ÚNICO layout para desktop */}
-                <div 
-                  className="hidden lg:grid grid-cols-[60px_48px_minmax(160px,1fr)_minmax(120px,1fr)_minmax(120px,0.8fr)_96px] gap-3 items-center px-6 py-5"
-                >
-                  {/* ID con ajustes responsivos solo para el ID */}
-                  <div className={`text-[#ffbf1f] text-2xl font-bold drop-shadow-md ${isProfilePage ? styles.profileMode : styles.normalMode}`}>
+                {/* Desktop Layout (≥1024px) */}
+                <div
+  className={`hidden lg:grid gap-3 items-center px-6 py-5 ${
+    isProfilePage
+      ? "grid-cols-[60px_48px_minmax(300px,1.5fr)_minmax(90px,0.7fr)_minmax(100px,0.75fr)_96px]"
+      : "grid-cols-[60px_48px_minmax(280px,1.5fr)_minmax(95px,0.7fr)_minmax(105px,0.75fr)_96px]"
+  }`}
+>
+                  <div className="text-[#ffbf1f] text-2xl font-bold drop-shadow-md">
                     {positionLabel}
                   </div>
-                  
+
                   <div className="flex items-center justify-start h-full">
                     {instance.headerCardImageUrl ? (
                       <img
@@ -270,19 +261,19 @@ export const InstancesTable = ({
                       </div>
                     )}
                   </div>
-                  
-                  <div className="relative">
+
+                  <div className="overflow-hidden">
                     <div
-                      className="text-white font-bold text-[17px] whitespace-nowrap text-ellipsis pr-2"
+                      className="text-white font-bold text-[17px] whitespace-nowrap overflow-hidden text-ellipsis"
                       title={instance.title}
                     >
                       {truncatedTitle}
                     </div>
                   </div>
-                  
-                  <div className="text-white relative left-42 font-semibold text-lg flex items-center gap-2">
+
+                  <div className="text-white font-semibold text-lg flex justify-start gap-1 overflow-hidden min-w-0  w-fit">
                     {showArchetypeName ? (
-                      <span className="text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-[140px]">
+                      <span className="text-white whitespace-nowrap overflow-hidden text-ellipsis">
                         {instance.archetypeName}
                       </span>
                     ) : (
@@ -291,23 +282,23 @@ export const InstancesTable = ({
                           onClick={(e) =>
                             handleUserNameClick(e, instance.userId)
                           }
-                          className="hover:text-blue-400 relative left-56 hover:underline transition-colors cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]"
+                          className="hover:text-blue-400 relative left-8 hover:underline transition-colors cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis"
                         >
                           {instance.userName}
                         </span>
                         {isCurrentUser && (
-                          <span className="text-[10px] font-bold relative left-56 uppercase tracking-wide text-green-400 px-2 py-0.5 rounded bg-green-400/10 flex-shrink-0">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-green-400 px-1 py-0.5 rounded bg-green-400/10 flex-shrink-0">
                             You
                           </span>
                         )}
                       </>
                     )}
                   </div>
-                  
-                  <div className="text-blue-300 relative left-16 text-lg whitespace-nowrap">
+
+                  <div className="text-blue-300 text-right text-lg whitespace-nowrap overflow-hidden text-ellipsis">
                     {formattedDate}
                   </div>
-                  
+
                   <div className="text-green-400 text-lg flex items-center gap-1 justify-end">
                     <ArrowUp className="w-4 h-4" aria-hidden="true" />
                     <span>{instance.likes}</span>
