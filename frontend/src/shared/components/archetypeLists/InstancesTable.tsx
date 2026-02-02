@@ -68,7 +68,7 @@ export const InstancesTable = ({
       <div
         className={`hidden lg:grid gap-3 py-2 bg-black/60 rounded-t-lg px-6 ${
           isProfilePage
-            ? "grid-cols-[60px_48px_minmax(220px,1fr)_minmax(90px,0.7fr)_minmax(100px,0.75fr)_96px]"
+            ? "grid-cols-[60px_48px_1.5fr_0.7fr_0.75fr_96px]"
             : "grid-cols-[60px_48px_minmax(200px,1fr)_minmax(95px,0.8fr)_minmax(105px,0.8fr)_96px]"
         }`}
         role="row"
@@ -223,7 +223,7 @@ export const InstancesTable = ({
                 <div
                   className={`hidden lg:grid gap-3 items-center px-6 py-5 ${
                     isProfilePage
-                      ? "grid-cols-[60px_48px_minmax(300px,1.5fr)_minmax(90px,0.7fr)_minmax(100px,0.75fr)_96px]"
+                      ? "grid-cols-[60px_48px_1.5fr_0.7fr_0.75fr_96px]"
                       : "grid-cols-[60px_48px_minmax(280px,1.5fr)_minmax(95px,0.7fr)_minmax(105px,0.75fr)_96px]"
                   }`}
                 >
