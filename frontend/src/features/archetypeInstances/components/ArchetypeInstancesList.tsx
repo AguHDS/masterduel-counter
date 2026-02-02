@@ -28,7 +28,7 @@ export const ArchetypeInstancesList = ({
   const { isAuthenticated } = useAuth();
 
   const {
-    data = [], // ← nunca undefined
+    data = [],
     isLoading,
     error,
   } = useQuery<ArchetypeInstanceWithDetails[]>({
@@ -69,7 +69,7 @@ export const ArchetypeInstancesList = ({
             {canCreateInstance && (
               <button
                 onClick={onCreateInstance}
-              className="flex relative top-[7px] px-2 py-1 items-center bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm"
+                className="flex relative top-[7px] px-2 py-1 items-center bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create</span>
@@ -84,7 +84,6 @@ export const ArchetypeInstancesList = ({
                 "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
             }}
           />
-
           <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
             <div className="text-blue-300 text-lg text-center">
               No guides created yet for {archetypeName}

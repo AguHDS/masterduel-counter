@@ -197,7 +197,7 @@ export const CardPairItem = ({
         <div className="flex items-center justify-center mt-4">
           {isEditMode ? (
             <div className="w-full">
-              <label className="text-blue-400 font-semibold text-xs mb-1 block">Description</label>
+              <label className="text-blue-400 font-semibold text-xs mb-1 block">Comment</label>
               <textarea
                 value={comment || ""}
                 onChange={(e) => onCommentChange(e.target.value)}
@@ -209,7 +209,7 @@ export const CardPairItem = ({
             </div>
           ) : (
             <div className="w-full flex flex-col items-center space-y-1">
-              <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Description</span>
+              <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Comment</span>
               <div 
                 className="text-center px-3 py-2 text-slate-300 text-sm italic w-[280px] overflow-y-auto"
                 style={{
@@ -223,7 +223,7 @@ export const CardPairItem = ({
                   scrollbarColor: '#1e293b #0f172a'
                 }}
               >
-                {comment || "No description"}
+                {comment || "No comment"}
               </div>
             </div>
           )}

@@ -247,14 +247,7 @@ export const InstancesTable = ({
 
                   <div className="overflow-hidden">
                     <div
-                      className="
-      text-white
-      font-bold
-      text-[17px]
-      overflow-hidden
-      text-ellipsis
-      line-clamp-2
-    "
+                      className="text-white font-bold text-[17px] overflow-hidden text-ellipsis line-clamp-2"
                       title={instance.title}
                     >
                       {instance.title}
@@ -278,17 +271,7 @@ export const InstancesTable = ({
                         </span>
 
                         <span
-                          className={`
-    text-[10px]
-    font-bold
-    uppercase
-    tracking-wide
-    px-1
-    py-0.5
-    rounded
-    flex-shrink-0
-    ${isCurrentUser ? "text-green-400 bg-green-400/10" : "invisible"}
-  `}
+                          className={`text-[10px] font-bold uppercase tracking-wide px-1 py-0.5 rounded flex-shrink-0 ${isCurrentUser ? "text-green-400 bg-green-400/10" : "invisible"}`}
                         >
                           You
                         </span>
