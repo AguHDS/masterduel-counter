@@ -15,7 +15,7 @@ interface SearchInputProps {
 export const SearchInput = ({
   searchQuery,
   onSearchChange,
-  placeholder = "Search for archetypes to sounter...",
+  placeholder = "Search for archetypes to saunter...",
   children,
   isDropdownOpen = false,
   onRequestClose,
@@ -54,32 +54,30 @@ export const SearchInput = ({
   }, [isDropdownOpen, onRequestClose]);
 
   return (
-    <div ref={containerRef} className="flex justify-center pt-4 sm:pt-8 px-2 sm:px-4">
-      <div className="relative w-full max-w-[1040px] h-[100px] sm:h-[144px]">
+    <div ref={containerRef} className="search-input-container">
+      <div className="search-input-wrapper">
         {/* Background image */}
         <img
           src={Searchbar_WithBlueBackground}
           alt="searchbar background"
-          className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+          className="search-background"
           draggable="false"
-          style={{ zIndex: 1 }}
         />
 
-        {/* Contenedor para centrar todo el contenido */}
-        <div className="absolute inset-0 flex items-center justify-between px-4 sm:px-8">
-          {/* Lupa - Más cerca del centro */}
-          <div className="w-20 relative left-[7%] bottom-1 sm:w-28 flex items-center justify-center">
+        {/* Contenedor principal */}
+        <div className="search-content-container">
+          {/* Lupa */}
+          <div className="lupa-container">
             <img
               src={lupaImg}
               alt="lupa"
-              className="w-10 h-10 sm:w-14 sm:h-14 pointer-events-none select-none"
+              className="lupa-image"
               draggable="false"
-              style={{ zIndex: 2 }}
             />
           </div>
 
-          {/* Placeholder */}
-          <div className="flex-1 flex justify-center mx-2 sm:mx-4">
+          {/* Área del input */}
+          <div className="input-area">
             <input
               type="search"
               value={searchQuery}
@@ -91,24 +89,14 @@ export const SearchInput = ({
               aria-label="Search for Yu-Gi-Oh archetypes"
               role="searchbox"
               spellCheck="false"
-              className="w-full relative bottom-1 h-12 sm:h-16 text-base sm:text-2xl bg-transparent border-none text-white placeholder-blue-200 rounded-2xl focus:outline-none focus:ring-0 focus:border-transparent [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none opacity-85"
-              style={{
-                fontWeight: 600,
-                zIndex: 3,
-                textAlign: "center",
-                WebkitTapHighlightColor: "transparent",
-                padding: "0 1rem",
-              }}
+              className="search-input"
             />
-          </div>
 
-          {/* Clear button - Más cerca del borde derecho */}
-          <div className="w-20 sm:w-28 flex items-center justify-end pr-2 sm:pr-4">
+            {/* Clear button */}
             {searchQuery && (
               <button
                 onClick={() => onSearchChange("")}
-                className="text-blue-200/80 relative right-[100%] bottom-1 hover:text-blue-100 transition-colors text-sm sm:text-xl"
-                style={{ fontWeight: 500, zIndex: 4 }}
+                className="clear-button"
               >
                 Clear
               </button>
@@ -118,6 +106,237 @@ export const SearchInput = ({
 
         {isDropdownOpen && children}
       </div>
+      <style>{`
+        /* Estilos con media queries específicas */
+        .search-input-container {
+          display: flex;
+          justify-content: center;
+          padding-top: 1rem;
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
+        }
+
+        .search-input-wrapper {
+          position: relative;
+          width: 100%;
+          max-width: 1040px;
+          height: 100px;
+        }
+
+        @media (min-width: 640px) {
+          .search-input-wrapper {
+            height: 144px;
+          }
+        }
+
+        .search-background {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          pointer-events: none;
+          user-select: none;
+          z-index: 1;
+        }
+
+        .search-content-container {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .lupa-container {
+          position: absolute;
+          left: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
+        }
+
+        .lupa-image {
+          width: 40px;
+          height: 40px;
+          pointer-events: none;
+          user-select: none;
+          z-index: 2;
+          position: relative;
+          bottom: 3px;
+        }
+
+        @media(max-width: 640px) {
+          .lupa-container {
+            display: none;
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 800px) {
+          .lupa-container {
+            left: 10%;
+          }
+          .lupa-image {
+            width: 48px;
+            height: 48px;
+          }
+        }
+
+        @media (min-width: 800px) and (max-width: 1024px) {
+          .lupa-container {
+            left: 10%;
+          }
+          .lupa-image {
+            width: 59px;
+            height: 59px;
+          }
+        }
+
+        @media (min-width: 1025px) {
+          .lupa-container {
+            left: 12%;
+          }
+          .lupa-image {
+            width: 59px;
+            height: 59px;
+            
+          }
+        }
+        
+        .input-area {
+          position: relative;
+          bottom: 3px;
+          width: 100%;
+          margin: 0 auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        @media (max-width: 400px) {
+          .input-area {
+            width: 85%;
+          }
+        }
+
+        @media (min-width: 401px) and (max-width: 640px) {
+          .input-area {
+            width: 80%;
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 1024px) {
+          .input-area {
+            width: 75%;
+          }
+        }
+
+        @media (min-width: 1025px) {
+          .input-area {
+            width: 70%;
+          }
+        }
+
+        .search-input {
+          width: 100%;
+          height: 48px;
+          font-size: 1rem;
+          background: transparent;
+          border: none;
+          color: white;
+          font-weight: 600;
+          border-radius: 1rem;
+          outline: none;
+          text-align: center;
+          -webkit-tap-highlight-color: transparent;
+          opacity: 0.85;
+          padding: 0 2rem;
+          z-index: 3;
+          -webkit-appearance: none;
+        }
+
+        /* Placeholder styling */
+        .search-input::placeholder {
+          color: rgba(191, 219, 254, 0.9);
+          opacity: 0.9;
+          text-align: center;
+        }
+
+        .search-input::-webkit-input-placeholder {
+          color: rgba(191, 219, 254, 0.9);
+          opacity: 0.9;
+          text-align: center;
+        }
+
+        .search-input::-moz-placeholder {
+          color: rgba(191, 219, 254, 0.9);
+          opacity: 0.9;
+          text-align: center;
+        }
+
+        .search-input:-ms-input-placeholder {
+          color: rgba(191, 219, 254, 0.9);
+          opacity: 0.9;
+          text-align: center;
+        }
+
+        .search-input:-moz-placeholder {
+          color: rgba(191, 219, 254, 0.9);
+          opacity: 0.9;
+          text-align: center;
+        }
+
+        @media (min-width: 640px) {
+          .search-input {
+            height: 64px;
+            font-size: 1.25rem;
+            padding: 0 2.5rem;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .search-input {
+            height: 80px;
+            font-size: 1.5rem;
+            padding: 0 3rem;
+          }
+        }
+
+        .clear-button {
+          position: absolute;
+          right: 0.5rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: rgba(191, 219, 254, 0.8);
+          font-weight: 500;
+          transition: color 0.2s;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          font-size: 0.875rem;
+          z-index: 20;
+          padding: 0.25rem 0.5rem;
+        }
+
+        .clear-button:hover {
+          color: rgba(219, 234, 254, 1);
+        }
+
+        @media (min-width: 640px) {
+          .clear-button {
+            right: 1rem;
+            font-size: 1rem;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .clear-button {
+            right: 1.5rem;
+            font-size: 1.25rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };

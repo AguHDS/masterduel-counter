@@ -65,7 +65,7 @@ export const HomePage = () => {
             />
           )}
         </SearchInput>
-        <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
+        <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-4" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
           <FeatureErrorBoundary featureName="Archetypes List">
             <RegisteredArchetypesList onSelectArchetype={handleSelectRegisteredArchetype} />
           </FeatureErrorBoundary>
