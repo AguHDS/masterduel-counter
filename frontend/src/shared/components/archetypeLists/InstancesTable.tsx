@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, ArrowUp } from "lucide-react";
 import { type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
 import { useNavigate } from "react-router-dom";
-import instanceItemBg from "@/assets/Bluebackground_elements.webp";
+import instanceItemPlaneBg from "@/assets/background_instanceitem_plane.webp";
 
 interface InstancesTableProps {
   instances: ArchetypeInstanceWithDetails[];
@@ -12,9 +12,8 @@ interface InstancesTableProps {
   onSelectInstance: (instanceId: number, archetypeId: number) => void;
   onPageChange: (page: number) => void;
   showArchetypeName?: boolean;
+  isProfilePage?: boolean;
 }
-
-const MAX_CHARS_TITLE = 45;
 
 export const InstancesTable = ({
   instances,
@@ -23,6 +22,7 @@ export const InstancesTable = ({
   onSelectInstance,
   onPageChange,
   showArchetypeName = false,
+  isProfilePage = false,
 }: InstancesTableProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -45,6 +45,15 @@ export const InstancesTable = ({
     navigate(`/profile/${userId}`);
   };
 
+  const getBackgroundForView = () => {
+    const mobileBackground = instanceItemPlaneBg;
+    const desktopBackground = instanceItemPlaneBg;
+
+    return { mobileBackground, desktopBackground };
+  };
+
+  const { mobileBackground, desktopBackground } = getBackgroundForView();
+
   return (
     <div
       className="w-full"
@@ -55,37 +64,42 @@ export const InstancesTable = ({
           : "Archetype instances list"
       }
     >
+      {/* Desktop headers */}
       <div
-        className="hidden md:grid grid-cols-[60px_48px_minmax(160px,1fr)_minmax(120px,1fr)_minmax(120px,0.8fr)_96px] gap-3 mb-6 pb-3 border-b border-blue-600 bg-black/60 rounded-t-lg"
+        className={`hidden lg:grid gap-3 py-2 bg-black/60 rounded-t-lg px-6 ${
+          isProfilePage
+            ? "grid-cols-[60px_48px_1.5fr_0.7fr_0.75fr_96px]"
+            : "grid-cols-[60px_48px_minmax(200px,1fr)_minmax(95px,0.8fr)_minmax(105px,0.8fr)_96px]"
+        }`}
         role="row"
       >
         <div
-          className="text-blue-300 font-semibold text-lg relative left-10"
+          className="text-blue-300 relative left-3 font-semibold text-lg"
           role="columnheader"
         >
           ID
         </div>
         <div role="columnheader" aria-hidden="true" />
         <div
-          className="text-blue-300 font-semibold text-lg relative left-24"
+          className="text-blue-300 relative left-9 text-center m-auto font-semibold text-lg"
           role="columnheader"
         >
           Title
         </div>
         <div
-          className="text-blue-300 font-semibold text-lg relative left-32"
+          className="text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg"
           role="columnheader"
         >
           {showArchetypeName ? "Archetype" : "Created by"}
         </div>
         <div
-          className="text-blue-300 font-semibold text-lg relative left-9"
+          className="text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg"
           role="columnheader"
         >
-          Last Updated
+          Last Update
         </div>
         <div
-          className="text-blue-300 font-semibold text-lg relative right-7"
+          className="text-blue-300 relative left-2 font-semibold text-lg text-right"
           role="columnheader"
         >
           Likes
@@ -99,10 +113,6 @@ export const InstancesTable = ({
           const formattedDate = new Date(
             instance.updatedAt,
           ).toLocaleDateString();
-          const truncatedTitle =
-            instance.title.length > MAX_CHARS_TITLE
-              ? instance.title.slice(0, MAX_CHARS_TITLE) + "…"
-              : instance.title;
 
           return (
             <button
@@ -113,59 +123,59 @@ export const InstancesTable = ({
               className="group relative w-full overflow-hidden rounded-xl border border-blue-500/40 bg-[#070B29]/80 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
               <img
-                src={instanceItemBg}
+                src={desktopBackground}
                 alt=""
                 aria-hidden="true"
-                className="absolute inset-0 h-full w-full pointer-events-none select-none"
+                className="absolute inset-0 h-full w-full pointer-events-none select-none hidden lg:block"
               />
-              <div className="absolute inset-0 z-10 pointer-events-none mix-blend-normal transition-colors duration-200 group-hover:bg-[#0b1546]/80 group-active:bg-[#030512]/95" />
+              <img
+                src={mobileBackground}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full pointer-events-none select-none lg:hidden"
+              />
+              <div className="absolute inset-0 z-10 pointer-events-none mix-blend-normal transition-colors duration-200 group-hover:bg-[#0b1546]/30 group-active:bg-[#030512]/30" />
 
-              <div className="relative z-10 flex flex-col gap-3 p-4 md:p-0 md:gap-0">
-                {/* Mobile Layout - Column Format */}
-                <div className="flex flex-col gap-3 md:hidden">
-                  {/* Header row with ID and image */}
-                  <div className="flex items-center gap-3">
-                    <span className="text-[#FFD700] text-xl font-bold drop-shadow-md flex-shrink-0">
-                      #{positionLabel}
-                    </span>
+              <div className="relative z-10 flex flex-col gap-3 p-4 lg:p-0 lg:gap-0">
+                {/* Mobile Layout */}
+                <div className="flex relative flex-col gap-4 lg:hidden">
+                  <div className="flex items-start gap-3 w-full">
                     {instance.headerCardImageUrl ? (
                       <img
                         src={instance.headerCardImageUrl}
                         alt={instance.headerCardName || "Header card"}
-                        className="h-[55px] w-[55px] rounded border-none shadow-sm flex-shrink-0 object-cover"
+                        className="h-[70px] w-[70px] rounded border-none shadow-sm object-cover flex-shrink-0"
                       />
                     ) : (
-                      <div className="w-[55px] h-[55px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
-                        <span className="text-slate-400 text-xs">-</span>
+                      <div className="w-[70px] h-[70px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
+                        <span className="text-slate-400 text-sm">-</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-2">
-                      <ArrowUp
-                        className="w-4 h-4 text-green-400"
-                        aria-hidden="true"
-                      />
-                      <span className="text-green-400 text-base font-semibold">
-                        {instance.likes}
-                      </span>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-white relative top-4 text-lg font-bold leading-tight break-words">
+                        {instance.title}
+                      </h3>
                     </div>
                   </div>
 
-                  {/* Title */}
-                  <div className="w-full">
-                    <h3 className="text-white text-base font-bold leading-tight break-words">
-                      {instance.title}
-                    </h3>
-                  </div>
-
-                  {/* Details */}
-                  <div className="flex flex-col gap-1.5 text-sm">
-                    <div className="flex items-start gap-2">
-                      <span className="text-blue-300 font-medium min-w-[90px]">
-                        {showArchetypeName ? "Archetype:" : "Created by:"}
+                  <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-blue-500/30">
+                    <div className="flex items-center gap-1 bg-blue-900/40 px-2 py-1 rounded">
+                      <span className="text-blue-300 font-medium text-sm">
+                        ID:
                       </span>
-                      <div className="flex items-center gap-1.5 flex-1">
+                      <span className="text-[#FFD700] font-bold">
+                        #{positionLabel}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 bg-blue-900/40 px-2 py-1 rounded flex-1 min-w-0">
+                      <span className="text-blue-300 font-medium text-sm flex-shrink-0">
+                        {showArchetypeName ? "Archetype:" : "Created:"}
+                      </span>
+                      <div className="flex items-center gap-1 flex-1 min-w-0">
                         {showArchetypeName ? (
-                          <span className="text-white break-words">
+                          <span className="text-white truncate text-sm">
                             {instance.archetypeName}
                           </span>
                         ) : (
@@ -174,12 +184,12 @@ export const InstancesTable = ({
                               onClick={(e) =>
                                 handleUserNameClick(e, instance.userId)
                               }
-                              className="text-white hover:text-blue-400 hover:underline transition-colors cursor-pointer break-words"
+                              className="text-white hover:text-blue-400 hover:underline transition-colors cursor-pointer truncate text-sm"
                             >
                               {instance.userName}
                             </span>
                             {isCurrentUser && (
-                              <span className="text-[9px] font-bold uppercase tracking-wide text-green-400 px-1.5 py-0.5 bg-green-400/10 rounded flex-shrink-0">
+                              <span className="text-[10px] font-bold uppercase tracking-wide text-green-400 px-1.5 py-0.5 bg-green-400/10 rounded flex-shrink-0">
                                 You
                               </span>
                             )}
@@ -187,26 +197,46 @@ export const InstancesTable = ({
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-300 font-medium min-w-[90px]">
+
+                    <div className="flex items-center gap-1 bg-blue-900/40 px-2 py-1 rounded">
+                      <span className="text-blue-300 font-medium text-sm">
                         Updated:
                       </span>
-                      <span className="text-blue-100">{formattedDate}</span>
+                      <span className="text-blue-100 text-sm whitespace-nowrap">
+                        {formattedDate}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1 bg-blue-900/40 px-2 py-1 rounded">
+                      <ArrowUp
+                        className="w-3.5 h-3.5 text-green-400"
+                        aria-hidden="true"
+                      />
+                      <span className="text-green-400 font-semibold text-sm">
+                        {instance.likes}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Desktop Layout */}
-                <div className="hidden md:grid md:grid-cols-[60px_48px_minmax(160px,1fr)_minmax(120px,1fr)_minmax(120px,0.8fr)_96px] md:gap-3 md:items-center md:px-6 md:py-5">
+                {/* Desktop Layout (≥1024px) */}
+                <div
+                  className={`hidden lg:grid gap-3 items-center px-6 py-5 ${
+                    isProfilePage
+                      ? "grid-cols-[60px_48px_1.5fr_0.7fr_0.75fr_96px]"
+                      : "grid-cols-[60px_48px_minmax(280px,1.5fr)_minmax(95px,0.7fr)_minmax(105px,0.75fr)_96px]"
+                  }`}
+                >
                   <div className="text-[#ffbf1f] relative right-2 text-2xl font-bold drop-shadow-md">
                     {positionLabel}
                   </div>
+
                   <div className="flex items-center justify-start h-full">
                     {instance.headerCardImageUrl ? (
                       <img
                         src={instance.headerCardImageUrl}
                         alt={instance.headerCardName || "Header card"}
-                        className="absolute left-25 bottom-3 h-[50px] w-[50px] rounded border-none shadow-sm object-cover"
+                        className="h-[50px] w-[50px] rounded border-none shadow-sm object-cover relative right-4"
                       />
                     ) : (
                       <div className="w-8 h-12 bg-slate-700 rounded border border-slate-600 flex items-center justify-center">
@@ -214,15 +244,19 @@ export const InstancesTable = ({
                       </div>
                     )}
                   </div>
-                  <div
-                    className="text-white relative font-bold text-[16px] pr-2 whitespace-nowrap"
-                    title={instance.title}
-                  >
-                    {truncatedTitle}
+
+                  <div className="overflow-hidden">
+                    <div
+                      className="text-white font-bold text-[17px] overflow-hidden text-ellipsis line-clamp-2"
+                      title={instance.title}
+                    >
+                      {instance.title}
+                    </div>
                   </div>
-                  <div className="text-white font-semibold text-lg flex items-center gap-2 relative left-5">
+
+                  <div className="text-blue-300 text-nowrap text-right font-semibold text-lg">
                     {showArchetypeName ? (
-                      <span className="text-white text-base md:text-lg">
+                      <span className="text-white whitespace-nowrap overflow-hidden text-ellipsis">
                         {instance.archetypeName}
                       </span>
                     ) : (
@@ -231,22 +265,25 @@ export const InstancesTable = ({
                           onClick={(e) =>
                             handleUserNameClick(e, instance.userId)
                           }
-                          className="hover:text-blue-400 hover:underline transition-colors cursor-pointer relative left-28"
+                          className="text-blue-300 text-right text-lg whitespace-nowrap overflow-hidden text-ellipsis hover:underline cursor-pointer"
                         >
                           {instance.userName}
                         </span>
-                        {isCurrentUser && (
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-green-400 relative left-[105px] top-[3px] px-2 rounded">
-                            You
-                          </span>
-                        )}
+
+                        <span
+                          className={`text-[10px] font-bold uppercase tracking-wide px-1 py-0.5 rounded flex-shrink-0 ${isCurrentUser ? "text-green-400 bg-green-400/10" : "invisible"}`}
+                        >
+                          You
+                        </span>
                       </>
                     )}
                   </div>
-                  <div className="text-blue-300 text-lg relative right-15">
+
+                  <div className="text-blue-300 text-right text-lg whitespace-nowrap overflow-hidden text-ellipsis">
                     {formattedDate}
                   </div>
-                  <div className="text-green-400 text-lg flex items-center gap-1">
+
+                  <div className="text-green-400 text-lg flex items-center gap-1 justify-end">
                     <ArrowUp className="w-4 h-4" aria-hidden="true" />
                     <span>{instance.likes}</span>
                   </div>

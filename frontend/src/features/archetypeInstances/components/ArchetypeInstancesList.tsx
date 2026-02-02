@@ -28,7 +28,7 @@ export const ArchetypeInstancesList = ({
   const { isAuthenticated } = useAuth();
 
   const {
-    data = [], // ← nunca undefined
+    data = [],
     isLoading,
     error,
   } = useQuery<ArchetypeInstanceWithDetails[]>({
@@ -69,7 +69,7 @@ export const ArchetypeInstancesList = ({
             {canCreateInstance && (
               <button
                 onClick={onCreateInstance}
-              className="flex relative top-[7px] px-2 py-1 items-center bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm"
+                className="flex relative top-[7px] px-2 py-1 items-center bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create</span>
@@ -84,7 +84,6 @@ export const ArchetypeInstancesList = ({
                 "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
             }}
           />
-
           <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
             <div className="text-blue-300 text-lg text-center">
               No guides created yet for {archetypeName}
@@ -108,13 +107,13 @@ export const ArchetypeInstancesList = ({
     <div className="flex flex-col items-start p-4 w-full">
       <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
         <div className="flex items-center w-full justify-between gap-4">
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-2xl relative top-[7px] font-bold text-white">
-              {archetypeName}
+              {archetypeName} •
             </h1>
 
-            <span className="text-base relative top-[11px] font-semibold text-blue-400">
-              All Guides ({data.length})
+            <span className="text-base relative top-[10px] font-semibold text-blue-400">
+              Guides ({data.length})
             </span>
           </div>
 

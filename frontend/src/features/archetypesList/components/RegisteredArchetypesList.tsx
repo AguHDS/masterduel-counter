@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Frame } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FramedContainer } from "@/layouts/FramedContainer";
 import { useRegisteredArchetypes } from "../hooks/useRegisteredArchetypes";
-import instanceItemBg from "@/assets/Bluebackground_elements.webp";
+import instanceItemBg from "@/assets/background_instanceitem_plane.webp";
 
 interface RegisteredArchetypesListProps {
   onSelectArchetype: (archetypeId: number) => void;
@@ -14,7 +14,6 @@ export const RegisteredArchetypesList = ({
   onSelectArchetype,
 }: RegisteredArchetypesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [hoveredArchetype, setHoveredArchetype] = useState<number | null>(null);
   const { data, isLoading, error } = useRegisteredArchetypes();
 
   if (isLoading) {
@@ -67,18 +66,18 @@ export const RegisteredArchetypesList = ({
       aria-label="Latest registered archetypes"
       contentClassName="w-full px-3 sm:px-4 md:px-[5%] py-6 flex flex-col gap-4"
     >
-      <div className="flex flex-col sm:flex-row sm:items-end gap-2">
+      <div className="flex sm:flex-row sm:items-end gap-2">
         <h2 className="text-2xl font-bold text-white">
-          Latest Registered Archetypes •
+          Latest Archetypes •
         </h2>
-        <span className="text-sm font-semibold text-blue-300">
-          Newest guides from the community
+        <span className="text-sm relative bottom-[3px] font-semibold text-blue-300">
+          Registered by the community
         </span>
       </div>
 
       <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 mb-3 border-b border-blue-600 bg-black/60 rounded-t-lg md:px-6 md:py-4">
         <div className="text-blue-300 font-semibold text-lg">ID</div>
-        <div className="text-blue-300 font-semibold text-lg relative left-20">
+        <div className="text-blue-300 font-semibold text-lg relative left-16">
           Archetype
         </div>
         <div className="text-blue-300 font-semibold text-lg text-right">
@@ -91,15 +90,12 @@ export const RegisteredArchetypesList = ({
           const positionLabel = startIndex + index + 1;
           const instanceCount = archetype.instance_count || 0;
           const instanceLabel = `${instanceCount} ${instanceCount === 1 ? "instance" : "instances"}`;
-
           const badgeContent = archetype.name.charAt(0).toUpperCase();
 
           return (
             <button
               key={archetype.id}
               onClick={() => onSelectArchetype(archetype.id)}
-              onMouseEnter={() => setHoveredArchetype(archetype.id)}
-              onMouseLeave={() => setHoveredArchetype(null)}
               className="group relative w-full overflow-hidden rounded-xl border border-transparent transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
             >
               <img
@@ -133,7 +129,7 @@ export const RegisteredArchetypesList = ({
                     {positionLabel}
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/70 to-blue-500/70 flex items-center justify-center text-white font-semibold text-xl">
+                    <div className="w-12 h-12 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/30 to-blue-500/70 flex items-center justify-center text-yellow-500 font-semibold text-xl">
                       {badgeContent}
                     </div>
                     <span
@@ -148,7 +144,7 @@ export const RegisteredArchetypesList = ({
                   </div>
                 </div>
 
-                <div className="md:hidden grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
+                <div className="md:hidden text-left relative mx-5 grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
                   <span className="text-blue-300">Archetype</span>
                   <span
                     className="text-white text-right"

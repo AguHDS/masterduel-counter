@@ -3,13 +3,9 @@ import { env } from './env';
 
 export function initializeSentry() {
   if (!env.SENTRY_DSN) {
-    console.warn('⚠️ Sentry DSN not found. Error tracking is disabled.');
+    console.warn('Sentry DSN not found. Error tracking is disabled.');
     return;
   }
-
-  console.log('🔧 Initializing Sentry...');
-  console.log('Environment (VITE_QUERY_ENV):', env.QUERY_ENV);
-  console.log('Sentry enabled:', env.QUERY_ENV === 'production' || env.QUERY_ENV === 'development');
 
   Sentry.init({
     dsn: env.SENTRY_DSN,
@@ -40,6 +36,4 @@ export function initializeSentry() {
       return event;
     },
   });
-
-  console.log('✅ Sentry initialized successfully!');
 }

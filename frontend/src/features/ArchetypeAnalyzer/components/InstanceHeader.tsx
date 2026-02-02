@@ -28,20 +28,31 @@ export const InstanceHeader = ({
   onGeneralTipChange,
   onSelectHeaderCard,
 }: InstanceHeaderProps) => {
-
   return (
     <div className="flex items-start justify-center gap-8 mb-8 w-full px-4">
       {/* Left Side: Archetype Name, Title and General Tip */}
       <div className="flex-1 max-w-4xl">
         {/* Archetype Name and Separator */}
         <div className="w-full max-w-2xl flex flex-col items-start mb-2">
-          <h1 className="text-3xl font-bold text-white mb-1">{archetypeName}</h1>
+          <h1 className="text-3xl font-bold text-white mb-3">
+            {archetypeName}
+          </h1>
           <div className="flex w-full">
-            <div className="ml-0 mt-1 w-2/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent" />
+            <div
+              className="w-full h-[2px]"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
+              }}
+            />
           </div>
         </div>
+
         {/* Title Section */}
         <div className="w-full max-w-2xl">
+          <label className="text-blue-400 font-semibold text-xs mb-1 block">
+            Title
+          </label>
           {isEditMode ? (
             <input
               type="text"
@@ -50,15 +61,22 @@ export const InstanceHeader = ({
               maxLength={100}
               placeholder="Enter a title for your guide (Max. 100 characters)"
               className="w-full px-4 py-2 bg-slate-800/40 text-white text-xl font-normal rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 shadow-sm break-words"
-              style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+              style={{ wordBreak: "break-word", overflowWrap: "break-word" }}
             />
           ) : (
-            <h2 className="text-2xl text-white break-words max-w-2xl" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{title}</h2>
+            <h2
+              className="text-3xl font-semibold text-white break-words max-w-2xl"
+              style={{ wordBreak: "break-word", overflowWrap: "break-word" }}
+            >
+              {title}
+            </h2>
           )}
         </div>
         {/* Description Section */}
         <div className="w-full mt-2">
-          <label className="text-blue-400 font-semibold text-xs mb-1 block">Description</label>
+          <label className="text-blue-400 font-semibold text-xs mb-1 block">
+            Description
+          </label>
           {isEditMode ? (
             <textarea
               value={generalTip}
@@ -80,7 +98,7 @@ export const InstanceHeader = ({
       {/* Right Side: Header Card */}
       <div className="flex flex-col items-center w-56">
         {headerCard ? (
-          <div className="relative w-48 h-auto rounded-lg overflow-hidden border-2 border-yellow-600 shadow-lg">
+          <div className="relative left-8 w-48 h-auto rounded-lg overflow-hidden border-2 border-yellow-600 shadow-lg">
             <CardTooltip
               imageUrl={headerCard.imageUrl}
               cardName={headerCard.name}

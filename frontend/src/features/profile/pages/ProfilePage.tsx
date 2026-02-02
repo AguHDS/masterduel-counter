@@ -121,7 +121,7 @@ export const ProfilePage = () => {
                               />
                               <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="w-full px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors"
+                                className="w-full px-3 py-1.5 bg-blue-600/80 hover:bg-blue-700 text-white text-sm rounded transition-colors"
                                 disabled={isSaving}
                               >
                                 Choose Photo

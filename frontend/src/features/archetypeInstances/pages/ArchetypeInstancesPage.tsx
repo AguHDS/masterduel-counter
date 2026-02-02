@@ -58,7 +58,7 @@ export const ArchetypeInstancesPage = () => {
         </Helmet>
         <div className="min-h-screen bg-gradient-to-b flex flex-col">
           <Navbar />
-          <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
+          <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-blue-300 text-lg">Loading archetype...</div>
             </div>
@@ -77,7 +77,7 @@ export const ArchetypeInstancesPage = () => {
         </Helmet>
         <div className="min-h-screen bg-gradient-to-b flex flex-col">
           <Navbar />
-          <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
+          <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-red-400 text-lg">Archetype not found</div>
             </div>
@@ -101,7 +101,6 @@ export const ArchetypeInstancesPage = () => {
         <SearchInput
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
-          placeholder="Search for archetypes to counter..."
           isDropdownOpen={isDropdownOpen && (searchLoading || searchError !== null || results.length > 0)}
           onRequestClose={() => setIsDropdownOpen(false)}
           onInputFocus={() => {
@@ -119,7 +118,7 @@ export const ArchetypeInstancesPage = () => {
             />
           )}
         </SearchInput>
-        <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
+        <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
           <FeatureErrorBoundary featureName="Archetype Instances">
             <ArchetypeInstancesList
               archetypeId={parseInt(archetypeId!)}

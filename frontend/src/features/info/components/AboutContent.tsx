@@ -13,10 +13,9 @@ export const AboutContent = () => {
           </h3>
           <p className="text-gray-300 leading-relaxed">
             Masterduel Counter is a community-driven platform designed to help
-            Yu-Gi-Oh! Master Duel players find effective counter strategies
-            against popular archetypes. Whether you're facing Blue-Eyes,
-            Branded, or any competitive deck, our platform provides detailed
-            guides created by experienced players.
+            you find effective counter strategies against archetypes. Whether
+            you're facing an archetype, our platform provides detailed guides
+            created by players.
           </p>
         </div>
       </div>
@@ -53,11 +52,11 @@ export const AboutContent = () => {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-cyan-400 font-bold mt-1">2.</span>
-              <span>Browse community-created counter guides</span>
+              <span>Learn how to use your handtraps proplery use against them, and better strategies</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-cyan-400 font-bold mt-1">3.</span>
-              <span>Learn which cards and strategies work best</span>
+              <span>Check which deck is the creator of the guide playing</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-cyan-400 font-bold mt-1">4.</span>

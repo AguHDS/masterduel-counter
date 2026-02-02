@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { Edit3, Trash2, ThumbsUp } from "lucide-react";
+import { Edit3, Trash2, ThumbsUp, Plus, Save, X } from "lucide-react";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
 import { InstanceHeader } from "./InstanceHeader";
@@ -94,26 +94,29 @@ export const ArchetypeAnalyzerContainer = () => {
   const [deckTitle, setDeckTitle] = useState<string>(
     recommendedDeck.deck?.title || "Recommended Deck",
   );
-  const [deckMainCards, setDeckMainCards] =
-    useState<
-      Array<{
-        id: number;
-        name: string;
-        imageUrl: string;
-        imageUrlSmall: string;
-        imageUrlCropped: string;
-      }>
-    >(memoizedMainDeck);
-  const [deckExtraCards, setDeckExtraCards] =
-    useState<
-      Array<{
-        id: number;
-        name: string;
-        imageUrl: string;
-        imageUrlSmall: string;
-        imageUrlCropped: string;
-      }>
-    >(memoizedExtraDeck);
+  const [deckMainCards, setDeckMainCards] = useState<
+    Array<{
+      id: number;
+      name: string;
+      imageUrl: string;
+      imageUrlSmall: string;
+      imageUrlCropped: string;
+    }>
+  >(memoizedMainDeck);
+  const [deckExtraCards, setDeckExtraCards] = useState<
+    Array<{
+      id: number;
+      name: string;
+      imageUrl: string;
+      imageUrlSmall: string;
+      imageUrlCropped: string;
+    }>
+  >(memoizedExtraDeck);
+
+  // Estado para los pares de cartas y validación
+  const [pairs, setPairs] = useState<CardPair[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!editor.isEditMode || !isOwner) {
@@ -154,6 +157,16 @@ export const ArchetypeAnalyzerContainer = () => {
       likes.setLikeCount(data.likes);
       editor.setIsEditMode(false);
 
+      // Actualizar los pares locales
+      const transformedPairs: CardPair[] = data.pairs.map((pair) => ({
+        id: pair.id.toString(),
+        topCards: pair.topCards,
+        bottomCards: pair.bottomCards,
+        effectiveness: pair.effectiveness,
+        comment: pair.comment,
+      }));
+      setPairs(transformedPairs);
+
       if (isAuthenticated && !isOwner) {
         likes.loadLikeStatus();
       } else {
@@ -168,6 +181,7 @@ export const ArchetypeAnalyzerContainer = () => {
       editor.setGeneralTip("");
       likes.setLiked(false);
       likes.setLikeCount(0);
+      setPairs([]);
     },
     onReset: () => {
       editor.setLoadedPairs([]);
@@ -176,6 +190,7 @@ export const ArchetypeAnalyzerContainer = () => {
       editor.setGeneralTip("");
       likes.setLiked(false);
       likes.setLikeCount(0);
+      setPairs([]);
     },
   });
 
@@ -202,11 +217,55 @@ export const ArchetypeAnalyzerContainer = () => {
           : null,
       });
 
+      setPairs(pairs);
       setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
       setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
       setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
     } else {
       navigate(-1);
+    }
+  };
+
+  const addPair = () => {
+    const newPair: CardPair = {
+      id: `pair-${Date.now()}`,
+      topCards: [],
+      bottomCards: [],
+      effectiveness: undefined,
+      comment: undefined,
+    };
+    setPairs([...pairs, newPair]);
+  };
+
+  const validateAndSave = async () => {
+    // Validar que haya al menos un par con al menos una carta en top o bottom
+    const validPairs = pairs.filter(
+      (p) => p.topCards.length > 0 || p.bottomCards.length > 0,
+    );
+    if (validPairs.length === 0) {
+      setValidationError(
+        "Please add at least one card (top or bottom) in at least one pair before saving.",
+      );
+      return;
+    }
+    // Validar que cada par tenga al menos una carta en top o bottom
+    for (let i = 0; i < pairs.length; i++) {
+      if (pairs[i].topCards.length === 0 && pairs[i].bottomCards.length === 0) {
+        setValidationError(
+          `Pair #${i + 1} must have at least one card in Top or Bottom.`,
+        );
+        return;
+      }
+    }
+    setValidationError(null);
+    setSaving(true);
+    try {
+      await handleSaveCards(validPairs);
+    } catch (error) {
+      console.error("Error saving pairs:", error);
+      alert("Failed to save card pairs. Please try again.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -241,11 +300,11 @@ export const ArchetypeAnalyzerContainer = () => {
     }
   };
 
-  const handleSaveCards = async (pairs: CardPair[]) => {
+  const handleSaveCards = async (pairsToSave: CardPair[]) => {
     if (!selectedArchetype) return;
 
     const validation = validateInstanceData(
-      pairs,
+      pairsToSave,
       editor.headerCard,
       editor.title,
     );
@@ -256,7 +315,7 @@ export const ArchetypeAnalyzerContainer = () => {
     }
 
     try {
-      const cardPairs = transformPairsForApi(pairs);
+      const cardPairs = transformPairsForApi(pairsToSave);
 
       const allCardIds: number[] = [];
 
@@ -345,7 +404,8 @@ export const ArchetypeAnalyzerContainer = () => {
           <div
             className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden bg-cover bg-center py-10 sm:py-12 px-4 sm:px-6 lg:px-10"
             style={{
-              backgroundImage: "url('/src/assets/Instance_purplebackground.webp')",
+              backgroundImage:
+                "url('/src/assets/Instance_purplebackground.webp')",
             }}
           >
             {/* Overlay oscuro para mejorar legibilidad */}
@@ -356,10 +416,10 @@ export const ArchetypeAnalyzerContainer = () => {
                 !isOwner &&
                 isAuthenticated &&
                 selectedArchetype.registered && (
-                  <div className="flex justify-end mb-4">
+                  <div className="absolute right-0 top-[-26px]">
                     <button
                       onClick={likes.toggleLike}
-                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors shadow-lg ${
+                      className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
                         likes.liked
                           ? "bg-green-600 hover:bg-green-700 text-white"
                           : "bg-slate-700 hover:bg-slate-600 text-white"
@@ -394,8 +454,26 @@ export const ArchetypeAnalyzerContainer = () => {
                   onSave={handleSaveCards}
                   onCancel={handleCancel}
                   initialPairs={editor.loadedPairs}
+                  pairs={pairs}
+                  setPairs={setPairs}
+                  onAddPair={editor.isEditMode && isOwner ? addPair : undefined}
+                  saving={saving}
+                  validationError={validationError}
                 />
               </div>
+
+              {/* Add Card Pair */}
+              {editor.isEditMode && isOwner && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={addPair}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Card Pair</span>
+                  </button>
+                </div>
+              )}
 
               <div className="flex justify-center my-8">
                 <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
@@ -409,6 +487,28 @@ export const ArchetypeAnalyzerContainer = () => {
                 onDeckChange={handleDeckChange}
                 onDelete={recommendedDeck.deleteDeck}
               />
+
+              {/* Save Changes and Cancel */}
+              {editor.isEditMode && isOwner && (
+                <div className="flex justify-center gap-4 mt-12 pt-8 border-t border-slate-700">
+                  <button
+                    onClick={validateAndSave}
+                    disabled={saving}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{saving ? "Saving..." : "Save Changes"}</span>
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    disabled={saving}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Cancel</span>
+                  </button>
+                </div>
+              )}
 
               <div className="flex items-center justify-center space-x-4 mt-16">
                 {!isCreatingNew && !isOwner && (
