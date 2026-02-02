@@ -47,9 +47,20 @@ export const ContactContent = () => {
             </h4>
           </div>
           <p className="text-gray-300 text-sm mb-3">
-            Join our Discord server to chat with the community
+            Join our{" "}
+            <a
+              href="https://discord.gg/wzkGb4Zgnw"
+              className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
+              target="_blank"
+              aria-label="Discord server"
+            >
+              Discord
+            </a>{" "}
+            server to chat with the community and give feedback
           </p>
-          <p className="text-gray-400 text-sm">Ask questions and share feedback!</p>
+          <p className="text-gray-400 text-sm">
+            Ask questions and share feedback!
+          </p>
         </div>
       </div>
 
@@ -86,7 +97,7 @@ export const ContactContent = () => {
             <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0" />
             <div>
               <p className="text-white font-medium">General Questions</p>
-              <p className="text-gray-400 text-sm">Ask us anything!</p>
+              <p className="text-gray-400 text-sm">Ask anything!</p>
             </div>
           </div>
         </div>

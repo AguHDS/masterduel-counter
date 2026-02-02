@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FramedContainer } from "@/layouts/FramedContainer";
 import { useRegisteredArchetypes } from "../hooks/useRegisteredArchetypes";
-import instanceItemBg from "@/assets/background_instanceitem.webp";
+import instanceItemBg from "@/assets/background_instanceitem_plane.webp";
 
 interface RegisteredArchetypesListProps {
   onSelectArchetype: (archetypeId: number) => void;
@@ -66,7 +66,7 @@ export const RegisteredArchetypesList = ({
       aria-label="Latest registered archetypes"
       contentClassName="w-full px-3 sm:px-4 md:px-[5%] py-6 flex flex-col gap-4"
     >
-      <div className="flex flex-col sm:flex-row sm:items-end gap-2">
+      <div className="flex sm:flex-row sm:items-end gap-2">
         <h2 className="text-2xl font-bold text-white">
           Latest Archetypes •
         </h2>
@@ -144,7 +144,7 @@ export const RegisteredArchetypesList = ({
                   </div>
                 </div>
 
-                <div className="md:hidden grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
+                <div className="md:hidden text-left relative mx-5 grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
                   <span className="text-blue-300">Archetype</span>
                   <span
                     className="text-white text-right"
