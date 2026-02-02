@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight, ArrowUp } from "lucide-react";
 import { type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
 import { useNavigate } from "react-router-dom";
-import instanceItemBg from "@/assets/background_instanceitem.webp";
 import instanceItemPlaneBg from "@/assets/background_instanceitem_plane.webp";
 
 interface InstancesTableProps {
@@ -14,18 +13,7 @@ interface InstancesTableProps {
   onPageChange: (page: number) => void;
   showArchetypeName?: boolean;
   isProfilePage?: boolean;
-  disableTabletResponsive?: boolean;
 }
-
-const BASE_CONFIG = {
-  maxCharsTitle: 65,
-  maxCharsTitleTablet: 30,
-};
-
-const PROFILE_CONFIG = {
-  maxCharsTitle: 60,
-  maxCharsTitleTablet: 30,
-};
 
 export const InstancesTable = ({
   instances,
@@ -35,12 +23,9 @@ export const InstancesTable = ({
   onPageChange,
   showArchetypeName = false,
   isProfilePage = false,
-  disableTabletResponsive = false,
 }: InstancesTableProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  const config = isProfilePage ? PROFILE_CONFIG : BASE_CONFIG;
 
   const totalPages = Math.ceil(instances.length / itemsPerPage);
   const startIndex = currentPage * itemsPerPage;
@@ -62,7 +47,7 @@ export const InstancesTable = ({
 
   const getBackgroundForView = () => {
     const mobileBackground = instanceItemPlaneBg;
-    const desktopBackground = instanceItemBg;
+    const desktopBackground = instanceItemPlaneBg;
 
     return { mobileBackground, desktopBackground };
   };
@@ -81,7 +66,7 @@ export const InstancesTable = ({
     >
       {/* Desktop headers */}
       <div
-        className={`hidden lg:grid gap-3 mb-6 pb-3 border-b border-blue-600 bg-black/60 rounded-t-lg px-6 ${
+        className={`hidden lg:grid gap-3 py-2 bg-black/60 rounded-t-lg px-6 ${
           isProfilePage
             ? "grid-cols-[60px_48px_minmax(220px,1fr)_minmax(90px,0.7fr)_minmax(100px,0.75fr)_96px]"
             : "grid-cols-[60px_48px_minmax(200px,1fr)_minmax(95px,0.8fr)_minmax(105px,0.8fr)_96px]"
@@ -89,20 +74,20 @@ export const InstancesTable = ({
         role="row"
       >
         <div
-          className="text-blue-300 font-semibold text-lg"
+          className="text-blue-300 relative left-3 font-semibold text-lg"
           role="columnheader"
         >
           ID
         </div>
         <div role="columnheader" aria-hidden="true" />
         <div
-          className="text-blue-300 font-semibold text-lg"
+          className="text-blue-300 relative left-9 text-center m-auto font-semibold text-lg"
           role="columnheader"
         >
           Title
         </div>
         <div
-          className="text-blue-300 m-auto text-right font-semibold text-lg"
+          className="text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg"
           role="columnheader"
         >
           {showArchetypeName ? "Archetype" : "Created by"}
@@ -111,10 +96,10 @@ export const InstancesTable = ({
           className="text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg"
           role="columnheader"
         >
-          Last Updated
+          Last Update
         </div>
         <div
-          className="text-blue-300 font-semibold text-lg text-right"
+          className="text-blue-300 relative left-2 font-semibold text-lg text-right"
           role="columnheader"
         >
           Likes
@@ -128,14 +113,6 @@ export const InstancesTable = ({
           const formattedDate = new Date(
             instance.updatedAt,
           ).toLocaleDateString();
-          const truncatedTitle =
-            instance.title.length > config.maxCharsTitle
-              ? instance.title.slice(0, config.maxCharsTitle) + "…"
-              : instance.title;
-          const truncatedTitleTablet =
-            instance.title.length > config.maxCharsTitleTablet
-              ? instance.title.slice(0, config.maxCharsTitleTablet) + "…"
-              : instance.title;
 
           return (
             <button
@@ -157,7 +134,7 @@ export const InstancesTable = ({
                 aria-hidden="true"
                 className="absolute inset-0 h-full w-full pointer-events-none select-none lg:hidden"
               />
-              <div className="absolute inset-0 z-10 pointer-events-none mix-blend-normal transition-colors duration-200 group-hover:bg-[#0b1546]/80 group-active:bg-[#030512]/95" />
+              <div className="absolute inset-0 z-10 pointer-events-none mix-blend-normal transition-colors duration-200 group-hover:bg-[#0b1546]/30 group-active:bg-[#030512]/30" />
 
               <div className="relative z-10 flex flex-col gap-3 p-4 lg:p-0 lg:gap-0">
                 {/* Mobile Layout */}
@@ -184,8 +161,12 @@ export const InstancesTable = ({
 
                   <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-blue-500/30">
                     <div className="flex items-center gap-1 bg-blue-900/40 px-2 py-1 rounded">
-                      <span className="text-blue-300 font-medium text-sm">ID:</span>
-                      <span className="text-[#FFD700] font-bold">#{positionLabel}</span>
+                      <span className="text-blue-300 font-medium text-sm">
+                        ID:
+                      </span>
+                      <span className="text-[#FFD700] font-bold">
+                        #{positionLabel}
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-2 bg-blue-900/40 px-2 py-1 rounded flex-1 min-w-0">
@@ -218,7 +199,9 @@ export const InstancesTable = ({
                     </div>
 
                     <div className="flex items-center gap-1 bg-blue-900/40 px-2 py-1 rounded">
-                      <span className="text-blue-300 font-medium text-sm">Updated:</span>
+                      <span className="text-blue-300 font-medium text-sm">
+                        Updated:
+                      </span>
                       <span className="text-blue-100 text-sm whitespace-nowrap">
                         {formattedDate}
                       </span>
@@ -238,13 +221,13 @@ export const InstancesTable = ({
 
                 {/* Desktop Layout (≥1024px) */}
                 <div
-  className={`hidden lg:grid gap-3 items-center px-6 py-5 ${
-    isProfilePage
-      ? "grid-cols-[60px_48px_minmax(300px,1.5fr)_minmax(90px,0.7fr)_minmax(100px,0.75fr)_96px]"
-      : "grid-cols-[60px_48px_minmax(280px,1.5fr)_minmax(95px,0.7fr)_minmax(105px,0.75fr)_96px]"
-  }`}
->
-                  <div className="text-[#ffbf1f] text-2xl font-bold drop-shadow-md">
+                  className={`hidden lg:grid gap-3 items-center px-6 py-5 ${
+                    isProfilePage
+                      ? "grid-cols-[60px_48px_minmax(300px,1.5fr)_minmax(90px,0.7fr)_minmax(100px,0.75fr)_96px]"
+                      : "grid-cols-[60px_48px_minmax(280px,1.5fr)_minmax(95px,0.7fr)_minmax(105px,0.75fr)_96px]"
+                  }`}
+                >
+                  <div className="text-[#ffbf1f] relative right-2 text-2xl font-bold drop-shadow-md">
                     {positionLabel}
                   </div>
 
@@ -253,7 +236,7 @@ export const InstancesTable = ({
                       <img
                         src={instance.headerCardImageUrl}
                         alt={instance.headerCardName || "Header card"}
-                        className="h-[50px] w-[50px] rounded border-none shadow-sm object-cover"
+                        className="h-[50px] w-[50px] rounded border-none shadow-sm object-cover relative right-4"
                       />
                     ) : (
                       <div className="w-8 h-12 bg-slate-700 rounded border border-slate-600 flex items-center justify-center">
@@ -264,14 +247,21 @@ export const InstancesTable = ({
 
                   <div className="overflow-hidden">
                     <div
-                      className="text-white font-bold text-[17px] whitespace-nowrap overflow-hidden text-ellipsis"
+                      className="
+      text-white
+      font-bold
+      text-[17px]
+      overflow-hidden
+      text-ellipsis
+      line-clamp-2
+    "
                       title={instance.title}
                     >
-                      {truncatedTitle}
+                      {instance.title}
                     </div>
                   </div>
 
-                  <div className="text-white font-semibold text-lg flex justify-start gap-1 overflow-hidden min-w-0  w-fit">
+                  <div className="text-blue-300 text-nowrap text-right font-semibold text-lg">
                     {showArchetypeName ? (
                       <span className="text-white whitespace-nowrap overflow-hidden text-ellipsis">
                         {instance.archetypeName}
@@ -282,15 +272,26 @@ export const InstancesTable = ({
                           onClick={(e) =>
                             handleUserNameClick(e, instance.userId)
                           }
-                          className="hover:text-blue-400 relative left-8 hover:underline transition-colors cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis"
+                          className="text-blue-300 text-right text-lg whitespace-nowrap overflow-hidden text-ellipsis hover:underline cursor-pointer"
                         >
                           {instance.userName}
                         </span>
-                        {isCurrentUser && (
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-green-400 px-1 py-0.5 rounded bg-green-400/10 flex-shrink-0">
-                            You
-                          </span>
-                        )}
+
+                        <span
+                          className={`
+    text-[10px]
+    font-bold
+    uppercase
+    tracking-wide
+    px-1
+    py-0.5
+    rounded
+    flex-shrink-0
+    ${isCurrentUser ? "text-green-400 bg-green-400/10" : "invisible"}
+  `}
+                        >
+                          You
+                        </span>
                       </>
                     )}
                   </div>

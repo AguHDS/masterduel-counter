@@ -113,7 +113,6 @@ export const InstanceEditorPage = () => {
         <SearchInput
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
-          placeholder="Search for archetypes to counter..."
           isDropdownOpen={
             isDropdownOpen &&
             (searchLoading || searchError !== null || results.length > 0)

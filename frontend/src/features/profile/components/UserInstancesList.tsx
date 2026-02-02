@@ -13,7 +13,7 @@ const ITEMS_PER_PAGE = 10;
 
 export const UserInstancesList = ({ userId, onSelectArchetype }: UserInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  
+
   const { data: instances, isLoading, error } = useQuery<ArchetypeInstanceWithDetails[]>({
     queryKey: ["userInstances", userId],
     queryFn: () => instanceApi.getInstancesByUserId(userId),
@@ -47,12 +47,10 @@ export const UserInstancesList = ({ userId, onSelectArchetype }: UserInstancesLi
   return (
     <div className="flex flex-col items-start w-full">
       <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
-        {/* Título dentro del FramedContainer para consistencia */}
         <h2 className="text-2xl font-bold text-yellow-500 mb-1 text-left relative top-[7px]">
           {instances[0]?.userName}'s Guides
         </h2>
 
-        {/* Línea divisoria con gradiente */}
         <div
           className="w-full h-[2px]"
           style={{
@@ -61,7 +59,6 @@ export const UserInstancesList = ({ userId, onSelectArchetype }: UserInstancesLi
           }}
         />
 
-        {/* Tabla de instancias - Agrega isProfilePage={true} */}
         <InstancesTable
           instances={instances}
           currentPage={currentPage}
