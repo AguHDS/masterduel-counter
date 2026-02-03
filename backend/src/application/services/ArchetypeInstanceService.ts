@@ -3,9 +3,9 @@ import {
   ArchetypeInstanceCreateDTO,
   ArchetypeInstanceUpdateDTO,
   ArchetypeInstanceWithDetails,
-} from "../../domain/ArchetypeInstance";
+} from "@/domain/ArchetypeInstance";
 import { ArchetypeInstanceServicePort } from "../ports/ArchetypeInstanceService";
-import { ArchetypeInstanceRepository } from "../../domain/ports/ArchetypeInstanceRepository";
+import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository";
 
 export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
   constructor(private instanceRepository: ArchetypeInstanceRepository) {}

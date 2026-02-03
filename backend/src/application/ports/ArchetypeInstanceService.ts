@@ -3,24 +3,24 @@ import {
   ArchetypeInstanceCreateDTO,
   ArchetypeInstanceUpdateDTO,
   ArchetypeInstanceWithDetails,
-} from "../../domain/ArchetypeInstance";
+} from "@/domain/ArchetypeInstance";
 
 export interface ArchetypeInstanceServicePort {
-  /** Crea una nueva instancia o actualiza si ya existe para el usuario */
+  /** Creates a new instance or updates it if it already exists for the user */
   createOrUpdateInstance(data: ArchetypeInstanceCreateDTO): Promise<ArchetypeInstance>;
   
-  /** Obtiene una instancia por su ID */
+  /** Gets an instance by its ID */
   getInstanceById(id: number): Promise<ArchetypeInstance | null>;
   
-  /** Obtiene todas las instancias creadas para un arquetipo específico */
+  /** Gets all instances created for a specific archetype */
   getInstancesByArchetypeId(archetypeId: number): Promise<ArchetypeInstanceWithDetails[]>;
   
-  /** Obtiene todas las instancias creadas por un usuario */
+  /** Gets all instances created by a user */
   getInstancesByUserId(userId: string): Promise<ArchetypeInstanceWithDetails[]>;
   
-  /** Actualiza una instancia existente */
+  /** Updates an existing instance */
   updateInstance(id: number, userId: string, data: ArchetypeInstanceUpdateDTO): Promise<ArchetypeInstance>;
   
-  /** Elimina una instancia del usuario */
+  /** Deletes a user's instance */
   deleteInstance(id: number, userId: string): Promise<void>;
 }

@@ -113,7 +113,7 @@ export const ArchetypeAnalyzerContainer = () => {
     }>
   >(memoizedExtraDeck);
 
-  // Estado para los pares de cartas y validación
+  // Status for card pairs and validation
   const [pairs, setPairs] = useState<CardPair[]>([]);
   const [saving, setSaving] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -150,14 +150,19 @@ export const ArchetypeAnalyzerContainer = () => {
     isError,
     isOwner,
     onDataLoaded: (data) => {
+      // Santetizar espacios al cargar los datos
+      const sanitizedTitle = data.title.replace(/\s+/g, " ").trim();
+      const sanitizedGeneralTip =
+        data.generalTip?.replace(/\s+/g, " ").trim() || "";
+
       editor.setLoadedPairs(data.pairs);
-      editor.setTitle(data.title);
-      editor.setGeneralTip(data.generalTip || "");
+      editor.setTitle(sanitizedTitle);
+      editor.setGeneralTip(sanitizedGeneralTip);
       editor.setHeaderCard(data.headerCard);
       likes.setLikeCount(data.likes);
       editor.setIsEditMode(false);
 
-      // Actualizar los pares locales
+      // Update local pairs state
       const transformedPairs: CardPair[] = data.pairs.map((pair) => ({
         id: pair.id.toString(),
         topCards: pair.topCards,
@@ -204,10 +209,17 @@ export const ArchetypeAnalyzerContainer = () => {
         effectiveness: pair.effectiveness,
         comment: pair.comment,
       }));
+
+      // Santetizar espacios al cancelar
+      const sanitizedTitle =
+        userInstanceData.instance.title?.replace(/\s+/g, " ").trim() || "Title";
+      const sanitizedGeneralTip =
+        userInstanceData.instance.generalTip?.replace(/\s+/g, " ").trim() || "";
+
       editor.resetToInitialData({
         pairs,
-        title: userInstanceData.instance.title || "Title",
-        generalTip: userInstanceData.instance.generalTip || "",
+        title: sanitizedTitle,
+        generalTip: sanitizedGeneralTip,
         headerCard: userInstanceData.headerCard
           ? {
               id: userInstanceData.headerCard.id,
@@ -238,7 +250,7 @@ export const ArchetypeAnalyzerContainer = () => {
   };
 
   const validateAndSave = async () => {
-    // Validar que haya al menos un par con al menos una carta en top o bottom
+    // Validate that there is at least one pair with at least one card on the top or bottom
     const validPairs = pairs.filter(
       (p) => p.topCards.length > 0 || p.bottomCards.length > 0,
     );
@@ -248,7 +260,7 @@ export const ArchetypeAnalyzerContainer = () => {
       );
       return;
     }
-    // Validar que cada par tenga al menos una carta en top o bottom
+    // Validate that each pair has at least one card on top or bottom
     for (let i = 0; i < pairs.length; i++) {
       if (pairs[i].topCards.length === 0 && pairs[i].bottomCards.length === 0) {
         setValidationError(
@@ -340,12 +352,16 @@ export const ArchetypeAnalyzerContainer = () => {
 
       await confirmCards(uniqueCardIds);
 
+      // Santetizar espacios antes de enviar al backend
+      const sanitizedTitle = editor.title.replace(/\s+/g, " ").trim();
+      const sanitizedGeneralTip = editor.generalTip.replace(/\s+/g, " ").trim();
+
       const response = await registerMutation.mutateAsync({
         archetypeId: selectedArchetype.id,
         cardPairs,
-        title: editor.title.trim(),
+        title: sanitizedTitle,
         headerCardId: editor.headerCard!.id,
-        generalTip: editor.generalTip || undefined,
+        generalTip: sanitizedGeneralTip || undefined,
         instanceId: isCreatingNew ? undefined : instanceIdNum,
       });
 
@@ -408,7 +424,7 @@ export const ArchetypeAnalyzerContainer = () => {
                 "url('/src/assets/Instance_purplebackground.webp')",
             }}
           >
-            {/* Overlay oscuro para mejorar legibilidad */}
+            {/* Dark overlay*/}
             <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80"></div>
 
             <div className="relative z-10 space-y-6">

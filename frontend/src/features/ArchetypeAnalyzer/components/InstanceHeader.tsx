@@ -60,13 +60,21 @@ export const InstanceHeader = ({
               onChange={(e) => onTitleChange(e.target.value)}
               maxLength={100}
               placeholder="Enter a title for your guide (Max. 100 characters)"
-              className="w-full px-4 py-2 bg-slate-800/40 text-white text-xl font-normal rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 shadow-sm break-words"
-              style={{ wordBreak: "break-word", overflowWrap: "break-word" }}
+              className="w-full px-4 py-2 bg-slate-800/40 text-white text-xl font-normal rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 shadow-sm"
+              style={{ 
+                wordBreak: "break-word", 
+                overflowWrap: "break-word",
+                wordWrap: "break-word"
+              }}
             />
           ) : (
             <h2
-              className="text-3xl font-semibold text-white break-words max-w-2xl"
-              style={{ wordBreak: "break-word", overflowWrap: "break-word" }}
+              className="text-3xl font-semibold text-white max-w-2xl break-words overflow-wrap-anywhere"
+              style={{ 
+                wordBreak: "break-word", 
+                overflowWrap: "anywhere",
+                wordWrap: "break-word"
+              }}
             >
               {title}
             </h2>
@@ -85,10 +93,22 @@ export const InstanceHeader = ({
               placeholder="Add optional description for this guide (Max. 5000 characters)..."
               className="w-full px-4 py-3 bg-slate-800/40 text-white text-base rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 resize-none shadow-sm min-h-[120px]"
               rows={5}
+              style={{ 
+                wordBreak: "break-word", 
+                overflowWrap: "break-word",
+                wordWrap: "break-word"
+              }}
             />
           ) : (
-            <div className="py-4 border-l-2 border-r-2 border-blue-700/30 bg-slate-900/30 px-4 rounded">
-              <p className="text-slate-300 text-base leading-relaxed break-words">
+            <div 
+              className="py-4 border-l-2 border-r-2 border-blue-700/30 bg-slate-900/30 px-4 rounded overflow-hidden"
+              style={{ 
+                wordBreak: "break-word", 
+                overflowWrap: "anywhere",
+                wordWrap: "break-word"
+              }}
+            >
+              <p className="text-slate-300 text-base leading-relaxed break-words overflow-wrap-anywhere">
                 {generalTip || "No description"}
               </p>
             </div>
