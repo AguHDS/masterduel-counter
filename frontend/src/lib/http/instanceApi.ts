@@ -63,14 +63,26 @@ export interface UserInstanceWithCardPairs {
 
 export const instanceApi = {
   // Get all user instances for a specific archetype
-  getInstancesByArchetypeId: async (archetypeId: number): Promise<ArchetypeInstanceWithDetails[]> => {
-    const response = await axios.get(`${API_BASE_URL}/api/archetypes/${archetypeId}/instances`);
+  getInstancesByArchetypeId: async (
+    archetypeId: number,
+    sortBy: 'likes' | 'updated' = 'updated'
+  ): Promise<ArchetypeInstanceWithDetails[]> => {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/archetypes/${archetypeId}/instances`,
+      { params: { sortBy } }
+    );
     return response.data;
   },
 
-  // Get all archetype instances created by a specific user
-  getInstancesByUserId: async (userId: string): Promise<ArchetypeInstanceWithDetails[]> => {
-    const response = await axios.get(`${API_BASE_URL}/api/users/${userId}/instances`);
+  /** Get all archetype instances created by a specific user (for user profile) */
+  getInstancesByUserId: async (
+    userId: string,
+    sortBy: 'likes' | 'updated' = 'updated'
+  ): Promise<ArchetypeInstanceWithDetails[]> => {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/users/${userId}/instances`,
+      { params: { sortBy } }
+    );
     return response.data;
   },
 

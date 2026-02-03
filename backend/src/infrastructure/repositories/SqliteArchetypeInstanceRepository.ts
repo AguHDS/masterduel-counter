@@ -4,11 +4,15 @@ import {
   ArchetypeInstanceCreateDTO,
   ArchetypeInstanceUpdateDTO,
   ArchetypeInstanceWithDetails,
-} from "../../domain/ArchetypeInstance";
-import { ArchetypeInstanceRepository } from "../../domain/ports/ArchetypeInstanceRepository";
+} from "@/domain/ArchetypeInstance";
+import { ArchetypeInstanceRepository, LikeToggleResult } from "@/domain/ports/ArchetypeInstanceRepository";
+import { PrismaClient } from "@prisma/client";
 
 export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepository {
-  constructor(private db: Database.Database) {}
+  constructor(
+    private db: Database.Database,
+    private prisma: PrismaClient
+  ) {}
 
   async create(data: ArchetypeInstanceCreateDTO): Promise<ArchetypeInstance> {
     const stmt = this.db.prepare(`
@@ -56,7 +60,11 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     };
   }
 
-  async findByArchetypeId(archetypeId: number): Promise<ArchetypeInstanceWithDetails[]> {
+  async findByArchetypeId(archetypeId: number, sortBy: 'likes' | 'updated' = 'updated'): Promise<ArchetypeInstanceWithDetails[]> {
+    const orderClause = sortBy === 'likes' 
+      ? 'ORDER BY ai.likes DESC, ai.updated_at DESC'
+      : 'ORDER BY ai.updated_at DESC, ai.likes DESC';
+
     const stmt = this.db.prepare(`
       SELECT 
         ai.*,
@@ -69,7 +77,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       JOIN users u ON ai.user_id = u.id
       LEFT JOIN cards c ON ai.header_card_id = c.id
       WHERE ai.archetype_id = ?
-      ORDER BY ai.likes DESC, ai.updated_at DESC
+      ${orderClause}
     `);
 
     interface InstanceRow {
@@ -107,7 +115,11 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     }));
   }
 
-  async findByUserId(userId: string): Promise<ArchetypeInstanceWithDetails[]> {
+  async findByUserId(userId: string, sortBy: 'likes' | 'updated' = 'updated'): Promise<ArchetypeInstanceWithDetails[]> {
+    const orderClause = sortBy === 'likes' 
+      ? 'ORDER BY ai.likes DESC, ai.updated_at DESC'
+      : 'ORDER BY ai.updated_at DESC, ai.likes DESC';
+
     const stmt = this.db.prepare(`
       SELECT 
         ai.*,
@@ -120,7 +132,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       JOIN users u ON ai.user_id = u.id
       LEFT JOIN cards c ON ai.header_card_id = c.id
       WHERE ai.user_id = ?
-      ORDER BY ai.updated_at DESC
+      ${orderClause}
     `);
 
     interface InstanceRow {
@@ -239,5 +251,78 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     `);
 
     stmt.run(id);
+  }
+
+  async toggleLike(instanceId: number, userId: string): Promise<LikeToggleResult> {
+    // Check if like already exists
+    const existingLike = await this.prisma.instanceLike.findUnique({
+      where: {
+        instanceId_userId: {
+          instanceId,
+          userId,
+        },
+      },
+    });
+
+    let liked: boolean;
+
+    if (existingLike) {
+      // Remove like
+      await this.prisma.instanceLike.delete({
+        where: { id: existingLike.id },
+      });
+
+      // Decrement like count without updating updatedAt
+      // Using raw SQL to prevent Prisma's @updatedAt from triggering
+      await this.prisma.$executeRaw`
+        UPDATE archetype_instances 
+        SET likes = likes - 1 
+        WHERE id = ${instanceId}
+      `;
+
+      liked = false;
+    } else {
+      // Add like
+      await this.prisma.instanceLike.create({
+        data: {
+          instanceId,
+          userId,
+        },
+      });
+
+      // Increment like count without updating updatedAt
+      // Using raw SQL to prevent Prisma's @updatedAt from triggering
+      await this.prisma.$executeRaw`
+        UPDATE archetype_instances 
+        SET likes = likes + 1 
+        WHERE id = ${instanceId}
+      `;
+
+      liked = true;
+    }
+
+    // Get updated count
+    const updated = await this.prisma.archetypeInstance.findUnique({
+      where: { id: instanceId },
+      select: { likes: true },
+    });
+
+    return {
+      liked,
+      likes: updated?.likes ?? 0,
+    };
+  }
+
+  async hasUserLiked(instanceId: number, userId: string): Promise<boolean> {
+    const like = await this.prisma.instanceLike.findUnique({
+      where: {
+        instanceId_userId: {
+          instanceId,
+          userId,
+        },
+      },
+    });
+
+    return like !== null;
   }
 }

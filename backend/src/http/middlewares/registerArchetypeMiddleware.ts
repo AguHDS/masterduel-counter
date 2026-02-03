@@ -6,14 +6,14 @@ export const registerArchetypeMiddleware = (
   next: NextFunction,
 ): void => {
   const id = req.params.id;
-  if (typeof id !== 'string') {
+  if (typeof id !== "string") {
     res.status(400).json({ success: false, error: "Invalid archetype ID" });
     return;
   }
   const archetypeId = parseInt(id);
   const { cardPairs, headerCardId } = req.body;
 
-  // Validar que el ID del arquetipo sea válido
+  // Validate that the archetype ID is valid
   if (!archetypeId || isNaN(archetypeId) || archetypeId <= 0) {
     res.status(400).json({
       success: false,
@@ -22,7 +22,7 @@ export const registerArchetypeMiddleware = (
     return;
   }
 
-  // Validar que cardPairs esté presente y sea un array
+  // Validate that cardPairs is present and is an array
   if (!cardPairs || !Array.isArray(cardPairs)) {
     res.status(400).json({
       success: false,
@@ -31,8 +31,11 @@ export const registerArchetypeMiddleware = (
     return;
   }
 
-  // Validar headerCardId si está presente
-  if (headerCardId !== undefined && (typeof headerCardId !== "number" || headerCardId <= 0)) {
+  // Validate headerCardId if it is present
+  if (
+    headerCardId !== undefined &&
+    (typeof headerCardId !== "number" || headerCardId <= 0)
+  ) {
     res.status(400).json({
       success: false,
       error: "headerCardId must be a valid positive number",
@@ -40,15 +43,18 @@ export const registerArchetypeMiddleware = (
     return;
   }
 
-  // Si hay pares, validar la estructura de cada par
+  // If there are pairs, validate the structure of each pair
   for (let i = 0; i < cardPairs.length; i++) {
     const pair = cardPairs[i];
 
-
     // At least one card in top or bottom
     if (
-      (!pair.topCardIds || !Array.isArray(pair.topCardIds) || pair.topCardIds.length === 0) &&
-      (!pair.bottomCardIds || !Array.isArray(pair.bottomCardIds) || pair.bottomCardIds.length === 0)
+      (!pair.topCardIds ||
+        !Array.isArray(pair.topCardIds) ||
+        pair.topCardIds.length === 0) &&
+      (!pair.bottomCardIds ||
+        !Array.isArray(pair.bottomCardIds) ||
+        pair.bottomCardIds.length === 0)
     ) {
       res.status(400).json({
         success: false,

@@ -2,14 +2,14 @@ import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 import { AuthenticatedRequest } from "@/http/middlewares/authMiddleware";
 
-/** Registra o actualiza una instancia de arquetipo con sus pares de cartas y header card */
+/** Registers or updates an archetype instance with its card pairs and header card */
 export const registerArchetypeController = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
     const id = req.params.id;
-    if (typeof id !== 'string') {
+    if (typeof id !== "string") {
       res.status(400).json({ success: false, error: "Invalid archetype ID" });
       return;
     }
@@ -22,105 +22,23 @@ export const registerArchetypeController = async (
       return;
     }
 
-    // Validate that at least one card pair is provided
-    if (!cardPairs || cardPairs.length === 0) {
-      res.status(400).json({ 
-        success: false, 
-        error: "At least one card pair is required to register an archetype" 
-      });
-      return;
-    }
+    // Sanitize spaces in the title only (not generalTip - it should preserve formatting)
+    const sanitizedTitle = title.replace(/\s+/g, " ").trim();
+    
+    // generalTip should preserve spaces and line breaks, only trim edges
+    const processedGeneralTip = generalTip ? generalTip.trim() : null;
 
-    // Validate that header card is provided
-    if (!headerCardId) {
-      res.status(400).json({ 
-        success: false, 
-        error: "Header card is required to register an archetype" 
-      });
-      return;
-    }
-
-    // Validate that title is provided
-    if (!title || typeof title !== 'string' || title.trim().length === 0) {
-      res.status(400).json({ 
-        success: false, 
-        error: "Title is required to register an archetype" 
-      });
-      return;
-    }
-
-    if (title.length > 100) {
-      res.status(400).json({ 
-        success: false, 
-        error: "Title must be 100 characters or less" 
-      });
-      return;
-    }
-
-    // Create or update archetype instance
     const instanceService = getDependencies().getInstanceService();
-    let instance;
-    
-    if (instanceId) {
-      // Editing existing instance - verify ownership
-      const existingInstance = await instanceService.getInstanceById(instanceId);
-      if (!existingInstance) {
-        res.status(404).json({ success: false, error: "Instance not found" });
-        return;
-      }
-      if (existingInstance.userId !== userId) {
-        res.status(403).json({ success: false, error: "You can only edit your own instances" });
-        return;
-      }
-      // Update the existing instance
-      instance = await instanceService.updateInstance(instanceId, userId, {
-        title: title.trim(),
-        headerCardId: headerCardId || null,
-        generalTip: generalTip || null,
-      });
-    } else {
-      // Creating new instance
-      instance = await instanceService.createOrUpdateInstance({
-        archetypeId,
-        userId,
-        title: title.trim(),
-        headerCardId: headerCardId || null,
-        generalTip: generalTip || null,
-      });
-    }
 
-    // Confirmar cartas y guardar pares
-    if (cardPairs && cardPairs.length > 0) {
-      const cardPairRepository = getDependencies().getCardPairRepository();
-
-      // NOTE: Cards are already confirmed by the frontend before this controller is called
-      // So we don't need to confirm them again here
-
-      // Eliminar pares existentes de esta instancia
-      await cardPairRepository.deleteByInstanceId(instance.id);
-
-      // Crear nuevos pares
-      const pairsToCreate = cardPairs.map((pair: { topCardIds: number[]; bottomCardIds: number[]; effectiveness?: string; comment?: string }, index: number) => ({
-        instance_id: instance.id,
-        top_card_ids: pair.topCardIds,
-        bottom_card_ids: pair.bottomCardIds,
-        pair_order: index + 1,
-        effectiveness: pair.effectiveness || null,
-        comment: pair.comment || null,
-      }));
-
-      await cardPairRepository.createMany(pairsToCreate);
-    }
-
-    // Marcar arquetipo como registrado si no lo está ya
-    const archetypeService = getDependencies().getArchetypeService();
-    const archetype = await archetypeService.getArchetypeById(archetypeId);
-    
-    if (archetype && !archetype.registered) {
-      await getDependencies().getArchetypeRepository().update(archetypeId, {
-        registered: true,
-      });
-    }
+    const instance = await instanceService.registerInstanceWithPairs({
+      archetypeId,
+      userId,
+      title: sanitizedTitle,
+      headerCardId,
+      generalTip: processedGeneralTip,
+      cardPairs,
+      instanceId,
+    });
 
     res.status(200).json({
       success: true,

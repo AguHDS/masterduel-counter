@@ -3,24 +3,34 @@ import {
   ArchetypeInstanceCreateDTO,
   ArchetypeInstanceUpdateDTO,
   ArchetypeInstanceWithDetails,
-} from "../../domain/ArchetypeInstance";
+  RegisterInstanceDTO,
+} from "@/domain/ArchetypeInstance";
 
 export interface ArchetypeInstanceServicePort {
-  /** Crea una nueva instancia o actualiza si ya existe para el usuario */
+  /** Creates a new instance or updates it if it already exists for the user */
   createOrUpdateInstance(data: ArchetypeInstanceCreateDTO): Promise<ArchetypeInstance>;
   
-  /** Obtiene una instancia por su ID */
+  /** Gets an instance by its ID */
   getInstanceById(id: number): Promise<ArchetypeInstance | null>;
   
-  /** Obtiene todas las instancias creadas para un arquetipo específico */
-  getInstancesByArchetypeId(archetypeId: number): Promise<ArchetypeInstanceWithDetails[]>;
+  /** Get all archetype instances created for a specific archetype by all users */
+  getInstancesByArchetypeId(archetypeId: number, sortBy?: 'likes' | 'updated'): Promise<ArchetypeInstanceWithDetails[]>;
   
-  /** Obtiene todas las instancias creadas por un usuario */
-  getInstancesByUserId(userId: string): Promise<ArchetypeInstanceWithDetails[]>;
+  /** Get all archetype instances created by a specific user (for user profile) */
+  getInstancesByUserId(userId: string, sortBy?: 'likes' | 'updated'): Promise<ArchetypeInstanceWithDetails[]>;
   
-  /** Actualiza una instancia existente */
+  /** Updates an existing instance */
   updateInstance(id: number, userId: string, data: ArchetypeInstanceUpdateDTO): Promise<ArchetypeInstance>;
   
-  /** Elimina una instancia del usuario */
+  /** Deletes a user's instance */
   deleteInstance(id: number, userId: string): Promise<void>;
+
+  /** Registers or updates an instance with card pairs and marks archetype as registered */
+  registerInstanceWithPairs(data: RegisterInstanceDTO): Promise<ArchetypeInstance>;
+
+  /** Toggles a like on an instance (add if not exists, remove if exists) */
+  toggleInstanceLike(instanceId: number, userId: string): Promise<{ liked: boolean; likes: number }>;
+
+  /** Checks if a user has liked an instance */
+  hasUserLikedInstance(instanceId: number, userId: string): Promise<boolean>;
 }

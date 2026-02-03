@@ -74,11 +74,11 @@ export class FeatureErrorBoundary extends Component<Props, State> {
             </div>
 
             <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
-              Error en {this.props.featureName}
+              Error {this.props.featureName}
             </h2>
 
             <p className="text-gray-600 text-center mb-6">
-              Esta sección ha encontrado un error. El resto de la aplicación sigue funcionando.
+              This section has encountered an error. The rest of the application continues to work.
             </p>
 
             {env.isDevelopment && (
@@ -95,7 +95,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
                 className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
               >
                 <RefreshCw className="w-4 h-4" />
-                Reintentar
+                Retry
               </button>
 
               <button
@@ -103,7 +103,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
                 className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
               >
                 <Home className="w-4 h-4" />
-                Ir al Inicio
+                Go to Home
               </button>
             </div>
           </div>

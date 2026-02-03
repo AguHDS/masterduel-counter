@@ -13,10 +13,11 @@ const ITEMS_PER_PAGE = 10;
 
 export const UserInstancesList = ({ userId, onSelectArchetype }: UserInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [sortBy, setSortBy] = useState<'likes' | 'updated'>('updated');
 
   const { data: instances, isLoading, error } = useQuery<ArchetypeInstanceWithDetails[]>({
-    queryKey: ["userInstances", userId],
-    queryFn: () => instanceApi.getInstancesByUserId(userId),
+    queryKey: ["userInstances", userId, sortBy],
+    queryFn: () => instanceApi.getInstancesByUserId(userId, sortBy),
     enabled: !!userId,
   });
 
@@ -67,6 +68,8 @@ export const UserInstancesList = ({ userId, onSelectArchetype }: UserInstancesLi
           onPageChange={setCurrentPage}
           showArchetypeName={true}
           isProfilePage={true}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
         />
       </FramedContainer>
     </div>

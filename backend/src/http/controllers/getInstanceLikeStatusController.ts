@@ -1,14 +1,10 @@
 import { Request, Response } from "express";
 import { AuthenticatedRequest } from "@/http/middlewares/authMiddleware";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { getDependencies } from "@/compositionRoot";
 
 /**
  * Checks if the current user has liked a specific instance.
  * 
- * @route GET /api/archetypes/:archetypeId/instances/:instanceId/like/status
- * @param instanceId - ID of the instance to check
  * @returns Whether the user has liked the instance
  */
 export const getInstanceLikeStatusController = async (
@@ -35,18 +31,12 @@ export const getInstanceLikeStatusController = async (
       return;
     }
 
-    const like = await prisma.instanceLike.findUnique({
-      where: {
-        instanceId_userId: {
-          instanceId: instanceIdNum,
-          userId,
-        },
-      },
-    });
+    const instanceService = getDependencies().getInstanceService();
+    const liked = await instanceService.hasUserLikedInstance(instanceIdNum, userId);
 
     res.status(200).json({
       success: true,
-      liked: !!like,
+      liked,
     });
   } catch (error) {
     console.error("Error checking instance like status:", error);
