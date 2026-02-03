@@ -57,7 +57,11 @@ export const InstanceHeader = ({
             <input
               type="text"
               value={title}
-              onChange={(e) => onTitleChange(e.target.value)}
+              onChange={(e) => {
+                // Sanitize title: replace multiple spaces with single space
+                const sanitizedValue = e.target.value.replace(/\s+/g, " ");
+                onTitleChange(sanitizedValue);
+              }}
               maxLength={100}
               placeholder="Enter a title for your guide (Max. 100 characters)"
               className="w-full px-4 py-2 bg-slate-800/40 text-white text-xl font-normal rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 shadow-sm"
@@ -108,7 +112,10 @@ export const InstanceHeader = ({
                 wordWrap: "break-word"
               }}
             >
-              <p className="text-slate-300 text-base leading-relaxed break-words overflow-wrap-anywhere">
+              <p 
+                className="text-slate-300 text-base leading-relaxed break-words overflow-wrap-anywhere"
+                style={{ whiteSpace: "pre-wrap" }}
+              >
                 {generalTip || "No description"}
               </p>
             </div>

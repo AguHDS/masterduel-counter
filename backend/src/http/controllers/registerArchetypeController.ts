@@ -40,11 +40,11 @@ export const registerArchetypeController = async (
       return;
     }
 
-    // Sanitize spaces in the title and generalTip before validating
+    // Sanitize spaces in the title only (not generalTip - it should preserve formatting)
     const sanitizedTitle = title.replace(/\s+/g, " ").trim();
-    const sanitizedGeneralTip = generalTip
-      ? generalTip.replace(/\s+/g, " ").trim()
-      : null;
+    
+    // generalTip should preserve spaces and line breaks, only trim edges
+    const processedGeneralTip = generalTip ? generalTip.trim() : null;
 
     // Validate that title is provided
     if (!sanitizedTitle || sanitizedTitle.length === 0) {
@@ -86,7 +86,7 @@ export const registerArchetypeController = async (
       instance = await instanceService.updateInstance(instanceId, userId, {
         title: sanitizedTitle,
         headerCardId: headerCardId || null,
-        generalTip: sanitizedGeneralTip || null,
+        generalTip: processedGeneralTip || null,
       });
     } else {
       // Creating a new instance with sanitized data
@@ -95,7 +95,7 @@ export const registerArchetypeController = async (
         userId,
         title: sanitizedTitle,
         headerCardId: headerCardId || null,
-        generalTip: sanitizedGeneralTip || null,
+        generalTip: processedGeneralTip || null,
       });
     }
 

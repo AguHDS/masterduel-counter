@@ -150,14 +150,14 @@ export const ArchetypeAnalyzerContainer = () => {
     isError,
     isOwner,
     onDataLoaded: (data) => {
-      // Santetizar espacios al cargar los datos
+      // Sanitize only the title (multiple spaces -> single space)
       const sanitizedTitle = data.title.replace(/\s+/g, " ").trim();
-      const sanitizedGeneralTip =
-        data.generalTip?.replace(/\s+/g, " ").trim() || "";
+      // generalTip preserves formatting (spaces and line breaks)
+      const generalTip = data.generalTip || "";
 
       editor.setLoadedPairs(data.pairs);
       editor.setTitle(sanitizedTitle);
-      editor.setGeneralTip(sanitizedGeneralTip);
+      editor.setGeneralTip(generalTip);
       editor.setHeaderCard(data.headerCard);
       likes.setLikeCount(data.likes);
       editor.setIsEditMode(false);
@@ -210,16 +210,16 @@ export const ArchetypeAnalyzerContainer = () => {
         comment: pair.comment,
       }));
 
-      // Santetizar espacios al cancelar
+      // Sanitize only the title (multiple spaces -> single space)
       const sanitizedTitle =
         userInstanceData.instance.title?.replace(/\s+/g, " ").trim() || "Title";
-      const sanitizedGeneralTip =
-        userInstanceData.instance.generalTip?.replace(/\s+/g, " ").trim() || "";
+      // generalTip preserves formatting (spaces and line breaks)
+      const generalTip = userInstanceData.instance.generalTip || "";
 
       editor.resetToInitialData({
         pairs,
         title: sanitizedTitle,
-        generalTip: sanitizedGeneralTip,
+        generalTip: generalTip,
         headerCard: userInstanceData.headerCard
           ? {
               id: userInstanceData.headerCard.id,
@@ -352,16 +352,17 @@ export const ArchetypeAnalyzerContainer = () => {
 
       await confirmCards(uniqueCardIds);
 
-      // Santetizar espacios antes de enviar al backend
+      // Sanitize only the title (multiple spaces -> single space)
       const sanitizedTitle = editor.title.replace(/\s+/g, " ").trim();
-      const sanitizedGeneralTip = editor.generalTip.replace(/\s+/g, " ").trim();
+      // generalTip preserves formatting (only trim edges)
+      const processedGeneralTip = editor.generalTip.trim();
 
       const response = await registerMutation.mutateAsync({
         archetypeId: selectedArchetype.id,
         cardPairs,
         title: sanitizedTitle,
         headerCardId: editor.headerCard!.id,
-        generalTip: sanitizedGeneralTip || undefined,
+        generalTip: processedGeneralTip || undefined,
         instanceId: isCreatingNew ? undefined : instanceIdNum,
       });
 
