@@ -4,6 +4,10 @@ import { Link, useLocation } from "react-router-dom";
 import { useLogin } from "../hooks/useAuthQueries";
 import { Lock, User, CheckCircle } from "lucide-react";
 import { ForgotPasswordModal } from "./ForgotPasswordModal";
+import {
+  createUsernameChangeHandler,
+  getUsernameForSubmission,
+} from "../utils/usernameUtils";
 
 export const LoginForm = () => {
   const location = useLocation();
@@ -29,19 +33,31 @@ export const LoginForm = () => {
     setErrorMessage(null);
     setSuccessMessage(null);
 
+    // Normalize username before sending
+    const normalizedUsername = getUsernameForSubmission(username, {
+      trim: true,
+      limitLength: false, // For login, we don't limit length, backend will validate
+    });
+
     login(
-      { username, password },
+      { username: normalizedUsername, password },
       {
         onSuccess: () => {
           window.location.href = "/";
         },
-        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
-          const message = error?.response?.data?.message || error?.message || "Login failed";
+        onError: (
+          error: Error & { response?: { data?: { message?: string } } },
+        ) => {
+          const message =
+            error?.response?.data?.message || error?.message || "Login failed";
           setErrorMessage(message);
         },
-      }
+      },
     );
   };
+
+  // Use the utility function for username changes
+  const handleUsernameChange = createUsernameChangeHandler(setUsername);
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 to-blue-950 flex items-center justify-center px-4">
@@ -55,7 +71,11 @@ export const LoginForm = () => {
           </p>
         </header>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit} aria-label="Sign in form">
+        <form
+          className="mt-8 space-y-6"
+          onSubmit={handleSubmit}
+          aria-label="Sign in form"
+        >
           <div className="rounded-md shadow-sm space-y-4">
             <div>
               <label htmlFor="username" className="sr-only">
@@ -72,10 +92,12 @@ export const LoginForm = () => {
                   autoComplete="username"
                   required
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={handleUsernameChange}
+                  maxLength={25}
                   className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-700 placeholder-gray-500 text-white bg-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                   placeholder="Username"
                   aria-label="Enter your username"
+                  aria-describedby="username-help"
                 />
               </div>
             </div>
@@ -152,7 +174,7 @@ export const LoginForm = () => {
           </div>
         </form>
 
-        <ForgotPasswordModal 
+        <ForgotPasswordModal
           isOpen={isForgotPasswordOpen}
           onClose={() => setIsForgotPasswordOpen(false)}
         />
