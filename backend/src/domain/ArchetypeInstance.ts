@@ -24,6 +24,21 @@ export interface ArchetypeInstanceUpdateDTO {
   generalTip?: string | null;
 }
 
+export interface RegisterInstanceDTO {
+  archetypeId: number;
+  userId: string;
+  title: string;
+  headerCardId: number;
+  generalTip?: string | null;
+  cardPairs: Array<{
+    topCardIds: number[];
+    bottomCardIds: number[];
+    effectiveness?: string;
+    comment?: string;
+  }>;
+  instanceId?: number;
+}
+
 export interface ArchetypeInstanceWithDetails extends ArchetypeInstance {
   archetypeName: string;
   userName: string;

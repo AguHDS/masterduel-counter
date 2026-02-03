@@ -103,6 +103,7 @@ export class Dependencies {
     if (!this.instanceRepository) {
       this.instanceRepository = new SqliteArchetypeInstanceRepository(
         this.database.getConnection(),
+        this.prisma
       );
     }
     return this.instanceRepository;
@@ -160,6 +161,8 @@ export class Dependencies {
     if (!this.instanceService) {
       this.instanceService = new ArchetypeInstanceService(
         this.getInstanceRepository(),
+        this.getCardPairRepository(),
+        this.getArchetypeRepository(),
       );
     }
     return this.instanceService;
@@ -224,6 +227,7 @@ export class Dependencies {
 // Singleton instance
 let dependenciesInstance: Dependencies | null = null;
 
+/** Main dependencies instance */
 export const getDependencies = (): Dependencies => {
   if (!dependenciesInstance) {
     dependenciesInstance = new Dependencies();

@@ -13,6 +13,8 @@ interface InstancesTableProps {
   onPageChange: (page: number) => void;
   showArchetypeName?: boolean;
   isProfilePage?: boolean;
+  sortBy: 'likes' | 'updated';
+  onSortChange: (sortBy: 'likes' | 'updated') => void;
 }
 
 export const InstancesTable = ({
@@ -23,6 +25,8 @@ export const InstancesTable = ({
   onPageChange,
   showArchetypeName = false,
   isProfilePage = false,
+  sortBy,
+  onSortChange,
 }: InstancesTableProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -92,18 +96,26 @@ export const InstancesTable = ({
         >
           {showArchetypeName ? "Archetype" : "Created by"}
         </div>
-        <div
-          className="text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg"
+        <button
+          onClick={() => onSortChange('updated')}
+          className={`text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg hover:text-blue-100 transition-colors ${
+            sortBy === 'updated' ? 'underline' : ''
+          }`}
           role="columnheader"
+          aria-label="Sort by Last Update"
         >
           Last Update
-        </div>
-        <div
-          className="text-blue-300 relative left-2 font-semibold text-lg text-right"
+        </button>
+        <button
+          onClick={() => onSortChange('likes')}
+          className={`text-blue-300 relative left-2 font-semibold text-lg text-right hover:text-blue-100 transition-colors ${
+            sortBy === 'likes' ? 'underline' : ''
+          }`}
           role="columnheader"
+          aria-label="Sort by Likes"
         >
           Likes
-        </div>
+        </button>
       </div>
 
       <div className="flex flex-col gap-[0.25rem]">

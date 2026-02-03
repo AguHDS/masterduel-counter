@@ -25,6 +25,7 @@ export const ArchetypeInstancesList = ({
   onCreateInstance,
 }: ArchetypeInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [sortBy, setSortBy] = useState<'likes' | 'updated'>('updated');
   const { isAuthenticated } = useAuth();
 
   const {
@@ -32,8 +33,8 @@ export const ArchetypeInstancesList = ({
     isLoading,
     error,
   } = useQuery<ArchetypeInstanceWithDetails[]>({
-    queryKey: ["archetypeInstances", archetypeId],
-    queryFn: () => instanceApi.getInstancesByArchetypeId(archetypeId),
+    queryKey: ["archetypeInstances", archetypeId, sortBy],
+    queryFn: () => instanceApi.getInstancesByArchetypeId(archetypeId, sortBy),
     enabled: Number.isFinite(archetypeId),
     staleTime: 0,
   });
@@ -143,6 +144,8 @@ export const ArchetypeInstancesList = ({
           onSelectInstance={onSelectInstance}
           onPageChange={setCurrentPage}
           showArchetypeName={false}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
         />
       </FramedContainer>
     </div>

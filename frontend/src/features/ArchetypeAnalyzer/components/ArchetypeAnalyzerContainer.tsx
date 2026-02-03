@@ -9,19 +9,13 @@ import { useInstanceEditor } from "../hooks/useInstanceEditor";
 import { useInstanceLikes } from "../hooks/useInstanceLikes";
 import { useInstanceData } from "../hooks/useInstanceData";
 import { useRecommendedDeck } from "../hooks/useRecommendedDeck";
+import { useSaveInstance } from "../hooks/useSaveInstance";
 import { useAuth } from "@/features/auth";
 import { instanceApi } from "@/lib/http/instanceApi";
-import { recommendedDeckApi } from "@/lib/http/recommendedDeckApi";
-import { confirmCards } from "../api/cardApi";
 import {
-  useRegisterArchetype,
   useArchetypeWithHeader,
   useUserInstance,
 } from "../hooks/useArchetypeQueries";
-import {
-  validateInstanceData,
-  transformPairsForApi,
-} from "../utils/validation";
 
 interface CardPair {
   id: string;
@@ -52,7 +46,7 @@ export const ArchetypeAnalyzerContainer = () => {
   const { isAuthenticated, user } = useAuth();
 
   const editor = useInstanceEditor();
-  const registerMutation = useRegisterArchetype();
+  const { saving, validationError, saveInstance } = useSaveInstance();
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
 
@@ -113,10 +107,8 @@ export const ArchetypeAnalyzerContainer = () => {
     }>
   >(memoizedExtraDeck);
 
-  // Status for card pairs and validation
+  // Status for card pairs
   const [pairs, setPairs] = useState<CardPair[]>([]);
-  const [saving, setSaving] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!editor.isEditMode || !isOwner) {
@@ -250,34 +242,28 @@ export const ArchetypeAnalyzerContainer = () => {
   };
 
   const validateAndSave = async () => {
-    // Validate that there is at least one pair with at least one card on the top or bottom
-    const validPairs = pairs.filter(
-      (p) => p.topCards.length > 0 || p.bottomCards.length > 0,
-    );
-    if (validPairs.length === 0) {
-      setValidationError(
-        "Please add at least one card (top or bottom) in at least one pair before saving.",
-      );
-      return;
-    }
-    // Validate that each pair has at least one card on top or bottom
-    for (let i = 0; i < pairs.length; i++) {
-      if (pairs[i].topCards.length === 0 && pairs[i].bottomCards.length === 0) {
-        setValidationError(
-          `Pair #${i + 1} must have at least one card in Top or Bottom.`,
-        );
-        return;
-      }
-    }
-    setValidationError(null);
-    setSaving(true);
+    if (!selectedArchetype) return;
+
     try {
-      await handleSaveCards(validPairs);
+      const mainDeckIds = deckMainCards.map((c) => c.id);
+      const extraDeckIds = deckExtraCards.map((c) => c.id);
+      const hasDeckContent = mainDeckIds.length > 0 || extraDeckIds.length > 0;
+
+      await saveInstance({
+        pairs,
+        title: editor.title,
+        generalTip: editor.generalTip,
+        headerCard: editor.headerCard,
+        archetypeId: selectedArchetype.id,
+        instanceId: isCreatingNew ? undefined : instanceIdNum,
+        deckTitle,
+        deckMainCards,
+        deckExtraCards,
+        hasDeckContent,
+        existingDeck: !!recommendedDeck.deck,
+      });
     } catch (error) {
-      console.error("Error saving pairs:", error);
-      alert("Failed to save card pairs. Please try again.");
-    } finally {
-      setSaving(false);
+      alert(error instanceof Error ? error.message : "Failed to save. Please try again.");
     }
   };
 
@@ -309,93 +295,6 @@ export const ArchetypeAnalyzerContainer = () => {
 
     if (!selectedArchetype?.registered || isOwner) {
       editor.setIsEditMode(true);
-    }
-  };
-
-  const handleSaveCards = async (pairsToSave: CardPair[]) => {
-    if (!selectedArchetype) return;
-
-    const validation = validateInstanceData(
-      pairsToSave,
-      editor.headerCard,
-      editor.title,
-    );
-
-    if (!validation.isValid) {
-      alert(validation.errorMessage);
-      return;
-    }
-
-    try {
-      const cardPairs = transformPairsForApi(pairsToSave);
-
-      const allCardIds: number[] = [];
-
-      if (editor.headerCard) {
-        allCardIds.push(editor.headerCard.id);
-      }
-
-      cardPairs.forEach((pair) => {
-        allCardIds.push(...pair.topCardIds, ...pair.bottomCardIds);
-      });
-
-      const mainDeckIds = deckMainCards.map((c) => c.id);
-      const extraDeckIds = deckExtraCards.map((c) => c.id);
-      const hasDeckContent = mainDeckIds.length > 0 || extraDeckIds.length > 0;
-
-      // Add deck cards to confirmation array only if there is content
-      if (hasDeckContent) {
-        allCardIds.push(...mainDeckIds, ...extraDeckIds);
-      }
-
-      const uniqueCardIds = [...new Set(allCardIds)];
-
-      await confirmCards(uniqueCardIds);
-
-      // Sanitize only the title (multiple spaces -> single space)
-      const sanitizedTitle = editor.title.replace(/\s+/g, " ").trim();
-      // generalTip preserves formatting (only trim edges)
-      const processedGeneralTip = editor.generalTip.trim();
-
-      const response = await registerMutation.mutateAsync({
-        archetypeId: selectedArchetype.id,
-        cardPairs,
-        title: sanitizedTitle,
-        headerCardId: editor.headerCard!.id,
-        generalTip: processedGeneralTip || undefined,
-        instanceId: isCreatingNew ? undefined : instanceIdNum,
-      });
-
-      // Save or delete recommended deck based on content
-      const savedInstanceId = response.instance?.id || instanceIdNum;
-      if (savedInstanceId) {
-        if (hasDeckContent) {
-          // There is content, save or update the deck
-          await recommendedDeckApi.saveDeck(
-            savedInstanceId,
-            deckTitle,
-            mainDeckIds,
-            extraDeckIds,
-          );
-        } else if (recommendedDeck.deck) {
-          // No content and a deck exists, delete it
-          await recommendedDeckApi.deleteDeck(savedInstanceId);
-        }
-      }
-
-      editor.setIsEditMode(false);
-
-      if (response.instance?.id) {
-        window.location.href = `/archetype/${selectedArchetype.id}/instance/${response.instance.id}`;
-      }
-    } catch (error) {
-      console.error("Error saving archetype:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to register archetype. Please try again.";
-      alert(errorMessage);
-      throw error;
     }
   };
 
@@ -468,7 +367,7 @@ export const ArchetypeAnalyzerContainer = () => {
               <div className="mt-8">
                 <CardPairEditor
                   isEditMode={editor.isEditMode && isOwner}
-                  onSave={handleSaveCards}
+                  onSave={validateAndSave}
                   onCancel={handleCancel}
                   initialPairs={editor.loadedPairs}
                   pairs={pairs}
