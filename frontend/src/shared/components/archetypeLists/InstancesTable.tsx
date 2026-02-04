@@ -60,7 +60,7 @@ export const InstancesTable = ({
 
   return (
     <div
-      className="w-full"
+      className="w-full h-full flex flex-col"
       role="table"
       aria-label={
         showArchetypeName
@@ -70,7 +70,7 @@ export const InstancesTable = ({
     >
       {/* Desktop headers */}
       <div
-        className={`hidden lg:grid gap-3 py-2 bg-black/60 rounded-t-lg px-6 ${
+        className={`hidden lg:grid gap-3 py-2 bg-black/60 border-b border-blue-600 rounded-t-lg px-6 ${
           isProfilePage
             ? "grid-cols-[60px_48px_1.5fr_0.7fr_0.75fr_96px]"
             : "grid-cols-[60px_48px_minmax(200px,1fr)_minmax(95px,0.8fr)_minmax(105px,0.8fr)_96px]"

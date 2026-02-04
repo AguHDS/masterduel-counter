@@ -12,9 +12,8 @@ import { FeatureErrorBoundary } from "@/shared/components";
 import type { Archetype } from "../api/archetypeApi";
 
 export const InstanceEditorPage = () => {
-  const { archetypeId, instanceId: instanceId } = useParams<{
+  const { archetypeId } = useParams<{
     archetypeId: string;
-    instanceId: string;
   }>();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");

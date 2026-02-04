@@ -19,14 +19,14 @@ export interface ArchetypeInstanceServicePort {
   /** Get all archetype instances created by a specific user (for user profile) */
   getInstancesByUserId(userId: string, sortBy?: 'likes' | 'updated'): Promise<ArchetypeInstanceWithDetails[]>;
   
-  /** Updates an existing instance */
+  /** Updates an existing instance (title, headerCard, generalTip) */
   updateInstance(id: number, userId: string, data: ArchetypeInstanceUpdateDTO): Promise<ArchetypeInstance>;
-  
-  /** Deletes a user's instance */
-  deleteInstance(id: number, userId: string): Promise<void>;
 
   /** Registers or updates an instance with card pairs and marks archetype as registered */
   registerInstanceWithPairs(data: RegisterInstanceDTO): Promise<ArchetypeInstance>;
+  
+  /** Deletes a user's instance */
+  deleteInstance(id: number, userId: string): Promise<void>;
 
   /** Toggles a like on an instance (add if not exists, remove if exists) */
   toggleInstanceLike(instanceId: number, userId: string): Promise<{ liked: boolean; likes: number }>;

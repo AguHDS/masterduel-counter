@@ -1,5 +1,5 @@
 import type { HTMLAttributes, PropsWithChildren } from "react";
-import mainContainerImg from "@/assets/Masterduel_Maincontainer.webp";
+import mainContainerImg from "@/assets/Masterduel_Maincontainer_v2.webp";
 
 interface FramedContainerProps extends HTMLAttributes<HTMLElement> {
   maxWidthClassName?: string;

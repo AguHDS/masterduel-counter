@@ -64,9 +64,9 @@ export const RegisteredArchetypesList = ({
   return (
     <FramedContainer
       aria-label="Latest registered archetypes"
-      contentClassName="w-full px-3 sm:px-4 md:px-[5%] py-6 flex flex-col gap-4"
+      contentClassName="w-full px-3 sm:px-4 md:px-[5%] py-6 flex flex-col"
     >
-      <div className="flex sm:flex-row sm:items-end gap-2">
+      <div className="flex sm:flex-row sm:items-end gap-2 mb-4">
         <h2 className="text-2xl font-bold text-white">
           Latest Archetypes •
         </h2>
@@ -75,92 +75,100 @@ export const RegisteredArchetypesList = ({
         </span>
       </div>
 
-      <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 mb-3 border-b border-blue-600 bg-black/60 rounded-t-lg md:px-6 md:py-4">
-        <div className="text-blue-300 font-semibold text-lg">ID</div>
-        <div className="text-blue-300 font-semibold text-lg relative left-16">
-          Archetype
-        </div>
-        <div className="text-blue-300 font-semibold text-lg text-right">
-          Instances
-        </div>
+      {/* Nuevo título agregado aquí */}
+      <div className="mb-4">
+        <h3 className="text-xl font-bold text-white">Learn how to counter:</h3>
       </div>
 
-      <div className="flex flex-col gap-[0.25rem]">
-        {currentArchetypes.map((archetype, index) => {
-          const positionLabel = startIndex + index + 1;
-          const instanceCount = archetype.instance_count || 0;
-          const instanceLabel = `${instanceCount} ${instanceCount === 1 ? "instance" : "instances"}`;
-          const badgeContent = archetype.name.charAt(0).toUpperCase();
+      {/* Contenedor unificado para encabezado y lista */}
+      <div className="rounded-lg overflow-hidden">
+        <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 border-b border-blue-600 bg-black/60 md:px-6 md:py-4">
+          <div className="text-blue-300 font-semibold text-lg">ID</div>
+          <div className="text-blue-300 font-semibold text-lg relative left-16">
+            Archetype
+          </div>
+          <div className="text-blue-300 font-semibold text-lg text-right">
+            Instances
+          </div>
+        </div>
 
-          return (
-            <button
-              key={archetype.id}
-              onClick={() => onSelectArchetype(archetype.id)}
-              className="group relative w-full overflow-hidden rounded-xl border border-transparent transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
-            >
-              <img
-                src={instanceItemBg}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 h-full w-full"
-              />
-              <div className="absolute inset-0 bg-black/35 group-hover:bg-black/10 group-active:bg-black/40" />
+        <div className="flex flex-col gap-[0.25rem]">
+          {currentArchetypes.map((archetype, index) => {
+            const positionLabel = startIndex + index + 1;
+            const instanceCount = archetype.instance_count || 0;
+            const instanceLabel = `${instanceCount} ${instanceCount === 1 ? "instance" : "instances"}`;
+            const badgeContent = archetype.name.charAt(0).toUpperCase();
 
-              <div className="relative z-10 flex flex-col gap-3 p-4 md:p-0 md:gap-0">
-                <div className="flex items-center gap-3 md:hidden">
-                  <span className="text-[#FFD700] text-xl font-bold drop-shadow-md">
-                    {positionLabel}
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/70 to-blue-500/70 flex items-center justify-center text-white font-semibold text-lg">
-                      {badgeContent}
+            return (
+              <button
+                key={archetype.id}
+                onClick={() => onSelectArchetype(archetype.id)}
+                className="group relative w-full overflow-hidden border-b border-blue-900/30 last:border-b-0 transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
+              >
+                <img
+                  src={instanceItemBg}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 h-full w-full"
+                />
+                <div className="absolute inset-0 bg-black/35 group-hover:bg-black/10 group-active:bg-black/40" />
+
+                <div className="relative z-10 flex flex-col gap-3 p-4 md:p-0 md:gap-0">
+                  <div className="flex items-center gap-3 md:hidden">
+                    <span className="text-[#FFD700] text-xl font-bold drop-shadow-md">
+                      {positionLabel}
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/70 to-blue-500/70 flex items-center justify-center text-white font-semibold text-lg">
+                        {badgeContent}
+                      </div>
+                      <span
+                        className="text-white text-base font-semibold leading-tight truncate"
+                        title={archetype.name}
+                      >
+                        {archetype.name}
+                      </span>
                     </div>
+                  </div>
+
+                  <div className="hidden md:grid md:grid-cols-[60px_minmax(220px,1fr)_160px] md:gap-3 md:items-center md:px-6 md:py-4">
+                    <div className="text-[#ffbf1f] relative right-2 text-2xl font-bold drop-shadow-md">
+                      {positionLabel}
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/30 to-blue-500/70 flex items-center justify-center text-yellow-500 font-semibold text-xl">
+                        {badgeContent}
+                      </div>
+                      <span
+                        className="text-white text-lg font-semibold truncate"
+                        title={archetype.name}
+                      >
+                        {archetype.name}
+                      </span>
+                    </div>
+                    <div className="text-blue-200 text-lg text-right">
+                      {instanceLabel}
+                    </div>
+                  </div>
+
+                  <div className="md:hidden text-left relative mx-5 grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
+                    <span className="text-blue-300">Archetype</span>
                     <span
-                      className="text-white text-base font-semibold leading-tight truncate"
+                      className="text-white text-right"
                       title={archetype.name}
                     >
                       {archetype.name}
                     </span>
-                  </div>
-                </div>
-
-                <div className="hidden md:grid md:grid-cols-[60px_minmax(220px,1fr)_160px] md:gap-3 md:items-center md:px-6 md:py-4">
-                  <div className="text-[#ffbf1f] relative right-2 text-2xl font-bold drop-shadow-md">
-                    {positionLabel}
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/30 to-blue-500/70 flex items-center justify-center text-yellow-500 font-semibold text-xl">
-                      {badgeContent}
-                    </div>
-                    <span
-                      className="text-white text-lg font-semibold truncate"
-                      title={archetype.name}
-                    >
-                      {archetype.name}
+                    <span className="text-blue-300">Instances</span>
+                    <span className="text-blue-100 text-right">
+                      {instanceLabel}
                     </span>
                   </div>
-                  <div className="text-blue-200 text-lg text-right">
-                    {instanceLabel}
-                  </div>
                 </div>
-
-                <div className="md:hidden text-left relative mx-5 grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
-                  <span className="text-blue-300">Archetype</span>
-                  <span
-                    className="text-white text-right"
-                    title={archetype.name}
-                  >
-                    {archetype.name}
-                  </span>
-                  <span className="text-blue-300">Instances</span>
-                  <span className="text-blue-100 text-right">
-                    {instanceLabel}
-                  </span>
-                </div>
-              </div>
-            </button>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {totalPages > 1 && (

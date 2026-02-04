@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { recommendedDeckApi, type RecommendedDeck } from "@/lib/http/recommendedDeckApi";
 
-export const useRecommendedDeck = (instanceId: number | undefined, _isOwner: boolean) => {
+export const useRecommendedDeck = (instanceId: number | undefined) => {
   const [deck, setDeck] = useState<RecommendedDeck | null>(null);
   const [isEditingDeck, setIsEditingDeck] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
