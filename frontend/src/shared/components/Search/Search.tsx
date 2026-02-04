@@ -16,7 +16,7 @@ interface SearchInputProps {
 export const SearchInput = ({
   searchQuery,
   onSearchChange,
-  placeholder = "Search for archetypes to saunter...",
+  placeholder = "Search archetypes...",
   children,
   isDropdownOpen = false,
   onRequestClose,

@@ -67,19 +67,21 @@ export const RegisteredArchetypesList = ({
       contentClassName="w-full px-3 sm:px-4 md:px-[5%] py-6 flex flex-col"
     >
       <div className="flex sm:flex-row sm:items-end gap-2 mb-4">
-        <h2 className="text-2xl font-bold text-white">
-          Latest Archetypes •
-        </h2>
+        <h2 className="text-2xl font-bold text-white">Latest Archetypes •</h2>
         <span className="text-sm relative bottom-[3px] font-semibold text-blue-300">
           Registered by the community
         </span>
       </div>
 
       {/* Nuevo título agregado aquí */}
-      <div className="mb-4">
-        <h3 className="text-xl font-bold text-white">Learn how to counter:</h3>
-      </div>
 
+      <div
+        className="w-full flex justify-center m-auto h-[2px]"
+        style={{
+          background:
+            "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
+        }}
+      />
       {/* Contenedor unificado para encabezado y lista */}
       <div className="rounded-lg overflow-hidden">
         <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 border-b border-blue-600 bg-black/60 md:px-6 md:py-4">

@@ -13,8 +13,8 @@ interface InstancesTableProps {
   onPageChange: (page: number) => void;
   showArchetypeName?: boolean;
   isProfilePage?: boolean;
-  sortBy: 'likes' | 'updated';
-  onSortChange: (sortBy: 'likes' | 'updated') => void;
+  sortBy: "likes" | "updated";
+  onSortChange: (sortBy: "likes" | "updated") => void;
 }
 
 export const InstancesTable = ({
@@ -68,7 +68,15 @@ export const InstancesTable = ({
           : "Archetype instances list"
       }
     >
+      
       {/* Desktop headers */}
+      <div
+        className="w-full flex justify-center m-auto h-[2px]"
+        style={{
+          background:
+            "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
+        }}
+      />
       <div
         className={`hidden lg:grid gap-3 py-2 bg-black/60 border-b border-blue-600 rounded-t-lg px-6 ${
           isProfilePage
@@ -97,9 +105,9 @@ export const InstancesTable = ({
           {showArchetypeName ? "Archetype" : "Created by"}
         </div>
         <button
-          onClick={() => onSortChange('updated')}
+          onClick={() => onSortChange("updated")}
           className={`text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg hover:text-blue-100 transition-colors ${
-            sortBy === 'updated' ? 'underline' : ''
+            sortBy === "updated" ? "underline" : ""
           }`}
           role="columnheader"
           aria-label="Sort by Last Update"
@@ -107,9 +115,9 @@ export const InstancesTable = ({
           Last Update
         </button>
         <button
-          onClick={() => onSortChange('likes')}
+          onClick={() => onSortChange("likes")}
           className={`text-blue-300 relative left-2 font-semibold text-lg text-right hover:text-blue-100 transition-colors ${
-            sortBy === 'likes' ? 'underline' : ''
+            sortBy === "likes" ? "underline" : ""
           }`}
           role="columnheader"
           aria-label="Sort by Likes"

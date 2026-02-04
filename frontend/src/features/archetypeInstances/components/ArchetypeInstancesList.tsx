@@ -25,7 +25,7 @@ export const ArchetypeInstancesList = ({
   onCreateInstance,
 }: ArchetypeInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [sortBy, setSortBy] = useState<'likes' | 'updated'>('updated');
+  const [sortBy, setSortBy] = useState<"likes" | "updated">("updated");
   const { isAuthenticated } = useAuth();
 
   const {
@@ -85,6 +85,7 @@ export const ArchetypeInstancesList = ({
                 "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
             }}
           />
+
           <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
             <div className="text-blue-300 text-lg text-center">
               No guides created yet for {archetypeName}
@@ -109,7 +110,10 @@ export const ArchetypeInstancesList = ({
       <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
         <div className="flex items-center w-full justify-between gap-4">
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-2xl relative top-[7px] font-bold text-white">
+            <h1 className="text-2xl relative top-[7px] font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-yellow-400 bg-clip-text text-transparent">
+              <span className="text-white relative bottom-[1px] mr-2 font-semibold">
+                How to counter:
+              </span>
               {archetypeName} •
             </h1>
 
