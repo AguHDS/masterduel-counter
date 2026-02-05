@@ -1,7 +1,7 @@
 import { useAuth } from "../features/auth";
 import { LogOut, LogIn, UserPlus, User } from "lucide-react";
 import { Link } from "react-router-dom";
-import logoImg from '../assets/Logo.webp';
+import logoImg from '../assets/NavbarLogo.webp';
 
 export const Navbar = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
