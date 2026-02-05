@@ -66,7 +66,7 @@ export class SqliteCardRepository implements CardRepository {
   }
 
   // Mark card as permanent (not temporary) after successful save
-  async updateToPermament(id: number): Promise<void> {
+  async updateToPermanent(id: number): Promise<void> {
     const stmt = this.db.prepare("UPDATE cards SET is_temporary = 0 WHERE id = ?");
     stmt.run(id);
   }

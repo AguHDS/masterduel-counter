@@ -3,7 +3,7 @@ import { CardApiService, RawCardData } from "@/domain/ports/externalServices/Car
 export class YgoProDeckCardPreviewAdapter implements CardApiService {
   private readonly baseUrl = "https://db.ygoprodeck.com/api/v7/cardinfo.php";
 
-  async searchByName(name: string): Promise<RawCardData[]> {
+  async searchCardByNameFromExternalApi(name: string): Promise<RawCardData[]> {
     try {
       const url = `${this.baseUrl}?fname=${encodeURIComponent(name)}`;
       const response = await fetch(url);
@@ -30,7 +30,7 @@ export class YgoProDeckCardPreviewAdapter implements CardApiService {
     }
   }
 
-  async findById(id: number): Promise<RawCardData | null> {
+  async findCardByIdFromExternalApi(id: number): Promise<RawCardData | null> {
     try {
       const url = `${this.baseUrl}?id=${id}`;
       const response = await fetch(url);
@@ -62,7 +62,7 @@ export class YgoProDeckCardPreviewAdapter implements CardApiService {
     }
   }
 
-  async downloadImage(url: string): Promise<Buffer> {
+  async downloadCardImageFromExternalApi(url: string): Promise<Buffer> {
     try {
       const response = await fetch(url);
 

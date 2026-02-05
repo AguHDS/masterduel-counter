@@ -5,6 +5,6 @@ export class GetCardDetailsService implements GetCardDetailsPort {
   constructor(private readonly cardDetailsApi: CardDetailsApiService) {}
 
   async execute(cardId: number): Promise<CardDetails | null> {
-    return await this.cardDetailsApi.getCardDetails(cardId);
+    return await this.cardDetailsApi.getCardDetailsFromExternalApi(cardId);
   }
 }

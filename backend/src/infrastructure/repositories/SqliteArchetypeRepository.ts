@@ -13,7 +13,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     this.db = db;
   }
 
-  async searchByName(
+  async searchArchetypeByName(
     searchTerm: string,
     limit: number = 50,
   ): Promise<Archetype[]> {
@@ -177,17 +177,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async markAsUnregistered(id: number): Promise<Archetype | null> {
-    const stmt = this.db.prepare(`
-      UPDATE archetypes 
-      SET registered = 0, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
-    `);
 
-    const result = stmt.get(id) as Archetype | undefined;
-    return result || null;
-  }
 
   async incrementPendingRequests(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
@@ -244,39 +234,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return stmt.all() as Archetype[];
   }
 
-  async getStatistics(): Promise<{
-    total: number;
-    registered: number;
-    unregistered: number;
-    pending_requests_total: number;
-    archetypes_with_requests: number;
-  }> {
-    const totalStmt = this.db.prepare(
-      "SELECT COUNT(*) as count FROM archetypes",
-    );
-    const registeredStmt = this.db.prepare(
-      "SELECT COUNT(*) as count FROM archetypes WHERE registered = 1",
-    );
-    const pendingTotalStmt = this.db.prepare(
-      "SELECT SUM(pending_requests) as total FROM archetypes",
-    );
-    const withRequestsStmt = this.db.prepare(
-      "SELECT COUNT(*) as count FROM archetypes WHERE pending_requests > 0",
-    );
 
-    const total = totalStmt.get() as { count: number };
-    const registered = registeredStmt.get() as { count: number };
-    const pendingTotal = pendingTotalStmt.get() as { total: number | null };
-    const withRequests = withRequestsStmt.get() as { count: number };
-
-    return {
-      total: total.count,
-      registered: registered.count,
-      unregistered: total.count - registered.count,
-      pending_requests_total: pendingTotal.total || 0,
-      archetypes_with_requests: withRequests.count,
-    };
-  }
 
   async existsByName(name: string): Promise<boolean> {
     const stmt = this.db.prepare("SELECT 1 FROM archetypes WHERE name = ?");

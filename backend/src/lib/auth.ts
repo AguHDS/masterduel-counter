@@ -66,11 +66,6 @@ export const auth = betterAuth({
       // BetterAuth handles email sending automatically in production
       // using the 'email' configuration below
     },
-
-    onPasswordReset: async (params: { user: any }) => {
-      const { user } = params;
-      console.log(`✅ Password reset completed for user: ${user.email}`);
-    },
   },
 
   email: {

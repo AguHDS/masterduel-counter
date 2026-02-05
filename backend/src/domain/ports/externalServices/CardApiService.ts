@@ -9,7 +9,10 @@ export interface RawCardData {
 }
 
 export interface CardApiService {
-  searchByName(name: string): Promise<RawCardData[]>;
-  findById(id: number): Promise<RawCardData | null>;
-  downloadImage(url: string): Promise<Buffer>;
+  /** Search for cards by their name in YGOProDeck API */
+  searchCardByNameFromExternalApi(name: string): Promise<RawCardData[]>;
+  /** Find a card by its ID in YGOProDeck API */
+  findCardByIdFromExternalApi(id: number): Promise<RawCardData | null>;
+  /** Download card image from given URL from YGOProDeck API */
+  downloadCardImageFromExternalApi(url: string): Promise<Buffer>;
 }

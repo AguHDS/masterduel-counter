@@ -3,10 +3,10 @@ import {
   RecommendedDeckCreateDTO,
   RecommendedDeckUpdateDTO,
   RecommendedDeckWithCards,
-} from "../../domain/RecommendedDeck";
+} from "@/domain/RecommendedDeck";
 import { RecommendedDeckServicePort } from "../ports/RecommendedDeckService";
-import { RecommendedDeckRepository } from "../../domain/ports/RecommendedDeckRepository";
-import { CardRepository } from "../../domain/ports/CardRepository";
+import { RecommendedDeckRepository } from "@/domain/ports/RecommendedDeckRepository";
+import { CardRepository } from "@/domain/ports/CardRepository";
 
 export class RecommendedDeckService implements RecommendedDeckServicePort {
   constructor(

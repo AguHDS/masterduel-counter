@@ -4,6 +4,8 @@ export interface UploadResult {
 }
 
 export interface ImageStorageService {
-  uploadImage(buffer: Buffer, publicId: string, customFolder?: string): Promise<UploadResult>;
-  deleteImage(publicId: string): Promise<void>;
+  /** Upload image to Cloudinary and return its URL and public ID */
+  uploadImageToCloudinary(buffer: Buffer, publicId: string, customFolder?: string): Promise<UploadResult>;
+  /** Delete image from Cloudinary by its public ID */
+  deleteImageFromCloudinary(publicId: string): Promise<void>;
 }

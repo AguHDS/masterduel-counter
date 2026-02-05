@@ -5,7 +5,7 @@ export interface CardRepository {
   findById(id: number): Promise<Card | null>;
   save(card: Card): Promise<void>;
   existsById(id: number): Promise<boolean>;
-  updateToPermament(id: number): Promise<void>;
+  updateToPermanent(id: number): Promise<void>;
   findTemporaryOlderThan(hours: number): Promise<Card[]>;
   deleteById(id: number): Promise<void>;
 }

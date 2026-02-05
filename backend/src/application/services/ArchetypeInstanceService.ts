@@ -128,7 +128,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
       comment: pair.comment || null,
     }));
 
-    await this.cardPairRepository.createMany(pairsToCreate);
+    await this.cardPairRepository.CreateManyPairCards(pairsToCreate);
 
     // Mark archetype as registered if it is not already
     const archetype = await this.archetypeRepository.findById(archetypeId);

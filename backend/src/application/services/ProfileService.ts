@@ -60,7 +60,7 @@ export class ProfileServiceImpl implements ProfileService {
     // Delete old profile picture if exists
     if (profile.cloudinaryPublicId) {
       try {
-        await this.imageStorageService.deleteImage(profile.cloudinaryPublicId);
+        await this.imageStorageService.deleteImageFromCloudinary(profile.cloudinaryPublicId);
       } catch (error) {
         console.error("Error deleting old profile picture:", error);
         // Continue even if deletion fails
@@ -70,7 +70,7 @@ export class ProfileServiceImpl implements ProfileService {
     // Upload new profile picture
     const publicId = `profile`;
     const folder = `masterduel-counter/${userId}/profile_picture`;
-    const uploadResult = await this.imageStorageService.uploadImage(
+    const uploadResult = await this.imageStorageService.uploadImageToCloudinary(
       file.buffer,
       publicId,
       folder
@@ -96,7 +96,7 @@ export class ProfileServiceImpl implements ProfileService {
 
     // Delete from Cloudinary
     try {
-      await this.imageStorageService.deleteImage(profile.cloudinaryPublicId);
+      await this.imageStorageService.deleteImageFromCloudinary(profile.cloudinaryPublicId);
     } catch (error) {
       console.error("Error deleting profile picture from Cloudinary:", error);
       // Continue even if deletion fails
