@@ -2,6 +2,7 @@ import { User } from "../User";
 
 export interface UserRepository {
   findByUsername(username: string): Promise<User | null>;
+  /** Find User by its ID */
   findById(id: string): Promise<User | null>;
   isNameOrEmailTaken(
     username: string,

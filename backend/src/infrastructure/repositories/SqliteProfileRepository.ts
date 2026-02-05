@@ -5,7 +5,7 @@ import type { Profile, CreateProfileData, UpdateProfileData } from "@/domain/Pro
 export class SqliteProfileRepository implements ProfileRepository {
   constructor(private prisma: PrismaClient) {}
 
-  async findByUserId(userId: string): Promise<Profile | null> {
+  async findProfileByUserId(userId: string): Promise<Profile | null> {
     const profile = await this.prisma.profile.findUnique({
       where: { userId },
       include: { user: true },
@@ -25,7 +25,7 @@ export class SqliteProfileRepository implements ProfileRepository {
     };
   }
 
-  async create(data: CreateProfileData): Promise<Profile> {
+  async createProfile(data: CreateProfileData): Promise<Profile> {
     const profile = await this.prisma.profile.create({
       data: {
         userId: data.userId,
@@ -48,7 +48,7 @@ export class SqliteProfileRepository implements ProfileRepository {
     };
   }
 
-  async update(userId: string, data: UpdateProfileData): Promise<Profile> {
+  async updateProfile(userId: string, data: UpdateProfileData): Promise<Profile> {
     const profile = await this.prisma.profile.update({
       where: { userId },
       data: {

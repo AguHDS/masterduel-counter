@@ -32,7 +32,7 @@ export const createGetInstanceByIdController = (
       }
 
       // Search instance by ID
-      const instance = await instanceRepository.findById(instanceId);
+      const instance = await instanceRepository.findArchetypeInstanceById(instanceId);
 
       if (!instance) {
         return res.status(404).json({ 

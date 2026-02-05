@@ -3,13 +3,13 @@ import {
   RecommendedDeck,
   RecommendedDeckCreateDTO,
   RecommendedDeckUpdateDTO,
-} from "../../domain/RecommendedDeck";
-import { RecommendedDeckRepository } from "../../domain/ports/RecommendedDeckRepository";
+} from "@/domain/RecommendedDeck";
+import { RecommendedDeckRepository } from "@/domain/ports/RecommendedDeckRepository";
 
 export class PrismaRecommendedDeckRepository implements RecommendedDeckRepository {
   constructor(private prisma: PrismaClient) {}
 
-  async create(data: RecommendedDeckCreateDTO): Promise<RecommendedDeck> {
+  async createDeck(data: RecommendedDeckCreateDTO): Promise<RecommendedDeck> {
     const deck = await this.prisma.recommendedDeck.create({
       data: {
         instanceId: data.instanceId,

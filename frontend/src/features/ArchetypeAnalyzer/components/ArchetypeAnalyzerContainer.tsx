@@ -74,7 +74,7 @@ export const ArchetypeAnalyzerContainer = () => {
     instanceId: userInstanceData?.instance.id,
   });
 
-  const recommendedDeck = useRecommendedDeck(instanceIdNum, isOwner);
+  const recommendedDeck = useRecommendedDeck(instanceIdNum);
 
   const memoizedMainDeck = useMemo(
     () => recommendedDeck.deck?.mainDeck || [],

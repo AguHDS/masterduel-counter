@@ -15,7 +15,7 @@ export const getRegisteredArchetypesController = async (
     const instanceRepository = dependencies.getInstanceRepository();
     const archetypesWithCreator = await Promise.all(
       archetypes.map(async (archetype) => {
-        const instances = await instanceRepository.findByArchetypeId(archetype.id);
+        const instances = await instanceRepository.findArchetypeInstanceByArchetypeId(archetype.id);
         
         return {
           ...archetype,

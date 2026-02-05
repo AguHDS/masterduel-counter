@@ -24,7 +24,7 @@ export class RecommendedDeckService implements RecommendedDeckServicePort {
       throw new Error("Extra deck cannot have more than 15 cards");
     }
 
-    return this.deckRepository.create(data);
+    return this.deckRepository.createDeck(data);
   }
 
   async getDeckByInstanceId(instanceId: number): Promise<RecommendedDeckWithCards | null> {

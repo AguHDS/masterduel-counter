@@ -7,6 +7,7 @@ export interface ArchetypeRepository {
    */
   searchArchetypeByName(searchTerm: string, limit?: number): Promise<Archetype[]>;
   searchAutocomplete(searchTerm: string, limit?: number): Promise<Archetype[]>;
+  /** Find Archetype by its ID */
   findById(id: number): Promise<Archetype | null>;
   findByName(name: string): Promise<Archetype | null>;
   findAll(limit?: number, offset?: number): Promise<Archetype[]>;

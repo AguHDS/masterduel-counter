@@ -13,7 +13,9 @@ export interface ArchetypeInstanceServicePort {
   /** Gets an instance by its ID */
   getInstanceById(id: number): Promise<ArchetypeInstance | null>;
   
-  /** Get all archetype instances created for a specific archetype by all users */
+  /** Get all archetype instances created for a specific archetype by all users
+   * @param sortBy - Optional sorting order (by Likes or Last Update)
+   */
   getInstancesByArchetypeId(archetypeId: number, sortBy?: 'likes' | 'updated'): Promise<ArchetypeInstanceWithDetails[]>;
   
   /** Get all archetype instances created by a specific user (for user profile) */
