@@ -108,16 +108,17 @@ export const ArchetypeInstancesList = ({
   return (
     <div className="flex flex-col items-start p-4 w-full">
       <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
-        <div className="flex items-center w-full justify-between gap-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-2xl relative top-[7px] font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-yellow-400 bg-clip-text text-transparent">
-              <span className="text-white relative bottom-[1px] mr-2 font-semibold">
-                How to counter:
+        <div className="flex items-center w-full justify-between">
+          <div className="flex mt-3 items-center gap-2">
+            <h1 className="text-2xl font-bold font-sans flex items-center">
+              <span className="text-white mr-2">How to counter</span>
+
+              <span className="bg-gradient-to-r relative top-[1px] from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                {archetypeName} •
               </span>
-              {archetypeName} •
             </h1>
 
-            <span className="text-base relative top-[10px] font-semibold text-blue-400">
+            <span className="text-base relative top-[4px] font-semibold text-blue-400">
               Guides ({data.length})
             </span>
           </div>

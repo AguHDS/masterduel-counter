@@ -3,7 +3,10 @@ import { RecommendedDeck, RecommendedDeckCreateDTO, RecommendedDeckUpdateDTO } f
 export interface RecommendedDeckRepository {
   /** Create a recommended deck for a specific instance */
   createDeck(data: RecommendedDeckCreateDTO): Promise<RecommendedDeck>;
-  findByInstanceId(instanceId: number): Promise<RecommendedDeck | null>;
-  update(instanceId: number, data: RecommendedDeckUpdateDTO): Promise<RecommendedDeck>;
-  delete(instanceId: number): Promise<void>;
+  /** Find recommended deck by instance ID */
+  getDeckByInstanceId(instanceId: number): Promise<RecommendedDeck | null>;
+  /** Update a recommended deck by instance ID */
+  updateDeck(instanceId: number, data: RecommendedDeckUpdateDTO): Promise<RecommendedDeck>;
+  /** Delete a recommended deck by instance ID */
+  deleteDeck(instanceId: number): Promise<void>;
 }

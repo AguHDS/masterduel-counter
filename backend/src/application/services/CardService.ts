@@ -24,7 +24,7 @@ export class CardServiceImpl implements CardService {
 
   async selectCard(cardId: number): Promise<CardPreviewDTO> {
     // Check if card already exists in database
-    const existingCard = await this.cardRepository.findById(cardId);
+    const existingCard = await this.cardRepository.finCardById(cardId);
 
     if (existingCard) {
       return {
@@ -91,7 +91,7 @@ export class CardServiceImpl implements CardService {
       createdAt: new Date().toISOString(),
     };
 
-    await this.cardRepository.save(card);
+    await this.cardRepository.saveOrUpdateCard(card);
 
     return {
       id: card.id,
@@ -113,7 +113,7 @@ export class CardServiceImpl implements CardService {
 
     // Step 1: Create cards that don't exist yet (download from API -> upload to Cloudinary)
     for (const cardId of cardIds) {
-      const existingCard = await this.cardRepository.findById(cardId);
+      const existingCard = await this.cardRepository.finCardById(cardId);
 
       if (!existingCard) {
         try {
@@ -126,7 +126,7 @@ export class CardServiceImpl implements CardService {
 
     // Step 2: Mark all cards as permanent (not temporary anymore)
     for (const cardId of cardIds) {
-      await this.cardRepository.updateToPermanent(cardId);
+      await this.cardRepository.updateCardToPermanent(cardId);
     }
 
     // Note: 
@@ -144,7 +144,7 @@ export class CardServiceImpl implements CardService {
     // - Bugs in the confirmation process
     // - Manual database operations
 
-    const temporaryCards = await this.cardRepository.findTemporaryOlderThan(24);
+    const temporaryCards = await this.cardRepository.findTemporaryCardOlderThan(24);
     console.log(
       `[cleanupTemporaryCards] Found ${temporaryCards.length} temporary cards older than 24 hours`,
     );
@@ -168,7 +168,7 @@ export class CardServiceImpl implements CardService {
           card.cloudinaryPublicIdCropped,
         );
         // Delete from database
-        await this.cardRepository.deleteById(card.id);
+        await this.cardRepository.deleteCardById(card.id);
         deletedCount++;
         console.log(
           `[cleanupTemporaryCards] Successfully deleted temporary card ${card.id} (${card.name})`,

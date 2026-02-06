@@ -9,7 +9,7 @@ export class SqliteUserRepository implements UserRepository {
     this.prisma = prisma;
   }
 
-  async findByUsername(username: string): Promise<User | null> {
+  async findUserByUsername(username: string): Promise<User | null> {
     const user = await this.prisma.user.findFirst({
       where: {
         name: username,
@@ -38,7 +38,7 @@ export class SqliteUserRepository implements UserRepository {
     };
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findUserById(id: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
@@ -89,51 +89,6 @@ export class SqliteUserRepository implements UserRepository {
       isTaken: userTaken || emailTaken,
       userTaken,
       emailTaken,
-    };
-  }
-
-  async deleteUserById(id: string): Promise<void> {
-    await this.prisma.user.delete({
-      where: { id },
-    });
-  }
-
-  async getAllUsers(): Promise<User[]> {
-    const users = await this.prisma.user.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    return users.map(
-      (user): User => ({
-        id: user.id,
-        username: user.name,
-        email: user.email,
-        role: user.role,
-        created_at: user.createdAt.toISOString(),
-      }),
-    );
-  }
-
-  async updateUserCredentials(
-    id: string,
-    updates: { username?: string; email?: string },
-  ): Promise<User> {
-    const updatedUser = await this.prisma.user.update({
-      where: { id },
-      data: {
-        ...(updates.username && { name: updates.username }),
-        ...(updates.email && { email: updates.email }),
-      },
-    });
-
-    return {
-      id: updatedUser.id,
-      username: updatedUser.name,
-      email: updatedUser.email,
-      role: updatedUser.role,
-      created_at: updatedUser.createdAt.toISOString(),
     };
   }
 }

@@ -68,7 +68,6 @@ export const InstancesTable = ({
           : "Archetype instances list"
       }
     >
-      
       {/* Desktop headers */}
       <div
         className="w-full flex justify-center m-auto h-[2px]"
@@ -316,17 +315,18 @@ export const InstancesTable = ({
 
       {totalPages > 1 && (
         <nav
-          className="flex items-center justify-center gap-4 mt-6"
+          className="flex relative top-1 items-center justify-center gap-4 my-4"
           aria-label="Pagination navigation"
         >
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 0}
-            className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            className="p-2 text-yellow-400 hover:text-yellow-300 disabled:text-yellow-400/30 disabled:cursor-not-allowed transition-colors"
             aria-label="Go to previous page"
           >
-            <ChevronLeft className="w-5 h-5" aria-hidden="true" />
+            <ChevronLeft className="w-6 h-6" aria-hidden="true" />
           </button>
+
           <span
             className="text-blue-300 text-sm font-medium"
             aria-current="page"
@@ -336,10 +336,10 @@ export const InstancesTable = ({
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages - 1}
-            className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            className="p-2 text-yellow-400 hover:text-yellow-300 disabled:text-yellow-400/30 disabled:cursor-not-allowed transition-colors"
             aria-label="Go to next page"
           >
-            <ChevronRight className="w-5 h-5" aria-hidden="true" />
+            <ChevronRight className="w-6 h-6" aria-hidden="true" />
           </button>
         </nav>
       )}

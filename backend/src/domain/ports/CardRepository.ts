@@ -1,12 +1,14 @@
 import { Card } from "../Card";
 
 export interface CardRepository {
-  findByName(name: string): Promise<Card[]>;
   /** Find Card by its ID */
-  findById(id: number): Promise<Card | null>;
-  save(card: Card): Promise<void>;
-  existsById(id: number): Promise<boolean>;
-  updateToPermanent(id: number): Promise<void>;
-  findTemporaryOlderThan(hours: number): Promise<Card[]>;
-  deleteById(id: number): Promise<void>;
+  finCardById(id: number): Promise<Card | null>;
+  /** Save or update a Card */
+  saveOrUpdateCard(card: Card): Promise<void>;
+  /** Mark Card as permanent (not temporary) */
+  updateCardToPermanent(id: number): Promise<void>;
+  /** Find temporary Cards older than specified hours */
+  findTemporaryCardOlderThan(hours: number): Promise<Card[]>;
+  /** Delete card by its ID */
+  deleteCardById(id: number): Promise<void>;
 }

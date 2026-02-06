@@ -14,7 +14,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     limit: number = 50,
   ): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
-      SELECT id, name, registered, pending_requests,
+      SELECT id, name, registered,
              created_at, updated_at
       FROM archetypes 
       WHERE LOWER(name) LIKE LOWER(?) 
@@ -30,7 +30,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     limit: number = 10,
   ): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
-      SELECT id, name, registered, pending_requests,
+      SELECT id, name, registered,
              created_at, updated_at
       FROM archetypes 
       WHERE LOWER(name) LIKE LOWER(?) 
@@ -43,7 +43,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
 
   async findArchetypeById(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
-      SELECT id, name, registered, pending_requests,
+      SELECT id, name, registered,
              created_at, updated_at
       FROM archetypes 
       WHERE id = ?
@@ -55,7 +55,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
 
   async findArchetypeByName(name: string): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
-      SELECT id, name, registered, pending_requests,
+      SELECT id, name, registered,
              created_at, updated_at
       FROM archetypes 
       WHERE name = ?
@@ -71,7 +71,6 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
         a.id, 
         a.name, 
         a.registered, 
-        a.pending_requests,
         a.created_at, 
         a.updated_at
       FROM archetypes a
@@ -99,11 +98,6 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       params.push(archetypeData.registered ? 1 : 0);
     }
 
-    if (archetypeData.pending_requests !== undefined) {
-      updates.push("pending_requests = ?");
-      params.push(archetypeData.pending_requests);
-    }
-
     if (updates.length === 0) {
       return this.findArchetypeById(id);
     }
@@ -115,7 +109,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       UPDATE archetypes 
       SET ${updates.join(", ")}
       WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
+      RETURNING id, name, registered, created_at, updated_at
     `;
 
     const stmt = this.db.prepare(sql);

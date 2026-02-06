@@ -64,16 +64,14 @@ export const RegisteredArchetypesList = ({
   return (
     <FramedContainer
       aria-label="Latest registered archetypes"
-      contentClassName="w-full px-3 sm:px-4 md:px-[5%] py-6 flex flex-col"
+      contentClassName="w-full px-3 sm:px-4 md:px-[5%] py-5 flex flex-col"
     >
-      <div className="flex sm:flex-row sm:items-end gap-2 mb-4">
-        <h2 className="text-2xl font-bold text-white">Latest Archetypes •</h2>
-        <span className="text-sm relative bottom-[3px] font-semibold text-blue-300">
+      <div className="flex my-5 sm:flex-row sm:items-end gap-2 ">
+        <h2 className="text-2xl relative bottom-1 font-bold text-white">Latest Archetypes •</h2>
+        <span className="text-sm relative bottom-[7px] font-semibold text-blue-300">
           Registered by the community
         </span>
       </div>
-
-      {/* Nuevo título agregado aquí */}
 
       <div
         className="w-full flex justify-center m-auto h-[2px]"
@@ -82,7 +80,7 @@ export const RegisteredArchetypesList = ({
             "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
         }}
       />
-      {/* Contenedor unificado para encabezado y lista */}
+
       <div className="rounded-lg overflow-hidden">
         <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 border-b border-blue-600 bg-black/60 md:px-6 md:py-4">
           <div className="text-blue-300 font-semibold text-lg">ID</div>
@@ -98,7 +96,9 @@ export const RegisteredArchetypesList = ({
           {currentArchetypes.map((archetype, index) => {
             const positionLabel = startIndex + index + 1;
             const instanceCount = archetype.instance_count || 0;
-            const instanceLabel = `${instanceCount} ${instanceCount === 1 ? "instance" : "instances"}`;
+            const instanceLabel = `${instanceCount} ${
+              instanceCount === 1 ? "instance" : "instances"
+            }`;
             const badgeContent = archetype.name.charAt(0).toUpperCase();
 
             return (
@@ -174,25 +174,27 @@ export const RegisteredArchetypesList = ({
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 mt-6">
+        <div className="flex relative top-1 items-center justify-center gap-4 my-4">
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 0}
-            className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            className="p-2 text-yellow-400 hover:text-yellow-300 disabled:text-yellow-400/30 disabled:cursor-not-allowed transition-colors"
             aria-label="Previous page"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-6 h-6" />
           </button>
+
           <span className="text-blue-300 text-sm font-medium">
             Page {currentPage + 1} of {totalPages}
           </span>
+
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages - 1}
-            className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            className="p-2 text-yellow-400 hover:text-yellow-300 disabled:text-yellow-400/30 disabled:cursor-not-allowed transition-colors"
             aria-label="Next page"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-6 h-6" />
           </button>
         </div>
       )}

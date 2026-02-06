@@ -1,8 +1,7 @@
 /**
  * Card entity stored in database with Cloudinary-hosted images
- * 
+ *
  * isTemporary: Failsafe flag for crash recovery DURING save process
- * Flow:
  * 1. User selects cards → Cards stored in browser memory (NOT in DB)
  * 2. User clicks Save → confirmSelectedCards starts:
  *    - Creates cards with isTemporary=true
@@ -10,7 +9,7 @@
  *    - Marks cards as isTemporary=false
  * 3. If server crashes during step 2, some cards remain temporary
  * 4. Cron job cleans temporary cards older than 24h
- * 
+ *
  * NOTE: Cards selected but never saved don't create temporary records.
  */
 export interface Card {
@@ -43,16 +42,4 @@ export interface CardPreviewDTO {
   imageUrl: string;
   imageUrlSmall: string;
   imageUrlCropped: string;
-}
-
-export interface CardCreateDTO {
-  id: number;
-  name: string;
-  imageUrl: string;
-  imageUrlSmall: string;
-  imageUrlCropped: string;
-  cloudinaryPublicId: string;
-  cloudinaryPublicIdSmall: string;
-  cloudinaryPublicIdCropped: string;
-  isTemporary: boolean;
 }

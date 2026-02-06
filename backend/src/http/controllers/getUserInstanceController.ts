@@ -53,7 +53,7 @@ export const createGetUserInstanceController = (
       // Get the header card if it exists
       let headerCard = null;
       if (instance.headerCardId) {
-        const card = await cardRepository.findById(instance.headerCardId);
+        const card = await cardRepository.finCardById(instance.headerCardId);
         if (card) {
           headerCard = {
             id: card.id,
@@ -69,7 +69,7 @@ export const createGetUserInstanceController = (
       const archetypeName = archetype?.name || "Unknown";
 
       // Get user information
-      const user = await userRepository.findById(userId);
+      const user = await userRepository.findUserById(userId);
       const userName = user?.username || "Unknown";
 
       return res.json({

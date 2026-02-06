@@ -4,7 +4,6 @@ export interface Archetype {
   id: number;
   name: string;
   registered: boolean;
-  pending_requests: number;
   instance_count?: number;
 }
 
@@ -65,13 +64,16 @@ export const searchArchetypes = async (
     return { data: { archetypes: [] } };
   }
 
-  const response = await axiosClient.get<SearchResponse>("/api/searchArchetype", {
-    params: {
-      name: searchTerm,
-      limit,
+  const response = await axiosClient.get<SearchResponse>(
+    "/api/searchArchetype",
+    {
+      params: {
+        name: searchTerm,
+        limit,
+      },
     },
-  });
-  
+  );
+
   return response.data;
 };
 
@@ -88,9 +90,9 @@ export const registerArchetype = async (
 ): Promise<RegisterArchetypeResponse> => {
   const response = await axiosClient.post<RegisterArchetypeResponse>(
     `/api/archetypes/${archetypeId}/register`,
-    { cardPairs, title, headerCardId, generalTip, instanceId }
+    { cardPairs, title, headerCardId, generalTip, instanceId },
   );
-  
+
   return response.data;
 };
 
@@ -107,17 +109,20 @@ export const getArchetypeWithHeaderCard = async (
     header_card_image_url_small?: string;
   };
 }> => {
-  const response = await axiosClient.get(`/api/archetypes/${archetypeId}/with-header`);
+  const response = await axiosClient.get(
+    `/api/archetypes/${archetypeId}/with-header`,
+  );
   return response.data;
 };
 
 /**
  * Get all registered archetypes with creator information
  */
-export const getRegisteredArchetypes = async (): Promise<RegisteredArchetypesResponse> => {
-  const response = await axiosClient.get<RegisteredArchetypesResponse>(
-    "/api/archetypes/registered"
-  );
-  
-  return response.data;
-};
+export const getRegisteredArchetypes =
+  async (): Promise<RegisteredArchetypesResponse> => {
+    const response = await axiosClient.get<RegisteredArchetypesResponse>(
+      "/api/archetypes/registered",
+    );
+
+    return response.data;
+  };

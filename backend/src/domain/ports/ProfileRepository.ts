@@ -7,5 +7,6 @@ export interface ProfileRepository {
   createProfile(data: CreateProfileData): Promise<Profile>;
   /** Update existing profile */
   updateProfile(userId: string, data: UpdateProfileData): Promise<Profile>;
+  /** Delete profile picture */
   deleteProfilePicture(userId: string): Promise<Profile>;
 }

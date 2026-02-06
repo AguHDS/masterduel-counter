@@ -22,7 +22,7 @@ export class PrismaRecommendedDeckRepository implements RecommendedDeckRepositor
     return this.mapToRecommendedDeck(deck);
   }
 
-  async findByInstanceId(instanceId: number): Promise<RecommendedDeck | null> {
+  async getDeckByInstanceId(instanceId: number): Promise<RecommendedDeck | null> {
     const deck = await this.prisma.recommendedDeck.findUnique({
       where: { instanceId },
     });
@@ -32,7 +32,7 @@ export class PrismaRecommendedDeckRepository implements RecommendedDeckRepositor
     return this.mapToRecommendedDeck(deck);
   }
 
-  async update(
+  async updateDeck(
     instanceId: number,
     data: RecommendedDeckUpdateDTO
   ): Promise<RecommendedDeck> {
@@ -56,7 +56,7 @@ export class PrismaRecommendedDeckRepository implements RecommendedDeckRepositor
     return this.mapToRecommendedDeck(deck);
   }
 
-  async delete(instanceId: number): Promise<void> {
+  async deleteDeck(instanceId: number): Promise<void> {
     await this.prisma.recommendedDeck.delete({
       where: { instanceId },
     });

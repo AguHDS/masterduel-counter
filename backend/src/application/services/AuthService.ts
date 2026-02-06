@@ -15,7 +15,7 @@ export class AuthServiceImpl implements AuthService {
 
   async login(credentials: UserLoginDTO): Promise<UserLoginResponse> {
     try {
-      const user = await this.userRepository.findByUsername(
+      const user = await this.userRepository.findUserByUsername(
         credentials.username,
       );
 

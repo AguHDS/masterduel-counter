@@ -279,11 +279,9 @@ export const ArchetypeAnalyzerContainer = () => {
 
     try {
       await instanceApi.deleteInstance(userInstanceData.instance.id);
-      alert("Instance deleted successfully");
       window.location.href = "/";
     } catch (error) {
       console.error("Error deleting instance:", error);
-      alert("Failed to delete instance. Please try again.");
     }
   };
 

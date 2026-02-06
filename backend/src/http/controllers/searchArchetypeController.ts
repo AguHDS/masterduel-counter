@@ -31,7 +31,6 @@ export const searchArchetypeController = async (
           id: archetype.id,
           name: archetype.name,
           registered: archetype.registered,
-          pending_requests: archetype.pending_requests,
         })),
       },
     };

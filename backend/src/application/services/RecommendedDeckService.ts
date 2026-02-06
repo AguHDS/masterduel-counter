@@ -28,12 +28,12 @@ export class RecommendedDeckService implements RecommendedDeckServicePort {
   }
 
   async getDeckByInstanceId(instanceId: number): Promise<RecommendedDeckWithCards | null> {
-    const deck = await this.deckRepository.findByInstanceId(instanceId);
+    const deck = await this.deckRepository.getDeckByInstanceId(instanceId);
     if (!deck) return null;
 
     // Fetch card details for main deck (filter out missing cards)
     const mainDeckPromises = deck.mainDeckCards.map(async (cardId) => {
-      const card = await this.cardRepository.findById(cardId);
+      const card = await this.cardRepository.finCardById(cardId);
       if (!card) {
         console.warn(`Card not found: ${cardId}, skipping...`);
         return null;
@@ -49,7 +49,7 @@ export class RecommendedDeckService implements RecommendedDeckServicePort {
 
     // Fetch card details for extra deck (filter out missing cards)
     const extraDeckPromises = deck.extraDeckCards.map(async (cardId) => {
-      const card = await this.cardRepository.findById(cardId);
+      const card = await this.cardRepository.finCardById(cardId);
       if (!card) {
         console.warn(`Card not found: ${cardId}, skipping...`);
         return null;
@@ -95,10 +95,10 @@ export class RecommendedDeckService implements RecommendedDeckServicePort {
       throw new Error("Extra deck cannot have more than 15 cards");
     }
 
-    return this.deckRepository.update(instanceId, data);
+    return this.deckRepository.updateDeck(instanceId, data);
   }
 
   async deleteDeck(instanceId: number): Promise<void> {
-    return this.deckRepository.delete(instanceId);
+    return this.deckRepository.deleteDeck(instanceId);
   }
 }
