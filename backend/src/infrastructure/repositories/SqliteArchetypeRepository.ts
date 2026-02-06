@@ -1,9 +1,5 @@
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
-import {
-  Archetype,
-  ArchetypeCreateDTO,
-  ArchetypeUpdateDTO,
-} from "@/domain/Archetype";
+import { Archetype, ArchetypeUpdateDTO } from "@/domain/Archetype";
 import Database from "better-sqlite3";
 
 export class SqliteArchetypeRepository implements ArchetypeRepository {
@@ -45,7 +41,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return stmt.all(`${searchTerm}%`, limit) as Archetype[];
   }
 
-  async findById(id: number): Promise<Archetype | null> {
+  async findArchetypeById(id: number): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered, pending_requests,
              created_at, updated_at
@@ -57,7 +53,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async findByName(name: string): Promise<Archetype | null> {
+  async findArchetypeByName(name: string): Promise<Archetype | null> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered, pending_requests,
              created_at, updated_at
@@ -69,42 +65,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async create(archetypeData: ArchetypeCreateDTO): Promise<Archetype> {
-    const stmt = this.db.prepare(`
-      INSERT INTO archetypes (name, registered, pending_requests)
-      VALUES (?, ?, ?)
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
-    `);
-
-    const result = stmt.get(
-      archetypeData.name,
-      archetypeData.registered ? 1 : 0,
-      archetypeData.pending_requests || 0,
-    ) as Archetype;
-
-    return result;
-  }
-
-  async findAll(limit?: number, offset?: number): Promise<Archetype[]> {
-    let sql = `
-      SELECT id, name, registered, pending_requests,
-             created_at, updated_at
-      FROM archetypes 
-      ORDER BY name
-    `;
-
-    if (limit !== undefined) {
-      sql += ` LIMIT ${limit}`;
-      if (offset !== undefined) {
-        sql += ` OFFSET ${offset}`;
-      }
-    }
-
-    const stmt = this.db.prepare(sql);
-    return stmt.all() as Archetype[];
-  }
-
-  async findAllRegistered(): Promise<Archetype[]> {
+  async findAllRegisteredArchetypes(): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
       SELECT 
         a.id, 
@@ -121,7 +82,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return stmt.all() as Archetype[];
   }
 
-  async update(
+  async updateExistingArchetype(
     id: number,
     archetypeData: ArchetypeUpdateDTO,
   ): Promise<Archetype | null> {
@@ -144,7 +105,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     }
 
     if (updates.length === 0) {
-      return this.findById(id);
+      return this.findArchetypeById(id);
     }
 
     updates.push("updated_at = CURRENT_TIMESTAMP");
@@ -161,84 +122,5 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     const result = stmt.get(...params) as Archetype | undefined;
 
     return result || null;
-  }
-
-  async markAsRegistered(id: number): Promise<Archetype | null> {
-    const stmt = this.db.prepare(`
-      UPDATE archetypes 
-      SET registered = 1, 
-          pending_requests = 0,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
-    `);
-
-    const result = stmt.get(id) as Archetype | undefined;
-    return result || null;
-  }
-
-
-
-  async incrementPendingRequests(id: number): Promise<Archetype | null> {
-    const stmt = this.db.prepare(`
-      UPDATE archetypes 
-      SET pending_requests = pending_requests + 1, 
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
-    `);
-
-    const result = stmt.get(id) as Archetype | undefined;
-    return result || null;
-  }
-
-  async decrementPendingRequests(id: number): Promise<Archetype | null> {
-    const stmt = this.db.prepare(`
-      UPDATE archetypes 
-      SET pending_requests = MAX(pending_requests - 1, 0), 
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
-    `);
-
-    const result = stmt.get(id) as Archetype | undefined;
-    return result || null;
-  }
-
-  async resetPendingRequests(id: number): Promise<Archetype | null> {
-    const stmt = this.db.prepare(`
-      UPDATE archetypes 
-      SET pending_requests = 0, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-      RETURNING id, name, registered, pending_requests, created_at, updated_at
-    `);
-
-    const result = stmt.get(id) as Archetype | undefined;
-    return result || null;
-  }
-
-  async findWithPendingRequests(limit?: number): Promise<Archetype[]> {
-    let sql = `
-      SELECT id, name, registered, pending_requests,
-             created_at, updated_at
-      FROM archetypes 
-      WHERE pending_requests > 0
-      ORDER BY pending_requests DESC, updated_at DESC
-    `;
-
-    if (limit !== undefined) {
-      sql += ` LIMIT ${limit}`;
-    }
-
-    const stmt = this.db.prepare(sql);
-    return stmt.all() as Archetype[];
-  }
-
-
-
-  async existsByName(name: string): Promise<boolean> {
-    const stmt = this.db.prepare("SELECT 1 FROM archetypes WHERE name = ?");
-    const result = stmt.get(name);
-    return !!result;
   }
 }

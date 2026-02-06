@@ -11,12 +11,6 @@ export interface ArchetypeSearchResult extends Archetype {
   relevance?: number;
 }
 
-export interface ArchetypeCreateDTO {
-  name: string;
-  registered?: boolean;
-  pending_requests?: number;
-}
-
 export interface ArchetypeUpdateDTO {
   name?: string;
   registered?: boolean;

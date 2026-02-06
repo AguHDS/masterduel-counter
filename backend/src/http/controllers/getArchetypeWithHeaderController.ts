@@ -20,7 +20,7 @@ export const getArchetypeWithHeaderController = async (
     }
 
     const archetypeRepository = getDependencies().getArchetypeRepository();
-    const archetype = await archetypeRepository.findById(archetypeId);
+    const archetype = await archetypeRepository.findArchetypeById(archetypeId);
 
     if (!archetype) {
       res.status(404).json({ success: false, error: "Archetype not found" });

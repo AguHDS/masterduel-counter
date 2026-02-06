@@ -60,7 +60,7 @@ export const createGetInstanceByIdController = (
         }
       }
 
-      const archetype = await archetypeRepository.findById(instance.archetypeId);
+      const archetype = await archetypeRepository.findArchetypeById(instance.archetypeId);
       const archetypeName = archetype?.name || "Unknown";
 
       const user = await userRepository.findById(instance.userId);

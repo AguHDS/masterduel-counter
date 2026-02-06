@@ -65,7 +65,7 @@ export const createGetUserInstanceController = (
       }
 
       // Get archetype information
-      const archetype = await archetypeRepository.findById(archetypeId);
+      const archetype = await archetypeRepository.findArchetypeById(archetypeId);
       const archetypeName = archetype?.name || "Unknown";
 
       // Get user information

@@ -131,9 +131,9 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     await this.cardPairRepository.CreateManyPairCards(pairsToCreate);
 
     // Mark archetype as registered if it is not already
-    const archetype = await this.archetypeRepository.findById(archetypeId);
+    const archetype = await this.archetypeRepository.findArchetypeById(archetypeId);
     if (archetype && !archetype.registered) {
-      await this.archetypeRepository.update(archetypeId, { registered: true });
+      await this.archetypeRepository.updateExistingArchetype(archetypeId, { registered: true });
     }
 
     return instance;

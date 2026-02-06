@@ -73,7 +73,7 @@ export const deleteUserInstanceController = async (
     // If no more instances exist, mark archetype as unregistered
     if (remainingInstances.length === 0) {
       const archetypeRepository = getDependencies().getArchetypeRepository();
-      await archetypeRepository.update(archetypeIdNum, {
+      await archetypeRepository.updateExistingArchetype(archetypeIdNum, {
         registered: false,
       });
     }
