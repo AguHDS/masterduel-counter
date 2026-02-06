@@ -98,7 +98,7 @@ export const Navbar = () => {
             className="h-[40px] w-auto"
           />
 
-          <div className="absolute inset-0 flex items-center justify-center gap-[0.1rem]">
+          <div className="absolute inset-0 flex items-center justify-center gap-[0.2rem]">
             <img
               src={discordSvgIcon}
               alt="Discord logo"

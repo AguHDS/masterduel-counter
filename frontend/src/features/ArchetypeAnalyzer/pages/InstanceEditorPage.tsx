@@ -10,6 +10,7 @@ import { SearchResults } from "@/shared/components/Search/SearchResults";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import { FeatureErrorBoundary } from "@/shared/components";
 import type { Archetype } from "../api/archetypeApi";
+import { MainLogo } from "@/shared/components/MainLogo";
 
 export const InstanceEditorPage = () => {
   const { archetypeId } = useParams<{
@@ -109,6 +110,7 @@ export const InstanceEditorPage = () => {
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />
+        <MainLogo />
         <SearchInput
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}

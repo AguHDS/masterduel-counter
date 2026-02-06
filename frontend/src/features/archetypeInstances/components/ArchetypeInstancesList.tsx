@@ -8,6 +8,7 @@ import {
 import { useAuth } from "@/features/auth";
 import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTable";
 import { FramedContainer } from "@/layouts/FramedContainer";
+import { MainLogo } from "@/shared/components/MainLogo";
 
 interface ArchetypeInstancesListProps {
   archetypeId: number;

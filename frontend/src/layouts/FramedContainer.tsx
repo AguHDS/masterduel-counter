@@ -1,6 +1,6 @@
 import type { HTMLAttributes, PropsWithChildren } from "react";
-import framedContainerBackground from "@/assets/FramedContainerBackground.png";
-import framedContainerBorder from "@/assets/FramedContainerBorder.png";
+import framedContainerBackground from "@/assets/FramedContainerBackground.webp";
+import framedContainerBorder from "@/assets/FramedContainerBorder.webp";
 
 interface FramedContainerProps extends HTMLAttributes<HTMLElement> {
   maxWidthClassName?: string;
@@ -14,13 +14,17 @@ export const FramedContainer = ({
   contentClassName,
   ...sectionProps
 }: PropsWithChildren<FramedContainerProps>) => {
-  const sectionClasses = ["w-full flex justify-center", className].filter(Boolean).join(" ");
+  const sectionClasses = ["w-full flex justify-center", className]
+    .filter(Boolean)
+    .join(" ");
+
   const wrapperClasses = [
     "relative w-full overflow-hidden rounded-[26px]",
     maxWidthClassName,
   ]
     .filter(Boolean)
     .join(" ");
+
   const contentClasses = ["relative w-full", contentClassName]
     .filter(Boolean)
     .join(" ");
@@ -28,22 +32,26 @@ export const FramedContainer = ({
   return (
     <section {...sectionProps} className={sectionClasses}>
       <div className={wrapperClasses}>
-        {/* Contenedor interno para el background con recorte */}
         <div className="absolute inset-0 overflow-hidden rounded-[26px]">
           <img
             src={framedContainerBackground}
             alt=""
             aria-hidden="true"
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-fill pointer-events-none select-none opacity-70"
           />
         </div>
-        {/* Borde encima del background */}
+
         <img
           src={framedContainerBorder}
           alt=""
           aria-hidden="true"
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-fill pointer-events-none select-none opacity-80 z-10"
         />
+
         {/* Contenido */}
         <div className={contentClasses}>{children}</div>
       </div>

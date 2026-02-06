@@ -52,12 +52,12 @@ export const Footer = () => {
               </button>
               <span className="text-blue-700" aria-hidden="true">•</span>
               <a 
-                href="https://discord.gg/wzkGb4Zgnw" 
+                href="" 
                 className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
                 target="_blank" 
-                aria-label="Discord server"
+                aria-label="Support us"
               >
-                Discord
+                Support us
               </a>
             </nav>
 

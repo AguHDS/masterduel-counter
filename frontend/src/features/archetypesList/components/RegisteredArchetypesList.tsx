@@ -67,7 +67,9 @@ export const RegisteredArchetypesList = ({
       contentClassName="w-full px-3 sm:px-4 md:px-[5%] py-5 flex flex-col"
     >
       <div className="flex my-5 sm:flex-row sm:items-end gap-2 ">
-        <h2 className="text-2xl relative bottom-1 font-bold text-white">Latest Archetypes •</h2>
+        <h2 className="text-2xl relative bottom-1 font-bold text-white">
+          Latest Archetypes •
+        </h2>
         <span className="text-sm relative bottom-[7px] font-semibold text-blue-300">
           Registered by the community
         </span>
@@ -110,6 +112,8 @@ export const RegisteredArchetypesList = ({
                 <img
                   src={instanceItemBg}
                   alt=""
+                  loading="lazy"
+                  decoding="async"
                   aria-hidden="true"
                   className="absolute inset-0 h-full w-full"
                 />

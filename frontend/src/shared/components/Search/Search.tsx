@@ -1,4 +1,3 @@
-import lupaImg from "@/assets/Lupa.webp";
 import Searchbar_WithBlueBackground from "@/assets/Bluesearch.webp";
 import { useEffect, useRef } from "react";
 import styles from "./search.module.css";
@@ -67,16 +66,6 @@ export const SearchInput = ({
 
         {/* Contenedor principal */}
         <div className={styles.searchContentContainer}>
-          {/* Lupa */}
-          <div className={styles.lupaContainer}>
-            <img
-              src={lupaImg}
-              alt="lupa"
-              className={styles.lupaImage}
-              draggable="false"
-            />
-          </div>
-
           {/* Área del input */}
           <div className={styles.inputArea}>
             <input

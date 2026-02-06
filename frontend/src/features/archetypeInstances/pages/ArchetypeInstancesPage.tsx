@@ -9,6 +9,7 @@ import { useArchetypeSearch } from "@/features/ArchetypeAnalyzer/hooks/useArchet
 import { SearchInput } from "@/shared/components/Search/Search";
 import { SearchResults } from "@/shared/components/Search/SearchResults";
 import { FeatureErrorBoundary } from "@/shared/components";
+import { MainLogo } from "@/shared/components/MainLogo";
 import type { Archetype } from "@/features/ArchetypeAnalyzer/api/archetypeApi";
 
 export const ArchetypeInstancesPage = () => {
@@ -98,6 +99,8 @@ export const ArchetypeInstancesPage = () => {
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />
+          <MainLogo />
+
         <SearchInput
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
