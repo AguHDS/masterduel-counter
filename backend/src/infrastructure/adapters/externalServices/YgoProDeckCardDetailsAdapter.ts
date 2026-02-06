@@ -3,8 +3,8 @@ import { CardDetailsApiService, CardDetails } from "@/domain/ports/externalServi
 export class YgoProDeckCardDetailsAdapter implements CardDetailsApiService {
   private readonly baseUrl = "https://db.ygoprodeck.com/api/v7/cardinfo.php";
 
-  /** Get detailed information about a card by its ID (for hover tooltip) */
-  async getCardDetails(id: number): Promise<CardDetails | null> {
+  /** Get detailed information about a card by its ID from external API (for hover tooltip) */
+  async getCardDetailsFromExternalApi(id: number): Promise<CardDetails | null> {
     try {
       const url = `${this.baseUrl}?id=${id}`;
       const response = await fetch(url);

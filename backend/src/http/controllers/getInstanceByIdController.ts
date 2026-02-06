@@ -32,7 +32,7 @@ export const createGetInstanceByIdController = (
       }
 
       // Search instance by ID
-      const instance = await instanceRepository.findById(instanceId);
+      const instance = await instanceRepository.findArchetypeInstanceById(instanceId);
 
       if (!instance) {
         return res.status(404).json({ 
@@ -48,7 +48,7 @@ export const createGetInstanceByIdController = (
       // Get the header card if exists
       let headerCard = null;
       if (instance.headerCardId) {
-        const card = await cardRepository.findById(instance.headerCardId);
+        const card = await cardRepository.finCardById(instance.headerCardId);
         if (card) {
           headerCard = {
             id: card.id,
@@ -60,10 +60,10 @@ export const createGetInstanceByIdController = (
         }
       }
 
-      const archetype = await archetypeRepository.findById(instance.archetypeId);
+      const archetype = await archetypeRepository.findArchetypeById(instance.archetypeId);
       const archetypeName = archetype?.name || "Unknown";
 
-      const user = await userRepository.findById(instance.userId);
+      const user = await userRepository.findUserById(instance.userId);
       const userName = user?.username || "Unknown";
 
       return res.json({

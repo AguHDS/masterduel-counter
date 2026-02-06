@@ -12,7 +12,9 @@ export const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [message, setMessage] = useState("");
 
   const token = searchParams.get("token");
@@ -60,12 +62,29 @@ export const ResetPasswordPage = () => {
 
       setTimeout(() => {
         navigate("/signin", {
-          state: { message: "Password reset successfully! You can now sign in with your new password." }
+          state: {
+            message:
+              "Password reset successfully! You can now sign in with your new password.",
+          },
         });
       }, 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setStatus("error");
-      const errorMessage = error?.message || "Failed to reset password. The link may be expired.";
+
+      let errorMessage = "Failed to reset password. The link may be expired.";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        errorMessage = String((error as { message: string }).message);
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      }
+
       setMessage(errorMessage);
     }
   };
@@ -74,11 +93,14 @@ export const ResetPasswordPage = () => {
     <>
       <Helmet>
         <title>Reset Password - Masterduel Counter</title>
-        <meta name="description" content="Reset your password for Masterduel Counter" />
+        <meta
+          name="description"
+          content="Reset your password for Masterduel Counter"
+        />
       </Helmet>
 
       <Navbar />
-      
+
       <div className="min-h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 to-blue-950 flex items-center justify-center px-4 py-12">
         <div className="max-w-md w-full space-y-8">
           <header className="text-center">
@@ -94,7 +116,9 @@ export const ResetPasswordPage = () => {
             <div className="bg-slate-800 rounded-lg p-8 text-center space-y-4">
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto" />
               <div>
-                <h2 className="text-xl font-semibold text-white mb-2">Password Reset Successfully!</h2>
+                <h2 className="text-xl font-semibold text-white mb-2">
+                  Password Reset Successfully!
+                </h2>
                 <p className="text-gray-400">{message}</p>
               </div>
             </div>
@@ -102,15 +126,23 @@ export const ResetPasswordPage = () => {
             <div className="bg-slate-800 rounded-lg p-8 text-center space-y-4">
               <XCircle className="w-16 h-16 text-red-400 mx-auto" />
               <div>
-                <h2 className="text-xl font-semibold text-white mb-2">Invalid Link</h2>
+                <h2 className="text-xl font-semibold text-white mb-2">
+                  Invalid Link
+                </h2>
                 <p className="text-gray-400">{message}</p>
               </div>
             </div>
           ) : (
-            <form className="mt-8 space-y-6 bg-slate-800 rounded-lg p-8" onSubmit={handleSubmit}>
+            <form
+              className="mt-8 space-y-6 bg-slate-800 rounded-lg p-8"
+              onSubmit={handleSubmit}
+            >
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
                     New Password
                   </label>
                   <div className="relative">
@@ -132,7 +164,10 @@ export const ResetPasswordPage = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
                     Confirm Password
                   </label>
                   <div className="relative">

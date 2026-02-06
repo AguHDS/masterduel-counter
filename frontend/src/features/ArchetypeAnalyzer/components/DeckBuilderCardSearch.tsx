@@ -73,7 +73,6 @@ export const DeckBuilderCardSearch = ({
   const totalGap = gap * (columnCount - 1);
   const cardWidth = Math.floor((containerSize.width - paddingHorizontal - totalGap) / columnCount);
   const cardImageHeight = Math.floor(cardWidth * (86 / 59));
-  const cardTextHeight = 24;
 
   // Group cards into rows for virtualization
   const cardRows = useMemo(() => {

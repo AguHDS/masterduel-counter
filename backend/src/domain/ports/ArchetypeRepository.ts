@@ -1,26 +1,27 @@
-import { Archetype, ArchetypeCreateDTO, ArchetypeUpdateDTO } from "../Archetype";
+import { Archetype, ArchetypeUpdateDTO } from "../Archetype";
 
 export interface ArchetypeRepository {
-  searchByName(searchTerm: string, limit?: number): Promise<Archetype[]>;
+  /** Search archetype by name
+   * @searchTerm - Term to search for in archetype names
+   * @limit - Maximum number of results to return (default = 50)
+   */
+  searchArchetypeByName(
+    searchTerm: string,
+    limit?: number,
+  ): Promise<Archetype[]>;
+  /** Autocomplete for archetype names when searching
+   * @limit - Maximum number of results to return (default = 10)
+   */
   searchAutocomplete(searchTerm: string, limit?: number): Promise<Archetype[]>;
-  findById(id: number): Promise<Archetype | null>;
-  findByName(name: string): Promise<Archetype | null>;
-  findAll(limit?: number, offset?: number): Promise<Archetype[]>;
-  findAllRegistered(): Promise<Archetype[]>;
-  create(archetypeData: ArchetypeCreateDTO): Promise<Archetype>;
-  update(id: number, archetypeData: ArchetypeUpdateDTO): Promise<Archetype | null>;
-  markAsRegistered(id: number, userId?: string): Promise<Archetype | null>;
-  markAsUnregistered(id: number): Promise<Archetype | null>;
-  incrementPendingRequests(id: number): Promise<Archetype | null>;
-  decrementPendingRequests(id: number): Promise<Archetype | null>;
-  resetPendingRequests(id: number): Promise<Archetype | null>;
-  findWithPendingRequests(limit?: number): Promise<Archetype[]>;
-  getStatistics(): Promise<{
-    total: number;
-    registered: number;
-    unregistered: number;
-    pending_requests_total: number;
-    archetypes_with_requests: number;
-  }>;
-  existsByName(name: string): Promise<boolean>;
+  /** Find Archetype by ID */
+  findArchetypeById(id: number): Promise<Archetype | null>;
+  /** Find Archetype by name */
+  findArchetypeByName(name: string): Promise<Archetype | null>;
+  /** Find all registered archetypes */
+  findAllRegisteredArchetypes(): Promise<Archetype[]>;
+  /** Update existing archetype. */
+  updateExistingArchetype(
+    id: number,
+    archetypeData: ArchetypeUpdateDTO,
+  ): Promise<Archetype | null>;
 }

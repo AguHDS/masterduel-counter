@@ -150,8 +150,6 @@ export class Dependencies {
     if (!this.archetypeService) {
       this.archetypeService = new ArchetypeService(
         this.getArchetypeRepository(),
-        this.getCardPairRepository(),
-        this.getCardService(),
       );
     }
     return this.archetypeService;

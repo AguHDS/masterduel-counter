@@ -33,8 +33,8 @@ export const createGetUserInstanceController = (
         });
       }
 
-      // Buscar la instancia del usuario para este arquetipo
-      const instance = await instanceRepository.findByArchetypeAndUser(
+      // Search the instance of the user for this archetype
+      const instance = await instanceRepository.findArchetypeInstanceByArchetypeAndUserId(
         archetypeId, 
         userId
       );
@@ -45,15 +45,15 @@ export const createGetUserInstanceController = (
         });
       }
 
-      // Obtener los pares de cartas con detalles
+      // Get the card pairs with details
       const cardPairs = await cardPairRepository.findByInstanceIdWithDetails(
         instance.id
       );
 
-      // Obtener el header card si existe
+      // Get the header card if it exists
       let headerCard = null;
       if (instance.headerCardId) {
-        const card = await cardRepository.findById(instance.headerCardId);
+        const card = await cardRepository.finCardById(instance.headerCardId);
         if (card) {
           headerCard = {
             id: card.id,
@@ -64,12 +64,12 @@ export const createGetUserInstanceController = (
         }
       }
 
-      // Obtener información del arquetipo
-      const archetype = await archetypeRepository.findById(archetypeId);
+      // Get archetype information
+      const archetype = await archetypeRepository.findArchetypeById(archetypeId);
       const archetypeName = archetype?.name || "Unknown";
 
-      // Obtener información del usuario
-      const user = await userRepository.findById(userId);
+      // Get user information
+      const user = await userRepository.findUserById(userId);
       const userName = user?.username || "Unknown";
 
       return res.json({

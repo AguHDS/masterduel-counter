@@ -6,16 +6,14 @@ import {
 } from "@/domain/ArchetypeCardPair";
 import Database from "better-sqlite3";
 
-export class SqliteArchetypeCardPairRepository
-  implements ArchetypeCardPairRepository
-{
+export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepository {
   private db: Database.Database;
 
   constructor(db: Database.Database) {
     this.db = db;
   }
 
-  async createMany(
+  async CreateManyPairCards(
     pairs: ArchetypeCardPairCreateDTO[],
   ): Promise<ArchetypeCardPair[]> {
     const pairStmt = this.db.prepare(`
@@ -43,7 +41,7 @@ export class SqliteArchetypeCardPairRepository
         pair.pair_order,
         pair.effectiveness || null,
         pair.comment || null,
-      ) as Omit<ArchetypeCardPair, 'top_card_ids' | 'bottom_card_ids'>;
+      ) as Omit<ArchetypeCardPair, "top_card_ids" | "bottom_card_ids">;
 
       pair.top_card_ids.forEach((cardId, index) => {
         topStmt.run(result.id, cardId, index);
@@ -61,37 +59,6 @@ export class SqliteArchetypeCardPairRepository
     }
 
     return results;
-  }
-
-  async findByInstanceId(instanceId: number): Promise<ArchetypeCardPair[]> {
-    const pairStmt = this.db.prepare(`
-      SELECT id, instance_id, pair_order, effectiveness, comment, created_at
-      FROM archetype_card_pairs
-      WHERE instance_id = ?
-      ORDER BY pair_order
-    `);
-
-    const topStmt = this.db.prepare(`
-      SELECT card_id
-      FROM card_pair_top
-      WHERE pair_id = ?
-      ORDER BY position
-    `);
-
-    const bottomStmt = this.db.prepare(`
-      SELECT card_id
-      FROM card_pair_bottom
-      WHERE pair_id = ?
-      ORDER BY position
-    `);
-
-    const pairs = pairStmt.all(instanceId) as Omit<ArchetypeCardPair, 'top_card_ids' | 'bottom_card_ids'>[];
-
-    return pairs.map((pair) => ({
-      ...pair,
-      top_card_ids: (topStmt.all(pair.id) as Array<{ card_id: number }>).map(r => r.card_id),
-      bottom_card_ids: (bottomStmt.all(pair.id) as Array<{ card_id: number }>).map(r => r.card_id),
-    }));
   }
 
   async findByInstanceIdWithDetails(
@@ -120,12 +87,27 @@ export class SqliteArchetypeCardPairRepository
       ORDER BY cpb.position
     `);
 
-    const pairs = pairStmt.all(instanceId) as Omit<ArchetypeCardPairWithDetails, 'top_cards' | 'bottom_cards'>[];
+    const pairs = pairStmt.all(instanceId) as Omit<
+      ArchetypeCardPairWithDetails,
+      "top_cards" | "bottom_cards"
+    >[];
 
     return pairs.map((pair) => ({
       ...pair,
-      top_cards: topStmt.all(pair.id) as Array<{ id: number; name: string; image_url: string; image_url_small: string; image_url_cropped: string }>,
-      bottom_cards: bottomStmt.all(pair.id) as Array<{ id: number; name: string; image_url: string; image_url_small: string; image_url_cropped: string }>,
+      top_cards: topStmt.all(pair.id) as Array<{
+        id: number;
+        name: string;
+        image_url: string;
+        image_url_small: string;
+        image_url_cropped: string;
+      }>,
+      bottom_cards: bottomStmt.all(pair.id) as Array<{
+        id: number;
+        name: string;
+        image_url: string;
+        image_url_small: string;
+        image_url_cropped: string;
+      }>,
     }));
   }
 
@@ -136,14 +118,5 @@ export class SqliteArchetypeCardPairRepository
     `);
 
     stmt.run(instanceId);
-  }
-
-  async deleteById(id: number): Promise<void> {
-    const stmt = this.db.prepare(`
-      DELETE FROM archetype_card_pairs
-      WHERE id = ?
-    `);
-
-    stmt.run(id);
   }
 }

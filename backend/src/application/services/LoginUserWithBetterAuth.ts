@@ -20,7 +20,7 @@ export class LoginUserWithBetterAuthUseCase {
     requestHeaders: Headers,
   ): Promise<LoginResult> {
     // Find user by username to get their email
-    const user = await this.userRepository.findByUsername(username);
+    const user = await this.userRepository.findUserByUsername(username);
 
     if (!user) {
       throw new Error("USER_NOT_FOUND");

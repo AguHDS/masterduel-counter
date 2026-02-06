@@ -8,9 +8,14 @@ interface ForgotPasswordModalProps {
   onClose: () => void;
 }
 
-export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
+export const ForgotPasswordModal = ({
+  isOpen,
+  onClose,
+}: ForgotPasswordModalProps) => {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [message, setMessage] = useState("");
 
   if (!isOpen) return null;
@@ -24,7 +29,9 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
       await requestPasswordReset({ email });
 
       setStatus("success");
-      setMessage("Password reset link sent! Check your email (or console in development mode).");
+      setMessage(
+        "Password reset link sent! Check your email (or console in development mode).",
+      );
       setEmail("");
 
       // Auto close after 3 seconds on success
@@ -33,9 +40,19 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
         setStatus("idle");
         setMessage("");
       }, 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setStatus("error");
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to send reset link. Please try again.";
+
+      const axiosError = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        axiosError.message ||
+        "Failed to send reset link. Please try again.";
+
       setMessage(errorMessage);
     }
   };
@@ -69,7 +86,8 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-white">Forgot Password?</h2>
           <p className="text-sm text-gray-400 mt-2">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we'll send you a link to reset your
+            password.
           </p>
         </div>
 
@@ -78,14 +96,19 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
           <div className="text-center space-y-4 py-4">
             <CheckCircle className="w-16 h-16 text-green-400 mx-auto" />
             <div>
-              <h3 className="text-lg font-semibold text-white mb-2">Email Sent!</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Email Sent!
+              </h3>
               <p className="text-sm text-gray-400">{message}</p>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="reset-email" className="block text-sm font-medium text-gray-300 mb-2">
+              <label
+                htmlFor="reset-email"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
                 Email Address
               </label>
               <div className="relative">

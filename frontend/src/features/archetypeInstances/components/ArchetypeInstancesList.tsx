@@ -25,7 +25,7 @@ export const ArchetypeInstancesList = ({
   onCreateInstance,
 }: ArchetypeInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [sortBy, setSortBy] = useState<'likes' | 'updated'>('updated');
+  const [sortBy, setSortBy] = useState<"likes" | "updated">("updated");
   const { isAuthenticated } = useAuth();
 
   const {
@@ -85,6 +85,7 @@ export const ArchetypeInstancesList = ({
                 "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
             }}
           />
+
           <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
             <div className="text-blue-300 text-lg text-center">
               No guides created yet for {archetypeName}
@@ -107,13 +108,17 @@ export const ArchetypeInstancesList = ({
   return (
     <div className="flex flex-col items-start p-4 w-full">
       <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
-        <div className="flex items-center w-full justify-between gap-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-2xl relative top-[7px] font-bold text-white">
-              {archetypeName} •
+        <div className="flex items-center w-full justify-between">
+          <div className="flex mt-3 items-center gap-2">
+            <h1 className="text-2xl font-bold font-sans flex items-center">
+              <span className="text-white mr-2">How to counter</span>
+
+              <span className="bg-gradient-to-r relative top-[1px] from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                {archetypeName} •
+              </span>
             </h1>
 
-            <span className="text-base relative top-[10px] font-semibold text-blue-400">
+            <span className="text-base relative top-[4px] font-semibold text-blue-400">
               Guides ({data.length})
             </span>
           </div>

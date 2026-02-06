@@ -46,7 +46,7 @@ export const deleteUserInstanceController = async (
 
     // Get the instance first to check if it exists
     const instanceRepository = getDependencies().getInstanceRepository();
-    const instance = await instanceRepository.findByArchetypeAndUser(
+    const instance = await instanceRepository.findArchetypeInstanceByArchetypeAndUserId(
       archetypeIdNum,
       userId,
     );
@@ -64,16 +64,16 @@ export const deleteUserInstanceController = async (
     await cardPairRepository.deleteByInstanceId(instance.id);
 
     // Delete the instance
-    await instanceRepository.delete(instance.id);
+    await instanceRepository.deleteArchetypeInstanceById(instance.id);
 
     // Check if there are any remaining instances for this archetype
     const remainingInstances =
-      await instanceRepository.findByArchetypeId(archetypeIdNum);
+      await instanceRepository.findArchetypeInstanceByArchetypeId(archetypeIdNum);
 
     // If no more instances exist, mark archetype as unregistered
     if (remainingInstances.length === 0) {
       const archetypeRepository = getDependencies().getArchetypeRepository();
-      await archetypeRepository.update(archetypeIdNum, {
+      await archetypeRepository.updateExistingArchetype(archetypeIdNum, {
         registered: false,
       });
     }

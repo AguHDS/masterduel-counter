@@ -5,7 +5,7 @@ import streamifier from "streamifier";
 export class CloudinaryAdapter implements ImageStorageService {
   private readonly baseFolder = "masterduel-counter";
 
-  async uploadImage(buffer: Buffer, publicId: string, customFolder?: string): Promise<UploadResult> {
+  async uploadImageToCloudinary(buffer: Buffer, publicId: string, customFolder?: string): Promise<UploadResult> {
     const folder = customFolder || `${this.baseFolder}/cards`;
     
     return new Promise((resolve, reject) => {
@@ -38,7 +38,7 @@ export class CloudinaryAdapter implements ImageStorageService {
     });
   }
 
-  async deleteImage(publicId: string): Promise<void> {
+  async deleteImageFromCloudinary(publicId: string): Promise<void> {
     try {
       await cloudinary.uploader.destroy(publicId);
     } catch (error) {

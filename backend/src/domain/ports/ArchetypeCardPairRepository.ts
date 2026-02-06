@@ -6,29 +6,22 @@ import {
 
 export interface ArchetypeCardPairRepository {
   /**
-   * Crea múltiples pares de cartas para una instancia de arquetipo
+   * Create multiple pairs of cards for an archetype instance
    */
-  createMany(pairs: ArchetypeCardPairCreateDTO[]): Promise<ArchetypeCardPair[]>;
+  CreateManyPairCards(
+    pairs: ArchetypeCardPairCreateDTO[],
+  ): Promise<ArchetypeCardPair[]>;
 
   /**
-   * Obtiene todos los pares de cartas de una instancia de arquetipo
+   * Gets all card pairs of an instance with card details
    */
-  findByInstanceId(instanceId: number): Promise<ArchetypeCardPair[]>;
 
-  /**
-   * Obtiene todos los pares de cartas de una instancia con detalles de las cartas
-   */
   findByInstanceIdWithDetails(
     instanceId: number,
   ): Promise<ArchetypeCardPairWithDetails[]>;
 
   /**
-   * Elimina todos los pares de cartas de una instancia
+   * Deletes all card pairs for a specific instance
    */
   deleteByInstanceId(instanceId: number): Promise<void>;
-
-  /**
-   * Elimina un par específico
-   */
-  deleteById(id: number): Promise<void>;
 }

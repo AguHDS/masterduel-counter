@@ -13,8 +13,8 @@ interface InstancesTableProps {
   onPageChange: (page: number) => void;
   showArchetypeName?: boolean;
   isProfilePage?: boolean;
-  sortBy: 'likes' | 'updated';
-  onSortChange: (sortBy: 'likes' | 'updated') => void;
+  sortBy: "likes" | "updated";
+  onSortChange: (sortBy: "likes" | "updated") => void;
 }
 
 export const InstancesTable = ({
@@ -60,7 +60,7 @@ export const InstancesTable = ({
 
   return (
     <div
-      className="w-full"
+      className="w-full h-full flex flex-col"
       role="table"
       aria-label={
         showArchetypeName
@@ -70,7 +70,14 @@ export const InstancesTable = ({
     >
       {/* Desktop headers */}
       <div
-        className={`hidden lg:grid gap-3 py-2 bg-black/60 rounded-t-lg px-6 ${
+        className="w-full flex justify-center m-auto h-[2px]"
+        style={{
+          background:
+            "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
+        }}
+      />
+      <div
+        className={`hidden lg:grid gap-3 py-2 bg-black/60 border-b border-blue-600 rounded-t-lg px-6 ${
           isProfilePage
             ? "grid-cols-[60px_48px_1.5fr_0.7fr_0.75fr_96px]"
             : "grid-cols-[60px_48px_minmax(200px,1fr)_minmax(95px,0.8fr)_minmax(105px,0.8fr)_96px]"
@@ -97,9 +104,9 @@ export const InstancesTable = ({
           {showArchetypeName ? "Archetype" : "Created by"}
         </div>
         <button
-          onClick={() => onSortChange('updated')}
+          onClick={() => onSortChange("updated")}
           className={`text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg hover:text-blue-100 transition-colors ${
-            sortBy === 'updated' ? 'underline' : ''
+            sortBy === "updated" ? "underline" : ""
           }`}
           role="columnheader"
           aria-label="Sort by Last Update"
@@ -107,9 +114,9 @@ export const InstancesTable = ({
           Last Update
         </button>
         <button
-          onClick={() => onSortChange('likes')}
+          onClick={() => onSortChange("likes")}
           className={`text-blue-300 relative left-2 font-semibold text-lg text-right hover:text-blue-100 transition-colors ${
-            sortBy === 'likes' ? 'underline' : ''
+            sortBy === "likes" ? "underline" : ""
           }`}
           role="columnheader"
           aria-label="Sort by Likes"
@@ -308,17 +315,18 @@ export const InstancesTable = ({
 
       {totalPages > 1 && (
         <nav
-          className="flex items-center justify-center gap-4 mt-6"
+          className="flex relative top-1 items-center justify-center gap-4 my-4"
           aria-label="Pagination navigation"
         >
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 0}
-            className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            className="p-2 text-yellow-400 hover:text-yellow-300 disabled:text-yellow-400/30 disabled:cursor-not-allowed transition-colors"
             aria-label="Go to previous page"
           >
-            <ChevronLeft className="w-5 h-5" aria-hidden="true" />
+            <ChevronLeft className="w-6 h-6" aria-hidden="true" />
           </button>
+
           <span
             className="text-blue-300 text-sm font-medium"
             aria-current="page"
@@ -328,10 +336,10 @@ export const InstancesTable = ({
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages - 1}
-            className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            className="p-2 text-yellow-400 hover:text-yellow-300 disabled:text-yellow-400/30 disabled:cursor-not-allowed transition-colors"
             aria-label="Go to next page"
           >
-            <ChevronRight className="w-5 h-5" aria-hidden="true" />
+            <ChevronRight className="w-6 h-6" aria-hidden="true" />
           </button>
         </nav>
       )}

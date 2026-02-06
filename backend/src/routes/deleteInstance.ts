@@ -48,7 +48,7 @@ router.delete("/instances/:instanceId", requireAuth, async (req: Request, res: R
     // If no instances left, mark archetype as not registered
     if (remainingInstances.length === 0) {
       const archetypeRepository = getDependencies().getArchetypeRepository();
-      await archetypeRepository.update(archetypeId, { registered: false });
+      await archetypeRepository.updateExistingArchetype(archetypeId, { registered: false });
     }
 
     res.status(200).json({

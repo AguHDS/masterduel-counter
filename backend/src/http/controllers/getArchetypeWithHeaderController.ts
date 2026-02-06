@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 
-/** Obtiene los datos básicos de un arquetipo por su ID */
+/** Get basic archetype data by its ID */
 export const getArchetypeWithHeaderController = async (
   req: Request,
   res: Response,
@@ -20,7 +20,7 @@ export const getArchetypeWithHeaderController = async (
     }
 
     const archetypeRepository = getDependencies().getArchetypeRepository();
-    const archetype = await archetypeRepository.findById(archetypeId);
+    const archetype = await archetypeRepository.findArchetypeById(archetypeId);
 
     if (!archetype) {
       res.status(404).json({ success: false, error: "Archetype not found" });

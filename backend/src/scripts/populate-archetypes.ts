@@ -52,9 +52,7 @@ async function populateArchetypes() {
     if (sampleResults.length > 0) {
       console.log("\n Example of inserted data:");
       sampleResults.forEach((row) => {
-        console.log(
-          `  - ${row.name}: registered=${row.registered}, pending_requests=${row.pendingRequests}`,
-        );
+        console.log(`  - ${row.name}: registered=${row.registered}`);
       });
     }
   } catch (error) {

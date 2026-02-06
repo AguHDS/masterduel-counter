@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 
-/** Obtiene la lista de todos los arquetipos registrados con información del creador */
+/** Gets the list of all registered archetypes with creator information */
 export const getRegisteredArchetypesController = async (
   req: Request,
   res: Response,
@@ -9,13 +9,13 @@ export const getRegisteredArchetypesController = async (
   try {
     const dependencies = getDependencies();
     const archetypeRepository = dependencies.getArchetypeRepository();
-    const archetypes = await archetypeRepository.findAllRegistered();
+    const archetypes = await archetypeRepository.findAllRegisteredArchetypes();
 
     // Get instance count for each archetype
     const instanceRepository = dependencies.getInstanceRepository();
     const archetypesWithCreator = await Promise.all(
       archetypes.map(async (archetype) => {
-        const instances = await instanceRepository.findByArchetypeId(archetype.id);
+        const instances = await instanceRepository.findArchetypeInstanceByArchetypeId(archetype.id);
         
         return {
           ...archetype,

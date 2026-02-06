@@ -14,43 +14,43 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
   constructor(
     private instanceRepository: ArchetypeInstanceRepository,
     private cardPairRepository: ArchetypeCardPairRepository,
-    private archetypeRepository: ArchetypeRepository
+    private archetypeRepository: ArchetypeRepository,
   ) {}
 
   async createOrUpdateInstance(
-    data: ArchetypeInstanceCreateDTO
+    data: ArchetypeInstanceCreateDTO,
   ): Promise<ArchetypeInstance> {
     // Always create new instance
-    return this.instanceRepository.create(data);
+    return this.instanceRepository.createArchetypeInstance(data);
   }
 
   async getInstanceById(id: number): Promise<ArchetypeInstance | null> {
-    return this.instanceRepository.findById(id);
+    return this.instanceRepository.findArchetypeInstanceById(id);
   }
 
-  /** Used for Archetype instances list */
+  // Used for Archetype instances list 
   async getInstancesByArchetypeId(
     archetypeId: number,
-    sortBy: 'likes' | 'updated' = 'updated'
+    sortBy: "likes" | "updated" = "updated",
   ): Promise<ArchetypeInstanceWithDetails[]> {
-    return this.instanceRepository.findByArchetypeId(archetypeId, sortBy);
+    return this.instanceRepository.findArchetypeInstanceByArchetypeId(archetypeId, sortBy);
   }
 
   /** Get all archetype instances created by a specific user (for user profile) */
   async getInstancesByUserId(
     userId: string,
-    sortBy: 'likes' | 'updated' = 'updated'
+    sortBy: "likes" | "updated" = "updated",
   ): Promise<ArchetypeInstanceWithDetails[]> {
-    return this.instanceRepository.findByUserId(userId, sortBy);
+    return this.instanceRepository.findArchetypeInstanceByUserId(userId, sortBy);
   }
 
   async updateInstance(
     id: number,
     userId: string,
-    data: ArchetypeInstanceUpdateDTO
+    data: ArchetypeInstanceUpdateDTO,
   ): Promise<ArchetypeInstance> {
     // Verify ownership
-    const instance = await this.instanceRepository.findById(id);
+    const instance = await this.instanceRepository.findArchetypeInstanceById(id);
     if (!instance) {
       throw new Error("Instance not found");
     }
@@ -59,25 +59,21 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
       throw new Error("Unauthorized: You can only edit your own instances");
     }
 
-    return this.instanceRepository.update(id, data);
+    return this.instanceRepository.updateArchetypeInstance(id, data);
   }
 
-  async deleteInstance(id: number, userId: string): Promise<void> {
-    // Verify ownership
-    const instance = await this.instanceRepository.findById(id);
-    if (!instance) {
-      throw new Error("Instance not found");
-    }
-
-    if (instance.userId !== userId) {
-      throw new Error("Unauthorized: You can only delete your own instances");
-    }
-
-    await this.instanceRepository.delete(id);
-  }
-
-  async registerInstanceWithPairs(data: RegisterInstanceDTO): Promise<ArchetypeInstance> {
-    const { archetypeId, userId, title, headerCardId, generalTip, cardPairs, instanceId } = data;
+  async registerInstanceWithPairs(
+    data: RegisterInstanceDTO,
+  ): Promise<ArchetypeInstance> {
+    const {
+      archetypeId,
+      userId,
+      title,
+      headerCardId,
+      generalTip,
+      cardPairs,
+      instanceId,
+    } = data;
 
     // Validate title
     if (!title || title.trim().length === 0) {
@@ -90,7 +86,9 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
 
     // Validate card pairs
     if (!cardPairs || cardPairs.length === 0) {
-      throw new Error("At least one card pair is required to register an archetype");
+      throw new Error(
+        "At least one card pair is required to register an archetype",
+      );
     }
 
     // Validate header card
@@ -130,21 +128,38 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
       comment: pair.comment || null,
     }));
 
-    await this.cardPairRepository.createMany(pairsToCreate);
+    await this.cardPairRepository.CreateManyPairCards(pairsToCreate);
 
     // Mark archetype as registered if it is not already
-    const archetype = await this.archetypeRepository.findById(archetypeId);
+    const archetype = await this.archetypeRepository.findArchetypeById(archetypeId);
     if (archetype && !archetype.registered) {
-      await this.archetypeRepository.update(archetypeId, { registered: true });
+      await this.archetypeRepository.updateExistingArchetype(archetypeId, { registered: true });
     }
 
     return instance;
   }
 
-  async toggleInstanceLike(instanceId: number, userId: string): Promise<{ liked: boolean; likes: number }> {
+  async deleteInstance(id: number, userId: string): Promise<void> {
+    // Verify ownership
+    const instance = await this.instanceRepository.findArchetypeInstanceById(id);
+    if (!instance) {
+      throw new Error("Instance not found");
+    }
+
+    if (instance.userId !== userId) {
+      throw new Error("Unauthorized: You can only delete your own instances");
+    }
+
+    await this.instanceRepository.deleteArchetypeInstanceById(id);
+  }
+
+  async toggleInstanceLike(
+    instanceId: number,
+    userId: string,
+  ): Promise<{ liked: boolean; likes: number }> {
     // Get the instance to check ownership
-    const instance = await this.instanceRepository.findById(instanceId);
-    
+    const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
+
     if (!instance) {
       throw new Error("Instance not found");
     }
@@ -154,10 +169,13 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
       throw new Error("You cannot like your own instance");
     }
 
-    return this.instanceRepository.toggleLike(instanceId, userId);
+    return this.instanceRepository.ToggleLikeInstance(instanceId, userId);
   }
 
-  async hasUserLikedInstance(instanceId: number, userId: string): Promise<boolean> {
-    return this.instanceRepository.hasUserLiked(instanceId, userId);
+  async hasUserLikedInstance(
+    instanceId: number,
+    userId: string,
+  ): Promise<boolean> {
+    return this.instanceRepository.hasUserLikedInstance(instanceId, userId);
   }
 }

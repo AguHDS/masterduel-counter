@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 
-/** Busca cartas por nombre en la base de datos local y/o API externa */
+/** Search for letters by name in the local db and/or external Api */
 export const searchCardsController = async (req: Request, res: Response) => {
   try {
     const { query } = req.query;
@@ -18,9 +18,6 @@ export const searchCardsController = async (req: Request, res: Response) => {
         message: "Unable to search cards. Please try a different query."
       });
     }
-    
-    // Log real errors
-    console.error("Error searching cards:", error);
     
     // If it's any other API error, return a more specific message
     if (error instanceof Error && error.message.includes("API request failed")) {

@@ -1,5 +1,5 @@
 import { type Archetype } from "@/features/ArchetypeAnalyzer/api/archetypeApi";
-import { Search, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Search, CheckCircle, XCircle } from "lucide-react";
 
 interface SearchResultsProps {
   results: Archetype[];
@@ -12,7 +12,7 @@ export const SearchResults = ({
   results,
   loading,
   error,
-  onSelectArchetype
+  onSelectArchetype,
 }: SearchResultsProps) => {
   const baseWrapperClass =
     "absolute left-1/2 top-[calc(100%-32px)] z-[100] w-[88%] sm:w-[80%] md:w-[720px] -translate-x-1/2";
@@ -22,9 +22,13 @@ export const SearchResults = ({
   if (loading) {
     return (
       <div className={`${baseWrapperClass}`}>
-        <div className={`${basePanelClass} px-6 py-8 flex items-center justify-center gap-3`}>
+        <div
+          className={`${basePanelClass} px-6 py-8 flex items-center justify-center gap-3`}
+        >
           <Search className="w-5 h-5 text-blue-300 animate-spin" />
-          <span className="text-blue-200 text-sm tracking-wide">Searching archetypes…</span>
+          <span className="text-blue-200 text-sm tracking-wide">
+            Searching archetypes…
+          </span>
         </div>
       </div>
     );
@@ -33,7 +37,9 @@ export const SearchResults = ({
   if (error) {
     return (
       <div className={`${baseWrapperClass}`}>
-        <div className={`${basePanelClass} px-6 py-4 flex items-center gap-3 border-red-500/50 bg-[#1b0f2f]/95`}>
+        <div
+          className={`${basePanelClass} px-6 py-4 flex items-center gap-3 border-red-500/50 bg-[#1b0f2f]/95`}
+        >
           <XCircle className="w-5 h-5 text-red-400" />
           <span className="text-red-300 text-sm">{error}</span>
         </div>
@@ -53,8 +59,6 @@ export const SearchResults = ({
         </div>
         <div className="max-h-80 overflow-y-auto search-dropdown px-2 py-3 space-y-2">
           {results.map((archetype) => {
-            const pendingLabel = `${archetype.pending_requests} request${archetype.pending_requests !== 1 ? "s" : ""}`;
-
             return (
               <button
                 key={archetype.id}
@@ -80,12 +84,6 @@ export const SearchResults = ({
                           </>
                         )}
                       </div>
-                      {archetype.pending_requests > 0 && (
-                        <div className="flex items-center gap-1 text-[#ffd56a]">
-                          <Clock className="w-3 h-3" />
-                          <span>{pendingLabel}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                   <div className="text-[10px] uppercase tracking-wider text-[#9aa0ff] px-2 py-1 rounded-full bg-[#232048]/80 border border-[#3c2c90]/60">

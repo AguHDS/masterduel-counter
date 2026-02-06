@@ -20,5 +20,6 @@ export interface CardDetails {
 }
 
 export interface CardDetailsApiService {
-  getCardDetails(id: number): Promise<CardDetails | null>;
+  /** Get card details by ID from external API (for hover tooltip) */
+  getCardDetailsFromExternalApi(id: number): Promise<CardDetails | null>;
 }

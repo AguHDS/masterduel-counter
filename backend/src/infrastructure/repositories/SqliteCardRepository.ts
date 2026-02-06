@@ -5,18 +5,8 @@ import { DatabaseConnection } from "@/database/database";
 export class SqliteCardRepository implements CardRepository {
   constructor(private db: DatabaseConnection) {}
 
-  async findByName(name: string): Promise<Card[]> {
-    const stmt = this.db.prepare(`
-      SELECT * FROM cards 
-      WHERE name LIKE ? 
-      ORDER BY is_temporary ASC, created_at DESC
-    `);
-    
-    const rows = stmt.all(`%${name}%`) as unknown[];
-    return rows.map(this.mapRowToCard);
-  }
 
-  async findById(id: number): Promise<Card | null> {
+  async finCardById(id: number): Promise<Card | null> {
     const stmt = this.db.prepare("SELECT * FROM cards WHERE id = ?");
     const row = stmt.get(id);
     
@@ -27,7 +17,7 @@ export class SqliteCardRepository implements CardRepository {
     return this.mapRowToCard(row);
   }
 
-  async save(card: Card): Promise<void> {
+  async saveOrUpdateCard(card: Card): Promise<void> {
     const stmt = this.db.prepare(`
       INSERT INTO cards (
         id, name, image_url, image_url_small, image_url_cropped,
@@ -59,20 +49,14 @@ export class SqliteCardRepository implements CardRepository {
     );
   }
 
-  async existsById(id: number): Promise<boolean> {
-    const stmt = this.db.prepare("SELECT 1 FROM cards WHERE id = ?");
-    const row = stmt.get(id);
-    return !!row;
-  }
-
   // Mark card as permanent (not temporary) after successful save
-  async updateToPermament(id: number): Promise<void> {
+  async updateCardToPermanent(id: number): Promise<void> {
     const stmt = this.db.prepare("UPDATE cards SET is_temporary = 0 WHERE id = ?");
     stmt.run(id);
   }
 
   // Find temporary cards older than specified hours - used by cleanup cron job
-  async findTemporaryOlderThan(hours: number): Promise<Card[]> {
+  async findTemporaryCardOlderThan(hours: number): Promise<Card[]> {
     const stmt = this.db.prepare(`
       SELECT * FROM cards 
       WHERE is_temporary = 1 
@@ -84,7 +68,7 @@ export class SqliteCardRepository implements CardRepository {
   }
 
   // Delete card from database (cleanup also deletes from Cloudinary)
-  async deleteById(id: number): Promise<void> {
+  async deleteCardById(id: number): Promise<void> {
     const stmt = this.db.prepare("DELETE FROM cards WHERE id = ?");
     stmt.run(id);
   }

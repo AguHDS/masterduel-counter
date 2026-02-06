@@ -8,13 +8,13 @@ export class CardServiceImpl implements CardService {
   constructor(
     private cardRepository: CardRepository,
     private cardApiService: CardApiService,
-    private imageStorageService: ImageStorageService
+    private imageStorageService: ImageStorageService,
   ) {}
 
   async searchCards(query: string): Promise<CardSearchResult[]> {
-    const cards = await this.cardApiService.searchByName(query);
-    
-    return cards.map(card => ({
+    const cards = await this.cardApiService.searchCardByNameFromExternalApi(query);
+
+    return cards.map((card) => ({
       id: card.id,
       name: card.name,
       imageUrlExternal: card.card_images?.[0]?.image_url,
@@ -24,8 +24,8 @@ export class CardServiceImpl implements CardService {
 
   async selectCard(cardId: number): Promise<CardPreviewDTO> {
     // Check if card already exists in database
-    const existingCard = await this.cardRepository.findById(cardId);
-    
+    const existingCard = await this.cardRepository.finCardById(cardId);
+
     if (existingCard) {
       return {
         id: existingCard.id,
@@ -37,8 +37,8 @@ export class CardServiceImpl implements CardService {
     }
 
     // Card doesn't exist - download from API and upload to Cloudinary
-    const cardData = await this.cardApiService.findById(cardId);
-    
+    const cardData = await this.cardApiService.findCardByIdFromExternalApi(cardId);
+
     if (!cardData) {
       throw new Error(`Card with ID ${cardId} not found`);
     }
@@ -48,13 +48,14 @@ export class CardServiceImpl implements CardService {
     }
 
     const imageData = cardData.card_images[0];
-    
+
     // Download all three image variants from YGOPRODeck API
-    const [imageBuffer, imageSmallBuffer, imageCroppedBuffer] = await Promise.all([
-      this.cardApiService.downloadImage(imageData.image_url),
-      this.cardApiService.downloadImage(imageData.image_url_small),
-      this.cardApiService.downloadImage(imageData.image_url_cropped),
-    ]);
+    const [imageBuffer, imageSmallBuffer, imageCroppedBuffer] =
+      await Promise.all([
+        this.cardApiService.downloadCardImageFromExternalApi(imageData.image_url),
+        this.cardApiService.downloadCardImageFromExternalApi(imageData.image_url_small),
+        this.cardApiService.downloadCardImageFromExternalApi(imageData.image_url_cropped),
+      ]);
 
     // Generate public IDs for Cloudinary
     const publicIdBase = `card-${cardId}`;
@@ -62,11 +63,18 @@ export class CardServiceImpl implements CardService {
     const publicIdCroppedBase = `card-${cardId}-cropped`;
 
     // Upload all images to Cloudinary
-    const [uploadResult, uploadResultSmall, uploadResultCropped] = await Promise.all([
-      this.imageStorageService.uploadImage(imageBuffer, publicIdBase),
-      this.imageStorageService.uploadImage(imageSmallBuffer, publicIdSmallBase),
-      this.imageStorageService.uploadImage(imageCroppedBuffer, publicIdCroppedBase),
-    ]);
+    const [uploadResult, uploadResultSmall, uploadResultCropped] =
+      await Promise.all([
+        this.imageStorageService.uploadImageToCloudinary(imageBuffer, publicIdBase),
+        this.imageStorageService.uploadImageToCloudinary(
+          imageSmallBuffer,
+          publicIdSmallBase,
+        ),
+        this.imageStorageService.uploadImageToCloudinary(
+          imageCroppedBuffer,
+          publicIdCroppedBase,
+        ),
+      ]);
 
     // Create card entity with isTemporary=true
     // Will be marked permanent when confirmSelectedCards is called
@@ -83,7 +91,7 @@ export class CardServiceImpl implements CardService {
       createdAt: new Date().toISOString(),
     };
 
-    await this.cardRepository.save(card);
+    await this.cardRepository.saveOrUpdateCard(card);
 
     return {
       id: card.id,
@@ -99,82 +107,84 @@ export class CardServiceImpl implements CardService {
     // This method:
     // 1. Creates non-existent cards as isTemporary=true (downloads images, uploads to Cloudinary)
     // 2. Marks all cards as isTemporary=false (permanent)
-    // 
+    //
     // FAILSAFE: If server crashes between step 1 and 2, some cards remain temporary.
     // Cron job will clean cards where isTemporary=true AND createdAt > 24h
-    
-    console.log(`[confirmSelectedCards] Processing ${cardIds.length} card(s)...`);
-    
-    // Step 1: Create cards that don't exist yet (download from API, upload to Cloudinary)
+
+    // Step 1: Create cards that don't exist yet (download from API -> upload to Cloudinary)
     for (const cardId of cardIds) {
-      const existingCard = await this.cardRepository.findById(cardId);
-      
+      const existingCard = await this.cardRepository.finCardById(cardId);
+
       if (!existingCard) {
-        console.log(`[confirmSelectedCards] Card ${cardId} doesn't exist, creating it...`);
         try {
           await this.selectCard(cardId); // Creates as temporary
         } catch (error) {
-          console.error(`[confirmSelectedCards] Failed to create card ${cardId}:`, error);
-          throw new Error(`Failed to create card ${cardId}`);
+          throw new Error(`Failed to create card ${cardId}` + (error instanceof Error ? `: ${error.message}` : ""));
         }
-      } else {
-        console.log(`[confirmSelectedCards] Card ${cardId} already exists, will mark as permanent`);
       }
     }
-    
+
     // Step 2: Mark all cards as permanent (not temporary anymore)
-    console.log(`[confirmSelectedCards] Marking ${cardIds.length} card(s) as permanent...`);
     for (const cardId of cardIds) {
-      await this.cardRepository.updateToPermament(cardId);
+      await this.cardRepository.updateCardToPermanent(cardId);
     }
-    
-    console.log(`[confirmSelectedCards] Successfully confirmed ${cardIds.length} card(s)`);
-    
-    // Note: We don't clean up other temporary cards here anymore
+
+    // Note: 
     // The cron job will handle cleanup of cards older than 24h that remain temporary
-    // This prevents accidental deletion of cards being edited in other instances/sessions
+    // This prevents accidental deletion of cards being edited in other instances
   }
 
   async cleanupTemporaryCards(): Promise<number> {
     // FAILSAFE CLEANUP: Remove temporary cards older than 24 hours
     // These are cards created during confirmSelectedCards that failed to be marked permanent
-    // 
     // IMPORTANT: Cards selected in UI but never saved DON'T create DB records (only in browser memory)
-    // 
     // This cleanup handles:
     // - Server crashes DURING confirmSelectedCards (between create and mark permanent)
     // - Network errors during the save process
     // - Bugs in the confirmation process
     // - Manual database operations
-    
-    const temporaryCards = await this.cardRepository.findTemporaryOlderThan(24);
-    
-    console.log(`[cleanupTemporaryCards] Found ${temporaryCards.length} temporary cards older than 24 hours`);
-    
+
+    const temporaryCards = await this.cardRepository.findTemporaryCardOlderThan(24);
+    console.log(
+      `[cleanupTemporaryCards] Found ${temporaryCards.length} temporary cards older than 24 hours`,
+    );
     if (temporaryCards.length === 0) {
-      console.log(`[cleanupTemporaryCards] No cleanup needed - all cards properly confirmed`);
+      console.log(
+        `[cleanupTemporaryCards] No cleanup needed - all cards properly confirmed`,
+      );
       return 0;
     }
-    
+
     let deletedCount = 0;
-    
+
     for (const card of temporaryCards) {
       try {
         // Delete from Cloudinary
-        await this.imageStorageService.deleteImage(card.cloudinaryPublicId);
-        await this.imageStorageService.deleteImage(card.cloudinaryPublicIdSmall);
-        await this.imageStorageService.deleteImage(card.cloudinaryPublicIdCropped);
+        await this.imageStorageService.deleteImageFromCloudinary(card.cloudinaryPublicId);
+        await this.imageStorageService.deleteImageFromCloudinary(
+          card.cloudinaryPublicIdSmall,
+        );
+        await this.imageStorageService.deleteImageFromCloudinary(
+          card.cloudinaryPublicIdCropped,
+        );
         // Delete from database
-        await this.cardRepository.deleteById(card.id);
+        await this.cardRepository.deleteCardById(card.id);
         deletedCount++;
-        console.log(`[cleanupTemporaryCards] ✓ Successfully deleted temporary card ${card.id} (${card.name})`);
+        console.log(
+          `[cleanupTemporaryCards] Successfully deleted temporary card ${card.id} (${card.name})`,
+        );
       } catch (error) {
-        console.error(`[cleanupTemporaryCards] ✗ Failed to cleanup card ${card.id}:`, error);
+        console.error(
+          `[cleanupTemporaryCards] Failed to cleanup card ${card.id}:`,
+          error,
+        );
       }
     }
-    
-    console.log(`[cleanupTemporaryCards] Cleanup complete: ${deletedCount}/${temporaryCards.length} card(s) deleted`);
-    
+
+    console.log(
+      `[cleanupTemporaryCards] Cleanup complete: ${deletedCount}/${temporaryCards.length} card(s) deleted`,
+    );
+
     return deletedCount;
   }
 }

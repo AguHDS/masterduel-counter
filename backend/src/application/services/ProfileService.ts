@@ -10,11 +10,11 @@ export class ProfileServiceImpl implements ProfileService {
   ) {}
 
   async getProfile(userId: string): Promise<Profile | null> {
-    let profile = await this.profileRepository.findByUserId(userId);
+    let profile = await this.profileRepository.findProfileByUserId(userId);
 
     // Create profile if it doesn't exist
     if (!profile) {
-      profile = await this.profileRepository.create({ userId });
+      profile = await this.profileRepository.createProfile({ userId });
     }
 
     return profile;
@@ -26,13 +26,13 @@ export class ProfileServiceImpl implements ProfileService {
     }
 
     // Ensure profile exists
-    let profile = await this.profileRepository.findByUserId(userId);
+    let profile = await this.profileRepository.findProfileByUserId(userId);
     if (!profile) {
-      profile = await this.profileRepository.create({ userId, bio });
+      profile = await this.profileRepository.createProfile({ userId, bio });
       return profile;
     }
 
-    return await this.profileRepository.update(userId, { bio });
+    return await this.profileRepository.updateProfile(userId, { bio });
   }
 
   async uploadProfilePicture(
@@ -52,15 +52,15 @@ export class ProfileServiceImpl implements ProfileService {
     }
 
     // Ensure profile exists
-    let profile = await this.profileRepository.findByUserId(userId);
+    let profile = await this.profileRepository.findProfileByUserId(userId);
     if (!profile) {
-      profile = await this.profileRepository.create({ userId });
+      profile = await this.profileRepository.createProfile({ userId });
     }
 
     // Delete old profile picture if exists
     if (profile.cloudinaryPublicId) {
       try {
-        await this.imageStorageService.deleteImage(profile.cloudinaryPublicId);
+        await this.imageStorageService.deleteImageFromCloudinary(profile.cloudinaryPublicId);
       } catch (error) {
         console.error("Error deleting old profile picture:", error);
         // Continue even if deletion fails
@@ -70,21 +70,21 @@ export class ProfileServiceImpl implements ProfileService {
     // Upload new profile picture
     const publicId = `profile`;
     const folder = `masterduel-counter/${userId}/profile_picture`;
-    const uploadResult = await this.imageStorageService.uploadImage(
+    const uploadResult = await this.imageStorageService.uploadImageToCloudinary(
       file.buffer,
       publicId,
       folder
     );
 
     // Update profile with new picture
-    return await this.profileRepository.update(userId, {
+    return await this.profileRepository.updateProfile(userId, {
       profilePictureUrl: uploadResult.url,
       cloudinaryPublicId: uploadResult.publicId,
     });
   }
 
   async deleteProfilePicture(userId: string): Promise<Profile> {
-    const profile = await this.profileRepository.findByUserId(userId);
+    const profile = await this.profileRepository.findProfileByUserId(userId);
 
     if (!profile) {
       throw new Error("Profile not found");
@@ -96,7 +96,7 @@ export class ProfileServiceImpl implements ProfileService {
 
     // Delete from Cloudinary
     try {
-      await this.imageStorageService.deleteImage(profile.cloudinaryPublicId);
+      await this.imageStorageService.deleteImageFromCloudinary(profile.cloudinaryPublicId);
     } catch (error) {
       console.error("Error deleting profile picture from Cloudinary:", error);
       // Continue even if deletion fails
