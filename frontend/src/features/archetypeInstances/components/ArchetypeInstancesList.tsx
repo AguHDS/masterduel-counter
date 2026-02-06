@@ -8,7 +8,6 @@ import {
 import { useAuth } from "@/features/auth";
 import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTable";
 import { FramedContainer } from "@/layouts/FramedContainer";
-import { MainLogo } from "@/shared/components/MainLogo";
 
 interface ArchetypeInstancesListProps {
   archetypeId: number;
@@ -112,13 +111,15 @@ export const ArchetypeInstancesList = ({
         <div className="flex items-center w-full justify-between">
           <div className="flex mt-3 items-center gap-2">
             <h1 className="text-2xl font-bold font-sans flex items-center">
-              <span className="text-white mr-2">How to counter</span>
+              <span className="text-white max-[767px]:ml-2 mr-2">How to counter</span>
 
               <span className="bg-gradient-to-r relative top-[1px] from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                {archetypeName} •
+                {archetypeName}
               </span>
             </h1>
-
+            <span className="text-base relative top-[4px] font-semibold text-white">
+              •
+            </span>
             <span className="text-base relative top-[4px] font-semibold text-blue-400">
               Guides ({data.length})
             </span>

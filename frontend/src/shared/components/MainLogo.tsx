@@ -15,10 +15,10 @@ export const MainLogo = () => {
             className="
               w-auto
               h-20
-              sm:h-24
-              md:h-28
-              lg:h-32
-              xl:h-36
+              sm:h-20
+              md:h-24
+              lg:h-28
+              xl:h-32
               max-w-full
               object-contain
             "
