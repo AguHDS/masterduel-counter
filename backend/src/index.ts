@@ -27,6 +27,7 @@ import {
   createCreateOrUpdateInstanceRoute,
   createGetUserInstanceRoute,
   createGetInstanceByIdRoute,
+  admin,
 } from "./routes/index";
 import auth from "./routes/auth";
 import getInstanceCardPairs from "./routes/getInstanceCardPairs";
@@ -68,6 +69,9 @@ app.use("/api/cards/search", searchCards);
 app.use("/api/cards/select", selectCard);
 app.use("/api/cards/confirm", confirmCards);
 app.use("/api/cards", getCardDetails);
+
+// Admin routes
+app.use("/api/admin", admin);
 
 // Cron job: Failsafe cleanup of temporary cards every 24 hours (at 3:00 AM)
 // Cards are created as temporary only when confirmCards is called.
