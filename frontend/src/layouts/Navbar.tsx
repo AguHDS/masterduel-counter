@@ -2,7 +2,7 @@ import { useAuth } from "../features/auth";
 import { LogOut, LogIn, UserPlus, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoImg from "../assets/NavbarLogo.webp";
-import discordContainerIcon from "../assets/discord_container_navbar.webp";
+import discordContainerIcon from "../assets/discord_container.webp";
 import discordSvgIcon from "../assets/discord-square-icon.webp";
 
 export const Navbar = () => {
@@ -42,10 +42,9 @@ export const Navbar = () => {
         </div>
       </nav>
 
-      {/* CONTENEDOR DERECHO — MISMA POSICIÓN QUE SIEMPRE */}
-      <div className="absolute right-10 top-1/2 -translate-y-1/2 flex items-center gap-4 flex-nowrap">
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-4 flex-nowrap">
         {!isLoading && isAuthenticated && user && (
-          <div className="flex items-center gap-5 mr-2 flex-nowrap">
+          <div className="flex items-center gap-5  flex-nowrap">
             <Link
               to={`/profile/${user.id}`}
               className="flex items-center gap-1 text-blue-500 text-sm font-medium shrink-0"

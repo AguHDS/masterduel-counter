@@ -322,13 +322,13 @@ export const ArchetypeAnalyzerContainer = () => {
           <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
             {/* Background image (lazy) */}
             <img
-              src="/src/assets/Instance_purplebackground.webp"
+              src="/src/assets/instanceEditorAndProfile_background.webp"
               alt=""
               loading="lazy"
               fetchPriority="low"
               decoding="async"
               aria-hidden="true"
-              className="absolute inset-0  w-full h-full pointer-events-none select-none"
+              className="absolute inset-0 w-full h-full pointer-events-none select-none"
             />
 
             {/* Dark overlay */}
