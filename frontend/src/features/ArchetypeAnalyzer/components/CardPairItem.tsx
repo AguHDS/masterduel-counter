@@ -48,6 +48,17 @@ export const CardPairItem = ({
 }: CardPairItemProps) => {
   const selectedOption = EFFECTIVENESS_OPTIONS.find((opt) => opt.value === effectiveness);
 
+  const renderCommentWithLineBreaks = (text: string) => {
+    if (!text) return "No comment";
+    
+    return text.split('\n').map((line, index) => (
+      <span key={index}>
+        {line}
+        {index < text.split('\n').length - 1 && <br />}
+      </span>
+    ));
+  };
+
   return (
     <div className="space-y-4 max-w-fit">
       {/* Effectiveness Label */}
@@ -203,27 +214,30 @@ export const CardPairItem = ({
                 onChange={(e) => onCommentChange(e.target.value)}
                 maxLength={2000}
                 placeholder="Add a comment (Max. 2000 characters)..."
-                className="w-full px-3 py-2 bg-slate-700/50 text-white text-sm rounded border border-slate-600 focus:outline-none focus:border-blue-500 resize-none"
-                rows={3}
+                className="w-full px-3 py-2 bg-slate-700/50 text-white text-sm rounded border border-slate-600 focus:outline-none focus:border-blue-500 resize-y min-h-[80px]"
+                rows={4}
               />
+              <div className="text-xs text-slate-400 mt-1 text-right">
+                {(comment || "").length}/2000 characters
+              </div>
             </div>
           ) : (
             <div className="w-full flex flex-col items-center space-y-1">
               <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Comment</span>
               <div 
-                className="text-center px-3 py-2 text-slate-300 text-sm italic w-[280px] overflow-y-auto"
+                className="text-center px-3 py-2 text-slate-300 text-sm w-[280px] min-h-[80px]"
                 style={{
-                  maxHeight: '5.6em',
-                  lineHeight: '1.4em',
+                  maxHeight: '120px',
                   overflowY: 'auto',
                   overflowWrap: 'break-word',
                   wordBreak: 'break-word',
-                  whiteSpace: 'normal',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: '1.4em',
                   scrollbarWidth: 'thin',
                   scrollbarColor: '#1e293b #0f172a'
                 }}
               >
-                {comment || "No comment"}
+                {renderCommentWithLineBreaks(comment || "No comment")}
               </div>
             </div>
           )}
