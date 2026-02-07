@@ -9,6 +9,7 @@ import { InstanceEditorPage } from "./features/ArchetypeAnalyzer";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { AdminPanelPage } from "./features/admin-panel/pages/AdminPanelPage";
+import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 
 function App() {
   return (
@@ -16,14 +17,27 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/archetype/:archetypeId" element={<ArchetypeInstancesPage />} />
-          <Route path="/archetype/:archetypeId/instance/:instanceId" element={<InstanceEditorPage />} />
+          <Route
+            path="/archetype/:archetypeId"
+            element={<ArchetypeInstancesPage />}
+          />
+          <Route
+            path="/archetype/:archetypeId/instance/:instanceId"
+            element={<InstanceEditorPage />}
+          />
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/admin" element={<AdminPanelPage />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminPanelPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>

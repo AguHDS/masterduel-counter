@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Trash2, Ban, Edit2, Save, X, Package } from "lucide-react";
 import { adminApi } from "../api";
-import { useUserInstances } from "../hooks/useAdminData";
+import { useUserInstances, useDeleteUserInstance } from "../hooks/useAdminData";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { Profile, Publication } from "../types/adminPanelTypes";
 
 interface ManageAccountsTabProps {
@@ -13,12 +14,19 @@ export const ManageAccountsTab = ({
   users,
   onRefresh,
 }: ManageAccountsTabProps) => {
+  const { user: currentUser } = useAuth();
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: "", email: "" });
   const [loading, setLoading] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const deleteUserInstanceMutation = useDeleteUserInstance();
 
   const handleEdit = (user: Profile) => {
+    // Verificar que el admin no pueda editar su propio rol (opcional)
+    if (user.id === currentUser?.id) {
+      alert("You cannot edit your own account from the admin panel");
+      return;
+    }
     setEditingUser(user.id);
     setEditForm({ name: user.name, email: user.email });
   };
@@ -29,11 +37,17 @@ export const ManageAccountsTab = ({
   };
 
   const handleSaveEdit = async (userId: string) => {
+    // Prevenir que el admin edite su propia cuenta
+    if (userId === currentUser?.id) {
+      alert("You cannot edit your own account from the admin panel");
+      setEditingUser(null);
+      return;
+    }
+
     setLoading(true);
     try {
-      // Usamos changeUserCredentials en lugar de updateUser
       await adminApi.changeUserCredentials(userId, {
-        username: editForm.name, // Nota: en backend es 'username', no 'name'
+        username: editForm.name,
         email: editForm.email,
       });
       setEditingUser(null);
@@ -47,6 +61,12 @@ export const ManageAccountsTab = ({
   };
 
   const handleBanUser = async (userId: string) => {
+    // Prevenir que el admin se bane a sí mismo
+    if (userId === currentUser?.id) {
+      alert("You cannot ban yourself");
+      return;
+    }
+
     if (!confirm("Are you sure you want to ban this user?")) {
       return;
     }
@@ -79,6 +99,12 @@ export const ManageAccountsTab = ({
   };
 
   const handleDelete = async (userId: string) => {
+    // Prevenir que el admin se elimine a sí mismo
+    if (userId === currentUser?.id) {
+      alert("You cannot delete your own account");
+      return;
+    }
+
     if (
       !confirm(
         "Are you sure you want to delete this user? This action cannot be undone.",
@@ -100,6 +126,19 @@ export const ManageAccountsTab = ({
 
   const handleViewInstances = (userId: string) => {
     setSelectedUserId(userId === selectedUserId ? null : userId);
+  };
+
+  const handleDeleteInstance = async (userId: string, instanceId: string) => {
+    if (!confirm("Are you sure you want to delete this instance?")) {
+      return;
+    }
+
+    try {
+      await deleteUserInstanceMutation.mutateAsync({ userId, instanceId });
+    } catch (error) {
+      alert("Failed to delete instance");
+      console.error("Delete instance error:", error);
+    }
   };
 
   return (
@@ -127,138 +166,180 @@ export const ManageAccountsTab = ({
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <>
-                  <tr
-                    key={user.id}
-                    className="border-b border-blue-900/20 hover:bg-blue-950/30 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      {editingUser === user.id ? (
-                        <input
-                          type="text"
-                          value={editForm.name}
-                          onChange={(e) =>
-                            setEditForm({ ...editForm, name: e.target.value })
-                          }
-                          className="bg-slate-800/50 border border-blue-700/50 rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-blue-500"
-                          placeholder="Username"
-                        />
-                      ) : (
-                        <span className="text-white font-medium">
-                          {user.name || "No name"}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      {editingUser === user.id ? (
-                        <input
-                          type="email"
-                          value={editForm.email}
-                          onChange={(e) =>
-                            setEditForm({ ...editForm, email: e.target.value })
-                          }
-                          className="bg-slate-800/50 border border-blue-700/50 rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-blue-500"
-                          placeholder="Email"
-                        />
-                      ) : (
-                        <span className="text-blue-300">{user.email}</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          user.is_banned
-                            ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                            : "bg-green-500/20 text-green-300 border border-green-500/30"
-                        }`}
-                      >
-                        {user.is_banned ? "Banned" : "Active"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-blue-300">
-                      {new Date(user.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
+              {users.map((user) => {
+                const isCurrentUser = user.id === currentUser?.id;
+                return (
+                  <>
+                    <tr
+                      key={user.id}
+                      className={`border-b border-blue-900/20 hover:bg-blue-950/30 transition-colors ${
+                        isCurrentUser ? "bg-blue-950/40" : ""
+                      }`}
+                    >
+                      <td className="px-6 py-4">
                         {editingUser === user.id ? (
-                          <>
-                            <button
-                              onClick={() => handleSaveEdit(user.id)}
-                              disabled={loading}
-                              className="p-2 text-green-400 hover:text-green-300 hover:bg-green-500/10 rounded transition-colors disabled:opacity-50"
-                              title="Save changes"
-                            >
-                              <Save size={18} />
-                            </button>
-                            <button
-                              onClick={handleCancelEdit}
-                              disabled={loading}
-                              className="p-2 text-gray-400 hover:text-gray-300 hover:bg-gray-500/10 rounded transition-colors disabled:opacity-50"
-                              title="Cancel"
-                            >
-                              <X size={18} />
-                            </button>
-                          </>
+                          <input
+                            type="text"
+                            value={editForm.name}
+                            onChange={(e) =>
+                              setEditForm({ ...editForm, name: e.target.value })
+                            }
+                            className="bg-slate-800/50 border border-blue-700/50 rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-blue-500"
+                            placeholder="Username"
+                          />
                         ) : (
-                          <>
-                            <button
-                              onClick={() => handleViewInstances(user.id)}
-                              disabled={loading}
-                              className="p-2 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors disabled:opacity-50"
-                              title="View instances"
-                            >
-                              <Package size={18} />
-                            </button>
-                            <button
-                              onClick={() => handleEdit(user)}
-                              disabled={loading}
-                              className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded transition-colors disabled:opacity-50"
-                              title="Edit user"
-                            >
-                              <Edit2 size={18} />
-                            </button>
-                            {user.is_banned ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-white font-medium">
+                              {user.name || "No name"}
+                            </span>
+                            {isCurrentUser && (
+                              <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-medium rounded-full border border-blue-500/30">
+                                You
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        {editingUser === user.id ? (
+                          <input
+                            type="email"
+                            value={editForm.email}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                email: e.target.value,
+                              })
+                            }
+                            className="bg-slate-800/50 border border-blue-700/50 rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-blue-500"
+                            placeholder="Email"
+                          />
+                        ) : (
+                          <span className="text-blue-300">{user.email}</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            user.is_banned
+                              ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                              : "bg-green-500/20 text-green-300 border border-green-500/30"
+                          }`}
+                        >
+                          {user.is_banned ? "Banned" : "Active"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-blue-300">
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          {editingUser === user.id ? (
+                            <>
                               <button
-                                onClick={() => handleUnbanUser(user.id)}
+                                onClick={() => handleSaveEdit(user.id)}
                                 disabled={loading}
                                 className="p-2 text-green-400 hover:text-green-300 hover:bg-green-500/10 rounded transition-colors disabled:opacity-50"
-                                title="Unban user"
+                                title="Save changes"
                               >
-                                <Ban size={18} />
+                                <Save size={18} />
                               </button>
-                            ) : (
                               <button
-                                onClick={() => handleBanUser(user.id)}
+                                onClick={handleCancelEdit}
                                 disabled={loading}
-                                className="p-2 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 rounded transition-colors disabled:opacity-50"
-                                title="Ban user"
+                                className="p-2 text-gray-400 hover:text-gray-300 hover:bg-gray-500/10 rounded transition-colors disabled:opacity-50"
+                                title="Cancel"
                               >
-                                <Ban size={18} />
+                                <X size={18} />
                               </button>
-                            )}
-                            <button
-                              onClick={() => handleDelete(user.id)}
-                              disabled={loading}
-                              className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors disabled:opacity-50"
-                              title="Delete user"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                  {selectedUserId === user.id && (
-                    <tr className="bg-blue-950/20">
-                      <td colSpan={5} className="px-6 py-4">
-                        <UserInstancesSection userId={user.id} />
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleViewInstances(user.id)}
+                                disabled={loading}
+                                className="p-2 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors disabled:opacity-50"
+                                title="View instances"
+                              >
+                                <Package size={18} />
+                              </button>
+                              <button
+                                onClick={() => handleEdit(user)}
+                                disabled={loading || isCurrentUser}
+                                className={`p-2 rounded transition-colors ${
+                                  isCurrentUser
+                                    ? "text-gray-500 cursor-not-allowed"
+                                    : "text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                } disabled:opacity-50`}
+                                title={
+                                  isCurrentUser
+                                    ? "Cannot edit own account"
+                                    : "Edit user"
+                                }
+                              >
+                                <Edit2 size={18} />
+                              </button>
+                              {user.is_banned ? (
+                                <button
+                                  onClick={() => handleUnbanUser(user.id)}
+                                  disabled={loading}
+                                  className="p-2 text-green-400 hover:text-green-300 hover:bg-green-500/10 rounded transition-colors disabled:opacity-50"
+                                  title="Unban user"
+                                >
+                                  <Ban size={18} />
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleBanUser(user.id)}
+                                  disabled={loading || isCurrentUser}
+                                  className={`p-2 rounded transition-colors ${
+                                    isCurrentUser
+                                      ? "text-gray-500 cursor-not-allowed"
+                                      : "text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                                  } disabled:opacity-50`}
+                                  title={
+                                    isCurrentUser
+                                      ? "Cannot ban yourself"
+                                      : "Ban user"
+                                  }
+                                >
+                                  <Ban size={18} />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDelete(user.id)}
+                                disabled={loading || isCurrentUser}
+                                className={`p-2 rounded transition-colors ${
+                                  isCurrentUser
+                                    ? "text-gray-500 cursor-not-allowed"
+                                    : "text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                } disabled:opacity-50`}
+                                title={
+                                  isCurrentUser
+                                    ? "Cannot delete yourself"
+                                    : "Delete user"
+                                }
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
-                  )}
-                </>
-              ))}
+                    {selectedUserId === user.id && (
+                      <tr className="bg-blue-950/20">
+                        <td colSpan={5} className="px-6 py-4">
+                          <UserInstancesSection
+                            userId={user.id}
+                            onDeleteInstance={handleDeleteInstance}
+                          />
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -272,7 +353,13 @@ export const ManageAccountsTab = ({
 };
 
 // Componente interno para mostrar instancias del usuario
-const UserInstancesSection = ({ userId }: { userId: string }) => {
+const UserInstancesSection = ({
+  userId,
+  onDeleteInstance,
+}: {
+  userId: string;
+  onDeleteInstance: (userId: string, instanceId: string) => void;
+}) => {
   const { data: instances, isLoading, error } = useUserInstances(userId);
 
   if (isLoading) {
@@ -315,14 +402,7 @@ const UserInstancesSection = ({ userId }: { userId: string }) => {
                   </p>
                 </div>
                 <button
-                  onClick={() => {
-                    if (
-                      confirm("Are you sure you want to delete this instance?")
-                    ) {
-                      // Aquí podrías añadir la lógica para eliminar la instancia
-                      alert("Delete instance functionality to be implemented");
-                    }
-                  }}
+                  onClick={() => onDeleteInstance(userId, instance.id)}
                   className="p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded"
                   title="Delete instance"
                 >
