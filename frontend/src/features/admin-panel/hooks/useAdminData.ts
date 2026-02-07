@@ -140,14 +140,11 @@ export const useAdminData = () => {
 
   return {
     users: usersQuery.data || [],
-    publications: [], // Nota: Ahora se obtienen por usuario, no globalmente
     reports: reportsQuery.data || [],
     loading,
     error: error as Error | null,
     refetch: refetchAll,
     refetchUsers: usersQuery.refetch,
     refetchReports: reportsQuery.refetch,
-    refetchPublications: () =>
-      Promise.reject(new Error("Use getUserInstances for specific user")),
   };
 };

@@ -5,7 +5,6 @@ import { useAdminAuth } from "../hooks/useAdminAuth";
 import { TabNavigation } from "../components/TabNavigation";
 import { ManageAccountsTab } from "../components/ManageAccountsTab";
 import { ReportsTab } from "../components/ReportsTab";
-import { ManageInstancesTab } from "../components/ManageInstancesTab";
 import type { AdminTab } from "../types/adminPanelTypes";
 
 export const AdminPanelPage = () => {
@@ -150,12 +149,6 @@ export const AdminPanelPage = () => {
                 )}
                 {activeTab === "reports" && (
                   <ReportsTab reports={reports} onRefresh={refetchReports} />
-                )}
-                {activeTab === "publications" && (
-                  <ManageInstancesTab
-                    publications={[]}
-                    onRefresh={refetchUsers}
-                  />
                 )}
               </>
             )}

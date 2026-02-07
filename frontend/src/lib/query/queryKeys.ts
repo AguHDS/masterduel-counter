@@ -8,7 +8,7 @@
  * - Prevents key conflicts
  */
 
-// Creamos el objeto base primero para evitar referencia circular
+// Create the base object first to avoid circular reference
 const adminKeys = {
   all: ["admin"] as const,
   users: {
@@ -17,12 +17,6 @@ const adminKeys = {
     detail: (id: string) => [...adminKeys.users.all, "detail", id] as const,
     instances: (userId: string) =>
       [...adminKeys.users.all, "instances", userId] as const,
-  },
-  publications: {
-    all: ["admin", "publications"] as const,
-    list: () => [...adminKeys.publications.all, "list"] as const,
-    detail: (id: string) =>
-      [...adminKeys.publications.all, "detail", id] as const,
   },
   reports: {
     all: ["admin", "reports"] as const,
@@ -36,13 +30,11 @@ const adminKeys = {
 } as const;
 
 export const queryKeys = {
-  // Auth queries
   auth: {
     all: ["auth"] as const,
     verify: () => [...queryKeys.auth.all, "verify"] as const,
   },
 
-  // Archetype queries
   archetypes: {
     all: ["archetypes"] as const,
     search: (query: string, limit?: number) =>
@@ -53,12 +45,11 @@ export const queryKeys = {
     cardPairs: (id: number) => ["archetypes", "card-pairs", id] as const,
   },
 
-  // Card queries
   cards: {
     all: ["cards"] as const,
     search: (query: string) => ["cards", "search", query] as const,
   },
 
-  // Admin queries (usando el objeto predefinido)
+  // Admin queries (using the predefined object)
   admin: adminKeys,
 } as const;

@@ -1,5 +1,5 @@
-import { useRequireAuth } from "@/features/auth/hooks/useRequireAuth";
+import { useRequireAdminAuth } from "@/features/auth/hooks/useRequireAdminAuth";
 
 export const useAdminAuth = () => {
-  return useRequireAuth("admin");
+  return useRequireAdminAuth("admin");
 };

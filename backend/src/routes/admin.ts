@@ -19,6 +19,7 @@ router.delete("/users/:userId/instances/:instanceId", deleteUserInstanceControll
 router.put("/users/:userId/credentials", changeUserCredentialsController);
 router.put("/users/:userId/ban", banUserController);
 router.put("/users/:userId/unban", unbanUserController);
+// falta para search users
 
 // Reports
 router.get("/reports", getReportsController);

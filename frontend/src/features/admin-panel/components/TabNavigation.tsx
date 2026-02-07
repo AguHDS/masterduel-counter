@@ -1,4 +1,4 @@
-import { Users, Package, AlertCircle } from "lucide-react";
+import { Users, AlertCircle } from "lucide-react";
 import type { AdminTab } from "../types/adminPanelTypes";
 
 interface TabNavigationProps {
@@ -13,11 +13,6 @@ export const TabNavigation = ({
   const tabs = [
     { id: "accounts" as AdminTab, label: "Manage Accounts", icon: Users },
     { id: "reports" as AdminTab, label: "Reports", icon: AlertCircle },
-    {
-      id: "publications" as AdminTab,
-      label: "Manage Instances",
-      icon: Package,
-    },
   ];
 
   return (

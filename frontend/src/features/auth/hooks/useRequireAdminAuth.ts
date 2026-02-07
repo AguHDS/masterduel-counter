@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
 
-export const useRequireAuth = (requiredRole?: string) => {
+/** Used to verify admin actions */
+export const useRequireAdminAuth = (requiredRole?: string) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const navigate = useNavigate();
 
