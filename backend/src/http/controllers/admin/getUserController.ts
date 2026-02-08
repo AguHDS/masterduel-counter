@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-export const getAllUsersController = (
+export const getUserController = (
   req: Request,
   res: Response,
 ) => {

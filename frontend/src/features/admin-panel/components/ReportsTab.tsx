@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { adminApi } from "../api";
+import { adminApi } from "../api/adminApi";
 import type { Report } from "../types/adminPanelTypes";
 
 interface ReportsTabProps {
