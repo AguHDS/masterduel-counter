@@ -10,6 +10,7 @@ import deleteInstance from "./deleteInstance";
 import instanceLikes from "./instanceLikes";
 import recommendedDeck from "./recommendedDeck";
 import getCardDetails from "./getCardDetails";
+import admin from "./admin";
 import { createGetArchetypeInstancesRoute } from "./getArchetypeInstances";
 import { createGetUserInstancesRoute } from "./getUserInstances";
 import { createCreateOrUpdateInstanceRoute } from "./createOrUpdateInstance";
@@ -29,6 +30,7 @@ export {
   instanceLikes,
   recommendedDeck,
   getCardDetails,
+  admin,
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
   createCreateOrUpdateInstanceRoute,

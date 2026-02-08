@@ -12,7 +12,6 @@ const API_BASE_URL = getBackendUrl();
 
 const REQUEST_TIMEOUT = 30000;
 
-// Creates and configures the main Axios instance with interceptors
 const createAxiosClient = (): AxiosInstance => {
   const client = axios.create({
     baseURL: API_BASE_URL,

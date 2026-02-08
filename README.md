@@ -2,18 +2,25 @@
 
 This app is meant to help players so they when and why use each handtrap/card agianst different archetypes. In the future we will let users to create their own counter-guides and share them with the community.
 
+#### Features
+- Create and share your own counter-guide
+- Search for archetypes and see the best handtraps/cards to use against them
+- Instances table (ordered by date or likes)
+- Edit your profile
+- Admin panel (only for admins)
+
 #### Preview
 
 Homepage
-![Homepage](./assets/showcase/homepage.png)
+![Homepage](./assets/showcase/MDC_preview_instances.png)
 
 Archetype counter setup
-![Archetype counter setup](./assets/showcase/Archetype-counter.png)
+![Archetype counter setup](./assets/showcase/MDC_preview_instance.png)
 
 Edit-mode
-![Edit-mode](./assets/showcase/Editmode-Archetype.png)
+![Edit-mode](./assets/showcase/MDC_editinstance_extradeck.png)
 
-For now, only admins can create archetypes and mark them as registered, but this will change in future updates when we have user system implemented.
+You can check all preview images in the [assets/showcase](./assets/showcase) folder.
 
 ### Stack used
 

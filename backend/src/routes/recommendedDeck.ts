@@ -106,7 +106,7 @@ router.get("/instances/:instanceId/recommended-deck", async (req: Request, res: 
     const deck = await deckService.getDeckByInstanceId(instanceId);
 
     if (!deck) {
-      res.status(404).json({ success: false, error: "Recommended deck not found" });
+      res.status(204).send();
       return;
     }
 

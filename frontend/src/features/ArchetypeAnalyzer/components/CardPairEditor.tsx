@@ -36,7 +36,6 @@ export const CardPairEditor = ({
   const [selectingPosition, setSelectingPosition] =
     useState<SelectingPosition>(null);
 
-  // Actualizar pares cuando cambian los initialPairs
   useEffect(() => {
     setPairs(initialPairs);
   }, [initialPairs]);
@@ -131,6 +130,68 @@ export const CardPairEditor = ({
     }
   };
 
+  const getGridColumns = () => {
+    const count = pairs.length;
+    
+    if (count <= 3) {
+      return "grid-cols-1 md:grid-cols-3";
+    } else if (count <= 6) {
+      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+    } else {
+      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+    }
+  };
+
+  // Función para renderizar los pares con separadores
+  const renderPairsWithSeparators = () => {
+    const items = [];
+    
+    for (let i = 0; i < pairs.length; i++) {
+      // Agregar el par de cartas
+      const pair = pairs[i];
+      items.push(
+        <div key={pair.id} className="w-full max-w-[400px]">
+          <CardPairItem
+            topCards={pair.topCards}
+            bottomCards={pair.bottomCards}
+            effectiveness={pair.effectiveness}
+            comment={pair.comment}
+            onSelectTop={() => openCardSelection(pair.id, "top")}
+            onSelectBottom={() => openCardSelection(pair.id, "bottom")}
+            onRemoveTopCard={(cardIndex) =>
+              removeCard(pair.id, "top", cardIndex)
+            }
+            onRemoveBottomCard={(cardIndex) =>
+              removeCard(pair.id, "bottom", cardIndex)
+            }
+            onEffectivenessChange={(value) =>
+              handleEffectivenessChange(pair.id, value)
+            }
+            onCommentChange={(value) => handleCommentChange(pair.id, value)}
+            onRemove={() => removePair(pair.id)}
+            onMoveLeft={() => movePairLeft(pair.id)}
+            onMoveRight={() => movePairRight(pair.id)}
+            canMoveLeft={i > 0}
+            canMoveRight={i < pairs.length - 1}
+            isEditMode={isEditMode}
+          />
+        </div>
+      );
+
+      if ((i + 1) % 3 === 0 && i < pairs.length - 1) {
+        items.push(
+          <div key={`separator-${i}`} className="col-span-full w-full">
+            <div className="flex justify-center my-8">
+              <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+            </div>
+          </div>
+        );
+      }
+    }
+    
+    return items;
+  };
+
   return (
     <div className="flex flex-col">
       {validationError && (
@@ -138,37 +199,10 @@ export const CardPairEditor = ({
           {validationError}
         </div>
       )}
-      {/* Card Pairs Grid */}
       <div className="flex-1">
         {pairs.length > 0 ? (
-          <div className="flex flex-wrap gap-10 justify-center">
-            {pairs.map((pair, index) => (
-              <CardPairItem
-                key={pair.id}
-                topCards={pair.topCards}
-                bottomCards={pair.bottomCards}
-                effectiveness={pair.effectiveness}
-                comment={pair.comment}
-                onSelectTop={() => openCardSelection(pair.id, "top")}
-                onSelectBottom={() => openCardSelection(pair.id, "bottom")}
-                onRemoveTopCard={(cardIndex) =>
-                  removeCard(pair.id, "top", cardIndex)
-                }
-                onRemoveBottomCard={(cardIndex) =>
-                  removeCard(pair.id, "bottom", cardIndex)
-                }
-                onEffectivenessChange={(value) =>
-                  handleEffectivenessChange(pair.id, value)
-                }
-                onCommentChange={(value) => handleCommentChange(pair.id, value)}
-                onRemove={() => removePair(pair.id)}
-                onMoveLeft={() => movePairLeft(pair.id)}
-                onMoveRight={() => movePairRight(pair.id)}
-                canMoveLeft={index > 0}
-                canMoveRight={index < pairs.length - 1}
-                isEditMode={isEditMode}
-              />
-            ))}
+          <div className={`grid ${getGridColumns()} gap-10 justify-items-center`}>
+            {renderPairsWithSeparators()}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[200px] text-slate-400">

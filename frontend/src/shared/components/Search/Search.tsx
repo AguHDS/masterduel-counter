@@ -1,6 +1,5 @@
-import lupaImg from "@/assets/Lupa.webp";
 import Searchbar_WithBlueBackground from "@/assets/Bluesearch.webp";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./search.module.css";
 
 interface SearchInputProps {
@@ -23,11 +22,10 @@ export const SearchInput = ({
   onInputFocus,
 }: SearchInputProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
-    if (!isDropdownOpen) {
-      return;
-    }
+    if (!isDropdownOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -54,10 +52,18 @@ export const SearchInput = ({
     };
   }, [isDropdownOpen, onRequestClose]);
 
+  const handleFocus = () => {
+    setIsFocused(true);
+    onInputFocus?.();
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
   return (
     <div ref={containerRef} className={styles.searchInputContainer}>
       <div className={styles.searchInputWrapper}>
-        {/* Background image */}
         <img
           src={Searchbar_WithBlueBackground}
           alt="searchbar background"
@@ -65,27 +71,16 @@ export const SearchInput = ({
           draggable="false"
         />
 
-        {/* Contenedor principal */}
         <div className={styles.searchContentContainer}>
-          {/* Lupa */}
-          <div className={styles.lupaContainer}>
-            <img
-              src={lupaImg}
-              alt="lupa"
-              className={styles.lupaImage}
-              draggable="false"
-            />
-          </div>
-
-          {/* Área del input */}
           <div className={styles.inputArea}>
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              onFocus={() => onInputFocus?.()}
-              onClick={() => onInputFocus?.()}
-              placeholder={placeholder}
+              onFocus={handleFocus}
+              onClick={handleFocus}
+              onBlur={handleBlur}
+              placeholder={isFocused ? "" : placeholder}
               autoComplete="off"
               aria-label="Search for Yu-Gi-Oh archetypes"
               role="searchbox"
@@ -93,7 +88,6 @@ export const SearchInput = ({
               className={styles.searchInput}
             />
 
-            {/* Clear button */}
             {searchQuery && (
               <button
                 onClick={() => onSearchChange("")}

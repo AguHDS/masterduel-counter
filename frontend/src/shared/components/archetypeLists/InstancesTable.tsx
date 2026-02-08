@@ -144,12 +144,16 @@ export const InstancesTable = ({
               <img
                 src={desktopBackground}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 aria-hidden="true"
                 className="absolute inset-0 h-full w-full pointer-events-none select-none hidden lg:block"
               />
               <img
                 src={mobileBackground}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 aria-hidden="true"
                 className="absolute inset-0 h-full w-full pointer-events-none select-none lg:hidden"
               />

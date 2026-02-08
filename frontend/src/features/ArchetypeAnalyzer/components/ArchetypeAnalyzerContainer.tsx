@@ -263,7 +263,11 @@ export const ArchetypeAnalyzerContainer = () => {
         existingDeck: !!recommendedDeck.deck,
       });
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to save. Please try again.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to save. Please try again.",
+      );
     }
   };
 
@@ -314,15 +318,19 @@ export const ArchetypeAnalyzerContainer = () => {
   return (
     <>
       <section className="w-full relative bottom-5 flex justify-center px-4 sm:px-6 lg:px-8">
-        <div className="relative w-full max-w-[1120px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
-          <div
-            className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden bg-cover bg-center py-10 sm:py-12 px-4 sm:px-6 lg:px-10"
-            style={{
-              backgroundImage:
-                "url('/src/assets/Instance_purplebackground.webp')",
-            }}
-          >
-            {/* Dark overlay*/}
+        <div className="relative w-full max-w-[1456px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
+          <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
+            <img
+              src="/src/assets/instanceEditorAndProfile_background.webp"
+              alt=""
+              loading="lazy"
+              fetchPriority="low"
+              decoding="async"
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full pointer-events-none select-none"
+            />
+
+            {/* Dark overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80"></div>
 
             <div className="relative z-10 space-y-6">
@@ -376,7 +384,6 @@ export const ArchetypeAnalyzerContainer = () => {
                 />
               </div>
 
-              {/* Add Card Pair */}
               {editor.isEditMode && isOwner && (
                 <div className="flex justify-center">
                   <button
@@ -402,7 +409,6 @@ export const ArchetypeAnalyzerContainer = () => {
                 onDelete={recommendedDeck.deleteDeck}
               />
 
-              {/* Save Changes and Cancel */}
               {editor.isEditMode && isOwner && (
                 <div className="flex justify-center gap-4 mt-12 pt-8 border-t border-slate-700">
                   <button
