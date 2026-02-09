@@ -15,7 +15,7 @@ Homepage
 ![Homepage](./assets/showcase/MDC_preview_instances.png)
 
 Archetype counter setup
-![Archetype counter setup](./assets/showcase/MDC_preview_instance.png)
+![Archetype counter setup](./assets/showcase/MDC_editinstance_paircards.png)
 
 Edit-mode
 ![Edit-mode](./assets/showcase/MDC_editinstance_extradeck.png)

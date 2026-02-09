@@ -11,25 +11,25 @@ export const AdminPanelPage = () => {
   // Verificar autenticación y rol de admin
   const { user, isLoading: authLoading } = useAdminAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>("accounts");
+
+  // Solo usamos reports de useAdminData
   const {
-    users,
     reports,
     loading: dataLoading,
     error,
-    refetchUsers,
     refetchReports,
   } = useAdminData();
 
   const handleRefresh = () => {
     switch (activeTab) {
       case "accounts":
-        refetchUsers();
+        // No hay refetch específico para accounts
         break;
       case "reports":
         refetchReports();
         break;
       default:
-        refetchUsers();
+        refetchReports();
     }
   };
 
@@ -145,7 +145,7 @@ export const AdminPanelPage = () => {
             {!loading && (
               <>
                 {activeTab === "accounts" && (
-                  <ManageAccountsTab users={users} onRefresh={refetchUsers} />
+                  <ManageAccountsTab onRefresh={handleRefresh} />
                 )}
                 {activeTab === "reports" && (
                   <ReportsTab reports={reports} onRefresh={refetchReports} />

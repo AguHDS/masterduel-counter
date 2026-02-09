@@ -3,12 +3,18 @@ import type {
   Profile,
   Publication,
   Report,
+  SearchUserResult,
 } from "@/features/admin-panel/types/adminPanelTypes";
 
 interface ApiResponse<T> {
   data: T;
   message?: string;
   success: boolean;
+}
+
+interface SearchUsersResponse {
+  users: SearchUserResult[];
+  total: number;
 }
 
 interface ChangeCredentialsRequest {
@@ -24,11 +30,27 @@ interface DeleteInstanceResponse {
 }
 
 export const adminHttpApi = {
-  async getUser(userId: string): Promise<Profile> {
-    const { data } = await axiosClient.get<ApiResponse<Profile>>(
-      `/api/admin/users/${userId}`,
+  async searchUsers(
+    query: string,
+    limit?: number,
+  ): Promise<SearchUsersResponse> {
+    const { data } = await axiosClient.get<ApiResponse<SearchUsersResponse>>(
+      `/api/admin/users/search`,
+      {
+        params: {
+          q: query,
+          limit: limit || 10,
+        },
+      },
     );
     return data.data;
+  },
+
+  async getUser(userId: string): Promise<Profile> {
+    const { data } = await axiosClient.get<ApiResponse<{ user: Profile }>>(
+      `/api/admin/users/${userId}`,
+    );
+    return data.data.user;
   },
 
   async deleteUser(userId: string): Promise<void> {
