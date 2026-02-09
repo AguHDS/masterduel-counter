@@ -7,11 +7,7 @@ import { UserDetailsCard } from "./UserDetailsCard";
 import { UserInstancesSection } from "./UserInstancesSection";
 import type { SearchUserResult } from "../types/adminPanelTypes";
 
-interface ManageAccountsTabProps {
-  onRefresh: () => void;
-}
-
-export const ManageAccountsTab = ({ onRefresh }: ManageAccountsTabProps) => {
+export const ManageAccountsTab = () => {
   const { user: currentUser } = useAuth();
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState<SearchUserResult[]>([]);
@@ -110,13 +106,12 @@ export const ManageAccountsTab = ({ onRefresh }: ManageAccountsTabProps) => {
           <UserDetailsCard
             user={user}
             currentUser={currentUser}
-            onRefresh={onRefresh}
             onRefetchUser={refetchUser}
             onViewInstances={handleViewInstances}
             isCurrentUser={isCurrentUser}
           />
 
-          {/* Instances Section (condicional) */}
+          {/* Instances Section */}
           {selectedUserIdForInstances === user.id && (
             <UserInstancesSection userId={user.id} />
           )}
@@ -130,7 +125,7 @@ export const ManageAccountsTab = ({ onRefresh }: ManageAccountsTabProps) => {
             <AlertCircle className="text-blue-400" size={48} />
           </div>
           <h3 className="text-xl font-semibold text-white mb-2">
-            Search for a User
+            Search user
           </h3>
           <p className="text-blue-300 max-w-md mx-auto">
             Enter a username or email above to search for a user and manage

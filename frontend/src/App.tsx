@@ -10,6 +10,7 @@ import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { AdminPanelPage } from "./features/admin-panel/pages/AdminPanelPage";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
+import NotFound from "./shared/components/NotFound";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>

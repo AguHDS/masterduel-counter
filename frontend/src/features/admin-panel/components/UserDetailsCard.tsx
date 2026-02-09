@@ -1,4 +1,3 @@
-// frontend\src\features\admin-panel\components\UserDetailsCard.tsx
 import { useState, useEffect } from "react";
 import {
   Trash2,
@@ -19,7 +18,6 @@ import type { Profile } from "../types/adminPanelTypes";
 interface UserDetailsCardProps {
   user: Profile;
   currentUser: any;
-  onRefresh: () => void;
   onRefetchUser: () => void;
   onViewInstances: () => void;
   isCurrentUser: boolean;
@@ -30,7 +28,6 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const UserDetailsCard = ({
   user,
   currentUser,
-  onRefresh,
   onRefetchUser,
   onViewInstances,
   isCurrentUser,
@@ -85,8 +82,7 @@ export const UserDetailsCard = ({
         email: editForm.email.trim(),
       });
       setEditingUser(false);
-      onRefetchUser();
-      onRefresh();
+      onRefetchUser(); // Solo refresca el usuario actual
     } catch (error) {
       alert("Failed to update user");
       console.error("Update error:", error);
@@ -109,7 +105,6 @@ export const UserDetailsCard = ({
     try {
       await adminApi.banUser(user.id);
       onRefetchUser();
-      onRefresh();
     } catch (error) {
       alert("Failed to ban user");
       console.error("Ban error:", error);
@@ -127,7 +122,6 @@ export const UserDetailsCard = ({
     try {
       await adminApi.unbanUser(user.id);
       onRefetchUser();
-      onRefresh();
     } catch (error) {
       alert("Failed to unban user");
       console.error("Unban error:", error);
@@ -153,7 +147,6 @@ export const UserDetailsCard = ({
     setLoading(true);
     try {
       await adminApi.deleteUser(user.id);
-      onRefresh();
     } catch (error) {
       alert("Failed to delete user");
       console.error("Delete error:", error);
@@ -189,7 +182,7 @@ export const UserDetailsCard = ({
                 : "bg-green-500/20 text-green-300 border border-green-500/30"
             }`}
           >
-            {user.is_banned ? "Banned" : "Active"}
+            {user.is_banned ? "Banned" : "Not banned"}
           </span>
           <div className="flex items-center gap-2 text-sm text-blue-300">
             <Calendar size={14} />
