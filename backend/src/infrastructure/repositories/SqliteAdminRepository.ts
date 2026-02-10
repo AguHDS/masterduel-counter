@@ -85,7 +85,15 @@ export class SqliteAdminRepository implements AdminRepository {
   async deleteUser(userId: string): Promise<void> {
     await this.prisma.$transaction(
       async (tx) => {
-        // Get unique archetypeIds from the user's instances
+        // 1. Obtener todos los instanceIds que le gustaron al usuario
+        const userLikes = await tx.instanceLike.findMany({
+          where: { userId },
+          select: { instanceId: true },
+        });
+
+        const likedInstanceIds = userLikes.map((like) => like.instanceId);
+
+        // 2. Obtener archetypeIds únicos de las instancias del usuario
         const userInstances = await tx.archetypeInstance.findMany({
           where: { userId },
           select: { archetypeId: true },
@@ -95,18 +103,42 @@ export class SqliteAdminRepository implements AdminRepository {
           ...new Set(userInstances.map((instance) => instance.archetypeId)),
         ];
 
-        // Delete user (cascades to related instances and likes)
+        // 3. Actualizar contadores de likes en BATCH (más eficiente)
+        if (likedInstanceIds.length > 0) {
+          // Primero, obtener las instancias que aún existen
+          const existingInstances = await tx.archetypeInstance.findMany({
+            where: {
+              id: { in: likedInstanceIds },
+            },
+            select: { id: true },
+          });
+
+          const existingInstanceIds = existingInstances.map((inst) => inst.id);
+
+          if (existingInstanceIds.length > 0) {
+            // Actualizar todas las instancias en una sola consulta
+            await tx.$executeRaw`
+            UPDATE archetype_instances 
+            SET likes = CASE 
+              WHEN likes > 0 THEN likes - 1 
+              ELSE 0 
+            END
+            WHERE id IN (${existingInstanceIds.join(",")})
+          `;
+          }
+        }
+
+        // 4. Eliminar usuario (esto activa cascade para todo lo demás)
         await tx.user.delete({
           where: { id: userId },
         });
 
-        // Check affected archetypes after deletion
+        // 5. Verificar archetypes después de la eliminación
         for (const archetypeId of archetypeIds) {
           const remainingInstancesCount = await tx.archetypeInstance.count({
             where: { archetypeId },
           });
 
-          // If no instances remain, mark archetype as unregistered
           if (remainingInstancesCount === 0) {
             await tx.archetype.update({
               where: { id: archetypeId },
@@ -114,21 +146,10 @@ export class SqliteAdminRepository implements AdminRepository {
             });
           }
         }
-
-        // remove any remaining likes if cascade failed
-        const remainingLikes = await tx.instanceLike.count({
-          where: { userId },
-        });
-
-        if (remainingLikes > 0) {
-          await tx.instanceLike.deleteMany({
-            where: { userId },
-          });
-        }
       },
       {
-        maxWait: 20000,
-        timeout: 60000,
+        maxWait: 30000,
+        timeout: 120000,
       },
     );
   }

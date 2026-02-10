@@ -59,7 +59,7 @@ export const UserDetailsCard = ({
     setErrorMessage("");
   }, [user]);
 
-  // Estados combinados de loading
+  // Convinated loading states
   const isMutating =
     deleteUserMutation.isPending ||
     changeCredentialsMutation.isPending ||
@@ -178,9 +178,7 @@ export const UserDetailsCard = ({
         }
 
         // Navigate back to account list
-        setTimeout(() => {
-          window.location.href = "/admin";
-        }, 1500);
+        window.location.href = "/admin";
       },
       onError: (error: any) => {
         const errorMsg =
