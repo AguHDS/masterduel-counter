@@ -40,7 +40,6 @@ export async function verifyTurnstileToken(token: string): Promise<boolean> {
       return false;
     }
 
-    console.log("✅ Turnstile verification successful");
     return true;
   } catch (error) {
     console.error("❌ Error verifying Turnstile token:", error);

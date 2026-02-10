@@ -1,6 +1,7 @@
 import { adminHttpApi } from "@/lib/http/adminApi";
 
 export const adminApi = {
+  searchUsers: adminHttpApi.searchUsers,
   getUser: adminHttpApi.getUser,
   deleteUser: adminHttpApi.deleteUser,
   getUserInstances: adminHttpApi.getUserInstances,
@@ -8,6 +9,8 @@ export const adminApi = {
   changeUserCredentials: adminHttpApi.changeUserCredentials,
   banUser: adminHttpApi.banUser,
   unbanUser: adminHttpApi.unbanUser,
+  
+  // Reports
   getReports: adminHttpApi.getReports,
   deleteReport: adminHttpApi.deleteReport,
 };

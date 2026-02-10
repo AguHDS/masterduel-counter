@@ -5,10 +5,10 @@ import type { Report } from "../types/adminPanelTypes";
 
 interface ReportsTabProps {
   reports: Report[];
-  onRefresh: () => void;
+  onRefetchReports: () => void;
 }
 
-export const ReportsTab = ({ reports, onRefresh }: ReportsTabProps) => {
+export const ReportsTab = ({ reports, onRefetchReports }: ReportsTabProps) => {
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async (reportId: string) => {
@@ -18,7 +18,7 @@ export const ReportsTab = ({ reports, onRefresh }: ReportsTabProps) => {
     setLoading(true);
     try {
       await adminApi.deleteReport(reportId);
-      onRefresh();
+      onRefetchReports();
     } catch (error) {
       alert("Failed to delete report");
       console.error("Delete report error:", error);

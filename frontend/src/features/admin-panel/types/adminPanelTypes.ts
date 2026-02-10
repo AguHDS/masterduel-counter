@@ -1,10 +1,24 @@
 export interface Profile {
   id: string;
   email: string;
-  name: string;
+  username: string;
+  role: string;
   is_banned: boolean;
   created_at: string;
   updated_at: string;
+  ban_reason?: string | null;
+  ban_expires?: string | null;
+}
+
+export interface SearchUserResult {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  created_at: string;
+  is_banned: boolean;
+  ban_reason?: string | null;
+  ban_expires?: string | null;
 }
 
 export interface Publication {

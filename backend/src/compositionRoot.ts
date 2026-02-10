@@ -33,6 +33,10 @@ import { PrismaRecommendedDeckRepository } from "@/infrastructure/repositories/P
 import { RecommendedDeckRepository } from "@/domain/ports/RecommendedDeckRepository";
 import { RecommendedDeckService } from "@/application/services/RecommendedDeckService";
 import { RecommendedDeckServicePort } from "@/application/ports/RecommendedDeckService";
+import { AdminServiceImpl } from "@/application/services/AdminService";
+import { AdminService as AdminServicePort } from "@/application/ports/AdminService";
+import { AdminRepository } from "@/domain/ports/AdminRepository";
+import { SqliteAdminRepository } from "@/infrastructure/repositories/SqliteAdminRepository";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -54,6 +58,8 @@ export class Dependencies {
   private cardDetailsApiService: CardDetailsApiService | null = null;
   private getCardDetailsService: GetCardDetailsPort | null = null;
   private imageStorageService: ImageStorageService | null = null;
+  private adminService: AdminServicePort | null = null;
+  private adminRepository: AdminRepository | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -76,9 +82,11 @@ export class Dependencies {
     return this.userRepository;
   }
 
-  // Backward compatibility - alias for getUserRepository
-  getAdminRepository(): UserRepository {
-    return this.getUserRepository();
+  getAdminRepository(): AdminRepository {
+    if (!this.adminRepository) {
+      this.adminRepository = new SqliteAdminRepository(this.prisma);
+    }
+    return this.adminRepository;
   }
 
   getCardRepository(): CardRepository {
@@ -103,7 +111,7 @@ export class Dependencies {
     if (!this.instanceRepository) {
       this.instanceRepository = new SqliteArchetypeInstanceRepository(
         this.database.getConnection(),
-        this.prisma
+        this.prisma,
       );
     }
     return this.instanceRepository;
@@ -140,7 +148,7 @@ export class Dependencies {
   getGetCardDetailsService(): GetCardDetailsPort {
     if (!this.getCardDetailsService) {
       this.getCardDetailsService = new GetCardDetailsService(
-        this.getCardDetailsApiService()
+        this.getCardDetailsApiService(),
       );
     }
     return this.getCardDetailsService;
@@ -168,9 +176,7 @@ export class Dependencies {
 
   getAuthService(): AuthService {
     if (!this.authService) {
-      this.authService = new AuthServiceImpl(
-        this.getAdminRepository(),
-      );
+      this.authService = new AuthServiceImpl(this.getUserRepository());
     }
     return this.authService;
   }
@@ -198,7 +204,9 @@ export class Dependencies {
 
   getRecommendedDeckRepository(): RecommendedDeckRepository {
     if (!this.recommendedDeckRepository) {
-      this.recommendedDeckRepository = new PrismaRecommendedDeckRepository(this.prisma);
+      this.recommendedDeckRepository = new PrismaRecommendedDeckRepository(
+        this.prisma,
+      );
     }
     return this.recommendedDeckRepository;
   }
@@ -211,6 +219,13 @@ export class Dependencies {
       );
     }
     return this.recommendedDeckService;
+  }
+
+  getAdminService(): AdminServicePort {
+    if (!this.adminService) {
+      this.adminService = new AdminServiceImpl(this.getAdminRepository());
+    }
+    return this.adminService;
   }
 
   getDatabase(): DatabasePort {
@@ -239,4 +254,5 @@ export const initializeDependencies = (): void => {
 
 export const compositionRoot = {
   getCardDetailsService: getDependencies().getGetCardDetailsService(),
+  getAdminService: getDependencies().getAdminService(),
 };
