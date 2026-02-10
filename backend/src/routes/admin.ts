@@ -12,12 +12,13 @@ import { searchUsersController } from "@/http/controllers/admin/searchUsersContr
 import { verifyAdminMiddleware } from "@/http/middlewares/admin/verifyAdminMiddleware";
 import { getUserMiddleware } from "@/http/middlewares/getUserMiddleware";
 import { searchUserMiddleware } from "@/http/middlewares/searchUserMiddleware";
+import { deleteUserMiddleware } from "@/http/middlewares/admin/deleteUserMiddleware";
 
 const router = Router();
 // User
 router.get("/users/search", verifyAdminMiddleware, searchUserMiddleware, searchUsersController);
 router.get("/users/:userId", verifyAdminMiddleware, getUserMiddleware, getUserController);
-router.delete("/users/:userId", verifyAdminMiddleware, deleteUserController);
+router.delete("/users/:userId", verifyAdminMiddleware, deleteUserMiddleware,deleteUserController);
 router.get("/users/:userId/instances", verifyAdminMiddleware, getUserInstancesController);
 router.delete("/users/:userId/instances/:instanceId", verifyAdminMiddleware, deleteUserInstanceController);
 router.put("/users/:userId/credentials", verifyAdminMiddleware, changeUserCredentialsController);

@@ -37,6 +37,7 @@ export const useAdminReports = () => {
 /** Delete user */
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: (userId: string) => adminApi.deleteUser(userId),
     onSuccess: (_, userId) => {
@@ -46,6 +47,21 @@ export const useDeleteUser = () => {
       queryClient.invalidateQueries({
         queryKey: [...queryKeys.admin.users.all, "search"],
       });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.users.all,
+      });
+      
+      // Remove user data from cache to prevent showing deleted user details
+      queryClient.removeQueries({
+        queryKey: queryKeys.admin.users.detail(userId),
+      });
+      
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.admin.users.all, "search"],
+      });
+    },
+    onError: (error: any) => {
+      console.error("Delete user error:", error);
     },
   });
 };

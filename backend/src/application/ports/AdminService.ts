@@ -30,4 +30,10 @@ export interface AdminService {
       ban_expires?: string | null;
     } | null;
   }>;
+
+  /** Delete user by ID */
+  deleteUser(userId: string): Promise<{
+    success: boolean;
+    message: string;
+  }>;
 }

@@ -6,7 +6,6 @@ import type {
   UserId,
 } from "./userDto.ts";
 
-// add custom props to Request object
 declare module "express" {
   interface Request {
     requesterData?: {
@@ -26,6 +25,17 @@ declare module "express" {
       name: string;
       email: string;
       role: string;
+    };
+
+    userToDelete?: {
+      id: string;
+      username: string;
+      email: string;
+      role: string;
+      created_at: string;
+      is_banned: boolean;
+      ban_reason?: string | null;
+      ban_expires?: string | null;
     };
   }
 }

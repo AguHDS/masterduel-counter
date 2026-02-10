@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
+import { validateStringParam } from "@/shared/utils/paramValidation";
 import { AdminUserResponse } from "@/shared/dtos/admin/AdminUserResponse.dto";
 
 export const getUserController = async (
@@ -7,9 +8,11 @@ export const getUserController = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const rawUserId = req.params.userId;
+    const { userId: rawUserId } = req.params;
 
-    if (!rawUserId || Array.isArray(rawUserId)) {
+    const userId = validateStringParam(rawUserId);
+
+    if (!userId) {
       const response: AdminUserResponse = {
         success: false,
         data: {
@@ -22,13 +25,11 @@ export const getUserController = async (
             is_banned: false,
           },
         },
-        error: "Invalid userId parameter",
+        error: "Invalid or missing userId parameter",
       };
       res.status(400).json(response);
       return;
     }
-
-    const userId = rawUserId;
 
     const adminService = getDependencies().getAdminService();
     const result = await adminService.getUserByIdAdminPanel(userId);

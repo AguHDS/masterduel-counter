@@ -14,4 +14,6 @@ export interface AdminRepository {
   searchUsersAdminPanel(query: string, limit?: number): Promise<AdminUserSearchResult[]>;
   /** Get user by ID with admin details */
   getUserByIdAdminPanel(userId: string): Promise<AdminUserSearchResult | null>;
+  /** Delete user by ID */
+  deleteUser(userId: string): Promise<void>;
 }

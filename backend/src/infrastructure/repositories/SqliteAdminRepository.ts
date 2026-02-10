@@ -81,4 +81,10 @@ export class SqliteAdminRepository implements AdminRepository {
       ban_expires: user.banExpires?.toISOString() || null,
     };
   }
+
+    async deleteUser(userId: string): Promise<void> {
+    await this.prisma.user.delete({
+      where: { id: userId }
+    });
+  }
 }

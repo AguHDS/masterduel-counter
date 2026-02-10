@@ -51,4 +51,33 @@ export class AdminServiceImpl implements AdminServicePort {
 
     return { user };
   }
+
+  async deleteUser(userId: string): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    try {
+      const user = await this.adminRepository.getUserByIdAdminPanel(userId);
+      
+      if (!user) {
+        return {
+          success: false,
+          message: "User not found"
+        };
+      }
+
+      await this.adminRepository.deleteUser(userId);
+      
+      return {
+        success: true,
+        message: "User deleted successfully"
+      };
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      return {
+        success: false,
+        message: "Internal error deleting user"
+      };
+    }
+  }
 }

@@ -75,6 +75,16 @@ export const ManageAccountsTab = () => {
     );
   };
 
+  // Handler para cuando se elimina un usuario
+  const handleUserDeleted = () => {
+    // Limpiar el usuario seleccionado
+    setSelectedUserId("");
+    setSelectedUserIdForInstances(null);
+    // Limpiar resultados de búsqueda
+    setSearchResults([]);
+    setSearchInput("");
+  };
+
   const isCurrentUser = user?.id === currentUser?.id;
 
   return (
@@ -109,6 +119,7 @@ export const ManageAccountsTab = () => {
             onRefetchUser={refetchUser}
             onViewInstances={handleViewInstances}
             isCurrentUser={isCurrentUser}
+            onUserDeleted={handleUserDeleted}
           />
 
           {/* Instances Section */}
@@ -124,9 +135,7 @@ export const ManageAccountsTab = () => {
           <div className="inline-flex items-center justify-center p-4 bg-blue-500/10 rounded-full mb-4">
             <AlertCircle className="text-blue-400" size={48} />
           </div>
-          <h3 className="text-xl font-semibold text-white mb-2">
-            Search user
-          </h3>
+          <h3 className="text-xl font-semibold text-white mb-2">Search user</h3>
           <p className="text-blue-300 max-w-md mx-auto">
             Enter a username or email above to search for a user and manage
             their account.

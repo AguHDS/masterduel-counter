@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Trash2,
   Ban,
@@ -10,10 +11,17 @@ import {
   Mail,
   Calendar,
   Shield,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
-import { adminApi } from "../api/adminApi";
 import { BanInfoSection } from "./BanInfoSection";
 import type { Profile } from "../types/adminPanelTypes";
+import {
+  useDeleteUser,
+  useChangeUserCredentials,
+  useBanUser,
+  useUnbanUser,
+} from "../hooks/useAdminData";
 
 interface UserDetailsCardProps {
   user: Profile;
@@ -21,20 +29,27 @@ interface UserDetailsCardProps {
   onRefetchUser: () => void;
   onViewInstances: () => void;
   isCurrentUser: boolean;
+  onUserDeleted?: () => void;
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const UserDetailsCard = ({
   user,
-  currentUser,
   onRefetchUser,
   onViewInstances,
   isCurrentUser,
+  onUserDeleted,
 }: UserDetailsCardProps) => {
+  const navigate = useNavigate();
+  const deleteUserMutation = useDeleteUser();
+  const changeCredentialsMutation = useChangeUserCredentials();
+  const banUserMutation = useBanUser();
+  const unbanUserMutation = useUnbanUser();
+
   const [editingUser, setEditingUser] = useState(false);
   const [editForm, setEditForm] = useState({ username: "", email: "" });
-  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   // Sync edit form with user data when user changes
   useEffect(() => {
@@ -43,124 +58,148 @@ export const UserDetailsCard = ({
       email: user.email || "",
     });
     setEditingUser(false);
+    setErrorMessage("");
   }, [user]);
 
+  // Estados combinados de loading
+  const isMutating =
+    deleteUserMutation.isPending ||
+    changeCredentialsMutation.isPending ||
+    banUserMutation.isPending ||
+    unbanUserMutation.isPending;
+
   const handleEdit = () => {
-    if (user.id === currentUser?.id) {
+    if (isCurrentUser) {
       alert("You cannot edit your own account from the admin panel");
       return;
     }
     setEditingUser(true);
+    setErrorMessage("");
   };
 
   const handleCancelEdit = () => {
     setEditForm({ username: user.username || "", email: user.email || "" });
     setEditingUser(false);
+    setErrorMessage("");
   };
 
-  const handleSaveEdit = async () => {
-    if (user.id === currentUser?.id) {
+  const handleSaveEdit = () => {
+    if (isCurrentUser) {
       alert("You cannot edit your own account from the admin panel");
       setEditingUser(false);
       return;
     }
 
     if (!editForm.username.trim() || !editForm.email.trim()) {
-      alert("Username and email are required");
+      setErrorMessage("Username and email are required");
       return;
     }
 
     if (!EMAIL_REGEX.test(editForm.email)) {
-      alert("Please enter a valid email address");
+      setErrorMessage("Please enter a valid email address");
       return;
     }
 
-    setLoading(true);
-    try {
-      await adminApi.changeUserCredentials(user.id, {
-        username: editForm.username.trim(),
-        email: editForm.email.trim(),
-      });
-      setEditingUser(false);
-      onRefetchUser(); // Solo refresca el usuario actual
-    } catch (error) {
-      alert("Failed to update user");
-      console.error("Update error:", error);
-    } finally {
-      setLoading(false);
-    }
+    changeCredentialsMutation.mutate(
+      {
+        userId: user.id,
+        credentials: {
+          username: editForm.username.trim(),
+          email: editForm.email.trim(),
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditingUser(false);
+          onRefetchUser();
+          setErrorMessage("");
+        },
+        onError: (error: any) => {
+          setErrorMessage(
+            error.response?.data?.message || "Failed to update user",
+          );
+        },
+      },
+    );
   };
 
-  const handleBanUser = async () => {
-    if (user.id === currentUser?.id) {
+  const handleBanUser = () => {
+    if (isCurrentUser) {
       alert("You cannot ban yourself");
       return;
     }
 
-    if (!confirm("Are you sure you want to ban this user?")) {
+    if (!window.confirm(`Are you sure you want to ban ${user.username}?`)) {
       return;
     }
 
-    setLoading(true);
-    try {
-      await adminApi.banUser(user.id);
-      onRefetchUser();
-    } catch (error) {
-      alert("Failed to ban user");
-      console.error("Ban error:", error);
-    } finally {
-      setLoading(false);
-    }
+    banUserMutation.mutate(user.id, {
+      onSuccess: () => {
+        onRefetchUser();
+      },
+      onError: (error: any) => {
+        alert(error.response?.data?.message || "Failed to ban user");
+      },
+    });
   };
 
-  const handleUnbanUser = async () => {
-    if (!confirm("Are you sure you want to unban this user?")) {
+  const handleUnbanUser = () => {
+    if (!window.confirm(`Are you sure you want to unban ${user.username}?`)) {
       return;
     }
 
-    setLoading(true);
-    try {
-      await adminApi.unbanUser(user.id);
-      onRefetchUser();
-    } catch (error) {
-      alert("Failed to unban user");
-      console.error("Unban error:", error);
-    } finally {
-      setLoading(false);
-    }
+    unbanUserMutation.mutate(user.id, {
+      onSuccess: () => {
+        onRefetchUser();
+      },
+      onError: (error: any) => {
+        alert(error.response?.data?.message || "Failed to unban user");
+      },
+    });
   };
 
-  const handleDeleteUser = async () => {
-    if (user.id === currentUser?.id) {
+  const handleDeleteUser = () => {
+    if (isCurrentUser) {
       alert("You cannot delete your own account");
       return;
     }
 
     if (
-      !confirm(
-        "Are you sure you want to delete this user? This action cannot be undone.",
+      !window.confirm(
+        `Are you sure you want to delete ${user.username}? This action cannot be undone and will delete all user data.`,
       )
     ) {
       return;
     }
 
-    setLoading(true);
-    try {
-      await adminApi.deleteUser(user.id);
-    } catch (error) {
-      alert("Failed to delete user");
-      console.error("Delete error:", error);
-    } finally {
-      setLoading(false);
-    }
+    deleteUserMutation.mutate(user.id, {
+      onSuccess: () => {
+        // Notify parent component that user was deleted
+        if (onUserDeleted) {
+          onUserDeleted();
+        }
+
+        // Navigate back to account list
+        setTimeout(() => {
+          navigate("/admin");
+        }, 1500);
+      },
+      onError: (error: any) => {
+        const errorMsg =
+          error.response?.data?.message || "Failed to delete user";
+        alert(errorMsg);
+      },
+    });
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditForm((prev) => ({ ...prev, username: e.target.value }));
+    setErrorMessage("");
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditForm((prev) => ({ ...prev, email: e.target.value }));
+    setErrorMessage("");
   };
 
   return (
@@ -193,6 +232,26 @@ export const UserDetailsCard = ({
         </div>
       </div>
 
+      {/* Mensaje de error */}
+      {errorMessage && (
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <p className="text-red-300 text-sm flex items-center gap-2">
+            <AlertCircle size={16} />
+            {errorMessage}
+          </p>
+        </div>
+      )}
+
+      {/* Estado de eliminación en progreso */}
+      {deleteUserMutation.isPending && (
+        <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+          <p className="text-blue-300 text-sm flex items-center gap-2">
+            <Loader2 className="animate-spin" size={16} />
+            Deleting user...
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Username Field */}
         <div>
@@ -207,7 +266,8 @@ export const UserDetailsCard = ({
               type="text"
               value={editForm.username}
               onChange={handleUsernameChange}
-              className="w-full bg-slate-800/50 border border-blue-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+              disabled={isMutating}
+              className="w-full bg-slate-800/50 border border-blue-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50"
               placeholder={user.username || "Username"}
             />
           ) : (
@@ -230,7 +290,8 @@ export const UserDetailsCard = ({
               type="email"
               value={editForm.email}
               onChange={handleEmailChange}
-              className="w-full bg-slate-800/50 border border-blue-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+              disabled={isMutating}
+              className="w-full bg-slate-800/50 border border-blue-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50"
               placeholder={user.email || "Email"}
             />
           ) : (
@@ -286,15 +347,21 @@ export const UserDetailsCard = ({
           <>
             <button
               onClick={handleSaveEdit}
-              disabled={loading}
+              disabled={isMutating}
               className="px-4 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-500/50 text-green-300 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              <Save size={18} />
-              Save Changes
+              {changeCredentialsMutation.isPending ? (
+                <Loader2 className="animate-spin" size={18} />
+              ) : (
+                <Save size={18} />
+              )}
+              {changeCredentialsMutation.isPending
+                ? "Saving..."
+                : "Save Changes"}
             </button>
             <button
               onClick={handleCancelEdit}
-              disabled={loading}
+              disabled={isMutating}
               className="px-4 py-2 bg-gray-600/20 hover:bg-gray-600/30 border border-gray-500/50 text-gray-300 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               <X size={18} />
@@ -305,7 +372,7 @@ export const UserDetailsCard = ({
           <>
             <button
               onClick={onViewInstances}
-              disabled={loading}
+              disabled={isMutating}
               className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/50 text-purple-300 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               <Package size={18} />
@@ -313,7 +380,7 @@ export const UserDetailsCard = ({
             </button>
             <button
               onClick={handleEdit}
-              disabled={loading || isCurrentUser}
+              disabled={isMutating || isCurrentUser}
               className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
                 isCurrentUser
                   ? "bg-gray-600/20 border border-gray-500/50 text-gray-400 cursor-not-allowed"
@@ -326,16 +393,20 @@ export const UserDetailsCard = ({
             {user.is_banned ? (
               <button
                 onClick={handleUnbanUser}
-                disabled={loading}
+                disabled={isMutating}
                 className="px-4 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-500/50 text-green-300 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
               >
-                <Ban size={18} />
-                Unban User
+                {unbanUserMutation.isPending ? (
+                  <Loader2 className="animate-spin" size={18} />
+                ) : (
+                  <Ban size={18} />
+                )}
+                {unbanUserMutation.isPending ? "Processing..." : "Unban User"}
               </button>
             ) : (
               <button
                 onClick={handleBanUser}
-                disabled={loading || isCurrentUser}
+                disabled={isMutating || isCurrentUser}
                 className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
                   isCurrentUser
                     ? "bg-gray-600/20 border border-gray-500/50 text-gray-400 cursor-not-allowed"
@@ -348,15 +419,19 @@ export const UserDetailsCard = ({
             )}
             <button
               onClick={handleDeleteUser}
-              disabled={loading || isCurrentUser}
+              disabled={isMutating || isCurrentUser}
               className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
                 isCurrentUser
                   ? "bg-gray-600/20 border border-gray-500/50 text-gray-400 cursor-not-allowed"
                   : "bg-red-600/20 hover:bg-red-600/30 border border-red-500/50 text-red-300"
               } disabled:opacity-50`}
             >
-              <Trash2 size={18} />
-              Delete User
+              {deleteUserMutation.isPending ? (
+                <Loader2 className="animate-spin" size={18} />
+              ) : (
+                <Trash2 size={18} />
+              )}
+              {deleteUserMutation.isPending ? "Deleting..." : "Delete User"}
             </button>
           </>
         )}
