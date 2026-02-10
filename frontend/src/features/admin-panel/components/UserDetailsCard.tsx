@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Trash2,
   Ban,
@@ -41,7 +40,6 @@ export const UserDetailsCard = ({
   isCurrentUser,
   onUserDeleted,
 }: UserDetailsCardProps) => {
-  const navigate = useNavigate();
   const deleteUserMutation = useDeleteUser();
   const changeCredentialsMutation = useChangeUserCredentials();
   const banUserMutation = useBanUser();
@@ -181,7 +179,7 @@ export const UserDetailsCard = ({
 
         // Navigate back to account list
         setTimeout(() => {
-          navigate("/admin");
+          window.location.href = "/admin";
         }, 1500);
       },
       onError: (error: any) => {

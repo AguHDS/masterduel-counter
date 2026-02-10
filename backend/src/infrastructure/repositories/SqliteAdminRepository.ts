@@ -82,9 +82,54 @@ export class SqliteAdminRepository implements AdminRepository {
     };
   }
 
-    async deleteUser(userId: string): Promise<void> {
-    await this.prisma.user.delete({
-      where: { id: userId }
-    });
+  async deleteUser(userId: string): Promise<void> {
+    await this.prisma.$transaction(
+      async (tx) => {
+        // Get unique archetypeIds from the user's instances
+        const userInstances = await tx.archetypeInstance.findMany({
+          where: { userId },
+          select: { archetypeId: true },
+        });
+
+        const archetypeIds = [
+          ...new Set(userInstances.map((instance) => instance.archetypeId)),
+        ];
+
+        // Delete user (cascades to related instances and likes)
+        await tx.user.delete({
+          where: { id: userId },
+        });
+
+        // Check affected archetypes after deletion
+        for (const archetypeId of archetypeIds) {
+          const remainingInstancesCount = await tx.archetypeInstance.count({
+            where: { archetypeId },
+          });
+
+          // If no instances remain, mark archetype as unregistered
+          if (remainingInstancesCount === 0) {
+            await tx.archetype.update({
+              where: { id: archetypeId },
+              data: { registered: false },
+            });
+          }
+        }
+
+        // remove any remaining likes if cascade failed
+        const remainingLikes = await tx.instanceLike.count({
+          where: { userId },
+        });
+
+        if (remainingLikes > 0) {
+          await tx.instanceLike.deleteMany({
+            where: { userId },
+          });
+        }
+      },
+      {
+        maxWait: 20000,
+        timeout: 60000,
+      },
+    );
   }
 }

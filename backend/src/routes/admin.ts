@@ -18,7 +18,7 @@ const router = Router();
 // User
 router.get("/users/search", verifyAdminMiddleware, searchUserMiddleware, searchUsersController);
 router.get("/users/:userId", verifyAdminMiddleware, getUserMiddleware, getUserController);
-router.delete("/users/:userId", verifyAdminMiddleware, deleteUserMiddleware,deleteUserController);
+router.delete("/users/:userId", verifyAdminMiddleware, deleteUserMiddleware, deleteUserController);
 router.get("/users/:userId/instances", verifyAdminMiddleware, getUserInstancesController);
 router.delete("/users/:userId/instances/:instanceId", verifyAdminMiddleware, deleteUserInstanceController);
 router.put("/users/:userId/credentials", verifyAdminMiddleware, changeUserCredentialsController);

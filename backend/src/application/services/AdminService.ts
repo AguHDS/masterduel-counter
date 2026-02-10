@@ -58,25 +58,45 @@ export class AdminServiceImpl implements AdminServicePort {
   }> {
     try {
       const user = await this.adminRepository.getUserByIdAdminPanel(userId);
-      
+
       if (!user) {
         return {
           success: false,
-          message: "User not found"
+          message: "User not found",
         };
       }
 
       await this.adminRepository.deleteUser(userId);
-      
+
       return {
         success: true,
-        message: "User deleted successfully"
+        message: "User deleted successfully",
       };
     } catch (error) {
       console.error("Error deleting user:", error);
+
+      if (error instanceof Error) {
+        if (error.message.includes("P2003")) {
+          return {
+            success: false,
+            message: "Cannot delete user because it has associated data",
+          };
+        }
+
+        if (error.message.includes("P2025")) {
+          return {
+            success: false,
+            message: "User not found",
+          };
+        }
+      }
+
       return {
         success: false,
-        message: "Internal error deleting user"
+        message:
+          error instanceof Error
+            ? error.message
+            : "Internal error deleting user",
       };
     }
   }
