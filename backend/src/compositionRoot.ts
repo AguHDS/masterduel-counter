@@ -37,6 +37,10 @@ import { AdminServiceImpl } from "@/application/services/AdminService";
 import { AdminService as AdminServicePort } from "@/application/ports/AdminService";
 import { AdminRepository } from "@/domain/ports/AdminRepository";
 import { SqliteAdminRepository } from "@/infrastructure/repositories/SqliteAdminRepository";
+import { ReportServiceImpl } from "@/application/services/ReportService";
+import { ReportService as ReportServicePort } from "@/application/ports/ReportService";
+import { ReportRepository } from "@/domain/ports/ReportRepository";
+import { SqliteReportRepository } from "@/infrastructure/repositories/SqliteReportRepository";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -60,6 +64,8 @@ export class Dependencies {
   private imageStorageService: ImageStorageService | null = null;
   private adminService: AdminServicePort | null = null;
   private adminRepository: AdminRepository | null = null;
+  private reportService: ReportServicePort | null = null;
+  private reportRepository: ReportRepository | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -226,6 +232,20 @@ export class Dependencies {
       this.adminService = new AdminServiceImpl(this.getAdminRepository());
     }
     return this.adminService;
+  }
+
+  getReportRepository(): ReportRepository {
+    if (!this.reportRepository) {
+      this.reportRepository = new SqliteReportRepository(this.prisma);
+    }
+    return this.reportRepository;
+  }
+
+  getReportService(): ReportServicePort {
+    if (!this.reportService) {
+      this.reportService = new ReportServiceImpl(this.getReportRepository());
+    }
+    return this.reportService;
   }
 
   getDatabase(): DatabasePort {

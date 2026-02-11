@@ -1,8 +1,56 @@
 import { Request, Response } from "express";
+import { getDependencies } from "@/compositionRoot";
+import { AdminDeleteInstanceResponse } from "@/shared/dtos/admin/AdminDeleteInstanceResponse.dto";
+import { validateStringParam, validateNumberParam } from "@/shared/utils/paramValidation";
 
-export const deleteUserInstanceController = (
+export const deleteUserInstanceController = async (
   req: Request,
   res: Response,
-) => {
-  res.status(200).json({ message: "Not implemented yet" });
+): Promise<void> => {
+  try {
+    const { userId, instanceId } = req.params;
+
+    const userIdString = validateStringParam(userId);
+    const instanceIdNumber = validateNumberParam(instanceId);
+
+    if (!userIdString || !instanceIdNumber) {
+      const response: AdminDeleteInstanceResponse = {
+        success: false,
+        error: "Invalid user ID or instance ID",
+      };
+      res.status(400).json(response);
+      return;
+    }
+
+    const adminService = getDependencies().getAdminService();
+    const result = await adminService.deleteUserInstance(
+      userIdString,
+      instanceIdNumber,
+    );
+
+    if (!result.success) {
+      const response: AdminDeleteInstanceResponse = {
+        success: false,
+        error: result.message,
+      };
+      res.status(404).json(response);
+      return;
+    }
+
+    const response: AdminDeleteInstanceResponse = {
+      success: true,
+      message: result.message,
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error in deleteUserInstanceController:", error);
+
+    const response: AdminDeleteInstanceResponse = {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    };
+
+    res.status(500).json(response);
+  }
 };

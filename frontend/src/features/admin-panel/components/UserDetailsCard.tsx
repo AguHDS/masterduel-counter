@@ -134,18 +134,35 @@ export const UserDetailsCard = ({
       return;
     }
 
+    const reason = window.prompt(
+      `Enter the reason for banning ${user.username}:`,
+      "Violation of terms of service"
+    );
+
+    if (!reason || reason.trim() === "") {
+      alert("Ban reason is required");
+      return;
+    }
+
     if (!window.confirm(`Are you sure you want to ban ${user.username}?`)) {
       return;
     }
 
-    banUserMutation.mutate(user.id, {
-      onSuccess: () => {
-        onRefetchUser();
+    banUserMutation.mutate(
+      {
+        userId: user.id,
+        reason: reason.trim(),
+        expiresAt: null,
       },
-      onError: (error: Error & { response?: { data?: { message?: string } } }) => {
-        alert(error.response?.data?.message || "Failed to ban user");
-      },
-    });
+      {
+        onSuccess: () => {
+          onRefetchUser();
+        },
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+          alert(error.response?.data?.message || "Failed to ban user");
+        },
+      }
+    );
   };
 
   const handleUnbanUser = () => {

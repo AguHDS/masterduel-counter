@@ -1,4 +1,5 @@
 import type { UserSearchResult } from "@/shared/dtos/userDto";
+import type { ReportWithDetails } from "@/domain/Report";
 
 export interface AdminInstanceResult {
   id: number;
@@ -23,4 +24,16 @@ export interface AdminRepository {
   deleteUser(userId: string): Promise<void>;
   /** Get user instances for admin panel */
   getUserInstancesAdminPanel(userId: string): Promise<AdminInstanceResult[]>;
+  /** Delete user instance by ID */
+  deleteUserInstance(userId: string, instanceId: number): Promise<void>;
+  /** Change user credentials */
+  changeUserCredentials(userId: string, credentials: { username?: string; email?: string; password?: string }): Promise<void>;
+  /** Ban user */
+  banUser(userId: string, reason: string, expiresAt?: Date | null): Promise<void>;
+  /** Unban user */
+  unbanUser(userId: string): Promise<void>;
+  /** Get all reports */
+  getReports(): Promise<ReportWithDetails[]>;
+  /** Delete report by ID */
+  deleteReport(reportId: number): Promise<void>;
 }

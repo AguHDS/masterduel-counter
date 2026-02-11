@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import cron from "node-cron";
 import dotenv from "dotenv";
+import helmet from "helmet";
 import { getDependencies } from "./compositionRoot";
 dotenv.config();
 const app = express();
@@ -28,10 +29,72 @@ import {
   createGetUserInstanceRoute,
   createGetInstanceByIdRoute,
   admin,
+  reports,
 } from "./routes/index";
 import auth from "./routes/auth";
 import getInstanceCardPairs from "./routes/getInstanceCardPairs";
 import profile from "./routes/profile";
+
+// Security middleware - Helmet with environment-aware CSP configuration
+const isDevelopment = NODE_ENV === "development";
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "blob:", // Para URLs blob (si las usas)
+          "https://res.cloudinary.com",
+          "https://*.cloudinary.com",
+          "https://images.ygoprodeck.com", // ¡IMPORTANTE! Para las imágenes de cartas
+          "https://*.ygoprodeck.com", // O más específico: "https://images.ygoprodeck.com"
+          "https://ygoprodeck.com",
+        ],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://challenges.cloudflare.com",
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://challenges.cloudflare.com",
+        ],
+        connectSrc: isDevelopment
+          ? [
+              "'self'",
+              "http://localhost:3001",
+              "http://localhost:5173",
+              "https://db.ygoprodeck.com", // API de datos
+              "https://challenges.cloudflare.com",
+            ]
+          : [
+              "'self'",
+              "https://masterduelcounter.com",
+              "https://*.masterduelcounter.com",
+              "https://db.ygoprodeck.com", // API de datos
+              "https://challenges.cloudflare.com",
+            ],
+        fontSrc: ["'self'", "https://challenges.cloudflare.com"],
+        objectSrc: ["'none'"],
+        frameSrc: ["'self'", "https://challenges.cloudflare.com"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        childSrc: ["'self'", "https://challenges.cloudflare.com"],
+        // Para WebSocket si usas en desarrollo
+        ...(isDevelopment && {
+          wsSrc: ["ws://localhost:5173", "'self'"],
+        }),
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 
 app.use(
   cors({
@@ -72,6 +135,9 @@ app.use("/api/cards", getCardDetails);
 
 // Admin routes
 app.use("/api/admin", admin);
+
+// Reports
+app.use("/api/reports", reports);
 
 // Cron job: Failsafe cleanup of temporary cards every 24 hours (at 3:00 AM)
 // Cards are created as temporary only when confirmCards is called.

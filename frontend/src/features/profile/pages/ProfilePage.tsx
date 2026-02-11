@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
+import { Flag } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { UserInstancesList } from "../components/UserInstancesList";
@@ -8,13 +9,15 @@ import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
 import { useSession } from "@/lib/auth-client";
 import { FeatureErrorBoundary } from "@/shared/components";
-import { useRef } from "react";
+import { ReportModal } from "@/features/report/components/ReportModal";
+import { useRef, useState } from "react";
 
 export const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const { data: profileData } = useQuery({
     queryKey: ["profile", userId],
@@ -193,6 +196,16 @@ export const ProfilePage = () => {
                                 </button>
                               </div>
                             )}
+
+                            {!isOwner && session && (
+                              <button
+                                onClick={() => setIsReportModalOpen(true)}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-red-950/60 backdrop-blur-sm hover:bg-red-950/90 text-white text-sm rounded transition-colors ml-4 flex-shrink-0"
+                              >
+                                <Flag className="w-4 h-4" />
+                                <span>Report User</span>
+                              </button>
+                            )}
                           </div>
 
                           <div className="mt-4">
@@ -245,6 +258,16 @@ export const ProfilePage = () => {
 
         <Footer />
       </div>
+
+      {isReportModalOpen && profile && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          targetType="user"
+          targetId={profile.id}
+          targetName={profile.userName}
+        />
+      )}
     </>
   );
 };

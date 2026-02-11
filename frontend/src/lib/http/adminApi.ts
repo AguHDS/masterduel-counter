@@ -22,6 +22,11 @@ interface UserInstancesResponse {
   total: number;
 }
 
+interface ReportsResponse {
+  reports: Report[];
+  total: number;
+}
+
 interface ChangeCredentialsRequest {
   email?: string;
   username?: string;
@@ -89,10 +94,10 @@ export const adminHttpApi = {
     );
   },
 
-  async banUser(userId: string): Promise<void> {
+  async banUser(userId: string, reason: string, expiresAt?: string | null): Promise<void> {
     await axiosClient.put<ApiResponse<void>>(
       `/api/admin/users/${userId}/ban`,
-      {},
+      { reason, expiresAt },
     );
   },
 
@@ -105,11 +110,11 @@ export const adminHttpApi = {
 
   async getReports(): Promise<Report[]> {
     const { data } =
-      await axiosClient.get<ApiResponse<Report[]>>("/api/admin/reports");
-    return data.data;
+      await axiosClient.get<ApiResponse<ReportsResponse>>("/api/admin/reports");
+    return data.data.reports;
   },
 
-  async deleteReport(reportId: string): Promise<void> {
+  async deleteReport(reportId: number): Promise<void> {
     await axiosClient.delete<ApiResponse<void>>(
       `/api/admin/reports/${reportId}`,
     );

@@ -25,6 +25,8 @@ model User {
   archetypeInstances ArchetypeInstance[]
   instanceLikes InstanceLike[]
   profile      Profile?
+  reportsCreated Report[] @relation("ReporterUser")
+  reportsReceived Report[] @relation("ReportedUser")
 
   banned     Boolean?  @default(false)
   banReason  String?   @map("ban_reason")
@@ -123,6 +125,7 @@ model ArchetypeInstance {
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   headerCard       Card?     @relation("InstanceHeaderCard", fields: [headerCardId], references: [id], onDelete: SetNull)
   cardPairs        ArchetypeCardPair[]
+  reports          Report[]
   likeRecords      InstanceLike[]
   recommendedDeck  RecommendedDeck?
 
@@ -229,4 +232,25 @@ model RecommendedDeck {
   instance        ArchetypeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
 
   @@map("recommended_decks")
+}
+
+model Report {
+  id                  Int       @id @default(autoincrement())
+  reporterId          String    @map("reporter_id")
+  reportedUserId      String?   @map("reported_user_id")
+  reportedInstanceId  Int?      @map("reported_instance_id")
+  reason              String
+  status              String    @default("pending") // pending, resolved, dismissed
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  reporter            User      @relation("ReporterUser", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser        User?     @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  reportedInstance    ArchetypeInstance? @relation(fields: [reportedInstanceId], references: [id], onDelete: Cascade)
+
+  @@index([reporterId])
+  @@index([reportedUserId])
+  @@index([reportedInstanceId])
+  @@index([status])
+  @@map("reports")
 }

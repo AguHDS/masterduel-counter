@@ -2,6 +2,8 @@ import { AdminRepository } from "@/domain/ports/AdminRepository";
 import type { UserSearchResult } from "@/shared/dtos/userDto";
 import { PrismaClient } from "@prisma/client";
 import { AdminInstanceResult } from "@/domain/ports/AdminRepository";
+import type { ReportWithDetails } from "@/domain/Report";
+import bcrypt from "bcrypt";
 
 export class SqliteAdminRepository implements AdminRepository {
   private prisma: PrismaClient;
@@ -196,5 +198,168 @@ export class SqliteAdminRepository implements AdminRepository {
       headerCardImageUrl: instance.headerCard?.imageUrlCropped || null,
       generalTip: instance.generalTip,
     }));
+  }
+
+  async deleteUserInstance(
+    userId: string,
+    instanceId: number,
+  ): Promise<void> {
+    // Verify the instance belongs to the user
+    const instance = await this.prisma.archetypeInstance.findUnique({
+      where: { id: instanceId },
+    });
+
+    if (!instance) {
+      throw new Error("Instance not found");
+    }
+
+    if (instance.userId !== userId) {
+      throw new Error("Instance does not belong to this user");
+    }
+
+    // Delete the instance (cascade will handle related data)
+    await this.prisma.archetypeInstance.delete({
+      where: { id: instanceId },
+    });
+
+    // Check if archetype should be unregistered
+    const remainingInstances = await this.prisma.archetypeInstance.count({
+      where: { archetypeId: instance.archetypeId },
+    });
+
+    if (remainingInstances === 0) {
+      await this.prisma.archetype.update({
+        where: { id: instance.archetypeId },
+        data: { registered: false },
+      });
+    }
+  }
+
+  async changeUserCredentials(
+    userId: string,
+    credentials: { username?: string; email?: string; password?: string },
+  ): Promise<void> {
+    const updateData: {
+      name?: string;
+      email?: string;
+    } = {};
+
+    if (credentials.username) {
+      updateData.name = credentials.username;
+    }
+
+    if (credentials.email) {
+      // Check if email is already taken
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: credentials.email },
+      });
+
+      if (existingUser && existingUser.id !== userId) {
+        throw new Error("Email already in use");
+      }
+
+      updateData.email = credentials.email;
+    }
+
+    // Update basic user data
+    if (Object.keys(updateData).length > 0) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: updateData,
+      });
+    }
+
+    // Update password using bcrypt
+    if (credentials.password) {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(credentials.password, saltRounds);
+      
+      // Update password in the account table
+      await this.prisma.account.updateMany({
+        where: {
+          userId: userId,
+          providerId: "credential",
+        },
+        data: {
+          password: hashedPassword,
+        },
+      });
+    }
+  }
+
+  async banUser(
+    userId: string,
+    reason: string,
+    expiresAt?: Date | null,
+  ): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        banned: true,
+        banReason: reason,
+        banExpires: expiresAt,
+      },
+    });
+  }
+
+  async unbanUser(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        banned: false,
+        banReason: null,
+        banExpires: null,
+      },
+    });
+  }
+
+  async getReports(): Promise<ReportWithDetails[]> {
+    const reports = await this.prisma.report.findMany({
+      include: {
+        reporter: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        reportedUser: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        reportedInstance: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return reports.map((report) => ({
+      id: report.id,
+      reporterId: report.reporterId,
+      reportedUserId: report.reportedUserId,
+      reportedInstanceId: report.reportedInstanceId,
+      reason: report.reason,
+      status: report.status as "pending" | "resolved" | "dismissed",
+      createdAt: report.createdAt,
+      updatedAt: report.updatedAt,
+      reporterName: report.reporter.name,
+      reporterEmail: report.reporter.email,
+      reportedUserName: report.reportedUser?.name,
+      reportedInstanceTitle: report.reportedInstance?.title,
+    }));
+  }
+
+  async deleteReport(reportId: number): Promise<void> {
+    await this.prisma.report.delete({
+      where: { id: reportId },
+    });
   }
 }
