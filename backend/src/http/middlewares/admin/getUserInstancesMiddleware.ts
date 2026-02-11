@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { getDependencies } from "@/compositionRoot";
 import { validateStringParam } from "@/shared/utils/paramValidation";
 
-export const deleteUserMiddleware = async (
+interface ValidatedUserIdRequest extends Request {
+  validatedUserId?: string;
+}
+
+export const getUserInstancesMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -11,10 +15,11 @@ export const deleteUserMiddleware = async (
     const { userId } = req.params;
 
     const userIdString = validateStringParam(userId);
+
     if (!userIdString) {
       return res.status(400).json({
         success: false,
-        message: "Invalid or missing user ID",
+        error: "Invalid or missing user ID",
       });
     }
 
@@ -25,31 +30,18 @@ export const deleteUserMiddleware = async (
     if (!userResult.user) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        error: "User not found",
       });
     }
 
-    // Prevent deleting other administrators
-    const currentUser = req.user;
-    if (
-      userResult.user.role === "admin" &&
-      userResult.user.id !== currentUser?.id
-    ) {
-      return res.status(403).json({
-        success: false,
-        message: "You cannot delete another administrator",
-      });
-    }
-
-    // Store the user information in the request to use in the controller
-    req.userToDelete = userResult.user;
+    (req as ValidatedUserIdRequest).validatedUserId = userIdString;
 
     next();
   } catch (error) {
-    console.error("Error in deleteUserMiddleware:", error);
+    console.error("Error in getUserInstancesMiddleware:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      error: "Internal server error",
     });
   }
 };

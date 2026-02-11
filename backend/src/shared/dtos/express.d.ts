@@ -4,6 +4,7 @@ import type {
   UserAndPassword,
   BaseUserData,
   UserId,
+  UserSearchResult,
 } from "./userDto.ts";
 
 declare module "express" {
@@ -27,15 +28,6 @@ declare module "express" {
       role: string;
     };
 
-    userToDelete?: {
-      id: string;
-      username: string;
-      email: string;
-      role: string;
-      created_at: string;
-      is_banned: boolean;
-      ban_reason?: string | null;
-      ban_expires?: string | null;
-    };
+    userToDelete?: UserSearchResult;
   }
 }

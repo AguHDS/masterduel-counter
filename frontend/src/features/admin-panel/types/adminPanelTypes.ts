@@ -21,6 +21,20 @@ export interface SearchUserResult {
   ban_expires?: string | null;
 }
 
+export interface UserInstance {
+  id: number;
+  title: string;
+  archetypeId: number;
+  archetypeName: string;
+  likes: number;
+  created_at: string;
+  updated_at: string;
+  headerCardId?: number | null;
+  headerCardName?: string | null;
+  headerCardImageUrl?: string | null;
+  generalTip?: string | null;
+}
+
 export interface Publication {
   id: string;
   user_id: string;
@@ -32,13 +46,18 @@ export interface Publication {
 }
 
 export interface Report {
-  id: string;
-  publication_id: string;
-  reporter_user_id: string;
-  publication_name: string;
-  message: string;
-  status: "pending" | "resolved" | "dismissed";
-  created_at: string;
+  id: number;
+  reporterId: string;
+  reporterName: string;
+  reporterEmail: string;
+  reportedUserId?: string | null;
+  reportedUserName?: string | null;
+  reportedInstanceId?: number | null;
+  reportedInstanceTitle?: string | null;
+  reason: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UpdateUserData {

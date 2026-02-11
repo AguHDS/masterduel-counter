@@ -11,6 +11,7 @@ import instanceLikes from "./instanceLikes";
 import recommendedDeck from "./recommendedDeck";
 import getCardDetails from "./getCardDetails";
 import admin from "./admin";
+import reports from "./reports";
 import { createGetArchetypeInstancesRoute } from "./getArchetypeInstances";
 import { createGetUserInstancesRoute } from "./getUserInstances";
 import { createCreateOrUpdateInstanceRoute } from "./createOrUpdateInstance";
@@ -31,6 +32,7 @@ export {
   recommendedDeck,
   getCardDetails,
   admin,
+  reports,
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
   createCreateOrUpdateInstanceRoute,

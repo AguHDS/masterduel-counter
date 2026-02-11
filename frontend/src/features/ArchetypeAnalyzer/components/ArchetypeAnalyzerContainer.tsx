@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { Edit3, Trash2, ThumbsUp, Plus, Save, X } from "lucide-react";
+import { Edit3, Trash2, ThumbsUp, Plus, Save, X, Flag } from "lucide-react";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
 import { InstanceHeader } from "./InstanceHeader";
@@ -12,6 +12,7 @@ import { useRecommendedDeck } from "../hooks/useRecommendedDeck";
 import { useSaveInstance } from "../hooks/useSaveInstance";
 import { useAuth } from "@/features/auth";
 import { instanceApi } from "@/lib/http/instanceApi";
+import { ReportModal } from "@/features/report/components/ReportModal";
 import {
   useArchetypeWithHeader,
   useUserInstance,
@@ -109,6 +110,7 @@ export const ArchetypeAnalyzerContainer = () => {
 
   // Status for card pairs
   const [pairs, setPairs] = useState<CardPair[]>([]);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
     if (!editor.isEditMode || !isOwner) {
@@ -465,6 +467,20 @@ export const ArchetypeAnalyzerContainer = () => {
                   )}
 
                 {isAuthenticated &&
+                  selectedArchetype.registered &&
+                  !editor.isEditMode &&
+                  !isCreatingNew &&
+                  !isOwner && (
+                    <button
+                      onClick={() => setIsReportModalOpen(true)}
+                      className="flex items-center space-x-2 px-4 py-2 bg-red-950/60 backdrop-blur-sm hover:bg-red-950/90 active:bg-red-950/10 text-white rounded-lg transition-colors shadow-md"
+                    >
+                      <Flag className="w-4 h-4" />
+                      <span>Report Instance</span>
+                    </button>
+                  )}
+
+                {isAuthenticated &&
                   !selectedArchetype.registered &&
                   !editor.isEditMode && (
                     <button
@@ -487,6 +503,16 @@ export const ArchetypeAnalyzerContainer = () => {
           onClose={() => editor.setIsSelectingHeader(false)}
           onSelectCard={editor.handleHeaderCardSelected}
           title="Select Header Card"
+        />
+      )}
+
+      {isReportModalOpen && userInstanceData && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          targetType="instance"
+          targetId={userInstanceData.instance.id}
+          targetName={userInstanceData.instance.title}
         />
       )}
     </>

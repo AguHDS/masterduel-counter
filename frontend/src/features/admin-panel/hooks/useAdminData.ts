@@ -60,7 +60,7 @@ export const useDeleteUser = () => {
         queryKey: [...queryKeys.admin.users.all, "search"],
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error("Delete user error:", error);
     },
   });
@@ -121,8 +121,9 @@ export const useChangeUserCredentials = () => {
 export const useBanUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (userId: string) => adminApi.banUser(userId),
-    onSuccess: (_, userId) => {
+    mutationFn: ({ userId, reason, expiresAt }: { userId: string; reason: string; expiresAt?: string | null }) => 
+      adminApi.banUser(userId, reason, expiresAt),
+    onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.detail(userId),
       });
@@ -153,7 +154,7 @@ export const useUnbanUser = () => {
 export const useDeleteReport = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (reportId: string) => adminApi.deleteReport(reportId),
+    mutationFn: (reportId: number) => adminApi.deleteReport(reportId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.reports.list(),

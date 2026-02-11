@@ -16,4 +16,15 @@ export interface BaseUserData {
   role: string;
 }
 
+export interface UserSearchResult {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  created_at: string;
+  is_banned: boolean;
+  ban_reason?: string | null;
+  ban_expires?: string | null;
+}
+
 export type UserId = string;
