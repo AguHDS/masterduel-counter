@@ -46,11 +46,11 @@ app.use(
         imgSrc: [
           "'self'",
           "data:",
-          "blob:", // Para URLs blob (si las usas)
+          "blob:",
           "https://res.cloudinary.com",
           "https://*.cloudinary.com",
-          "https://images.ygoprodeck.com", // ¡IMPORTANTE! Para las imágenes de cartas
-          "https://*.ygoprodeck.com", // O más específico: "https://images.ygoprodeck.com"
+          "https://images.ygoprodeck.com",
+          "https://*.ygoprodeck.com",
           "https://ygoprodeck.com",
         ],
         scriptSrc: [
@@ -68,7 +68,7 @@ app.use(
               "'self'",
               "http://localhost:3001",
               "http://localhost:5173",
-              "https://db.ygoprodeck.com", // API de datos
+              "https://db.ygoprodeck.com",
               "https://challenges.cloudflare.com",
             ]
           : [
@@ -85,7 +85,6 @@ app.use(
         baseUri: ["'self'"],
         formAction: ["'self'"],
         childSrc: ["'self'", "https://challenges.cloudflare.com"],
-        // Para WebSocket si usas en desarrollo
         ...(isDevelopment && {
           wsSrc: ["ws://localhost:5173", "'self'"],
         }),

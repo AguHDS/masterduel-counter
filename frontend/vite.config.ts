@@ -11,7 +11,6 @@ export default defineConfig(({ mode }) => {
       {
         name: "html-transform",
         transformIndexHtml(html) {
-          // Security headers via meta tags (CSP)
           const cspDirectives = [
             "default-src 'self'",
             "img-src 'self' data: blob: https://res.cloudinary.com https://*.cloudinary.com https://images.ygoprodeck.com https://*.ygoprodeck.com https://ygoprodeck.com",
@@ -27,7 +26,6 @@ export default defineConfig(({ mode }) => {
             "base-uri 'self'",
             "form-action 'self'",
             "child-src 'self' https://challenges.cloudflare.com",
-            // WebSocket para desarrollo
             ...(isDevelopment ? ["ws-src ws://localhost:5173 'self'"] : []),
           ]
             .filter(Boolean)
