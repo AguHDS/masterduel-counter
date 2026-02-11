@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
+// Vite cfg with SCP config
 export default defineConfig(({ mode }) => {
   const isDevelopment = mode === "development";
 
@@ -14,19 +15,18 @@ export default defineConfig(({ mode }) => {
           const cspDirectives = [
             "default-src 'self'",
             "img-src 'self' data: blob: https://res.cloudinary.com https://*.cloudinary.com https://images.ygoprodeck.com https://*.ygoprodeck.com https://ygoprodeck.com",
-            "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+            "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com blob:",
             "style-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
             isDevelopment
-              ? "connect-src 'self' http://localhost:3001 http://localhost:5173 ws://localhost:5173 https://db.ygoprodeck.com https://challenges.cloudflare.com"
-              : "connect-src 'self' https://masterduelcounter.com https://*.masterduelcounter.com https://db.ygoprodeck.com https://challenges.cloudflare.com",
+              ? "connect-src 'self' http://localhost:3001 http://localhost:5173 ws://localhost:5173 https://db.ygoprodeck.com https://challenges.cloudflare.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io"
+              : "connect-src 'self' https://masterduelcounter.com https://*.masterduelcounter.com https://db.ygoprodeck.com https://challenges.cloudflare.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
             "font-src 'self' https://challenges.cloudflare.com",
             "object-src 'none'",
             "frame-src 'self' https://challenges.cloudflare.com",
-            "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",
-            "child-src 'self' https://challenges.cloudflare.com",
-            ...(isDevelopment ? ["ws-src ws://localhost:5173 'self'"] : []),
+            "child-src 'self' https://challenges.cloudflare.com blob:",
+            "worker-src 'self' blob:",
           ]
             .filter(Boolean)
             .join("; ");

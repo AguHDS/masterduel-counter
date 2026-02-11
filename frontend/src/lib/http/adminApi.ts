@@ -94,11 +94,15 @@ export const adminHttpApi = {
     );
   },
 
-  async banUser(userId: string, reason: string, expiresAt?: string | null): Promise<void> {
-    await axiosClient.put<ApiResponse<void>>(
-      `/api/admin/users/${userId}/ban`,
-      { reason, expiresAt },
-    );
+  async banUser(
+    userId: string,
+    reason: string,
+    expiresAt?: string | null,
+  ): Promise<void> {
+    await axiosClient.put<ApiResponse<void>>(`/api/admin/users/${userId}/ban`, {
+      reason,
+      expiresAt,
+    });
   },
 
   async unbanUser(userId: string): Promise<void> {
@@ -114,7 +118,7 @@ export const adminHttpApi = {
     return data.data.reports;
   },
 
-  async deleteReport(reportId: number): Promise<void> {
+  async deleteReport(reportId: string): Promise<void> {
     await axiosClient.delete<ApiResponse<void>>(
       `/api/admin/reports/${reportId}`,
     );

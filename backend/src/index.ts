@@ -35,7 +35,7 @@ import auth from "./routes/auth";
 import getInstanceCardPairs from "./routes/getInstanceCardPairs";
 import profile from "./routes/profile";
 
-// Security middleware - Helmet with environment-aware CSP configuration
+// SCP configuration
 const isDevelopment = NODE_ENV === "development";
 
 app.use(
@@ -57,6 +57,7 @@ app.use(
           "'self'",
           "'unsafe-inline'",
           "https://challenges.cloudflare.com",
+          "blob:",
         ],
         styleSrc: [
           "'self'",
@@ -68,15 +69,22 @@ app.use(
               "'self'",
               "http://localhost:3001",
               "http://localhost:5173",
+              "ws://localhost:5173",
               "https://db.ygoprodeck.com",
               "https://challenges.cloudflare.com",
+              "https://*.sentry.io",
+              "https://*.ingest.sentry.io",
+              "https://*.ingest.us.sentry.io",
             ]
           : [
               "'self'",
               "https://masterduelcounter.com",
               "https://*.masterduelcounter.com",
-              "https://db.ygoprodeck.com", // API de datos
+              "https://db.ygoprodeck.com",
               "https://challenges.cloudflare.com",
+              "https://*.sentry.io",
+              "https://*.ingest.sentry.io",
+              "https://*.ingest.us.sentry.io",
             ],
         fontSrc: ["'self'", "https://challenges.cloudflare.com"],
         objectSrc: ["'none'"],
@@ -84,10 +92,8 @@ app.use(
         frameAncestors: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
-        childSrc: ["'self'", "https://challenges.cloudflare.com"],
-        ...(isDevelopment && {
-          wsSrc: ["ws://localhost:5173", "'self'"],
-        }),
+        childSrc: ["'self'", "https://challenges.cloudflare.com", "blob:"],
+        workerSrc: ["'self'", "blob:"],
       },
     },
     crossOriginEmbedderPolicy: false,

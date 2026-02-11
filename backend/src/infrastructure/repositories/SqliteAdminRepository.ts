@@ -154,6 +154,7 @@ export class SqliteAdminRepository implements AdminRepository {
       },
     );
   }
+
   async getUserInstancesAdminPanel(
     userId: string,
   ): Promise<AdminInstanceResult[]> {
@@ -200,10 +201,7 @@ export class SqliteAdminRepository implements AdminRepository {
     }));
   }
 
-  async deleteUserInstance(
-    userId: string,
-    instanceId: number,
-  ): Promise<void> {
+  async deleteUserInstance(userId: string, instanceId: number): Promise<void> {
     // Verify the instance belongs to the user
     const instance = await this.prisma.archetypeInstance.findUnique({
       where: { id: instanceId },
@@ -272,8 +270,11 @@ export class SqliteAdminRepository implements AdminRepository {
     // Update password using bcrypt
     if (credentials.password) {
       const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(credentials.password, saltRounds);
-      
+      const hashedPassword = await bcrypt.hash(
+        credentials.password,
+        saltRounds,
+      );
+
       // Update password in the account table
       await this.prisma.account.updateMany({
         where: {
@@ -312,7 +313,7 @@ export class SqliteAdminRepository implements AdminRepository {
       },
     });
   }
-
+  
   async getReports(): Promise<ReportWithDetails[]> {
     const reports = await this.prisma.report.findMany({
       include: {
@@ -333,6 +334,13 @@ export class SqliteAdminRepository implements AdminRepository {
           select: {
             id: true,
             title: true,
+            archetypeId: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
       },
@@ -354,6 +362,9 @@ export class SqliteAdminRepository implements AdminRepository {
       reporterEmail: report.reporter.email,
       reportedUserName: report.reportedUser?.name,
       reportedInstanceTitle: report.reportedInstance?.title,
+      reportedInstanceAuthorId: report.reportedInstance?.user?.id || null,
+      reportedInstanceAuthorName: report.reportedInstance?.user?.name || null,
+      reportedInstanceArchetypeId: report.reportedInstance?.archetypeId || null, // NUEVO
     }));
   }
 

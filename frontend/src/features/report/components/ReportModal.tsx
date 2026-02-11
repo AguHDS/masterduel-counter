@@ -24,7 +24,7 @@ export const ReportModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
+    
     if (!reason.trim()) {
       setError("Please provide a reason for the report");
       return;
@@ -38,7 +38,8 @@ export const ReportModal = ({
     try {
       await createReportMutation.mutateAsync({
         reportedUserId: targetType === "user" ? String(targetId) : undefined,
-        reportedInstanceId: targetType === "instance" ? Number(targetId) : undefined,
+        reportedInstanceId:
+          targetType === "instance" ? Number(targetId) : undefined,
         reason: reason.trim(),
       });
 
@@ -122,7 +123,9 @@ export const ReportModal = ({
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={createReportMutation.isPending}
             >
-              {createReportMutation.isPending ? "Submitting..." : "Submit Report"}
+              {createReportMutation.isPending
+                ? "Submitting..."
+                : "Submit Report"}
             </button>
           </div>
         </form>

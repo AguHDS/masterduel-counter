@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
-import { AdminReportsResponse, AdminReportItem } from "@/shared/dtos/admin/AdminReportsResponse.dto";
+import {
+  AdminReportsResponse,
+  AdminReportItem,
+} from "@/shared/dtos/admin/AdminReportsResponse.dto";
 
 export const getReportsController = async (
   req: Request,
@@ -19,6 +22,9 @@ export const getReportsController = async (
       reportedUserName: report.reportedUserName || null,
       reportedInstanceId: report.reportedInstanceId || null,
       reportedInstanceTitle: report.reportedInstanceTitle || null,
+      reportedInstanceAuthorId: report.reportedInstanceAuthorId || null,
+      reportedInstanceAuthorName: report.reportedInstanceAuthorName || null,
+      reportedInstanceArchetypeId: report.reportedInstanceArchetypeId || null,
       reason: report.reason,
       status: report.status,
       createdAt: report.createdAt.toISOString(),
