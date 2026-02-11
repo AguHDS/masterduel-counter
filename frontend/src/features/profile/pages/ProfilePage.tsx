@@ -92,7 +92,6 @@ export const ProfilePage = () => {
             <section className="w-full flex justify-center px-4 sm:px-6 lg:px-8">
               <div className="relative w-full max-w-[1120px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
                 <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
-                  
                   <img
                     src="/src/assets/instanceEditorAndProfile_background.webp"
                     alt=""
@@ -171,7 +170,9 @@ export const ProfilePage = () => {
 
                             {isOwner && !isEditMode && (
                               <button
-                                onClick={() => toggleEditMode(profile?.bio || "")}
+                                onClick={() =>
+                                  toggleEditMode(profile?.bio || "")
+                                }
                                 className="text-blue-400 hover:text-blue-300 font-medium transition-colors text-sm ml-4 flex-shrink-0"
                               >
                                 Edit Profile
@@ -217,7 +218,9 @@ export const ProfilePage = () => {
                               <div className="space-y-2">
                                 <textarea
                                   value={bioValue}
-                                  onChange={(e) => handleBioChange(e.target.value)}
+                                  onChange={(e) =>
+                                    handleBioChange(e.target.value)
+                                  }
                                   placeholder="Tell us about yourself... (Max 1000 characters)"
                                   className="w-full px-4 py-3 bg-slate-800/50 text-white rounded border border-slate-600 focus:border-blue-500 focus:outline-none resize-none"
                                   rows={4}
@@ -231,10 +234,15 @@ export const ProfilePage = () => {
                               <div className="bg-slate-800/30 border border-slate-700/50 px-4 py-3 rounded overflow-hidden">
                                 <p
                                   className="text-gray-300 whitespace-pre-wrap break-words"
-                                  style={{ wordBreak: "break-word", overflowWrap: "break-word" }}
+                                  style={{
+                                    wordBreak: "break-word",
+                                    overflowWrap: "break-word",
+                                  }}
                                 >
                                   {profile?.bio ||
-                                    (isOwner ? "No bio available" : "No bio yet.")}
+                                    (isOwner
+                                      ? "No bio available"
+                                      : "No bio yet.")}
                                 </p>
                               </div>
                             )}
@@ -259,13 +267,13 @@ export const ProfilePage = () => {
         <Footer />
       </div>
 
-      {isReportModalOpen && profile && (
+      {isReportModalOpen && (
         <ReportModal
           isOpen={isReportModalOpen}
           onClose={() => setIsReportModalOpen(false)}
           targetType="user"
-          targetId={profile.id}
-          targetName={profile.userName}
+          targetId={userId}
+          targetName={profile?.userName || userId}
         />
       )}
     </>

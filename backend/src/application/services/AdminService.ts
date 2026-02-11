@@ -85,6 +85,7 @@ export class AdminServiceImpl implements AdminServicePort {
       };
     }
   }
+
   async getUserInstancesAdminPanel(userId: string): Promise<{
     instances: AdminInstanceResult[];
     total: number;
@@ -132,7 +133,11 @@ export class AdminServiceImpl implements AdminServicePort {
   }> {
     try {
       // Validate at least one credential is provided
-      if (!credentials.username && !credentials.email && !credentials.password) {
+      if (
+        !credentials.username &&
+        !credentials.email &&
+        !credentials.password
+      ) {
         return {
           success: false,
           message: "At least one credential must be provided",
@@ -177,7 +182,9 @@ export class AdminServiceImpl implements AdminServicePort {
       return {
         success: false,
         message:
-          error instanceof Error ? error.message : "Internal error banning user",
+          error instanceof Error
+            ? error.message
+            : "Internal error banning user",
       };
     }
   }

@@ -243,7 +243,10 @@ export class Dependencies {
 
   getReportService(): ReportServicePort {
     if (!this.reportService) {
-      this.reportService = new ReportServiceImpl(this.getReportRepository());
+      this.reportService = new ReportServiceImpl(
+        this.getReportRepository(),
+        this.prisma
+      );
     }
     return this.reportService;
   }
@@ -252,8 +255,13 @@ export class Dependencies {
     return this.database;
   }
 
+  getPrismaClient(): PrismaClient {
+    return this.prisma;
+  }
+
   close(): void {
     this.database.close();
+    this.prisma.$disconnect();
   }
 }
 

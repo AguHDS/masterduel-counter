@@ -7,6 +7,9 @@ export interface AdminReportItem {
   reportedUserName?: string | null;
   reportedInstanceId?: number | null;
   reportedInstanceTitle?: string | null;
+  reportedInstanceAuthorId?: string | null;
+  reportedInstanceAuthorName?: string | null;
+  reportedInstanceArchetypeId?: number | null;
   reason: string;
   status: string;
   createdAt: string;

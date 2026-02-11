@@ -21,4 +21,7 @@ export interface ReportWithDetails extends Report {
   reporterEmail: string;
   reportedUserName?: string;
   reportedInstanceTitle?: string;
+  reportedInstanceAuthorId?: string | null;
+  reportedInstanceAuthorName?: string | null;
+  reportedInstanceArchetypeId?: number | null;
 }
