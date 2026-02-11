@@ -1,8 +1,7 @@
-import {
-  AdminRepository,
-  AdminUserSearchResult,
-} from "@/domain/ports/AdminRepository";
+import { AdminRepository } from "@/domain/ports/AdminRepository";
+import type { UserSearchResult } from "@/shared/dtos/userDto";
 import { PrismaClient } from "@prisma/client";
+import { AdminInstanceResult } from "@/domain/ports/AdminRepository";
 
 export class SqliteAdminRepository implements AdminRepository {
   private prisma: PrismaClient;
@@ -14,7 +13,7 @@ export class SqliteAdminRepository implements AdminRepository {
   async searchUsersAdminPanel(
     query: string,
     limit: number = 10,
-  ): Promise<AdminUserSearchResult[]> {
+  ): Promise<UserSearchResult[]> {
     const queryLower = `%${query.toLowerCase()}%`;
 
     const users = await this.prisma.$queryRaw<
@@ -51,7 +50,7 @@ export class SqliteAdminRepository implements AdminRepository {
 
   async getUserByIdAdminPanel(
     userId: string,
-  ): Promise<AdminUserSearchResult | null> {
+  ): Promise<UserSearchResult | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -152,5 +151,50 @@ export class SqliteAdminRepository implements AdminRepository {
         timeout: 120000,
       },
     );
+  }
+  async getUserInstancesAdminPanel(
+    userId: string,
+  ): Promise<AdminInstanceResult[]> {
+    const instances = await this.prisma.archetypeInstance.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        title: true,
+        archetypeId: true,
+        likes: true,
+        createdAt: true,
+        updatedAt: true,
+        headerCardId: true,
+        generalTip: true,
+        archetype: {
+          select: {
+            name: true,
+          },
+        },
+        headerCard: {
+          select: {
+            name: true,
+            imageUrlCropped: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
+    return instances.map((instance) => ({
+      id: instance.id,
+      title: instance.title,
+      archetypeId: instance.archetypeId,
+      archetypeName: instance.archetype.name,
+      likes: instance.likes,
+      created_at: instance.createdAt.toISOString(),
+      updated_at: instance.updatedAt.toISOString(),
+      headerCardId: instance.headerCardId,
+      headerCardName: instance.headerCard?.name || null,
+      headerCardImageUrl: instance.headerCard?.imageUrlCropped || null,
+      generalTip: instance.generalTip,
+    }));
   }
 }

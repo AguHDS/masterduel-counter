@@ -7,6 +7,16 @@ import { getFrontendUrl } from "@/infrastructure/config/urlHelpers";
 
 const prisma = new PrismaClient();
 
+interface EmailVerificationParams {
+  user: {
+    email: string;
+    id: string;
+    name: string;
+  };
+  url: string;
+  token: string;
+}
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "sqlite",
@@ -16,11 +26,7 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: process.env.REQUIRE_EMAIL_VERIFICATION === "true",
 
-    sendVerificationEmail: async (params: {
-      user: any;
-      url: string;
-      token: string;
-    }) => {
+    sendVerificationEmail: async (params: EmailVerificationParams) => {
       const { user, token } = params;
       const frontendUrl = `${getFrontendUrl()}/verify-email?token=${token}`;
 
@@ -41,11 +47,7 @@ export const auth = betterAuth({
       // BetterAuth handles email sending automatically in production
     },
 
-    sendResetPassword: async (params: {
-      user: any;
-      url: string;
-      token: string;
-    }) => {
+    sendResetPassword: async (params: EmailVerificationParams) => {
       const { user, token } = params;
       const frontendUrl = `${getFrontendUrl()}/reset-password?token=${token}`;
 

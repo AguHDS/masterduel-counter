@@ -22,9 +22,16 @@ import {
   useUnbanUser,
 } from "../hooks/useAdminData";
 
+interface CurrentUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 interface UserDetailsCardProps {
   user: Profile;
-  currentUser: any;
+  currentUser: CurrentUser;
   onRefetchUser: () => void;
   onViewInstances: () => void;
   isCurrentUser: boolean;
@@ -112,7 +119,7 @@ export const UserDetailsCard = ({
           onRefetchUser();
           setErrorMessage("");
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
           setErrorMessage(
             error.response?.data?.message || "Failed to update user",
           );
@@ -135,7 +142,7 @@ export const UserDetailsCard = ({
       onSuccess: () => {
         onRefetchUser();
       },
-      onError: (error: any) => {
+      onError: (error: Error & { response?: { data?: { message?: string } } }) => {
         alert(error.response?.data?.message || "Failed to ban user");
       },
     });
@@ -150,7 +157,7 @@ export const UserDetailsCard = ({
       onSuccess: () => {
         onRefetchUser();
       },
-      onError: (error: any) => {
+      onError: (error: Error & { response?: { data?: { message?: string } } }) => {
         alert(error.response?.data?.message || "Failed to unban user");
       },
     });
@@ -180,7 +187,7 @@ export const UserDetailsCard = ({
         // Navigate back to account list
         window.location.href = "/admin";
       },
-      onError: (error: any) => {
+      onError: (error: Error & { response?: { data?: { message?: string } } }) => {
         const errorMsg =
           error.response?.data?.message || "Failed to delete user";
         alert(errorMsg);

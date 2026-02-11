@@ -22,8 +22,12 @@ export const verifyAdminMiddleware = async (
   next: NextFunction,
 ): Promise<void> => {
   // Primero verificar autenticación
-  requireAuth(req, res, (err?: any) => {
-    if (err || res.headersSent) return;
+  requireAuth(req, res, (err?: unknown) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (res.headersSent) return;
 
     const authenticatedReq = req as AuthenticatedRequest;
 

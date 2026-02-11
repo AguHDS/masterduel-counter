@@ -1,9 +1,9 @@
 import { axiosClient } from "./axiosClient";
 import type {
   Profile,
-  Publication,
   Report,
   SearchUserResult,
+  UserInstance,
 } from "@/features/admin-panel/types/adminPanelTypes";
 
 interface ApiResponse<T> {
@@ -14,6 +14,11 @@ interface ApiResponse<T> {
 
 interface SearchUsersResponse {
   users: SearchUserResult[];
+  total: number;
+}
+
+interface UserInstancesResponse {
+  instances: UserInstance[];
   total: number;
 }
 
@@ -57,11 +62,11 @@ export const adminHttpApi = {
     await axiosClient.delete<ApiResponse<void>>(`/api/admin/users/${userId}`);
   },
 
-  async getUserInstances(userId: string): Promise<Publication[]> {
-    const { data } = await axiosClient.get<ApiResponse<Publication[]>>(
+  async getUserInstances(userId: string): Promise<UserInstance[]> {
+    const { data } = await axiosClient.get<ApiResponse<UserInstancesResponse>>(
       `/api/admin/users/${userId}/instances`,
     );
-    return data.data;
+    return data.data.instances;
   },
 
   async deleteUserInstance(

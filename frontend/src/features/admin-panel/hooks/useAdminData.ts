@@ -60,7 +60,7 @@ export const useDeleteUser = () => {
         queryKey: [...queryKeys.admin.users.all, "search"],
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error("Delete user error:", error);
     },
   });

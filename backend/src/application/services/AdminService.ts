@@ -1,5 +1,7 @@
 import { AdminRepository } from "@/domain/ports/AdminRepository";
 import { AdminService as AdminServicePort } from "@/application/ports/AdminService";
+import type { UserSearchResult } from "@/shared/dtos/userDto";
+import type { AdminInstanceResult } from "@/domain/ports/AdminRepository";
 
 export class AdminServiceImpl implements AdminServicePort {
   constructor(private readonly adminRepository: AdminRepository) {}
@@ -8,16 +10,7 @@ export class AdminServiceImpl implements AdminServicePort {
     query: string,
     limit: number = 10,
   ): Promise<{
-    users: Array<{
-      id: string;
-      username: string;
-      email: string;
-      role: string;
-      created_at: string;
-      is_banned: boolean;
-      ban_reason?: string | null;
-      ban_expires?: string | null;
-    }>;
+    users: UserSearchResult[];
     total: number;
   }> {
     const users = await this.adminRepository.searchUsersAdminPanel(
@@ -32,16 +25,7 @@ export class AdminServiceImpl implements AdminServicePort {
   }
 
   async getUserByIdAdminPanel(userId: string): Promise<{
-    user: {
-      id: string;
-      username: string;
-      email: string;
-      role: string;
-      created_at: string;
-      is_banned: boolean;
-      ban_reason?: string | null;
-      ban_expires?: string | null;
-    } | null;
+    user: UserSearchResult | null;
   }> {
     const user = await this.adminRepository.getUserByIdAdminPanel(userId);
 
@@ -99,5 +83,17 @@ export class AdminServiceImpl implements AdminServicePort {
             : "Internal error deleting user",
       };
     }
+  }
+  async getUserInstancesAdminPanel(userId: string): Promise<{
+    instances: AdminInstanceResult[];
+    total: number;
+  }> {
+    const instances =
+      await this.adminRepository.getUserInstancesAdminPanel(userId);
+
+    return {
+      instances,
+      total: instances.length,
+    };
   }
 }

@@ -21,6 +21,20 @@ export interface SearchUserResult {
   ban_expires?: string | null;
 }
 
+export interface UserInstance {
+  id: number;
+  title: string;
+  archetypeId: number;
+  archetypeName: string;
+  likes: number;
+  created_at: string;
+  updated_at: string;
+  headerCardId?: number | null;
+  headerCardName?: string | null;
+  headerCardImageUrl?: string | null;
+  generalTip?: string | null;
+}
+
 export interface Publication {
   id: string;
   user_id: string;
