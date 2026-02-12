@@ -48,6 +48,14 @@ export const CardPairItem = ({
 }: CardPairItemProps) => {
   const selectedOption = EFFECTIVENESS_OPTIONS.find((opt) => opt.value === effectiveness);
 
+  // Detect if this is a single-slot pair (cards only in one position)
+  const hasTopCards = topCards.length > 0;
+  const hasBottomCards = bottomCards.length > 0;
+  const isSingleSlotPair = !isEditMode && ((hasTopCards && !hasBottomCards) || (!hasTopCards && hasBottomCards));
+  if (!isEditMode && !hasTopCards && !hasBottomCards) {
+    return null;
+  }
+
   const renderCommentWithLineBreaks = (text: string) => {
     if (!text) return "No comment";
     
@@ -114,94 +122,168 @@ export const CardPairItem = ({
         )}
 
         <div className="flex flex-col items-center space-y-4">
-          {/* Top Cards (Target) */}
-          <div className="flex flex-col items-center">
-            <div className="text-sm text-slate-400 mb-2 text-center">Target</div>
-            <div className="flex flex-wrap gap-2 justify-center items-center min-w-[140px]" style={{ minHeight: topCards.length > 0 ? 'auto' : '180px' }}>
-              {topCards.map((card, index) => (
-                <div key={index} className="relative group">
+          {/* Single Slot Layout (only top OR bottom cards) */}
+          {isSingleSlotPair && (
+            <div className="flex flex-col items-center">
+              <div className="text-sm text-slate-400 mb-2 text-center">Cards</div>
+              <div className="flex flex-wrap gap-2 justify-center items-center min-w-[140px]" style={{ minHeight: (hasTopCards ? topCards.length : bottomCards.length) > 0 ? 'auto' : '180px' }}>
+                {hasTopCards && topCards.map((card, index) => (
+                  <div key={index} className="relative group">
+                    {isEditMode && (
+                      <button
+                        onClick={() => onRemoveTopCard(index)}
+                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100"
+                        title="Remove card"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                    <CardTooltip imageUrl={card.imageUrl} cardName={card.name} cardId={card.id}>
+                      <img
+                        src={card.imageUrlSmall}
+                        alt={card.name}
+                        className="w-32 h-44 object-cover rounded-lg border-2 border-blue-500 cursor-pointer"
+                      />
+                    </CardTooltip>
+                  </div>
+                ))}
+                {hasBottomCards && bottomCards.map((card, index) => (
+                  <div key={index} className="relative group">
+                    {isEditMode && (
+                      <button
+                        onClick={() => onRemoveBottomCard(index)}
+                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100"
+                        title="Remove card"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                    <CardTooltip imageUrl={card.imageUrl} cardName={card.name} cardId={card.id}>
+                      <img
+                        src={card.imageUrlSmall}
+                        alt={card.name}
+                        className="w-32 h-44 object-cover rounded-lg border-2 border-purple-500 cursor-pointer"
+                      />
+                    </CardTooltip>
+                  </div>
+                ))}
+                {isEditMode && (
+                  <>
+                    {hasTopCards && (
+                      <button
+                        onClick={onSelectTop}
+                        className="w-32 h-44 rounded-lg border-2 border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                      >
+                        <Plus className="w-8 h-8 text-slate-400" />
+                      </button>
+                    )}
+                    {hasBottomCards && (
+                      <button
+                        onClick={onSelectBottom}
+                        className="w-32 h-44 rounded-lg border-2 border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                      >
+                        <Plus className="w-8 h-8 text-slate-400" />
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Full Layout - Always show in edit mode, or in read mode when not single-slot */}
+          {!isSingleSlotPair && (
+            <>
+              {/* Top Cards (Target) */}
+              <div className="flex flex-col items-center">
+                <div className="text-sm text-slate-400 mb-2 text-center">Target</div>
+                <div className="flex flex-wrap gap-2 justify-center items-center min-w-[140px]" style={{ minHeight: topCards.length > 0 ? 'auto' : '180px' }}>
+                  {topCards.map((card, index) => (
+                    <div key={index} className="relative group">
+                      {isEditMode && (
+                        <button
+                          onClick={() => onRemoveTopCard(index)}
+                          className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100"
+                          title="Remove card"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                      <CardTooltip imageUrl={card.imageUrl} cardName={card.name} cardId={card.id}>
+                        <img
+                          src={card.imageUrlSmall}
+                          alt={card.name}
+                          className="w-32 h-44 object-cover rounded-lg border-2 border-blue-500 cursor-pointer"
+                        />
+                      </CardTooltip>
+                    </div>
+                  ))}
                   {isEditMode && (
                     <button
-                      onClick={() => onRemoveTopCard(index)}
-                      className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100"
-                      title="Remove card"
+                      onClick={onSelectTop}
+                      className="w-32 h-44 rounded-lg border-2 border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
                     >
-                      <X className="w-3 h-3" />
+                      <Plus className="w-8 h-8 text-slate-400" />
                     </button>
                   )}
-                  <CardTooltip imageUrl={card.imageUrl} cardName={card.name} cardId={card.id}>
-                    <img
-                      src={card.imageUrlSmall}
-                      alt={card.name}
-                      className="w-32 h-44 object-cover rounded-lg border-2 border-blue-500 cursor-pointer"
-                    />
-                  </CardTooltip>
                 </div>
-              ))}
-              {isEditMode && (
-                <button
-                  onClick={onSelectTop}
-                  className="w-32 h-44 rounded-lg border-2 border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                  </div>
+
+              {/* Arrow Icon */}
+              <div className="flex items-center justify-center py-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-blue-400 opacity-70"
                 >
-                  <Plus className="w-8 h-8 text-slate-400" />
-                </button>
-              )}
-            </div>
-          </div>
+                  <line x1="12" y1="19" x2="12" y2="5"></line>
+                  <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+              </div>
 
-          {/* Arrow Icon */}
-          <div className="flex items-center justify-center py-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-blue-400 opacity-70"
-            >
-              <line x1="12" y1="19" x2="12" y2="5"></line>
-              <polyline points="5 12 12 5 19 12"></polyline>
-            </svg>
-          </div>
-
-          {/* Bottom Cards (Counter) */}
-          <div className="flex flex-col items-center">
-            <div className="text-sm text-slate-400 mb-2 text-center">Counter</div>
-            <div className="flex flex-wrap gap-2 justify-center items-center min-w-[140px]" style={{ minHeight: bottomCards.length > 0 ? 'auto' : '180px' }}>
-              {bottomCards.map((card, index) => (
-                <div key={index} className="relative group">
+              {/* Bottom Cards (Counter) */}
+              <div className="flex flex-col items-center">
+                <div className="text-sm text-slate-400 mb-2 text-center">Counter</div>
+                <div className="flex flex-wrap gap-2 justify-center items-center min-w-[140px]" style={{ minHeight: bottomCards.length > 0 ? 'auto' : '180px' }}>
+                  {bottomCards.map((card, index) => (
+                    <div key={index} className="relative group">
+                      {isEditMode && (
+                        <button
+                          onClick={() => onRemoveBottomCard(index)}
+                          className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100"
+                          title="Remove card"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                      <CardTooltip imageUrl={card.imageUrl} cardName={card.name} cardId={card.id}>
+                        <img
+                          src={card.imageUrlSmall}
+                          alt={card.name}
+                          className="w-32 h-44 object-cover rounded-lg border-2 border-purple-500 cursor-pointer"
+                        />
+                      </CardTooltip>
+                    </div>
+                  ))}
                   {isEditMode && (
                     <button
-                      onClick={() => onRemoveBottomCard(index)}
-                      className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100"
-                      title="Remove card"
+                      onClick={onSelectBottom}
+                      className="w-32 h-44 rounded-lg border-2 border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
                     >
-                      <X className="w-3 h-3" />
+                      <Plus className="w-8 h-8 text-slate-400" />
                     </button>
                   )}
-                  <CardTooltip imageUrl={card.imageUrl} cardName={card.name} cardId={card.id}>
-                    <img
-                      src={card.imageUrlSmall}
-                      alt={card.name}
-                      className="w-32 h-44 object-cover rounded-lg border-2 border-purple-500 cursor-pointer"
-                    />
-                  </CardTooltip>
                 </div>
-              ))}
-              {isEditMode && (
-                <button
-                  onClick={onSelectBottom}
-                  className="w-32 h-44 rounded-lg border-2 border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
-                >
-                  <Plus className="w-8 h-8 text-slate-400" />
-                </button>
-              )}
-            </div>
-          </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Comment Field */}

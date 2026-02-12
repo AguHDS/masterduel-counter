@@ -13,13 +13,10 @@ interface CardPair {
 
 interface CardPairEditorProps {
   isEditMode: boolean;
-  onSave: (pairs: CardPair[]) => Promise<void>;
-  onCancel?: () => void;
   initialPairs?: CardPair[];
   pairs: CardPair[];
   setPairs: React.Dispatch<React.SetStateAction<CardPair[]>>;
   onAddPair?: () => void;
-  saving?: boolean;
   validationError?: string | null;
 }
 

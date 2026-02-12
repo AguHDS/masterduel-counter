@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 
-/** Obtiene los pares de cartas de una instancia específica por su ID */
+/** Gets the card pairs of a specific instance by its ID */
 export const getInstanceCardPairsController = async (
   req: Request,
   res: Response,
