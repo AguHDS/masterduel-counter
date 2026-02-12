@@ -68,7 +68,7 @@ export const CardPairItem = ({
   };
 
   return (
-    <div className="space-y-4 max-w-fit">
+    <div className="space-y-4">
       {/* Effectiveness Label */}
       <div className="min-h-[40px] flex items-center justify-center gap-2">
         {isEditMode && onMoveLeft && canMoveLeft && (
@@ -307,7 +307,7 @@ export const CardPairItem = ({
             <div className="w-full flex flex-col items-center space-y-1">
               <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Comment</span>
               <div 
-                className="text-center px-3 py-2 text-slate-300 text-sm w-[280px] min-h-[80px]"
+                className="text-center px-3 py-2 text-slate-300 text-sm w-[300px]"
                 style={{
                   maxHeight: '120px',
                   overflowY: 'auto',
