@@ -4,9 +4,10 @@ import {
   AboutContent,
   TermsContent,
   ContactContent,
+  SupportContent,
 } from "@/features/info";
 
-type ModalType = "about" | "terms" | "contact" | null;
+type ModalType = "about" | "terms" | "contact" | "support" | null;
 
 export const Footer = () => {
   const [openModal, setOpenModal] = useState<ModalType>(null);
@@ -74,14 +75,13 @@ export const Footer = () => {
                 •
               </span>
 
-              <a
-                href=""
-                className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
-                target="_blank"
+              <button
+                onClick={handleOpenModal("support")}
+                className="text-blue-400 hover:text-blue-300 transition-colors duration-200 flex items-center gap-1"
                 aria-label="Support us"
               >
                 Support us
-              </a>
+              </button>
             </nav>
 
             <p className="text-sm text-blue-500">
@@ -114,6 +114,14 @@ export const Footer = () => {
         title="Contact Us"
       >
         <ContactContent />
+      </InfoModal>
+
+      <InfoModal
+        isOpen={openModal === "support"}
+        onClose={handleCloseModal}
+        title="Support Masterduel Counter"
+      >
+        <SupportContent />
       </InfoModal>
     </>
   );
