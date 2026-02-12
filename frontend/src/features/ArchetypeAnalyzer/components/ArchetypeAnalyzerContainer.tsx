@@ -47,7 +47,7 @@ export const ArchetypeAnalyzerContainer = () => {
   const { isAuthenticated, user } = useAuth();
 
   const editor = useInstanceEditor();
-  const { saving, validationError, saveInstance } = useSaveInstance();
+  const { saving, validationError, saveInstance, clearValidationError } = useSaveInstance();
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
 
@@ -195,6 +195,8 @@ export const ArchetypeAnalyzerContainer = () => {
 
   const handleCancel = () => {
     editor.setIsEditMode(false);
+    clearValidationError();
+    
     if (!isCreatingNew && userInstanceData) {
       const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
@@ -375,13 +377,10 @@ export const ArchetypeAnalyzerContainer = () => {
               <div className="mt-8">
                 <CardPairEditor
                   isEditMode={editor.isEditMode && isOwner}
-                  onSave={validateAndSave}
-                  onCancel={handleCancel}
                   initialPairs={editor.loadedPairs}
                   pairs={pairs}
                   setPairs={setPairs}
                   onAddPair={editor.isEditMode && isOwner ? addPair : undefined}
-                  saving={saving}
                   validationError={validationError}
                 />
               </div>

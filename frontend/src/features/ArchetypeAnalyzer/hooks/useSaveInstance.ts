@@ -166,9 +166,14 @@ export const useSaveInstance = () => {
     }
   };
 
+  const clearValidationError = () => {
+    setValidationError(null);
+  };
+
   return {
     saving,
     validationError,
     saveInstance,
+    clearValidationError,
   };
 };

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 
-/** Gets the list of all registered archetypes with creator information */
+/** Gets the list of all registered archetypes */
 export const getRegisteredArchetypesController = async (
   req: Request,
   res: Response,

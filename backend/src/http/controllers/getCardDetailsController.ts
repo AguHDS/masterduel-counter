@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { GetCardDetailsPort } from "@/application/ports/GetCardDetailsPort";
 
+/** Generally used for tooltip purposes */
 export const createGetCardDetailsController = (
   getCardDetails: GetCardDetailsPort,
 ) => {
