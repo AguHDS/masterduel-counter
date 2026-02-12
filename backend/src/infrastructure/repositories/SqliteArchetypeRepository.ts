@@ -75,7 +75,11 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
         a.updated_at
       FROM archetypes a
       WHERE a.registered = 1
-      ORDER BY a.created_at DESC
+      ORDER BY (
+        SELECT MAX(ai.created_at)
+        FROM archetype_instances ai
+        WHERE ai.archetype_id = a.id
+      ) DESC
     `);
 
     return stmt.all() as Archetype[];
