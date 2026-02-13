@@ -12,6 +12,7 @@ import {
   Shield,
   AlertCircle,
   Loader2,
+  Key,
 } from "lucide-react";
 import { BanInfoSection } from "./BanInfoSection";
 import type { Profile } from "../types/adminPanelTypes";
@@ -53,7 +54,12 @@ export const UserDetailsCard = ({
   const unbanUserMutation = useUnbanUser();
 
   const [editingUser, setEditingUser] = useState(false);
-  const [editForm, setEditForm] = useState({ username: "", email: "" });
+  const [editForm, setEditForm] = useState({ 
+    username: "", 
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   // Sync edit form with user data when user changes
@@ -61,12 +67,14 @@ export const UserDetailsCard = ({
     setEditForm({
       username: user.username || "",
       email: user.email || "",
+      password: "",
+      confirmPassword: "",
     });
     setEditingUser(false);
     setErrorMessage("");
   }, [user]);
 
-  // Convinated loading states
+  // Combined loading states
   const isMutating =
     deleteUserMutation.isPending ||
     changeCredentialsMutation.isPending ||
@@ -83,7 +91,12 @@ export const UserDetailsCard = ({
   };
 
   const handleCancelEdit = () => {
-    setEditForm({ username: user.username || "", email: user.email || "" });
+    setEditForm({ 
+      username: user.username || "", 
+      email: user.email || "",
+      password: "",
+      confirmPassword: "",
+    });
     setEditingUser(false);
     setErrorMessage("");
   };
@@ -95,23 +108,46 @@ export const UserDetailsCard = ({
       return;
     }
 
+    // Validate required fields
     if (!editForm.username.trim() || !editForm.email.trim()) {
       setErrorMessage("Username and email are required");
       return;
     }
 
+    // Validate email format
     if (!EMAIL_REGEX.test(editForm.email)) {
       setErrorMessage("Please enter a valid email address");
       return;
     }
 
+    // Validate password if provided
+    if (editForm.password || editForm.confirmPassword) {
+      if (editForm.password !== editForm.confirmPassword) {
+        setErrorMessage("Passwords do not match");
+        return;
+      }
+      
+      if (editForm.password.length < 5) {
+        setErrorMessage("Password must be at least 5 characters long");
+        return;
+      }
+    }
+
+    // Prepare credentials object (only include fields that have values)
+    const credentials: { username?: string; email?: string; password?: string } = {
+      username: editForm.username.trim(),
+      email: editForm.email.trim(),
+    };
+
+    // Only include password if it was provided
+    if (editForm.password) {
+      credentials.password = editForm.password;
+    }
+
     changeCredentialsMutation.mutate(
       {
         userId: user.id,
-        credentials: {
-          username: editForm.username.trim(),
-          email: editForm.email.trim(),
-        },
+        credentials,
       },
       {
         onSuccess: () => {
@@ -222,6 +258,16 @@ export const UserDetailsCard = ({
     setErrorMessage("");
   };
 
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditForm((prev) => ({ ...prev, password: e.target.value }));
+    setErrorMessage("");
+  };
+
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditForm((prev) => ({ ...prev, confirmPassword: e.target.value }));
+    setErrorMessage("");
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-900/50 to-blue-900/20 border border-blue-800/30 rounded-lg p-6">
       <div className="flex items-center justify-between mb-6">
@@ -321,6 +367,46 @@ export const UserDetailsCard = ({
           )}
         </div>
       </div>
+
+      {editingUser && (
+        <div className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-blue-300 mb-2">
+                <div className="flex items-center gap-2">
+                  <Key size={14} />
+                  New Password (optional)
+                </div>
+              </label>
+              <input
+                type="password"
+                value={editForm.password}
+                onChange={handlePasswordChange}
+                disabled={isMutating}
+                className="w-full bg-slate-800/50 border border-blue-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                placeholder="Leave empty to keep current"
+                minLength={6}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-blue-300 mb-2">
+                <div className="flex items-center gap-2">
+                  <Key size={14} />
+                  Confirm Password
+                </div>
+              </label>
+              <input
+                type="password"
+                value={editForm.confirmPassword}
+                onChange={handleConfirmPasswordChange}
+                disabled={isMutating}
+                className="w-full bg-slate-800/50 border border-blue-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                placeholder="Confirm new password"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Role Field */}
       <div className="mt-6">

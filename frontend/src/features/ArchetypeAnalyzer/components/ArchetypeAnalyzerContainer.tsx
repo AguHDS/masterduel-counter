@@ -47,7 +47,8 @@ export const ArchetypeAnalyzerContainer = () => {
   const { isAuthenticated, user } = useAuth();
 
   const editor = useInstanceEditor();
-  const { saving, validationError, saveInstance, clearValidationError } = useSaveInstance();
+  const { saving, validationError, saveInstance, clearValidationError } =
+    useSaveInstance();
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
 
@@ -73,6 +74,8 @@ export const ArchetypeAnalyzerContainer = () => {
     isAuthenticated,
     archetypeId,
     instanceId: userInstanceData?.instance.id,
+    userId: user?.id,
+    ownerId: userInstanceData?.instance.userId,
   });
 
   const recommendedDeck = useRecommendedDeck(instanceIdNum);
@@ -196,7 +199,7 @@ export const ArchetypeAnalyzerContainer = () => {
   const handleCancel = () => {
     editor.setIsEditMode(false);
     clearValidationError();
-    
+
     if (!isCreatingNew && userInstanceData) {
       const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
@@ -339,17 +342,22 @@ export const ArchetypeAnalyzerContainer = () => {
 
             <div className="relative z-10 space-y-6">
               {!isCreatingNew &&
-                !isOwner &&
                 isAuthenticated &&
                 selectedArchetype.registered && (
                   <div className="absolute right-0 top-[-26px]">
                     <button
                       onClick={likes.toggleLike}
+                      disabled={isOwner}
                       className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
-                        likes.liked
-                          ? "bg-green-600 hover:bg-green-700 text-white"
-                          : "bg-slate-700 hover:bg-slate-600 text-white"
+                        isOwner
+                          ? "bg-slate-700 hover:bg-slate-600 text-white cursor-not-allowed"
+                          : likes.liked
+                            ? "bg-green-600 hover:bg-green-700 text-white"
+                            : "bg-slate-700 hover:bg-slate-600 text-white"
                       }`}
+                      title={
+                        isOwner ? "You cannot like your own guide" : undefined
+                      }
                     >
                       <ThumbsUp
                         className={`w-5 h-5 ${likes.liked ? "fill-current" : ""}`}
@@ -358,7 +366,6 @@ export const ArchetypeAnalyzerContainer = () => {
                     </button>
                   </div>
                 )}
-
               <InstanceHeader
                 archetypeName={selectedArchetype.name}
                 title={editor.title}

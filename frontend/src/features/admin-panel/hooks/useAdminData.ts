@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminApi } from "../api/adminApi";
+import { adminHttpApi } from "@/lib/http/adminApi";
 import { queryKeys } from "@/lib/query/queryKeys";
 
 /** Search users */
 export const useSearchUsers = (query: string, enabled: boolean = false) => {
   return useQuery({
     queryKey: [...queryKeys.admin.users.all, "search", query],
-    queryFn: () => adminApi.searchUsers(query),
+    queryFn: () => adminHttpApi.searchUsers(query),
     enabled: enabled && !!query.trim(), // Only run if there is a query and enabled is true
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
@@ -17,7 +17,7 @@ export const useSearchUsers = (query: string, enabled: boolean = false) => {
 export const useAdminUser = (userId: string) => {
   return useQuery({
     queryKey: queryKeys.admin.users.detail(userId),
-    queryFn: () => adminApi.getUser(userId),
+    queryFn: () => adminHttpApi.getUser(userId),
     enabled: !!userId,
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
@@ -28,7 +28,7 @@ export const useAdminUser = (userId: string) => {
 export const useAdminReports = () => {
   return useQuery({
     queryKey: queryKeys.admin.reports.list(),
-    queryFn: adminApi.getReports,
+    queryFn: adminHttpApi.getReports,
     staleTime: 1 * 60 * 1000,
     gcTime: 3 * 60 * 1000,
   });
@@ -37,9 +37,9 @@ export const useAdminReports = () => {
 /** Delete user */
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (userId: string) => adminApi.deleteUser(userId),
+    mutationFn: (userId: string) => adminHttpApi.deleteUser(userId),
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.detail(userId),
@@ -50,12 +50,12 @@ export const useDeleteUser = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.all,
       });
-      
+
       // Remove user data from cache to prevent showing deleted user details
       queryClient.removeQueries({
         queryKey: queryKeys.admin.users.detail(userId),
       });
-      
+
       queryClient.invalidateQueries({
         queryKey: [...queryKeys.admin.users.all, "search"],
       });
@@ -70,7 +70,7 @@ export const useDeleteUser = () => {
 export const useUserInstances = (userId: string) => {
   return useQuery({
     queryKey: queryKeys.admin.users.instances(userId),
-    queryFn: () => adminApi.getUserInstances(userId),
+    queryFn: () => adminHttpApi.getUserInstances(userId),
     enabled: !!userId,
     staleTime: 2 * 60 * 1000,
   });
@@ -86,7 +86,7 @@ export const useDeleteUserInstance = () => {
     }: {
       userId: string;
       instanceId: string;
-    }) => adminApi.deleteUserInstance(userId, instanceId),
+    }) => adminHttpApi.deleteUserInstance(userId, instanceId),
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.instances(userId),
@@ -105,7 +105,7 @@ export const useChangeUserCredentials = () => {
     }: {
       userId: string;
       credentials: { email?: string; username?: string; password?: string };
-    }) => adminApi.changeUserCredentials(userId, credentials),
+    }) => adminHttpApi.changeUserCredentials(userId, credentials),
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.detail(userId),
@@ -121,8 +121,15 @@ export const useChangeUserCredentials = () => {
 export const useBanUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ userId, reason, expiresAt }: { userId: string; reason: string; expiresAt?: string | null }) => 
-      adminApi.banUser(userId, reason, expiresAt),
+    mutationFn: ({
+      userId,
+      reason,
+      expiresAt,
+    }: {
+      userId: string;
+      reason: string;
+      expiresAt?: string | null;
+    }) => adminHttpApi.banUser(userId, reason, expiresAt),
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.detail(userId),
@@ -138,7 +145,7 @@ export const useBanUser = () => {
 export const useUnbanUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (userId: string) => adminApi.unbanUser(userId),
+    mutationFn: (userId: string) => adminHttpApi.unbanUser(userId),
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.detail(userId),
@@ -154,7 +161,7 @@ export const useUnbanUser = () => {
 export const useDeleteReport = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (reportId: number) => adminApi.deleteReport(reportId),
+    mutationFn: (reportId: string) => adminHttpApi.deleteReport(reportId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.reports.list(),

@@ -71,7 +71,7 @@ export const RegisteredArchetypesList = ({
           Latest Archetypes •
         </h2>
         <span className="text-sm relative max-[640px]:top-1 bottom-[7px] font-semibold text-blue-300">
-          Registered by the community
+          Updated by the community
         </span>
       </div>
 
