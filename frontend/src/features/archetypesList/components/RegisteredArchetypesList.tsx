@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowDownUp } from "lucide-react";
 import { FramedContainer } from "@/layouts/FramedContainer";
 import { useRegisteredArchetypes } from "../hooks/useRegisteredArchetypes";
 import instanceItemBg from "@/assets/background_instanceitem_plane.webp";
@@ -14,7 +14,13 @@ export const RegisteredArchetypesList = ({
   onSelectArchetype,
 }: RegisteredArchetypesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const { data, isLoading, error } = useRegisteredArchetypes();
+  const [sortBy, setSortBy] = useState<"recent" | "instances">("recent");
+  const { data, isLoading, error } = useRegisteredArchetypes(sortBy);
+
+  const toggleSortBy = () => {
+    setSortBy((prev) => (prev === "recent" ? "instances" : "recent"));
+    setCurrentPage(0); // Reset to first page when sorting changes
+  };
 
   if (isLoading) {
     return (
@@ -89,9 +95,17 @@ export const RegisteredArchetypesList = ({
           <div className="text-blue-300 font-semibold text-lg relative left-16">
             Archetype
           </div>
-          <div className="text-blue-300 font-semibold text-lg text-right">
-            Instances
-          </div>
+          <button
+            onClick={toggleSortBy}
+            className="flex items-center justify-end gap-2 text-blue-300 font-semibold text-lg hover:text-blue-200 transition-colors group"
+            title={`Sort by ${sortBy === "recent" ? "instance count" : "most recent"}`}
+          >
+            <span>Instances</span>
+            <ArrowDownUp 
+              className="w-4 h-4 group-hover:scale-110 transition-transform" 
+              aria-hidden="true"
+            />
+          </button>
         </div>
 
         <div className="flex flex-col gap-[0.25rem]">

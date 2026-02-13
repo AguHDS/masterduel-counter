@@ -118,11 +118,15 @@ export const getArchetypeWithHeaderCard = async (
 /**
  * Get all registered archetypes with creator information
  */
-export const getRegisteredArchetypes =
-  async (): Promise<RegisteredArchetypesResponse> => {
-    const response = await axiosClient.get<RegisteredArchetypesResponse>(
-      "/api/archetypes/registered",
-    );
+export const getRegisteredArchetypes = async (
+  sortBy: "recent" | "instances" = "recent"
+): Promise<RegisteredArchetypesResponse> => {
+  const response = await axiosClient.get<RegisteredArchetypesResponse>(
+    "/api/archetypes/registered",
+    {
+      params: { sortBy },
+    }
+  );
 
-    return response.data;
-  };
+  return response.data;
+};

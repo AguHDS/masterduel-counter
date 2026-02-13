@@ -1,11 +1,8 @@
-import Database from "better-sqlite3";
-import bcrypt from "bcrypt";
-import path from "path";
-import { fileURLToPath } from "url";
+import { PrismaClient } from "@prisma/client";
+import { auth } from "@/lib/auth.js";
 import readline from "readline";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const prisma = new PrismaClient();
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -26,6 +23,15 @@ async function createAdmin() {
     if (!username || username.trim().length === 0) {
       console.error("❌ Username cannot be empty");
       rl.close();
+      await prisma.$disconnect();
+      return;
+    }
+
+    const email = await question("Enter admin email: ");
+    if (!email || email.trim().length === 0) {
+      console.error("❌ Email cannot be empty");
+      rl.close();
+      await prisma.$disconnect();
       return;
     }
 
@@ -33,53 +39,65 @@ async function createAdmin() {
     if (!password || password.trim().length === 0) {
       console.error("❌ Password cannot be empty");
       rl.close();
+      await prisma.$disconnect();
       return;
     }
-
-    const dbPath = path.join(__dirname, "../data/database.db");
-    const db = new Database(dbPath);
-
-    // Initialize tables if they don't exist
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS admins (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
 
     // Check if user already exists
-    const existingUser = db
-      .prepare("SELECT * FROM admins WHERE username = ?")
-      .get(username);
+    const existingUserByName = await prisma.user.findFirst({
+      where: { name: username },
+    });
 
-    if (existingUser) {
-      console.error(`❌ Admin user "${username}" already exists`);
-      db.close();
+    if (existingUserByName) {
+      console.error(`❌ User with username "${username}" already exists`);
       rl.close();
+      await prisma.$disconnect();
       return;
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const password_hash = await bcrypt.hash(password, saltRounds);
+    const existingUserByEmail = await prisma.user.findUnique({
+      where: { email: email },
+    });
 
-    // Insert admin
-    const stmt = db.prepare(`
-      INSERT INTO admins (username, password_hash)
-      VALUES (?, ?)
-    `);
+    if (existingUserByEmail) {
+      console.error(`❌ User with email "${email}" already exists`);
+      rl.close();
+      await prisma.$disconnect();
+      return;
+    }
 
-    stmt.run(username, password_hash);
+    // Create admin user using better-auth
+    const response = await auth.api.signUpEmail({
+      body: {
+        name: username,
+        email: email,
+        password: password,
+      },
+    });
+
+    if (!response || !response.user) {
+      console.error("❌ Failed to create admin user");
+      rl.close();
+      await prisma.$disconnect();
+      return;
+    }
+
+    // Update user role to admin
+    await prisma.user.update({
+      where: { id: response.user.id },
+      data: { role: "admin" },
+    });
 
     console.log(`\n✅ Admin user "${username}" created successfully!`);
+    console.log(`   Email: ${email}`);
+    console.log(`   Role: admin`);
 
-    db.close();
     rl.close();
+    await prisma.$disconnect();
   } catch (error) {
     console.error("❌ Error creating admin:", error);
     rl.close();
+    await prisma.$disconnect();
     process.exit(1);
   }
 }

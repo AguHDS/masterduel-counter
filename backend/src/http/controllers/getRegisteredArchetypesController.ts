@@ -7,9 +7,12 @@ export const getRegisteredArchetypesController = async (
   res: Response,
 ) => {
   try {
+    const sortBy = req.query.sortBy as string | undefined;
+    const validSortBy = sortBy === "instances" ? "instances" : "recent";
+
     const dependencies = getDependencies();
     const archetypeRepository = dependencies.getArchetypeRepository();
-    const archetypes = await archetypeRepository.findAllRegisteredArchetypes();
+    const archetypes = await archetypeRepository.findAllRegisteredArchetypes(validSortBy);
 
     // Get instance count for each archetype
     const instanceRepository = dependencies.getInstanceRepository();

@@ -11,13 +11,13 @@
     "lint": "eslint . --ext .ts",
     "populate-archetypes": "tsx src/scripts/populate-archetypes.ts",
     "reset-db": "tsx src/scripts/reset-database.ts",
-    "cleanup-cards": "tsx src/scripts/cleanup-temporary-cards.ts"
+    "cleanup-cards": "tsx src/scripts/cleanup-temporary-cards.ts",
+    "create-admin": "tsx src/scripts/create-admin.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
@@ -39,7 +39,6 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "bcrypt": "^6.0.0",
     "better-auth": "^1.4.17",
     "better-sqlite3": "^12.6.2",
     "cloudinary": "^2.5.1",
