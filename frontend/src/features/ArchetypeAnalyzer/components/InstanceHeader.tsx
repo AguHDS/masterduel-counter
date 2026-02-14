@@ -33,7 +33,7 @@ export const InstanceHeader = ({
       {/* Left Side: Archetype Name, Title and General Tip */}
       <div className="flex-1 max-w-4xl">
         {/* Archetype Name and Separator */}
-        <div className="w-full max-w-2xl flex flex-col items-start mb-2">
+        <div className="w-full  flex flex-col items-start mb-2">
           <h1 className="text-3xl font-bold text-white mb-3">
             {archetypeName}
           </h1>
@@ -50,7 +50,7 @@ export const InstanceHeader = ({
 
         {/* Title Section */}
         <div className="w-full max-w-2xl">
-          <label className="text-blue-400 font-semibold text-xs mb-1 block">
+          <label className="text-blue-400 font-semibold text-sm  block">
             Title
           </label>
           {isEditMode ? (
@@ -86,7 +86,7 @@ export const InstanceHeader = ({
         </div>
         {/* Description Section */}
         <div className="w-full mt-2">
-          <label className="text-blue-400 font-semibold text-xs mb-1 block">
+          <label className="text-blue-400 font-semibold text-ms mb-1 block">
             Description
           </label>
           {isEditMode ? (

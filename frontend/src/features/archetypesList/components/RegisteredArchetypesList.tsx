@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, ArrowDownUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
 import { FramedContainer } from "@/layouts/FramedContainer";
 import { useRegisteredArchetypes } from "../hooks/useRegisteredArchetypes";
 import instanceItemBg from "@/assets/background_instanceitem_plane.webp";
@@ -19,7 +19,7 @@ export const RegisteredArchetypesList = ({
 
   const toggleSortBy = () => {
     setSortBy((prev) => (prev === "recent" ? "instances" : "recent"));
-    setCurrentPage(0); // Reset to first page when sorting changes
+    setCurrentPage(0);
   };
 
   if (isLoading) {
@@ -101,10 +101,17 @@ export const RegisteredArchetypesList = ({
             title={`Sort by ${sortBy === "recent" ? "instance count" : "most recent"}`}
           >
             <span>Instances</span>
-            <ArrowDownUp 
-              className="w-4 h-4 group-hover:scale-110 transition-transform" 
-              aria-hidden="true"
-            />
+            {sortBy === "instances" ? (
+              <ArrowDown
+                className="w-4 h-4 relative top-[2px] right-[5px] group-hover:scale-110 transition-transform text-green-400"
+                aria-hidden="true"
+              />
+            ) : (
+              <ArrowUp
+                className="w-4 h-4 relative top-[2px] right-[4px] group-hover:scale-110 transition-transform"
+                aria-hidden="true"
+              />
+            )}
           </button>
         </div>
 

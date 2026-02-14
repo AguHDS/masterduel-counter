@@ -1,5 +1,5 @@
 import type { MouseEvent } from "react";
-import { ChevronLeft, ChevronRight, ArrowUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
 import { type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
 import { useNavigate } from "react-router-dom";
@@ -105,23 +105,45 @@ export const InstancesTable = ({
         </div>
         <button
           onClick={() => onSortChange("updated")}
-          className={`text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg hover:text-blue-100 transition-colors ${
-            sortBy === "updated" ? "underline" : ""
+          className={`text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg hover:text-blue-100 transition-colors flex items-center justify-end gap-1 ${
+            sortBy === "updated" ? "text-blue-100" : ""
           }`}
           role="columnheader"
           aria-label="Sort by Last Update"
         >
-          Last Update
+          <span>Last Update</span>
+          {sortBy === "updated" ? (
+            <ArrowDown
+              className="w-4 h-4 relative top-[2px] text-green-400"
+              aria-hidden="true"
+            />
+          ) : (
+            <ArrowUp
+              className="w-4 h-4 relative top-[2px]"
+              aria-hidden="true"
+            />
+          )}
         </button>
         <button
           onClick={() => onSortChange("likes")}
-          className={`text-blue-300 relative left-2 font-semibold text-lg text-right hover:text-blue-100 transition-colors ${
-            sortBy === "likes" ? "underline" : ""
+          className={`text-blue-300 relative left-2 font-semibold text-lg text-right hover:text-blue-100 transition-colors flex items-center justify-end gap-1 ${
+            sortBy === "likes" ? "text-blue-100" : ""
           }`}
           role="columnheader"
           aria-label="Sort by Likes"
         >
-          Likes
+          <span>Likes</span>
+          {sortBy === "likes" ? (
+            <ArrowDown
+              className="w-4 h-4 relative top-[2px] text-green-400"
+              aria-hidden="true"
+            />
+          ) : (
+            <ArrowUp
+              className="w-4 h-4 relative top-[2px]"
+              aria-hidden="true"
+            />
+          )}
         </button>
       </div>
 
@@ -277,7 +299,7 @@ export const InstancesTable = ({
                     </div>
                   </div>
 
-                  <div className="text-blue-300 text-nowrap text-right font-semibold text-lg">
+                  <div className="text-blue-300 text-nowrap text-center relative left-8 font-semibold text-lg">
                     {showArchetypeName ? (
                       <span className="text-white whitespace-nowrap overflow-hidden text-ellipsis">
                         {instance.archetypeName}
@@ -302,7 +324,7 @@ export const InstancesTable = ({
                     )}
                   </div>
 
-                  <div className="text-blue-300 text-right text-lg whitespace-nowrap overflow-hidden text-ellipsis">
+                  <div className="text-blue-300 text-center relative left-9 text-lg whitespace-nowrap overflow-hidden text-ellipsis">
                     {formattedDate}
                   </div>
 
