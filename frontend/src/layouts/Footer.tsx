@@ -5,7 +5,7 @@ import {
   TermsContent,
   ContactContent,
   SupportContent,
-} from "@/features/info";
+} from "@/shared/components/info";
 
 type ModalType = "about" | "terms" | "contact" | "support" | null;
 
