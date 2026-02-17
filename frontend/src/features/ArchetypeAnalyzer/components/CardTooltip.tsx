@@ -13,21 +13,23 @@ interface CardTooltipProps {
 export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardTooltipProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rafRef = useRef<number | null>(null);
+  const initialMousePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   
   // Fetch card details when tooltip is visible
   const { data: cardDetails, isLoading } = useCardDetails(isVisible ? cardId : null);
 
   const handleMouseEnter = (e: React.MouseEvent) => {
+    // Store initial mouse position
+    initialMousePosRef.current = { x: e.clientX, y: e.clientY };
+    
     // Delay showing tooltip slightly to avoid flickering on quick hover
     hoverTimeoutRef.current = setTimeout(() => {
       setIsVisible(true);
-      setMousePosition({ x: e.clientX, y: e.clientY });
-      schedulePositionUpdate(e.clientX, e.clientY);
+      schedulePositionUpdate(initialMousePosRef.current.x, initialMousePosRef.current.y);
     }, 120);
   };
 
@@ -41,13 +43,6 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
       rafRef.current = null;
     }
     setIsVisible(false);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isVisible) {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-      schedulePositionUpdate(e.clientX, e.clientY);
-    }
   };
 
   const schedulePositionUpdate = (mouseX: number, mouseY: number) => {
@@ -116,7 +111,7 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
   // Reposition tooltip when content loads or changes
   useEffect(() => {
     if (isVisible && tooltipRef.current) {
-      schedulePositionUpdate(mousePosition.x, mousePosition.y);
+      schedulePositionUpdate(initialMousePosRef.current.x, initialMousePosRef.current.y);
     }
   }, [isVisible, cardDetails, isLoading]);
 
@@ -126,7 +121,6 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
         ref={containerRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        onMouseMove={handleMouseMove}
         className="relative inline-block"
       >
         {children}
