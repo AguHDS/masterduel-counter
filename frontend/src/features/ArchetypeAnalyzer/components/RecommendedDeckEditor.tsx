@@ -145,7 +145,7 @@ export const RecommendedDeckEditor = ({
           Recommended Deck
         </h3>
 
-        <div className="border-2 border-blue-600 rounded-xl bg-slate-900/20 backdrop-blur-sm p-6">
+        <div className="border-2 border-blue-600 rounded-xl bg-slate-900/40 backdrop-blur-sm p-6">
           <div className="text-center mb-4">
             <h4 className="text-lg font-semibold text-white">{title}</h4>
           </div>
