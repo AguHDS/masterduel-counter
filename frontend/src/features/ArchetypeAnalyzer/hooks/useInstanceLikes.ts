@@ -6,12 +6,16 @@ interface UseInstanceLikesProps {
   isAuthenticated: boolean;
   archetypeId?: string;
   instanceId?: number;
+  userId?: string;
+  ownerId?: string;
 }
 
 export const useInstanceLikes = ({
   isAuthenticated,
   archetypeId,
   instanceId,
+  userId,
+  ownerId,
 }: UseInstanceLikesProps) => {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -22,7 +26,7 @@ export const useInstanceLikes = ({
       try {
         const response = await instanceApi.getInstanceLikeStatus(
           parseInt(archetypeId),
-          instanceId
+          instanceId,
         );
         setLiked(response.liked);
       } catch (error) {
@@ -36,15 +40,19 @@ export const useInstanceLikes = ({
   const toggleLike = async () => {
     if (!isAuthenticated || !instanceId || !archetypeId) return;
 
+    if (userId && ownerId && userId === ownerId) {
+      alert("You cannot like your own guide");
+      return;
+    }
+
     try {
       const response = await instanceApi.toggleInstanceLike(
         parseInt(archetypeId),
-        instanceId
+        instanceId,
       );
       setLiked(response.liked);
       setLikeCount(response.likes);
 
-      // Invalidate instances list query to update likes count everywhere
       queryClient.invalidateQueries({
         queryKey: ["archetypeInstances", parseInt(archetypeId)],
       });

@@ -85,6 +85,19 @@ export const ManageAccountsTab = () => {
     setSearchInput("");
   };
 
+  // Crear un objeto currentUser que cumpla con la interfaz esperada
+  const currentUserForCard = currentUser ? {
+    id: currentUser.id,
+    name: currentUser.name || '',
+    email: currentUser.email || '',
+    role: currentUser.role || 'user',
+  } : {
+    id: '',
+    name: '',
+    email: '',
+    role: '',
+  };
+
   const isCurrentUser = user?.id === currentUser?.id;
 
   return (
@@ -115,7 +128,7 @@ export const ManageAccountsTab = () => {
         <div className="space-y-6">
           <UserDetailsCard
             user={user}
-            currentUser={currentUser}
+            currentUser={currentUserForCard}
             onRefetchUser={refetchUser}
             onViewInstances={handleViewInstances}
             isCurrentUser={isCurrentUser}

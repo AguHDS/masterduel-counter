@@ -3,7 +3,7 @@ import type { UserSearchResult } from "@/shared/dtos/userDto";
 import { PrismaClient } from "@prisma/client";
 import { AdminInstanceResult } from "@/domain/ports/AdminRepository";
 import type { ReportWithDetails } from "@/domain/Report";
-import bcrypt from "bcrypt";
+import { hashPassword } from "better-auth/crypto";
 
 export class SqliteAdminRepository implements AdminRepository {
   private prisma: PrismaClient;
@@ -242,12 +242,13 @@ export class SqliteAdminRepository implements AdminRepository {
       email?: string;
     } = {};
 
+    // Update name if provided
     if (credentials.username) {
       updateData.name = credentials.username;
     }
 
+    // Update email if provided
     if (credentials.email) {
-      // Check if email is already taken
       const existingUser = await this.prisma.user.findUnique({
         where: { email: credentials.email },
       });
@@ -259,7 +260,7 @@ export class SqliteAdminRepository implements AdminRepository {
       updateData.email = credentials.email;
     }
 
-    // Update basic user data
+    // Update basic user data if there are changes
     if (Object.keys(updateData).length > 0) {
       await this.prisma.user.update({
         where: { id: userId },
@@ -267,16 +268,12 @@ export class SqliteAdminRepository implements AdminRepository {
       });
     }
 
-    // Update password using bcrypt
+    // Update password if provided
     if (credentials.password) {
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(
-        credentials.password,
-        saltRounds,
-      );
+      const hashedPassword = await hashPassword(credentials.password);
 
-      // Update password in the account table
-      await this.prisma.account.updateMany({
+      // Update password in the Account table for the "credential" provider
+      const result = await this.prisma.account.updateMany({
         where: {
           userId: userId,
           providerId: "credential",
@@ -285,9 +282,13 @@ export class SqliteAdminRepository implements AdminRepository {
           password: hashedPassword,
         },
       });
+
+      // If no account was updated, it means the user does not have a credential account
+      if (result.count === 0) {
+        throw new Error("User does not have a credential account");
+      }
     }
   }
-
   async banUser(
     userId: string,
     reason: string,
@@ -313,7 +314,7 @@ export class SqliteAdminRepository implements AdminRepository {
       },
     });
   }
-  
+
   async getReports(): Promise<ReportWithDetails[]> {
     const reports = await this.prisma.report.findMany({
       include: {

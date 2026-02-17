@@ -18,7 +18,7 @@ export interface ArchetypeRepository {
   /** Find Archetype by name */
   findArchetypeByName(name: string): Promise<Archetype | null>;
   /** Find all registered archetypes */
-  findAllRegisteredArchetypes(): Promise<Archetype[]>;
+  findAllRegisteredArchetypes(sortBy?: "recent" | "instances"): Promise<Archetype[]>;
   /** Update existing archetype. */
   updateExistingArchetype(
     id: number,

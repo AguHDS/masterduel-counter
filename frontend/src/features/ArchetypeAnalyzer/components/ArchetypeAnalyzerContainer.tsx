@@ -47,7 +47,8 @@ export const ArchetypeAnalyzerContainer = () => {
   const { isAuthenticated, user } = useAuth();
 
   const editor = useInstanceEditor();
-  const { saving, validationError, saveInstance, clearValidationError } = useSaveInstance();
+  const { saving, validationError, saveInstance, clearValidationError } =
+    useSaveInstance();
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
 
@@ -73,6 +74,8 @@ export const ArchetypeAnalyzerContainer = () => {
     isAuthenticated,
     archetypeId,
     instanceId: userInstanceData?.instance.id,
+    userId: user?.id,
+    ownerId: userInstanceData?.instance.userId,
   });
 
   const recommendedDeck = useRecommendedDeck(instanceIdNum);
@@ -196,7 +199,7 @@ export const ArchetypeAnalyzerContainer = () => {
   const handleCancel = () => {
     editor.setIsEditMode(false);
     clearValidationError();
-    
+
     if (!isCreatingNew && userInstanceData) {
       const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
@@ -323,7 +326,7 @@ export const ArchetypeAnalyzerContainer = () => {
     <>
       <section className="w-full relative bottom-5 flex justify-center px-4 sm:px-6 lg:px-8">
         <div className="relative w-full max-w-[1456px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
-          <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
+          <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
             <img
               src="/src/assets/instanceEditorAndProfile_background.webp"
               alt=""
@@ -331,25 +334,30 @@ export const ArchetypeAnalyzerContainer = () => {
               fetchPriority="low"
               decoding="async"
               aria-hidden="true"
-              className="absolute inset-0 w-full h-full pointer-events-none select-none"
+              className="absolute inset-0 w-full h-full pointer-events-none select-none rounded-[24px]"
             />
 
             {/* Dark overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80 rounded-[24px]"></div>
 
             <div className="relative z-10 space-y-6">
               {!isCreatingNew &&
-                !isOwner &&
                 isAuthenticated &&
                 selectedArchetype.registered && (
                   <div className="absolute right-0 top-[-26px]">
                     <button
                       onClick={likes.toggleLike}
+                      disabled={isOwner}
                       className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
-                        likes.liked
-                          ? "bg-green-600 hover:bg-green-700 text-white"
-                          : "bg-slate-700 hover:bg-slate-600 text-white"
+                        isOwner
+                          ? "bg-slate-700 hover:bg-slate-600 text-white cursor-not-allowed"
+                          : likes.liked
+                            ? "bg-green-600 hover:bg-green-700 text-white"
+                            : "bg-slate-700 hover:bg-slate-600 text-white"
                       }`}
+                      title={
+                        isOwner ? "You cannot like your own guide" : undefined
+                      }
                     >
                       <ThumbsUp
                         className={`w-5 h-5 ${likes.liked ? "fill-current" : ""}`}
@@ -358,7 +366,6 @@ export const ArchetypeAnalyzerContainer = () => {
                     </button>
                   </div>
                 )}
-
               <InstanceHeader
                 archetypeName={selectedArchetype.name}
                 title={editor.title}

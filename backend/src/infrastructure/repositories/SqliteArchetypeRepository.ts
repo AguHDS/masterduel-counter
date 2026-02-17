@@ -65,7 +65,23 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async findAllRegisteredArchetypes(): Promise<Archetype[]> {
+  async findAllRegisteredArchetypes(sortBy: "recent" | "instances" = "recent"): Promise<Archetype[]> {
+    let orderByClause: string;
+    
+    if (sortBy === "instances") {
+      orderByClause = `ORDER BY (
+        SELECT COUNT(*)
+        FROM archetype_instances ai
+        WHERE ai.archetype_id = a.id
+      ) DESC`;
+    } else {
+      orderByClause = `ORDER BY (
+        SELECT MAX(ai.created_at)
+        FROM archetype_instances ai
+        WHERE ai.archetype_id = a.id
+      ) DESC`;
+    }
+
     const stmt = this.db.prepare(`
       SELECT 
         a.id, 
@@ -75,11 +91,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
         a.updated_at
       FROM archetypes a
       WHERE a.registered = 1
-      ORDER BY (
-        SELECT MAX(ai.created_at)
-        FROM archetype_instances ai
-        WHERE ai.archetype_id = a.id
-      ) DESC
+      ${orderByClause}
     `);
 
     return stmt.all() as Archetype[];

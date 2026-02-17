@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { DeckBuilderCardSearch } from "./DeckBuilderCardSearch";
 import { CardTooltip } from "./CardTooltip";
 
@@ -39,13 +39,19 @@ export const RecommendedDeckEditor = ({
   const hasDeck = mainDeck.length > 0 || extraDeck.length > 0;
 
   useEffect(() => {
-    if (!isEditMode || JSON.stringify(mainDeck) !== JSON.stringify(initialMainDeck)) {
+    if (
+      !isEditMode ||
+      JSON.stringify(mainDeck) !== JSON.stringify(initialMainDeck)
+    ) {
       setMainDeck(initialMainDeck);
     }
   }, [initialMainDeck, isEditMode]);
 
   useEffect(() => {
-    if (!isEditMode || JSON.stringify(extraDeck) !== JSON.stringify(initialExtraDeck)) {
+    if (
+      !isEditMode ||
+      JSON.stringify(extraDeck) !== JSON.stringify(initialExtraDeck)
+    ) {
       setExtraDeck(initialExtraDeck);
     }
   }, [initialExtraDeck, isEditMode]);
@@ -112,7 +118,9 @@ export const RecommendedDeckEditor = ({
   const handleDelete = async () => {
     if (!onDelete) return;
 
-    const confirmed = confirm("Are you sure you want to delete the recommended deck?");
+    const confirmed = confirm(
+      "Are you sure you want to delete the recommended deck?",
+    );
     if (!confirmed) return;
 
     try {
@@ -133,23 +141,29 @@ export const RecommendedDeckEditor = ({
   if (!isEditMode && hasDeck) {
     return (
       <div className="mt-8">
-        <h3 className="text-xl font-bold text-blue-300 mb-4">Recommended Deck</h3>
+        <h3 className="text-xl font-bold text-slate-200/80 mb-4">
+          Recommended Deck
+        </h3>
 
-        <div className="border-2 border-slate-600 rounded-xl bg-slate-900/40 backdrop-blur-sm p-6">
+        <div className="border-2 border-blue-600 rounded-xl bg-slate-900/40 backdrop-blur-sm p-6">
           <div className="text-center mb-4">
             <h4 className="text-lg font-semibold text-white">{title}</h4>
           </div>
 
           <div className="flex justify-center mb-6">
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-500 to-transparent"></div>
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
           </div>
 
           <div className="space-y-6">
             <div className="space-y-3">
-              <div className="bg-slate-800/50 px-3 py-2 rounded-lg border-l-4 border-blue-500">
+              <div className="bg-blue-800/20 px-3 py-2 rounded-lg border-l-4 border-blue-500">
                 <div className="flex items-center gap-2">
-                  <span className="text-white font-semibold text-base">Main Deck</span>
-                  <span className="text-blue-300 text-sm">({mainDeck.length})</span>
+                  <span className="text-white font-semibold text-base">
+                    Main Deck
+                  </span>
+                  <span className="text-blue-300 text-sm">
+                    ({mainDeck.length})
+                  </span>
                 </div>
               </div>
               <div
@@ -179,10 +193,14 @@ export const RecommendedDeckEditor = ({
 
             {extraDeck.length > 0 && (
               <div className="space-y-3">
-                <div className="bg-slate-800/50 px-3 py-2 rounded-lg border-l-4 border-purple-500">
+                <div className="bg-purple-700/20 px-3 py-2 rounded-lg border-l-4 border-purple-500">
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-semibold text-base">Extra Deck</span>
-                    <span className="text-blue-300 text-sm">({extraDeck.length})</span>
+                    <span className="text-white font-semibold text-base">
+                      Extra Deck
+                    </span>
+                    <span className="text-blue-300 text-sm">
+                      ({extraDeck.length})
+                    </span>
                   </div>
                 </div>
                 <div className="grid grid-cols-15 gap-1 p-3 bg-slate-800/30 rounded-lg">
@@ -211,22 +229,22 @@ export const RecommendedDeckEditor = ({
 
   return (
     <div className="mt-8">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-bold text-blue-300">Recommended Deck</h3>
+      <div className="flex justify-end mb-4">
         {hasDeck && onDelete && (
           <button
             onClick={handleDelete}
             className="flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm transition-colors"
           >
-            <Trash2 className="w-4 h-4" />
             <span>Delete Deck</span>
           </button>
         )}
       </div>
 
-      <div className="border-2 border-slate-600 rounded-xl bg-slate-900/40 backdrop-blur-sm p-6">
+      <div className="border-2 border-blue-600 rounded-xl bg-slate-900/40 backdrop-blur-sm p-6">
         <div className="space-y-2 mb-4">
-          <label className="block text-sm font-medium text-slate-300">Deck Title</label>
+          <label className="block text-sm font-medium text-slate-300">
+            Deck Title
+          </label>
           <input
             type="text"
             value={title}
@@ -244,16 +262,20 @@ export const RecommendedDeckEditor = ({
         </div>
 
         <div className="flex justify-center mb-6">
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-500 to-transparent"></div>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
         </div>
 
         <div className="space-y-6">
           <div className="space-y-3">
-            <div className="bg-slate-800/50 px-3 py-2 rounded-lg border-l-4 border-blue-500">
+            <div className="bg-blue-800/20 px-3 py-2 rounded-lg border-l-4 border-blue-500">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-white font-semibold text-base">Main Deck</span>
-                  <span className="text-blue-300 text-sm">({mainDeck.length}/60)</span>
+                  <span className="text-white font-semibold text-base">
+                    Main Deck
+                  </span>
+                  <span className="text-blue-300 text-sm">
+                    ({mainDeck.length}/60)
+                  </span>
                 </div>
                 <button
                   onClick={() => handleAddCard("main")}
@@ -261,12 +283,12 @@ export const RecommendedDeckEditor = ({
                   className="flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded text-xs transition-colors"
                 >
                   <Plus className="w-3 h-3" />
-                  <span>Add Card</span>
+                  <span>Add</span>
                 </button>
               </div>
             </div>
             <div
-              className="grid gap-1 p-3 bg-slate-900/60 rounded-lg min-h-[200px] border-2 border-dashed border-slate-600 cursor-pointer hover:border-blue-500 transition-colors"
+              className="grid gap-1 p-3 bg-slate-900/60 rounded-lg min-h-[200px] border-2 border-dashed border-blue-500/40 cursor-pointer hover:border-blue-500 transition-colors"
               style={{
                 gridTemplateColumns: `repeat(${mainDeckColumns}, minmax(0, 1fr))`,
               }}
@@ -307,11 +329,15 @@ export const RecommendedDeckEditor = ({
           </div>
 
           <div className="space-y-3">
-            <div className="bg-slate-800/50 px-3 py-2 rounded-lg border-l-4 border-purple-500">
+            <div className="bg-purple-700/20 px-3 py-2 rounded-lg border-l-4 border-purple-500">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-white font-semibold text-base">Extra Deck</span>
-                  <span className="text-blue-300 text-sm">({extraDeck.length}/15)</span>
+                  <span className="text-white font-semibold text-base">
+                    Extra Deck
+                  </span>
+                  <span className="text-blue-300 text-sm">
+                    ({extraDeck.length}/15)
+                  </span>
                 </div>
                 <button
                   onClick={() => handleAddCard("extra")}
@@ -319,12 +345,12 @@ export const RecommendedDeckEditor = ({
                   className="flex items-center gap-1 px-2 py-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white rounded text-xs transition-colors"
                 >
                   <Plus className="w-3 h-3" />
-                  <span>Add Card</span>
+                  <span>Add</span>
                 </button>
               </div>
             </div>
             <div
-              className="grid grid-cols-15 gap-1 p-3 bg-slate-800/30 rounded-lg min-h-[100px] border-2 border-dashed border-slate-600 cursor-pointer hover:border-purple-500 transition-colors"
+              className="grid grid-cols-15 gap-1 p-3 bg-slate-800/30 rounded-lg min-h-[100px] border-2 border-dashed border-purple-500/40 cursor-pointer hover:border-purple-500 transition-colors"
               onClick={() => extraDeck.length < 15 && handleAddCard("extra")}
             >
               {extraDeck.map((card, index) => (

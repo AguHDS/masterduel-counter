@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useCardDetails } from "../hooks/useCardDetails";
 import { Star, Swords, Shield, Zap } from "lucide-react";
 
@@ -16,15 +17,21 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
   const tooltipRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rafRef = useRef<number | null>(null);
+  const initialMousePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   
   // Fetch card details when tooltip is visible
   const { data: cardDetails, isLoading } = useCardDetails(isVisible ? cardId : null);
 
   const handleMouseEnter = (e: React.MouseEvent) => {
+    // Store initial mouse position and calculate position immediately
+    initialMousePosRef.current = { x: e.clientX, y: e.clientY };
+    
+    // Calculate position immediately before showing
+    calculatePosition(e.clientX, e.clientY);
+    
     // Delay showing tooltip slightly to avoid flickering on quick hover
     hoverTimeoutRef.current = setTimeout(() => {
       setIsVisible(true);
-      schedulePositionUpdate(e.clientX, e.clientY);
     }, 120);
   };
 
@@ -40,10 +47,48 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
     setIsVisible(false);
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isVisible) {
-      schedulePositionUpdate(e.clientX, e.clientY);
+  const calculatePosition = (mouseX: number, mouseY: number) => {
+    // Use estimated dimensions for initial positioning
+    const tooltipWidth = 640;
+    const tooltipHeight = 500;
+    const offset = 20;
+    const edgeThreshold = 500;
+    const margin = 10; // Additional margin from screen edges
+
+    let x = mouseX + offset;
+    let y = mouseY + offset;
+
+    // Check if we're near the right edge of the screen
+    if (mouseX > window.innerWidth - edgeThreshold) {
+      // Always show on the left when near right edge
+      x = mouseX - tooltipWidth - offset;
+    } else if (x + tooltipWidth > window.innerWidth - margin) {
+      // Otherwise, flip to left only if it would overflow
+      x = mouseX - tooltipWidth - offset;
     }
+
+    // Check if tooltip would overflow bottom of screen
+    if (y + tooltipHeight > window.innerHeight - margin) {
+      // Try to position above the cursor
+      y = mouseY - tooltipHeight - offset;
+      
+      // If still doesn't fit, position at the top of the screen
+      if (y < margin) {
+        y = margin;
+      }
+    }
+
+    // Ensure tooltip doesn't go off left edge
+    if (x < margin) {
+      x = margin;
+    }
+
+    // Ensure tooltip doesn't go off top edge
+    if (y < margin) {
+      y = margin;
+    }
+
+    setPosition({ x, y });
   };
 
   const schedulePositionUpdate = (mouseX: number, mouseY: number) => {
@@ -52,36 +97,41 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
     }
 
     rafRef.current = requestAnimationFrame(() => {
-      const tooltipWidth = 640;
-      const tooltipHeight = 420;
-      const offset = 20;
-      const edgeThreshold = 500;
+      // Use actual tooltip dimensions if available for fine-tuning
+      const tooltip = tooltipRef.current;
+      if (tooltip) {
+        const tooltipWidth = tooltip.offsetWidth;
+        const tooltipHeight = tooltip.offsetHeight;
+        const offset = 20;
+        const edgeThreshold = 500;
+        const margin = 10;
 
-      let x = mouseX + offset;
-      let y = mouseY + offset;
+        let x = mouseX + offset;
+        let y = mouseY + offset;
 
-      // Check if we're near the right edge of the screen
-      if (mouseX > window.innerWidth - edgeThreshold) {
-        // Always show on the left when near right edge
-        x = mouseX - tooltipWidth - offset;
-      } else if (x + tooltipWidth > window.innerWidth) {
-        // Otherwise, flip to left only if it would overflow
-        x = mouseX - tooltipWidth - offset;
+        if (mouseX > window.innerWidth - edgeThreshold) {
+          x = mouseX - tooltipWidth - offset;
+        } else if (x + tooltipWidth > window.innerWidth - margin) {
+          x = mouseX - tooltipWidth - offset;
+        }
+
+        if (y + tooltipHeight > window.innerHeight - margin) {
+          y = mouseY - tooltipHeight - offset;
+          if (y < margin) {
+            y = margin;
+          }
+        }
+
+        if (x < margin) {
+          x = margin;
+        }
+
+        if (y < margin) {
+          y = margin;
+        }
+
+        setPosition({ x, y });
       }
-
-      if (y + tooltipHeight > window.innerHeight) {
-        y = mouseY - tooltipHeight - offset;
-      }
-
-      if (x < 0) {
-        x = offset;
-      }
-
-      if (y < 0) {
-        y = offset;
-      }
-
-      setPosition({ x, y });
       rafRef.current = null;
     });
   };
@@ -97,22 +147,28 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
     };
   }, []);
 
+  // Reposition tooltip when content loads or changes
+  useEffect(() => {
+    if (isVisible && tooltipRef.current) {
+      schedulePositionUpdate(initialMousePosRef.current.x, initialMousePosRef.current.y);
+    }
+  }, [isVisible, cardDetails, isLoading]);
+
   return (
     <>
       <div
         ref={containerRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        onMouseMove={handleMouseMove}
         className="relative inline-block"
       >
         {children}
       </div>
 
-      {isVisible && (
+      {isVisible && createPortal(
         <div
           ref={tooltipRef}
-          className="fixed pointer-events-none z-[9999] animate-in fade-in duration-150"
+          className="fixed pointer-events-none z-[9999]"
           style={{
             left: `${position.x}px`,
             top: `${position.y}px`,
@@ -132,7 +188,7 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
             </div>
 
             {/* Right side: Card Info */}
-            <div className="flex-1 p-4 overflow-y-auto max-h-[500px] custom-scrollbar">
+            <div className="flex-1 p-4">
               {isLoading ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -238,24 +294,8 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
               )}
             </div>
           </div>
-
-          <style>{`
-            .custom-scrollbar::-webkit-scrollbar {
-              width: 6px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-track {
-              background: rgba(15, 23, 42, 0.5);
-              border-radius: 3px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb {
-              background: rgba(59, 130, 246, 0.5);
-              border-radius: 3px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-              background: rgba(59, 130, 246, 0.7);
-            }
-          `}</style>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

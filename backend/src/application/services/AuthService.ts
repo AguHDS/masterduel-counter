@@ -1,7 +1,7 @@
 import { AuthService } from "@/application/ports/AuthService";
 import { UserRepository } from "@/domain/ports/UserRepository";
 import { UserLoginDTO, UserLoginResponse } from "@/domain/User";
-import bcrypt from "bcrypt";
+import { verifyPassword } from "better-auth/crypto";
 import jwt from "jsonwebtoken";
 
 export class AuthServiceImpl implements AuthService {
@@ -36,10 +36,10 @@ export class AuthServiceImpl implements AuthService {
 
       // Verify password if it exists (for old admin accounts)
       if (user.password_hash) {
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password_hash,
-        );
+        const isPasswordValid = await verifyPassword({
+          password: credentials.password,
+          hash: user.password_hash,
+        });
 
         if (!isPasswordValid) {
           return {
