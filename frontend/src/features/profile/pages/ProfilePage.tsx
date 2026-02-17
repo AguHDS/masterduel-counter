@@ -89,8 +89,8 @@ export const ProfilePage = () => {
           aria-label="Main content"
         >
           <FeatureErrorBoundary featureName="Profile">
-            <section className="w-full flex justify-center px-4 sm:px-6 lg:px-8">
-              <div className="relative w-full max-w-[1120px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
+            <section className="w-full flex justify-center">
+              <div className="relative w-full rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
                 <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
                   <img
                     src="/src/assets/instanceEditorAndProfile_background.webp"
@@ -104,7 +104,7 @@ export const ProfilePage = () => {
 
                   <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80"></div>
 
-                  <div className="relative z-10 space-y-8">
+                  <div className="relative z-10 space-y-8 w-full">
                     <div className="pb-8 border-b border-blue-700/50">
                       <div className="flex items-start gap-8">
                         <div className="flex-shrink-0">
@@ -251,7 +251,7 @@ export const ProfilePage = () => {
                       </div>
                     </div>
 
-                    <div className="pt-4">
+                    <div className="pt-4 w-full">
                       <UserInstancesList
                         userId={userId}
                         onSelectArchetype={handleSelectArchetype}

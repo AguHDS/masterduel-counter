@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams, useNavigate } from "react-router-dom";
+import { AlertCircle } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { ArchetypeAnalyzerContainer } from "../components/ArchetypeAnalyzerContainer";
@@ -9,6 +10,7 @@ import { SearchInput } from "@/shared/components/Search/Search";
 import { SearchResults } from "@/shared/components/Search/SearchResults";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
 import { FeatureErrorBoundary } from "@/shared/components";
+import { GuideModalHelp } from "../components/GuideModalHelp";
 import type { Archetype } from "../api/archetypeApi";
 import { MainLogo } from "@/shared/components/MainLogo";
 
@@ -19,6 +21,8 @@ export const InstanceEditorPage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isGuideHelpOpen, setIsGuideHelpOpen] = useState(false);
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
   const {
@@ -134,6 +138,22 @@ export const InstanceEditorPage = () => {
             />
           )}
         </SearchInput>
+
+        {isEditMode && (
+          <div className="max-w-[84rem] mx-auto px-4 sm:px-14 lg:px-16 w-full z-20">
+            <div className="flex justify-end">
+              <button
+                onClick={() => setIsGuideHelpOpen(true)}
+                className="flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-tr from-blue-600/70 via-blue-700/20 to-blue-800/80 hover:bg-blue-700/20 active:bg-blue-900/10 border border-blue-800/40 text-white"
+                title="Guide Help"
+              >
+                <AlertCircle className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
+                <span className="text-sm">Guide Help</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         <main
           className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
           style={{ maxWidth: "87.5rem" }}
@@ -141,11 +161,16 @@ export const InstanceEditorPage = () => {
           aria-label="Main content"
         >
           <FeatureErrorBoundary featureName="Instance Editor">
-            <ArchetypeAnalyzerContainer />
+            <ArchetypeAnalyzerContainer onEditModeChange={setIsEditMode} />
           </FeatureErrorBoundary>
         </main>
         <Footer />
       </div>
+
+      <GuideModalHelp
+        isOpen={isGuideHelpOpen}
+        onClose={() => setIsGuideHelpOpen(false)}
+      />
     </>
   );
 };

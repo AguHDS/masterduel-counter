@@ -38,7 +38,13 @@ interface CardPair {
   comment?: string;
 }
 
-export const ArchetypeAnalyzerContainer = () => {
+interface ArchetypeAnalyzerContainerProps {
+  onEditModeChange?: (isEditMode: boolean) => void;
+}
+
+export const ArchetypeAnalyzerContainer = ({
+  onEditModeChange,
+}: ArchetypeAnalyzerContainerProps) => {
   const { archetypeId, instanceId } = useParams<{
     archetypeId: string;
     instanceId: string;
@@ -114,6 +120,11 @@ export const ArchetypeAnalyzerContainer = () => {
   // Status for card pairs
   const [pairs, setPairs] = useState<CardPair[]>([]);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+  // Notify parent of edit mode changes
+  useEffect(() => {
+    onEditModeChange?.(editor.isEditMode && isOwner);
+  }, [editor.isEditMode, isOwner, onEditModeChange]);
 
   useEffect(() => {
     if (!editor.isEditMode || !isOwner) {
