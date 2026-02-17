@@ -144,7 +144,7 @@ export const InstanceEditorPage = () => {
             <div className="flex justify-end">
               <button
                 onClick={() => setIsGuideHelpOpen(true)}
-                className="flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-tr from-blue-600/70 via-blue-700/20 to-blue-800/80 hover:bg-blue-700/20 active:bg-blue-900/10 border border-blue-800/40 text-white"
+                className="flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-tr from-blue-900/80 via-blue-700/20 to-blue-800/50 hover:bg-blue-700/20 active:bg-blue-900/10 border border-blue-800/40 text-white"
                 title="Guide Help"
               >
                 <AlertCircle className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />

@@ -1,6 +1,15 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { Edit3, Trash2, ThumbsUp, Plus, Save, X, Flag } from "lucide-react";
+import {
+  Edit3,
+  Trash2,
+  ThumbsUp,
+  Plus,
+  Save,
+  X,
+  Flag,
+  ArrowLeft,
+} from "lucide-react";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
 import { InstanceHeader } from "./InstanceHeader";
@@ -318,6 +327,14 @@ export const ArchetypeAnalyzerContainer = ({
     }
   };
 
+  const handleBackClick = () => {
+    if (archetypeId) {
+      navigate(`/archetype/${archetypeId}`);
+    } else {
+      navigate(-1);
+    }
+  };
+
   if (!selectedArchetype) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -352,26 +369,43 @@ export const ArchetypeAnalyzerContainer = ({
             <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80 rounded-[24px]"></div>
 
             <div className="relative z-10 space-y-6">
+              {!editor.isEditMode && (
+                <button
+                  onClick={handleBackClick}
+                  className="absolute left-0 top-[-26px] flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors shadow-lg text-sm"
+                  aria-label="Go back"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back</span>
+                </button>
+              )}
+
               {!isCreatingNew &&
                 isAuthenticated &&
                 selectedArchetype.registered && (
-                  <div className="absolute right-0 top-[-26px]">
+                  <div className="absolute right-0 top-[-50px]">
                     <button
                       onClick={likes.toggleLike}
                       disabled={isOwner}
                       className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
                         isOwner
-                          ? "bg-slate-700 hover:bg-slate-600 text-white cursor-not-allowed"
+                          ? likes.likeCount > 0
+                            ? "text-green-500 cursor-not-allowed"
+                            : "text-white cursor-not-allowed"
                           : likes.liked
-                            ? "bg-green-600 hover:bg-green-700 text-white"
-                            : "bg-slate-700 hover:bg-slate-600 text-white"
+                            ? "text-green-500"
+                            : "text-white"
                       }`}
                       title={
                         isOwner ? "You cannot like your own guide" : undefined
                       }
                     >
                       <ThumbsUp
-                        className={`w-5 h-5 ${likes.liked ? "fill-current" : ""}`}
+                        className={`w-5 h-5 ${
+                          (isOwner && likes.likeCount > 0) || likes.liked
+                            ? "text-green-500"
+                            : ""
+                        }`}
                       />
                       <span>{likes.likeCount}</span>
                     </button>

@@ -72,7 +72,7 @@ export const RegisteredArchetypesList = ({
       aria-label="Latest registered archetypes"
       contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6"
     >
-      <div className="flex max-[767px]:ml-4 sm:flex-row sm:items-end gap-2">
+      <div className="flex max-[767px]:ml-4 sm:flex-row sm:items-end gap-2 mt-2">
         <h2 className="text-2xl relative bottom-1 font-bold text-white">
           Latest Archetypes •
         </h2>
