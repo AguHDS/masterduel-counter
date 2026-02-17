@@ -23,13 +23,15 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
   const { data: cardDetails, isLoading } = useCardDetails(isVisible ? cardId : null);
 
   const handleMouseEnter = (e: React.MouseEvent) => {
-    // Store initial mouse position
+    // Store initial mouse position and calculate position immediately
     initialMousePosRef.current = { x: e.clientX, y: e.clientY };
+    
+    // Calculate position immediately before showing
+    calculatePosition(e.clientX, e.clientY);
     
     // Delay showing tooltip slightly to avoid flickering on quick hover
     hoverTimeoutRef.current = setTimeout(() => {
       setIsVisible(true);
-      schedulePositionUpdate(initialMousePosRef.current.x, initialMousePosRef.current.y);
     }, 120);
   };
 
@@ -45,54 +47,91 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
     setIsVisible(false);
   };
 
+  const calculatePosition = (mouseX: number, mouseY: number) => {
+    // Use estimated dimensions for initial positioning
+    const tooltipWidth = 640;
+    const tooltipHeight = 500;
+    const offset = 20;
+    const edgeThreshold = 500;
+    const margin = 10; // Additional margin from screen edges
+
+    let x = mouseX + offset;
+    let y = mouseY + offset;
+
+    // Check if we're near the right edge of the screen
+    if (mouseX > window.innerWidth - edgeThreshold) {
+      // Always show on the left when near right edge
+      x = mouseX - tooltipWidth - offset;
+    } else if (x + tooltipWidth > window.innerWidth - margin) {
+      // Otherwise, flip to left only if it would overflow
+      x = mouseX - tooltipWidth - offset;
+    }
+
+    // Check if tooltip would overflow bottom of screen
+    if (y + tooltipHeight > window.innerHeight - margin) {
+      // Try to position above the cursor
+      y = mouseY - tooltipHeight - offset;
+      
+      // If still doesn't fit, position at the top of the screen
+      if (y < margin) {
+        y = margin;
+      }
+    }
+
+    // Ensure tooltip doesn't go off left edge
+    if (x < margin) {
+      x = margin;
+    }
+
+    // Ensure tooltip doesn't go off top edge
+    if (y < margin) {
+      y = margin;
+    }
+
+    setPosition({ x, y });
+  };
+
   const schedulePositionUpdate = (mouseX: number, mouseY: number) => {
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
     }
 
     rafRef.current = requestAnimationFrame(() => {
-      // Use actual tooltip dimensions if available, otherwise use estimates
+      // Use actual tooltip dimensions if available for fine-tuning
       const tooltip = tooltipRef.current;
-      const tooltipWidth = tooltip?.offsetWidth || 640;
-      const tooltipHeight = tooltip?.offsetHeight || 500;
-      const offset = 20;
-      const edgeThreshold = 500;
-      const margin = 10; // Additional margin from screen edges
+      if (tooltip) {
+        const tooltipWidth = tooltip.offsetWidth;
+        const tooltipHeight = tooltip.offsetHeight;
+        const offset = 20;
+        const edgeThreshold = 500;
+        const margin = 10;
 
-      let x = mouseX + offset;
-      let y = mouseY + offset;
+        let x = mouseX + offset;
+        let y = mouseY + offset;
 
-      // Check if we're near the right edge of the screen
-      if (mouseX > window.innerWidth - edgeThreshold) {
-        // Always show on the left when near right edge
-        x = mouseX - tooltipWidth - offset;
-      } else if (x + tooltipWidth > window.innerWidth - margin) {
-        // Otherwise, flip to left only if it would overflow
-        x = mouseX - tooltipWidth - offset;
-      }
+        if (mouseX > window.innerWidth - edgeThreshold) {
+          x = mouseX - tooltipWidth - offset;
+        } else if (x + tooltipWidth > window.innerWidth - margin) {
+          x = mouseX - tooltipWidth - offset;
+        }
 
-      // Check if tooltip would overflow bottom of screen
-      if (y + tooltipHeight > window.innerHeight - margin) {
-        // Try to position above the cursor
-        y = mouseY - tooltipHeight - offset;
-        
-        // If still doesn't fit, position at the top of the screen
+        if (y + tooltipHeight > window.innerHeight - margin) {
+          y = mouseY - tooltipHeight - offset;
+          if (y < margin) {
+            y = margin;
+          }
+        }
+
+        if (x < margin) {
+          x = margin;
+        }
+
         if (y < margin) {
           y = margin;
         }
-      }
 
-      // Ensure tooltip doesn't go off left edge
-      if (x < margin) {
-        x = margin;
+        setPosition({ x, y });
       }
-
-      // Ensure tooltip doesn't go off top edge
-      if (y < margin) {
-        y = margin;
-      }
-
-      setPosition({ x, y });
       rafRef.current = null;
     });
   };
@@ -129,7 +168,7 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
       {isVisible && createPortal(
         <div
           ref={tooltipRef}
-          className="fixed pointer-events-none z-[9999] animate-in fade-in duration-150"
+          className="fixed pointer-events-none z-[9999]"
           style={{
             left: `${position.x}px`,
             top: `${position.y}px`,
