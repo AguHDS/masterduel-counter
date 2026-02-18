@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
 
-/** Get basic archetype data by its ID */
+/** Get archetype with its header card */
 export const getArchetypeWithHeaderController = async (
   req: Request,
   res: Response,

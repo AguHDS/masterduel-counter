@@ -4,7 +4,7 @@ import { requireAuth } from "@/http/middlewares/authMiddleware";
 
 const router = Router();
 
-// Create a report (requires authentication)
+// Report a user (requires authentication)
 router.post("/", requireAuth, createReportController);
 
 export default router;
