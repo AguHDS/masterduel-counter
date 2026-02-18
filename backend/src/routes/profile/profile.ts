@@ -1,11 +1,11 @@
 import express from "express";
 import multer from "multer";
-import { getProfileController } from "@/http/controllers/getProfileController";
-import { updateBioController } from "@/http/controllers/updateBioController";
-import { uploadProfilePictureController } from "@/http/controllers/uploadProfilePictureController";
-import { deleteProfilePictureController } from "@/http/controllers/deleteProfilePictureController";
+import { getProfileController } from "@/http/controllers/profile/getProfileController";
+import { updateBioController } from "@/http/controllers/profile/updateBioController";
+import { uploadProfilePictureController } from "@/http/controllers/profile/uploadProfilePictureController";
+import { deleteProfilePictureController } from "@/http/controllers/profile/deleteProfilePictureController";
+import { validateBioMiddleware } from "@/http/middlewares/profile/validateBioMiddleware";
 import { validateUserIdMiddleware } from "@/http/middlewares/validateUserIdMiddleware";
-import { validateBioMiddleware } from "@/http/middlewares/validateBioMiddleware";
 import { validateFileUploadMiddleware } from "@/http/middlewares/validateFileUploadMiddleware";
 
 const router = express.Router();
@@ -18,10 +18,10 @@ const upload = multer({
   },
 });
 
-// GET /api/profile/:userId - Get user profile
+// Get user profile
 router.get("/:userId", validateUserIdMiddleware, getProfileController);
 
-// PUT /api/profile/:userId/bio - Update bio
+// Update bio
 router.put(
   "/:userId/bio",
   validateUserIdMiddleware,
@@ -29,7 +29,7 @@ router.put(
   updateBioController
 );
 
-// POST /api/profile/:userId/upload-photo - Upload profile picture
+// Upload profile picture
 router.post(
   "/:userId/upload-photo",
   validateUserIdMiddleware,
@@ -38,7 +38,7 @@ router.post(
   uploadProfilePictureController
 );
 
-// DELETE /api/profile/:userId/photo - Delete profile picture
+// Delete profile picture
 router.delete(
   "/:userId/photo",
   validateUserIdMiddleware,

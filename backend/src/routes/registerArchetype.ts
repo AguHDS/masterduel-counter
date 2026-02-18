@@ -6,6 +6,7 @@ import { getArchetypeWithHeaderController } from "../http/controllers/getArchety
 
 const router = Router();
 
+/** Register a new guide for an archetype */
 router.post(
   "/:id/register",
   requireAuth,
@@ -13,6 +14,7 @@ router.post(
   registerArchetypeController,
 );
 
+/** Get archetype guide with its header card to display as list */
 router.get(
   "/:id/with-header",
   getArchetypeWithHeaderController,

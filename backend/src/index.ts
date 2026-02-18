@@ -23,15 +23,15 @@ import {
   recommendedDeck,
   getCardDetails,
   createGetArchetypeInstancesRoute,
-  createGetUserInstancesRoute,
+  createGetUserGuidesRoute,
   createOrUpdateGuideRoute,
   createGetGuideByIdRoute,
   admin,
   reports,
 } from "./routes/index";
 import auth from "./routes/auth/auth";
-import getInstanceCardPairs from "./routes/getInstanceCardPairs";
-import profile from "./routes/profile";
+import getInstanceCardPairs from "./routes/guides/getInstanceCardPairs";
+import profile from "./routes/profile/profile";
 
 // SCP configuration
 const isDevelopment = NODE_ENV === "development";
@@ -122,7 +122,7 @@ app.use("/api", deleteGuide);
 app.use("/api", guideLikes);
 app.use("/api", recommendedDeck);
 app.use("/api", createGetArchetypeInstancesRoute(getDependencies()));
-app.use("/api", createGetUserInstancesRoute(getDependencies()));
+app.use("/api", createGetUserGuidesRoute(getDependencies()));
 app.use("/api", createOrUpdateGuideRoute(getDependencies()));
 app.use("/api", createGetGuideByIdRoute(getDependencies()));
 app.use("/api", getInstanceCardPairs);

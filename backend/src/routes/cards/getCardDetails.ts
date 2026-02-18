@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createGetCardDetailsController } from "@/http/controllers/getCardDetailsController";
+import { createGetCardDetailsController } from "@/http/controllers/cards/getCardDetailsController";
 import { compositionRoot } from "@/compositionRoot";
 
 const router = Router();

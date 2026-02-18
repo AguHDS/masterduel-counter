@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getInstanceCardPairsController } from "@/http/controllers/getInstanceCardPairsController";
+import { getInstanceCardPairsController } from "@/http/controllers/guides/getInstanceCardPairsController";
 
 const router = Router();
 

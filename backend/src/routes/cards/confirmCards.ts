@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { confirmCardsController } from "@/http/controllers/confirmCardsController";
-import { confirmCardsMiddleware } from "@/http/middlewares/confirmCardsMiddleware";
+import { confirmCardsMiddleware } from "@/http/middlewares/cards/confirmCardsMiddleware";
 
 const router = Router();
 
