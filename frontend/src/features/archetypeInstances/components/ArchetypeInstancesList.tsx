@@ -111,9 +111,11 @@ export const ArchetypeInstancesList = ({
         <div className="flex items-center w-full justify-between">
           <div className="flex mt-3 items-center gap-2">
             <h1 className="text-2xl font-bold font-sans flex items-center">
-              <span className="text-white max-[767px]:ml-2 mr-2">How to counter</span>
+              <span className="text-white max-[767px]:ml-2 mr-2">
+                How to counter
+              </span>
 
-              <span className="bg-gradient-to-r relative top-[1px] from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              <span className="relative top-[1px] bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 {archetypeName}
               </span>
             </h1>

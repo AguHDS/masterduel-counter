@@ -105,7 +105,7 @@ export const InstancesTable = ({
         </div>
         <button
           onClick={() => onSortChange("updated")}
-          className={`text-blue-300 relative left-3 text-nowrap text-right font-semibold text-lg hover:text-blue-100 transition-colors flex items-center justify-end gap-1 ${
+          className={`text-blue-300 relative left-4 text-nowrap text-right font-semibold text-lg hover:text-blue-100 transition-colors flex items-center justify-end gap-1 ${
             sortBy === "updated" ? "text-blue-100" : ""
           }`}
           role="columnheader"
@@ -290,9 +290,9 @@ export const InstancesTable = ({
                     )}
                   </div>
 
-                  <div className="overflow-hidden">
+                  <div className="">
                     <div
-                      className="text-white font-bold text-[17px] overflow-hidden text-ellipsis line-clamp-2"
+                      className="text-white relative right-4 font-bold text-[17px] overflow-hidden text-ellipsis line-clamp-2"
                       title={instance.title}
                     >
                       {instance.title}
@@ -324,7 +324,7 @@ export const InstancesTable = ({
                     )}
                   </div>
 
-                  <div className="text-blue-300 text-center relative left-9 text-lg whitespace-nowrap overflow-hidden text-ellipsis">
+                  <div className="text-blue-300 text-center relative left-14 text-lg whitespace-nowrap overflow-hidden text-ellipsis">
                     {formattedDate}
                   </div>
 

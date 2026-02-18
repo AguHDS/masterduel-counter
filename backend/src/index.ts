@@ -18,22 +18,20 @@ import {
   confirmCards,
   registerArchetype,
   registeredArchetypes,
-  deleteUserInstance,
-  deleteInstance,
-  instanceLikes,
+  deleteGuide,
+  guideLikes,
   recommendedDeck,
   getCardDetails,
-  createGetArchetypeInstancesRoute,
-  createGetUserInstancesRoute,
-  createCreateOrUpdateInstanceRoute,
-  createGetUserInstanceRoute,
-  createGetInstanceByIdRoute,
+  createGetArchetypeGuidesRoute,
+  createGetUserGuidesRoute,
+  createOrUpdateGuideRoute,
+  createGetGuideByIdRoute,
   admin,
-  reports,
+  report,
 } from "./routes/index";
-import auth from "./routes/auth";
-import getInstanceCardPairs from "./routes/getInstanceCardPairs";
-import profile from "./routes/profile";
+import auth from "./routes/auth/auth";
+import getInstanceCardPairs from "./routes/guides/getInstanceCardPairs";
+import profile from "./routes/profile/profile";
 
 // SCP configuration
 const isDevelopment = NODE_ENV === "development";
@@ -120,15 +118,13 @@ app.use("/api/profile", profile);
 // Archetypes & Instances
 app.use("/api/archetypes", registerArchetype);
 app.use("/api/archetypes", registeredArchetypes);
-app.use("/api", deleteUserInstance);
-app.use("/api", deleteInstance);
-app.use("/api", instanceLikes);
+app.use("/api", deleteGuide);
+app.use("/api", guideLikes);
 app.use("/api", recommendedDeck);
-app.use("/api", createGetArchetypeInstancesRoute(getDependencies()));
-app.use("/api", createGetUserInstancesRoute(getDependencies()));
-app.use("/api", createCreateOrUpdateInstanceRoute(getDependencies()));
-app.use("/api", createGetUserInstanceRoute(getDependencies()));
-app.use("/api", createGetInstanceByIdRoute(getDependencies()));
+app.use("/api", createGetArchetypeGuidesRoute(getDependencies()));
+app.use("/api", createGetUserGuidesRoute(getDependencies()));
+app.use("/api", createOrUpdateGuideRoute(getDependencies()));
+app.use("/api", createGetGuideByIdRoute(getDependencies()));
 app.use("/api", getInstanceCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 
@@ -142,7 +138,7 @@ app.use("/api/cards", getCardDetails);
 app.use("/api/admin", admin);
 
 // Reports
-app.use("/api/reports", reports);
+app.use("/api/reports", report);
 
 // Cron job: Failsafe cleanup of temporary cards every 24 hours (at 3:00 AM)
 // Cards are created as temporary only when confirmCards is called.

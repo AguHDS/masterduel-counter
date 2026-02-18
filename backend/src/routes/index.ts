@@ -1,22 +1,20 @@
-import searchArchetype from "./searchArchetype";
-import logout from "./logout";
-import searchCards from "./searchCards";
-import selectCard from "./selectCard";
-import confirmCards from "./confirmCards";
-import registerArchetype from "./registerArchetype";
-import registeredArchetypes from "./registeredArchetypes";
-import deleteUserInstance from "./deleteUserInstance";
-import deleteInstance from "./deleteInstance";
-import instanceLikes from "./instanceLikes";
-import recommendedDeck from "./recommendedDeck";
-import getCardDetails from "./getCardDetails";
+import searchArchetype from "./archetypes/searchArchetype";
+import logout from "./auth/logout";
+import searchCards from "./cards/searchCards";
+import selectCard from "./cards/selectCard";
+import confirmCards from "./cards/confirmCards";
+import registerArchetype from "./archetypes/registerArchetype";
+import registeredArchetypes from "./archetypes/registeredArchetypes";
+import deleteGuide from "./guides/deleteGuide";
+import guideLikes from "./guides/guideLikes";
+import recommendedDeck from "./guides/recommendedDeck";
+import getCardDetails from "./cards/getCardDetails";
 import admin from "./admin";
-import reports from "./reports";
-import { createGetArchetypeInstancesRoute } from "./getArchetypeInstances";
-import { createGetUserInstancesRoute } from "./getUserInstances";
-import { createCreateOrUpdateInstanceRoute } from "./createOrUpdateInstance";
-import { createGetUserInstanceRoute } from "./getUserInstance";
-import { createGetInstanceByIdRoute } from "./getInstanceById";
+import report from "./report";
+import { createGetArchetypeGuidesRoute } from "./guides/getArchetypeGuides";
+import { createGetUserGuidesRoute } from "./profile/getUserGuides";
+import { createOrUpdateGuideRoute } from "./guides/createOrUpdateGuide";
+import { createGetGuideByIdRoute } from "./guides/getGuideById";
 
 export {
   searchArchetype,
@@ -26,16 +24,14 @@ export {
   confirmCards,
   registerArchetype,
   registeredArchetypes,
-  deleteUserInstance,
-  deleteInstance,
-  instanceLikes,
+  deleteGuide,
+  guideLikes,
   recommendedDeck,
   getCardDetails,
   admin,
-  reports,
-  createGetArchetypeInstancesRoute,
-  createGetUserInstancesRoute,
-  createCreateOrUpdateInstanceRoute,
-  createGetUserInstanceRoute,
-  createGetInstanceByIdRoute,
+  report,
+  createGetArchetypeGuidesRoute,
+  createGetUserGuidesRoute,
+  createOrUpdateGuideRoute,
+  createGetGuideByIdRoute,
 };

@@ -72,7 +72,7 @@ export const RegisteredArchetypesList = ({
       aria-label="Latest registered archetypes"
       contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6"
     >
-      <div className="flex max-[767px]:ml-4 sm:flex-row sm:items-end gap-2">
+      <div className="flex max-[767px]:ml-4 sm:flex-row sm:items-end gap-2 mt-2">
         <h2 className="text-2xl relative bottom-1 font-bold text-white">
           Latest Archetypes •
         </h2>
@@ -92,12 +92,12 @@ export const RegisteredArchetypesList = ({
       <div className="rounded-lg overflow-hidden">
         <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 border-b border-blue-600 bg-black/60 md:px-6 md:py-4">
           <div className="text-blue-300 font-semibold text-lg">ID</div>
-          <div className="text-blue-300 font-semibold text-lg relative left-16">
+          <div className="text-blue-300 font-semibold text-lg relative left-18">
             Archetype
           </div>
           <button
             onClick={toggleSortBy}
-            className="flex items-center justify-end gap-2 text-blue-300 font-semibold text-lg hover:text-blue-200 transition-colors group"
+            className="flex relative left-3 items-center justify-end gap-2 text-blue-300 font-semibold text-lg hover:text-blue-200 transition-colors group"
             title={`Sort by ${sortBy === "recent" ? "instance count" : "most recent"}`}
           >
             <span>Instances</span>
@@ -136,9 +136,22 @@ export const RegisteredArchetypesList = ({
                   loading="lazy"
                   decoding="async"
                   aria-hidden="true"
-                  className="absolute inset-0 h-full w-full"
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/35 group-hover:bg-black/10 group-active:bg-black/40" />
+                
+                <div 
+                  className="absolute inset-y-0 left-0 w-8 pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(to right, rgba(0,0,39,0.6), transparent)'
+                  }}
+                />
+                <div 
+                  className="absolute inset-y-0 right-0 w-8 pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(to left, rgba(0,0,39,0.6), transparent)'
+                  }}
+                />
 
                 <div className="relative z-10 flex flex-col gap-3 p-4 md:p-0 md:gap-0">
                   <div className="flex items-center gap-3 md:hidden">
