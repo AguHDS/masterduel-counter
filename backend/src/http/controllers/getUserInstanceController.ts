@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceRepository } from "../../domain/ports/ArchetypeInstanceRepository";
-import { ArchetypeCardPairRepository } from "../../domain/ports/ArchetypeCardPairRepository";
-import { CardRepository } from "../../domain/ports/CardRepository";
-import { ArchetypeRepository } from "../../domain/ports/ArchetypeRepository";
-import { UserRepository } from "../../domain/ports/UserRepository";
+import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository";
+import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
+import { CardRepository } from "@/domain/ports/CardRepository";
+import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
+import { UserRepository } from "@/domain/ports/UserRepository";
 
 /** Gets the full instance of a user for an archetype (card pairs, header, comments, effectiveness) */
 export const createGetUserInstanceController = (

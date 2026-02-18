@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService";
 
-/** Create or update an archetype instance for the authenticated user */
+/** Create or update a guide of an archetype for the authenticated user */
 export const createCreateOrUpdateInstanceController =
   (instanceService: ArchetypeInstanceServicePort) =>
   async (req: Request, res: Response) => {

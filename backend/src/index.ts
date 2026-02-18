@@ -19,13 +19,13 @@ import {
   registerArchetype,
   registeredArchetypes,
   deleteGuide,
-  instanceLikes,
+  guideLikes,
   recommendedDeck,
   getCardDetails,
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
-  createCreateOrUpdateInstanceRoute,
-  createGetUserInstanceRoute,
+  createOrUpdateGuideRoute,
+  createGetGuideRoute,
   createGetInstanceByIdRoute,
   admin,
   reports,
@@ -120,12 +120,12 @@ app.use("/api/profile", profile);
 app.use("/api/archetypes", registerArchetype);
 app.use("/api/archetypes", registeredArchetypes);
 app.use("/api", deleteGuide);
-app.use("/api", instanceLikes);
+app.use("/api", guideLikes);
 app.use("/api", recommendedDeck);
 app.use("/api", createGetArchetypeInstancesRoute(getDependencies()));
 app.use("/api", createGetUserInstancesRoute(getDependencies()));
-app.use("/api", createCreateOrUpdateInstanceRoute(getDependencies()));
-app.use("/api", createGetUserInstanceRoute(getDependencies()));
+app.use("/api", createOrUpdateGuideRoute(getDependencies()));
+app.use("/api", createGetGuideRoute(getDependencies()));
 app.use("/api", createGetInstanceByIdRoute(getDependencies()));
 app.use("/api", getInstanceCardPairs);
 app.use("/api/searchArchetype", searchArchetype);

@@ -6,15 +6,15 @@ import confirmCards from "./confirmCards";
 import registerArchetype from "./registerArchetype";
 import registeredArchetypes from "./registeredArchetypes";
 import deleteGuide from "./guides/deleteGuide";
-import instanceLikes from "./instanceLikes";
+import guideLikes from "./guides/guideLikes";
 import recommendedDeck from "./recommendedDeck";
 import getCardDetails from "./getCardDetails";
 import admin from "./admin";
 import reports from "./reports";
 import { createGetArchetypeInstancesRoute } from "./getArchetypeInstances";
 import { createGetUserInstancesRoute } from "./getUserInstances";
-import { createCreateOrUpdateInstanceRoute } from "./createOrUpdateInstance";
-import { createGetUserInstanceRoute } from "./getUserInstance";
+import { createOrUpdateGuideRoute } from "./guides/createOrUpdateGuide";
+import { createGetGuideRoute } from "./guides/getGuide";
 import { createGetInstanceByIdRoute } from "./getInstanceById";
 
 export {
@@ -26,14 +26,14 @@ export {
   registerArchetype,
   registeredArchetypes,
   deleteGuide,
-  instanceLikes,
+  guideLikes,
   recommendedDeck,
   getCardDetails,
   admin,
   reports,
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
-  createCreateOrUpdateInstanceRoute,
-  createGetUserInstanceRoute,
+  createOrUpdateGuideRoute,
+  createGetGuideRoute,
   createGetInstanceByIdRoute,
 };
