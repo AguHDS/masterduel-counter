@@ -86,15 +86,7 @@ export const instanceApi = {
     return response.data;
   },
 
-  // Get a specific user's instance for an archetype including card pairs and header
-  getUserInstance: async (archetypeId: number, userId: string): Promise<UserInstanceWithCardPairs> => {
-    const response = await axios.get(
-      `${API_BASE_URL}/api/archetypes/${archetypeId}/users/${userId}/instance`
-    );
-    return response.data;
-  },
-
-  // Get a specific instance by its ID
+  /** Get instance by its ID */
   getInstanceById: async (instanceId: number): Promise<UserInstanceWithCardPairs> => {
     const response = await axios.get(
       `${API_BASE_URL}/api/instances/${instanceId}`
@@ -102,7 +94,7 @@ export const instanceApi = {
     return response.data;
   },
 
-  // Create a new instance or update an existing instance with a header card
+  /** Create a new instance or update an existing instance with a header card */
   createOrUpdateInstance: async (
     archetypeId: number,
     data: { title: string; headerCardId: number | null; generalTip?: string | null }
@@ -115,16 +107,9 @@ export const instanceApi = {
     return response.data;
   },
 
-  // Delete a user's instance for a specific archetype
-  deleteUserInstance: async (archetypeId: number, userId: string): Promise<{ success: boolean; message: string }> => {
-    const response = await axios.delete<{ success: boolean; message: string }>(
-      `${API_BASE_URL}/api/archetypes/${archetypeId}/users/${userId}/instance`,
-      { withCredentials: true }
-    );
-    return response.data;
-  },
-
-  // Delete an instance by its ID
+  /** 
+   * Delete an instance guide by its ID (with ownership verification)
+   */
   deleteInstance: async (instanceId: number): Promise<{ success: boolean; message: string }> => {
     const response = await axios.delete<{ success: boolean; message: string }>(
       `${API_BASE_URL}/api/instances/${instanceId}`,

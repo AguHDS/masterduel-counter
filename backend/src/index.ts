@@ -25,8 +25,7 @@ import {
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
   createOrUpdateGuideRoute,
-  createGetGuideRoute,
-  createGetInstanceByIdRoute,
+  createGetGuideByIdRoute,
   admin,
   reports,
 } from "./routes/index";
@@ -125,8 +124,7 @@ app.use("/api", recommendedDeck);
 app.use("/api", createGetArchetypeInstancesRoute(getDependencies()));
 app.use("/api", createGetUserInstancesRoute(getDependencies()));
 app.use("/api", createOrUpdateGuideRoute(getDependencies()));
-app.use("/api", createGetGuideRoute(getDependencies()));
-app.use("/api", createGetInstanceByIdRoute(getDependencies()));
+app.use("/api", createGetGuideByIdRoute(getDependencies()));
 app.use("/api", getInstanceCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 

@@ -5,52 +5,51 @@ import { CardRepository } from "@/domain/ports/CardRepository";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import { UserRepository } from "@/domain/ports/UserRepository";
 
-/** Gets the full instance of a user for an archetype (card pairs, header, comments, effectiveness) */
-export const createGetUserInstanceController = (
+/**
+ * Get full guide created by an user by ID to view.
+ * Includes archetype name, username, header card details, and card pairs with details.
+ */
+export const createGetGuideByIdController = (
   instanceRepository: ArchetypeInstanceRepository,
   cardPairRepository: ArchetypeCardPairRepository,
   cardRepository: CardRepository,
   archetypeRepository: ArchetypeRepository,
-  userRepository: UserRepository
+  userRepository: UserRepository,
 ) => {
   return async (req: Request, res: Response) => {
     try {
-      const archetypeIdParam = req.params.archetypeId;
-      const userIdParam = req.params.userId;
+      const instanceIdParam = req.params.instanceId;
 
-      if (typeof archetypeIdParam !== 'string' || typeof userIdParam !== 'string') {
-        return res.status(400).json({ 
-          error: "Invalid parameters" 
+      if (typeof instanceIdParam !== "string") {
+        return res.status(400).json({
+          error: "Invalid parameters",
         });
       }
 
-      const archetypeId = parseInt(archetypeIdParam);
-      const userId = userIdParam;
+      const instanceId = parseInt(instanceIdParam);
 
-      if (isNaN(archetypeId)) {
-        return res.status(400).json({ 
-          error: "Invalid archetype ID" 
+      if (isNaN(instanceId)) {
+        return res.status(400).json({
+          error: "Invalid instance ID",
         });
       }
 
-      // Search the instance of the user for this archetype
-      const instance = await instanceRepository.findArchetypeInstanceByArchetypeAndUserId(
-        archetypeId, 
-        userId
-      );
+      // Search instance by ID
+      const instance =
+        await instanceRepository.findArchetypeInstanceById(instanceId);
 
       if (!instance) {
-        return res.status(404).json({ 
-          error: "Instance not found for this user and archetype" 
+        return res.status(404).json({
+          error: "Instance not found",
         });
       }
 
-      // Get the card pairs with details
+      // Get card pairs with details
       const cardPairs = await cardPairRepository.findByInstanceIdWithDetails(
-        instance.id
+        instance.id,
       );
 
-      // Get the header card if it exists
+      // Get the header card if exists
       let headerCard = null;
       if (instance.headerCardId) {
         const card = await cardRepository.finCardById(instance.headerCardId);
@@ -60,16 +59,17 @@ export const createGetUserInstanceController = (
             name: card.name,
             imageUrl: card.imageUrl,
             imageUrlSmall: card.imageUrlSmall,
+            imageUrlCropped: card.imageUrlCropped,
           };
         }
       }
 
-      // Get archetype information
-      const archetype = await archetypeRepository.findArchetypeById(archetypeId);
+      const archetype = await archetypeRepository.findArchetypeById(
+        instance.archetypeId,
+      );
       const archetypeName = archetype?.name || "Unknown";
 
-      // Get user information
-      const user = await userRepository.findUserById(userId);
+      const user = await userRepository.findUserById(instance.userId);
       const userName = user?.username || "Unknown";
 
       return res.json({
@@ -87,16 +87,16 @@ export const createGetUserInstanceController = (
         userName,
         archetypeName,
         headerCard,
-        cardPairs: cardPairs.map(pair => ({
+        cardPairs: cardPairs.map((pair) => ({
           id: pair.id,
-          topCards: pair.top_cards.map(card => ({
+          topCards: pair.top_cards.map((card) => ({
             id: card.id,
             name: card.name,
             imageUrl: card.image_url,
             imageUrlSmall: card.image_url_small,
             imageUrlCropped: card.image_url_cropped,
           })),
-          bottomCards: pair.bottom_cards.map(card => ({
+          bottomCards: pair.bottom_cards.map((card) => ({
             id: card.id,
             name: card.name,
             imageUrl: card.image_url,
@@ -108,11 +108,10 @@ export const createGetUserInstanceController = (
         })),
       });
     } catch (error) {
-      console.error("Error fetching user instance:", error);
-      return res.status(500).json({ 
-        error: "Failed to fetch user instance" 
+      console.error("Error fetching instance by ID:", error);
+      return res.status(500).json({
+        error: "Failed to fetch instance",
       });
     }
   };
 };
-

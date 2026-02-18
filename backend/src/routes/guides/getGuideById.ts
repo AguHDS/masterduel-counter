@@ -4,10 +4,10 @@ import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRep
 import { CardRepository } from "@/domain/ports/CardRepository";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import { UserRepository } from "@/domain/ports/UserRepository";
-import { createGetUserInstanceController } from "@/http/controllers/getUserInstanceController";
+import { createGetGuideByIdController } from "@/http/controllers/guides/getGuideByIdController";
 
-/** Get a guide instance of a user to view */
-export const createGetGuideRoute = (dependencies: {
+/** Get a guide created by a user by ID to view. */
+export const createGetGuideByIdRoute = (dependencies: {
   getInstanceRepository: () => ArchetypeInstanceRepository;
   getCardPairRepository: () => ArchetypeCardPairRepository;
   getCardRepository: () => CardRepository;
@@ -16,15 +16,15 @@ export const createGetGuideRoute = (dependencies: {
 }) => {
   const router = Router();
 
-  const controller = createGetUserInstanceController(
+  const controller = createGetGuideByIdController(
     dependencies.getInstanceRepository(),
     dependencies.getCardPairRepository(),
     dependencies.getCardRepository(),
     dependencies.getArchetypeRepository(),
-    dependencies.getUserRepository()
+    dependencies.getUserRepository(),
   );
 
-  router.get("/archetypes/:archetypeId/users/:userId/instance", controller);
+  router.get("/instances/:instanceId", controller);
 
   return router;
 };

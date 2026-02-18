@@ -14,8 +14,7 @@ import reports from "./reports";
 import { createGetArchetypeInstancesRoute } from "./getArchetypeInstances";
 import { createGetUserInstancesRoute } from "./getUserInstances";
 import { createOrUpdateGuideRoute } from "./guides/createOrUpdateGuide";
-import { createGetGuideRoute } from "./guides/getGuide";
-import { createGetInstanceByIdRoute } from "./getInstanceById";
+import { createGetGuideByIdRoute } from "./guides/getGuideById";
 
 export {
   searchArchetype,
@@ -34,6 +33,5 @@ export {
   createGetArchetypeInstancesRoute,
   createGetUserInstancesRoute,
   createOrUpdateGuideRoute,
-  createGetGuideRoute,
-  createGetInstanceByIdRoute,
+  createGetGuideByIdRoute,
 };
