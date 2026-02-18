@@ -1,5 +1,5 @@
 import searchArchetype from "./searchArchetype";
-import logout from "./logout";
+import logout from "./auth/logout";
 import searchCards from "./searchCards";
 import selectCard from "./selectCard";
 import confirmCards from "./confirmCards";

@@ -31,7 +31,7 @@ import {
   admin,
   reports,
 } from "./routes/index";
-import auth from "./routes/auth";
+import auth from "./routes/auth/auth";
 import getInstanceCardPairs from "./routes/getInstanceCardPairs";
 import profile from "./routes/profile";
 
