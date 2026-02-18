@@ -5,8 +5,7 @@ import selectCard from "./selectCard";
 import confirmCards from "./confirmCards";
 import registerArchetype from "./registerArchetype";
 import registeredArchetypes from "./registeredArchetypes";
-import deleteUserInstance from "./deleteUserInstance";
-import deleteInstance from "./deleteInstance";
+import deleteGuide from "./guides/deleteGuide";
 import instanceLikes from "./instanceLikes";
 import recommendedDeck from "./recommendedDeck";
 import getCardDetails from "./getCardDetails";
@@ -26,8 +25,7 @@ export {
   confirmCards,
   registerArchetype,
   registeredArchetypes,
-  deleteUserInstance,
-  deleteInstance,
+  deleteGuide,
   instanceLikes,
   recommendedDeck,
   getCardDetails,

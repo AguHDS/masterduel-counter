@@ -204,7 +204,7 @@ export const ProfilePage = () => {
                                 className="flex items-center gap-2 px-3 py-1.5 bg-red-950/60 backdrop-blur-sm hover:bg-red-950/90 text-white text-sm rounded transition-colors ml-4 flex-shrink-0"
                               >
                                 <Flag className="w-4 h-4" />
-                                <span>Report User</span>
+                                <span>Report</span>
                               </button>
                             )}
                           </div>

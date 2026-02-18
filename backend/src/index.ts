@@ -18,8 +18,7 @@ import {
   confirmCards,
   registerArchetype,
   registeredArchetypes,
-  deleteUserInstance,
-  deleteInstance,
+  deleteGuide,
   instanceLikes,
   recommendedDeck,
   getCardDetails,
@@ -120,8 +119,7 @@ app.use("/api/profile", profile);
 // Archetypes & Instances
 app.use("/api/archetypes", registerArchetype);
 app.use("/api/archetypes", registeredArchetypes);
-app.use("/api", deleteUserInstance);
-app.use("/api", deleteInstance);
+app.use("/api", deleteGuide);
 app.use("/api", instanceLikes);
 app.use("/api", recommendedDeck);
 app.use("/api", createGetArchetypeInstancesRoute(getDependencies()));
