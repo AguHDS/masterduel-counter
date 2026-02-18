@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { registerArchetypeController } from "@/http/controllers/archetypes/registerArchetypeController";
 import { registerArchetypeMiddleware } from "@/http/middlewares/archetypes/registerArchetypeMiddleware";
-import { requireAuth } from "@/http/middlewares/authMiddleware";
+import { requireAuth } from "@/http/middlewares/auth/authMiddleware";
 import { getArchetypeWithHeaderController } from "@/http/controllers/archetypes/getArchetypeWithHeaderController";
 
 const router = Router();

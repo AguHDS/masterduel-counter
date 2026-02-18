@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   requireAuth,
   AuthenticatedRequest,
-} from "@/http/middlewares/authMiddleware";
+} from "@/http/middlewares/auth/authMiddleware";
 
 export interface AdminRequest extends AuthenticatedRequest {
   adminUser?: {

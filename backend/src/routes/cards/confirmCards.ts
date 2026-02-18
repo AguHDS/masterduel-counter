@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { confirmCardsController } from "@/http/controllers/confirmCardsController";
+import { confirmCardsController } from "@/http/controllers/cards/confirmCardsController";
 import { confirmCardsMiddleware } from "@/http/middlewares/cards/confirmCardsMiddleware";
 
 const router = Router();

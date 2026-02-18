@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { AuthenticatedRequest } from "@/http/middlewares/authMiddleware";
+import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware";
 import { getDependencies } from "@/compositionRoot";
 
 /**

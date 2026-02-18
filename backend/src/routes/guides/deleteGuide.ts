@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireAuth } from "@/http/middlewares/authMiddleware";
+import { requireAuth } from "@/http/middlewares/auth/authMiddleware";
 import { validateDeleteGuide } from "@/http/middlewares/guides/deleteGuideMiddleware";
 import { deleteGuideController } from "@/http/controllers/guides/deleteGuideController";
 

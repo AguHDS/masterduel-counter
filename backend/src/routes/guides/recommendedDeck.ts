@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireAuth } from "@/http/middlewares/authMiddleware";
+import { requireAuth } from "@/http/middlewares/auth/authMiddleware";
 import { validateCreateOrUpdateRecommendedDeck } from "@/http/middlewares/guides/createOrUpdateRecommendedDeckMiddleware";
 import { validateGetRecommendedDeck } from "@/http/middlewares/guides/getRecommendedDeckMiddleware";
 import { validateDeleteRecommendedDeck } from "@/http/middlewares/guides/deleteRecommendedDeckMiddleware";
