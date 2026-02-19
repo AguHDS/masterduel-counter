@@ -17,6 +17,7 @@ export class SqliteCommentRepository implements CommentRepository {
         content: data.content,
         instanceId: data.instanceId,
         authorId: data.authorId,
+        parentCommentId: data.parentCommentId || null,
       },
     });
 
@@ -38,9 +39,13 @@ export class SqliteCommentRepository implements CommentRepository {
   ): Promise<CommentsPaginatedResponse> {
     const skip = (page - 1) * limit;
 
-    const [comments, total] = await Promise.all([
+    // First get all root comments (parentCommentId is null)
+    const [rootComments, totalRoot] = await Promise.all([
       this.prisma.comment.findMany({
-        where: { instanceId },
+        where: {
+          instanceId,
+          parentCommentId: null,
+        },
         include: {
           author: {
             select: {
@@ -50,32 +55,73 @@ export class SqliteCommentRepository implements CommentRepository {
               image: true,
             },
           },
+          replies: {
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  image: true,
+                },
+              },
+              replies: {
+                include: {
+                  author: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true,
+                      image: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      this.prisma.comment.count({ where: { instanceId } }),
+      this.prisma.comment.count({
+        where: {
+          instanceId,
+          parentCommentId: null,
+        },
+      }),
     ]);
 
-    const totalPages = Math.ceil(total / limit);
+    // Recursive function to map comments with their replies
+    const mapCommentWithReplies = (comment: any): CommentWithAuthor => ({
+      id: comment.id,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+      instanceId: comment.instanceId,
+      authorId: comment.authorId,
+      parentCommentId: comment.parentCommentId,
+      author: {
+        id: comment.author.id,
+        name: comment.author.name,
+        email: comment.author.email,
+        image: comment.author.image,
+      },
+      replies: comment.replies?.map(mapCommentWithReplies),
+      replyCount: comment.replies?.length || 0,
+    });
+
+    const comments = rootComments.map(mapCommentWithReplies);
+    const totalPages = Math.ceil(totalRoot / limit);
+
+    // Get total count of all comments (including replies) for the counter
+    const totalAllComments = await this.prisma.comment.count({
+      where: { instanceId },
+    });
 
     return {
-      comments: comments.map((comment) => ({
-        id: comment.id,
-        content: comment.content,
-        createdAt: comment.createdAt,
-        updatedAt: comment.updatedAt,
-        instanceId: comment.instanceId,
-        authorId: comment.authorId,
-        author: {
-          id: comment.author.id,
-          name: comment.author.name,
-          email: comment.author.email,
-          image: comment.author.image,
-        },
-      })),
-      total,
+      comments,
+      total: totalAllComments,
       page,
       limit,
       totalPages,
@@ -94,6 +140,8 @@ export class SqliteCommentRepository implements CommentRepository {
   }
 
   async deleteComment(id: number): Promise<void> {
+    // Prisma will handle cascading deletes of replies automatically
+    // due to onDelete: Cascade in the self-relation
     await this.prisma.comment.delete({
       where: { id },
     });
@@ -136,6 +184,18 @@ export class SqliteCommentRepository implements CommentRepository {
     });
   }
 
+  async validateParentComment(
+    parentCommentId: number,
+    instanceId: number,
+  ): Promise<boolean> {
+    const parent = await this.prisma.comment.findUnique({
+      where: { id: parentCommentId },
+      select: { instanceId: true },
+    });
+
+    return parent?.instanceId === instanceId;
+  }
+
   private mapToDomain(prismaComment: any): Comment {
     return {
       id: prismaComment.id,
@@ -144,6 +204,7 @@ export class SqliteCommentRepository implements CommentRepository {
       updatedAt: prismaComment.updatedAt,
       instanceId: prismaComment.instanceId,
       authorId: prismaComment.authorId,
+      parentCommentId: prismaComment.parentCommentId,
     };
   }
 }

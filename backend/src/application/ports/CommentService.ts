@@ -7,13 +7,13 @@ import {
 } from "@/domain/Comment";
 
 export interface CommentServicePort {
-  /** Create a new comment */
+  /** Create a new comment (supports replies) */
   createComment(data: CreateCommentDTO): Promise<Comment>;
 
   /** Get a comment by its ID */
   getCommentById(id: number): Promise<CommentWithAuthor | null>;
 
-  /** Get comments by instance ID with pagination */
+  /** Get comments by instance ID with pagination (includes replies) */
   getCommentsByInstanceId(
     instanceId: number,
     page?: number,

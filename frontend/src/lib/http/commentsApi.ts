@@ -3,6 +3,7 @@ import { axiosClient } from "./axiosClient";
 export interface CreateCommentRequest {
   instanceId: number;
   content: string;
+  parentCommentId?: number;
 }
 
 export interface UpdateCommentRequest {
@@ -42,6 +43,7 @@ export interface Comment {
   instanceId: number;
   authorId: string;
   author: CommentAuthor;
+  parentCommentId?: number | null;
 }
 
 export interface CommentsPaginatedResponse {
@@ -82,6 +84,7 @@ export const commentsApi = {
       {
         instanceId: data.instanceId,
         content: data.content,
+        parentCommentId: data.parentCommentId,
       },
     );
     return response.data.data.comment;
@@ -100,7 +103,7 @@ export const commentsApi = {
     );
     return response.data.data.comment;
   },
-  
+
   /**
    * Delete an existing comment
    */

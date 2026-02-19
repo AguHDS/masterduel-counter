@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Edit2, Trash2, Loader2 } from "lucide-react";
+import { Edit2, Trash2, Loader2, MessageSquareReply } from "lucide-react";
 import { useCommentMutations } from "../hooks/useCommentsQueries";
 import { CommentForm } from "./CommentForm";
 import type { CommentItemProps } from "../types/commentsTypes";
@@ -41,8 +41,12 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   onDelete,
   currentUserId,
   isInstanceOwner = false,
+  depth = 0,
+  maxDepth = 5,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
+  const [showReplies, setShowReplies] = useState(true);
   const { deleteComment } = useCommentMutations({
     onError: (err) => {
       alert(err.message || "Failed to delete comment");
@@ -51,6 +55,8 @@ export const CommentItem: React.FC<CommentItemProps> = ({
 
   const isDeleting = deleteComment.isPending;
   const canModify = currentUserId === comment.authorId || isInstanceOwner;
+  const hasReplies = comment.replies && comment.replies.length > 0;
+  const replyCount = comment.replies?.length || 0;
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this comment?")) {
@@ -64,46 +70,48 @@ export const CommentItem: React.FC<CommentItemProps> = ({
 
   if (isEditing) {
     return (
-      <div className="mb-4 bg-gradient-to-tr from-gray-800/60 to-gray-900/60 backdrop-blur-xs rounded-lg border border-blue-900/30 p-4">
-        <div className="flex items-start gap-3">
-          {comment.author.image ? (
-            <img
-              src={comment.author.image}
-              alt={comment.author.name}
-              className="w-8 h-8 rounded-full object-cover"
-            />
-          ) : (
-            <AvatarPlaceholder name={comment.author.name} />
-          )}
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="font-semibold text-white">
-                {comment.author.name}
-              </span>
-              <span className="text-xs text-blue-400/60">•</span>
-              <span
-                className="text-xs text-blue-400/60"
-                title={new Date(comment.createdAt).toLocaleString()}
-              >
-                {formattedDate}
-              </span>
-              {isEdited && (
-                <>
-                  <span className="text-xs text-blue-400/60">•</span>
-                  <span className="text-xs text-blue-400/40 italic">
-                    (edited)
-                  </span>
-                </>
-              )}
+      <div className={`${depth > 0 ? "mt-3" : "mb-4"}`}>
+        <div className="bg-gradient-to-tr from-gray-800/60 to-gray-900/60 backdrop-blur-xs rounded-lg border border-blue-900/30 p-4">
+          <div className="flex items-start gap-3">
+            {comment.author.image ? (
+              <img
+                src={comment.author.image}
+                alt={comment.author.name}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <AvatarPlaceholder name={comment.author.name} />
+            )}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-semibold text-white">
+                  {comment.author.name}
+                </span>
+                <span className="text-xs text-blue-400/60">•</span>
+                <span
+                  className="text-xs text-blue-400/60"
+                  title={new Date(comment.createdAt).toLocaleString()}
+                >
+                  {formattedDate}
+                </span>
+                {isEdited && (
+                  <>
+                    <span className="text-xs text-blue-400/60">•</span>
+                    <span className="text-xs text-blue-400/40 italic">
+                      (edited)
+                    </span>
+                  </>
+                )}
+              </div>
+              <CommentForm
+                instanceId={comment.instanceId}
+                initialContent={comment.content}
+                isEditing
+                commentId={comment.id}
+                onSuccess={() => setIsEditing(false)}
+                onCancel={() => setIsEditing(false)}
+              />
             </div>
-            <CommentForm
-              instanceId={comment.instanceId}
-              initialContent={comment.content}
-              isEditing
-              commentId={comment.id}
-              onSuccess={() => setIsEditing(false)}
-              onCancel={() => setIsEditing(false)}
-            />
           </div>
         </div>
       </div>
@@ -111,73 +119,132 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   }
 
   return (
-    <div className={`transition-opacity ${isDeleting ? "opacity-50" : ""}`}>
-      <div className="bg-gradient-to-tr from-gray-800/60 to-gray-900/60 backdrop-blur-xs rounded-lg border border-blue-900/30 p-4 hover:border-blue-700/50 transition-all duration-300">
-        <div className="flex items-start gap-3">
-          {/* Avatar - Siempre visible */}
-          {comment.author.image ? (
-            <img
-              src={comment.author.image}
-              alt={comment.author.name}
-              className="w-8 h-8 rounded-full object-cover"
-            />
-          ) : (
-            <AvatarPlaceholder name={comment.author.name} />
-          )}
+    <div className={`${depth > 0 ? "mt-3" : ""}`}>
+      <div
+        className={`transition-opacity ${
+          isDeleting ? "opacity-50" : ""
+        } ${depth > 0 ? "ml-6 border-l-2 border-blue-900/30 pl-4" : ""}`}
+      >
+        <div className="bg-gradient-to-tr from-gray-800/60 to-gray-900/60 backdrop-blur-xs rounded-lg border border-blue-900/30 p-4 hover:border-blue-700/50 transition-all duration-300">
+          <div className="flex items-start gap-3">
+            {comment.author.image ? (
+              <img
+                src={comment.author.image}
+                alt={comment.author.name}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <AvatarPlaceholder name={comment.author.name} />
+            )}
 
-          <div className="flex-1 min-w-0">
-            {/* Header con nombre, fecha, edited y acciones */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-white">
-                {comment.author.name}
-              </span>
-              <span className="text-xs text-blue-400/60">•</span>
-              <span
-                className="text-xs text-blue-400/60"
-                title={new Date(comment.createdAt).toLocaleString()}
-              >
-                {formattedDate}
-              </span>
-              {isEdited && (
-                <>
-                  <span className="text-xs text-blue-400/60">•</span>
-                  <span className="text-xs text-blue-400/40 italic">
-                    (edited)
-                  </span>
-                </>
-              )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-white">
+                  {comment.author.name}
+                </span>
+                <span className="text-xs text-blue-400/60">•</span>
+                <span
+                  className="text-xs text-blue-400/60"
+                  title={new Date(comment.createdAt).toLocaleString()}
+                >
+                  {formattedDate}
+                </span>
+                {isEdited && (
+                  <>
+                    <span className="text-xs text-blue-400/60">•</span>
+                    <span className="text-xs text-blue-400/40 italic">
+                      (edited)
+                    </span>
+                  </>
+                )}
 
-              {canModify && !isDeleting && (
-                <div className="flex items-center gap-1">
+                {/* Reply button for non-owners or anyone */}
+                {currentUserId && depth < maxDepth && (
                   <button
-                    onClick={() => setIsEditing(true)}
-                    className="p-1 rounded-full hover:bg-blue-600/20 text-blue-400 transition-colors"
-                    title="Edit comment"
-                    disabled={isDeleting}
+                    onClick={() => setIsReplying(!isReplying)}
+                    className="rounded-full hover:bg-blue-600/20 text-blue-400 transition-colors"
+                    title="Reply to comment"
                   >
-                    <Edit2 className="w-3.5 h-3.5" />
+                    <MessageSquareReply className="w-3.5 h-3.5" />
                   </button>
-                  <button
-                    onClick={handleDelete}
-                    className="p-1 rounded-full hover:bg-red-600/20 text-red-400 transition-colors"
-                    title="Delete comment"
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-3.5 h-3.5" />
-                    )}
-                  </button>
+                )}
+
+                {/* Edit/Delete buttons */}
+                {canModify && !isDeleting && (
+                  <div className="flex items-center gap-1 ml-auto">
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="p-1 rounded-full hover:bg-blue-600/20 text-blue-400 transition-colors"
+                      title="Edit comment"
+                      disabled={isDeleting}
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="p-1 rounded-full hover:bg-red-600/20 text-red-400 transition-colors"
+                      title="Delete comment"
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <p className="text-gray-300 mt-1 text-sm leading-relaxed break-words">
+                {comment.content}
+              </p>
+
+              {/* Reply form */}
+              {isReplying && (
+                <div className="mt-3">
+                  <CommentForm
+                    instanceId={comment.instanceId}
+                    parentCommentId={comment.id}
+                    onSuccess={() => setIsReplying(false)}
+                    onCancel={() => setIsReplying(false)}
+                    placeholder={`Reply to ${comment.author.name}...`}
+                    autoFocus
+                  />
                 </div>
               )}
-            </div>
 
-            <p className="text-gray-300 mt-1 text-sm leading-relaxed break-words">
-              {comment.content}
-            </p>
+              {/* Toggle replies button */}
+              {hasReplies && (
+                <button
+                  onClick={() => setShowReplies(!showReplies)}
+                  className="mt-2 text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+                >
+                  <span className="text-blue-400/60">└─</span>
+                  {showReplies ? "Hide" : "Show"} {replyCount} reply
+                  {replyCount !== 1 ? "s" : ""}
+                </button>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Replies */}
+        {hasReplies && showReplies && (
+          <div className="mt-2 space-y-2">
+            {comment.replies?.map((reply) => (
+              <CommentItem
+                key={reply.id}
+                comment={reply}
+                onDelete={onDelete}
+                currentUserId={currentUserId}
+                isInstanceOwner={isInstanceOwner}
+                depth={depth + 1}
+                maxDepth={maxDepth}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

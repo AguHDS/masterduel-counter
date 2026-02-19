@@ -1,16 +1,24 @@
 /**
  * Extracts and validates a request parameter as a string
- * @param param Parameter for req.params, req.query, etc.
+ * @param param Parameter for req.params, req.query, req.body, etc.
  * @returns String validated or null if invalid
  */
 export function validateStringParam(
-  param: string | string[] | undefined,
+  param: string | number | string[] | undefined,
 ): string | null {
-  if (!param) {
+  if (param === undefined || param === null) {
     return null;
   }
 
-  const paramString = Array.isArray(param) ? param[0] : param;
+  let paramString: string;
+
+  if (Array.isArray(param)) {
+    paramString = param[0];
+  } else if (typeof param === "number") {
+    paramString = param.toString();
+  } else {
+    paramString = param;
+  }
 
   if (typeof paramString !== "string" || paramString.trim().length === 0) {
     return null;
@@ -21,17 +29,25 @@ export function validateStringParam(
 
 /**
  * Extracts and validates a request parameter as a number
- * @param param Parameter from req.params, req.query, etc.
+ * @param param Parameter from req.params, req.query, req.body, etc.
  * @returns Number validated or null if invalid
  */
 export function validateNumberParam(
-  param: string | string[] | undefined,
+  param: string | number | string[] | undefined,
 ): number | null {
-  if (!param) {
+  if (param === undefined || param === null) {
     return null;
   }
 
-  const paramString = Array.isArray(param) ? param[0] : param;
+  let paramString: string;
+
+  if (Array.isArray(param)) {
+    paramString = param[0];
+  } else if (typeof param === "number") {
+    paramString = param.toString();
+  } else {
+    paramString = param;
+  }
 
   if (typeof paramString !== "string" || paramString.trim().length === 0) {
     return null;

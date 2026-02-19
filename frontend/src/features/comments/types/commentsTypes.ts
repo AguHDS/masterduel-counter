@@ -2,6 +2,11 @@ import type { Comment as ApiComment } from "../api/commentsApi";
 
 export type Comment = ApiComment;
 
+export interface CommentWithReplies extends Comment {
+  replies?: CommentWithReplies[];
+  replyCount?: number;
+}
+
 export interface CommentsSectionProps {
   instanceId: number;
   className?: string;
@@ -11,10 +16,12 @@ export interface CommentsSectionProps {
 }
 
 export interface CommentItemProps {
-  comment: Comment;
+  comment: CommentWithReplies;
   onDelete?: (commentId: number) => void;
   currentUserId?: string;
   isInstanceOwner?: boolean;
+  depth?: number;
+  maxDepth?: number;
 }
 
 export interface CommentFormProps {
@@ -24,6 +31,8 @@ export interface CommentFormProps {
   initialContent?: string;
   isEditing?: boolean;
   commentId?: number;
+  parentCommentId?: number;
   placeholder?: string;
   autoFocus?: boolean;
+  onReply?: () => void;
 }

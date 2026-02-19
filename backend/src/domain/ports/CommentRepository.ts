@@ -7,13 +7,13 @@ import {
 } from "../Comment";
 
 export interface CommentRepository {
-  /** Create a new comment */
+  /** Create a new comment (supports replies via parentCommentId) */
   createComment(data: CreateCommentDTO): Promise<Comment>;
 
   /** Find a comment by its ID */
   findCommentById(id: number): Promise<Comment | null>;
 
-  /** Find comments by instance ID with pagination */
+  /** Find comments by instance ID with pagination (includes replies) */
   findCommentsByInstanceId(
     instanceId: number,
     page?: number,
@@ -37,4 +37,10 @@ export interface CommentRepository {
 
   /** Count comments by instance ID */
   countCommentsByInstanceId(instanceId: number): Promise<number>;
+
+  /** Validate that parent comment exists and belongs to same instance */
+  validateParentComment(
+    parentCommentId: number,
+    instanceId: number,
+  ): Promise<boolean>;
 }

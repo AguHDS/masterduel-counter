@@ -20,6 +20,20 @@ export class CommentServiceImpl implements CommentServicePort {
       throw new Error("Comment is too long (max 2500 characters)");
     }
 
+    // Validate parent comment if this is a reply
+    if (data.parentCommentId) {
+      const isValidParent = await this.commentRepository.validateParentComment(
+        data.parentCommentId,
+        data.instanceId,
+      );
+
+      if (!isValidParent) {
+        throw new Error(
+          "Parent comment not found or belongs to different instance",
+        );
+      }
+    }
+
     return this.commentRepository.createComment(data);
   }
 

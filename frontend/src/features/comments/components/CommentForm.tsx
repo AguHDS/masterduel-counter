@@ -11,6 +11,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
   initialContent = "",
   isEditing = false,
   commentId,
+  parentCommentId,
   placeholder = "Write a comment...",
   autoFocus = false,
 }) => {
@@ -31,6 +32,25 @@ export const CommentForm: React.FC<CommentFormProps> = ({
   const isSubmitting = isEditing
     ? updateComment.isPending
     : createComment.isPending;
+
+  // Determinar el texto del botón según el contexto
+  const getButtonText = () => {
+    if (isSubmitting) {
+      return isEditing ? "Updating..." : "Posting...";
+    }
+
+    if (isEditing) {
+      return "Update";
+    }
+
+    // Si tiene parentCommentId, es una respuesta
+    if (parentCommentId) {
+      return "Reply";
+    }
+
+    // Si no, es un comentario nuevo de primer nivel
+    return "Comment";
+  };
 
   useEffect(() => {
     if (autoFocus && textareaRef.current) {
@@ -59,6 +79,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
         await createComment.mutateAsync({
           instanceId,
           content: content.trim(),
+          parentCommentId,
         });
       }
     } catch (err) {
@@ -137,10 +158,10 @@ export const CommentForm: React.FC<CommentFormProps> = ({
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {isEditing ? "Updating..." : "Posting..."}
+                {getButtonText()}
               </>
             ) : (
-              <>{isEditing ? "Update" : "Comment"}</>
+              <>{getButtonText()}</>
             )}
           </button>
         )}

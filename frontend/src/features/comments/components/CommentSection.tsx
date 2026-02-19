@@ -82,7 +82,7 @@ export const CommentSection: React.FC<CommentsSectionProps> = ({
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-blue-300/60">
+          <div className="text-center py-8 text-blue-300/80 italic">
             No comments yet. Be the first to comment!
           </div>
         )}

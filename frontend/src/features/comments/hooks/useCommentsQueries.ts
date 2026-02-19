@@ -17,13 +17,55 @@ interface UseCommentMutationsParams {
   onError?: (error: Error) => void;
 }
 
+// Helper to organize comments into a tree structure
+const buildCommentTree = (comments: Comment[]): Comment[] => {
+  const commentMap = new Map<number, any>();
+  const rootComments: any[] = [];
+
+  // First pass: create map of all comments
+  comments.forEach((comment) => {
+    commentMap.set(comment.id, {
+      ...comment,
+      replies: [],
+    });
+  });
+
+  // Second pass: organize into tree
+  comments.forEach((comment) => {
+    const commentWithReplies = commentMap.get(comment.id);
+    if (comment.parentCommentId) {
+      const parent = commentMap.get(comment.parentCommentId);
+      if (parent) {
+        parent.replies.push(commentWithReplies);
+      } else {
+        // Orphaned reply (shouldn't happen), treat as root
+        rootComments.push(commentWithReplies);
+      }
+    } else {
+      rootComments.push(commentWithReplies);
+    }
+  });
+
+  return rootComments;
+};
+
 export const useComments = ({
   instanceId,
   enabled = true,
 }: UseCommentsParams) => {
   return useQuery({
     queryKey: queryKeys.comments.list(instanceId),
-    queryFn: () => commentsApi.getInstanceComments(instanceId, 1, 50),
+    queryFn: async () => {
+      const response = await commentsApi.getInstanceComments(
+        instanceId,
+        1,
+        100,
+      );
+      return {
+        ...response,
+        comments: buildCommentTree(response.comments),
+      };
+    },
     enabled: enabled && !!instanceId,
   });
 };
@@ -42,7 +84,7 @@ export const useCommentMutations = ({
         queryKey: queryKeys.comments.list(newComment.instanceId),
       });
 
-      const previousComments = queryClient.getQueryData(
+      const previousData = queryClient.getQueryData(
         queryKeys.comments.list(newComment.instanceId),
       );
 
@@ -50,6 +92,7 @@ export const useCommentMutations = ({
         queryKeys.comments.list(newComment.instanceId),
         (old: any) => {
           if (!old) return old;
+
           const tempId = Date.now();
           const optimisticComment = {
             id: tempId,
@@ -57,6 +100,7 @@ export const useCommentMutations = ({
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             instanceId: newComment.instanceId,
+            parentCommentId: newComment.parentCommentId,
             authorId: "temp",
             author: {
               id: "temp",
@@ -64,7 +108,37 @@ export const useCommentMutations = ({
               email: "",
               image: null,
             },
+            replies: [],
           };
+
+          // If it's a reply, add it to the parent's replies
+          if (newComment.parentCommentId) {
+            const updateCommentTree = (comments: any[]): any[] => {
+              return comments.map((c) => {
+                if (c.id === newComment.parentCommentId) {
+                  return {
+                    ...c,
+                    replies: [...(c.replies || []), optimisticComment],
+                  };
+                }
+                if (c.replies?.length) {
+                  return {
+                    ...c,
+                    replies: updateCommentTree(c.replies),
+                  };
+                }
+                return c;
+              });
+            };
+
+            return {
+              ...old,
+              comments: updateCommentTree(old.comments || []),
+              total: (old.total || 0) + 1,
+            };
+          }
+
+          // If it's a root comment, add to the top
           return {
             ...old,
             comments: [optimisticComment, ...(old.comments || [])],
@@ -73,7 +147,7 @@ export const useCommentMutations = ({
         },
       );
 
-      return { previousComments };
+      return { previousData };
     },
 
     onSuccess: (_, variables) => {
@@ -84,11 +158,10 @@ export const useCommentMutations = ({
     },
 
     onError: (err, variables, context) => {
-      // Rollback on error
-      if (context?.previousComments) {
+      if (context?.previousData) {
         queryClient.setQueryData(
           queryKeys.comments.list(variables.instanceId),
-          context.previousComments,
+          context.previousData,
         );
       }
       onError?.(err);
@@ -100,7 +173,6 @@ export const useCommentMutations = ({
       commentsApi.updateComment(commentId, content),
 
     onMutate: async ({ commentId, content }) => {
-      // Find which instance this comment belongs to
       let instanceId: number | null = null;
       const queries = queryClient.getQueriesData({
         queryKey: queryKeys.comments.lists(),
@@ -108,12 +180,23 @@ export const useCommentMutations = ({
 
       for (const [, data] of queries) {
         const commentsData = data as any;
-        const comment = commentsData?.comments?.find(
-          (c: Comment) => c.id === commentId,
-        );
-        if (comment) {
-          instanceId = comment.instanceId;
-          break;
+        const findComment = (comments: any[]): any => {
+          for (const c of comments) {
+            if (c.id === commentId) return c;
+            if (c.replies?.length) {
+              const found = findComment(c.replies);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+
+        if (commentsData?.comments) {
+          const found = findComment(commentsData.comments);
+          if (found) {
+            instanceId = found.instanceId;
+            break;
+          }
         }
       }
 
@@ -123,9 +206,21 @@ export const useCommentMutations = ({
         queryKey: queryKeys.comments.list(instanceId),
       });
 
-      const previousComments = queryClient.getQueryData(
+      const previousData = queryClient.getQueryData(
         queryKeys.comments.list(instanceId),
       );
+
+      const updateCommentInTree = (comments: any[]): any[] => {
+        return comments.map((c) => {
+          if (c.id === commentId) {
+            return { ...c, content, updatedAt: new Date().toISOString() };
+          }
+          if (c.replies?.length) {
+            return { ...c, replies: updateCommentInTree(c.replies) };
+          }
+          return c;
+        });
+      };
 
       queryClient.setQueryData(
         queryKeys.comments.list(instanceId),
@@ -133,16 +228,12 @@ export const useCommentMutations = ({
           if (!old) return old;
           return {
             ...old,
-            comments: old.comments.map((c: Comment) =>
-              c.id === commentId
-                ? { ...c, content, updatedAt: new Date().toISOString() }
-                : c,
-            ),
+            comments: updateCommentInTree(old.comments || []),
           };
         },
       );
 
-      return { previousComments, instanceId };
+      return { previousData, instanceId };
     },
 
     onSuccess: (updatedComment) => {
@@ -157,10 +248,10 @@ export const useCommentMutations = ({
     },
 
     onError: (err, _variables, context: any) => {
-      if (context?.previousComments && context?.instanceId) {
+      if (context?.previousData && context?.instanceId) {
         queryClient.setQueryData(
           queryKeys.comments.list(context.instanceId),
-          context.previousComments,
+          context.previousData,
         );
       }
       onError?.(err);
@@ -171,7 +262,6 @@ export const useCommentMutations = ({
     mutationFn: (commentId: number) => commentsApi.deleteComment(commentId),
 
     onMutate: async (commentId) => {
-      // Find which instance this comment belongs to
       let instanceId: number | null = null;
       const queries = queryClient.getQueriesData({
         queryKey: queryKeys.comments.lists(),
@@ -179,12 +269,23 @@ export const useCommentMutations = ({
 
       for (const [, data] of queries) {
         const commentsData = data as any;
-        const comment = commentsData?.comments?.find(
-          (c: Comment) => c.id === commentId,
-        );
-        if (comment) {
-          instanceId = comment.instanceId;
-          break;
+        const findComment = (comments: any[]): any => {
+          for (const c of comments) {
+            if (c.id === commentId) return c;
+            if (c.replies?.length) {
+              const found = findComment(c.replies);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+
+        if (commentsData?.comments) {
+          const found = findComment(commentsData.comments);
+          if (found) {
+            instanceId = found.instanceId;
+            break;
+          }
         }
       }
 
@@ -194,9 +295,18 @@ export const useCommentMutations = ({
         queryKey: queryKeys.comments.list(instanceId),
       });
 
-      const previousComments = queryClient.getQueryData(
+      const previousData = queryClient.getQueryData(
         queryKeys.comments.list(instanceId),
       );
+
+      const deleteCommentFromTree = (comments: any[]): any[] => {
+        return comments
+          .filter((c) => c.id !== commentId)
+          .map((c) => ({
+            ...c,
+            replies: c.replies?.length ? deleteCommentFromTree(c.replies) : [],
+          }));
+      };
 
       queryClient.setQueryData(
         queryKeys.comments.list(instanceId),
@@ -204,13 +314,13 @@ export const useCommentMutations = ({
           if (!old) return old;
           return {
             ...old,
-            comments: old.comments.filter((c: Comment) => c.id !== commentId),
+            comments: deleteCommentFromTree(old.comments || []),
             total: (old.total || 0) - 1,
           };
         },
       );
 
-      return { previousComments, instanceId };
+      return { previousData, instanceId };
     },
 
     onSuccess: (_, commentId) => {
@@ -224,10 +334,10 @@ export const useCommentMutations = ({
     },
 
     onError: (err, _commentId, context: any) => {
-      if (context?.previousComments && context?.instanceId) {
+      if (context?.previousData && context?.instanceId) {
         queryClient.setQueryData(
           queryKeys.comments.list(context.instanceId),
-          context.previousComments,
+          context.previousData,
         );
       }
       onError?.(err);

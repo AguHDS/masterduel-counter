@@ -138,7 +138,7 @@ model ArchetypeInstance {
 
 model Comment {
   id          Int       @id @default(autoincrement())
-  content     String    // SQLite no soporta @db.Text, usa String por defecto
+  content     String
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   
@@ -148,8 +148,14 @@ model Comment {
   authorId    String    @map("author_id")
   author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
+  // Self-relation for replies
+  parentCommentId Int?   @map("parent_comment_id")
+  parentComment   Comment? @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies         Comment[] @relation("CommentReplies")
+
   @@index([instanceId])
   @@index([authorId])
+  @@index([parentCommentId])
   @@index([createdAt])
   @@map("comments")
 }
