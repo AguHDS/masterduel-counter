@@ -29,6 +29,14 @@ const adminKeys = {
   },
 } as const;
 
+const commentKeys = {
+  all: ["comments"] as const,
+  lists: () => [...commentKeys.all, "list"] as const,
+  list: (instanceId: number) =>
+    [...commentKeys.lists(), { instanceId }] as const,
+  detail: (id: number) => [...commentKeys.all, "detail", id] as const,
+} as const;
+
 export const queryKeys = {
   auth: {
     all: ["auth"] as const,
@@ -50,6 +58,7 @@ export const queryKeys = {
     search: (query: string) => ["cards", "search", query] as const,
   },
 
-  // Admin queries (using the predefined object)
+  comments: commentKeys,
+
   admin: adminKeys,
 } as const;
