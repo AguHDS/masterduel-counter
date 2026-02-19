@@ -1,6 +1,6 @@
 import React from "react";
 import { MessageCircle } from "lucide-react";
-import { useComments, useCommentMutations } from "../hooks/useCommentsQueries";
+import { useComments } from "../hooks/useCommentsQueries";
 import { CommentItem } from "./CommentItem";
 import { CommentForm } from "./CommentForm";
 import type { CommentsSectionProps } from "../types/commentsTypes";
@@ -19,17 +19,8 @@ export const CommentSection: React.FC<CommentsSectionProps> = ({
     enabled: !!instanceId,
   });
 
-  const { createComment } = useCommentMutations();
-
   const comments = data?.comments || [];
   const totalComments = data?.total || 0;
-
-  const handleCreateComment = async (content: string) => {
-    await createComment.mutateAsync({
-      instanceId,
-      content,
-    });
-  };
 
   if (isLoading) {
     return (
@@ -37,9 +28,7 @@ export const CommentSection: React.FC<CommentsSectionProps> = ({
         className={`bg-gradient-to-br from-gray-900/50 via-purple-900/20 to-blue-900/30 backdrop-blur-sm rounded-xl border border-blue-800/30 p-6 ${className}`}
       >
         <div className="flex items-center justify-center py-8">
-          <div className="text-blue-300 animate-pulse">
-            Loading comments...
-          </div>
+          <div className="text-blue-300 animate-pulse">Loading comments...</div>
         </div>
       </div>
     );
@@ -59,7 +48,7 @@ export const CommentSection: React.FC<CommentsSectionProps> = ({
 
   return (
     <div
-      className={`bg-gradient-to-br from-gray-900/50 via-purple-900/20 to-blue-900/30 backdrop-blur-sm rounded-xl border border-blue-800/30 overflow-hidden ${className}`}
+      className={`bg-gradient-to-br from-gray-900/50 via-purple-900/30 to-blue-900/10 backdrop-blur-xs rounded-xl overflow-hidden ${className}`}
     >
       {showTitle && (
         <div className="border-b border-blue-800/30 px-6 py-4">
@@ -67,7 +56,7 @@ export const CommentSection: React.FC<CommentsSectionProps> = ({
             <MessageCircle className="w-5 h-5 text-blue-400" />
             {title}
             {totalComments > 0 && (
-              <span className="text-sm text-blue-300 ml-2">
+              <span className="text-sm text-blue-300">
                 ({totalComments} comment{totalComments !== 1 ? "s" : ""})
               </span>
             )}
@@ -79,7 +68,7 @@ export const CommentSection: React.FC<CommentsSectionProps> = ({
         <CommentForm
           instanceId={instanceId}
           onSuccess={() => {}}
-          placeholder="Write a comment..."
+          placeholder="Write a comment... (Max. 2500 characters)"
         />
 
         {comments.length > 0 ? (

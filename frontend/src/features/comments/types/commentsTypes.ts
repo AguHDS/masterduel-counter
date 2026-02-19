@@ -1,4 +1,4 @@
-import type { Comment as ApiComment } from "@/lib/http/commentsApi";
+import type { Comment as ApiComment } from "../api/commentsApi";
 
 export type Comment = ApiComment;
 
@@ -12,7 +12,6 @@ export interface CommentsSectionProps {
 
 export interface CommentItemProps {
   comment: Comment;
-  onEdit?: (commentId: number, content: string) => void;
   onDelete?: (commentId: number) => void;
   currentUserId?: string;
   isInstanceOwner?: boolean;

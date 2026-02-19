@@ -178,7 +178,6 @@ export const InstanceEditorPage = () => {
             />
           </div>
         )}
-
         <Footer />
       </div>
 

@@ -28,6 +28,7 @@ import {
   createGetGuideByIdRoute,
   admin,
   report,
+  comments,
 } from "./routes/index";
 import auth from "./routes/auth/auth";
 import getInstanceCardPairs from "./routes/guides/getInstanceCardPairs";
@@ -127,6 +128,7 @@ app.use("/api", createOrUpdateGuideRoute(getDependencies()));
 app.use("/api", createGetGuideByIdRoute(getDependencies()));
 app.use("/api", getInstanceCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
+app.use("/api/comments", comments);
 
 // Cards
 app.use("/api/cards/search", searchCards);

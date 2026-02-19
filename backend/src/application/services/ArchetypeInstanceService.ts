@@ -84,6 +84,10 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
       throw new Error("Title must be 100 characters or less");
     }
 
+    if (generalTip && generalTip.length > 3000) {
+      throw new Error("Description can't exceed 3000 characters");
+    }
+
     // Validate card pairs
     if (!cardPairs || cardPairs.length === 0) {
       throw new Error(

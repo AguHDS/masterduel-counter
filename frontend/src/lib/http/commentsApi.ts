@@ -44,7 +44,7 @@ export interface Comment {
   author: CommentAuthor;
 }
 
-interface CommentsPaginatedResponse {
+export interface CommentsPaginatedResponse {
   comments: Comment[];
   total: number;
   page: number;
@@ -100,7 +100,7 @@ export const commentsApi = {
     );
     return response.data.data.comment;
   },
-
+  
   /**
    * Delete an existing comment
    */

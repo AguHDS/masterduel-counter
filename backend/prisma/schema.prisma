@@ -27,6 +27,7 @@ model User {
   profile      Profile?
   reportsCreated Report[] @relation("ReporterUser")
   reportsReceived Report[] @relation("ReportedUser")
+  comments     Comment[]
 
   banned     Boolean?  @default(false)
   banReason  String?   @map("ban_reason")
@@ -128,10 +129,29 @@ model ArchetypeInstance {
   reports          Report[]
   likeRecords      InstanceLike[]
   recommendedDeck  RecommendedDeck?
+  comments         Comment[]
 
   @@index([userId])
   @@index([archetypeId])
   @@map("archetype_instances")
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  content     String    // SQLite no soporta @db.Text, usa String por defecto
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  instanceId  Int       @map("instance_id")
+  instance    ArchetypeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  
+  authorId    String    @map("author_id")
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([instanceId])
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("comments")
 }
 
 // Card storage with Cloudinary integration

@@ -41,6 +41,10 @@ import { ReportServiceImpl } from "@/application/services/ReportService";
 import { ReportService as ReportServicePort } from "@/application/ports/ReportService";
 import { ReportRepository } from "@/domain/ports/ReportRepository";
 import { SqliteReportRepository } from "@/infrastructure/repositories/SqliteReportRepository";
+import { CommentRepository } from "@/domain/ports/CommentRepository";
+import { CommentServicePort } from "@/application/ports/CommentService";
+import { SqliteCommentRepository } from "@/infrastructure/repositories/SqliteCommentRepository";
+import { CommentServiceImpl } from "@/application/services/CommentService";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -66,6 +70,8 @@ export class Dependencies {
   private adminRepository: AdminRepository | null = null;
   private reportService: ReportServicePort | null = null;
   private reportRepository: ReportRepository | null = null;
+  private commentRepository: CommentRepository | null = null;
+  private commentService: CommentServicePort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -249,6 +255,20 @@ export class Dependencies {
       );
     }
     return this.reportService;
+  }
+
+  getCommentRepository(): CommentRepository {
+    if (!this.commentRepository) {
+      this.commentRepository = new SqliteCommentRepository(this.prisma);
+    }
+    return this.commentRepository;
+  }
+
+  getCommentService(): CommentServicePort {
+    if (!this.commentService) {
+      this.commentService = new CommentServiceImpl(this.getCommentRepository());
+    }
+    return this.commentService;
   }
 
   getDatabase(): DatabasePort {
