@@ -14,6 +14,7 @@ export interface CommentWithAuthor extends Comment {
     name: string;
     email: string;
     image: string | null;
+    profilePictureUrl: string | null;
   };
   replies?: CommentWithAuthor[];
   replyCount?: number;

@@ -33,6 +33,7 @@ interface CommentAuthor {
   name: string;
   email: string;
   image?: string | null;
+  profilePictureUrl?: string | null;
 }
 
 export interface Comment {

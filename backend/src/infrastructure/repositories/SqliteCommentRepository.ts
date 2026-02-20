@@ -48,6 +48,11 @@ export class SqliteCommentRepository implements CommentRepository {
             name: true,
             email: true,
             image: true,
+            profile: {
+              select: {
+                profilePictureUrl: true,
+              },
+            },
           },
         },
       },
@@ -71,6 +76,7 @@ export class SqliteCommentRepository implements CommentRepository {
           name: comment.author.name,
           email: comment.author.email,
           image: comment.author.image,
+          profilePictureUrl: comment.author.profile?.profilePictureUrl || null,
         },
         replies: [],
         replyCount: 0,
@@ -188,4 +194,3 @@ export class SqliteCommentRepository implements CommentRepository {
     };
   }
 }
-//no funcionan las replies
