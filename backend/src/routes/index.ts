@@ -16,6 +16,8 @@ import { createGetArchetypeGuidesRoute } from "./guides/getArchetypeGuides";
 import { createGetUserGuidesRoute } from "./profile/getUserGuides";
 import { createOrUpdateGuideRoute } from "./guides/createOrUpdateGuide";
 import { createGetGuideByIdRoute } from "./guides/getGuideById";
+import { createSearchArchetypeGuidesRoute } from "./guides/searchArchetypeGuides";
+import { createSearchUserGuidesRoute } from "./profile/searchUserGuides";
 
 export {
   searchArchetype,
@@ -36,4 +38,6 @@ export {
   createGetUserGuidesRoute,
   createOrUpdateGuideRoute,
   createGetGuideByIdRoute,
+  createSearchArchetypeGuidesRoute,
+  createSearchUserGuidesRoute,
 };

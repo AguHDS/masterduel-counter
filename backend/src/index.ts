@@ -26,6 +26,8 @@ import {
   createGetUserGuidesRoute,
   createOrUpdateGuideRoute,
   createGetGuideByIdRoute,
+  createSearchArchetypeGuidesRoute,
+  createSearchUserGuidesRoute,
   admin,
   report,
   comments,
@@ -124,6 +126,8 @@ app.use("/api", guideLikes);
 app.use("/api", recommendedDeck);
 app.use("/api", createGetArchetypeGuidesRoute(getDependencies()));
 app.use("/api", createGetUserGuidesRoute(getDependencies()));
+app.use("/api", createSearchArchetypeGuidesRoute(getDependencies()));
+app.use("/api", createSearchUserGuidesRoute(getDependencies()));
 app.use("/api", createOrUpdateGuideRoute(getDependencies()));
 app.use("/api", createGetGuideByIdRoute(getDependencies()));
 app.use("/api", getInstanceCardPairs);

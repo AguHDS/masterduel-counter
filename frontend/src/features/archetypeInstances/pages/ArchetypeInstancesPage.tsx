@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "@/layouts/Navbar";
@@ -22,17 +22,17 @@ export const ArchetypeInstancesPage = () => {
   const { data: archetypeWithHeaderData, isLoading, error } = useArchetypeWithHeader(archetypeIdNum);
   const { results, loading: searchLoading, error: searchError } = useArchetypeSearch({ searchQuery, debounceDelay: 300, limit: 20 });
 
-  const handleSelectInstance = (instanceId: number) => {
+  const handleSelectInstance = useCallback((instanceId: number) => {
     if (archetypeId) {
       navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
     }
-  };
+  }, [archetypeId, navigate]);
 
-  const handleCreateInstance = () => {
+  const handleCreateInstance = useCallback(() => {
     if (archetypeId) {
       navigate(`/archetype/${archetypeId}/instance/new`);
     }
-  };
+  }, [archetypeId, navigate]);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);

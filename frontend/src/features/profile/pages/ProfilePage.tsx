@@ -10,7 +10,7 @@ import { useProfileEditor } from "../hooks/useProfileEditor";
 import { useSession } from "@/lib/auth-client";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 
 export const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -40,9 +40,9 @@ export const ProfilePage = () => {
     cancelEdit,
   } = useProfileEditor(userId!);
 
-  const handleSelectArchetype = (archetypeId: number, instanceId: number) => {
+  const handleSelectArchetype = useCallback((archetypeId: number, instanceId: number) => {
     navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
-  };
+  }, [navigate]);
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

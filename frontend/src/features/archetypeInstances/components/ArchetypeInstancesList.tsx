@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { Plus } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   instanceApi,
   type ArchetypeInstanceWithDetails,
@@ -8,6 +8,8 @@ import {
 import { useAuth } from "@/features/auth";
 import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTable";
 import { FramedContainer } from "@/layouts/FramedContainer";
+import { GuideSearch } from "@/shared/components/GuideSearch";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 
 interface ArchetypeInstancesListProps {
   archetypeId: number;
@@ -18,7 +20,7 @@ interface ArchetypeInstancesListProps {
 
 const ITEMS_PER_PAGE = 10;
 
-export const ArchetypeInstancesList = ({
+const ArchetypeInstancesListComponent = ({
   archetypeId,
   archetypeName,
   onSelectInstance,
@@ -26,17 +28,31 @@ export const ArchetypeInstancesList = ({
 }: ArchetypeInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [sortBy, setSortBy] = useState<"likes" | "updated">("updated");
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const { isAuthenticated } = useAuth();
+
+  const queryFn = useCallback(async () => {
+    if (debouncedSearchQuery.trim()) {
+      return instanceApi.searchInstancesByArchetypeId(
+        archetypeId,
+        debouncedSearchQuery,
+        sortBy,
+      );
+    }
+    return instanceApi.getInstancesByArchetypeId(archetypeId, sortBy);
+  }, [archetypeId, debouncedSearchQuery, sortBy]);
 
   const {
     data = [],
     isLoading,
     error,
   } = useQuery<ArchetypeInstanceWithDetails[]>({
-    queryKey: ["archetypeInstances", archetypeId, sortBy],
-    queryFn: () => instanceApi.getInstancesByArchetypeId(archetypeId, sortBy),
+    queryKey: ["archetypeInstances", archetypeId, sortBy, debouncedSearchQuery],
+    queryFn,
     enabled: Number.isFinite(archetypeId),
-    staleTime: 0,
+    staleTime: 5000, // 5 seconds - balance between freshness and performance
+    placeholderData: keepPreviousData, // Keep previous data while fetching to avoid blink/unmount
   });
 
   const hasInstances = data.length > 0;
@@ -67,15 +83,25 @@ export const ArchetypeInstancesList = ({
               {archetypeName}
             </h1>
 
-            {canCreateInstance && (
-              <button
-                onClick={onCreateInstance}
-                className="flex relative top-[7px] px-2 py-1 items-center bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Create</span>
-              </button>
-            )}
+            <div className="flex items-center gap-3 relative top-[7px]">
+              <div className="w-56">
+                <GuideSearch
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  placeholder="Search guides..."
+                />
+              </div>
+
+              {canCreateInstance && (
+                <button
+                  onClick={onCreateInstance}
+                  className="flex px-2 py-1 items-center bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm whitespace-nowrap"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Create</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <div
@@ -88,9 +114,11 @@ export const ArchetypeInstancesList = ({
 
           <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
             <div className="text-blue-300 text-lg text-center">
-              No guides created yet for {archetypeName}
+              {debouncedSearchQuery.trim()
+                ? `No guides found matching "${debouncedSearchQuery}"`
+                : `No guides created yet for ${archetypeName}`}
             </div>
-            {canCreateInstance && (
+            {canCreateInstance && !debouncedSearchQuery.trim() && (
               <button
                 onClick={onCreateInstance}
                 className="flex items-center space-x-1 px-2 py-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors shadow-lg"
@@ -108,8 +136,8 @@ export const ArchetypeInstancesList = ({
   return (
     <div className="flex flex-col items-start p-4 w-full">
       <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
-        <div className="flex items-center w-full justify-between">
-          <div className="flex mt-3 items-center gap-2">
+        <div className="flex items-center w-full justify-between gap-4">
+          <div className="flex mt-3 items-center gap-2 flex-1">
             <h1 className="text-2xl font-bold font-sans flex items-center">
               <span className="text-white max-[767px]:ml-2 mr-2">
                 How to counter
@@ -127,24 +155,26 @@ export const ArchetypeInstancesList = ({
             </span>
           </div>
 
-          {canCreateInstance && (
-            <button
-              onClick={onCreateInstance}
-              className="flex relative top-[7px] px-2 py-1 items-center bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded transition-colors shadow text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create</span>
-            </button>
-          )}
-        </div>
+          <div className="flex items-center gap-3 relative top-[7px]">
+            <div className="w-56">
+              <GuideSearch
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                placeholder="Search guides..."
+              />
+            </div>
 
-        <div
-          className="w-full h-[2px]"
-          style={{
-            background:
-              "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
-          }}
-        />
+            {canCreateInstance && (
+              <button
+                onClick={onCreateInstance}
+                className="flex px-2 py-1 items-center bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded transition-colors shadow text-sm whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create</span>
+              </button>
+            )}
+          </div>
+        </div>
 
         <InstancesTable
           instances={data}
@@ -160,3 +190,5 @@ export const ArchetypeInstancesList = ({
     </div>
   );
 };
+
+export const ArchetypeInstancesList = memo(ArchetypeInstancesListComponent);

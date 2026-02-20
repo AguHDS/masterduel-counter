@@ -5,6 +5,7 @@ import type {
   CreateCommentRequest,
   UpdateCommentRequest,
   Comment,
+  CommentsPaginatedResponse,
 } from "../api/commentsApi";
 
 interface UseCommentsParams {
@@ -19,8 +20,8 @@ interface UseCommentMutationsParams {
 
 // Helper to organize comments into a tree structure
 const buildCommentTree = (comments: Comment[]): Comment[] => {
-  const commentMap = new Map<number, any>();
-  const rootComments: any[] = [];
+  const commentMap = new Map<number, Comment & { replies: Comment[] }>();
+  const rootComments: Comment[] = [];
 
   // First pass: create map of all comments
   comments.forEach((comment) => {
@@ -33,6 +34,9 @@ const buildCommentTree = (comments: Comment[]): Comment[] => {
   // Second pass: organize into tree
   comments.forEach((comment) => {
     const commentWithReplies = commentMap.get(comment.id);
+
+    if (!commentWithReplies) return;
+
     if (comment.parentCommentId) {
       const parent = commentMap.get(comment.parentCommentId);
       if (parent) {
@@ -107,11 +111,11 @@ export const useCommentMutations = ({
 
       queryClient.setQueryData(
         queryKeys.comments.list(newComment.instanceId),
-        (old: any) => {
+        (old: CommentsPaginatedResponse | undefined) => {
           if (!old) return old;
 
           const tempId = Date.now();
-          const optimisticComment = {
+          const optimisticComment: Comment = {
             id: tempId,
             content: newComment.content,
             createdAt: new Date().toISOString(),
@@ -130,7 +134,7 @@ export const useCommentMutations = ({
 
           // If it's a reply, add it to the parent's replies
           if (newComment.parentCommentId) {
-            const updateCommentTree = (comments: any[]): any[] => {
+            const updateCommentTree = (comments: Comment[]): Comment[] => {
               return comments.map((c) => {
                 if (c.id === newComment.parentCommentId) {
                   return {
@@ -196,8 +200,8 @@ export const useCommentMutations = ({
       });
 
       for (const [, data] of queries) {
-        const commentsData = data as any;
-        const findComment = (comments: any[]): any => {
+        const commentsData = data as CommentsPaginatedResponse | undefined;
+        const findComment = (comments: Comment[]): Comment | null => {
           for (const c of comments) {
             if (c.id === commentId) return c;
             if (c.replies?.length) {
@@ -217,17 +221,18 @@ export const useCommentMutations = ({
         }
       }
 
-      if (!instanceId) return {};
+      if (!instanceId)
+        return { previousData: undefined, instanceId: undefined };
 
       await queryClient.cancelQueries({
         queryKey: queryKeys.comments.list(instanceId),
       });
 
-      const previousData = queryClient.getQueryData(
+      const previousData = queryClient.getQueryData<CommentsPaginatedResponse>(
         queryKeys.comments.list(instanceId),
       );
 
-      const updateCommentInTree = (comments: any[]): any[] => {
+      const updateCommentInTree = (comments: Comment[]): Comment[] => {
         return comments.map((c) => {
           if (c.id === commentId) {
             return { ...c, content, updatedAt: new Date().toISOString() };
@@ -241,7 +246,7 @@ export const useCommentMutations = ({
 
       queryClient.setQueryData(
         queryKeys.comments.list(instanceId),
-        (old: any) => {
+        (old: CommentsPaginatedResponse | undefined) => {
           if (!old) return old;
           return {
             ...old,
@@ -264,7 +269,7 @@ export const useCommentMutations = ({
       onSuccess?.();
     },
 
-    onError: (err, _variables, context: any) => {
+    onError: (err, _variables, context) => {
       if (context?.previousData && context?.instanceId) {
         queryClient.setQueryData(
           queryKeys.comments.list(context.instanceId),
@@ -285,8 +290,8 @@ export const useCommentMutations = ({
       });
 
       for (const [, data] of queries) {
-        const commentsData = data as any;
-        const findComment = (comments: any[]): any => {
+        const commentsData = data as CommentsPaginatedResponse | undefined;
+        const findComment = (comments: Comment[]): Comment | null => {
           for (const c of comments) {
             if (c.id === commentId) return c;
             if (c.replies?.length) {
@@ -306,17 +311,18 @@ export const useCommentMutations = ({
         }
       }
 
-      if (!instanceId) return {};
+      if (!instanceId)
+        return { previousData: undefined, instanceId: undefined };
 
       await queryClient.cancelQueries({
         queryKey: queryKeys.comments.list(instanceId),
       });
 
-      const previousData = queryClient.getQueryData(
+      const previousData = queryClient.getQueryData<CommentsPaginatedResponse>(
         queryKeys.comments.list(instanceId),
       );
 
-      const deleteCommentFromTree = (comments: any[]): any[] => {
+      const deleteCommentFromTree = (comments: Comment[]): Comment[] => {
         return comments
           .filter((c) => c.id !== commentId)
           .map((c) => ({
@@ -327,7 +333,7 @@ export const useCommentMutations = ({
 
       queryClient.setQueryData(
         queryKeys.comments.list(instanceId),
-        (old: any) => {
+        (old: CommentsPaginatedResponse | undefined) => {
           if (!old) return old;
           return {
             ...old,
@@ -350,7 +356,7 @@ export const useCommentMutations = ({
       onSuccess?.();
     },
 
-    onError: (err, _commentId, context: any) => {
+    onError: (err, _commentId, context) => {
       if (context?.previousData && context?.instanceId) {
         queryClient.setQueryData(
           queryKeys.comments.list(context.instanceId),

@@ -21,6 +21,12 @@ export interface ArchetypeInstanceServicePort {
   /** Get all archetype instances created by a specific user (for user profile) */
   getInstancesByUserId(userId: string, sortBy?: 'likes' | 'updated'): Promise<ArchetypeInstanceWithDetails[]>;
   
+  /** Search instances by archetype ID and title */
+  searchInstancesByArchetypeIdAndTitle(archetypeId: number, title: string, sortBy?: 'likes' | 'updated'): Promise<ArchetypeInstanceWithDetails[]>;
+  
+  /** Search instances by user ID and title */
+  searchInstancesByUserIdAndTitle(userId: string, title: string, sortBy?: 'likes' | 'updated'): Promise<ArchetypeInstanceWithDetails[]>;
+  
   /** Updates an existing instance (title, headerCard, generalTip) */
   updateInstance(id: number, userId: string, data: ArchetypeInstanceUpdateDTO): Promise<ArchetypeInstance>;
 

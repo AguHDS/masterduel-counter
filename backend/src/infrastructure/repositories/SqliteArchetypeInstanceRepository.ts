@@ -193,6 +193,126 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     }));
   }
 
+  async searchInstancesByArchetypeIdAndTitle(
+    archetypeId: number,
+    title: string,
+    sortBy: "likes" | "updated" = "updated",
+  ): Promise<ArchetypeInstanceWithDetails[]> {
+    const orderClause =
+      sortBy === "likes"
+        ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
+        : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+
+    const stmt = this.db.prepare(`
+      SELECT 
+        ai.*,
+        a.name as archetype_name,
+        u.namedb as user_name,
+        c.name as header_card_name,
+        c.image_url_cropped as header_card_image_url
+      FROM archetype_instances ai
+      JOIN archetypes a ON ai.archetype_id = a.id
+      JOIN users u ON ai.user_id = u.id
+      LEFT JOIN cards c ON ai.header_card_id = c.id
+      WHERE ai.archetype_id = ? AND ai.title LIKE ?
+      ${orderClause}
+    `);
+
+    interface InstanceRow {
+      id: number;
+      archetype_id: number;
+      user_id: string;
+      title: string;
+      header_card_id: number | null;
+      general_tip: string | null;
+      likes: number;
+      created_at: string;
+      updated_at: string;
+      archetype_name: string;
+      user_name: string;
+      header_card_name: string | null;
+      header_card_image_url: string | null;
+    }
+
+    const rows = stmt.all(archetypeId, `%${title}%`) as InstanceRow[];
+
+    return rows.map((row) => ({
+      id: row.id,
+      archetypeId: row.archetype_id,
+      userId: row.user_id,
+      title: row.title,
+      headerCardId: row.header_card_id,
+      generalTip: row.general_tip,
+      likes: row.likes,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at),
+      archetypeName: row.archetype_name,
+      userName: row.user_name,
+      headerCardName: row.header_card_name ?? undefined,
+      headerCardImageUrl: row.header_card_image_url ?? undefined,
+    }));
+  }
+
+  async searchInstancesByUserIdAndTitle(
+    userId: string,
+    title: string,
+    sortBy: "likes" | "updated" = "updated",
+  ): Promise<ArchetypeInstanceWithDetails[]> {
+    const orderClause =
+      sortBy === "likes"
+        ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
+        : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+
+    const stmt = this.db.prepare(`
+      SELECT 
+        ai.*,
+        a.name as archetype_name,
+        u.namedb as user_name,
+        c.name as header_card_name,
+        c.image_url_cropped as header_card_image_url
+      FROM archetype_instances ai
+      JOIN archetypes a ON ai.archetype_id = a.id
+      JOIN users u ON ai.user_id = u.id
+      LEFT JOIN cards c ON ai.header_card_id = c.id
+      WHERE ai.user_id = ? AND ai.title LIKE ?
+      ${orderClause}
+    `);
+
+    interface InstanceRow {
+      id: number;
+      archetype_id: number;
+      user_id: string;
+      title: string;
+      header_card_id: number | null;
+      general_tip: string | null;
+      likes: number;
+      created_at: string;
+      updated_at: string;
+      archetype_name: string;
+      user_name: string;
+      header_card_name: string | null;
+      header_card_image_url: string | null;
+    }
+
+    const rows = stmt.all(userId, `%${title}%`) as InstanceRow[];
+
+    return rows.map((row) => ({
+      id: row.id,
+      archetypeId: row.archetype_id,
+      userId: row.user_id,
+      title: row.title,
+      headerCardId: row.header_card_id,
+      generalTip: row.general_tip,
+      likes: row.likes,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at),
+      archetypeName: row.archetype_name,
+      userName: row.user_name,
+      headerCardName: row.header_card_name ?? undefined,
+      headerCardImageUrl: row.header_card_image_url ?? undefined,
+    }));
+  }
+
   async findArchetypeInstanceByArchetypeAndUserId(
     archetypeId: number,
     userId: string,
