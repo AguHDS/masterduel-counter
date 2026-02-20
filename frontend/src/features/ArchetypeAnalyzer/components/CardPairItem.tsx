@@ -307,7 +307,7 @@ export const CardPairItem = ({
             <div className="w-full flex flex-col items-center space-y-1">
               <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Comment</span>
               <div 
-                className="text-center px-3 py-2 text-slate-300 text-sm w-[300px]"
+                className="text-center px-3 py-2 text-slate-300 text-sm w-[300px] scrollbar-cardpair"
                 style={{
                   maxHeight: '120px',
                   overflowY: 'auto',
@@ -315,8 +315,6 @@ export const CardPairItem = ({
                   wordBreak: 'break-word',
                   whiteSpace: 'pre-wrap',
                   lineHeight: '1.4em',
-                  scrollbarWidth: 'thin',
-                  scrollbarColor: '#1e293b #0f172a'
                 }}
               >
                 {renderCommentWithLineBreaks(comment || "No comment")}

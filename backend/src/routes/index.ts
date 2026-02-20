@@ -11,6 +11,7 @@ import recommendedDeck from "./guides/recommendedDeck";
 import getCardDetails from "./cards/getCardDetails";
 import admin from "./admin";
 import report from "./report";
+import comments from "./comments/comments";
 import { createGetArchetypeGuidesRoute } from "./guides/getArchetypeGuides";
 import { createGetUserGuidesRoute } from "./profile/getUserGuides";
 import { createOrUpdateGuideRoute } from "./guides/createOrUpdateGuide";
@@ -30,6 +31,7 @@ export {
   getCardDetails,
   admin,
   report,
+  comments,
   createGetArchetypeGuidesRoute,
   createGetUserGuidesRoute,
   createOrUpdateGuideRoute,

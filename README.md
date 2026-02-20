@@ -5,8 +5,10 @@ This app is meant to help players so they when and why use each handtrap/card ag
 #### Features
 - Create and share your own counter-guide
 - Search for archetypes and see the best handtraps/cards to use against them
-- Instances table (ordered by date or likes)
-- Edit your profile
+- Guides table (ordered by date or likes)
+- Profiles
+- Comments
+- Report system
 - Admin panel (only for admins)
 
 #### Preview

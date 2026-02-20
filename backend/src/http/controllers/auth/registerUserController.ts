@@ -62,8 +62,6 @@ export const registerUserController = async (req: Request, res: Response) => {
     return;
   }
 
-  console.log(`Registering user: ${user} with email: ${email}`);
-
   try {
     // Register user without auto-login (user must explicitly login after registration)
     const result = await registerUserUseCase.execute(user, email, password);

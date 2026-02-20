@@ -46,5 +46,10 @@ declare module "express" {
       instanceId: number;
       userId: UserId;
     };
+
+    validatedCommentData?: {
+      commentId: number;
+      content?: string;
+    };
   }
 }

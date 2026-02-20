@@ -13,10 +13,12 @@ import { FeatureErrorBoundary } from "@/shared/components";
 import { GuideModalHelp } from "../components/GuideModalHelp";
 import type { Archetype } from "../api/archetypeApi";
 import { MainLogo } from "@/shared/components/MainLogo";
+import { CommentSection } from "@/features/comments";
 
 export const InstanceEditorPage = () => {
-  const { archetypeId } = useParams<{
+  const { archetypeId, instanceId } = useParams<{
     archetypeId: string;
+    instanceId: string;
   }>();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,6 +27,8 @@ export const InstanceEditorPage = () => {
   const [isGuideHelpOpen, setIsGuideHelpOpen] = useState(false);
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
+  const instanceIdNum = instanceId ? parseInt(instanceId) : undefined;
+
   const {
     data: archetypeWithHeaderData,
     isLoading,
@@ -164,6 +168,16 @@ export const InstanceEditorPage = () => {
             <ArchetypeAnalyzerContainer onEditModeChange={setIsEditMode} />
           </FeatureErrorBoundary>
         </main>
+
+        {instanceIdNum && (
+          <div className="max-w-[84rem] mx-auto px-4 sm:px-14 lg:px-16 w-full mb-12">
+            <CommentSection
+              instanceId={instanceIdNum}
+              title={"Comments"}
+              maxHeight="600px"
+            />
+          </div>
+        )}
         <Footer />
       </div>
 

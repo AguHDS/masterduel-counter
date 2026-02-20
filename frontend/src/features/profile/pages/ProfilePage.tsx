@@ -169,14 +169,19 @@ export const ProfilePage = () => {
                             </h1>
 
                             {isOwner && !isEditMode && (
-                              <button
-                                onClick={() =>
-                                  toggleEditMode(profile?.bio || "")
-                                }
-                                className="text-blue-400 hover:text-blue-300 font-medium transition-colors text-sm ml-4 flex-shrink-0"
-                              >
-                                Edit Profile
-                              </button>
+                              <div>
+                                <button
+                                  onClick={() =>
+                                    toggleEditMode(profile?.bio || "")
+                                  }
+                                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors text-sm ml-4 flex-shrink-0"
+                                >
+                                  Edit Profile
+                                </button>
+                                <button className="text-blue-400 hover:text-blue-300 font-medium transition-colors text-sm ml-4 flex-shrink-0">
+                                  Settings
+                                </button>
+                              </div>
                             )}
 
                             {isOwner && isEditMode && (

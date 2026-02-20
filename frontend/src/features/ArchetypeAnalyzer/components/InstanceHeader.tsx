@@ -93,8 +93,8 @@ export const InstanceHeader = ({
             <textarea
               value={generalTip}
               onChange={(e) => onGeneralTipChange(e.target.value)}
-              maxLength={5000}
-              placeholder="Add optional description for this guide (Max. 5000 characters)..."
+              maxLength={3000}
+              placeholder="Add optional description for this guide (Max. 3000 characters)"
               className="w-full px-4 py-3 bg-slate-800/40 text-white text-base rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 resize-none shadow-sm min-h-[120px]"
               rows={5}
               style={{ 

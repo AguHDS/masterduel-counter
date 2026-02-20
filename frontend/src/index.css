@@ -2,10 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-
 body {
-  background: url('./assets/Purple_Galaxy_Background.webp') no-repeat center center fixed;
+  background: url("./assets/Purple_Galaxy_Background.webp") no-repeat center
+    center fixed;
   background-size: cover;
+}
+
+.scrollbar-comments {
+  scrollbar-width: thin;
+  scrollbar-color: #4a3694 #0b0227;
+}
+
+.scrollbar-cardpair {
+  scrollbar-width: thin;
+  scrollbar-color: #372b62 #190d39;
 }
 
 .search-dropdown {
@@ -30,25 +40,4 @@ body {
 
 .search-dropdown::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #7f6cff 0%, #4735cb 100%);
-}
-
-@layer utilities {
-  /* Custom scrollbar styles */
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .scrollbar-thumb-blue-800::-webkit-scrollbar-thumb {
-    background-color: #1e40af;
-    border-radius: 3px;
-  }
-
-  .scrollbar-thumb-blue-800::-webkit-scrollbar-thumb:hover {
-    background-color: #1e3a8a;
-  }
-
-  .scrollbar-track-slate-700::-webkit-scrollbar-track {
-    background-color: #334155;
-    border-radius: 3px;
-  }
 }
