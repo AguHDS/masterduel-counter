@@ -158,6 +158,24 @@ export const ProfilePage = () => {
                                 )}
                               </div>
                             )}
+
+                            {/* User Stats */}
+                            <div className="mt-4 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-lg p-3 space-y-2">
+                              <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-300">Likes</span>
+                                <span className="text-green-500 font-semibold">{profile?.totalLikes ?? 0}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-300">Total views</span>
+                                <span className="text-gray-500 italic text-xs">not available</span>
+                              </div>
+                              <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-300">Role</span>
+                                <span className={`font-semibold capitalize ${profile?.role === 'admin' ? 'text-yellow-400' : 'text-blue-400'}`}>
+                                  {profile?.role || 'user'}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
 

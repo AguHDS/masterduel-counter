@@ -10,6 +10,8 @@ export interface Profile {
   bio: string | null;
   profilePictureUrl: string | null;
   cloudinaryPublicId: string | null;
+  role: string;
+  totalLikes: number;
   createdAt: string;
   updatedAt: string;
 }

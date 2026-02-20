@@ -81,7 +81,7 @@
   background: transparent;
   border: none;
   color: white;
-  font-weight: 600;
+  font-weight: 300;
   border-radius: 0.5rem;
   outline: none;
   text-align: center;
@@ -89,6 +89,23 @@
   opacity: 0.85;
   padding: 0 1rem;
   z-index: 3;
+}
+
+/* Ocultar el botón de clear nativo del navegador */
+.searchInput::-webkit-search-decoration,
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-results-button,
+.searchInput::-webkit-search-results-decoration {
+  display: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.searchInput::-ms-clear,
+.searchInput::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .searchInput::placeholder,
@@ -125,7 +142,7 @@
   font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
   transform: translateY(-50%);
   color: rgba(191, 219, 254, 0.8);
-  font-weight: 600;
+  font-weight: 400;
   transition: color 0.2s;
   background: transparent;
   border: none;
