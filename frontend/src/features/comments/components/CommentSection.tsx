@@ -72,7 +72,10 @@ export const CommentSection: React.FC<CommentsSectionProps> = ({
         />
 
         {comments.length > 0 ? (
-          <div className="mt-6 space-y-4 overflow-y-auto" style={{ maxHeight }}>
+          <div 
+            className="mt-6 space-y-4 overflow-y-auto scrollbar-comments"
+            style={{ maxHeight }}
+          >
             {comments.map((comment) => (
               <CommentItem
                 key={comment.id}

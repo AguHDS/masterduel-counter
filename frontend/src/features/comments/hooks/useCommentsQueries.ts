@@ -61,9 +61,26 @@ export const useComments = ({
         1,
         100,
       );
+
+      // Check if the replies come in the response
+      const hasNestedReplies = response.comments.some(
+        (c) => c.replies && c.replies.length > 0,
+      );
+
+      // If the response already comes with nested replies, we don't need buildCommentTree
+      if (hasNestedReplies) {
+        return {
+          ...response,
+          comments: response.comments, // Ya viene en árbol
+        };
+      }
+
+      // If not, build the tree ourselves
+      const tree = buildCommentTree(response.comments);
+
       return {
         ...response,
-        comments: buildCommentTree(response.comments),
+        comments: tree,
       };
     },
     enabled: enabled && !!instanceId,

@@ -39,89 +39,69 @@ export class SqliteCommentRepository implements CommentRepository {
   ): Promise<CommentsPaginatedResponse> {
     const skip = (page - 1) * limit;
 
-    // First get all root comments (parentCommentId is null)
-    const [rootComments, totalRoot] = await Promise.all([
-      this.prisma.comment.findMany({
-        where: {
-          instanceId,
-          parentCommentId: null,
-        },
-        include: {
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              image: true,
-            },
-          },
-          replies: {
-            include: {
-              author: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  image: true,
-                },
-              },
-              replies: {
-                include: {
-                  author: {
-                    select: {
-                      id: true,
-                      name: true,
-                      email: true,
-                      image: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      this.prisma.comment.count({
-        where: {
-          instanceId,
-          parentCommentId: null,
-        },
-      }),
-    ]);
-
-    // Recursive function to map comments with their replies
-    const mapCommentWithReplies = (comment: any): CommentWithAuthor => ({
-      id: comment.id,
-      content: comment.content,
-      createdAt: comment.createdAt,
-      updatedAt: comment.updatedAt,
-      instanceId: comment.instanceId,
-      authorId: comment.authorId,
-      parentCommentId: comment.parentCommentId,
-      author: {
-        id: comment.author.id,
-        name: comment.author.name,
-        email: comment.author.email,
-        image: comment.author.image,
-      },
-      replies: comment.replies?.map(mapCommentWithReplies),
-      replyCount: comment.replies?.length || 0,
-    });
-
-    const comments = rootComments.map(mapCommentWithReplies);
-    const totalPages = Math.ceil(totalRoot / limit);
-
-    // Get total count of all comments (including replies) for the counter
-    const totalAllComments = await this.prisma.comment.count({
+    const allComments = await this.prisma.comment.findMany({
       where: { instanceId },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
     });
+
+    const commentMap = new Map<number, any>();
+    const rootComments: any[] = [];
+
+    allComments.forEach((comment) => {
+      commentMap.set(comment.id, {
+        id: comment.id,
+        content: comment.content,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        instanceId: comment.instanceId,
+        authorId: comment.authorId,
+        parentCommentId: comment.parentCommentId,
+        author: {
+          id: comment.author.id,
+          name: comment.author.name,
+          email: comment.author.email,
+          image: comment.author.image,
+        },
+        replies: [],
+        replyCount: 0,
+      });
+    });
+
+    allComments.forEach((comment) => {
+      const commentWithReplies = commentMap.get(comment.id);
+      if (comment.parentCommentId) {
+        const parent = commentMap.get(comment.parentCommentId);
+        if (parent) {
+          parent.replies.push(commentWithReplies);
+          parent.replyCount = parent.replies.length;
+        }
+      } else {
+        rootComments.push(commentWithReplies);
+      }
+    });
+
+    rootComments.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+    const paginatedRoots = rootComments.slice(skip, skip + limit);
+    const totalRoots = rootComments.length;
+    const totalPages = Math.ceil(totalRoots / limit);
 
     return {
-      comments,
-      total: totalAllComments,
+      comments: paginatedRoots,
+      total: allComments.length,
       page,
       limit,
       totalPages,
@@ -208,4 +188,4 @@ export class SqliteCommentRepository implements CommentRepository {
     };
   }
 }
- //no funcionan las replies
+//no funcionan las replies

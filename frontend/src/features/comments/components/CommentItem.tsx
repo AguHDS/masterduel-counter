@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Edit2, Trash2, Loader2, MessageSquareReply } from "lucide-react";
+import { Edit2, Trash2, Loader2, MessageSquareReply, ChevronDown, ChevronUp } from "lucide-react";
 import { useCommentMutations } from "../hooks/useCommentsQueries";
 import { CommentForm } from "./CommentForm";
 import type { CommentItemProps } from "../types/commentsTypes";
@@ -42,7 +42,6 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   currentUserId,
   isInstanceOwner = false,
   depth = 0,
-  maxDepth = 5,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
@@ -57,6 +56,11 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   const canModify = currentUserId === comment.authorId || isInstanceOwner;
   const hasReplies = comment.replies && comment.replies.length > 0;
   const replyCount = comment.replies?.length || 0;
+  
+  // Determine if we are in a deep level (more than 3 levels)
+  const isDeepLevel = depth >= 3;
+  // Max visible replies before the scroll
+  const MAX_VISIBLE_REPLIES = 3;
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this comment?")) {
@@ -123,15 +127,15 @@ export const CommentItem: React.FC<CommentItemProps> = ({
       <div
         className={`transition-opacity ${
           isDeleting ? "opacity-50" : ""
-        } ${depth > 0 ? "ml-6 border-l-2 border-blue-900/30 pl-4" : ""}`}
+        } ${depth > 0 ? "relative ml-6 pl-4 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-blue-500 before:shadow-glow-blue" : ""}`}
       >
-        <div className="bg-gradient-to-tr from-gray-800/60 to-gray-900/60 backdrop-blur-xs rounded-lg border border-blue-900/30 p-4 hover:border-blue-700/50 transition-all duration-300">
+        <div className="bg-gradient-to-tr from-gray-800/60 to-gray-900/60 backdrop-blur-xs rounded-lg border border-blue-900/30 p-4 hover:border-blue-700/50 transition-all duration-300 relative z-10">
           <div className="flex items-start gap-3">
             {comment.author.image ? (
               <img
                 src={comment.author.image}
                 alt={comment.author.name}
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/50"
               />
             ) : (
               <AvatarPlaceholder name={comment.author.name} />
@@ -158,11 +162,11 @@ export const CommentItem: React.FC<CommentItemProps> = ({
                   </>
                 )}
 
-                {/* Reply button for non-owners or anyone */}
-                {currentUserId && depth < maxDepth && (
+                {/* Reply button */}
+                {currentUserId && (
                   <button
                     onClick={() => setIsReplying(!isReplying)}
-                    className="rounded-full hover:bg-blue-600/20 text-blue-400 transition-colors"
+                    className="rounded-full hover:bg-blue-600/20 text-blue-400 transition-colors ml-1"
                     title="Reply to comment"
                   >
                     <MessageSquareReply className="w-3.5 h-3.5" />
@@ -220,9 +224,12 @@ export const CommentItem: React.FC<CommentItemProps> = ({
                   onClick={() => setShowReplies(!showReplies)}
                   className="mt-2 text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
                 >
-                  <span className="text-blue-400/60">└─</span>
-                  {showReplies ? "Hide" : "Show"} {replyCount} reply
-                  {replyCount !== 1 ? "s" : ""}
+                  {showReplies ? (
+                    <ChevronUp className="w-3 h-3" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3" />
+                  )}
+                  {showReplies ? "Hide" : "Show"} {replyCount} {replyCount === 1 ? "reply" : "replies"}
                 </button>
               )}
             </div>
@@ -231,18 +238,61 @@ export const CommentItem: React.FC<CommentItemProps> = ({
 
         {/* Replies */}
         {hasReplies && showReplies && (
-          <div className="mt-2 space-y-2">
-            {comment.replies?.map((reply) => (
-              <CommentItem
-                key={reply.id}
-                comment={reply}
-                onDelete={onDelete}
-                currentUserId={currentUserId}
-                isInstanceOwner={isInstanceOwner}
-                depth={depth + 1}
-                maxDepth={maxDepth}
-              />
-            ))}
+          <div className="mt-2">
+            {isDeepLevel ? (
+              <>
+                {/* Show only first replies */}
+                <div className="space-y-2">
+                  {comment.replies?.slice(0, MAX_VISIBLE_REPLIES).map((reply) => (
+                    <CommentItem
+                      key={reply.id}
+                      comment={reply}
+                      onDelete={onDelete}
+                      currentUserId={currentUserId}
+                      isInstanceOwner={isInstanceOwner}
+                      depth={depth + 1}
+                    />
+                  ))}
+                </div>
+                
+                {/* If there are more replies, show "Show more" button and scroll container */}
+                {replyCount > MAX_VISIBLE_REPLIES && (
+                  <div className="mt-2">
+                    <details className="group">
+                      <summary className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer list-none flex items-center gap-1 mb-2">
+                        <ChevronDown className="w-3 h-3 group-open:rotate-180 transition-transform" />
+                        Show {replyCount - MAX_VISIBLE_REPLIES} more {replyCount - MAX_VISIBLE_REPLIES === 1 ? "reply" : "replies"}
+                      </summary>
+                      <div className="max-h-96 overflow-y-auto space-y-2 pr-2">
+                        {comment.replies?.slice(MAX_VISIBLE_REPLIES).map((reply) => (
+                          <CommentItem
+                            key={reply.id}
+                            comment={reply}
+                            onDelete={onDelete}
+                            currentUserId={currentUserId}
+                            isInstanceOwner={isInstanceOwner}
+                            depth={depth + 1}
+                          />
+                        ))}
+                      </div>
+                    </details>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="space-y-2">
+                {comment.replies?.map((reply) => (
+                  <CommentItem
+                    key={reply.id}
+                    comment={reply}
+                    onDelete={onDelete}
+                    currentUserId={currentUserId}
+                    isInstanceOwner={isInstanceOwner}
+                    depth={depth + 1}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

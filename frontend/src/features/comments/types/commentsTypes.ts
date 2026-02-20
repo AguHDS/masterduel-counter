@@ -21,7 +21,6 @@ export interface CommentItemProps {
   currentUserId?: string;
   isInstanceOwner?: boolean;
   depth?: number;
-  maxDepth?: number;
 }
 
 export interface CommentFormProps {

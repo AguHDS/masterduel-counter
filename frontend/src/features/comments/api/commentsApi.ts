@@ -44,6 +44,8 @@ export interface Comment {
   authorId: string;
   author: CommentAuthor;
   parentCommentId?: number | null;
+  replies?: Comment[];
+  replyCount?: number;
 }
 
 export interface CommentsPaginatedResponse {
