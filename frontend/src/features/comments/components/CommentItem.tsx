@@ -89,6 +89,33 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   const formattedDate = formatRelativeTime(comment.createdAt);
   const isEdited = comment.updatedAt !== comment.createdAt;
 
+  // Handle normal click on profile link
+  const handleProfileClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Allow normal behavior for middle click (button 1) or if modifier keys are pressed
+    if (e.button === 1 || e.ctrlKey || e.metaKey || e.shiftKey) {
+      return; // Let the browser handle it naturally
+    }
+    // For normal left clicks, prevent default and navigate programmatically
+    e.preventDefault();
+    window.location.href = `/profile/${comment.author.id}`;
+  };
+
+  // Prevent scroll on middle mouse down
+  const handleMouseDown = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Middle click (button 1) typically triggers scroll - prevent it
+    if (e.button === 1) {
+      e.preventDefault();
+    }
+  };
+
+  // Handle middle click specifically if needed
+  const handleAuxClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.button === 1) {
+      e.preventDefault();
+      window.open(`/profile/${comment.author.id}`, '_blank');
+    }
+  };
+
   if (isEditing) {
     return (
       <div className={`${depth > 0 ? "mt-3" : "mb-4"}`}>
@@ -100,6 +127,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               rel="noopener noreferrer"
               className="flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
               title={`View ${comment.author.name}'s profile`}
+              onClick={handleProfileClick}
+              onMouseDown={handleMouseDown}
+              onAuxClick={handleAuxClick}
             >
               {avatarUrl ? (
                 <img
@@ -118,6 +148,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-white hover:text-blue-400 transition-colors focus:outline-none focus:underline"
+                  onClick={handleProfileClick}
+                  onMouseDown={handleMouseDown}
+                  onAuxClick={handleAuxClick}
                 >
                   {comment.author.name}
                 </a>
@@ -182,6 +215,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               rel="noopener noreferrer"
               className="flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
               title={`View ${comment.author.name}'s profile`}
+              onClick={handleProfileClick}
+              onMouseDown={handleMouseDown}
+              onAuxClick={handleAuxClick}
             >
               {avatarUrl ? (
                 <img
@@ -201,6 +237,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-white hover:text-blue-400 transition-colors focus:outline-none focus:underline"
+                  onClick={handleProfileClick}
+                  onMouseDown={handleMouseDown}
+                  onAuxClick={handleAuxClick}
                 >
                   {comment.author.name}
                 </a>
