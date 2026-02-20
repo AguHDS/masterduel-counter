@@ -1,10 +1,10 @@
-// frontend\src\layouts\Navbar.tsx
 import { useAuth } from "../features/auth";
 import { LogOut, LogIn, UserPlus, User, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoImg from "../assets/NavbarLogo.webp";
 import discordContainerIcon from "../assets/discord_container.webp";
 import discordSvgIcon from "../assets/discord-square-icon.webp";
+import { NotificationBell, NotificationPopup } from "../features/notifications";
 
 export const Navbar = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
@@ -39,11 +39,14 @@ export const Navbar = () => {
       <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-4 flex-nowrap">
         {!isLoading && isAuthenticated && user ? (
           <div className="flex items-center flex-nowrap">
-            <span className="hidden lg:block text-sm text-gray-300 mr-20">
+            <div className="relative">
+              <NotificationBell />
+              <NotificationPopup />
+            </div>
+
+            <span className="hidden lg:block text-sm text-gray-300 mr-4">
               Welcome,{" "}
-              <span className="font-semibold text-blue-400">
-                {user.name}
-              </span>
+              <span className="font-semibold text-blue-400">{user.name}</span>
             </span>
 
             <div
@@ -114,9 +117,9 @@ export const Navbar = () => {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Join our Discord community"
-          className="hover:opacity-90 transition-opacity shrink-0 ml-1"
+          className="hover:opacity-90 transition-opacity shrink-0 "
         >
-          <div className="relative left-3">
+          <div className="relative">
             <img
               src={discordContainerIcon}
               alt="Discord background"
