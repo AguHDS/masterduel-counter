@@ -74,10 +74,10 @@ export const RegisteredArchetypesList = ({
     >
       <div className="flex max-[767px]:ml-4 sm:flex-row sm:items-end gap-2 mt-2">
         <h2 className="text-2xl relative bottom-1 font-bold text-white">
-          Latest Archetypes •
+          Lastest Registered Archetypes
         </h2>
         <span className="text-sm relative max-[640px]:top-1 bottom-[7px] font-semibold text-blue-300">
-          Updated by the community
+          • updated by the community
         </span>
       </div>
 

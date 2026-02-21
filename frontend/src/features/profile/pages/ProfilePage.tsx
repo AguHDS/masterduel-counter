@@ -274,7 +274,9 @@ export const ProfilePage = () => {
                       </div>
                     </div>
 
-                    <div className="pt-4 w-full">
+
+
+                    <div className="w-full">
                       <UserInstancesList
                         userId={userId}
                         onSelectArchetype={handleSelectArchetype}

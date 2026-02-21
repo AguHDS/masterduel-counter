@@ -527,7 +527,7 @@ export const ArchetypeAnalyzerContainer = ({
                       className="flex items-center space-x-2 px-4 py-2 bg-red-950/60 backdrop-blur-sm hover:bg-red-950/90 active:bg-red-950/10 text-white rounded-lg transition-colors shadow-md"
                     >
                       <Flag className="w-4 h-4" />
-                      <span>Report Instance</span>
+                      <span>Report</span>
                     </button>
                   )}
 

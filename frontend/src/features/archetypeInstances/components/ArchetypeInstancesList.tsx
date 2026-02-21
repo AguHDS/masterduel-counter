@@ -148,7 +148,7 @@ const ArchetypeInstancesListComponent = ({
               </span>
             </h1>
             <span className="text-base relative top-[4px] font-semibold text-white">
-              •
+              -
             </span>
             <span className="text-base relative top-[4px] font-semibold text-blue-400">
               Guides ({data.length})
