@@ -173,7 +173,7 @@ export const RegisteredArchetypesList = ({
                   </div>
 
                   <div className="hidden md:grid md:grid-cols-[60px_minmax(220px,1fr)_160px] md:gap-3 md:items-center md:px-6 md:py-4">
-                    <div className="text-[#ffbf1f] relative right-2 text-2xl font-bold drop-shadow-md">
+                    <div className="text-[#ffbf1f] flex text-2xl font-bold drop-shadow-md">
                       {positionLabel}
                     </div>
                     <div className="flex items-center gap-4">

@@ -18,7 +18,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
         ref={buttonRef}
         src={notificationImg}
         alt="Notifications"
-        className={`h-6 w-6 mr-3 cursor-pointer hover:opacity-80 transition-opacity ${className}`}
+        className={`h-6 w-6 cursor-pointer hover:opacity-80 transition-opacity ${className}`}
         onClick={() => setShowNotifications(!showNotifications)}
       />
       {unreadCount > 0 && (

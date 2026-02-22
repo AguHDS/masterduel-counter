@@ -27,8 +27,8 @@ export const Navbar = () => {
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleLinkClick = () => {
@@ -52,8 +52,8 @@ export const Navbar = () => {
               alt="Masterduel Counter logo"
               className="h-10 w-auto max-[680px]:h-9 max-[524px]:h-6 max-[430px]:h-4"
             />
-            
-            <div 
+
+            <div
               className="relative"
               onMouseEnter={() => setShowBetaTooltip(true)}
               onMouseLeave={() => setShowBetaTooltip(false)}
@@ -61,7 +61,7 @@ export const Navbar = () => {
               <span className="px-1.5 py-0.5 text-[0.65rem] font-bold bg-gradient-to-r from-blue-600 to-purple-600/70 text-white rounded-full border border-white/20 tracking-wider">
                 BETA
               </span>
-              
+
               {showBetaTooltip && (
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-2 bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-xl whitespace-nowrap z-50 text-xs text-gray-200">
                   <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#1f1a24] border-t border-l border-[#c2901c]/30 transform rotate-45"></div>
@@ -72,18 +72,20 @@ export const Navbar = () => {
           </Link>
 
           {/* Right elements (desktop) */}
-          <div className="hidden sm:flex items-center gap-5 flex-nowrap absolute right-8 top-1/2 -translate-y-1/2">
+          <div className="hidden sm:flex items-center gap-4 flex-nowrap absolute right-8 top-1/2 -translate-y-1/2">
             {!isLoading && isAuthenticated && user ? (
               <>
+                <span className="hidden lg:block text-sm text-gray-300 mr-4">
+                  Welcome,{" "}
+                  <span className="font-semibold text-blue-400">
+                    {user.name}
+                  </span>
+                </span>
+                
                 <div className="relative mr-1">
                   <NotificationBell />
                   <NotificationPopup />
                 </div>
-
-                <span className="hidden lg:block text-sm text-gray-300 mr-4">
-                  Welcome,{" "}
-                  <span className="font-semibold text-blue-400">{user.name}</span>
-                </span>
 
                 <div
                   className={`flex items-center flex-nowrap ${
@@ -209,7 +211,11 @@ export const Navbar = () => {
             className="sm:hidden p-2 text-[#c2901c] hover:text-[#d4a534] transition-colors"
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
       </nav>
@@ -222,7 +228,10 @@ export const Navbar = () => {
               <>
                 {/* Welcome message for mobile */}
                 <div className="text-sm text-gray-300 pb-2 border-b border-[#c2901c]/30">
-                  Welcome, <span className="font-semibold text-blue-400">{user.name}</span>
+                  Welcome,{" "}
+                  <span className="font-semibold text-blue-400">
+                    {user.name}
+                  </span>
                 </div>
 
                 {/* Notifications for mobile */}

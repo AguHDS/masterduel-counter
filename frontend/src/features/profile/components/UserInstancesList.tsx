@@ -1,5 +1,6 @@
 import { useState, useCallback, memo } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { X } from "lucide-react";
 import { instanceApi, type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
 import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTable";
 import { FramedContainer } from "@/layouts/FramedContainer";
@@ -30,8 +31,8 @@ const UserInstancesListComponent = ({ userId, onSelectArchetype }: UserInstances
     queryKey: ["userInstances", userId, sortBy, debouncedSearchQuery],
     queryFn,
     enabled: !!userId,
-    staleTime: 5000, // 5 seconds - balance between freshness and performance
-    placeholderData: keepPreviousData, // Keep previous data while fetching to avoid blink/unmount
+    staleTime: 5000,
+    placeholderData: keepPreviousData,
   });
 
   if (isLoading) {
@@ -65,7 +66,7 @@ const UserInstancesListComponent = ({ userId, onSelectArchetype }: UserInstances
           <h2 className="text-2xl font-bold text-yellow-500 mb-1 text-left relative top-[7px]">
             {instances[0]?.userName}'s Guides
           </h2>
-          
+
           <div className="w-56 relative top-[7px]">
             <GuideSearch
               searchQuery={searchQuery}
@@ -100,3 +101,30 @@ const UserInstancesListComponent = ({ userId, onSelectArchetype }: UserInstances
 };
 
 export const UserInstancesList = memo(UserInstancesListComponent);
+
+interface FullScreenGuidesModalProps {
+  userId: string;
+  onClose: () => void;
+  onSelectArchetype: (archetypeId: number, instanceId: number) => void;
+}
+
+export const FullScreenGuidesModal = ({ userId, onClose, onSelectArchetype }: FullScreenGuidesModalProps) => {
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-sm overflow-y-auto">
+      <div className="min-h-screen py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-yellow-500">All Guides</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+          </div>
+          <UserInstancesList userId={userId} onSelectArchetype={onSelectArchetype} />
+        </div>
+      </div>
+    </div>
+  );
+};
