@@ -184,6 +184,14 @@ export const ProfilePage = () => {
                       </div>
 
                       <div className="border-t border-yellow-600/30 pt-4">
+                      <div className="flex items-baseline gap-2">
+                          <span className="text-amber-200 font-semibold">
+                            Ranking:
+                          </span>
+                          <span className="text-1xl font-bold text-amber-500/90">
+                            #2
+                          </span>
+                        </div>
                         <div className="flex items-baseline gap-2">
                           <span className="text-amber-200 font-semibold">
                             Likes:
@@ -263,9 +271,7 @@ export const ProfilePage = () => {
                     )}
                   </div>
 
-                  {/* Botones de pestañas - alineados a los extremos */}
                   <div className="flex justify-between items-center">
-                    {/* Botones izquierdos */}
                     <div className="flex gap-2">
                       {[
                         { id: "perfil", label: "Profile" },

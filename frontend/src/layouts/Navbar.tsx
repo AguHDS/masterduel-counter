@@ -1,16 +1,29 @@
 import { useAuth } from "../features/auth";
-import { LogOut, LogIn, UserPlus, User, Shield, Menu, X } from "lucide-react";
+import {
+  LogOut,
+  LogIn,
+  UserPlus,
+  User,
+  Shield,
+  Menu,
+  X,
+  Crown,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import logoImg from "../assets/NavbarLogo.webp";
 import discordContainerIcon from "../assets/discord_container.webp";
 import discordSvgIcon from "../assets/discord-square-icon.webp";
 import { NotificationBell, NotificationPopup } from "../features/notifications";
-import { useState, useEffect } from "react";
+import { RankingPopup } from "../features/ranking/components/RankingPopup";
+import { MOCK_RANKING_USERS } from "../features/ranking/components/mockData";
+import { useState, useEffect, useRef } from "react";
 
 export const Navbar = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
   const [showBetaTooltip, setShowBetaTooltip] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isRankingOpen, setIsRankingOpen] = useState(false);
+  const rankingButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleLogout = async () => {
     await logout();
@@ -22,8 +35,8 @@ export const Navbar = () => {
   // Responsive behavior
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 640) {
-        setIsMenuOpen(false); // Close menu when switching to desktop
+      if (window.innerWidth >= 1024) {
+        setIsMenuOpen(false);
       }
     };
 
@@ -35,6 +48,16 @@ export const Navbar = () => {
     setIsMenuOpen(false);
   };
 
+  const handleUserClick = (username: string, userId: number) => {
+    console.log(`Navigate to user ${username} with id ${userId}`);
+    setIsRankingOpen(false);
+  };
+
+  const handleViewFullRanking = () => {
+    console.log("Navigate to full ranking");
+    setIsRankingOpen(false);
+  };
+
   return (
     <header className="relative top-0 z-50 bg-[#18121a]/90 border-b-4 border-[#c2901c] shadow-[0_10px_50px_-5px_rgba(0,0,0,0.7)]">
       <nav
@@ -42,23 +65,24 @@ export const Navbar = () => {
         aria-label="Main navigation"
       >
         <div className="flex items-center justify-between">
+          {/* Logo - Left side */}
           <Link
             to="/"
-            className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+            className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity flex-shrink-0"
             aria-label="Masterduel Counter Home"
           >
             <img
               src={logoImg}
               alt="Masterduel Counter logo"
-              className="h-10 w-auto max-[680px]:h-9 max-[524px]:h-6 max-[430px]:h-4"
+              className="h-8 sm:h-9 md:h-10 w-auto"
             />
 
             <div
-              className="relative"
+              className="relative block"
               onMouseEnter={() => setShowBetaTooltip(true)}
               onMouseLeave={() => setShowBetaTooltip(false)}
             >
-              <span className="px-1.5 py-0.5 text-[0.65rem] font-bold bg-gradient-to-r from-blue-600 to-purple-600/70 text-white rounded-full border border-white/20 tracking-wider">
+              <span className="px-1.5 py-0.5 text-[0.6rem] sm:text-[0.65rem] font-bold bg-gradient-to-r from-blue-600 to-purple-600/70 text-white rounded-full border border-white/20 tracking-wider whitespace-nowrap">
                 OPEN BETA
               </span>
 
@@ -71,33 +95,55 @@ export const Navbar = () => {
             </div>
           </Link>
 
-          {/* Right elements (desktop) */}
-          <div className="hidden sm:flex items-center gap-4 flex-nowrap absolute right-8 top-1/2 -translate-y-1/2">
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center flex-nowrap absolute right-8 top-1/2 -translate-y-1/2 divide-x divide-[#c2901c]/20">
+            <div className="relative flex items-center px-4">
+              <button
+                ref={rankingButtonRef}
+                onClick={() => setIsRankingOpen(!isRankingOpen)}
+                className="flex items-center space-x-1 px-2 py-1.5 hover:bg-[#c2901c]/10 rounded-lg transition-colors group"
+                aria-label="Open ranking"
+              >
+                <Crown className="w-5 h-5 text-[#c2901c] group-hover:text-[#e9b53c] transition-colors" />
+                <span className="text-xs font-medium text-[#c2901c] group-hover:text-[#e9b53c] transition-colors">
+                  Ranking
+                </span>
+              </button>
+
+              <RankingPopup
+                isOpen={isRankingOpen}
+                onClose={() => setIsRankingOpen(false)}
+                users={MOCK_RANKING_USERS}
+                onUserClick={handleUserClick}
+                onViewFullRanking={handleViewFullRanking}
+                triggerRef={rankingButtonRef}
+              />
+            </div>
+
             {!isLoading && isAuthenticated && user ? (
               <>
-                <span className="hidden lg:block text-sm text-gray-300 mr-4">
+                {/* Welcome message */}
+                <span className="hidden xl:flex items-center text-sm text-gray-300 px-4 whitespace-nowrap">
                   Welcome,{" "}
-                  <span className="font-semibold text-blue-400">
+                  <span className="font-semibold text-blue-400 ml-1">
                     {user.name}
                   </span>
                 </span>
-                
-                <div className="relative mr-1">
+
+                {/* Notifications */}
+                <div className="relative flex items-center px-4">
                   <NotificationBell />
                   <NotificationPopup />
                 </div>
 
-                <div
-                  className={`flex items-center flex-nowrap ${
-                    isAdmin ? "gap-3" : "gap-4"
-                  }`}
-                >
+                {/* Profile, Logout, Admin */}
+                <div className="flex items-center gap-4 px-4">
                   <Link
                     to={`/profile/${user.id}`}
                     className="flex items-center gap-1 text-blue-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
                   >
                     <User className="h-4 w-4" />
-                    <span className="hidden md:inline hover:underline underline-offset-4">
+                    <span className="hidden xl:inline hover:underline underline-offset-4">
                       Profile
                     </span>
                   </Link>
@@ -107,7 +153,7 @@ export const Navbar = () => {
                     className="flex items-center gap-1 text-red-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span className="hidden md:inline hover:underline underline-offset-4">
+                    <span className="hidden xl:inline hover:underline underline-offset-4">
                       Logout
                     </span>
                   </button>
@@ -118,49 +164,24 @@ export const Navbar = () => {
                       className="flex items-center gap-1 text-yellow-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity group"
                       aria-label="Admin Panel"
                     >
-                      <Shield className="h-4 w-4 relative left-3 group-hover:scale-110 transition-transform" />
-                      <span className="hidden relative left-3 lg:inline hover:underline underline-offset-4">
+                      <Shield className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                      <span className="hidden xl:inline hover:underline underline-offset-4">
                         Admin Panel
                       </span>
                     </Link>
                   )}
                 </div>
-
-                <a
-                  href="https://discord.gg/masterduelcounter"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Join our Discord community"
-                  className="hover:opacity-90 transition-opacity shrink-0"
-                >
-                  <div className="relative">
-                    <img
-                      src={discordContainerIcon}
-                      alt="Discord background"
-                      className="h-[36px] sm:h-[40px] w-auto"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center gap-[0.2rem]">
-                      <img
-                        src={discordSvgIcon}
-                        alt="Discord logo"
-                        className="w-4 sm:w-5"
-                      />
-                      <span className="hidden sm:inline text-[#c2901c] font-semibold text-xs whitespace-nowrap">
-                        Join Discord
-                      </span>
-                    </div>
-                  </div>
-                </a>
               </>
             ) : !isLoading ? (
               <>
-                <div className="flex items-center gap-5 flex-nowrap mr-3">
+                {/* Auth links */}
+                <div className="flex items-center gap-4 px-4">
                   <Link
                     to="/signin"
                     className="flex items-center gap-1 text-blue-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
                   >
                     <LogIn className="h-4 w-4" />
-                    <span className="hidden md:inline hover:underline underline-offset-4">
+                    <span className="hidden xl:inline hover:underline underline-offset-4">
                       Sign In
                     </span>
                   </Link>
@@ -170,42 +191,129 @@ export const Navbar = () => {
                     className="flex items-center gap-1 text-green-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
                   >
                     <UserPlus className="h-4 w-4" />
-                    <span className="hidden md:inline hover:underline underline-offset-4">
+                    <span className="hidden xl:inline hover:underline underline-offset-4">
                       Sign Up
                     </span>
                   </Link>
                 </div>
-
-                <a
-                  href="https://discord.gg/masterduelcounter"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Join our Discord community"
-                  className="hover:opacity-90 transition-opacity shrink-0"
-                >
-                  <div className="relative">
-                    <img
-                      src={discordContainerIcon}
-                      alt="Discord background"
-                      className="h-[36px] sm:h-[40px] w-auto"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center gap-[0.2rem]">
-                      <img
-                        src={discordSvgIcon}
-                        alt="Discord logo"
-                        className="w-4 sm:w-5"
-                      />
-                      <span className="hidden sm:inline text-[#c2901c] font-semibold text-xs whitespace-nowrap">
-                        Join Discord
-                      </span>
-                    </div>
-                  </div>
-                </a>
               </>
             ) : null}
+
+            {/* Discord */}
+            <div className="flex items-center pl-4">
+              <a
+                href="https://discord.gg/masterduelcounter"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Join our Discord community"
+                className="hover:opacity-90 transition-opacity shrink-0"
+              >
+                <div className="relative">
+                  <img
+                    src={discordContainerIcon}
+                    alt="Discord background"
+                    className="h-8 sm:h-9 md:h-10 w-auto"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center gap-[0.2rem]">
+                    <img
+                      src={discordSvgIcon}
+                      alt="Discord logo"
+                      className="w-3 sm:w-4 md:w-5"
+                    />
+                    <span className="hidden xl:inline text-[#c2901c] font-semibold text-xs whitespace-nowrap">
+                      Join Discord
+                    </span>
+                  </div>
+                </div>
+              </a>
+            </div>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Tablet Navigation */}
+          <div className="hidden sm:flex lg:hidden items-center gap-3 absolute right-8 top-1/2 -translate-y-1/2">
+            <button
+              ref={rankingButtonRef}
+              onClick={() => setIsRankingOpen(!isRankingOpen)}
+              className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"
+              aria-label="Open ranking"
+            >
+              <Crown className="w-5 h-5 text-[#c2901c] group-hover:text-[#e9b53c] transition-colors" />
+              <span className="absolute -top-1 -right-1 bg-[#c2901c] text-[10px] text-white rounded-full w-4 h-4 flex items-center justify-center">
+                {MOCK_RANKING_USERS.length}
+              </span>
+            </button>
+
+            <RankingPopup
+              isOpen={isRankingOpen}
+              onClose={() => setIsRankingOpen(false)}
+              users={MOCK_RANKING_USERS}
+              onUserClick={handleUserClick}
+              onViewFullRanking={handleViewFullRanking}
+              triggerRef={rankingButtonRef}
+            />
+
+            {!isLoading && isAuthenticated && user ? (
+              <>
+                <NotificationBell />
+                <NotificationPopup />
+                
+                <Link
+                  to={`/profile/${user.id}`}
+                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
+                >
+                  <User className="w-5 h-5 text-blue-500" />
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
+                >
+                  <LogOut className="w-5 h-5 text-red-500" />
+                </button>
+
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
+                  >
+                    <Shield className="w-5 h-5 text-yellow-500" />
+                  </Link>
+                )}
+              </>
+            ) : !isLoading ? (
+              <>
+                <Link
+                  to="/signin"
+                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
+                >
+                  <LogIn className="w-5 h-5 text-blue-500" />
+                </Link>
+
+                <Link
+                  to="/signup"
+                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
+                >
+                  <UserPlus className="w-5 h-5 text-green-500" />
+                </Link>
+              </>
+            ) : null}
+
+            {/* Discord icon without text */}
+            <a
+              href="https://discord.gg/masterduelcounter"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
+            >
+              <img
+                src={discordSvgIcon}
+                alt="Discord logo"
+                className="w-5 h-5"
+              />
+            </a>
+          </div>
+
+          {/* Mobile menu button  */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="sm:hidden p-2 text-[#c2901c] hover:text-[#d4a534] transition-colors"
@@ -224,6 +332,55 @@ export const Navbar = () => {
       {isMenuOpen && (
         <div className="sm:hidden absolute top-full left-0 right-0 bg-[#1f1a24] border-b border-[#c2901c]/30 shadow-xl py-4 px-4 z-50">
           <div className="flex flex-col space-y-4">
+            {/* Ranking for mobile */}
+            <div className="relative">
+              <button
+                onClick={() => setIsRankingOpen(!isRankingOpen)}
+                className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 transition-opacity py-2 w-full text-left"
+              >
+                <Crown className="h-4 w-4" />
+                <span>Ranking ({MOCK_RANKING_USERS.length})</span>
+              </button>
+
+              {/* Mobile ranking popup */}
+              {isRankingOpen && (
+                <div className="mt-2 bg-[#2a2430] rounded-lg border border-[#c2901c]/30 p-2 max-h-64 overflow-y-auto scrollbar-cardpair">
+                  {MOCK_RANKING_USERS.map((user) => (
+                    <div
+                      key={user.id}
+                      onClick={() => handleUserClick(user.username, user.id)}
+                      className="flex items-center gap-2 p-2 hover:bg-[#3a2f40] rounded-lg transition-colors"
+                    >
+                      <img
+                        src={user.avatarUrl}
+                        alt={user.username}
+                        className="w-8 h-8 rounded-full border border-[#c2901c]/30"
+                      />
+                      <div className="flex-1">
+                        <span className="text-white text-sm">
+                          {user.username}
+                        </span>
+                        <div className="text-xs text-gray-400">
+                          #{user.rank} • {user.points} pts
+                        </div>
+                      </div>
+                      {user.rank <= 3 && (
+                        <Crown
+                          className={`w-3 h-3 ${user.rank === 1 ? "text-yellow-400" : user.rank === 2 ? "text-gray-400" : "text-amber-700"}`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    onClick={handleViewFullRanking}
+                    className="w-full text-center text-sm text-[#c2901c] hover:text-[#d4a534] transition-colors py-2 mt-2 border-t border-[#c2901c]/30"
+                  >
+                    View Full Ranking →
+                  </button>
+                </div>
+              )}
+            </div>
+
             {!isLoading && isAuthenticated && user ? (
               <>
                 {/* Welcome message for mobile */}
@@ -268,22 +425,6 @@ export const Navbar = () => {
                     <span>Admin Panel</span>
                   </Link>
                 )}
-
-                {/* Discord link for mobile */}
-                <a
-                  href="https://discord.gg/masterduelcounter"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleLinkClick}
-                  className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 transition-opacity py-2 border-t border-[#c2901c]/30 pt-4"
-                >
-                  <img
-                    src={discordSvgIcon}
-                    alt="Discord logo"
-                    className="w-5 h-5"
-                  />
-                  <span>Join Discord</span>
-                </a>
               </>
             ) : !isLoading ? (
               <>
@@ -305,24 +446,24 @@ export const Navbar = () => {
                   <UserPlus className="h-4 w-4" />
                   <span>Sign Up</span>
                 </Link>
-
-                {/* Discord link for mobile */}
-                <a
-                  href="https://discord.gg/masterduelcounter"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleLinkClick}
-                  className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 transition-opacity py-2 border-t border-[#c2901c]/30 pt-4"
-                >
-                  <img
-                    src={discordSvgIcon}
-                    alt="Discord logo"
-                    className="w-5 h-5"
-                  />
-                  <span>Join Discord</span>
-                </a>
               </>
             ) : null}
+
+            {/* Discord link for mobile */}
+            <a
+              href="https://discord.gg/masterduelcounter"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleLinkClick}
+              className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 transition-opacity py-2 border-t border-[#c2901c]/30 pt-4"
+            >
+              <img
+                src={discordSvgIcon}
+                alt="Discord logo"
+                className="w-5 h-5"
+              />
+              <span>Join Discord</span>
+            </a>
           </div>
         </div>
       )}

@@ -369,21 +369,20 @@ export const ArchetypeAnalyzerContainer = ({
             <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80 rounded-[24px]"></div>
 
             <div className="relative z-10 space-y-6">
-              {!editor.isEditMode && (
+              <div className="absolute left-0 top-[-26px] flex items-center justify-between w-full px-4">
                 <button
                   onClick={handleBackClick}
-                  className="absolute left-0 top-[-26px] flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors shadow-lg text-sm"
+                  className={`flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors shadow-lg text-sm ${
+                    editor.isEditMode ? 'invisible' : ''
+                  }`}
                   aria-label="Go back"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back</span>
                 </button>
-              )}
 
-              {!isCreatingNew &&
-                isAuthenticated &&
-                selectedArchetype.registered && (
-                  <div className="absolute right-0 top-[-50px]">
+                {!isCreatingNew && isAuthenticated && selectedArchetype.registered && (
+                  <div className="ml-auto">
                     <button
                       onClick={likes.toggleLike}
                       disabled={isOwner}
@@ -411,6 +410,8 @@ export const ArchetypeAnalyzerContainer = ({
                     </button>
                   </div>
                 )}
+              </div>
+
               <InstanceHeader
                 archetypeName={selectedArchetype.name}
                 title={editor.title}

@@ -1,0 +1,172 @@
+// frontend/src/features/ranking/components/RankingPopup.tsx
+import React, { useRef, useEffect } from "react";
+import { Crown } from "lucide-react";
+
+export interface RankingUser {
+  id: number;
+  rank: number;
+  username: string;
+  avatarUrl: string;
+  points: number;
+}
+
+interface RankingPopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+  users: RankingUser[];
+  onUserClick: (username: string, userId: number) => void;
+  onViewFullRanking: () => void;
+  triggerRef: React.RefObject<HTMLElement | null>; // Tipo más flexible
+}
+
+export const RankingPopup: React.FC<RankingPopupProps> = ({
+  isOpen,
+  onClose,
+  users,
+  onUserClick,
+  onViewFullRanking,
+  triggerRef,
+}) => {
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        popupRef.current &&
+        triggerRef.current &&
+        !popupRef.current.contains(event.target as Node) &&
+        !triggerRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose, triggerRef]);
+
+  const getRankStyles = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return {
+          bg: "bg-gradient-to-r from-yellow-500/20 to-amber-600/20",
+          border: "border-yellow-500/30",
+          text: "text-yellow-400",
+          icon: "text-yellow-400",
+        };
+      case 2:
+        return {
+          bg: "bg-gradient-to-r from-purple-700/40 to-blue-500/20",
+          border: "border-gray-400/30",
+          text: "text-gray-300",
+          icon: "text-gray-400",
+        };
+      case 3:
+        return {
+          bg: "bg-gradient-to-r from-yellow-700/20 to-amber-800/50",
+          border: "border-amber-700/30",
+          text: "text-amber-600",
+          icon: "text-amber-700",
+        };
+      default:
+        return {
+          bg: "bg-blue-950/30",
+          border: "border-blue-800/30",
+          text: "text-blue-300",
+          icon: "text-blue-400",
+        };
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      ref={popupRef}
+      className="absolute left-0 mt-2 w-80 bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-xl overflow-hidden z-50"
+      style={{ top: "100%" }}
+    >
+      {/* Header */}
+      <div className="p-3 border-b border-[#c2901c]/30">
+        <div className="flex items-center space-x-2">
+          <Crown className="w-5 h-5 text-[#c2901c]" />
+          <h3 className="text-white font-semibold">Top Users (Coming soon!)</h3>
+        </div>
+      </div>
+
+      {/* Ranking List */}
+      <div className="max-h-96 overflow-y-auto scrollbar-cardpair">
+        {users.map((user) => {
+          const styles = getRankStyles(user.rank);
+
+          return (
+            <div
+              key={user.id}
+              onClick={() => onUserClick(user.username, user.id)}
+              className={`p-3 border-b border-[#c2901c]/10 hover:bg-[#2a2430] transition-colors cursor-pointer ${styles.bg}`}
+            >
+              <div className="flex items-center space-x-3">
+                {/* Rank */}
+                <div className={`w-8 text-center font-bold ${styles.text}`}>
+                  #{user.rank}
+                </div>
+
+                {/* Avatar */}
+                <img
+                  src={user.avatarUrl}
+                  alt={user.username}
+                  className="w-10 h-10 rounded-full border-2 border-[#c2901c]/30 object-cover"
+                  loading="lazy"
+                />
+
+                {/* User Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium text-white hover:text-[#c2901c] transition-colors truncate">
+                      {user.username}
+                    </span>
+                    {user.rank <= 3 && (
+                      <Crown
+                        className={`w-3 h-3 flex-shrink-0 ${styles.icon}`}
+                      />
+                    )}
+                  </div>
+                  {user.points && (
+                    <div className="text-xs text-green-500">
+                      {user.points.toLocaleString()} Likes
+                    </div>
+                  )}
+                </div>
+
+                {/* Top Badge */}
+                {user.rank <= 3 && (
+                  <div
+                    className={`text-xs font-bold px-2 py-1 rounded-full ${styles.bg} ${styles.border} border ${styles.text} flex-shrink-0`}
+                  >
+                    Top {user.rank}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Footer */}
+      <div className="p-2 border-t border-[#c2901c]/30 bg-[#151017]">
+        <button
+          onClick={onViewFullRanking}
+          className="w-full text-center text-sm text-[#c2901c] hover:text-[#d4a534] transition-colors py-1"
+        >
+          View Full Ranking →
+        </button>
+      </div>
+    </div>
+  );
+};
