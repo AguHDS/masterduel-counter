@@ -29,7 +29,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
 
-  // Cerrar al hacer click fuera
+  // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
