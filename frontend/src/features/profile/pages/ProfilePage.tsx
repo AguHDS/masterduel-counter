@@ -16,7 +16,7 @@ import background_button from "@/assets/MDC-button-background.webp";
 import background_profile from "@/assets/MDC-profile_background.webp";
 import border_profile from "@/assets/MDC-border.webp";
 
-type TabType = "perfil" | "decks" | "estadisticas" | "favoritos";
+type TabType = "perfil" | "decks" | "guides" | "favoritos";
 
 export const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -26,7 +26,6 @@ export const ProfilePage = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("perfil");
   const [showFullGuides, setShowFullGuides] = useState(false);
-  const [showFullDecks, setShowFullDecks] = useState(false);
 
   const { data: profileData } = useQuery({
     queryKey: ["profile", userId],
@@ -43,7 +42,6 @@ export const ProfilePage = () => {
   const {
     isEditMode,
     bioValue,
-    selectedFile,
     previewUrl,
     isSaving,
     isDeletingPhoto,
@@ -90,24 +88,6 @@ export const ProfilePage = () => {
 
   const profile = profileData?.profile;
   const displayPhotoUrl = previewUrl || profile?.profilePictureUrl;
-
-  const recentSearches = [
-    {
-      id: 1,
-      name: "Branded despia",
-      icon: "https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?auto=compress&cs=tinysrgb&w=50",
-    },
-    {
-      id: 2,
-      name: "Runick",
-      icon: "https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?auto=compress&cs=tinysrgb&w=50",
-    },
-    {
-      id: 3,
-      name: "Branded - best counters",
-      icon: "https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?auto=compress&cs=tinysrgb&w=50",
-    },
-  ];
 
   const counterDecks = [
     {
@@ -203,6 +183,42 @@ export const ProfilePage = () => {
                         </div>
                       </div>
 
+                      <div className="border-t border-yellow-600/30 pt-4">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-amber-200 font-semibold">
+                            Likes:
+                          </span>
+                          <span className="text-1xl font-bold text-green-500">
+                            {profile?.totalLikes ?? 0}
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-amber-200 font-semibold">
+                            Guide Views:
+                          </span>
+                          <span className="text-1xl font-semibold text-amber-400">
+                            12,44
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-amber-200 font-semibold">
+                            Role:
+                          </span>
+
+                          <span
+                            className={`text-1xl font-bold ${
+                              profile?.role === "admin"
+                                ? "text-red-500/90"
+                                : profile?.role === "user"
+                                  ? "text-green-500"
+                                  : "text-blue-500"
+                            }`}
+                          >
+                            {profile?.role}
+                          </span>
+                        </div>
+                      </div>
+
                       {isEditMode && isOwner && (
                         <div className="space-y-2">
                           <input
@@ -230,37 +246,6 @@ export const ProfilePage = () => {
                           )}
                         </div>
                       )}
-
-                      <div className="space-y-3">
-                        <h3 className="text-yellow-500 font-bold text-sm flex items-center gap-2">
-                          <span className="text-lg">♦</span> Favorite Guides
-                        </h3>
-                        <div className="space-y-2">
-                          {counterDecks.map((deck) => (
-                            <div
-                              key={deck.id}
-                              className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
-                            >
-                              <img
-                                src={deck.img}
-                                alt={deck.name}
-                                className="w-10 h-10 rounded object-cover border border-yellow-600/30"
-                              />
-                              <span className="text-amber-200 text-sm">
-                                {deck.name}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Botón Check all para Favorite Guides */}
-                        <button
-                          onClick={() => setShowFullGuides(true)}
-                          className="w-full mt-4 px-4 py-2  hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
-                        >
-                          Check all ({counterDecks.length})
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </aside>
@@ -285,7 +270,7 @@ export const ProfilePage = () => {
                       {[
                         { id: "perfil", label: "Profile" },
                         { id: "decks", label: "My decks" },
-                        { id: "estadisticas", label: "Guides" },
+                        { id: "guides", label: "Guides" },
                         { id: "favoritos", label: "Favorites" },
                       ].map((tab) => (
                         <button
@@ -468,9 +453,9 @@ export const ProfilePage = () => {
                         </div>
                       )}
 
-                      {activeTab === "estadisticas" && (
+                      {activeTab === "guides" && (
                         <div className="text-center text-gray-400 py-20">
-                          <p className="text-lg">Statistics coming soon...</p>
+                          <p className="text-lg">Guides coming soon...</p>
                         </div>
                       )}
 
@@ -495,62 +480,34 @@ export const ProfilePage = () => {
                       className="absolute inset-0 w-full h-full object-cover opacity-70"
                     />
                     <div className="relative z-10 bg-gradient-to-br from-purple-950/40 to-slate-900/60 backdrop-blur-sm p-6 space-y-6 h-full overflow-y-auto">
-                      <h2 className="text-center text-yellow-400 font-bold text-2xl tracking-wider">
-                        Statistics
-                      </h2>
-
-                      <div className="border-t border-yellow-600/30 pt-4">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-amber-200 font-semibold">
-                            Likes:
-                          </span>
-                          <span className="text-1xl font-bold text-green-500">
-                            {profile?.totalLikes ?? 0}
-                          </span>
-                        </div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-amber-200 font-semibold">
-                            Total views:
-                          </span>
-                          <span className="text-1xl font-semibold text-amber-400">
-                            12,44
-                          </span>
-                        </div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-amber-200  font-semibold">
-                            Role:
-                          </span>
-                          <span className="text-1xl font-bold text-blue-500">
-                            {profile?.role}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="border-t border-yellow-600/30 pt-4">
-                        <h3 className="text-yellow-500 font-bold mb-3">
-                         ♦ Most Hated Decks
+                      <div className="space-y-3">
+                        <h3 className="text-yellow-500 font-bold text-sm flex items-center gap-2 mt-1">
+                          <span className="text-lg">♦</span> Favorite Guides
                         </h3>
                         <div className="space-y-2">
-                          {recentSearches.map((search) => (
+                          {counterDecks.map((deck) => (
                             <div
-                              key={search.id}
+                              key={deck.id}
                               className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
                             >
                               <img
-                                src={search.icon}
-                                alt=""
-                                className="w-8 h-8 rounded object-cover border border-yellow-600/30"
+                                src={deck.img}
+                                alt={deck.name}
+                                className="w-10 h-10 rounded object-cover border border-yellow-600/30"
                               />
                               <span className="text-amber-200 text-sm">
-                                {search.name}
+                                {deck.name}
                               </span>
                             </div>
                           ))}
                         </div>
-                      </div>
 
-                      <div className="border-t border-yellow-600/30 pt-4">
-                        <h3 className="text-yellow-500 font-bold mb-3">
+                        <button className="w-full hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors">
+                          View all ({counterDecks.length})
+                        </button>
+                      </div>
+                      <div>
+                        <h3 className="text-yellow-500 font-bold mb-3  border-t border-yellow-600/30 pt-6">
                           ♦ Best Guides
                         </h3>
                         <div className="space-y-2 mb-4">
@@ -579,9 +536,9 @@ export const ProfilePage = () => {
                         {userGuides && userGuides.length > 0 && (
                           <button
                             onClick={() => setShowFullGuides(true)}
-                            className="w-full px-4 py-2  hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
+                            className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
                           >
-                            Check all ({userGuides.length})
+                            View all ({userGuides.length})
                           </button>
                         )}
                       </div>

@@ -59,7 +59,7 @@ export const Navbar = () => {
               onMouseLeave={() => setShowBetaTooltip(false)}
             >
               <span className="px-1.5 py-0.5 text-[0.65rem] font-bold bg-gradient-to-r from-blue-600 to-purple-600/70 text-white rounded-full border border-white/20 tracking-wider">
-                BETA
+                OPEN BETA
               </span>
 
               {showBetaTooltip && (
