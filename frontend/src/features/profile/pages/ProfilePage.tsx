@@ -4,19 +4,22 @@ import { useQuery } from "@tanstack/react-query";
 import { Flag, Edit } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
-import { FullScreenGuidesModal } from "../components/UserInstancesList";
+import { UserInstancesList } from "../components/UserInstancesList";
+import { FavoriteCardEditor } from "../components/FavoriteCardEditor";
+import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
+import type { TabType } from "../types/profileTypes";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
+import { useFavoriteCardAndDecks } from "../hooks/useFavoriteCardAndDecks";
 import { useSession } from "@/lib/auth-client";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
 import { useRef, useState, useCallback } from "react";
 import { instanceApi } from "@/lib/http/instanceApi";
+import { type Card } from "@/features/ArchetypeAnalyzer/api/cardApi";
 import background_button from "@/assets/MDC-button-background.webp";
 import background_profile from "@/assets/MDC-profile_background.webp";
 import border_profile from "@/assets/MDC-border.webp";
-
-type TabType = "perfil" | "decks" | "guides" | "favoritos";
 
 export const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -24,8 +27,7 @@ export const ProfilePage = () => {
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>("perfil");
-  const [showFullGuides, setShowFullGuides] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>("profile");
 
   const { data: profileData } = useQuery({
     queryKey: ["profile", userId],
@@ -53,6 +55,19 @@ export const ProfilePage = () => {
     cancelEdit,
   } = useProfileEditor(userId!);
 
+  // Get profile data
+  const profile = profileData?.profile;
+
+  // Use favoriteCardAndDecks hook
+  const {
+    favoriteCardId,
+    favoriteDecks,
+    setFavoriteCardId,
+    setFavoriteDecks,
+    saveFavoriteCardAndDecks,
+    isSaving: isSavingFavorites,
+  } = useFavoriteCardAndDecks(userId!, profile);
+
   const handleSelectArchetype = useCallback(
     (archetypeId: number, instanceId: number) => {
       navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
@@ -64,6 +79,48 @@ export const ProfilePage = () => {
     const file = e.target.files?.[0];
     if (file) {
       handleFileSelect(file);
+    }
+  };
+
+  const handleViewAllGuides = () => {
+    setActiveTab("guides");
+  };
+
+  const handleFavoriteCardSelect = (card: Card) => {
+    setFavoriteCardId(card.id);
+  };
+
+  const handleFavoriteDecksUpdate = (decks: typeof favoriteDecks) => {
+    setFavoriteDecks(decks);
+  };
+
+  const handleCancelEdit = useCallback(() => {
+    cancelEdit();
+    // Reset favorites to original values
+    if (profile) {
+      setFavoriteCardId(profile.favoriteCardId || null);
+      if (profile.favoriteDecks) {
+        try {
+          const decks = JSON.parse(profile.favoriteDecks) as typeof favoriteDecks;
+          setFavoriteDecks(decks);
+        } catch {
+          setFavoriteDecks([]);
+        }
+      } else {
+        setFavoriteDecks([]);
+      }
+    }
+  }, [cancelEdit, profile, setFavoriteCardId, setFavoriteDecks]);
+
+  const handleSaveProfile = async () => {
+    try {
+      // Save favorites and bio/photo in parallel
+      await Promise.all([
+        saveFavoriteCardAndDecks(),
+        handleSaveChanges(),
+      ]);
+    } catch (error) {
+      console.error("Error saving profile:", error);
     }
   };
 
@@ -86,48 +143,7 @@ export const ProfilePage = () => {
     );
   }
 
-  const profile = profileData?.profile;
   const displayPhotoUrl = previewUrl || profile?.profilePictureUrl;
-
-  const counterDecks = [
-    {
-      id: 1,
-      name: "Anti-Branded",
-      img: "https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?auto=compress&cs=tinysrgb&w=100",
-    },
-    {
-      id: 2,
-      name: "Anti-Mitsurugi",
-      img: "https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?auto=compress&cs=tinysrgb&w=100",
-    },
-    {
-      id: 3,
-      name: "Anti-Yummy",
-      img: "https://images.pexels.com/photos/2156881/pexels-photo-2156881.jpeg?auto=compress&cs=tinysrgb&w=100",
-    },
-  ];
-
-  const favoriteCards = [
-    "https://images.pexels.com/photos/39853/woman-girl-freedom-happy-39853.jpeg?auto=compress&cs=tinysrgb&w=200",
-  ];
-
-  const favoriteDecks = [
-    {
-      id: 1,
-      name: "Mathmech",
-      img: "https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?auto=compress&cs=tinysrgb&w=200",
-    },
-    {
-      id: 2,
-      name: "Endimion",
-      img: "https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?auto=compress&cs=tinysrgb&w=200",
-    },
-    {
-      id: 3,
-      name: "Tearlament",
-      img: "https://images.pexels.com/photos/2156881/pexels-photo-2156881.jpeg?auto=compress&cs=tinysrgb&w=200",
-    },
-  ];
 
   return (
     <>
@@ -138,23 +154,23 @@ export const ProfilePage = () => {
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950/20 to-slate-950 flex flex-col">
         <Navbar />
 
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
           <FeatureErrorBoundary featureName="Profile">
             <div className="max-w-[1600px] mx-auto">
-              <div className="flex gap-6 items-stretch">
-                {/* Left Sidebar - con fondo background_profile - altura fija */}
-                <aside className="w-[350px] flex-shrink-0 sticky top-8">
-                  <div className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-[800px]">
+              <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
+                {/* Left Sidebar */}
+                <aside className="w-full lg:w-[280px] xl:w-[350px] flex-shrink-0 lg:sticky lg:top-8">
+                  <div className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]">
                     <img
                       src={background_profile}
                       alt=""
                       aria-hidden="true"
                       className="absolute inset-0 w-full h-full object-cover opacity-70"
                     />
-                    <div className="relative z-10 bg-gradient-to-br from-purple-950/40 to-slate-900/60 backdrop-blur-sm p-12 pt-6 space-y-6 h-full overflow-y-auto">
-                      {/* Nombre de usuario arriba de la foto */}
+                    <div className="relative z-10 bg-gradient-to-br from-purple-950/40 to-slate-900/60 backdrop-blur-sm p-4 sm:p-6 lg:p-12 lg:pt-6 space-y-4 lg:space-y-6 h-full">
+                      {/* User name */}
                       <div className="text-center mb-2">
-                        <h1 className="text-2xl font-bold text-yellow-400">
+                        <h1 className="text-xl sm:text-2xl font-bold text-yellow-400">
                           {profile?.userName || userId}
                         </h1>
                       </div>
@@ -164,7 +180,7 @@ export const ProfilePage = () => {
                         <div
                           className="relative rounded-lg overflow-hidden bg-slate-900/80"
                           style={{
-                            borderImage: `url(${border_profile}) 20 stretch`,
+                            borderImage: `url(${border_profile}) 18 stretch`,
                             borderWidth: "10px",
                           }}
                         >
@@ -183,38 +199,37 @@ export const ProfilePage = () => {
                         </div>
                       </div>
 
-                      <div className="border-t border-yellow-600/30 pt-4">
-                      <div className="flex items-baseline gap-2">
-                          <span className="text-amber-200 font-semibold">
+                      <div className="border-t border-yellow-600/30 pt-4 space-y-1">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-amber-200 font-semibold text-sm sm:text-base">
                             Ranking:
                           </span>
-                          <span className="text-1xl font-bold text-amber-500/90">
+                          <span className="text-lg sm:text-md font-bold text-amber-500/90">
                             #2
                           </span>
                         </div>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-amber-200 font-semibold">
+                          <span className="text-amber-200 font-semibold text-sm sm:text-base">
                             Likes:
                           </span>
-                          <span className="text-1xl font-bold text-green-500">
+                          <span className="text-lg sm:text-md font-bold text-green-500">
                             {profile?.totalLikes ?? 0}
                           </span>
                         </div>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-amber-200 font-semibold">
+                          <span className="text-amber-200 font-semibold text-sm sm:text-base">
                             Guide Views:
                           </span>
-                          <span className="text-1xl font-semibold text-amber-400">
+                          <span className="text-lg sm:text-md font-semibold text-amber-400">
                             12,44
                           </span>
                         </div>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-amber-200 font-semibold">
+                          <span className="text-amber-200 font-semibold text-sm sm:text-base">
                             Role:
                           </span>
-
                           <span
-                            className={`text-1xl font-bold ${
+                            className={`text-lg sm:text-md font-bold ${
                               profile?.role === "admin"
                                 ? "text-red-500/90"
                                 : profile?.role === "user"
@@ -258,31 +273,33 @@ export const ProfilePage = () => {
                   </div>
                 </aside>
 
-                <div className="flex-1">
-                  <div className="flex items-center justify-between gap-4 mb-4">
-                    {!isOwner && session && (
-                      <button
-                        onClick={() => setIsReportModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-950/60 hover:bg-red-950/90 text-white rounded transition-colors"
-                      >
-                        <Flag className="w-4 h-4" />
-                        <span>Report</span>
-                      </button>
-                    )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                    <div className="w-full sm:w-auto">
+                      {!isOwner && session && (
+                        <button
+                          onClick={() => setIsReportModalOpen(true)}
+                          className="flex items-center gap-2 px-4 py-2 bg-red-950/60 hover:bg-red-950/90 text-white rounded transition-colors"
+                        >
+                          <Flag className="w-4 h-4" />
+                          <span>Report</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex justify-between items-center">
-                    <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-1">
+                    <div className="flex gap-2 pb-2 sm:pb-0">
                       {[
-                        { id: "perfil", label: "Profile" },
+                        { id: "profile", label: "Profile" },
                         { id: "decks", label: "My decks" },
                         { id: "guides", label: "Guides" },
-                        { id: "favoritos", label: "Favorites" },
+                        { id: "favorites", label: "Favorites" },
                       ].map((tab) => (
                         <button
                           key={tab.id}
                           onClick={() => setActiveTab(tab.id as TabType)}
-                          className={`px-8 py-[11px] text-md font-bold transition-all relative overflow-hidden rounded border-2 ${
+                          className={`px-4 sm:px-8 py-[11px] text-sm sm:text-md font-bold transition-all relative overflow-hidden rounded border-2 whitespace-nowrap flex-shrink-0 ${
                             activeTab === tab.id
                               ? "text-yellow-400 border-amber-700"
                               : "text-gray-400 hover:text-yellow-300 border-amber-600/50"
@@ -304,39 +321,58 @@ export const ProfilePage = () => {
                       ))}
                     </div>
 
-                    {/* Edit Profile Button */}
+                    {/* Edit Profile / Save Cancel Buttons */}
                     {isOwner && (
-                      <button
-                        onClick={() =>
-                          !isEditMode && toggleEditMode(profile?.bio || "")
-                        }
-                        className="flex items-center gap-2 py-[11px] px-5 bg-yellow-600/80 hover:bg-yellow-600 text-white rounded transition-colors border border-yellow-500"
-                      >
-                        <Edit className="w-4 h-4" />
-                        <span>Edit Profile</span>
-                      </button>
+                      <div className="flex gap-2 flex-shrink-0">
+                        {!isEditMode ? (
+                          <button
+                            onClick={() => toggleEditMode(profile?.bio || "")}
+                            className="flex items-center gap-2 py-[11px] px-5 bg-yellow-600/80 hover:bg-yellow-600 text-white rounded transition-colors border border-yellow-500"
+                          >
+                            <Edit className="w-4 h-4" />
+                            <span>Edit Profile</span>
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={handleSaveProfile}
+                              disabled={isSaving || isSavingFavorites}
+                              className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50 font-semibold"
+                            >
+                              {(isSaving || isSavingFavorites) ? "Saving..." : "Save"}
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              disabled={isSaving || isSavingFavorites}
+                              className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50 font-semibold"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                      </div>
                     )}
                   </div>
 
-                  {/* Contenedor principal - altura fija para igualar con los sidebars */}
-                  <div className="bg-gradient-to-br relative mt-1 from-purple-950/40 to-slate-900/60 backdrop-blur-sm rounded-lg border-2 border-yellow-600/40 overflow-hidden h-[730px]">
+                  {/* Main Content Container */}
+                  <div className="bg-gradient-to-br relative mt-1 from-purple-950/40 to-slate-900/60 backdrop-blur-sm rounded-lg border-2 border-yellow-600/40 overflow-hidden min-h-[500px] lg:h-[730px]">
                     <img
                       src={background_profile}
                       alt=""
                       aria-hidden="true"
                       className="absolute inset-0 w-full h-full object-cover opacity-30 -z-10"
                     />
-                    <div className="p-8 h-full overflow-y-auto relative z-10">
-                      {activeTab === "perfil" && (
-                        <div className="space-y-12">
-                          <div className="flex gap-8">
-                            {/* Bio*/}
-                            <div className="flex-1">
+                    <div className="p-4 sm:p-6 lg:p-8 h-full overflow-auto scrollbar-cardpair relative z-10">
+                      {activeTab === "profile" && (
+                        <div className="space-y-8 sm:space-y-12">
+                          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+                            {/* Bio */}
+                            <div className="flex-1 min-w-0">
                               <h2 className="text-yellow-500 font-bold text-lg mb-1">
                                 Bio
                               </h2>
-                              <div className="relative bg-purple-950/40 overflow-hidden  rounded-lg border border-yellow-600/30">
-                                <div className="relative z-10 p-6">
+                              <div className="relative bg-purple-950/40 overflow-hidden rounded-lg border border-yellow-600/30">
+                                <div className="relative z-10 p-4 sm:p-6">
                                   {isEditMode && isOwner ? (
                                     <div className="space-y-2">
                                       <textarea
@@ -352,25 +388,9 @@ export const ProfilePage = () => {
                                       <div className="text-sm text-gray-400">
                                         {bioValue.length}/1000 characters
                                       </div>
-                                      <div className="flex gap-3">
-                                        <button
-                                          onClick={handleSaveChanges}
-                                          disabled={isSaving}
-                                          className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50"
-                                        >
-                                          {isSaving ? "Saving..." : "Save"}
-                                        </button>
-                                        <button
-                                          onClick={cancelEdit}
-                                          disabled={isSaving}
-                                          className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50"
-                                        >
-                                          Cancel
-                                        </button>
-                                      </div>
                                     </div>
                                   ) : (
-                                    <div className="min-h-[200px]">
+                                    <div className="min-h-[150px] sm:min-h-[200px]">
                                       <p className="text-gray-300 whitespace-pre-wrap">
                                         {profile?.bio ||
                                           (isOwner
@@ -383,71 +403,20 @@ export const ProfilePage = () => {
                               </div>
                             </div>
 
-                            <div className="w-auto">
-                              <h2 className="text-yellow-500 text-center font-bold text-lg mb-4">
-                                Favorite Card
-                              </h2>
-                              {favoriteCards.map((card, idx) => (
-                                <div
-                                  key={idx}
-                                  className="relative group cursor-pointer"
-                                >
-                                  <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600/30 to-amber-600/30 rounded blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                  <div
-                                    className="relative rounded overflow-hidden"
-                                    style={{
-                                      borderImage: `url(${border_profile}) 20 stretch`,
-                                      borderWidth: "10px",
-                                    }}
-                                  >
-                                    <img
-                                      src={card}
-                                      alt="Favorite card"
-                                      className="w-40 h-56 object-cover"
-                                    />
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
+                            {/* Favorite Card */}
+                            <FavoriteCardEditor
+                              cardId={favoriteCardId}
+                              isEditMode={isEditMode && isOwner}
+                              onCardSelect={handleFavoriteCardSelect}
+                            />
                           </div>
 
-                          {!isEditMode && (
-                            <>
-                              <div>
-                                <h2 className="text-yellow-500 font-bold text-lg mb-4">
-                                  Favorite Decks
-                                </h2>
-                                <div className="flex gap-24">
-                                  {favoriteDecks.map((deck) => (
-                                    <div
-                                      key={deck.id}
-                                      className="relative group cursor-pointer"
-                                    >
-                                      <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600/30 to-amber-600/30 rounded blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                      <div
-                                        className="relative rounded-lg overflow-hidden"
-                                        style={{
-                                          borderImage: `url(${border_profile}) 20 stretch`,
-                                          borderWidth: "10px",
-                                        }}
-                                      >
-                                        <img
-                                          src={deck.img}
-                                          alt={deck.name}
-                                          className="w-48 h-32 object-cover"
-                                        />
-                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                                          <p className="text-white font-bold text-center text-lg">
-                                            {deck.name}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </>
-                          )}
+                          {/* Favorite Decks */}
+                          <FavoriteDecksEditor
+                            favoriteDecks={favoriteDecks}
+                            isEditMode={isEditMode && isOwner}
+                            onDecksUpdate={handleFavoriteDecksUpdate}
+                          />
                         </div>
                       )}
 
@@ -460,12 +429,21 @@ export const ProfilePage = () => {
                       )}
 
                       {activeTab === "guides" && (
-                        <div className="text-center text-gray-400 py-20">
-                          <p className="text-lg">Guides coming soon...</p>
+                        <div>
+                          {userGuides && userGuides.length > 0 ? (
+                            <UserInstancesList
+                              userId={userId}
+                              onSelectArchetype={handleSelectArchetype}
+                            />
+                          ) : (
+                            <div className="text-center text-gray-400 py-20">
+                              <p className="text-lg">No guides yet...</p>
+                            </div>
+                          )}
                         </div>
                       )}
 
-                      {activeTab === "favoritos" && (
+                      {activeTab === "favorites" && (
                         <div className="text-center text-gray-400 py-20">
                           <p className="text-lg">
                             Favorites management coming soon...
@@ -476,44 +454,27 @@ export const ProfilePage = () => {
                   </div>
                 </div>
 
-                {/* Right Sidebar - con fondo background_profile - altura fija */}
-                <aside className="w-[320px] flex-shrink-0 sticky top-8">
-                  <div className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-[800px]">
+                {/* Right Sidebar */}
+                <aside className="w-full lg:w-[280px] xl:w-[320px] flex-shrink-0 lg:sticky lg:top-8">
+                  <div className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]">
                     <img
                       src={background_profile}
                       alt=""
                       aria-hidden="true"
                       className="absolute inset-0 w-full h-full object-cover opacity-70"
                     />
-                    <div className="relative z-10 bg-gradient-to-br from-purple-950/40 to-slate-900/60 backdrop-blur-sm p-6 space-y-6 h-full overflow-y-auto">
+                    <div className="relative z-10 bg-gradient-to-br from-purple-950/40 to-slate-900/60 backdrop-blur-sm p-4 sm:p-6 space-y-4 sm:space-y-6 h-full">
                       <div className="space-y-3">
                         <h3 className="text-yellow-500 font-bold text-sm flex items-center gap-2 mt-1">
                           <span className="text-lg">♦</span> Favorite Guides
                         </h3>
-                        <div className="space-y-2">
-                          {counterDecks.map((deck) => (
-                            <div
-                              key={deck.id}
-                              className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
-                            >
-                              <img
-                                src={deck.img}
-                                alt={deck.name}
-                                className="w-10 h-10 rounded object-cover border border-yellow-600/30"
-                              />
-                              <span className="text-amber-200 text-sm">
-                                {deck.name}
-                              </span>
-                            </div>
-                          ))}
+                        <div className="text-center text-gray-400 py-4">
+                          <p className="text-sm">Coming soon...</p>
                         </div>
-
-                        <button className="w-full hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors">
-                          View all ({counterDecks.length})
-                        </button>
                       </div>
+                      
                       <div>
-                        <h3 className="text-yellow-500 font-bold mb-3  border-t border-yellow-600/30 pt-6">
+                        <h3 className="text-yellow-500 font-bold mb-3 border-t border-yellow-600/30 pt-6">
                           ♦ Best Guides
                         </h3>
                         <div className="space-y-2 mb-4">
@@ -529,9 +490,12 @@ export const ProfilePage = () => {
                               }
                             >
                               <img
-                                src="https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?auto=compress&cs=tinysrgb&w=50"
+                                src={`https://images.ygoprodeck.com/images/cards/${guide.id}.jpg`}
                                 alt=""
                                 className="w-8 h-8 rounded object-cover border border-yellow-600/30"
+                                onError={(e) => {
+                                  e.currentTarget.src = "https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?auto=compress&cs=tinysrgb&w=50";
+                                }}
                               />
                               <span className="text-amber-200 text-sm flex-1 truncate">
                                 {guide.archetypeName}
@@ -541,7 +505,7 @@ export const ProfilePage = () => {
                         </div>
                         {userGuides && userGuides.length > 0 && (
                           <button
-                            onClick={() => setShowFullGuides(true)}
+                            onClick={handleViewAllGuides}
                             className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
                           >
                             View all ({userGuides.length})
@@ -558,14 +522,6 @@ export const ProfilePage = () => {
 
         <Footer />
       </div>
-
-      {showFullGuides && (
-        <FullScreenGuidesModal
-          userId={userId}
-          onClose={() => setShowFullGuides(false)}
-          onSelectArchetype={handleSelectArchetype}
-        />
-      )}
 
       {isReportModalOpen && (
         <ReportModal

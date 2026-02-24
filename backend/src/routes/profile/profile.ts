@@ -4,7 +4,9 @@ import { getProfileController } from "@/http/controllers/profile/getProfileContr
 import { updateBioController } from "@/http/controllers/profile/updateBioController";
 import { uploadProfilePictureController } from "@/http/controllers/profile/uploadProfilePictureController";
 import { deleteProfilePictureController } from "@/http/controllers/profile/deleteProfilePictureController";
+import { updateFavoriteCardAndDecksController } from "@/http/controllers/profile/updateFavoriteCardAndDecksController";
 import { validateBioMiddleware } from "@/http/middlewares/profile/validateBioMiddleware";
+import { validateFavoriteCardAndDecksMiddleware } from "@/http/middlewares/profile/validateFavoriteCardAndDecksMiddleware";
 import { validateUserIdMiddleware } from "@/http/middlewares/validateUserIdMiddleware";
 import { validateFileUploadMiddleware } from "@/http/middlewares/validateFileUploadMiddleware";
 
@@ -26,7 +28,7 @@ router.put(
   "/:userId/bio",
   validateUserIdMiddleware,
   validateBioMiddleware,
-  updateBioController
+  updateBioController,
 );
 
 // Upload profile picture
@@ -35,14 +37,22 @@ router.post(
   validateUserIdMiddleware,
   upload.single("profilePicture"),
   validateFileUploadMiddleware,
-  uploadProfilePictureController
+  uploadProfilePictureController,
 );
 
 // Delete profile picture
 router.delete(
   "/:userId/photo",
   validateUserIdMiddleware,
-  deleteProfilePictureController
+  deleteProfilePictureController,
+);
+
+// Update favorites
+router.put(
+  "/:userId/favorites",
+  validateUserIdMiddleware,
+  validateFavoriteCardAndDecksMiddleware,
+  updateFavoriteCardAndDecksController,
 );
 
 export default router;

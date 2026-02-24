@@ -105,4 +105,27 @@ export class ProfileServiceImpl implements ProfileService {
     // Update profile
     return await this.profileRepository.deleteProfilePicture(userId);
   }
+
+  async updateFavoriteCardAndDecks(userId: string, favoriteCardId: number | null, favoriteDecks: string | null): Promise<Profile> {
+    // Ensure profile exists
+    let profile = await this.profileRepository.findProfileByUserId(userId);
+    if (!profile) {
+      profile = await this.profileRepository.createProfile({ userId });
+    }
+
+    // Validate favoriteDecks JSON if provided
+    if (favoriteDecks !== null && favoriteDecks.trim() !== "") {
+      try {
+        JSON.parse(favoriteDecks);
+      } catch {
+        throw new Error("Invalid favoriteDecks JSON format");
+      }
+    }
+
+    // Update favorites
+    return await this.profileRepository.updateProfile(userId, {
+      favoriteCardId,
+      favoriteDecks,
+    });
+  }
 }

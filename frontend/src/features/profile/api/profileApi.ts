@@ -10,6 +10,8 @@ export interface Profile {
   bio: string | null;
   profilePictureUrl: string | null;
   cloudinaryPublicId: string | null;
+  favoriteCardId: number | null;
+  favoriteDecks: string | null;
   role: string;
   totalLikes: number;
   createdAt: string;
@@ -57,6 +59,20 @@ export const profileApi = {
   async deleteProfilePicture(userId: string): Promise<ProfileResponse> {
     const response = await axios.delete(
       `${API_URL}/api/profile/${userId}/photo`
+    );
+    return response.data;
+  },
+
+  async updateFavorites(
+    userId: string,
+    data: {
+      favoriteCardId?: number | null;
+      favoriteDecks?: string | null;
+    }
+  ): Promise<ProfileResponse> {
+    const response = await axios.put(
+      `${API_URL}/api/profile/${userId}/favorites`,
+      data
     );
     return response.data;
   },

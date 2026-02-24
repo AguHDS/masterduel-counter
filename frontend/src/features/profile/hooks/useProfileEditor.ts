@@ -1,12 +1,35 @@
 import { useState, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { profileApi } from '../api/profileApi';
 
 export const useProfileEditor = (userId: string) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [bioValue, setBioValue] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isDeletingPhoto, setIsDeletingPhoto] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const updateBioMutation = useMutation({
+    mutationFn: (bio: string) => profileApi.updateBio(userId, bio),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', userId] });
+    },
+  });
+
+  const uploadPhotoMutation = useMutation({
+    mutationFn: (file: File) => profileApi.uploadProfilePicture(userId, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', userId] });
+    },
+  });
+
+  const deletePhotoMutation = useMutation({
+    mutationFn: () => profileApi.deleteProfilePicture(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', userId] });
+    },
+  });
 
   const handleFileSelect = useCallback((file: File) => {
     setSelectedFile(file);
@@ -22,27 +45,35 @@ export const useProfileEditor = (userId: string) => {
   }, []);
 
   const handleSaveChanges = useCallback(async () => {
-    setIsSaving(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save bio if changed
+      if (bioValue.trim() !== '') {
+        await updateBioMutation.mutateAsync(bioValue);
+      }
+
+      // Upload photo if selected
+      if (selectedFile) {
+        await uploadPhotoMutation.mutateAsync(selectedFile);
+      }
+
+      // Reset edit mode
       setIsEditMode(false);
       setSelectedFile(null);
       setPreviewUrl(null);
-    } finally {
-      setIsSaving(false);
+    } catch (error) {
+      console.error('Error saving profile:', error);
     }
-  }, []);
+  }, [bioValue, selectedFile, updateBioMutation, uploadPhotoMutation]);
 
   const handleDeletePhoto = useCallback(async () => {
-    setIsDeletingPhoto(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await deletePhotoMutation.mutateAsync();
       setPreviewUrl(null);
       setSelectedFile(null);
-    } finally {
-      setIsDeletingPhoto(false);
+    } catch (error) {
+      console.error('Error deleting photo:', error);
     }
-  }, []);
+  }, [deletePhotoMutation]);
 
   const toggleEditMode = useCallback((currentBio: string) => {
     setIsEditMode(true);
@@ -61,8 +92,8 @@ export const useProfileEditor = (userId: string) => {
     bioValue,
     selectedFile,
     previewUrl,
-    isSaving,
-    isDeletingPhoto,
+    isSaving: updateBioMutation.isPending || uploadPhotoMutation.isPending,
+    isDeletingPhoto: deletePhotoMutation.isPending,
     handleFileSelect,
     handleBioChange,
     handleSaveChanges,
