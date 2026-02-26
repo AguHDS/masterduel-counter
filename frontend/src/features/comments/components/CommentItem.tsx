@@ -72,10 +72,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   const hasReplies = comment.replies && comment.replies.length > 0;
   const replyCount = comment.replies?.length || 0;
   
-  // Determine if we are in a deep level (more than 3 levels)
-  const isDeepLevel = depth >= 3;
-  // Max visible replies before the scroll
-  const MAX_VISIBLE_REPLIES = 3;
+  // Max visible replies by default (always limit to 2)
+  const MAX_INITIAL_REPLIES = 2;
+  const [showAllReplies, setShowAllReplies] = useState(false);
 
   // Get the best available profile picture (prioritize profilePictureUrl from Cloudinary)
   const avatarUrl = getOptimizedImageUrl(comment.author.profilePictureUrl || comment.author.image);
@@ -90,6 +89,33 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   const formattedDate = formatRelativeTime(comment.createdAt);
   const isEdited = comment.updatedAt !== comment.createdAt;
 
+  // Handle normal click on profile link
+  const handleProfileClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Allow normal behavior for middle click (button 1) or if modifier keys are pressed
+    if (e.button === 1 || e.ctrlKey || e.metaKey || e.shiftKey) {
+      return; // Let the browser handle it naturally
+    }
+    // For normal left clicks, prevent default and navigate programmatically
+    e.preventDefault();
+    window.location.href = `/profile/${comment.author.id}`;
+  };
+
+  // Prevent scroll on middle mouse down
+  const handleMouseDown = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Middle click (button 1) typically triggers scroll - prevent it
+    if (e.button === 1) {
+      e.preventDefault();
+    }
+  };
+
+  // Handle middle click specifically if needed
+  const handleAuxClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.button === 1) {
+      e.preventDefault();
+      window.open(`/profile/${comment.author.id}`, '_blank');
+    }
+  };
+
   if (isEditing) {
     return (
       <div className={`${depth > 0 ? "mt-3" : "mb-4"}`}>
@@ -101,6 +127,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               rel="noopener noreferrer"
               className="flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
               title={`View ${comment.author.name}'s profile`}
+              onClick={handleProfileClick}
+              onMouseDown={handleMouseDown}
+              onAuxClick={handleAuxClick}
             >
               {avatarUrl ? (
                 <img
@@ -119,6 +148,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-white hover:text-blue-400 transition-colors focus:outline-none focus:underline"
+                  onClick={handleProfileClick}
+                  onMouseDown={handleMouseDown}
+                  onAuxClick={handleAuxClick}
                 >
                   {comment.author.name}
                 </a>
@@ -183,6 +215,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               rel="noopener noreferrer"
               className="flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
               title={`View ${comment.author.name}'s profile`}
+              onClick={handleProfileClick}
+              onMouseDown={handleMouseDown}
+              onAuxClick={handleAuxClick}
             >
               {avatarUrl ? (
                 <img
@@ -202,6 +237,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-white hover:text-blue-400 transition-colors focus:outline-none focus:underline"
+                  onClick={handleProfileClick}
+                  onMouseDown={handleMouseDown}
+                  onAuxClick={handleAuxClick}
                 >
                   {comment.author.name}
                 </a>
@@ -298,59 +336,29 @@ export const CommentItem: React.FC<CommentItemProps> = ({
         {/* Replies */}
         {hasReplies && showReplies && (
           <div className="mt-2">
-            {isDeepLevel ? (
-              <>
-                {/* Show only first replies */}
-                <div className="space-y-2">
-                  {comment.replies?.slice(0, MAX_VISIBLE_REPLIES).map((reply) => (
-                    <CommentItem
-                      key={reply.id}
-                      comment={reply}
-                      onDelete={onDelete}
-                      currentUserId={currentUserId}
-                      isInstanceOwner={isInstanceOwner}
-                      depth={depth + 1}
-                    />
-                  ))}
-                </div>
-                
-                {/* If there are more replies, show "Show more" button and scroll container */}
-                {replyCount > MAX_VISIBLE_REPLIES && (
-                  <div className="mt-2">
-                    <details className="group">
-                      <summary className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer list-none flex items-center gap-1 mb-2">
-                        <ChevronDown className="w-3 h-3 group-open:rotate-180 transition-transform" />
-                        Show {replyCount - MAX_VISIBLE_REPLIES} more {replyCount - MAX_VISIBLE_REPLIES === 1 ? "reply" : "replies"}
-                      </summary>
-                      <div className="max-h-96 overflow-y-auto space-y-2 pr-2">
-                        {comment.replies?.slice(MAX_VISIBLE_REPLIES).map((reply) => (
-                          <CommentItem
-                            key={reply.id}
-                            comment={reply}
-                            onDelete={onDelete}
-                            currentUserId={currentUserId}
-                            isInstanceOwner={isInstanceOwner}
-                            depth={depth + 1}
-                          />
-                        ))}
-                      </div>
-                    </details>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="space-y-2">
-                {comment.replies?.map((reply) => (
-                  <CommentItem
-                    key={reply.id}
-                    comment={reply}
-                    onDelete={onDelete}
-                    currentUserId={currentUserId}
-                    isInstanceOwner={isInstanceOwner}
-                    depth={depth + 1}
-                  />
-                ))}
-              </div>
+            <div className="space-y-2">
+              {/* Show only first MAX_INITIAL_REPLIES by default */}
+              {comment.replies?.slice(0, showAllReplies ? undefined : MAX_INITIAL_REPLIES).map((reply) => (
+                <CommentItem
+                  key={reply.id}
+                  comment={reply}
+                  onDelete={onDelete}
+                  currentUserId={currentUserId}
+                  isInstanceOwner={isInstanceOwner}
+                  depth={depth + 1}
+                />
+              ))}
+            </div>
+            
+            {/* If there are more replies, show "View more replies" button */}
+            {replyCount > MAX_INITIAL_REPLIES && !showAllReplies && (
+              <button
+                onClick={() => setShowAllReplies(true)}
+                className="mt-2 text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+              >
+                <ChevronDown className="w-3 h-3" />
+                View {replyCount - MAX_INITIAL_REPLIES} more {replyCount - MAX_INITIAL_REPLIES === 1 ? "reply" : "replies"}
+              </button>
             )}
           </div>
         )}

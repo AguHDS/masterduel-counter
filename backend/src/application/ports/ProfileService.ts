@@ -9,4 +9,6 @@ export interface ProfileService {
   uploadProfilePicture(userId: string, file: Express.Multer.File): Promise<Profile>;
   /** Delete the profile picture */
   deleteProfilePicture(userId: string): Promise<Profile>;
+  /** Update favorite card and decks */
+  updateFavoriteCardAndDecks(userId: string, favoriteCardId: number | null, favoriteDecks: string | null): Promise<Profile>;
 }

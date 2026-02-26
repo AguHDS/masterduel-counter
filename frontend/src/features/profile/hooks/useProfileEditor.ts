@@ -1,130 +1,100 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { profileApi } from "../api/profileApi";
+import { useState, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { profileApi } from '../api/profileApi';
 
 export const useProfileEditor = (userId: string) => {
   const [isEditMode, setIsEditMode] = useState(false);
-  const [bioValue, setBioValue] = useState("");
+  const [bioValue, setBioValue] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const queryClient = useQueryClient();
 
   const updateBioMutation = useMutation({
     mutationFn: (bio: string) => profileApi.updateBio(userId, bio),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", userId] });
-      setIsEditMode(false);
+      queryClient.invalidateQueries({ queryKey: ['profile', userId] });
     },
   });
 
   const uploadPhotoMutation = useMutation({
     mutationFn: (file: File) => profileApi.uploadProfilePicture(userId, file),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", userId] });
-      setSelectedFile(null);
-      setPreviewUrl(null);
+      queryClient.invalidateQueries({ queryKey: ['profile', userId] });
     },
   });
 
   const deletePhotoMutation = useMutation({
     mutationFn: () => profileApi.deleteProfilePicture(userId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+      queryClient.invalidateQueries({ queryKey: ['profile', userId] });
     },
   });
 
-  const handleFileSelect = (file: File) => {
-    // Validate file size (3MB max)
-    if (file.size > 3 * 1024 * 1024) {
-      alert("File size must be less than 3MB");
-      return;
-    }
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      alert("Please select an image file");
-      return;
-    }
-
+  const handleFileSelect = useCallback((file: File) => {
     setSelectedFile(file);
-    const preview = URL.createObjectURL(file);
-    setPreviewUrl(preview);
-  };
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
-  const handleBioChange = (value: string) => {
-    if (value.length <= 1000) {
-      setBioValue(value);
-    }
-  };
+  const handleBioChange = useCallback((value: string) => {
+    setBioValue(value);
+  }, []);
 
-  const handleSaveBio = () => {
-    updateBioMutation.mutate(bioValue);
-  };
-
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = useCallback(async () => {
     try {
-      // Upload photo first if there's a new file
+      // Always save bio (even if empty)
+      await updateBioMutation.mutateAsync(bioValue);
+
+      // Upload photo if selected
       if (selectedFile) {
         await uploadPhotoMutation.mutateAsync(selectedFile);
       }
-      
-      // Then update bio
-      await updateBioMutation.mutateAsync(bioValue);
-      
+
+      // Reset edit mode
       setIsEditMode(false);
       setSelectedFile(null);
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-      }
-    } catch (error) {
-      console.error("Error saving changes:", error);
-    }
-  };
-
-  const handleUploadPhoto = () => {
-    if (selectedFile) {
-      uploadPhotoMutation.mutate(selectedFile);
-    }
-  };
-
-  const handleDeletePhoto = () => {
-    if (window.confirm("Are you sure you want to delete your profile picture?")) {
-      deletePhotoMutation.mutate();
-    }
-  };
-
-  const toggleEditMode = (currentBio: string) => {
-    if (!isEditMode) {
-      setBioValue(currentBio || "");
-    }
-    setIsEditMode(!isEditMode);
-  };
-
-  const cancelEdit = () => {
-    setIsEditMode(false);
-    setBioValue("");
-    setSelectedFile(null);
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
+    } catch (error) {
+      console.error('Error saving profile:', error);
     }
-  };
+  }, [bioValue, selectedFile, updateBioMutation, uploadPhotoMutation]);
+
+  const handleDeletePhoto = useCallback(async () => {
+    try {
+      await deletePhotoMutation.mutateAsync();
+      setPreviewUrl(null);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+    }
+  }, [deletePhotoMutation]);
+
+  const toggleEditMode = useCallback((currentBio: string) => {
+    setIsEditMode(true);
+    setBioValue(currentBio);
+  }, []);
+
+  const cancelEdit = useCallback(() => {
+    setIsEditMode(false);
+    setBioValue('');
+    setSelectedFile(null);
+    setPreviewUrl(null);
+  }, []);
 
   return {
     isEditMode,
     bioValue,
     selectedFile,
     previewUrl,
-    isUpdatingBio: updateBioMutation.isPending,
-    isUploadingPhoto: uploadPhotoMutation.isPending,
-    isDeletingPhoto: deletePhotoMutation.isPending,
     isSaving: updateBioMutation.isPending || uploadPhotoMutation.isPending,
+    isDeletingPhoto: deletePhotoMutation.isPending,
     handleFileSelect,
     handleBioChange,
-    handleSaveBio,
     handleSaveChanges,
-    handleUploadPhoto,
     handleDeletePhoto,
     toggleEditMode,
     cancelEdit,

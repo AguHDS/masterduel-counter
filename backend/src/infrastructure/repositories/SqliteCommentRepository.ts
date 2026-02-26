@@ -59,8 +59,8 @@ export class SqliteCommentRepository implements CommentRepository {
       orderBy: { createdAt: "desc" },
     });
 
-    const commentMap = new Map<number, any>();
-    const rootComments: any[] = [];
+    const commentMap = new Map<number, CommentWithAuthor>();
+    const rootComments: CommentWithAuthor[] = [];
 
     allComments.forEach((comment) => {
       commentMap.set(comment.id, {
@@ -85,9 +85,10 @@ export class SqliteCommentRepository implements CommentRepository {
 
     allComments.forEach((comment) => {
       const commentWithReplies = commentMap.get(comment.id);
+      if (!commentWithReplies) return;
       if (comment.parentCommentId) {
         const parent = commentMap.get(comment.parentCommentId);
-        if (parent) {
+        if (parent && parent.replies) {
           parent.replies.push(commentWithReplies);
           parent.replyCount = parent.replies.length;
         }
@@ -182,7 +183,15 @@ export class SqliteCommentRepository implements CommentRepository {
     return parent?.instanceId === instanceId;
   }
 
-  private mapToDomain(prismaComment: any): Comment {
+  private mapToDomain(prismaComment: {
+    id: number;
+    content: string;
+    createdAt: Date;
+    updatedAt: Date;
+    instanceId: number;
+    authorId: string;
+    parentCommentId: number | null;
+  }): Comment {
     return {
       id: prismaComment.id,
       content: prismaComment.content,

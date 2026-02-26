@@ -74,22 +74,21 @@ export const RegisteredArchetypesList = ({
     >
       <div className="flex max-[767px]:ml-4 sm:flex-row sm:items-end gap-2 mt-2">
         <h2 className="text-2xl relative bottom-1 font-bold text-white">
-          Latest Archetypes •
+          Lastest Registered Archetypes
         </h2>
         <span className="text-sm relative max-[640px]:top-1 bottom-[7px] font-semibold text-blue-300">
-          Updated by the community
+          • updated by the community
         </span>
       </div>
 
-      <div
-        className="w-full flex justify-center m-auto h-[2px]"
-        style={{
-          background:
-            "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
-        }}
-      />
-
-      <div className="rounded-lg overflow-hidden">
+      <div className="rounded-lg overflow-hidden border-t border-blue-600 bg-black/60">
+        <div
+          className="w-full flex justify-center m-auto h-[1px]"
+          style={{
+            background:
+              "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
+          }}
+        />
         <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 border-b border-blue-600 bg-black/60 md:px-6 md:py-4">
           <div className="text-blue-300 font-semibold text-lg">ID</div>
           <div className="text-blue-300 font-semibold text-lg relative left-18">
@@ -139,17 +138,19 @@ export const RegisteredArchetypesList = ({
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/35 group-hover:bg-black/10 group-active:bg-black/40" />
-                
-                <div 
+
+                <div
                   className="absolute inset-y-0 left-0 w-8 pointer-events-none"
                   style={{
-                    background: 'linear-gradient(to right, rgba(0,0,39,0.6), transparent)'
+                    background:
+                      "linear-gradient(to right, rgba(0,0,39,0.6), transparent)",
                   }}
                 />
-                <div 
+                <div
                   className="absolute inset-y-0 right-0 w-8 pointer-events-none"
                   style={{
-                    background: 'linear-gradient(to left, rgba(0,0,39,0.6), transparent)'
+                    background:
+                      "linear-gradient(to left, rgba(0,0,39,0.6), transparent)",
                   }}
                 />
 
@@ -172,7 +173,7 @@ export const RegisteredArchetypesList = ({
                   </div>
 
                   <div className="hidden md:grid md:grid-cols-[60px_minmax(220px,1fr)_160px] md:gap-3 md:items-center md:px-6 md:py-4">
-                    <div className="text-[#ffbf1f] relative right-2 text-2xl font-bold drop-shadow-md">
+                    <div className="text-[#ffbf1f] flex text-2xl font-bold drop-shadow-md">
                       {positionLabel}
                     </div>
                     <div className="flex items-center gap-4">

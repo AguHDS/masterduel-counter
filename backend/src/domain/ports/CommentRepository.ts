@@ -1,6 +1,5 @@
 import {
   Comment,
-  CommentWithAuthor,
   CreateCommentDTO,
   UpdateCommentDTO,
   CommentsPaginatedResponse,

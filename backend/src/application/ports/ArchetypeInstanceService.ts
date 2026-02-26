@@ -21,6 +21,12 @@ export interface ArchetypeInstanceServicePort {
   /** Get all archetype instances created by a specific user (for user profile) */
   getInstancesByUserId(userId: string, sortBy?: 'likes' | 'updated'): Promise<ArchetypeInstanceWithDetails[]>;
   
+  /** Search instances by archetype ID and title */
+  searchInstancesByArchetypeIdAndTitle(archetypeId: number, title: string, sortBy?: 'likes' | 'updated'): Promise<ArchetypeInstanceWithDetails[]>;
+  
+  /** Search instances by user ID and title */
+  searchInstancesByUserIdAndTitle(userId: string, title: string, sortBy?: 'likes' | 'updated'): Promise<ArchetypeInstanceWithDetails[]>;
+  
   /** Updates an existing instance (title, headerCard, generalTip) */
   updateInstance(id: number, userId: string, data: ArchetypeInstanceUpdateDTO): Promise<ArchetypeInstance>;
 
@@ -35,4 +41,13 @@ export interface ArchetypeInstanceServicePort {
 
   /** Checks if a user has liked an instance */
   hasUserLikedInstance(instanceId: number, userId: string): Promise<boolean>;
+
+  /** Toggles a favorite on an instance (add if not exists, remove if exists) */
+  toggleInstanceFavorite(instanceId: number, userId: string): Promise<{ favorited: boolean }>;
+
+  /** Checks if a user has favorited an instance */
+  hasUserFavoritedInstance(instanceId: number, userId: string): Promise<boolean>;
+
+  /** Gets all favorited instances by a user */
+  getFavoritedInstancesByUserId(userId: string): Promise<ArchetypeInstanceWithDetails[]>;
 }

@@ -30,6 +30,7 @@ This will:
 - Use production CORS settings
 - Use terminal instead of real email verification for password recovery
 - Enable Sentry environment error reporting for Error Boundary in the frontend
+- Use production/development urls for Google and Discord OAuth
 
 ### Troubleshooting
 
@@ -39,12 +40,6 @@ This will:
 - Verify SMTP credentials
 - Check console logs for SMTP errors
 - Ensure port 587 is not blocked by firewall
-
-**Email verification failing:**
-
-- Check token expiration (24 hours default)
-- Verify database `Verification` table exists
-- Check console logs for detailed error messages
 
 **CAPTCHA not working:**
 

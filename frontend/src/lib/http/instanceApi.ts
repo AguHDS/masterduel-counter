@@ -86,6 +86,32 @@ export const instanceApi = {
     return response.data;
   },
 
+  /** Search guide instances by archetype ID and title */
+  searchInstancesByArchetypeId: async (
+    archetypeId: number,
+    title: string,
+    sortBy: 'likes' | 'updated' = 'updated'
+  ): Promise<ArchetypeInstanceWithDetails[]> => {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/search`,
+      { params: { title, sortBy } }
+    );
+    return response.data;
+  },
+
+  /** Search guide instances by user ID and title */
+  searchInstancesByUserId: async (
+    userId: string,
+    title: string,
+    sortBy: 'likes' | 'updated' = 'updated'
+  ): Promise<ArchetypeInstanceWithDetails[]> => {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/users/${userId}/instances/search`,
+      { params: { title, sortBy } }
+    );
+    return response.data;
+  },
+
   /** Get instance by its ID */
   getInstanceById: async (instanceId: number): Promise<UserInstanceWithCardPairs> => {
     const response = await axios.get(
@@ -132,6 +158,25 @@ export const instanceApi = {
   getInstanceLikeStatus: async (archetypeId: number, instanceId: number): Promise<{ success: boolean; liked: boolean }> => {
     const response = await axios.get<{ success: boolean; liked: boolean }>(
       `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/like/status`,
+      { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  // Toggle favorite on an instance (add if not exists, remove if exists)
+  toggleInstanceFavorite: async (archetypeId: number, instanceId: number): Promise<{ success: boolean; favorited: boolean }> => {
+    const response = await axios.post<{ success: boolean; favorited: boolean }>(
+      `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/favorite`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  // Check if current user has favorited an instance
+  getInstanceFavoriteStatus: async (archetypeId: number, instanceId: number): Promise<{ success: boolean; favorited: boolean }> => {
+    const response = await axios.get<{ success: boolean; favorited: boolean }>(
+      `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/favorite/status`,
       { withCredentials: true }
     );
     return response.data;

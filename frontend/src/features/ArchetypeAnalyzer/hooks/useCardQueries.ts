@@ -8,16 +8,22 @@ import {
   type Card,
 } from "../api/cardApi";
 
+interface UseSearchCardsOptions {
+  enabled?: boolean;
+}
+
 /**
  * Hook to search cards
  * Uses SHORT stale time for real-time search with aggressive caching
  */
-export const useSearchCards = (query: string) => {
+export const useSearchCards = (query: string, options?: UseSearchCardsOptions) => {
+  const trimmedQuery = query.trim();
+  
   return useQuery<CardSearchResult[]>({
     queryKey: queryKeys.cards.search(query),
     queryFn: () => searchCards(query),
     staleTime: QUERY_STALE_TIME.SHORT,
-    enabled: query.trim().length > 0,
+    enabled: options?.enabled !== undefined ? options.enabled : trimmedQuery.length > 0,
   });
 };
 

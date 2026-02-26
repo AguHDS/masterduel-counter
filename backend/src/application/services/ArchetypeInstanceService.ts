@@ -44,6 +44,22 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     return this.instanceRepository.findArchetypeInstanceByUserId(userId, sortBy);
   }
 
+  async searchInstancesByArchetypeIdAndTitle(
+    archetypeId: number,
+    title: string,
+    sortBy: "likes" | "updated" = "updated",
+  ): Promise<ArchetypeInstanceWithDetails[]> {
+    return this.instanceRepository.searchInstancesByArchetypeIdAndTitle(archetypeId, title, sortBy);
+  }
+
+  async searchInstancesByUserIdAndTitle(
+    userId: string,
+    title: string,
+    sortBy: "likes" | "updated" = "updated",
+  ): Promise<ArchetypeInstanceWithDetails[]> {
+    return this.instanceRepository.searchInstancesByUserIdAndTitle(userId, title, sortBy);
+  }
+
   async updateInstance(
     id: number,
     userId: string,
@@ -181,5 +197,33 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     userId: string,
   ): Promise<boolean> {
     return this.instanceRepository.hasUserLikedInstance(instanceId, userId);
+  }
+
+  async toggleInstanceFavorite(
+    instanceId: number,
+    userId: string,
+  ): Promise<{ favorited: boolean }> {
+    // Get the instance to check if it exists
+    const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
+
+    if (!instance) {
+      throw new Error("Instance not found");
+    }
+
+    // Users can favorite their own instances (unlike likes)
+    return this.instanceRepository.ToggleFavoriteInstance(instanceId, userId);
+  }
+
+  async hasUserFavoritedInstance(
+    instanceId: number,
+    userId: string,
+  ): Promise<boolean> {
+    return this.instanceRepository.hasUserFavoritedInstance(instanceId, userId);
+  }
+
+  async getFavoritedInstancesByUserId(
+    userId: string,
+  ): Promise<ArchetypeInstanceWithDetails[]> {
+    return this.instanceRepository.findFavoritedInstancesByUserId(userId);
   }
 }

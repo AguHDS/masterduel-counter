@@ -1,16 +1,26 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
-import { Flag } from "lucide-react";
+import { Flag, Edit } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { UserInstancesList } from "../components/UserInstancesList";
+import { FavoriteCardEditor } from "../components/FavoriteCardEditor";
+import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
+import { FavoritedGuidesList } from "../components/FavoritedGuidesList";
+import type { TabType } from "../types/profileTypes";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
+import { useFavoriteCardAndDecks } from "../hooks/useFavoriteCardAndDecks";
 import { useSession } from "@/lib/auth-client";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
+import { instanceApi } from "@/lib/http/instanceApi";
+import { type Card } from "@/features/ArchetypeAnalyzer/api/cardApi";
+import background_button from "@/assets/MDC-button-background.webp";
+import background_profile from "@/assets/MDC-profile_background.webp";
+import border_profile from "@/assets/MDC-border.webp";
 
 export const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -18,6 +28,7 @@ export const ProfilePage = () => {
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>("profile");
 
   const { data: profileData } = useQuery({
     queryKey: ["profile", userId],
@@ -25,10 +36,21 @@ export const ProfilePage = () => {
     enabled: !!userId,
   });
 
+  const { data: userGuides } = useQuery({
+    queryKey: ["userInstances", userId],
+    queryFn: () => instanceApi.getInstancesByUserId(userId!, "likes"),
+    enabled: !!userId,
+  });
+
+  const { data: favoritedGuidesData, refetch: refetchFavoritedGuides } = useQuery({
+    queryKey: ["favoritedGuides", userId],
+    queryFn: () => profileApi.getFavoritedGuides(userId!),
+    enabled: !!userId,
+  });
+
   const {
     isEditMode,
     bioValue,
-    selectedFile,
     previewUrl,
     isSaving,
     isDeletingPhoto,
@@ -40,14 +62,82 @@ export const ProfilePage = () => {
     cancelEdit,
   } = useProfileEditor(userId!);
 
-  const handleSelectArchetype = (archetypeId: number, instanceId: number) => {
-    navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
-  };
+  // Get profile data
+  const profile = profileData?.profile;
+
+  // Use favoriteCardAndDecks hook
+  const {
+    favoriteCardId,
+    favoriteDecks,
+    setFavoriteCardId,
+    setFavoriteDecks,
+    saveFavoriteCardAndDecks,
+    isSaving: isSavingFavorites,
+  } = useFavoriteCardAndDecks(userId!, profile);
+
+  const handleSelectArchetype = useCallback(
+    (archetypeId: number, instanceId: number) => {
+      navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
+    },
+    [navigate],
+  );
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       handleFileSelect(file);
+    }
+  };
+
+  const handleViewAllGuides = () => {
+    setActiveTab("guides");
+  };
+
+  const handleFavoriteCardSelect = (card: Card) => {
+    setFavoriteCardId(card.id);
+  };
+
+  const handleFavoriteDecksUpdate = (decks: typeof favoriteDecks) => {
+    setFavoriteDecks(decks);
+  };
+
+  const handleRemoveFavorite = async (guideId: number, archetypeId: number) => {
+    try {
+      await instanceApi.toggleInstanceFavorite(archetypeId, guideId);
+      await refetchFavoritedGuides();
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      alert("Failed to remove favorite. Please try again.");
+    }
+  };
+
+  const handleCancelEdit = useCallback(() => {
+    cancelEdit();
+    // Reset favorites to original values
+    if (profile) {
+      setFavoriteCardId(profile.favoriteCardId || null);
+      if (profile.favoriteDecks) {
+        try {
+          const decks = JSON.parse(profile.favoriteDecks) as typeof favoriteDecks;
+          setFavoriteDecks(decks);
+        } catch {
+          setFavoriteDecks([]);
+        }
+      } else {
+        setFavoriteDecks([]);
+      }
+    }
+  }, [cancelEdit, profile, setFavoriteCardId, setFavoriteDecks]);
+
+  const handleSaveProfile = async () => {
+    try {
+      // Save favorites and bio/photo in parallel
+      await Promise.all([
+        saveFavoriteCardAndDecks(),
+        handleSaveChanges(),
+      ]);
+    } catch (error) {
+      console.error("Error saving profile:", error);
     }
   };
 
@@ -70,202 +160,446 @@ export const ProfilePage = () => {
     );
   }
 
-  const profile = profileData?.profile;
   const displayPhotoUrl = previewUrl || profile?.profilePictureUrl;
 
   return (
     <>
       <Helmet>
-        <title>User Profile - Masterduel Counter</title>
+        <title>{profile?.userName || "User"} - Profile</title>
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950/20 to-slate-950 flex flex-col">
         <Navbar />
 
-        <main
-          className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
-          style={{ maxWidth: "87.5rem" }}
-          role="main"
-          aria-label="Main content"
-        >
+        <main className="flex-1 px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
           <FeatureErrorBoundary featureName="Profile">
-            <section className="w-full flex justify-center">
-              <div className="relative w-full rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
-                <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] overflow-hidden py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
-                  <img
-                    src="/src/assets/instanceEditorAndProfile_background.webp"
-                    alt=""
-                    loading="lazy"
-                    fetchPriority="low"
-                    decoding="async"
-                    aria-hidden="true"
-                    className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
-                  />
+            <div className="max-w-[1600px] mx-auto">
+              <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
+                {/* Left Sidebar */}
+                <aside className="w-full lg:w-[280px] xl:w-[350px] flex-shrink-0 lg:sticky lg:top-8">
+                  <div className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]">
+                    <img
+                      src={background_profile}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover opacity-70"
+                    />
+                    <div className="relative z-10 bg-gradient-to-br from-purple-950/40 to-slate-900/60 backdrop-blur-sm p-4 sm:p-6 lg:p-12 lg:pt-6 space-y-4 lg:space-y-6 h-full">
+                      {/* User name */}
+                      <div className="text-center mb-2">
+                        <h1 className="text-xl sm:text-2xl font-bold text-yellow-400">
+                          {profile?.userName || userId}
+                        </h1>
+                      </div>
 
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80"></div>
-
-                  <div className="relative z-10 space-y-8 w-full">
-                    <div className="pb-8 border-b border-blue-700/50">
-                      <div className="flex items-start gap-8">
-                        <div className="flex-shrink-0">
-                          <div className="relative">
-                            <div className="w-48 h-52 overflow-hidden bg-slate-800 border-2 border-[#4d77ff] rounded">
-                              {displayPhotoUrl ? (
-                                <img
-                                  src={displayPhotoUrl}
-                                  alt={`${userId}'s profile`}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-blue-300 text-5xl font-bold">
-                                  {userId.charAt(0).toUpperCase()}
-                                </div>
-                              )}
+                      <div className="relative mx-auto max-w-[280px] lg:max-w-none">
+                        <div className="absolute -inset-2 bg-gradient-to-br from-yellow-600/20 to-amber-600/20 rounded-lg blur-sm"></div>
+                        <div
+                          className="relative rounded-lg overflow-hidden bg-slate-900/80"
+                          style={{
+                            borderImage: `url(${border_profile}) 18 stretch`,
+                            borderWidth: "10px",
+                          }}
+                        >
+                          {displayPhotoUrl ? (
+                            <img
+                              src={displayPhotoUrl}
+                              alt={`${profile?.userName}'s profile`}
+                              className="w-full aspect-[4/5] object-cover"
+                            />
+                          ) : (
+                            <div className="w-full aspect-[4/5] flex items-center justify-center text-blue-300 text-5xl font-bold bg-gradient-to-br from-slate-800 to-slate-900">
+                              {profile?.userName?.charAt(0).toUpperCase() ||
+                                "U"}
                             </div>
-
-                            {isEditMode && isOwner && (
-                              <div className="mt-4 space-y-2">
-                                <input
-                                  ref={fileInputRef}
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={handleFileInputChange}
-                                  className="hidden"
-                                />
-
-                                <button
-                                  onClick={() => fileInputRef.current?.click()}
-                                  className="w-full px-3 py-1.5 bg-blue-600/80 hover:bg-blue-700 text-white text-sm rounded transition-colors"
-                                  disabled={isSaving}
-                                >
-                                  Choose Photo
-                                </button>
-
-                                {profile?.profilePictureUrl && (
-                                  <button
-                                    onClick={handleDeletePhoto}
-                                    disabled={isDeletingPhoto || isSaving}
-                                    className="w-full px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors disabled:opacity-50"
-                                  >
-                                    {isDeletingPhoto ? "Deleting..." : "Delete"}
-                                  </button>
-                                )}
-
-                                {selectedFile && (
-                                  <div className="text-xs text-gray-400 text-center">
-                                    Max 3MB
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* User Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start mb-4">
-                            <h1 className="text-3xl font-bold text-white">
-                              {profile?.userName || userId}
-                            </h1>
-
-                            {isOwner && !isEditMode && (
-                              <div>
-                                <button
-                                  onClick={() =>
-                                    toggleEditMode(profile?.bio || "")
-                                  }
-                                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors text-sm ml-4 flex-shrink-0"
-                                >
-                                  Edit Profile
-                                </button>
-                                <button className="text-blue-400 hover:text-blue-300 font-medium transition-colors text-sm ml-4 flex-shrink-0">
-                                  Settings
-                                </button>
-                              </div>
-                            )}
-
-                            {isOwner && isEditMode && (
-                              <div className="flex gap-3 ml-4 flex-shrink-0">
-                                <button
-                                  onClick={handleSaveChanges}
-                                  disabled={isSaving}
-                                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors disabled:opacity-50"
-                                >
-                                  {isSaving ? "Saving..." : "Save"}
-                                </button>
-                                <button
-                                  onClick={cancelEdit}
-                                  disabled={isSaving}
-                                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors disabled:opacity-50"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            )}
-
-                            {!isOwner && session && (
-                              <button
-                                onClick={() => setIsReportModalOpen(true)}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-red-950/60 backdrop-blur-sm hover:bg-red-950/90 text-white text-sm rounded transition-colors ml-4 flex-shrink-0"
-                              >
-                                <Flag className="w-4 h-4" />
-                                <span>Report</span>
-                              </button>
-                            )}
-                          </div>
-
-                          <div className="mt-4">
-                            <label className="text-blue-400 font-semibold text-sm mb-2 block">
-                              Bio
-                            </label>
-
-                            {isEditMode && isOwner ? (
-                              <div className="space-y-2">
-                                <textarea
-                                  value={bioValue}
-                                  onChange={(e) =>
-                                    handleBioChange(e.target.value)
-                                  }
-                                  placeholder="Tell us about yourself... (Max 1000 characters)"
-                                  className="w-full px-4 py-3 bg-slate-800/50 text-white rounded border border-slate-600 focus:border-blue-500 focus:outline-none resize-none"
-                                  rows={4}
-                                  maxLength={1000}
-                                />
-                                <div className="text-sm text-gray-400">
-                                  {bioValue.length}/1000 characters
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="bg-slate-800/30 border border-slate-700/50 px-4 py-3 rounded overflow-hidden">
-                                <p
-                                  className="text-gray-300 whitespace-pre-wrap break-words"
-                                  style={{
-                                    wordBreak: "break-word",
-                                    overflowWrap: "break-word",
-                                  }}
-                                >
-                                  {profile?.bio ||
-                                    (isOwner
-                                      ? "No bio available"
-                                      : "No bio yet.")}
-                                </p>
-                              </div>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </div>
+
+                      <div className="border-t border-yellow-600/30 pt-4 space-y-1">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-amber-200 font-semibold text-sm sm:text-base">
+                            Ranking:
+                          </span>
+                          <span className="text-lg sm:text-md font-bold text-amber-500/90">
+                            #2
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-amber-200 font-semibold text-sm sm:text-base">
+                            Likes:
+                          </span>
+                          <span className="text-lg sm:text-md font-bold text-green-500">
+                            {profile?.totalLikes ?? 0}
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-amber-200 font-semibold text-sm sm:text-base">
+                            Guide Views:
+                          </span>
+                          <span className="text-lg sm:text-md font-semibold text-amber-400">
+                            12,44
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-amber-200 font-semibold text-sm sm:text-base">
+                            Role:
+                          </span>
+                          <span
+                            className={`text-lg sm:text-md font-bold ${
+                              profile?.role === "admin"
+                                ? "text-red-500/90"
+                                : profile?.role === "user"
+                                  ? "text-green-500"
+                                  : "text-blue-500"
+                            }`}
+                          >
+                            {profile?.role}
+                          </span>
+                        </div>
+                      </div>
+
+                      {isEditMode && isOwner && (
+                        <div className="space-y-2">
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileInputChange}
+                            className="hidden"
+                          />
+                          <button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="w-full px-4 py-2 bg-blue-600/80 hover:bg-blue-700 text-white text-sm rounded transition-colors"
+                            disabled={isSaving}
+                          >
+                            Change Photo
+                          </button>
+                          {profile?.profilePictureUrl && (
+                            <button
+                              onClick={handleDeletePhoto}
+                              disabled={isDeletingPhoto || isSaving}
+                              className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors disabled:opacity-50"
+                            >
+                              {isDeletingPhoto ? "Deleting..." : "Delete Photo"}
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </aside>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                    <div className="w-full sm:w-auto">
+                      {!isOwner && session && (
+                        <button
+                          onClick={() => setIsReportModalOpen(true)}
+                          className="flex items-center gap-2 px-4 py-2 bg-red-950/60 hover:bg-red-950/90 text-white rounded transition-colors"
+                        >
+                          <Flag className="w-4 h-4" />
+                          <span>Report</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-1">
+                    <div className="flex flex-col sm:flex-row gap-2 pb-2 sm:pb-0">
+                      {[
+                        { id: "profile", label: "Profile" },
+                        { id: "decks", label: "My decks" },
+                        { id: "guides", label: "Guides" },
+                        { id: "favorites", label: "Favorites" },
+                      ].map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveTab(tab.id as TabType)}
+                          className={`px-3 sm:px-4 lg:px-6 xl:px-8 py-[11px] text-xs sm:text-sm lg:text-md font-bold transition-all relative overflow-hidden rounded border-2 whitespace-nowrap ${
+                            activeTab === tab.id
+                              ? "text-yellow-400 border-amber-700"
+                              : "text-gray-400 hover:text-yellow-300 border-amber-600/50"
+                          }`}
+                        >
+                          <img
+                            src={background_button}
+                            alt=""
+                            aria-hidden="true"
+                            className="absolute inset-0 w-full h-full opacity-60"
+                          />
+                          <span className="relative z-10 block">
+                            {tab.label}
+                          </span>
+                          {activeTab === tab.id && (
+                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-yellow-500 to-amber-500"></div>
+                          )}
+                        </button>
+                      ))}
                     </div>
 
-                    <div className="pt-4 w-full">
-                      <UserInstancesList
-                        userId={userId}
-                        onSelectArchetype={handleSelectArchetype}
-                      />
+                    {/* Edit Profile / Save Cancel Buttons */}
+                    {isOwner && (
+                      <div className="flex gap-2 flex-shrink-0">
+                        {!isEditMode ? (
+                          <button
+                            onClick={() => toggleEditMode(profile?.bio || "")}
+                            className="flex items-center gap-2 py-[11px] px-3 sm:px-4 lg:px-5 bg-yellow-600/80 hover:bg-yellow-600 text-white rounded transition-colors border border-yellow-500 text-xs sm:text-sm lg:text-base"
+                          >
+                            <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>Edit Profile</span>
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={handleSaveProfile}
+                              disabled={isSaving || isSavingFavorites}
+                              className="px-3 sm:px-4 lg:px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-xs sm:text-sm lg:text-base"
+                            >
+                              {(isSaving || isSavingFavorites) ? "Saving..." : "Save"}
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              disabled={isSaving || isSavingFavorites}
+                              className="px-3 sm:px-4 lg:px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-xs sm:text-sm lg:text-base"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Main Content Container */}
+                  <div className="bg-gradient-to-br relative mt-1 from-purple-950/40 to-slate-900/60 backdrop-blur-sm rounded-lg border-2 border-yellow-600/40 overflow-hidden min-h-[500px] lg:h-[730px]">
+                    <img
+                      src={background_profile}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover opacity-30 -z-10"
+                    />
+                    <div className="p-4 sm:p-6 lg:p-8 h-full overflow-auto scrollbar-cardpair relative z-10">
+                      {activeTab === "profile" && (
+                        <div className="space-y-8 sm:space-y-12">
+                          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+                            {/* Bio */}
+                            <div className="flex-1 min-w-0">
+                              <h2 className="text-yellow-500 font-bold text-lg mb-1">
+                                Bio
+                              </h2>
+                              <div className="relative bg-purple-950/40 overflow-hidden rounded-lg border border-yellow-600/30">
+                                <div className="relative z-10 p-4 sm:p-6">
+                                  {isEditMode && isOwner ? (
+                                    <div className="space-y-2">
+                                      <textarea
+                                        value={bioValue}
+                                        onChange={(e) =>
+                                          handleBioChange(e.target.value)
+                                        }
+                                        placeholder="Tell us about yourself... (Max 1000 characters)"
+                                        className="w-full px-4 py-3 bg-slate-900/50 text-white rounded border border-purple-700/50 focus:border-yellow-500 focus:outline-none resize-none"
+                                        rows={4}
+                                        maxLength={1000}
+                                      />
+                                      <div className="text-sm text-gray-400">
+                                        {bioValue.length}/1000 characters
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="min-h-[150px] sm:min-h-[200px]">
+                                      <p className="text-gray-300 whitespace-pre-wrap">
+                                        {profile?.bio ||
+                                          (isOwner
+                                            ? "No bio available. Click 'Edit Profile' to add one."
+                                            : "No bio yet.")}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Favorite Card */}
+                            <FavoriteCardEditor
+                              cardId={favoriteCardId}
+                              isEditMode={isEditMode && isOwner}
+                              onCardSelect={handleFavoriteCardSelect}
+                            />
+                          </div>
+
+                          {/* Favorite Decks */}
+                          <FavoriteDecksEditor
+                            favoriteDecks={favoriteDecks}
+                            isEditMode={isEditMode && isOwner}
+                            onDecksUpdate={handleFavoriteDecksUpdate}
+                          />
+                        </div>
+                      )}
+
+                      {activeTab === "decks" && (
+                        <div className="text-center text-gray-400 py-20">
+                          <p className="text-lg">
+                            Coming soon...
+                          </p>
+                        </div>
+                      )}
+
+                      {activeTab === "guides" && (
+                        <div>
+                          {userGuides && userGuides.length > 0 ? (
+                            <UserInstancesList
+                              userId={userId}
+                              onSelectArchetype={handleSelectArchetype}
+                            />
+                          ) : (
+                            <div className="text-center text-gray-400 py-20">
+                              <p className="text-lg">No guides yet...</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {activeTab === "favorites" && (
+                        <FavoritedGuidesList
+                          guides={favoritedGuidesData?.guides || []}
+                          onRemoveFavorite={
+                            session?.user?.id === userId
+                              ? handleRemoveFavorite
+                              : undefined
+                          }
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
+
+                {/* Right Sidebar */}
+                <aside className="w-full lg:w-[280px] xl:w-[320px] flex-shrink-0 lg:sticky lg:top-8">
+                  <div className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]">
+                    <img
+                      src={background_profile}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover opacity-70"
+                    />
+                    <div className="relative z-10 bg-gradient-to-br from-purple-950/40 to-slate-900/60 backdrop-blur-sm p-4 sm:p-6 space-y-4 sm:space-y-6 h-full">
+                      <div className="space-y-3">
+                        <h3 className="text-yellow-500 font-bold text-sm flex items-center gap-2 mt-1">
+                          <span className="text-lg">♦</span> Favorite Guides
+                        </h3>
+                        {favoritedGuidesData?.guides && favoritedGuidesData.guides.length > 0 ? (
+                          <>
+                            <div className="space-y-2 mb-4">
+                              {favoritedGuidesData.guides.slice(0, 3).map((guide) => (
+                                <div
+                                  key={guide.id}
+                                  className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
+                                  onClick={() =>
+                                    handleSelectArchetype(
+                                      guide.archetypeId,
+                                      guide.id,
+                                    )
+                                  }
+                                >
+                                  {guide.headerCardImageUrl ? (
+                                    <img
+                                      src={guide.headerCardImageUrl}
+                                      alt={guide.headerCardName || "Header card"}
+                                      className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
+                                    />
+                                  ) : (
+                                    <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
+                                      <span className="text-slate-400 text-xs">-</span>
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className="text-white text-sm font-semibold truncate flex-1">
+                                        {guide.title}
+                                      </p>
+                                      <span className="text-green-400 text-xs font-semibold flex-shrink-0">
+                                        ↑ {guide.likes}
+                                      </span>
+                                    </div>
+                                    <p className="text-amber-200/70 text-xs truncate">
+                                      {guide.archetypeName}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <button
+                              onClick={() => setActiveTab("favorites")}
+                              className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
+                            >
+                              View all ({favoritedGuidesData.guides.length})
+                            </button>
+                          </>
+                        ) : (
+                          <div className="text-center text-gray-400 py-4">
+                            <p className="text-sm">No favorites yet</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-yellow-500 font-bold mb-3 border-t border-yellow-600/30 pt-6">
+                          ♦ Best Guides
+                        </h3>
+                        <div className="space-y-2 mb-4">
+                          {userGuides?.slice(0, 3).map((guide) => (
+                            <div
+                              key={guide.id}
+                              className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
+                              onClick={() =>
+                                handleSelectArchetype(
+                                  guide.archetypeId,
+                                  guide.id,
+                                )
+                              }
+                            >
+                              {guide.headerCardImageUrl ? (
+                                <img
+                                  src={guide.headerCardImageUrl}
+                                  alt={guide.headerCardName || "Header card"}
+                                  className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
+                                />
+                              ) : (
+                                <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-slate-400 text-xs">-</span>
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="text-white text-sm font-semibold truncate flex-1">
+                                    {guide.title}
+                                  </p>
+                                  <span className="text-green-400 text-xs font-semibold flex-shrink-0">
+                                    ↑ {guide.likes}
+                                  </span>
+                                </div>
+                                <p className="text-amber-200/70 text-xs truncate">
+                                  {guide.archetypeName}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {userGuides && userGuides.length > 0 && (
+                          <button
+                            onClick={handleViewAllGuides}
+                            className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
+                          >
+                            View all ({userGuides.length})
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </aside>
               </div>
-            </section>
+            </div>
           </FeatureErrorBoundary>
         </main>
 
