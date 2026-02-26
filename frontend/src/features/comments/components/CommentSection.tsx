@@ -48,7 +48,7 @@ export const CommentSection: React.FC<CommentsSectionProps> = ({
 
   return (
     <div
-      className={`bg-gradient-to-br from-gray-900/50 via-purple-900/30 to-blue-900/10 backdrop-blur-xs rounded-xl overflow-hidden ${className}`}
+      className={`bg-gradient-to-b from-slate-900/80 via-blue-700/30 to-slate-900/80 rounded-xl overflow-hidden ${className}`}
     >
       {showTitle && (
         <div className="border-b border-blue-800/30 px-6 py-4">

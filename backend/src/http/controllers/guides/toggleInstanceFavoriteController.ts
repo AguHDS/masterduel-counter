@@ -38,6 +38,7 @@ export const toggleInstanceFavoriteController = async (
     res.status(200).json({
       success: true,
       favorited: result.favorited,
+      favorites: result.favorites,
     });
   } catch (error) {
     console.error("Error toggling instance favorite:", error);

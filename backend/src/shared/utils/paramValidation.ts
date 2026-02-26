@@ -63,3 +63,21 @@ export function validateNumberParam(
 
   return num;
 }
+
+/**
+ * Extracts and validates a request parameter as a number, throwing if invalid
+ * @param param Parameter from req.params
+ * @param paramName Name of the parameter for error message
+ * @returns Validated number
+ * @throws Error if parameter is invalid
+ */
+export function extractNumberParam(
+  param: string | string[] | undefined,
+  paramName: string = "Parameter",
+): number {
+  const validated = validateNumberParam(param);
+  if (validated === null) {
+    throw new Error(`Invalid ${paramName}`);
+  }
+  return validated;
+}

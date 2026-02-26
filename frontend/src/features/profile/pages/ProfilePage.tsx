@@ -42,11 +42,12 @@ export const ProfilePage = () => {
     enabled: !!userId,
   });
 
-  const { data: favoritedGuidesData, refetch: refetchFavoritedGuides } = useQuery({
-    queryKey: ["favoritedGuides", userId],
-    queryFn: () => profileApi.getFavoritedGuides(userId!),
-    enabled: !!userId,
-  });
+  const { data: favoritedGuidesData, refetch: refetchFavoritedGuides } =
+    useQuery({
+      queryKey: ["favoritedGuides", userId],
+      queryFn: () => profileApi.getFavoritedGuides(userId!),
+      enabled: !!userId,
+    });
 
   const {
     isEditMode,
@@ -118,7 +119,9 @@ export const ProfilePage = () => {
       setFavoriteCardId(profile.favoriteCardId || null);
       if (profile.favoriteDecks) {
         try {
-          const decks = JSON.parse(profile.favoriteDecks) as typeof favoriteDecks;
+          const decks = JSON.parse(
+            profile.favoriteDecks,
+          ) as typeof favoriteDecks;
           setFavoriteDecks(decks);
         } catch {
           setFavoriteDecks([]);
@@ -132,10 +135,7 @@ export const ProfilePage = () => {
   const handleSaveProfile = async () => {
     try {
       // Save favorites and bio/photo in parallel
-      await Promise.all([
-        saveFavoriteCardAndDecks(),
-        handleSaveChanges(),
-      ]);
+      await Promise.all([saveFavoriteCardAndDecks(), handleSaveChanges()]);
     } catch (error) {
       console.error("Error saving profile:", error);
     }
@@ -221,7 +221,7 @@ export const ProfilePage = () => {
                           <span className="text-amber-200 font-semibold text-sm sm:text-base">
                             Ranking:
                           </span>
-                          <span className="text-lg sm:text-md font-bold text-amber-500/90">
+                          <span className="text-lg sm:text-[17px] font-semibold text-amber-500/90">
                             #2
                           </span>
                         </div>
@@ -229,7 +229,7 @@ export const ProfilePage = () => {
                           <span className="text-amber-200 font-semibold text-sm sm:text-base">
                             Likes:
                           </span>
-                          <span className="text-lg sm:text-md font-bold text-green-500">
+                          <span className="text-lg sm:text-[17px] font-semibold text-green-500">
                             {profile?.totalLikes ?? 0}
                           </span>
                         </div>
@@ -237,8 +237,8 @@ export const ProfilePage = () => {
                           <span className="text-amber-200 font-semibold text-sm sm:text-base">
                             Guide Views:
                           </span>
-                          <span className="text-lg sm:text-md font-semibold text-amber-400">
-                            12,44
+                          <span className="text-lg sm:text-[17px] font-semibold text-amber-400">
+                            -
                           </span>
                         </div>
                         <div className="flex items-baseline gap-2">
@@ -246,7 +246,7 @@ export const ProfilePage = () => {
                             Role:
                           </span>
                           <span
-                            className={`text-lg sm:text-md font-bold ${
+                            className={`text-lg sm:text-[17px] font-semibold ${
                               profile?.role === "admin"
                                 ? "text-red-500/90"
                                 : profile?.role === "user"
@@ -291,20 +291,6 @@ export const ProfilePage = () => {
                 </aside>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-                    <div className="w-full sm:w-auto">
-                      {!isOwner && session && (
-                        <button
-                          onClick={() => setIsReportModalOpen(true)}
-                          className="flex items-center gap-2 px-4 py-2 bg-red-950/60 hover:bg-red-950/90 text-white rounded transition-colors"
-                        >
-                          <Flag className="w-4 h-4" />
-                          <span>Report</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
                   <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-1">
                     <div className="flex flex-col sm:flex-row gap-2 pb-2 sm:pb-0">
                       {[
@@ -337,7 +323,16 @@ export const ProfilePage = () => {
                         </button>
                       ))}
                     </div>
-
+                    <div className="w-full sm:w-auto">
+                      {!isOwner && session && (
+                        <button
+                          onClick={() => setIsReportModalOpen(true)}
+                          className="hover:text-red-700/80 text-white transition-colors"
+                        >
+                          <Flag className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
                     {/* Edit Profile / Save Cancel Buttons */}
                     {isOwner && (
                       <div className="flex gap-2 flex-shrink-0">
@@ -356,7 +351,9 @@ export const ProfilePage = () => {
                               disabled={isSaving || isSavingFavorites}
                               className="px-3 sm:px-4 lg:px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-xs sm:text-sm lg:text-base"
                             >
-                              {(isSaving || isSavingFavorites) ? "Saving..." : "Save"}
+                              {isSaving || isSavingFavorites
+                                ? "Saving..."
+                                : "Save"}
                             </button>
                             <button
                               onClick={handleCancelEdit}
@@ -439,9 +436,7 @@ export const ProfilePage = () => {
 
                       {activeTab === "decks" && (
                         <div className="text-center text-gray-400 py-20">
-                          <p className="text-lg">
-                            Coming soon...
-                          </p>
+                          <p className="text-lg">Coming soon...</p>
                         </div>
                       )}
 
@@ -488,46 +483,53 @@ export const ProfilePage = () => {
                         <h3 className="text-yellow-500 font-bold text-sm flex items-center gap-2 mt-1">
                           <span className="text-lg">♦</span> Favorite Guides
                         </h3>
-                        {favoritedGuidesData?.guides && favoritedGuidesData.guides.length > 0 ? (
+                        {favoritedGuidesData?.guides &&
+                        favoritedGuidesData.guides.length > 0 ? (
                           <>
                             <div className="space-y-2 mb-4">
-                              {favoritedGuidesData.guides.slice(0, 3).map((guide) => (
-                                <div
-                                  key={guide.id}
-                                  className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
-                                  onClick={() =>
-                                    handleSelectArchetype(
-                                      guide.archetypeId,
-                                      guide.id,
-                                    )
-                                  }
-                                >
-                                  {guide.headerCardImageUrl ? (
-                                    <img
-                                      src={guide.headerCardImageUrl}
-                                      alt={guide.headerCardName || "Header card"}
-                                      className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
-                                    />
-                                  ) : (
-                                    <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
-                                      <span className="text-slate-400 text-xs">-</span>
-                                    </div>
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between gap-2">
-                                      <p className="text-white text-sm font-semibold truncate flex-1">
-                                        {guide.title}
+                              {favoritedGuidesData.guides
+                                .slice(0, 3)
+                                .map((guide) => (
+                                  <div
+                                    key={guide.id}
+                                    className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
+                                    onClick={() =>
+                                      handleSelectArchetype(
+                                        guide.archetypeId,
+                                        guide.id,
+                                      )
+                                    }
+                                  >
+                                    {guide.headerCardImageUrl ? (
+                                      <img
+                                        src={guide.headerCardImageUrl}
+                                        alt={
+                                          guide.headerCardName || "Header card"
+                                        }
+                                        className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
+                                      />
+                                    ) : (
+                                      <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
+                                        <span className="text-slate-400 text-xs">
+                                          -
+                                        </span>
+                                      </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <p className="text-white text-sm font-semibold truncate flex-1">
+                                          {guide.title}
+                                        </p>
+                                        <span className="text-green-400 text-xs font-semibold flex-shrink-0">
+                                          ↑ {guide.likes}
+                                        </span>
+                                      </div>
+                                      <p className="text-amber-200/70 text-xs truncate">
+                                        {guide.archetypeName}
                                       </p>
-                                      <span className="text-green-400 text-xs font-semibold flex-shrink-0">
-                                        ↑ {guide.likes}
-                                      </span>
                                     </div>
-                                    <p className="text-amber-200/70 text-xs truncate">
-                                      {guide.archetypeName}
-                                    </p>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
                             </div>
                             <button
                               onClick={() => setActiveTab("favorites")}
@@ -542,7 +544,7 @@ export const ProfilePage = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       <div>
                         <h3 className="text-yellow-500 font-bold mb-3 border-t border-yellow-600/30 pt-6">
                           ♦ Best Guides
@@ -567,7 +569,9 @@ export const ProfilePage = () => {
                                 />
                               ) : (
                                 <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
-                                  <span className="text-slate-400 text-xs">-</span>
+                                  <span className="text-slate-400 text-xs">
+                                    -
+                                  </span>
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">

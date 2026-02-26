@@ -6,6 +6,7 @@ export interface ArchetypeInstance {
   headerCardId: number | null;
   generalTip?: string | null;
   likes: number;
+  favorites: number;
   createdAt: Date;
   updatedAt: Date;
 }

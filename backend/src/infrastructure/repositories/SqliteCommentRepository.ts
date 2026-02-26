@@ -202,4 +202,13 @@ export class SqliteCommentRepository implements CommentRepository {
       parentCommentId: prismaComment.parentCommentId,
     };
   }
+
+  async getCommentAuthor(userId: string): Promise<{ id: string; name: string } | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true },
+    });
+
+    return user;
+  }
 }

@@ -29,6 +29,7 @@ model User {
   reportsCreated Report[] @relation("ReporterUser")
   reportsReceived Report[] @relation("ReportedUser")
   comments     Comment[]
+  notifications Notification[]
 
   banned     Boolean?  @default(false)
   banReason  String?   @map("ban_reason")
@@ -122,6 +123,7 @@ model ArchetypeInstance {
   headerCardId     Int?      @map("header_card_id")
   generalTip       String?   @map("general_tip")
   likes            Int       @default(0)
+  favorites        Int       @default(0)
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
@@ -134,6 +136,7 @@ model ArchetypeInstance {
   favoriteRecords  InstanceFavorite[]
   recommendedDeck  RecommendedDeck?
   comments         Comment[]
+  notifications    Notification[]
 
   @@index([userId])
   @@index([archetypeId])
@@ -156,6 +159,8 @@ model Comment {
   parentCommentId Int?   @map("parent_comment_id")
   parentComment   Comment? @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
   replies         Comment[] @relation("CommentReplies")
+
+  notifications   Notification[]
 
   @@index([instanceId])
   @@index([authorId])
@@ -298,4 +303,32 @@ model Report {
   @@index([reportedInstanceId])
   @@index([status])
   @@map("reports")
+}
+
+model Notification {
+  id          Int       @id @default(autoincrement())
+  userId      String    @map("user_id")
+  type        String    // 'comment', 'like', 'favorite'
+  read        Boolean   @default(false)
+  count       Int       @default(1) // For aggregated likes/favorites
+  
+  // References
+  instanceId  Int?      @map("instance_id")
+  commentId   Int?      @map("comment_id")
+  
+  // Actor info (who triggered the notification)
+  actorId     String?   @map("actor_id")
+  actorName   String?   @map("actor_name")
+  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  // Relations
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instance    ArchetypeInstance?  @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  comment     Comment?            @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, read])
+  @@index([userId, instanceId, type])
+  @@map("notifications")
 }

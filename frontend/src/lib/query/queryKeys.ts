@@ -37,6 +37,13 @@ const commentKeys = {
   detail: (id: number) => [...commentKeys.all, "detail", id] as const,
 } as const;
 
+const notificationKeys = {
+  all: ["notifications"] as const,
+  lists: () => [...notificationKeys.all, "list"] as const,
+  list: (page: number) => [...notificationKeys.lists(), page] as const,
+  unreadCount: () => [...notificationKeys.all, "unread-count"] as const,
+} as const;
+
 export const queryKeys = {
   auth: {
     all: ["auth"] as const,
@@ -59,6 +66,8 @@ export const queryKeys = {
   },
 
   comments: commentKeys,
+
+  notifications: notificationKeys,
 
   admin: adminKeys,
 } as const;

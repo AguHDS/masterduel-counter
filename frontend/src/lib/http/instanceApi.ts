@@ -11,6 +11,7 @@ export interface ArchetypeInstanceWithDetails {
   headerCardId: number | null;
   generalTip?: string | null;
   likes: number;
+  favorites: number;
   createdAt: string;
   updatedAt: string;
   archetypeName: string;
@@ -28,10 +29,12 @@ export interface UserInstanceWithCardPairs {
     headerCardId: number | null;
     generalTip?: string | null;
     likes: number;
+    favorites: number;
     createdAt: string;
     updatedAt: string;
   };
   userName: string;
+  userProfilePictureUrl: string | null;
   archetypeName: string;
   headerCard: {
     id: number;
@@ -164,8 +167,8 @@ export const instanceApi = {
   },
 
   // Toggle favorite on an instance (add if not exists, remove if exists)
-  toggleInstanceFavorite: async (archetypeId: number, instanceId: number): Promise<{ success: boolean; favorited: boolean }> => {
-    const response = await axios.post<{ success: boolean; favorited: boolean }>(
+  toggleInstanceFavorite: async (archetypeId: number, instanceId: number): Promise<{ success: boolean; favorited: boolean; favorites: number }> => {
+    const response = await axios.post<{ success: boolean; favorited: boolean; favorites: number }>(
       `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/favorite`,
       {},
       { withCredentials: true }

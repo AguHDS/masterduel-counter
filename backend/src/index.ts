@@ -32,6 +32,7 @@ import {
   admin,
   report,
   comments,
+  createNotificationsRoute,
 } from "./routes/index";
 import auth from "./routes/auth/auth";
 import getInstanceCardPairs from "./routes/guides/getInstanceCardPairs";
@@ -135,6 +136,9 @@ app.use("/api", createGetGuideByIdRoute(getDependencies()));
 app.use("/api", getInstanceCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 app.use("/api/comments", comments);
+
+// Notifications
+app.use("/api/notifications", createNotificationsRoute(getDependencies()));
 
 // Cards
 app.use("/api/cards/search", searchCards);

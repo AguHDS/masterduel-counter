@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   Edit3,
@@ -185,6 +185,7 @@ export const ArchetypeAnalyzerContainer = ({
       editor.setGeneralTip(generalTip);
       editor.setHeaderCard(data.headerCard);
       likes.setLikeCount(data.likes);
+      favorites.setFavoriteCount(data.favorites);
       editor.setIsEditMode(false);
 
       // Update local pairs state
@@ -369,7 +370,7 @@ export const ArchetypeAnalyzerContainer = ({
 
   return (
     <>
-      <section className="w-full relative bottom-5 flex justify-center px-4 sm:px-6 lg:px-8">
+      <section className="w-full opacity-[95%] relative bottom-5 flex justify-center px-4 sm:px-6 lg:px-8">
         <div className="relative w-full max-w-[1456px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
           <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
             <img
@@ -390,7 +391,7 @@ export const ArchetypeAnalyzerContainer = ({
                 <button
                   onClick={handleBackClick}
                   className={`flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors shadow-lg text-sm ${
-                    editor.isEditMode ? 'invisible' : ''
+                    editor.isEditMode ? "invisible" : ""
                   }`}
                   aria-label="Go back"
                 >
@@ -398,59 +399,92 @@ export const ArchetypeAnalyzerContainer = ({
                   <span>Back</span>
                 </button>
 
-                {!isCreatingNew && isAuthenticated && selectedArchetype.registered && (
-                  <div className="ml-auto flex items-center space-x-2">
-                    {/* Favorite button */}
-                    <button
-                      onClick={favorites.toggleFavorite}
-                      className={`flex items-center relative left-5 space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
-                        favorites.favorited
-                          ? "text-yellow-400"
-                          : "text-white"
-                      }`}
-                      title={
-                        favorites.favorited
-                          ? "Remove from favorites"
-                          : "Add to favorites"
-                      }
-                    >
-                      <Star
-                        className={`w-5 h-5 ${
-                          favorites.favorited
-                            ? "text-yellow-400 fill-yellow-400"
-                            : ""
-                        }`}
-                      />
-                    </button>
+                <div className="ml-auto  flex items-center space-x-4 relative left-5">
+                  {!isCreatingNew &&
+                    isAuthenticated &&
+                    selectedArchetype.registered && (
+                      <div className="flex items-center space-x-1">
+                        {/* Favorite button */}
+                        <button
+                          onClick={favorites.toggleFavorite}
+                          className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
+                            favorites.favorited
+                              ? "text-yellow-400"
+                              : "text-white"
+                          }`}
+                          title={
+                            favorites.favorited
+                              ? "Remove from favorites"
+                              : "Add to favorites"
+                          }
+                        >
+                          <Star
+                            className={`w-5 h-5 ${
+                              favorites.favorited
+                                ? "text-yellow-400 fill-yellow-400"
+                                : ""
+                            }`}
+                          />
+                          <span>{favorites.favoriteCount}</span>
+                        </button>
 
-                    {/* Like button */}
-                    <button
-                      onClick={likes.toggleLike}
-                      disabled={isOwner}
-                      className={`flex relative left-5 items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
-                        isOwner
-                          ? likes.likeCount > 0
-                            ? "text-green-500 cursor-not-allowed"
-                            : "text-white cursor-not-allowed"
-                          : likes.liked
-                            ? "text-green-500"
-                            : "text-white"
-                      }`}
-                      title={
-                        isOwner ? "You cannot like your own guide" : undefined
-                      }
-                    >
-                      <ThumbsUp
-                        className={`w-5 h-5 ${
-                          (isOwner && likes.likeCount > 0) || likes.liked
-                            ? "text-green-500"
-                            : ""
-                        }`}
-                      />
-                      <span>{likes.likeCount}</span>
-                    </button>
-                  </div>
-                )}
+                        {/* Like button */}
+                        <button
+                          onClick={likes.toggleLike}
+                          disabled={isOwner}
+                          className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
+                            isOwner
+                              ? likes.likeCount > 0
+                                ? "text-green-500 cursor-not-allowed"
+                                : "text-white cursor-not-allowed"
+                              : likes.liked
+                                ? "text-green-500"
+                                : "text-white"
+                          }`}
+                          title={
+                            isOwner
+                              ? "You cannot like your own guide"
+                              : undefined
+                          }
+                        >
+                          <ThumbsUp
+                            className={`w-5 h-5 ${
+                              (isOwner && likes.likeCount > 0) || likes.liked
+                                ? "text-green-500"
+                                : ""
+                            }`}
+                          />
+                          <span>{likes.likeCount}</span>
+                        </button>
+                      </div>
+                    )}
+
+                  {/* Creator Info */}
+                  {!isCreatingNew && userInstanceData && (
+                    <div className="flex items-center space-x-2">
+                      {userInstanceData.userProfilePictureUrl ? (
+                        <img
+                          src={userInstanceData.userProfilePictureUrl}
+                          alt={`${userInstanceData.userName}'s profile`}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+                          {userInstanceData.userName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex items-center space-x-1">
+                        <span className="text-slate-400 text-xs">Made by</span>
+                        <Link
+                          to={`/profile/${userInstanceData.instance.userId}`}
+                          className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors underline"
+                        >
+                          {userInstanceData.userName}
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <InstanceHeader
@@ -525,17 +559,7 @@ export const ArchetypeAnalyzerContainer = ({
                 </div>
               )}
 
-              <div className="flex items-center justify-center space-x-4 mt-16">
-                {!isCreatingNew && !isOwner && (
-                  <div className="text-blue-300 text-sm">
-                    Viewing{" "}
-                    <span className="font-semibold">
-                      {userInstanceData?.userName || "another user"}'s
-                    </span>{" "}
-                    version (read-only)
-                  </div>
-                )}
-
+              <div className="flex items-center justify-center space-x-4 relative top-3">
                 {isAuthenticated &&
                   selectedArchetype.registered &&
                   !editor.isEditMode &&
@@ -566,10 +590,9 @@ export const ArchetypeAnalyzerContainer = ({
                   !isOwner && (
                     <button
                       onClick={() => setIsReportModalOpen(true)}
-                      className="flex items-center space-x-2 px-4 py-2 bg-red-950/60 backdrop-blur-sm hover:bg-red-950/90 active:bg-red-950/10 text-white rounded-lg transition-colors shadow-md"
+                      className="hover:text-red-800/80 text-white"
                     >
-                      <Flag className="w-4 h-4" />
-                      <span>Report</span>
+                      <Flag className="w-5 h-5" />
                     </button>
                   )}
 

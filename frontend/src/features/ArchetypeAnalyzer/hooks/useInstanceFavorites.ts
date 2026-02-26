@@ -14,6 +14,7 @@ export const useInstanceFavorites = ({
   instanceId,
 }: UseInstanceFavoritesProps) => {
   const [favorited, setFavorited] = useState(false);
+  const [favoriteCount, setFavoriteCount] = useState(0);
   const queryClient = useQueryClient();
 
   const loadFavoriteStatus = async () => {
@@ -41,6 +42,7 @@ export const useInstanceFavorites = ({
         instanceId,
       );
       setFavorited(response.favorited);
+      setFavoriteCount(response.favorites);
 
       // Invalidate relevant queries to update lists
       queryClient.invalidateQueries({
@@ -58,7 +60,9 @@ export const useInstanceFavorites = ({
 
   return {
     favorited,
+    favoriteCount,
     setFavorited,
+    setFavoriteCount,
     loadFavoriteStatus,
     toggleFavorite,
   };

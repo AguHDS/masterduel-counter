@@ -4,10 +4,11 @@ import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRep
 import { CardRepository } from "@/domain/ports/CardRepository";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import { UserRepository } from "@/domain/ports/UserRepository";
+import { getDependencies } from "@/compositionRoot";
 
 /**
  * Get full guide created by an user by ID to view.
- * Includes archetype name, username, header card details, and card pairs with details.
+ * Includes archetype name, username, user profile picture, header card details, and card pairs with details.
  */
 export const createGetGuideByIdController = (
   instanceRepository: ArchetypeInstanceRepository,
@@ -72,6 +73,11 @@ export const createGetGuideByIdController = (
       const user = await userRepository.findUserById(instance.userId);
       const userName = user?.username || "Unknown";
 
+      // Get user profile picture
+      const profileService = getDependencies().getProfileService();
+      const userProfile = await profileService.getProfile(instance.userId);
+      const userProfilePictureUrl = userProfile?.profilePictureUrl || null;
+
       return res.json({
         instance: {
           id: instance.id,
@@ -81,10 +87,12 @@ export const createGetGuideByIdController = (
           headerCardId: instance.headerCardId,
           generalTip: instance.generalTip,
           likes: instance.likes,
+          favorites: instance.favorites,
           createdAt: instance.createdAt,
           updatedAt: instance.updatedAt,
         },
         userName,
+        userProfilePictureUrl,
         archetypeName,
         headerCard,
         cardPairs: cardPairs.map((pair) => ({

@@ -43,7 +43,7 @@ export interface ArchetypeInstanceServicePort {
   hasUserLikedInstance(instanceId: number, userId: string): Promise<boolean>;
 
   /** Toggles a favorite on an instance (add if not exists, remove if exists) */
-  toggleInstanceFavorite(instanceId: number, userId: string): Promise<{ favorited: boolean }>;
+  toggleInstanceFavorite(instanceId: number, userId: string): Promise<{ favorited: boolean; favorites: number }>;
 
   /** Checks if a user has favorited an instance */
   hasUserFavoritedInstance(instanceId: number, userId: string): Promise<boolean>;

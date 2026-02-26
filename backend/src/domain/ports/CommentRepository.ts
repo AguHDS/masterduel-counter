@@ -42,4 +42,7 @@ export interface CommentRepository {
     parentCommentId: number,
     instanceId: number,
   ): Promise<boolean>;
+
+  /** Get comment author info (for notifications) */
+  getCommentAuthor(userId: string): Promise<{ id: string; name: string } | null>;
 }
