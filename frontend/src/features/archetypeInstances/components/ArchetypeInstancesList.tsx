@@ -1,5 +1,5 @@
 import { useState, useCallback, memo } from "react";
-import { Plus } from "lucide-react";
+import { Plus, ArrowLeft } from "lucide-react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   instanceApi,
@@ -10,6 +10,7 @@ import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTabl
 import { FramedContainer } from "@/layouts/FramedContainer";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
+import { useNavigate } from "react-router-dom";
 
 interface ArchetypeInstancesListProps {
   archetypeId: number;
@@ -31,6 +32,7 @@ const ArchetypeInstancesListComponent = ({
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const queryFn = useCallback(async () => {
     if (debouncedSearchQuery.trim()) {
@@ -55,21 +57,55 @@ const ArchetypeInstancesListComponent = ({
     placeholderData: keepPreviousData, // Keep previous data while fetching to avoid blink/unmount
   });
 
+  const handleBackClick = () => {
+    navigate("/");
+  };
+
   const hasInstances = data.length > 0;
   const canCreateInstance = isAuthenticated;
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-blue-300 text-lg">Loading instances...</div>
+      <div className="flex flex-col items-start p-4 w-full">
+        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+          {/* Back button */}
+          <div className="flex">
+            <button
+              onClick={handleBackClick}
+              className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
+              aria-label="Go back to home"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </button>
+          </div>
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-blue-300 text-lg">Loading instances...</div>
+          </div>
+        </FramedContainer>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-red-400 text-lg">Failed to load instances</div>
+      <div className="flex flex-col items-start p-4 w-full">
+        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+          {/* Back button */}
+          <div className="flex">
+            <button
+              onClick={handleBackClick}
+              className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
+              aria-label="Go back to home"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </button>
+          </div>
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-red-400 text-lg">Failed to load instances</div>
+          </div>
+        </FramedContainer>
       </div>
     );
   }
@@ -77,7 +113,19 @@ const ArchetypeInstancesListComponent = ({
   if (!hasInstances) {
     return (
       <div className="flex flex-col items-start p-4 w-full">
-        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
+        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+          {/* Back button */}
+          <div className="flex">
+            <button
+              onClick={handleBackClick}
+              className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
+              aria-label="Go back to home"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </button>
+          </div>
+
           <div className="flex items-center w-full justify-between gap-4">
             <h1 className="text-2xl relative top-[7px] font-bold text-white">
               {archetypeName}
@@ -135,9 +183,21 @@ const ArchetypeInstancesListComponent = ({
 
   return (
     <div className="flex flex-col items-start p-4 w-full">
-      <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6">
+      <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+        {/* Back button */}
+        <div className="flex relative top-3 right-3">
+          <button
+            onClick={handleBackClick}
+            className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
+            aria-label="Go back to home"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
+          </button>
+        </div>
+
         <div className="flex items-center w-full justify-between gap-4">
-          <div className="flex mt-3 items-center gap-2 flex-1">
+          <div className="flex mt-2 items-center gap-2 flex-1">
             <h1 className="text-2xl font-bold font-sans flex items-center">
               <span className="text-white max-[767px]:ml-2 mr-2">
                 How to counter

@@ -7,6 +7,7 @@ import { Footer } from "@/layouts/Footer";
 import { UserInstancesList } from "../components/UserInstancesList";
 import { FavoriteCardEditor } from "../components/FavoriteCardEditor";
 import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
+import { FavoritedGuidesList } from "../components/FavoritedGuidesList";
 import type { TabType } from "../types/profileTypes";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
@@ -38,6 +39,12 @@ export const ProfilePage = () => {
   const { data: userGuides } = useQuery({
     queryKey: ["userInstances", userId],
     queryFn: () => instanceApi.getInstancesByUserId(userId!, "likes"),
+    enabled: !!userId,
+  });
+
+  const { data: favoritedGuidesData, refetch: refetchFavoritedGuides } = useQuery({
+    queryKey: ["favoritedGuides", userId],
+    queryFn: () => profileApi.getFavoritedGuides(userId!),
     enabled: !!userId,
   });
 
@@ -92,6 +99,16 @@ export const ProfilePage = () => {
 
   const handleFavoriteDecksUpdate = (decks: typeof favoriteDecks) => {
     setFavoriteDecks(decks);
+  };
+
+  const handleRemoveFavorite = async (guideId: number, archetypeId: number) => {
+    try {
+      await instanceApi.toggleInstanceFavorite(archetypeId, guideId);
+      await refetchFavoritedGuides();
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      alert("Failed to remove favorite. Please try again.");
+    }
   };
 
   const handleCancelEdit = useCallback(() => {
@@ -175,7 +192,7 @@ export const ProfilePage = () => {
                         </h1>
                       </div>
 
-                      <div className="relative">
+                      <div className="relative mx-auto max-w-[280px] lg:max-w-none">
                         <div className="absolute -inset-2 bg-gradient-to-br from-yellow-600/20 to-amber-600/20 rounded-lg blur-sm"></div>
                         <div
                           className="relative rounded-lg overflow-hidden bg-slate-900/80"
@@ -289,7 +306,7 @@ export const ProfilePage = () => {
                   </div>
 
                   <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-1">
-                    <div className="flex gap-2 pb-2 sm:pb-0">
+                    <div className="flex flex-col sm:flex-row gap-2 pb-2 sm:pb-0">
                       {[
                         { id: "profile", label: "Profile" },
                         { id: "decks", label: "My decks" },
@@ -299,7 +316,7 @@ export const ProfilePage = () => {
                         <button
                           key={tab.id}
                           onClick={() => setActiveTab(tab.id as TabType)}
-                          className={`px-4 sm:px-8 py-[11px] text-sm sm:text-md font-bold transition-all relative overflow-hidden rounded border-2 whitespace-nowrap flex-shrink-0 ${
+                          className={`px-3 sm:px-4 lg:px-6 xl:px-8 py-[11px] text-xs sm:text-sm lg:text-md font-bold transition-all relative overflow-hidden rounded border-2 whitespace-nowrap ${
                             activeTab === tab.id
                               ? "text-yellow-400 border-amber-700"
                               : "text-gray-400 hover:text-yellow-300 border-amber-600/50"
@@ -327,9 +344,9 @@ export const ProfilePage = () => {
                         {!isEditMode ? (
                           <button
                             onClick={() => toggleEditMode(profile?.bio || "")}
-                            className="flex items-center gap-2 py-[11px] px-5 bg-yellow-600/80 hover:bg-yellow-600 text-white rounded transition-colors border border-yellow-500"
+                            className="flex items-center gap-2 py-[11px] px-3 sm:px-4 lg:px-5 bg-yellow-600/80 hover:bg-yellow-600 text-white rounded transition-colors border border-yellow-500 text-xs sm:text-sm lg:text-base"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                             <span>Edit Profile</span>
                           </button>
                         ) : (
@@ -337,14 +354,14 @@ export const ProfilePage = () => {
                             <button
                               onClick={handleSaveProfile}
                               disabled={isSaving || isSavingFavorites}
-                              className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50 font-semibold"
+                              className="px-3 sm:px-4 lg:px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-xs sm:text-sm lg:text-base"
                             >
                               {(isSaving || isSavingFavorites) ? "Saving..." : "Save"}
                             </button>
                             <button
                               onClick={handleCancelEdit}
                               disabled={isSaving || isSavingFavorites}
-                              className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50 font-semibold"
+                              className="px-3 sm:px-4 lg:px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-xs sm:text-sm lg:text-base"
                             >
                               Cancel
                             </button>
@@ -423,7 +440,7 @@ export const ProfilePage = () => {
                       {activeTab === "decks" && (
                         <div className="text-center text-gray-400 py-20">
                           <p className="text-lg">
-                            Deck management coming soon...
+                            Coming soon...
                           </p>
                         </div>
                       )}
@@ -444,11 +461,14 @@ export const ProfilePage = () => {
                       )}
 
                       {activeTab === "favorites" && (
-                        <div className="text-center text-gray-400 py-20">
-                          <p className="text-lg">
-                            Favorites management coming soon...
-                          </p>
-                        </div>
+                        <FavoritedGuidesList
+                          guides={favoritedGuidesData?.guides || []}
+                          onRemoveFavorite={
+                            session?.user?.id === userId
+                              ? handleRemoveFavorite
+                              : undefined
+                          }
+                        />
                       )}
                     </div>
                   </div>
@@ -468,9 +488,59 @@ export const ProfilePage = () => {
                         <h3 className="text-yellow-500 font-bold text-sm flex items-center gap-2 mt-1">
                           <span className="text-lg">♦</span> Favorite Guides
                         </h3>
-                        <div className="text-center text-gray-400 py-4">
-                          <p className="text-sm">Coming soon...</p>
-                        </div>
+                        {favoritedGuidesData?.guides && favoritedGuidesData.guides.length > 0 ? (
+                          <>
+                            <div className="space-y-2 mb-4">
+                              {favoritedGuidesData.guides.slice(0, 3).map((guide) => (
+                                <div
+                                  key={guide.id}
+                                  className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
+                                  onClick={() =>
+                                    handleSelectArchetype(
+                                      guide.archetypeId,
+                                      guide.id,
+                                    )
+                                  }
+                                >
+                                  {guide.headerCardImageUrl ? (
+                                    <img
+                                      src={guide.headerCardImageUrl}
+                                      alt={guide.headerCardName || "Header card"}
+                                      className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
+                                    />
+                                  ) : (
+                                    <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
+                                      <span className="text-slate-400 text-xs">-</span>
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className="text-white text-sm font-semibold truncate flex-1">
+                                        {guide.title}
+                                      </p>
+                                      <span className="text-green-400 text-xs font-semibold flex-shrink-0">
+                                        ↑ {guide.likes}
+                                      </span>
+                                    </div>
+                                    <p className="text-amber-200/70 text-xs truncate">
+                                      {guide.archetypeName}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <button
+                              onClick={() => setActiveTab("favorites")}
+                              className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
+                            >
+                              View all ({favoritedGuidesData.guides.length})
+                            </button>
+                          </>
+                        ) : (
+                          <div className="text-center text-gray-400 py-4">
+                            <p className="text-sm">No favorites yet</p>
+                          </div>
+                        )}
                       </div>
                       
                       <div>
@@ -489,17 +559,30 @@ export const ProfilePage = () => {
                                 )
                               }
                             >
-                              <img
-                                src={`https://images.ygoprodeck.com/images/cards/${guide.id}.jpg`}
-                                alt=""
-                                className="w-8 h-8 rounded object-cover border border-yellow-600/30"
-                                onError={(e) => {
-                                  e.currentTarget.src = "https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?auto=compress&cs=tinysrgb&w=50";
-                                }}
-                              />
-                              <span className="text-amber-200 text-sm flex-1 truncate">
-                                {guide.archetypeName}
-                              </span>
+                              {guide.headerCardImageUrl ? (
+                                <img
+                                  src={guide.headerCardImageUrl}
+                                  alt={guide.headerCardName || "Header card"}
+                                  className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
+                                />
+                              ) : (
+                                <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-slate-400 text-xs">-</span>
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="text-white text-sm font-semibold truncate flex-1">
+                                    {guide.title}
+                                  </p>
+                                  <span className="text-green-400 text-xs font-semibold flex-shrink-0">
+                                    ↑ {guide.likes}
+                                  </span>
+                                </div>
+                                <p className="text-amber-200/70 text-xs truncate">
+                                  {guide.archetypeName}
+                                </p>
+                              </div>
                             </div>
                           ))}
                         </div>

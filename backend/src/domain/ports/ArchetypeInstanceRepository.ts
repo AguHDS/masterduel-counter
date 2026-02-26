@@ -39,4 +39,10 @@ export interface ArchetypeInstanceRepository {
   ToggleLikeInstance(instanceId: number, userId: string): Promise<LikeToggleResult>;
   /** Checks if a user has already liked an instance */
   hasUserLikedInstance(instanceId: number, userId: string): Promise<boolean>;
+  /** Toggles a favorite on an instance (add if not exists, remove if exists) */
+  ToggleFavoriteInstance(instanceId: number, userId: string): Promise<{ favorited: boolean }>;
+  /** Checks if a user has favorited an instance */
+  hasUserFavoritedInstance(instanceId: number, userId: string): Promise<boolean>;
+  /** Gets all favorited instances by a user */
+  findFavoritedInstancesByUserId(userId: string): Promise<ArchetypeInstanceWithDetails[]>;
 }

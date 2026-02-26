@@ -4,6 +4,7 @@ import {
   Edit3,
   Trash2,
   ThumbsUp,
+  Star,
   Plus,
   Save,
   X,
@@ -16,6 +17,7 @@ import { InstanceHeader } from "./InstanceHeader";
 import { RecommendedDeckEditor } from "./RecommendedDeckEditor";
 import { useInstanceEditor } from "../hooks/useInstanceEditor";
 import { useInstanceLikes } from "../hooks/useInstanceLikes";
+import { useInstanceFavorites } from "../hooks/useInstanceFavorites";
 import { useInstanceData } from "../hooks/useInstanceData";
 import { useRecommendedDeck } from "../hooks/useRecommendedDeck";
 import { useSaveInstance } from "../hooks/useSaveInstance";
@@ -91,6 +93,12 @@ export const ArchetypeAnalyzerContainer = ({
     instanceId: userInstanceData?.instance.id,
     userId: user?.id,
     ownerId: userInstanceData?.instance.userId,
+  });
+
+  const favorites = useInstanceFavorites({
+    isAuthenticated,
+    archetypeId,
+    instanceId: userInstanceData?.instance.id,
   });
 
   const recommendedDeck = useRecommendedDeck(instanceIdNum);
@@ -194,6 +202,13 @@ export const ArchetypeAnalyzerContainer = ({
       } else {
         likes.setLiked(false);
       }
+
+      // Load favorite status for all authenticated users (can favorite own guides)
+      if (isAuthenticated) {
+        favorites.loadFavoriteStatus();
+      } else {
+        favorites.setFavorited(false);
+      }
     },
     onNewInstance: () => {
       editor.setIsEditMode(true);
@@ -203,6 +218,7 @@ export const ArchetypeAnalyzerContainer = ({
       editor.setGeneralTip("");
       likes.setLiked(false);
       likes.setLikeCount(0);
+      favorites.setFavorited(false);
       setPairs([]);
     },
     onReset: () => {
@@ -212,6 +228,7 @@ export const ArchetypeAnalyzerContainer = ({
       editor.setGeneralTip("");
       likes.setLiked(false);
       likes.setLikeCount(0);
+      favorites.setFavorited(false);
       setPairs([]);
     },
   });
@@ -369,7 +386,7 @@ export const ArchetypeAnalyzerContainer = ({
             <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80 rounded-[24px]"></div>
 
             <div className="relative z-10 space-y-6">
-              <div className="absolute left-0 top-[-26px] flex items-center justify-between w-full px-4">
+              <div className="absolute right-3 top-[-26px] flex items-center justify-between w-full px-4">
                 <button
                   onClick={handleBackClick}
                   className={`flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors shadow-lg text-sm ${
@@ -382,11 +399,35 @@ export const ArchetypeAnalyzerContainer = ({
                 </button>
 
                 {!isCreatingNew && isAuthenticated && selectedArchetype.registered && (
-                  <div className="ml-auto">
+                  <div className="ml-auto flex items-center space-x-2">
+                    {/* Favorite button */}
+                    <button
+                      onClick={favorites.toggleFavorite}
+                      className={`flex items-center relative left-5 space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
+                        favorites.favorited
+                          ? "text-yellow-400"
+                          : "text-white"
+                      }`}
+                      title={
+                        favorites.favorited
+                          ? "Remove from favorites"
+                          : "Add to favorites"
+                      }
+                    >
+                      <Star
+                        className={`w-5 h-5 ${
+                          favorites.favorited
+                            ? "text-yellow-400 fill-yellow-400"
+                            : ""
+                        }`}
+                      />
+                    </button>
+
+                    {/* Like button */}
                     <button
                       onClick={likes.toggleLike}
                       disabled={isOwner}
-                      className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
+                      className={`flex relative left-5 items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
                         isOwner
                           ? likes.likeCount > 0
                             ? "text-green-500 cursor-not-allowed"

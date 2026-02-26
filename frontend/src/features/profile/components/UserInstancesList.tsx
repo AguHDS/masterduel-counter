@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   instanceApi,
@@ -24,6 +24,18 @@ const UserInstancesListComponent = ({
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
+  // Reset page to 0 when search query changes
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(0);
+  };
+
+  // Reset page to 0 when sort changes
+  const handleSortChange = (newSortBy: "likes" | "updated") => {
+    setSortBy(newSortBy);
+    setCurrentPage(0);
+  };
+
   const queryFn = useCallback(async () => {
     if (debouncedSearchQuery.trim()) {
       return instanceApi.searchInstancesByUserId(
@@ -46,6 +58,16 @@ const UserInstancesListComponent = ({
     staleTime: 5000,
     placeholderData: keepPreviousData,
   });
+
+  // Adjust current page if it exceeds the total pages after data changes
+  useEffect(() => {
+    if (instances && instances.length > 0) {
+      const totalPages = Math.ceil(instances.length / ITEMS_PER_PAGE);
+      if (currentPage >= totalPages) {
+        setCurrentPage(Math.max(0, totalPages - 1));
+      }
+    }
+  }, [instances, currentPage]);
 
   if (isLoading) {
     return (
@@ -79,7 +101,7 @@ const UserInstancesListComponent = ({
           <div className="w-full sm:w-56">
             <GuideSearch
               searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
+              onSearchChange={handleSearchChange}
               placeholder="Search guides..."
             />
           </div>
@@ -111,7 +133,7 @@ const UserInstancesListComponent = ({
             showArchetypeName={true}
             isProfilePage={true}
             sortBy={sortBy}
-            onSortChange={setSortBy}
+            onSortChange={handleSortChange}
           />
         )}
       </div>

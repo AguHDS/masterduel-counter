@@ -474,4 +474,108 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
 
     return like !== null;
   }
+
+  async ToggleFavoriteInstance(
+    instanceId: number,
+    userId: string,
+  ): Promise<{ favorited: boolean }> {
+    // Check if favorite already exists
+    const existingFavorite = await this.prisma.instanceFavorite.findUnique({
+      where: {
+        instanceId_userId: {
+          instanceId,
+          userId,
+        },
+      },
+    });
+
+    let favorited: boolean;
+
+    if (existingFavorite) {
+      // Remove favorite
+      await this.prisma.instanceFavorite.delete({
+        where: { id: existingFavorite.id },
+      });
+
+      favorited = false;
+    } else {
+      // Add favorite
+      await this.prisma.instanceFavorite.create({
+        data: {
+          instanceId,
+          userId,
+        },
+      });
+
+      favorited = true;
+    }
+
+    return { favorited };
+  }
+
+  async hasUserFavoritedInstance(instanceId: number, userId: string): Promise<boolean> {
+    const favorite = await this.prisma.instanceFavorite.findUnique({
+      where: {
+        instanceId_userId: {
+          instanceId,
+          userId,
+        },
+      },
+    });
+
+    return favorite !== null;
+  }
+
+  async findFavoritedInstancesByUserId(userId: string): Promise<ArchetypeInstanceWithDetails[]> {
+    const stmt = this.db.prepare(`
+      SELECT 
+        ai.*,
+        a.name as archetype_name,
+        u.namedb as user_name,
+        c.name as header_card_name,
+        c.image_url_cropped as header_card_image_url,
+        f.created_at as favorited_at
+      FROM archetype_instances ai
+      JOIN archetypes a ON ai.archetype_id = a.id
+      JOIN users u ON ai.user_id = u.id
+      LEFT JOIN cards c ON ai.header_card_id = c.id
+      INNER JOIN instance_favorites f ON ai.id = f.instance_id
+      WHERE f.user_id = ?
+      ORDER BY f.created_at DESC
+    `);
+
+    interface InstanceRow {
+      id: number;
+      archetype_id: number;
+      user_id: string;
+      title: string;
+      header_card_id: number | null;
+      general_tip: string | null;
+      likes: number;
+      created_at: string;
+      updated_at: string;
+      archetype_name: string;
+      user_name: string;
+      header_card_name: string | null;
+      header_card_image_url: string | null;
+    }
+
+    const rows = stmt.all(userId) as InstanceRow[];
+
+    return rows.map((row) => ({
+      id: row.id,
+      archetypeId: row.archetype_id,
+      userId: row.user_id,
+      title: row.title,
+      headerCardId: row.header_card_id,
+      generalTip: row.general_tip,
+      likes: row.likes,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at),
+      archetypeName: row.archetype_name,
+      userName: row.user_name,
+      headerCardName: row.header_card_name ?? undefined,
+      headerCardImageUrl: row.header_card_image_url ?? undefined,
+    }));
+  }
 }

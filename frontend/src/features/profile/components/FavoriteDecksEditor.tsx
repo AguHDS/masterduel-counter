@@ -6,6 +6,7 @@ import { useDebounce } from "@/shared/hooks/useDebounce";
 import type { FavoriteDeck } from "../types/profileTypes";
 import border_profile from "@/assets/MDC-border.webp";
 import { Edit, X, Search } from "lucide-react";
+import { useFavoriteCards } from "../hooks/useFavoriteCards";
 
 interface FavoriteDecksEditorProps {
   favoriteDecks: FavoriteDeck[];
@@ -31,6 +32,11 @@ export const FavoriteDecksEditor = ({
   const { data: archetypeResults } = useSearchArchetypes(
     debouncedArchetypeQuery,
     10,
+  );
+
+  const { favoriteDecksWithCards, isLoading } = useFavoriteCards(
+    null,
+    favoriteDecks,
   );
 
   const handleStartEdit = (slotIndex: number) => {
@@ -80,33 +86,45 @@ export const FavoriteDecksEditor = ({
         <div className="flex-1 border-t border-yellow-600"></div>
       </div>
 
-      <div className="flex gap-36 flex-wrap">
+      <div className="flex justify-center gap-32 flex-wrap">
         {slots.map((slotIndex) => {
+          const deckWithCard = favoriteDecksWithCards[slotIndex];
           const deck = favoriteDecks[slotIndex];
 
           return (
-            <div key={slotIndex} className="relative">
+            <div key={slotIndex} className="relative w-[168px]">
               {deck ? (
-                <div className="relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600/30 to-amber-600/30 rounded blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative h-[210px] group">
+                  <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600 to-amber-600 rounded blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+
                   <div
-                    className="relative rounded-lg overflow-hidden"
+                    className="relative rounded-lg overflow-hidden w-full h-full"
                     style={{
                       borderImage: `url(${border_profile}) 18 stretch`,
                       borderWidth: "9px",
                     }}
                   >
-                    <img
-                      src={`https://images.ygoprodeck.com/images/cards/${deck.cardId}.jpg`}
-                      alt={deck.archetypeName}
-                      className="w-42 h-56 object-cover"
-                    />
+                    {isLoading || !deckWithCard?.card ? (
+                      <div className="w-full h-full bg-slate-700 flex items-center justify-center">
+                        <span className="text-slate-400 text-sm">
+                          Loading...
+                        </span>
+                      </div>
+                    ) : (
+                      <img
+                        src={deckWithCard.card.imageUrlCropped}
+                        alt={deck.archetypeName}
+                        className="w-full h-full object-cover cursor-pointer"
+                      />
+                    )}
+
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-950/90 to-transparent p-3">
-                      <p className="text-slate-200/90 font-bold text-center text-xl">
+                      <p className="text-slate-200/90 font-bold text-center text-base">
                         {deck.archetypeName}
                       </p>
                     </div>
                   </div>
+
                   {isEditMode && (
                     <div className="absolute top-2 right-2 flex gap-2 z-10">
                       <button
@@ -125,11 +143,11 @@ export const FavoriteDecksEditor = ({
                   )}
                 </div>
               ) : (
-                <div>
+                <div className="w-[168px] aspect-[168/280]">
                   {isEditMode ? (
                     <button
                       onClick={() => handleStartEdit(slotIndex)}
-                      className="w-48 h-32 bg-purple-950/40 border-2 border-dashed border-yellow-600/50 rounded-lg flex items-center justify-center hover:border-yellow-600 hover:bg-purple-950/60 transition-colors"
+                      className="w-full h-full bg-purple-950/40 border-2 border-dashed border-yellow-600/50 rounded-lg flex items-center justify-center hover:border-yellow-600 hover:bg-purple-950/60 transition-colors"
                     >
                       <div className="text-center">
                         <Edit className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
@@ -139,7 +157,7 @@ export const FavoriteDecksEditor = ({
                       </div>
                     </button>
                   ) : (
-                    <div className="w-48 h-32 bg-purple-950/40 border-2 border-yellow-600/30 rounded-lg flex items-center justify-center">
+                    <div className="w-full h-full bg-purple-950/40 border-2 border-yellow-600/30 rounded-lg flex items-center justify-center">
                       <p className="text-gray-400 text-xs text-center px-2">
                         Empty slot
                       </p>
@@ -152,7 +170,6 @@ export const FavoriteDecksEditor = ({
         })}
       </div>
 
-      {/* Archetype Search Modal */}
       {isArchetypeSearchOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl border-2 border-blue-500/40 w-full max-w-md max-h-[70vh] flex flex-col">
@@ -215,7 +232,6 @@ export const FavoriteDecksEditor = ({
         </div>
       )}
 
-      {/* Card Selection Modal */}
       <CardSearchModal
         isOpen={isCardModalOpen}
         onClose={() => {

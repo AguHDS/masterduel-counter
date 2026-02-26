@@ -162,4 +162,23 @@ export const instanceApi = {
     );
     return response.data;
   },
+
+  // Toggle favorite on an instance (add if not exists, remove if exists)
+  toggleInstanceFavorite: async (archetypeId: number, instanceId: number): Promise<{ success: boolean; favorited: boolean }> => {
+    const response = await axios.post<{ success: boolean; favorited: boolean }>(
+      `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/favorite`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  // Check if current user has favorited an instance
+  getInstanceFavoriteStatus: async (archetypeId: number, instanceId: number): Promise<{ success: boolean; favorited: boolean }> => {
+    const response = await axios.get<{ success: boolean; favorited: boolean }>(
+      `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/favorite/status`,
+      { withCredentials: true }
+    );
+    return response.data;
+  },
 };

@@ -76,4 +76,27 @@ export const profileApi = {
     );
     return response.data;
   },
+
+  async getFavoritedGuides(userId: string): Promise<{
+    success: boolean;
+    guides: Array<{
+      id: number;
+      userId: string;
+      userName: string;
+      archetypeId: number;
+      archetypeName: string;
+      title: string;
+      headerCardId: number | null;
+      headerCardName: string | null;
+      headerCardImageUrl: string | null;
+      headerCardImageUrlSmall: string | null;
+      headerCardImageUrlCropped: string | null;
+      likes: number;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+  }> {
+    const response = await axios.get(`${API_URL}/api/profile/${userId}/favoritedGuides`);
+    return response.data;
+  },
 };

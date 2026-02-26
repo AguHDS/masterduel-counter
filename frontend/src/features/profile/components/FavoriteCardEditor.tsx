@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { CardSearchModal } from "@/features/ArchetypeAnalyzer/components/CardSearchModal";
+import { CardTooltip } from "@/features/ArchetypeAnalyzer/components/CardTooltip";
 import { type Card } from "@/features/ArchetypeAnalyzer/api/cardApi";
+import { useFavoriteCards } from "../hooks/useFavoriteCards";
 import border_profile from "@/assets/MDC-border.webp";
 import { Edit } from "lucide-react";
 
@@ -13,6 +15,7 @@ interface FavoriteCardEditorProps {
 export const FavoriteCardEditor = ({ cardId, isEditMode, onCardSelect }: FavoriteCardEditorProps) => {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const { favoriteCard, isLoading } = useFavoriteCards(cardId, []);
 
   const handleCardSelect = (card: Card) => {
     setSelectedCard(card);
@@ -20,7 +23,7 @@ export const FavoriteCardEditor = ({ cardId, isEditMode, onCardSelect }: Favorit
     setIsSearchModalOpen(false);
   };
 
-  const displayCard = selectedCard || (cardId ? { id: cardId, imageUrl: `https://images.ygoprodeck.com/images/cards/${cardId}.jpg` } : null);
+  const displayCard = selectedCard || favoriteCard;
 
   return (
     <div className="w-auto">
@@ -29,20 +32,32 @@ export const FavoriteCardEditor = ({ cardId, isEditMode, onCardSelect }: Favorit
       </h2>
       
       {displayCard ? (
-        <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600/30 to-amber-600/30 rounded blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div className="relative group mx-auto max-w-[160px]">
+          <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600 to-amber-600 rounded blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
           <div
             className="relative rounded overflow-hidden"
             style={{
               borderImage: `url(${border_profile}) 18 stretch`,
-              borderWidth: "10px",
+              borderWidth: "8px",
             }}
           >
-            <img
-              src={displayCard.imageUrl || `https://images.ygoprodeck.com/images/cards/${displayCard.id}.jpg`}
-              alt="Favorite card"
-              className="w-40 h-56 object-cover"
-            />
+            {isLoading ? (
+              <div className="w-full aspect-[10/14] bg-slate-700 flex items-center justify-center">
+                <span className="text-slate-400 text-sm">Loading...</span>
+              </div>
+            ) : (
+              <CardTooltip
+                cardId={displayCard.id}
+                imageUrl={displayCard.imageUrl}
+                cardName={displayCard.name}
+              >
+                <img
+                  src={displayCard.imageUrl}
+                  alt="Favorite card"
+                  className="w-full aspect-[10/14] object-cover cursor-pointer"
+                />
+              </CardTooltip>
+            )}
           </div>
           {isEditMode && (
             <button
@@ -54,11 +69,11 @@ export const FavoriteCardEditor = ({ cardId, isEditMode, onCardSelect }: Favorit
           )}
         </div>
       ) : (
-        <div>
+        <div className="mx-auto max-w-[160px]">
           {isEditMode ? (
             <button
               onClick={() => setIsSearchModalOpen(true)}
-              className="w-40 h-56 bg-purple-950/40 border-2 border-dashed border-yellow-600/50 rounded-lg flex items-center justify-center hover:border-yellow-600 hover:bg-purple-950/60 transition-colors"
+              className="w-full aspect-[10/14] bg-purple-950/40 border-2 border-dashed border-yellow-600/50 rounded-lg flex items-center justify-center hover:border-yellow-600 hover:bg-purple-950/60 transition-colors"
             >
               <div className="text-center">
                 <Edit className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
@@ -68,7 +83,7 @@ export const FavoriteCardEditor = ({ cardId, isEditMode, onCardSelect }: Favorit
               </div>
             </button>
           ) : (
-            <div className="w-40 h-56 bg-purple-950/40 border-2 border-yellow-600/30 rounded-lg flex items-center justify-center">
+            <div className="w-full aspect-[10/14] bg-purple-950/40 border-2 border-yellow-600/30 rounded-lg flex items-center justify-center">
               <p className="text-gray-400 text-sm text-center px-2">
                 No favorite card
               </p>

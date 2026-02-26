@@ -46,10 +46,8 @@ export const useProfileEditor = (userId: string) => {
 
   const handleSaveChanges = useCallback(async () => {
     try {
-      // Save bio if changed
-      if (bioValue.trim() !== '') {
-        await updateBioMutation.mutateAsync(bioValue);
-      }
+      // Always save bio (even if empty)
+      await updateBioMutation.mutateAsync(bioValue);
 
       // Upload photo if selected
       if (selectedFile) {

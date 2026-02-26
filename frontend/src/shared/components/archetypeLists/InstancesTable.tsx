@@ -49,6 +49,10 @@ export const InstancesTable = ({
     navigate(`/profile/${userId}`);
   };
 
+  const handleInstanceClick = (instanceId: number, archetypeId: number) => {
+    onSelectInstance(instanceId, archetypeId);
+  };
+
   const getBackgroundForView = () => {
     const mobileBackground = instanceItemPlaneBg;
     const desktopBackground = instanceItemPlaneBg;
@@ -107,7 +111,7 @@ export const InstancesTable = ({
         </div>
         <button
           onClick={() => onSortChange("updated")}
-          className={`text-blue-300 font-semibold text-lg hover:text-blue-100 transition-colors flex items-center justify-start gap-1 ${
+          className={`text-blue-300 whitespace-nowrap font-semibold text-lg hover:text-blue-100 transition-colors flex items-center justify-start gap-1 ${
             sortBy === "updated" ? "text-blue-100" : ""
           }`}
           role="columnheader"
@@ -160,9 +164,7 @@ export const InstancesTable = ({
           return (
             <button
               key={instance.id}
-              onClick={() =>
-                onSelectInstance(instance.id, instance.archetypeId)
-              }
+              onClick={() => handleInstanceClick(instance.id, instance.archetypeId)}
               className="group relative w-full overflow-hidden rounded-xl border border-blue-500/40 bg-[#070B29]/80 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
               <img

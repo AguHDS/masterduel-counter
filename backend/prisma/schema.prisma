@@ -24,6 +24,7 @@ model User {
   verification Verification[]
   archetypeInstances ArchetypeInstance[]
   instanceLikes InstanceLike[]
+  instanceFavorites InstanceFavorite[]
   profile      Profile?
   reportsCreated Report[] @relation("ReporterUser")
   reportsReceived Report[] @relation("ReportedUser")
@@ -130,6 +131,7 @@ model ArchetypeInstance {
   cardPairs        ArchetypeCardPair[]
   reports          Report[]
   likeRecords      InstanceLike[]
+  favoriteRecords  InstanceFavorite[]
   recommendedDeck  RecommendedDeck?
   comments         Comment[]
 
@@ -246,6 +248,21 @@ model InstanceLike {
   @@index([instanceId])
   @@index([userId])
   @@map("instance_likes")
+}
+
+model InstanceFavorite {
+  id          Int       @id @default(autoincrement())
+  instanceId  Int       @map("instance_id")
+  userId      String    @map("user_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  instance    ArchetypeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([instanceId, userId])
+  @@index([instanceId])
+  @@index([userId])
+  @@map("instance_favorites")
 }
 
 model RecommendedDeck {

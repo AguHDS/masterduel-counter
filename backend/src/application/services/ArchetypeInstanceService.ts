@@ -198,4 +198,32 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
   ): Promise<boolean> {
     return this.instanceRepository.hasUserLikedInstance(instanceId, userId);
   }
+
+  async toggleInstanceFavorite(
+    instanceId: number,
+    userId: string,
+  ): Promise<{ favorited: boolean }> {
+    // Get the instance to check if it exists
+    const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
+
+    if (!instance) {
+      throw new Error("Instance not found");
+    }
+
+    // Users can favorite their own instances (unlike likes)
+    return this.instanceRepository.ToggleFavoriteInstance(instanceId, userId);
+  }
+
+  async hasUserFavoritedInstance(
+    instanceId: number,
+    userId: string,
+  ): Promise<boolean> {
+    return this.instanceRepository.hasUserFavoritedInstance(instanceId, userId);
+  }
+
+  async getFavoritedInstancesByUserId(
+    userId: string,
+  ): Promise<ArchetypeInstanceWithDetails[]> {
+    return this.instanceRepository.findFavoritedInstancesByUserId(userId);
+  }
 }

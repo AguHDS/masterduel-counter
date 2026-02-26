@@ -5,6 +5,7 @@ import { updateBioController } from "@/http/controllers/profile/updateBioControl
 import { uploadProfilePictureController } from "@/http/controllers/profile/uploadProfilePictureController";
 import { deleteProfilePictureController } from "@/http/controllers/profile/deleteProfilePictureController";
 import { updateFavoriteCardAndDecksController } from "@/http/controllers/profile/updateFavoriteCardAndDecksController";
+import { getFavoritedGuidesController } from "@/http/controllers/profile/getFavoritedGuidesController";
 import { validateBioMiddleware } from "@/http/middlewares/profile/validateBioMiddleware";
 import { validateFavoriteCardAndDecksMiddleware } from "@/http/middlewares/profile/validateFavoriteCardAndDecksMiddleware";
 import { validateUserIdMiddleware } from "@/http/middlewares/validateUserIdMiddleware";
@@ -47,12 +48,19 @@ router.delete(
   deleteProfilePictureController,
 );
 
-// Update favorites
+// Update favorite decks and card
 router.put(
   "/:userId/favorites",
   validateUserIdMiddleware,
   validateFavoriteCardAndDecksMiddleware,
   updateFavoriteCardAndDecksController,
+);
+
+// Get favorited guides
+router.get(
+  "/:userId/favoritedGuides",
+  validateUserIdMiddleware,
+  getFavoritedGuidesController,
 );
 
 export default router;
