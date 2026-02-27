@@ -291,6 +291,7 @@ model CustomDeck {
   title           String    @default("Custom Deck")
   mainDeckCards   String    @map("main_deck_cards") // JSON array of card IDs in order
   extraDeckCards  String    @map("extra_deck_cards") // JSON array of card IDs in order
+  isPublic        Boolean   @default(false) @map("is_public")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 

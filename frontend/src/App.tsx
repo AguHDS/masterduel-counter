@@ -29,6 +29,7 @@ function App() {
               element={<InstanceEditorPage />}
             />
             <Route path="/profile/:userId" element={<ProfilePage />} />
+            <Route path="/profile/:userId/:tab" element={<ProfilePage />} />
             <Route path="/signin" element={<SignInPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />

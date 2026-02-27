@@ -4,6 +4,7 @@ export interface CustomDeck {
   title: string;
   mainDeckCards: number[];
   extraDeckCards: number[];
+  isPublic: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,18 +14,21 @@ export interface CustomDeckCreateDTO {
   title: string;
   mainDeckCards: number[];
   extraDeckCards: number[];
+  isPublic?: boolean;
 }
 
 export interface CustomDeckUpdateDTO {
   title?: string;
   mainDeckCards?: number[];
   extraDeckCards?: number[];
+  isPublic?: boolean;
 }
 
 export interface CustomDeckWithCards {
   id: number;
   userId: string;
   title: string;
+  isPublic: boolean;
   mainDeck: Array<{
     id: number;
     name: string;

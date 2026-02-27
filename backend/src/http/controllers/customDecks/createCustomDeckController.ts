@@ -16,7 +16,7 @@ export const createCustomDeckController = async (
       return;
     }
 
-    const { userId, userRole, title, mainDeckCards, extraDeckCards } = validatedData;
+    const { userId, userRole, title, mainDeckCards, extraDeckCards, isPublic } = validatedData;
 
     const deckService = getDependencies().getCustomDeckService();
 
@@ -38,6 +38,7 @@ export const createCustomDeckController = async (
       title,
       mainDeckCards,
       extraDeckCards,
+      isPublic,
     });
 
     res.status(201).json({ success: true, deck });

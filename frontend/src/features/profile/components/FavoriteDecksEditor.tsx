@@ -95,7 +95,7 @@ export const FavoriteDecksEditor = ({
             <div key={slotIndex} className="relative w-[168px]">
               {deck ? (
                 <div className="relative h-[210px] group">
-                  <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600 to-amber-600 rounded blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                  <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600 to-amber-600 rounded blur opacity-30 group-hover:opacity-60 transition-opacity"></div>
 
                   <div
                     className="relative rounded-lg overflow-hidden w-full h-full"

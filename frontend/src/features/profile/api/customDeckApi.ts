@@ -7,6 +7,7 @@ export interface CustomDeck {
   id: number;
   userId: string;
   title: string;
+  isPublic: boolean;
   mainDeck: Array<{
     id: number;
     name: string;
@@ -49,11 +50,12 @@ export const customDeckApi = {
     userId: string,
     title: string,
     mainDeckCards: number[],
-    extraDeckCards: number[]
+    extraDeckCards: number[],
+    isPublic: boolean = false
   ): Promise<CustomDeck> => {
     const response = await axios.post(
       `${API_BASE_URL}/api/users/${userId}/custom-decks`,
-      { title, mainDeckCards, extraDeckCards },
+      { title, mainDeckCards, extraDeckCards, isPublic },
       { withCredentials: true }
     );
     return response.data.deck;
@@ -65,11 +67,12 @@ export const customDeckApi = {
     deckId: number,
     title?: string,
     mainDeckCards?: number[],
-    extraDeckCards?: number[]
+    extraDeckCards?: number[],
+    isPublic?: boolean
   ): Promise<CustomDeck> => {
     const response = await axios.put(
       `${API_BASE_URL}/api/users/${userId}/custom-decks/${deckId}`,
-      { title, mainDeckCards, extraDeckCards },
+      { title, mainDeckCards, extraDeckCards, isPublic },
       { withCredentials: true }
     );
     return response.data.deck;

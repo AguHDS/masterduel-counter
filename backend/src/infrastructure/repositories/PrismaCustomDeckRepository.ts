@@ -16,6 +16,7 @@ export class PrismaCustomDeckRepository implements CustomDeckRepository {
         title: data.title,
         mainDeckCards: JSON.stringify(data.mainDeckCards),
         extraDeckCards: JSON.stringify(data.extraDeckCards),
+        isPublic: data.isPublic ?? false,
       },
     });
 
@@ -49,7 +50,7 @@ export class PrismaCustomDeckRepository implements CustomDeckRepository {
     userId: string,
     data: CustomDeckUpdateDTO
   ): Promise<CustomDeck> {
-    const updateData: { title?: string; mainDeckCards?: string; extraDeckCards?: string } = {};
+    const updateData: { title?: string; mainDeckCards?: string; extraDeckCards?: string; isPublic?: boolean } = {};
 
     if (data.title !== undefined) {
       updateData.title = data.title;
@@ -59,6 +60,9 @@ export class PrismaCustomDeckRepository implements CustomDeckRepository {
     }
     if (data.extraDeckCards !== undefined) {
       updateData.extraDeckCards = JSON.stringify(data.extraDeckCards);
+    }
+    if (data.isPublic !== undefined) {
+      updateData.isPublic = data.isPublic;
     }
 
     const deck = await this.prisma.customDeck.update({
@@ -93,6 +97,7 @@ export class PrismaCustomDeckRepository implements CustomDeckRepository {
     title: string;
     mainDeckCards: string;
     extraDeckCards: string;
+    isPublic: boolean;
     createdAt: Date;
     updatedAt: Date;
   }): CustomDeck {
@@ -102,6 +107,7 @@ export class PrismaCustomDeckRepository implements CustomDeckRepository {
       title: deck.title,
       mainDeckCards: JSON.parse(deck.mainDeckCards),
       extraDeckCards: JSON.parse(deck.extraDeckCards),
+      isPublic: deck.isPublic,
       createdAt: deck.createdAt,
       updatedAt: deck.updatedAt,
     };

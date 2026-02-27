@@ -119,7 +119,7 @@ export const FavoritedGuidesList = ({
             {currentGuides.map((guide) => (
               <div
                 key={guide.id}
-                className="relative bg-slate-800/50 rounded-lg p-3 hover:bg-slate-800/70 transition-colors cursor-pointer group"
+                className="relative bg-gradient-to-r from-slate-800 to-slate-800/90 rounded-lg p-4 hover:from-slate-700 hover:to-slate-700/90 transition-all duration-300 cursor-pointer group border-2 border-slate-600/50 hover:border-cyan-500/60 shadow-lg"
                 onClick={() => handleGuideClick(guide.archetypeId, guide.id)}
               >
             <div className="flex items-center gap-4">
@@ -128,28 +128,28 @@ export const FavoritedGuidesList = ({
                 <img
                   src={guide.headerCardImageUrl}
                   alt={guide.headerCardName || "Card"}
-                  className="h-[70px] w-[70px] object-cover rounded border-2 border-yellow-500/80 shadow-sm flex-shrink-0"
+                  className="h-[80px] w-[80px] object-cover rounded-lg border-2 border-yellow-500 shadow-md flex-shrink-0 group-hover:border-cyan-400 transition-colors"
                 />
               ) : (
-                <div className="w-[70px] h-[70px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
-                  <span className="text-slate-400 text-sm">-</span>
+                <div className="w-[80px] h-[80px] bg-slate-700/80 rounded-lg border-2 border-slate-500 flex items-center justify-center flex-shrink-0">
+                  <span className="text-slate-400 text-sm">No Card</span>
                 </div>
               )}
 
               {/* Guide Info */}
               <div className="flex-1 min-w-0">
-                <h4 className="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors truncate">
+                <h4 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors truncate mb-1">
                   {guide.title}
                 </h4>
-                <p className="text-sm text-amber-200/70 truncate">
+                <p className="text-sm text-yellow-400 font-semibold truncate mb-2">
                   {guide.archetypeName}
                 </p>
-                <div className="flex items-center gap-4 mt-1 text-xs text-gray-400">
-                  <span className="text-gray-500">by {guide.userName}</span>
-                  <span className="flex items-center gap-1 text-green-400 font-semibold">
+                <div className="flex items-center gap-4 text-xs text-gray-300">
+                  <span className="text-slate-400">by <span className="text-gray-200 font-medium">{guide.userName}</span></span>
+                  <span className="flex items-center gap-1 text-green-400 font-bold bg-green-500/10 px-2 py-1 rounded">
                     ↑ {guide.likes}
                   </span>
-                  <span>{new Date(guide.createdAt).toLocaleDateString()}</span>
+                  <span className="text-slate-400">{new Date(guide.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
 
@@ -160,7 +160,7 @@ export const FavoritedGuidesList = ({
                     handleRemoveFavorite(e, guide.id, guide.archetypeId)
                   }
                   disabled={removingId === guide.id}
-                  className="flex-shrink-0 text-yellow-400 hover:text-yellow-500 transition-colors disabled:opacity-50"
+                  className="flex-shrink-0 text-yellow-400 hover:text-yellow-500 hover:scale-110 transition-all disabled:opacity-50 p-2 bg-yellow-500/10 hover:bg-yellow-500/20 rounded-lg"
                   title="Remove from favorites"
                 >
                   <Star

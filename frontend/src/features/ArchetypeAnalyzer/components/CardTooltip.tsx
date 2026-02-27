@@ -160,7 +160,7 @@ export const CardTooltip = ({ cardId, imageUrl, cardName, children }: CardToolti
         ref={containerRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="relative inline-block"
+        className="relative"
       >
         {children}
       </div>

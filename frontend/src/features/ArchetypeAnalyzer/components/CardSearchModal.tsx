@@ -162,7 +162,7 @@ export const CardSearchModal = ({
     if (variant === "sidebar") {
       return {
         container:
-          "fixed right-0 top-0 bottom-0 z-50 flex items-start justify-end pt-16 pr-4",
+          "fixed right-0 top-0 bottom-0 z-[60] flex items-start justify-end pt-16 pr-4",
         modal:
           "relative bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl border-2 border-blue-500/40 backdrop-blur-md flex flex-col",
         size: { width: "400px", height: "calc(100vh - 80px)" },
@@ -170,7 +170,7 @@ export const CardSearchModal = ({
     } else {
       return {
         container:
-          "fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200",
+          "fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200",
         modal:
           "relative bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl border-2 border-blue-500/40 w-full max-w-4xl h-[75vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300",
         size: {},
@@ -238,8 +238,8 @@ export const CardSearchModal = ({
     cardWidth > 0;
 
   return (
-    <div className={styles.container}>
-      <div ref={containerRef} className={styles.modal} style={styles.size}>
+    <div className={styles.container} onClick={handleClose}>
+      <div ref={containerRef} className={styles.modal} style={styles.size} onClick={(e) => e.stopPropagation()}>
         {/* Animated gradient borders */}
         <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500"></div>

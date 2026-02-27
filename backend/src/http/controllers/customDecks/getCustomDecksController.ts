@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot";
+import { validateStringParam } from "@/shared/utils/paramValidation";
 
 /** Retrieves all custom decks for a specific user */
 export const getCustomDecksController = async (
@@ -7,7 +8,7 @@ export const getCustomDecksController = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const userId = req.params.userId;
+    const userId = validateStringParam(req.params.userId);
 
     if (!userId) {
       res

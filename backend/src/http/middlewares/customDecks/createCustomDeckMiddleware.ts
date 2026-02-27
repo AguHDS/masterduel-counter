@@ -10,7 +10,7 @@ export const validateCreateCustomDeck = async (
   try {
     const userId = (req as AuthenticatedRequest).user?.id;
     const userRole = (req as AuthenticatedRequest).user?.role;
-    const { title, mainDeckCards, extraDeckCards } = req.body;
+    const { title, mainDeckCards, extraDeckCards, isPublic } = req.body;
 
     // Check authentication
     if (!userId) {
@@ -53,6 +53,7 @@ export const validateCreateCustomDeck = async (
       title: title.trim(),
       mainDeckCards,
       extraDeckCards,
+      isPublic: typeof isPublic === "boolean" ? isPublic : false,
     };
 
     next();

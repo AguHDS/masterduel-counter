@@ -59,6 +59,7 @@ declare module "express" {
       title: string;
       mainDeckCards: number[];
       extraDeckCards: number[];
+      isPublic: boolean;
     };
 
     validatedCustomDeckUpdateData?: {
@@ -67,6 +68,7 @@ declare module "express" {
       title?: string;
       mainDeckCards?: number[];
       extraDeckCards?: number[];
+      isPublic?: boolean;
     };
   }
 }

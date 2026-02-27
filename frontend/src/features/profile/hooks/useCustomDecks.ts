@@ -20,11 +20,13 @@ export const useCustomDecks = (userId: string) => {
       title,
       mainDeckCards,
       extraDeckCards,
+      isPublic,
     }: {
       title: string;
       mainDeckCards: number[];
       extraDeckCards: number[];
-    }) => customDeckApi.createDeck(userId, title, mainDeckCards, extraDeckCards),
+      isPublic?: boolean;
+    }) => customDeckApi.createDeck(userId, title, mainDeckCards, extraDeckCards, isPublic),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.customDecks.byUser(userId),
@@ -38,12 +40,14 @@ export const useCustomDecks = (userId: string) => {
       title,
       mainDeckCards,
       extraDeckCards,
+      isPublic,
     }: {
       deckId: number;
       title?: string;
       mainDeckCards?: number[];
       extraDeckCards?: number[];
-    }) => customDeckApi.updateDeck(userId, deckId, title, mainDeckCards, extraDeckCards),
+      isPublic?: boolean;
+    }) => customDeckApi.updateDeck(userId, deckId, title, mainDeckCards, extraDeckCards, isPublic),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.customDecks.byUser(userId),

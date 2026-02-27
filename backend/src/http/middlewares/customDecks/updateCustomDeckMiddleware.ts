@@ -10,7 +10,7 @@ export const validateUpdateCustomDeck = async (
   try {
     const deckIdParam = req.params.deckId;
     const userId = (req as AuthenticatedRequest).user?.id;
-    const { title, mainDeckCards, extraDeckCards } = req.body;
+    const { title, mainDeckCards, extraDeckCards, isPublic } = req.body;
 
     // Check authentication
     if (!userId) {
@@ -55,7 +55,7 @@ export const validateUpdateCustomDeck = async (
     }
 
     // Check if at least one field is being updated
-    if (title === undefined && mainDeckCards === undefined && extraDeckCards === undefined) {
+    if (title === undefined && mainDeckCards === undefined && extraDeckCards === undefined && isPublic === undefined) {
       res.status(400).json({
         success: false,
         error: "No fields to update",
@@ -70,6 +70,7 @@ export const validateUpdateCustomDeck = async (
       title: title ? title.trim() : undefined,
       mainDeckCards,
       extraDeckCards,
+      isPublic: typeof isPublic === "boolean" ? isPublic : undefined,
     };
 
     next();

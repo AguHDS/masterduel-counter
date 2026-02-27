@@ -9,6 +9,7 @@ import { CustomDeckRepository } from "@/domain/ports/CustomDeckRepository";
 import { CardRepository } from "@/domain/ports/CardRepository";
 
 const MAX_DECKS_USER = 10;
+const MAX_DECKS_SUPPORTER = 30;
 
 /** Used for custom decks in user profiles */
 export class CustomDeckService implements CustomDeckServicePort {
@@ -72,8 +73,11 @@ export class CustomDeckService implements CustomDeckServicePort {
   async canUserCreateDeck(userId: string, userRole: string): Promise<boolean> {
     const deckCount = await this.deckRepository.countDecksByUserId(userId);
     
-    // Por ahora solo verificamos el límite para users normales
-    // En el futuro se puede agregar lógica para Supporter (30 decks)
+    // Check limit based on role
+    if (userRole === "supporter" && deckCount >= MAX_DECKS_SUPPORTER) {
+      return false;
+    }
+    
     if (userRole === "user" && deckCount >= MAX_DECKS_USER) {
       return false;
     }
@@ -127,6 +131,7 @@ export class CustomDeckService implements CustomDeckServicePort {
       id: deck.id,
       userId: deck.userId,
       title: deck.title,
+      isPublic: deck.isPublic,
       mainDeck,
       extraDeck,
       createdAt: deck.createdAt,
