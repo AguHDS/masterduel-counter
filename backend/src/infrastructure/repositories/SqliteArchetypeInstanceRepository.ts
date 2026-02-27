@@ -55,6 +55,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
+      favorites: number;
       created_at: string;
       updated_at: string;
     }
@@ -70,6 +71,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
+      favorites: row.favorites,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     };
@@ -107,6 +109,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
+      favorites: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -125,6 +128,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
+      favorites: row.favorites,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
@@ -166,6 +170,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
+      favorites: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -184,6 +189,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
+      favorites: row.favorites,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
@@ -226,6 +232,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
+      favorites: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -244,6 +251,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
+      favorites: row.favorites,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
@@ -286,6 +294,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
+      favorites: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -304,6 +313,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
+      favorites: row.favorites,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
@@ -331,6 +341,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
+      favorites: number;
       created_at: string;
       updated_at: string;
     }
@@ -346,6 +357,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
+      favorites: row.favorites,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     };
@@ -478,7 +490,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
   async ToggleFavoriteInstance(
     instanceId: number,
     userId: string,
-  ): Promise<{ favorited: boolean }> {
+  ): Promise<{ favorited: boolean; favorites: number }> {
     // Check if favorite already exists
     const existingFavorite = await this.prisma.instanceFavorite.findUnique({
       where: {
@@ -497,6 +509,15 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
         where: { id: existingFavorite.id },
       });
 
+      // Decrement favorite count without updating updatedAt
+      // Using raw SQL to prevent Prisma's @updatedAt from triggering
+      // Ensure favorites doesn't go below 0
+      await this.prisma.$executeRaw`
+        UPDATE archetype_instances 
+        SET favorites = MAX(0, favorites - 1) 
+        WHERE id = ${instanceId}
+      `;
+
       favorited = false;
     } else {
       // Add favorite
@@ -507,10 +528,27 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
         },
       });
 
+      // Increment favorite count without updating updatedAt
+      // Using raw SQL to prevent Prisma's @updatedAt from triggering
+      await this.prisma.$executeRaw`
+        UPDATE archetype_instances 
+        SET favorites = favorites + 1 
+        WHERE id = ${instanceId}
+      `;
+
       favorited = true;
     }
 
-    return { favorited };
+    // Get updated count
+    const updated = await this.prisma.archetypeInstance.findUnique({
+      where: { id: instanceId },
+      select: { favorites: true },
+    });
+
+    return {
+      favorited,
+      favorites: updated?.favorites ?? 0,
+    };
   }
 
   async hasUserFavoritedInstance(instanceId: number, userId: string): Promise<boolean> {
@@ -552,6 +590,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       header_card_id: number | null;
       general_tip: string | null;
       likes: number;
+      favorites: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -570,6 +609,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
       likes: row.likes,
+      favorites: row.favorites,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,

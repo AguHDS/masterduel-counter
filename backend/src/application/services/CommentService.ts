@@ -7,9 +7,15 @@ import {
 } from "@/domain/Comment";
 import { CommentRepository } from "@/domain/ports/CommentRepository";
 import { CommentServicePort } from "@/application/ports/CommentService";
+import { NotificationServicePort } from "@/application/ports/NotificationService";
+import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository";
 
 export class CommentServiceImpl implements CommentServicePort {
-  constructor(private commentRepository: CommentRepository) {}
+  constructor(
+    private commentRepository: CommentRepository,
+    private notificationService: NotificationServicePort,
+    private instanceRepository: ArchetypeInstanceRepository,
+  ) {}
 
   async createComment(data: CreateCommentDTO): Promise<Comment> {
     if (!data.content.trim()) {
@@ -34,7 +40,41 @@ export class CommentServiceImpl implements CommentServicePort {
       }
     }
 
-    return this.commentRepository.createComment(data);
+    const comment = await this.commentRepository.createComment(data);
+
+    // Create notification for the guide owner (async, don't wait)
+    this.createCommentNotification(data.instanceId, comment.id, data.authorId).catch((error) => {
+      console.error("Failed to create comment notification:", error);
+    });
+
+    return comment;
+  }
+
+  private async createCommentNotification(
+    instanceId: number,
+    commentId: number,
+    commentorId: string,
+  ): Promise<void> {
+    try {
+      // Get instance to find the owner
+      const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
+      if (!instance) return;
+
+      // Get commentor info
+      const commentor = await this.commentRepository.getCommentAuthor(commentorId);
+      if (!commentor) return;
+
+      // Create notification
+      await this.notificationService.createCommentNotification(
+        instance.userId,
+        instanceId,
+        commentId,
+        commentorId,
+        commentor.name,
+      );
+    } catch (error) {
+      console.error("Error in createCommentNotification:", error);
+    }
   }
 
   async getCommentById(id: number): Promise<CommentWithAuthor | null> {

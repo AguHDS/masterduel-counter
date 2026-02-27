@@ -45,6 +45,14 @@ import { CommentRepository } from "@/domain/ports/CommentRepository";
 import { CommentServicePort } from "@/application/ports/CommentService";
 import { SqliteCommentRepository } from "@/infrastructure/repositories/SqliteCommentRepository";
 import { CommentServiceImpl } from "@/application/services/CommentService";
+import { NotificationRepository } from "@/domain/ports/NotificationRepository";
+import { NotificationServicePort } from "@/application/ports/NotificationService";
+import { SqliteNotificationRepository } from "@/infrastructure/repositories/SqliteNotificationRepository";
+import { NotificationService } from "@/application/services/NotificationService";
+import { CustomDeckRepository } from "@/domain/ports/CustomDeckRepository";
+import { CustomDeckServicePort } from "@/application/ports/CustomDeckService";
+import { PrismaCustomDeckRepository } from "@/infrastructure/repositories/PrismaCustomDeckRepository";
+import { CustomDeckService } from "@/application/services/CustomDeckService";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -72,6 +80,10 @@ export class Dependencies {
   private reportRepository: ReportRepository | null = null;
   private commentRepository: CommentRepository | null = null;
   private commentService: CommentServicePort | null = null;
+  private notificationRepository: NotificationRepository | null = null;
+  private notificationService: NotificationServicePort | null = null;
+  private customDeckRepository: CustomDeckRepository | null = null;
+  private customDeckService: CustomDeckServicePort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -181,6 +193,7 @@ export class Dependencies {
         this.getInstanceRepository(),
         this.getCardPairRepository(),
         this.getArchetypeRepository(),
+        this.getNotificationService(),
       );
     }
     return this.instanceService;
@@ -266,9 +279,49 @@ export class Dependencies {
 
   getCommentService(): CommentServicePort {
     if (!this.commentService) {
-      this.commentService = new CommentServiceImpl(this.getCommentRepository());
+      this.commentService = new CommentServiceImpl(
+        this.getCommentRepository(),
+        this.getNotificationService(),
+        this.getInstanceRepository(),
+      );
     }
     return this.commentService;
+  }
+
+  getNotificationRepository(): NotificationRepository {
+    if (!this.notificationRepository) {
+      this.notificationRepository = new SqliteNotificationRepository(
+        this.database.getConnection(),
+        this.prisma,
+      );
+    }
+    return this.notificationRepository;
+  }
+
+  getNotificationService(): NotificationServicePort {
+    if (!this.notificationService) {
+      this.notificationService = new NotificationService(
+        this.getNotificationRepository(),
+      );
+    }
+    return this.notificationService;
+  }
+
+  getCustomDeckRepository(): CustomDeckRepository {
+    if (!this.customDeckRepository) {
+      this.customDeckRepository = new PrismaCustomDeckRepository(this.prisma);
+    }
+    return this.customDeckRepository;
+  }
+
+  getCustomDeckService(): CustomDeckServicePort {
+    if (!this.customDeckService) {
+      this.customDeckService = new CustomDeckService(
+        this.getCustomDeckRepository(),
+        this.getCardRepository(),
+      );
+    }
+    return this.customDeckService;
   }
 
   getDatabase(): DatabasePort {

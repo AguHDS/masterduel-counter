@@ -18,13 +18,13 @@ export default defineConfig(({ mode }) => {
             "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com blob:",
             "style-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
             isDevelopment
-              ? "connect-src 'self' http://localhost:3001 http://localhost:5173 ws://localhost:5173 https://db.ygoprodeck.com https://challenges.cloudflare.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io"
-              : "connect-src 'self' https://masterduelcounter.com https://*.masterduelcounter.com https://db.ygoprodeck.com https://challenges.cloudflare.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
+              ? "connect-src 'self' http://localhost:3001 http://localhost:5173 ws://localhost:5173 https://db.ygoprodeck.com https://challenges.cloudflare.com https://discord.com https://*.discord.com https://discordapp.com https://*.discordapp.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io"
+              : "connect-src 'self' https://masterduelcounter.com https://*.masterduelcounter.com https://db.ygoprodeck.com https://challenges.cloudflare.com https://discord.com https://*.discord.com https://discordapp.com https://*.discordapp.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
             "font-src 'self' https://challenges.cloudflare.com",
             "object-src 'none'",
             "frame-src 'self' https://challenges.cloudflare.com",
             "base-uri 'self'",
-            "form-action 'self'",
+            "form-action 'self' https://discord.com https://discordapp.com",
             "child-src 'self' https://challenges.cloudflare.com blob:",
             "worker-src 'self' blob:",
           ]

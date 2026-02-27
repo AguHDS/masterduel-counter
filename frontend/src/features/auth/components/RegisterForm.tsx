@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useRegister } from "../hooks/useAuthQueries";
 import { Lock, User, Mail } from "lucide-react";
 import { Turnstile } from "@/shared/components/Turnstile";
+import { DiscordButton } from "./DiscordButton";
 import {
   validateUsername,
   createUsernameChangeHandler,
@@ -212,6 +213,21 @@ export const RegisterForm = () => {
             >
               {isPending ? "Creating account..." : "Sign up"}
             </button>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-700"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gradient-to-b from-slate-950 to-blue-950 text-gray-400">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <DiscordButton mode="signup" />
           </div>
 
           <div className="text-center">

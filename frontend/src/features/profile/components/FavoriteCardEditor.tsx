@@ -32,8 +32,8 @@ export const FavoriteCardEditor = ({ cardId, isEditMode, onCardSelect }: Favorit
       </h2>
       
       {displayCard ? (
-        <div className="relative group mx-auto max-w-[160px]">
-          <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600 to-amber-600 rounded blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+        <div className="relative group mx-auto max-w-[178px]">
+          <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600 to-amber-600 rounded blur opacity-30 group-hover:opacity-60 transition-opacity"></div>
           <div
             className="relative rounded overflow-hidden"
             style={{
@@ -54,7 +54,7 @@ export const FavoriteCardEditor = ({ cardId, isEditMode, onCardSelect }: Favorit
                 <img
                   src={displayCard.imageUrl}
                   alt="Favorite card"
-                  className="w-full aspect-[10/14] object-cover cursor-pointer"
+                  className="w-full object-cover cursor-pointer"
                 />
               </CardTooltip>
             )}

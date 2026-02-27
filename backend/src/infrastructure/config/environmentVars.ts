@@ -17,6 +17,8 @@ interface EnvironmentVars {
   smtpPassword: string;
   smtpFromName: string;
   smtpFromEmail: string;
+  discordClientId: string;
+  discordClientSecret: string;
 }
 
 const config: EnvironmentVars = {
@@ -34,6 +36,8 @@ const config: EnvironmentVars = {
   smtpPassword: process.env.SMTP_PASSWORD || "",
   smtpFromName: process.env.SMTP_FROM_NAME || "",
   smtpFromEmail: process.env.SMTP_FROM_EMAIL || "",
+  discordClientId: process.env.DISCORD_CLIENT_ID || "",
+  discordClientSecret: process.env.DISCORD_CLIENT_SECRET || "",
 };
 
 export default config;

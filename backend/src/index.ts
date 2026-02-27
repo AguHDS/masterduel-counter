@@ -32,10 +32,12 @@ import {
   admin,
   report,
   comments,
+  createNotificationsRoute,
 } from "./routes/index";
 import auth from "./routes/auth/auth";
 import getInstanceCardPairs from "./routes/guides/getInstanceCardPairs";
 import profile from "./routes/profile/profile";
+import customDecks from "./routes/customDecks";
 
 // SCP configuration
 const isDevelopment = NODE_ENV === "development";
@@ -74,6 +76,10 @@ app.use(
               "ws://localhost:5173",
               "https://db.ygoprodeck.com",
               "https://challenges.cloudflare.com",
+              "https://discord.com",
+              "https://*.discord.com",
+              "https://discordapp.com",
+              "https://*.discordapp.com",
               "https://*.sentry.io",
               "https://*.ingest.sentry.io",
               "https://*.ingest.us.sentry.io",
@@ -84,6 +90,10 @@ app.use(
               "https://*.masterduelcounter.com",
               "https://db.ygoprodeck.com",
               "https://challenges.cloudflare.com",
+              "https://discord.com",
+              "https://*.discord.com",
+              "https://discordapp.com",
+              "https://*.discordapp.com",
               "https://*.sentry.io",
               "https://*.ingest.sentry.io",
               "https://*.ingest.us.sentry.io",
@@ -93,7 +103,7 @@ app.use(
         frameSrc: ["'self'", "https://challenges.cloudflare.com"],
         frameAncestors: ["'none'"],
         baseUri: ["'self'"],
-        formAction: ["'self'"],
+        formAction: ["'self'", "https://discord.com", "https://discordapp.com"],
         childSrc: ["'self'", "https://challenges.cloudflare.com", "blob:"],
         workerSrc: ["'self'", "blob:"],
       },
@@ -119,6 +129,9 @@ app.use("/api/logout", logout);
 // Profile
 app.use("/api/profile", profile);
 
+// Custom Decks
+app.use("/api", customDecks);
+
 // Archetypes & Instances
 app.use("/api/archetypes", registerArchetype);
 app.use("/api/archetypes", registeredArchetypes);
@@ -135,6 +148,9 @@ app.use("/api", createGetGuideByIdRoute(getDependencies()));
 app.use("/api", getInstanceCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 app.use("/api/comments", comments);
+
+// Notifications
+app.use("/api/notifications", createNotificationsRoute(getDependencies()));
 
 // Cards
 app.use("/api/cards/search", searchCards);

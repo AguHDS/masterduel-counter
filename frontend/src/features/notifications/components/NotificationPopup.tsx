@@ -13,6 +13,7 @@ export const NotificationPopup: React.FC = () => {
       ref={notificationRef}
       className="absolute right-0 mt-2 w-80 bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-xl overflow-hidden z-50"
       style={{ top: "100%" }}
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="p-3 border-b border-[#c2901c]/30">
         <h3 className="text-white font-semibold">Notifications</h3>

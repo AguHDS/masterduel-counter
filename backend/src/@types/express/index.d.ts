@@ -51,5 +51,24 @@ declare module "express" {
       commentId: number;
       content?: string;
     };
+
+    // Custom Deck properties
+    validatedCustomDeckData?: {
+      userId: string;
+      userRole: string;
+      title: string;
+      mainDeckCards: number[];
+      extraDeckCards: number[];
+      isPublic: boolean;
+    };
+
+    validatedCustomDeckUpdateData?: {
+      deckId: number;
+      userId: string;
+      title?: string;
+      mainDeckCards?: number[];
+      extraDeckCards?: number[];
+      isPublic?: boolean;
+    };
   }
 }

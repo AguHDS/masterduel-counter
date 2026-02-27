@@ -51,6 +51,7 @@ interface UserInstanceData {
     title: string;
     generalTip?: string | null;
     likes: number;
+    favorites: number;
   };
   headerCard?: {
     id: number;
@@ -71,6 +72,7 @@ interface UseInstanceDataProps {
     generalTip: string;
     headerCard: HeaderCard | null;
     likes: number;
+    favorites: number;
   }) => void;
   onNewInstance: () => void;
   onReset: () => void;
@@ -112,6 +114,7 @@ export const useInstanceData = ({
         generalTip: userInstanceData.instance.generalTip || "",
         headerCard,
         likes: userInstanceData.instance.likes,
+        favorites: userInstanceData.instance.favorites,
       });
     } else if (!isCreatingNew && isError) {
       // Error loading existing instance

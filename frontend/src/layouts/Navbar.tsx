@@ -89,7 +89,7 @@ export const Navbar = () => {
               {showBetaTooltip && (
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-2 bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-xl whitespace-nowrap z-50 text-xs text-gray-200">
                   <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#1f1a24] border-t border-l border-[#c2901c]/30 transform rotate-45"></div>
-                  Website is currently in beta version
+                  Website is currently in beta version. Expect possible bugs. Please report any issues on our Discord!
                 </div>
               )}
             </div>

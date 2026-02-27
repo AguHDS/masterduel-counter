@@ -9,12 +9,14 @@ import { ArchetypeInstanceServicePort } from "../ports/ArchetypeInstanceService"
 import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository";
 import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
+import { NotificationServicePort } from "@/application/ports/NotificationService";
 
 export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
   constructor(
     private instanceRepository: ArchetypeInstanceRepository,
     private cardPairRepository: ArchetypeCardPairRepository,
     private archetypeRepository: ArchetypeRepository,
+    private notificationService: NotificationServicePort,
   ) {}
 
   async createOrUpdateInstance(
@@ -189,7 +191,20 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
       throw new Error("You cannot like your own instance");
     }
 
-    return this.instanceRepository.ToggleLikeInstance(instanceId, userId);
+    const result = await this.instanceRepository.ToggleLikeInstance(instanceId, userId);
+
+    // Create or update notification (async, don't wait)
+    if (result.liked) {
+      // Like was added
+      this.notificationService.createOrUpdateLikeNotification(instance.userId, instanceId)
+        .catch(error => console.error("Failed to create like notification:", error));
+    } else {
+      // Like was removed
+      this.notificationService.decrementOrDeleteAggregatedNotification(instance.userId, instanceId, "like")
+        .catch(error => console.error("Failed to decrement like notification:", error));
+    }
+
+    return result;
   }
 
   async hasUserLikedInstance(
@@ -202,7 +217,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
   async toggleInstanceFavorite(
     instanceId: number,
     userId: string,
-  ): Promise<{ favorited: boolean }> {
+  ): Promise<{ favorited: boolean; favorites: number }> {
     // Get the instance to check if it exists
     const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
 
@@ -210,8 +225,23 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
       throw new Error("Instance not found");
     }
 
-    // Users can favorite their own instances (unlike likes)
-    return this.instanceRepository.ToggleFavoriteInstance(instanceId, userId);
+    const result = await this.instanceRepository.ToggleFavoriteInstance(instanceId, userId);
+
+    // Only notify if favoriting someone else's guide (users can favorite their own)
+    if (instance.userId !== userId) {
+      // Create or update notification (async, don't wait)
+      if (result.favorited) {
+        // Favorite was added
+        this.notificationService.createOrUpdateFavoriteNotification(instance.userId, instanceId)
+          .catch(error => console.error("Failed to create favorite notification:", error));
+      } else {
+        // Favorite was removed
+        this.notificationService.decrementOrDeleteAggregatedNotification(instance.userId, instanceId, "favorite")
+          .catch(error => console.error("Failed to decrement favorite notification:", error));
+      }
+    }
+
+    return result;
   }
 
   async hasUserFavoritedInstance(
