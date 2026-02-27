@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useLogin } from "../hooks/useAuthQueries";
 import { Lock, User, CheckCircle } from "lucide-react";
 import { ForgotPasswordModal } from "./ForgotPasswordModal";
+import { DiscordButton } from "./DiscordButton";
 import {
   createUsernameChangeHandler,
   getUsernameForSubmission,
@@ -159,6 +160,21 @@ export const LoginForm = () => {
             >
               {isPending ? "Signing in..." : "Sign in"}
             </button>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-700"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gradient-to-b from-slate-950 to-blue-950 text-gray-400">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <DiscordButton mode="signin" />
           </div>
 
           <div className="text-center">
