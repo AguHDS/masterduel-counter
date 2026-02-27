@@ -21,6 +21,7 @@ import {
   deleteGuide,
   guideLikes,
   guideFavorites,
+  guideViews,
   recommendedDeck,
   getCardDetails,
   createGetArchetypeGuidesRoute,
@@ -138,6 +139,7 @@ app.use("/api/archetypes", registeredArchetypes);
 app.use("/api", deleteGuide);
 app.use("/api", guideLikes);
 app.use("/api", guideFavorites);
+app.use("/api", guideViews);
 app.use("/api", recommendedDeck);
 app.use("/api", createGetArchetypeGuidesRoute(getDependencies()));
 app.use("/api", createGetUserGuidesRoute(getDependencies()));

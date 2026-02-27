@@ -7,6 +7,7 @@ export interface ArchetypeInstance {
   generalTip?: string | null;
   likes: number;
   favorites: number;
+  views: number;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -56,6 +56,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
     }
@@ -72,6 +73,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     };
@@ -110,6 +112,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -129,6 +132,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
@@ -171,6 +175,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -190,6 +195,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
@@ -233,6 +239,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -252,6 +259,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
@@ -295,6 +303,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -314,6 +323,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
@@ -342,6 +352,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
     }
@@ -358,6 +369,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     };
@@ -591,6 +603,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -610,6 +623,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
@@ -617,5 +631,25 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       headerCardName: row.header_card_name ?? undefined,
       headerCardImageUrl: row.header_card_image_url ?? undefined,
     }));
+  }
+
+  async incrementViewCount(instanceId: number, incrementBy: number): Promise<void> {
+    // Use raw SQL to increment without triggering @updatedAt
+    await this.prisma.$executeRaw`
+      UPDATE archetype_instances 
+      SET views = views + ${incrementBy}
+      WHERE id = ${instanceId}
+    `;
+  }
+
+  async getTotalViewsByUserId(userId: string): Promise<number> {
+    const result = await this.prisma.archetypeInstance.aggregate({
+      where: { userId },
+      _sum: {
+        views: true,
+      },
+    });
+
+    return result._sum.views ?? 0;
   }
 }

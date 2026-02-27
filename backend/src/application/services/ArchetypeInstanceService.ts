@@ -10,14 +10,22 @@ import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRep
 import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import { NotificationServicePort } from "@/application/ports/NotificationService";
+import { ViewCountCache } from "@/infrastructure/adapters/ViewCountCache";
 
 export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
+  private viewCountCache: ViewCountCache;
+
   constructor(
     private instanceRepository: ArchetypeInstanceRepository,
     private cardPairRepository: ArchetypeCardPairRepository,
     private archetypeRepository: ArchetypeRepository,
     private notificationService: NotificationServicePort,
-  ) {}
+  ) {
+    // Initialize view count cache with flush callback
+    this.viewCountCache = new ViewCountCache((instanceId, count) =>
+      this.instanceRepository.incrementViewCount(instanceId, count)
+    );
+  }
 
   async createOrUpdateInstance(
     data: ArchetypeInstanceCreateDTO,
@@ -255,5 +263,28 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     userId: string,
   ): Promise<ArchetypeInstanceWithDetails[]> {
     return this.instanceRepository.findFavoritedInstancesByUserId(userId);
+  }
+
+  async registerView(instanceId: number): Promise<void> {
+    // Verify instance exists
+    const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
+    if (!instance) {
+      throw new Error("Instance not found");
+    }
+
+    // Increment in cache (will be flushed periodically)
+    this.viewCountCache.increment(instanceId);
+  }
+
+  async getTotalViewsByUserId(userId: string): Promise<number> {
+    return this.instanceRepository.getTotalViewsByUserId(userId);
+  }
+
+  /**
+   * Cleanup method to flush remaining views and stop the cache
+   * Should be called on application shutdown
+   */
+  async shutdown(): Promise<void> {
+    await this.viewCountCache.stop();
   }
 }

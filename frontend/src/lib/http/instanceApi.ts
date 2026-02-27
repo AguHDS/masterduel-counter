@@ -12,6 +12,7 @@ export interface ArchetypeInstanceWithDetails {
   generalTip?: string | null;
   likes: number;
   favorites: number;
+  views: number;
   createdAt: string;
   updatedAt: string;
   archetypeName: string;
@@ -30,6 +31,7 @@ export interface UserInstanceWithCardPairs {
     generalTip?: string | null;
     likes: number;
     favorites: number;
+    views: number;
     createdAt: string;
     updatedAt: string;
   };
@@ -181,6 +183,18 @@ export const instanceApi = {
     const response = await axios.get<{ success: boolean; favorited: boolean }>(
       `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/favorite/status`,
       { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  /**
+   * Register a view for an instance
+   * No authentication required - tracks all views
+   */
+  registerView: async (instanceId: number): Promise<{ success: boolean; message: string }> => {
+    const response = await axios.post<{ success: boolean; message: string }>(
+      `${API_BASE_URL}/api/instances/${instanceId}/view`,
+      {}
     );
     return response.data;
   },

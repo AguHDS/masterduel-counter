@@ -22,6 +22,7 @@ import { useRef, useState, useCallback } from "react";
 import { instanceApi } from "@/lib/http/instanceApi";
 import { type Card } from "@/features/ArchetypeAnalyzer/api/cardApi";
 import background_profile from "@/assets/MDC-profile_background.webp";
+import { formatCompactNumber } from "@/shared/utils/formatNumber";
 
 export const ProfilePage = () => {
   const { userId, tab } = useParams<{ userId: string; tab?: string }>();
@@ -77,6 +78,7 @@ export const ProfilePage = () => {
 
   // Get profile data
   const profile = profileData?.profile;
+  const totalViews = profileData?.totalViews ?? 0;
 
   // Use favoriteCardAndDecks hook
   const {
@@ -241,7 +243,7 @@ export const ProfilePage = () => {
                             <Eye className="w-5 h-5 text-purple-400" />
                             <span className="text-amber-200 font-semibold text-sm">Guide Views</span>
                           </div>
-                          <span className="text-base font-bold text-purple-300">12.4k</span>
+                          <span className="text-base font-bold text-purple-300">{formatCompactNumber(totalViews)}</span>
                         </div>
                         <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
                           <div className="flex items-center gap-2">

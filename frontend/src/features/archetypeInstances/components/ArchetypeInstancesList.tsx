@@ -10,7 +10,7 @@ import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTabl
 import { FramedContainer } from "@/layouts/FramedContainer";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 interface ArchetypeInstancesListProps {
   archetypeId: number;
@@ -174,6 +174,14 @@ const ArchetypeInstancesListComponent = ({
                 <Plus className="w-5 h-5" />
                 <span>Be the first to create a guide!</span>
               </button>
+            )}
+            {!canCreateInstance && !debouncedSearchQuery.trim() && (
+              <div className="text-blue-300 text-lg text-center">
+                <Link to="/signin" className="text-blue-400 hover:text-blue-300 underline">
+                  Sign in
+                </Link>
+                <span> and be the first to create a guide!</span>
+              </div>
             )}
           </div>
         </FramedContainer>

@@ -45,4 +45,8 @@ export interface ArchetypeInstanceRepository {
   hasUserFavoritedInstance(instanceId: number, userId: string): Promise<boolean>;
   /** Gets all favorited instances by a user */
   findFavoritedInstancesByUserId(userId: string): Promise<ArchetypeInstanceWithDetails[]>;
+  /** Increments the view count for an instance by a specified amount */
+  incrementViewCount(instanceId: number, incrementBy: number): Promise<void>;
+  /** Gets the total view count across all instances for a user */
+  getTotalViewsByUserId(userId: string): Promise<number>;
 }

@@ -8,6 +8,7 @@ import registeredArchetypes from "./archetypes/registeredArchetypes";
 import deleteGuide from "./guides/deleteGuide";
 import guideLikes from "./guides/guideLikes";
 import guideFavorites from "./guides/guideFavorites";
+import guideViews from "./guides/guideViews";
 import recommendedDeck from "./guides/recommendedDeck";
 import getCardDetails from "./cards/getCardDetails";
 import admin from "./admin";
@@ -32,6 +33,7 @@ export {
   deleteGuide,
   guideLikes,
   guideFavorites,
+  guideViews,
   recommendedDeck,
   getCardDetails,
   admin,

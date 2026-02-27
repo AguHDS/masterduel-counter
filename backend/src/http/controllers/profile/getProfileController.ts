@@ -6,11 +6,17 @@ export const getProfileController = async (req: Request, res: Response) => {
     const userId = req.params.userId as string;
 
     const profileService = getDependencies().getProfileService();
-    const profile = await profileService.getProfile(userId);
+    const instanceService = getDependencies().getInstanceService();
+    
+    const [profile, totalViews] = await Promise.all([
+      profileService.getProfile(userId),
+      instanceService.getTotalViewsByUserId(userId),
+    ]);
 
     return res.json({
       success: true,
       profile,
+      totalViews,
     });
   } catch (error) {
     console.error("Error getting profile:", error);

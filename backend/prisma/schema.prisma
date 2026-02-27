@@ -125,6 +125,7 @@ model ArchetypeInstance {
   generalTip       String?   @map("general_tip")
   likes            Int       @default(0)
   favorites        Int       @default(0)
+  views            Int       @default(0)
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 

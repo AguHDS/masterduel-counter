@@ -50,4 +50,13 @@ export interface ArchetypeInstanceServicePort {
 
   /** Gets all favorited instances by a user */
   getFavoritedInstancesByUserId(userId: string): Promise<ArchetypeInstanceWithDetails[]>;
+
+  /** Registers a view for an instance */
+  registerView(instanceId: number): Promise<void>;
+
+  /** Gets the total view count across all instances for a user */
+  getTotalViewsByUserId(userId: string): Promise<number>;
+
+  /** Cleanup method for shutting down the service */
+  shutdown(): Promise<void>;
 }
