@@ -37,6 +37,7 @@ import {
 import auth from "./routes/auth/auth";
 import getInstanceCardPairs from "./routes/guides/getInstanceCardPairs";
 import profile from "./routes/profile/profile";
+import customDecks from "./routes/customDecks";
 
 // SCP configuration
 const isDevelopment = NODE_ENV === "development";
@@ -127,6 +128,9 @@ app.use("/api/logout", logout);
 
 // Profile
 app.use("/api/profile", profile);
+
+// Custom Decks
+app.use("/api", customDecks);
 
 // Archetypes & Instances
 app.use("/api/archetypes", registerArchetype);

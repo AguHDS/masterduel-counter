@@ -49,6 +49,10 @@ import { NotificationRepository } from "@/domain/ports/NotificationRepository";
 import { NotificationServicePort } from "@/application/ports/NotificationService";
 import { SqliteNotificationRepository } from "@/infrastructure/repositories/SqliteNotificationRepository";
 import { NotificationService } from "@/application/services/NotificationService";
+import { CustomDeckRepository } from "@/domain/ports/CustomDeckRepository";
+import { CustomDeckServicePort } from "@/application/ports/CustomDeckService";
+import { PrismaCustomDeckRepository } from "@/infrastructure/repositories/PrismaCustomDeckRepository";
+import { CustomDeckService } from "@/application/services/CustomDeckService";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -78,6 +82,8 @@ export class Dependencies {
   private commentService: CommentServicePort | null = null;
   private notificationRepository: NotificationRepository | null = null;
   private notificationService: NotificationServicePort | null = null;
+  private customDeckRepository: CustomDeckRepository | null = null;
+  private customDeckService: CustomDeckServicePort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -299,6 +305,23 @@ export class Dependencies {
       );
     }
     return this.notificationService;
+  }
+
+  getCustomDeckRepository(): CustomDeckRepository {
+    if (!this.customDeckRepository) {
+      this.customDeckRepository = new PrismaCustomDeckRepository(this.prisma);
+    }
+    return this.customDeckRepository;
+  }
+
+  getCustomDeckService(): CustomDeckServicePort {
+    if (!this.customDeckService) {
+      this.customDeckService = new CustomDeckService(
+        this.getCustomDeckRepository(),
+        this.getCardRepository(),
+      );
+    }
+    return this.customDeckService;
   }
 
   getDatabase(): DatabasePort {

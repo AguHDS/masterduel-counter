@@ -30,6 +30,7 @@ model User {
   reportsReceived Report[] @relation("ReportedUser")
   comments     Comment[]
   notifications Notification[]
+  customDecks  CustomDeck[]
 
   banned     Boolean?  @default(false)
   banReason  String?   @map("ban_reason")
@@ -282,6 +283,21 @@ model RecommendedDeck {
   instance        ArchetypeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
 
   @@map("recommended_decks")
+}
+
+model CustomDeck {
+  id              Int       @id @default(autoincrement())
+  userId          String    @map("user_id")
+  title           String    @default("Custom Deck")
+  mainDeckCards   String    @map("main_deck_cards") // JSON array of card IDs in order
+  extraDeckCards  String    @map("extra_deck_cards") // JSON array of card IDs in order
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("custom_decks")
 }
 
 model Report {

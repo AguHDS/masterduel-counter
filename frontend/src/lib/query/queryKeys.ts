@@ -70,4 +70,11 @@ export const queryKeys = {
   notifications: notificationKeys,
 
   admin: adminKeys,
+
+  customDecks: {
+    all: ["customDecks"] as const,
+    byUser: (userId: string) => ["customDecks", userId] as const,
+    detail: (userId: string, deckId: number) =>
+      ["customDecks", userId, deckId] as const,
+  },
 } as const;

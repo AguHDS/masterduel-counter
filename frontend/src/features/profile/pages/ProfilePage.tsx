@@ -8,6 +8,7 @@ import { UserInstancesList } from "../components/UserInstancesList";
 import { FavoriteCardEditor } from "../components/FavoriteCardEditor";
 import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
 import { FavoritedGuidesList } from "../components/FavoritedGuidesList";
+import { CustomDecksList } from "../components/CustomDecksList";
 import type { TabType } from "../types/profileTypes";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
@@ -435,9 +436,7 @@ export const ProfilePage = () => {
                       )}
 
                       {activeTab === "decks" && (
-                        <div className="text-center text-gray-400 py-20">
-                          <p className="text-lg">Coming soon...</p>
-                        </div>
+                        <CustomDecksList userId={userId} isOwner={isOwner} />
                       )}
 
                       {activeTab === "guides" && (
