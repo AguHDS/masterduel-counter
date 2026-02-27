@@ -79,12 +79,12 @@ export const SupportContent = () => {
           </div>
           <div>
             <h4 className="font-semibold text-white mb-1">
-              Get VIP role in our Discord
+              Get Support Role
             </h4>
             <p className="text-sm text-gray-300">
-              You'll recive VIP role as compensation for you support. This will
-              grant you access to new features that I plan to implement, such as
-              achievement system, better profile with favorite decks, etc...
+              You'll recive Support role as compensation for you support. This will
+              grant you benefits, such as extra space for your personal decks (Max. 30) and favorite guides.
+              IMPORTANT: Make sure you put your Discord username in the donation comment, so I can give you the role!
             </p>
           </div>
         </div>

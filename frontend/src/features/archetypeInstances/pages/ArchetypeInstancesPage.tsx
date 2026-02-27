@@ -19,14 +19,25 @@ export const ArchetypeInstancesPage = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
-  const { data: archetypeWithHeaderData, isLoading, error } = useArchetypeWithHeader(archetypeIdNum);
-  const { results, loading: searchLoading, error: searchError } = useArchetypeSearch({ searchQuery, debounceDelay: 300, limit: 20 });
+  const {
+    data: archetypeWithHeaderData,
+    isLoading,
+    error,
+  } = useArchetypeWithHeader(archetypeIdNum);
+  const {
+    results,
+    loading: searchLoading,
+    error: searchError,
+  } = useArchetypeSearch({ searchQuery, debounceDelay: 300, limit: 20 });
 
-  const handleSelectInstance = useCallback((instanceId: number) => {
-    if (archetypeId) {
-      navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
-    }
-  }, [archetypeId, navigate]);
+  const handleSelectInstance = useCallback(
+    (instanceId: number) => {
+      if (archetypeId) {
+        navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
+      }
+    },
+    [archetypeId, navigate],
+  );
 
   const handleCreateInstance = useCallback(() => {
     if (archetypeId) {
@@ -59,7 +70,12 @@ export const ArchetypeInstancesPage = () => {
         </Helmet>
         <div className="min-h-screen bg-gradient-to-b flex flex-col">
           <Navbar />
-          <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
+          <main
+            className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8"
+            style={{ maxWidth: "87.5rem" }}
+            role="main"
+            aria-label="Main content"
+          >
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-blue-300 text-lg">Loading archetype...</div>
             </div>
@@ -78,7 +94,12 @@ export const ArchetypeInstancesPage = () => {
         </Helmet>
         <div className="min-h-screen bg-gradient-to-b flex flex-col">
           <Navbar />
-          <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
+          <main
+            className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8"
+            style={{ maxWidth: "87.5rem" }}
+            role="main"
+            aria-label="Main content"
+          >
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-red-400 text-lg">Archetype not found</div>
             </div>
@@ -95,16 +116,22 @@ export const ArchetypeInstancesPage = () => {
     <>
       <Helmet>
         <title>{archetype.name} Guides - Masterduel Counter</title>
-        <meta name="description" content={`Browse and create guides for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`} />
+        <meta
+          name="description"
+          content={`Browse and create guides for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`}
+        />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />
-          <MainLogo />
+        <MainLogo />
 
         <SearchInput
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
-          isDropdownOpen={isDropdownOpen && (searchLoading || searchError !== null || results.length > 0)}
+          isDropdownOpen={
+            isDropdownOpen &&
+            (searchLoading || searchError !== null || results.length > 0)
+          }
           onRequestClose={() => setIsDropdownOpen(false)}
           onInputFocus={() => {
             if (searchQuery.trim()) {
@@ -121,7 +148,12 @@ export const ArchetypeInstancesPage = () => {
             />
           )}
         </SearchInput>
-        <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '87.5rem' }} role="main" aria-label="Main content">
+        <main
+          className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8"
+          style={{ maxWidth: "87.5rem" }}
+          role="main"
+          aria-label="Main content"
+        >
           <FeatureErrorBoundary featureName="Archetype Instances">
             <ArchetypeInstancesList
               archetypeId={parseInt(archetypeId!)}

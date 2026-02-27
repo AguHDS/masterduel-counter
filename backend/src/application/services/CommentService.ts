@@ -42,8 +42,13 @@ export class CommentServiceImpl implements CommentServicePort {
 
     const comment = await this.commentRepository.createComment(data);
 
-    // Create notification for the guide owner (async, don't wait)
-    this.createCommentNotification(data.instanceId, comment.id, data.authorId).catch((error) => {
+    // Create notifications (async, don't wait)
+    this.createCommentNotification(
+      data.instanceId, 
+      comment.id, 
+      data.authorId, 
+      data.parentCommentId
+    ).catch((error) => {
       console.error("Failed to create comment notification:", error);
     });
 
@@ -54,6 +59,7 @@ export class CommentServiceImpl implements CommentServicePort {
     instanceId: number,
     commentId: number,
     commentorId: string,
+    parentCommentId?: number | null,
   ): Promise<void> {
     try {
       // Get instance to find the owner
@@ -64,14 +70,31 @@ export class CommentServiceImpl implements CommentServicePort {
       const commentor = await this.commentRepository.getCommentAuthor(commentorId);
       if (!commentor) return;
 
-      // Create notification
-      await this.notificationService.createCommentNotification(
-        instance.userId,
-        instanceId,
-        commentId,
-        commentorId,
-        commentor.name,
-      );
+      // If this is a reply, notify the parent comment author
+      if (parentCommentId) {
+        const parentComment = await this.commentRepository.findCommentById(parentCommentId);
+        if (parentComment && parentComment.authorId !== commentorId) {
+          // Notify parent comment author about the reply
+          await this.notificationService.createCommentNotification(
+            parentComment.authorId,
+            instanceId,
+            commentId,
+            commentorId,
+            commentor.name,
+          );
+        }
+      }
+
+      // Also notify guide owner if they're not the commentor
+      if (instance.userId !== commentorId) {
+        await this.notificationService.createCommentNotification(
+          instance.userId,
+          instanceId,
+          commentId,
+          commentorId,
+          commentor.name,
+        );
+      }
     } catch (error) {
       console.error("Error in createCommentNotification:", error);
     }

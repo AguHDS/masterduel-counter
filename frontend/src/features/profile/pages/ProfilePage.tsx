@@ -79,6 +79,7 @@ export const ProfilePage = () => {
   // Get profile data
   const profile = profileData?.profile;
   const totalViews = profileData?.totalViews ?? 0;
+  const userRank = profileData?.rank;
 
   // Use favoriteCardAndDecks hook
   const {
@@ -229,7 +230,9 @@ export const ProfilePage = () => {
                             <Trophy className="w-5 h-5 text-yellow-400" />
                             <span className="text-amber-200 font-semibold text-sm">Rank</span>
                           </div>
-                          <span className="text-base font-bold text-yellow-400">#2</span>
+                          <span className="text-base font-bold text-yellow-400">
+                            {userRank ? `#${userRank}` : "Unranked"}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
                           <div className="flex items-center gap-2">

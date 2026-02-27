@@ -22,6 +22,7 @@ export interface ProfileResponse {
   success: boolean;
   profile: Profile;
   totalViews?: number;
+  rank?: number | null;
   message?: string;
 }
 

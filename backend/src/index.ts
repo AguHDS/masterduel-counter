@@ -33,6 +33,7 @@ import {
   admin,
   report,
   comments,
+  ranking,
   createNotificationsRoute,
 } from "./routes/index";
 import auth from "./routes/auth/auth";
@@ -153,6 +154,9 @@ app.use("/api/comments", comments);
 
 // Notifications
 app.use("/api/notifications", createNotificationsRoute(getDependencies()));
+
+// Ranking
+app.use("/api/ranking", ranking);
 
 // Cards
 app.use("/api/cards/search", searchCards);

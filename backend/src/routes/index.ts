@@ -14,6 +14,7 @@ import getCardDetails from "./cards/getCardDetails";
 import admin from "./admin";
 import report from "./report";
 import comments from "./comments/comments";
+import ranking from "./ranking";
 import { createGetArchetypeGuidesRoute } from "./guides/getArchetypeGuides";
 import { createGetUserGuidesRoute } from "./profile/getUserGuides";
 import { createOrUpdateGuideRoute } from "./guides/createOrUpdateGuide";
@@ -39,6 +40,7 @@ export {
   admin,
   report,
   comments,
+  ranking,
   createGetArchetypeGuidesRoute,
   createGetUserGuidesRoute,
   createOrUpdateGuideRoute,
