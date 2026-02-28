@@ -94,6 +94,13 @@ export const adminHttpApi = {
     );
   },
 
+  async changeUserRole(userId: string, role: string): Promise<void> {
+    await axiosClient.put<ApiResponse<void>>(
+      `/api/admin/users/${userId}/role`,
+      { role },
+    );
+  },
+
   async banUser(
     userId: string,
     reason: string,

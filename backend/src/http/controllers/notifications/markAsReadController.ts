@@ -26,16 +26,17 @@ export const createMarkAsReadController =
         success: true,
         notification,
       });
-    } catch (error: any) {
-      console.error("Error marking notification as read:", error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error marking notification as read:", err);
       
-      if (error.message === "Notification not found") {
-        res.status(404).json({ error: error.message });
+      if (err.message === "Notification not found") {
+        res.status(404).json({ error: err.message });
         return;
       }
       
-      if (error.message === "You can only mark your own notifications as read") {
-        res.status(403).json({ error: error.message });
+      if (err.message === "You can only mark your own notifications as read") {
+        res.status(403).json({ error: err.message });
         return;
       }
 

@@ -211,6 +211,39 @@ export class AdminServiceImpl implements AdminServicePort {
     }
   }
 
+  async changeUserRole(
+    userId: string,
+    role: string,
+  ): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    try {
+      const validRoles = ["user", "supporter", "admin"];
+      if (!validRoles.includes(role)) {
+        return {
+          success: false,
+          message: `Invalid role. Must be one of: ${validRoles.join(", ")}`,
+        };
+      }
+
+      await this.adminRepository.changeUserRole(userId, role);
+      return {
+        success: true,
+        message: "User role updated successfully",
+      };
+    } catch (error) {
+      console.error("Error changing user role:", error);
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Internal error changing role",
+      };
+    }
+  }
+
   async getReports(): Promise<{
     reports: ReportWithDetails[];
     total: number;

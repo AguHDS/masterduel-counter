@@ -13,7 +13,7 @@ export const CreateGuideInvite = () => {
     },
     { icon: Star, text: "Save guides as favorites", color: "text-yellow-400" },
     { icon: Layers, text: "Save your personal decks", color: "text-cyan-400" },
-    { icon: Heart, text: "And much more!", color: "text-pink-400" },
+    { icon: Heart, text: "Get Supporter role to gain benefits", color: "text-pink-400" },
   ];
 
   return (

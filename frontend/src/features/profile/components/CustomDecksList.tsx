@@ -16,11 +16,13 @@ interface Card {
 interface CustomDecksListProps {
   userId: string;
   isOwner: boolean;
+  userRole?: string;
 }
 
 const MAX_DECKS_USER = 10;
+const MAX_DECKS_SUPPORTER = 30;
 
-export const CustomDecksList = ({ userId, isOwner }: CustomDecksListProps) => {
+export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListProps) => {
   const {
     decks,
     isLoading,
@@ -34,7 +36,13 @@ export const CustomDecksList = ({ userId, isOwner }: CustomDecksListProps) => {
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [selectedDeck, setSelectedDeck] = useState<CustomDeck | null>(null);
 
-  const canCreateMore = decks.length < MAX_DECKS_USER;
+  // Sort decks by creation date (oldest first, so new decks appear at the end)
+  const sortedDecks = [...decks].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+
+  const maxDecks = userRole === "supporter" ? MAX_DECKS_SUPPORTER : MAX_DECKS_USER;
+  const canCreateMore = sortedDecks.length < maxDecks;
 
   const handleCreateDeck = (
     title: string,
@@ -116,9 +124,9 @@ export const CustomDecksList = ({ userId, isOwner }: CustomDecksListProps) => {
       )}
 
       {/* Existing Decks Grid */}
-      {(decks.length > 0 || (isOwner && !isCreatingNew)) && (
+      {(sortedDecks.length > 0 || (isOwner && !isCreatingNew)) && (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-          {decks.map((deck) => {
+          {sortedDecks.map((deck) => {
             const canView = isOwner || deck.isPublic;
             const previewCards =
               deck.extraDeck.length > 0 ? deck.extraDeck : deck.mainDeck;
@@ -266,7 +274,7 @@ export const CustomDecksList = ({ userId, isOwner }: CustomDecksListProps) => {
                       canCreateMore ? "text-slate-400" : "text-slate-600"
                     }`}
                   >
-                    {decks.length}/{MAX_DECKS_USER}
+                    {sortedDecks.length}/{maxDecks}
                   </p>
                 </div>
               </button>
@@ -289,7 +297,7 @@ export const CustomDecksList = ({ userId, isOwner }: CustomDecksListProps) => {
       )}
 
       {/* Empty State */}
-      {decks.length === 0 && !isCreatingNew && (
+      {sortedDecks.length === 0 && !isCreatingNew && (
         <div className="text-center py-20">
           <p className="text-slate-400 text-lg mb-4">
             {isOwner
@@ -299,8 +307,8 @@ export const CustomDecksList = ({ userId, isOwner }: CustomDecksListProps) => {
         </div>
       )}
 
-      {/* Support Message */}
-      {isOwner && (
+      {/* Support Message - Only for role "user" */}
+      {isOwner && userRole === "user" && (
         <div className="mt-6 p-4 bg-gradient-to-r from-[#1a1545]/60 via-[#1e1850]/60 to-[#1a1545]/60 rounded-lg border-2 border-[#3d3470]/50 text-center">
           <p className="text-sm text-gray-300">
             Need more space?{" "}

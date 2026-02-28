@@ -2,7 +2,7 @@ import React from "react";
 import notificationImg from "@/assets/notification-icon.webp";
 import { useNotifications } from "../context/useNotifications";
 
-export const NotificationBell = ({}) => {
+export const NotificationBell = () => {
   const { unreadCount, showNotifications, setShowNotifications, buttonRef } =
     useNotifications();
 

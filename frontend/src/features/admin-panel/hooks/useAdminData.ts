@@ -117,6 +117,23 @@ export const useChangeUserCredentials = () => {
   });
 };
 
+/** Change user role */
+export const useChangeUserRole = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+      adminHttpApi.changeUserRole(userId, role),
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.users.detail(userId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.admin.users.all, "search"],
+      });
+    },
+  });
+};
+
 /** Ban user */
 export const useBanUser = () => {
   const queryClient = useQueryClient();

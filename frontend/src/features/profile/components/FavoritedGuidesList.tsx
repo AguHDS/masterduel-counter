@@ -23,6 +23,7 @@ interface FavoritedGuide {
 interface FavoritedGuidesListProps {
   guides: FavoritedGuide[];
   onRemoveFavorite?: (guideId: number, archetypeId: number) => void;
+  userRole?: string;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -30,6 +31,7 @@ const ITEMS_PER_PAGE = 10;
 export const FavoritedGuidesList = ({
   guides,
   onRemoveFavorite,
+  userRole,
 }: FavoritedGuidesListProps) => {
   const navigate = useNavigate();
   const [removingId, setRemovingId] = useState<number | null>(null);
@@ -39,7 +41,7 @@ export const FavoritedGuidesList = ({
   // Filter guides by search query (title only)
   const filteredGuides = searchQuery.trim()
     ? guides.filter((guide) =>
-        guide.title.toLowerCase().includes(searchQuery.toLowerCase())
+        guide.title.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : guides;
 
@@ -56,7 +58,7 @@ export const FavoritedGuidesList = ({
   const handleRemoveFavorite = async (
     e: React.MouseEvent,
     guideId: number,
-    archetypeId: number
+    archetypeId: number,
   ) => {
     e.stopPropagation();
     if (!onRemoveFavorite) return;
@@ -88,7 +90,9 @@ export const FavoritedGuidesList = ({
           <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full" />
           <Star className="w-20 h-20 mx-auto mb-6 opacity-30 text-yellow-500 relative" />
         </div>
-        <p className="text-xl font-bold text-gray-300 mb-2">No favorited guides yet</p>
+        <p className="text-xl font-bold text-gray-300 mb-2">
+          No favorited guides yet
+        </p>
         <p className="text-sm text-gray-500">
           Explore guides and mark them as favorites!
         </p>
@@ -99,7 +103,12 @@ export const FavoritedGuidesList = ({
   return (
     <div className="space-y-4">
       {/* Search Bar */}
-      <div className="flex justify-end">
+      <div className="flex justify-between">
+        <div className="w-full sm:w-72">
+          <h3 className="text-lg font-semibold text-amber-400">
+            Favorite Guides{userRole === "user" ? " (Max. 20)" : ""}
+          </h3>
+        </div>
         <div className="w-full sm:w-72">
           <GuideSearch
             searchQuery={searchQuery}
@@ -112,10 +121,14 @@ export const FavoritedGuidesList = ({
       {filteredGuides.length === 0 ? (
         <div className="text-center text-gray-400 py-20 bg-[#1a1530]/60 rounded-lg border border-[#4a4070]/40">
           <p className="text-lg font-semibold text-gray-300">
-            {searchQuery ? "No favorites match your search" : "No favorited guides"}
+            {searchQuery
+              ? "No favorites match your search"
+              : "No favorited guides"}
           </p>
           {searchQuery && (
-            <p className="text-sm mt-2 text-gray-500">Try a different search term</p>
+            <p className="text-sm mt-2 text-gray-500">
+              Try a different search term
+            </p>
           )}
         </div>
       ) : (
@@ -130,7 +143,7 @@ export const FavoritedGuidesList = ({
               >
                 {/* Glow border effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
-                
+
                 {/* Main row */}
                 <div className="relative bg-gradient-to-r from-[#1a1545]/95 via-purple-950/60 to-[#1a1545]/95 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-cyan-400/80 transition-all duration-200 cursor-pointer overflow-hidden">
                   <div className="flex items-center gap-4 p-3">
@@ -173,10 +186,10 @@ export const FavoritedGuidesList = ({
                     {/* Last Update */}
                     <div className="flex-shrink-0 w-28 text-center hidden lg:block">
                       <span className="text-sm text-gray-300">
-                        {new Date(guide.createdAt).toLocaleDateString('en-US', { 
-                          day: 'numeric',
-                          month: 'numeric',
-                          year: 'numeric'
+                        {new Date(guide.createdAt).toLocaleDateString("en-US", {
+                          day: "numeric",
+                          month: "numeric",
+                          year: "numeric",
                         })}
                       </span>
                     </div>
@@ -199,11 +212,7 @@ export const FavoritedGuidesList = ({
                           className="p-2 hover:bg-yellow-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Remove from favorites"
                         >
-                          <Star
-                            className={`w-5 h-5 fill-yellow-400 text-yellow-400 hover:fill-yellow-300 transition-colors ${
-                              removingId === guide.id ? "animate-pulse" : ""
-                            }`}
-                          />
+                          <Star className={"w-5 h-5  text-yellow-400"} />
                         </button>
                       </div>
                     )}
@@ -213,39 +222,40 @@ export const FavoritedGuidesList = ({
             ))}
           </div>
 
-      {/* Enhanced Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 pt-2">
-          <button
-            onClick={handlePreviousPage}
-            disabled={currentPage === 0}
-            className="group relative p-3 bg-gradient-to-r from-blue-600/60 to-blue-700/60 hover:from-blue-500/80 hover:to-blue-600/80 disabled:from-gray-700/40 disabled:to-gray-800/40 disabled:cursor-not-allowed rounded-lg transition-all duration-200 border-2 border-blue-500/40 hover:border-blue-400/60 disabled:border-gray-600/30 shadow-lg hover:shadow-blue-500/30 disabled:shadow-none"
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="w-5 h-5 text-white group-disabled:text-gray-500" />
-          </button>
+          {/* Enhanced Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 pt-2">
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 0}
+                className="group relative p-3 bg-gradient-to-r from-blue-600/60 to-blue-700/60 hover:from-blue-500/80 hover:to-blue-600/80 disabled:from-gray-700/40 disabled:to-gray-800/40 disabled:cursor-not-allowed rounded-lg transition-all duration-200 border-2 border-blue-500/40 hover:border-blue-400/60 disabled:border-gray-600/30 shadow-lg hover:shadow-blue-500/30 disabled:shadow-none"
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="w-5 h-5 text-white group-disabled:text-gray-500" />
+              </button>
 
-          <div className="px-6 py-2 bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-lg border-2 border-slate-600/50 shadow-lg">
-            <span className="text-gray-200 font-bold text-sm">
-              Page <span className="text-cyan-400">{currentPage + 1}</span> of <span className="text-cyan-400">{totalPages}</span>
-            </span>
-          </div>
+              <div className="px-6 py-2 bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-lg border-2 border-slate-600/50 shadow-lg">
+                <span className="text-gray-200 font-bold text-sm">
+                  Page <span className="text-cyan-400">{currentPage + 1}</span>{" "}
+                  of <span className="text-cyan-400">{totalPages}</span>
+                </span>
+              </div>
 
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages - 1}
-            className="group relative p-3 bg-gradient-to-r from-blue-600/60 to-blue-700/60 hover:from-blue-500/80 hover:to-blue-600/80 disabled:from-gray-700/40 disabled:to-gray-800/40 disabled:cursor-not-allowed rounded-lg transition-all duration-200 border-2 border-blue-500/40 hover:border-blue-400/60 disabled:border-gray-600/30 shadow-lg hover:shadow-blue-500/30 disabled:shadow-none"
-            aria-label="Next page"
-          >
-            <ChevronRight className="w-5 h-5 text-white group-disabled:text-gray-500" />
-          </button>
-        </div>
-      )}
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages - 1}
+                className="group relative p-3 bg-gradient-to-r from-blue-600/60 to-blue-700/60 hover:from-blue-500/80 hover:to-blue-600/80 disabled:from-gray-700/40 disabled:to-gray-800/40 disabled:cursor-not-allowed rounded-lg transition-all duration-200 border-2 border-blue-500/40 hover:border-blue-400/60 disabled:border-gray-600/30 shadow-lg hover:shadow-blue-500/30 disabled:shadow-none"
+                aria-label="Next page"
+              >
+                <ChevronRight className="w-5 h-5 text-white group-disabled:text-gray-500" />
+              </button>
+            </div>
+          )}
         </>
       )}
 
-      {/* Support Message */}
-      {onRemoveFavorite && (
+      {/* Support Message - Only for role "user" */}
+      {onRemoveFavorite && userRole === "user" && (
         <div className="mt-6 p-4 bg-gradient-to-r from-[#1a1545]/60 via-[#1e1850]/60 to-[#1a1545]/60 rounded-lg border-2 border-[#3d3470]/50 text-center">
           <p className="text-sm text-gray-300">
             Need more space?{" "}

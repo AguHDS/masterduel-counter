@@ -289,6 +289,21 @@ export class SqliteAdminRepository implements AdminRepository {
       }
     }
   }
+
+  async changeUserRole(userId: string, role: string): Promise<void> {
+    // Validate role
+    const validRoles = ["user", "supporter", "admin"];
+    if (!validRoles.includes(role)) {
+      throw new Error(`Invalid role. Must be one of: ${validRoles.join(", ")}`);
+    }
+
+    // Update user role
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { role },
+    });
+  }
+
   async banUser(
     userId: string,
     reason: string,

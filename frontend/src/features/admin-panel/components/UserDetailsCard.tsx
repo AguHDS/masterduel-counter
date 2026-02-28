@@ -19,6 +19,7 @@ import type { Profile } from "../types/adminPanelTypes";
 import {
   useDeleteUser,
   useChangeUserCredentials,
+  useChangeUserRole,
   useBanUser,
   useUnbanUser,
 } from "../hooks/useAdminData";
@@ -50,6 +51,7 @@ export const UserDetailsCard = ({
 }: UserDetailsCardProps) => {
   const deleteUserMutation = useDeleteUser();
   const changeCredentialsMutation = useChangeUserCredentials();
+  const changeRoleMutation = useChangeUserRole();
   const banUserMutation = useBanUser();
   const unbanUserMutation = useUnbanUser();
 
@@ -61,6 +63,8 @@ export const UserDetailsCard = ({
     confirmPassword: "",
   });
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [editingRole, setEditingRole] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string>("");
 
   // Sync edit form with user data when user changes
   useEffect(() => {
@@ -71,11 +75,14 @@ export const UserDetailsCard = ({
       confirmPassword: "",
     });
     setEditingUser(false);
+    setEditingRole(false);
+    setSelectedRole(user.role || "user");
     setErrorMessage("");
   }, [user]);
 
   // Combined loading states
   const isMutating =
+    changeRoleMutation.isPending ||
     deleteUserMutation.isPending ||
     changeCredentialsMutation.isPending ||
     banUserMutation.isPending ||
@@ -268,6 +275,46 @@ export const UserDetailsCard = ({
     setErrorMessage("");
   };
 
+  const handleEditRole = () => {
+    if (isCurrentUser) {
+      alert("You cannot change your own role");
+      return;
+    }
+    setEditingRole(true);
+    setSelectedRole(user.role || "user");
+  };
+
+  const handleSaveRole = () => {
+    if (isCurrentUser) {
+      alert("You cannot change your own role");
+      setEditingRole(false);
+      return;
+    }
+
+    if (!selectedRole) {
+      alert("Please select a role");
+      return;
+    }
+
+    changeRoleMutation.mutate(
+      { userId: user.id, role: selectedRole },
+      {
+        onSuccess: () => {
+          setEditingRole(false);
+          onRefetchUser();
+        },
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+          alert(error.response?.data?.message || "Failed to update role");
+        },
+      }
+    );
+  };
+
+  const handleCancelRoleEdit = () => {
+    setSelectedRole(user.role || "user");
+    setEditingRole(false);
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-900/50 to-blue-900/20 border border-blue-800/30 rounded-lg p-6">
       <div className="flex items-center justify-between mb-6">
@@ -416,17 +463,66 @@ export const UserDetailsCard = ({
             Role
           </div>
         </label>
-        <div className="bg-slate-800/30 border border-blue-900/30 rounded-lg px-4 py-3">
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              user.role === "admin"
-                ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                : "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-            }`}
-          >
-            {user.role}
-          </span>
-        </div>
+        {editingRole ? (
+          <div className="space-y-3">
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              disabled={isMutating}
+              className="w-full bg-slate-800/50 border border-blue-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50"
+            >
+              <option value="user">User</option>
+              <option value="supporter">Supporter</option>
+              <option value="admin">Admin</option>
+            </select>
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveRole}
+                disabled={isMutating}
+                className="px-3 py-1.5 bg-green-600/20 hover:bg-green-600/30 border border-green-500/50 text-green-300 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 text-sm"
+              >
+                {changeRoleMutation.isPending ? (
+                  <Loader2 className="animate-spin" size={14} />
+                ) : (
+                  <Save size={14} />
+                )}
+                {changeRoleMutation.isPending ? "Saving..." : "Save Role"}
+              </button>
+              <button
+                onClick={handleCancelRoleEdit}
+                disabled={isMutating}
+                className="px-3 py-1.5 bg-gray-600/20 hover:bg-gray-600/30 border border-gray-500/50 text-gray-300 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 text-sm"
+              >
+                <X size={14} />
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-slate-800/30 border border-blue-900/30 rounded-lg px-4 py-3 flex items-center justify-between">
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                user.role === "admin"
+                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                  : user.role === "supporter"
+                    ? "bg-pink-500/20 text-pink-300 border border-pink-500/30"
+                    : "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+              }`}
+            >
+              {user.role}
+            </span>
+            {!isCurrentUser && (
+              <button
+                onClick={handleEditRole}
+                disabled={isMutating}
+                className="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/50 text-blue-300 rounded transition-colors disabled:opacity-50 text-sm flex items-center gap-1"
+              >
+                <Edit2 size={12} />
+                Change Role
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Ban Information */}

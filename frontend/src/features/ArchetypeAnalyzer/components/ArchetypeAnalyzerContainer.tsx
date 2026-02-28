@@ -435,7 +435,7 @@ export const ArchetypeAnalyzerContainer = ({
                         <Star
                           className={`w-5 h-5 ${
                             favorites.favoriteCount > 0
-                              ? "text-yellow-400 fill-yellow-400"
+                              ? "text-yellow-400"
                               : ""
                           }`}
                         />

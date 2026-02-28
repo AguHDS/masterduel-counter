@@ -3,6 +3,11 @@ import type { UseQueryOptions } from "@tanstack/react-query";
 import { notificationsApi } from "../api/notificationsApi";
 import type { Notification } from "../api/notificationsApi";
 
+interface NotificationsResponse {
+  notifications: Notification[];
+  total: number;
+}
+
 export const notificationKeys = {
   all: ["notifications"] as const,
   lists: () => [...notificationKeys.all, "list"] as const,
@@ -14,7 +19,7 @@ export const notificationKeys = {
 export const useNotificationsQuery = (
   page: number = 1, 
   limit: number = 20,
-  options?: Omit<UseQueryOptions<any>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<NotificationsResponse>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
     queryKey: notificationKeys.list(page),
@@ -48,7 +53,7 @@ export const useMarkAsRead = () => {
       // Optimistically remove the notification from lists (since backend only returns unread)
       queryClient.setQueriesData(
         { queryKey: notificationKeys.lists() },
-        (oldData: any) => {
+        (oldData: NotificationsResponse | undefined) => {
           if (!oldData) return oldData;
 
           return {
@@ -84,7 +89,7 @@ export const useMarkAllAsRead = () => {
       // Optimistically clear all notifications (since backend only returns unread)
       queryClient.setQueriesData(
         { queryKey: notificationKeys.lists() },
-        (oldData: any) => {
+        (oldData: NotificationsResponse | undefined) => {
           if (!oldData) return oldData;
 
           return {

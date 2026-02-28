@@ -78,14 +78,15 @@ export const SupportContent = () => {
             <Star className="w-5 h-5 text-amber-400" />
           </div>
           <div>
-            <h4 className="font-semibold text-white mb-1">
-              Get Support Role
-            </h4>
+            <h4 className="font-semibold text-white mb-1">Get Support Role</h4>
             <p className="text-sm text-gray-300">
-              You'll recive Support role as compensation for you support. This will
-              grant you benefits, such as extra space for your personal decks (Max. 30) and favorite guides.
-              IMPORTANT: Make sure you put your Discord username in the donation comment, so I can give you the role!
-            </p>
+              If you donate at least $3, you will get the Support role. This
+              will grant you benefits, such as extra space for your personal decks (Max. 30) and unlimited favorite guides.
+            </p><br />
+            <span className="text-sm text-yellow-400 font-semibold">
+              IMPORTANT: Make sure you put your username in the donation
+              comment, so you can get the role
+            </span>
           </div>
         </div>
       </div>
