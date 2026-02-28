@@ -280,6 +280,12 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     return this.instanceRepository.getTotalViewsByUserId(userId);
   }
 
+  async getLatestCreatedInstances(
+    limit: number,
+  ): Promise<ArchetypeInstanceWithDetails[]> {
+    return this.instanceRepository.findLatestCreatedInstances(limit);
+  }
+
   /**
    * Cleanup method to flush remaining views and stop the cache
    * Should be called on application shutdown

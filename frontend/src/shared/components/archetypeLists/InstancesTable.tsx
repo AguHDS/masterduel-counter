@@ -360,7 +360,7 @@ export const InstancesTable = ({
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 0}
-            className="p-2 text-yellow-400 hover:text-yellow-300 disabled:text-yellow-400/30 disabled:cursor-not-allowed transition-colors"
+            className="p-2 text-blue-400 hover:text-blue-300 disabled:text-blue-400/30 disabled:cursor-not-allowed transition-colors"
             aria-label="Go to previous page"
           >
             <ChevronLeft className="w-6 h-6" aria-hidden="true" />
@@ -375,7 +375,7 @@ export const InstancesTable = ({
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages - 1}
-            className="p-2 text-yellow-400 hover:text-yellow-300 disabled:text-yellow-400/30 disabled:cursor-not-allowed transition-colors"
+            className="p-2 text-blue-300 hover:text-blue-200 disabled:text-blue-400/30 disabled:cursor-not-allowed transition-colors"
             aria-label="Go to next page"
           >
             <ChevronRight className="w-6 h-6" aria-hidden="true" />

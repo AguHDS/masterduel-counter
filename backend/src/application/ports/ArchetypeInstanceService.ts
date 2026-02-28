@@ -57,6 +57,9 @@ export interface ArchetypeInstanceServicePort {
   /** Gets the total view count across all instances for a user */
   getTotalViewsByUserId(userId: string): Promise<number>;
 
+  /** Gets the latest created instances across all archetypes */
+  getLatestCreatedInstances(limit: number): Promise<ArchetypeInstanceWithDetails[]>;
+
   /** Cleanup method for shutting down the service */
   shutdown(): Promise<void>;
 }

@@ -7,7 +7,7 @@ import {
 } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
 import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTable";
-import { FramedContainer } from "@/layouts/FramedContainer";
+import { ListFramedContainer } from "@/layouts/ListFramedContainer";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import { useNavigate, Link } from "react-router-dom";
@@ -67,7 +67,9 @@ const ArchetypeInstancesListComponent = ({
   if (isLoading) {
     return (
       <div className="flex flex-col items-start p-4 w-full">
-        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+        <ListFramedContainer
+          contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4"
+        >
           {/* Back button */}
           <div className="flex">
             <button
@@ -82,7 +84,7 @@ const ArchetypeInstancesListComponent = ({
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-blue-300 text-lg">Loading instances...</div>
           </div>
-        </FramedContainer>
+        </ListFramedContainer>
       </div>
     );
   }
@@ -90,7 +92,9 @@ const ArchetypeInstancesListComponent = ({
   if (error) {
     return (
       <div className="flex flex-col items-start p-4 w-full">
-        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+        <ListFramedContainer
+          contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4"
+        >
           {/* Back button */}
           <div className="flex">
             <button
@@ -105,7 +109,7 @@ const ArchetypeInstancesListComponent = ({
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-red-400 text-lg">Failed to load instances</div>
           </div>
-        </FramedContainer>
+        </ListFramedContainer>
       </div>
     );
   }
@@ -113,7 +117,9 @@ const ArchetypeInstancesListComponent = ({
   if (!hasInstances) {
     return (
       <div className="flex flex-col items-start p-4 w-full">
-        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+        <ListFramedContainer
+          contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4"
+        >
           {/* Back button */}
           <div className="flex">
             <button
@@ -184,14 +190,16 @@ const ArchetypeInstancesListComponent = ({
               </div>
             )}
           </div>
-        </FramedContainer>
+        </ListFramedContainer>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col items-start p-4 w-full">
-      <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+      <ListFramedContainer
+        contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4"
+      >
         {/* Back button */}
         <div className="flex relative top-3 right-3">
           <button
@@ -254,7 +262,7 @@ const ArchetypeInstancesListComponent = ({
           sortBy={sortBy}
           onSortChange={setSortBy}
         />
-      </FramedContainer>
+      </ListFramedContainer>
     </div>
   );
 };

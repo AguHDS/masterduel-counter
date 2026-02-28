@@ -1,5 +1,5 @@
 import type { HTMLAttributes, PropsWithChildren } from "react";
-import framedContainerBackground from "@/assets/FramedContainerBackground.webp";
+import instanceEditorBackground from "@/assets/instanceEditorAndProfile_background.webp";
 
 interface FramedContainerProps extends HTMLAttributes<HTMLElement> {
   maxWidthClassName?: string;
@@ -32,12 +32,12 @@ export const FramedContainer = ({
         <div className="relative w-full overflow-hidden rounded-[26px] bg-black">
           <div className="absolute inset-0 w-full h-full">
             <img
-              src={framedContainerBackground}
+              src={instanceEditorBackground}
               alt=""
               aria-hidden="true"
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-cover scale-105 pointer-events-none select-none opacity-80"
+              className="w-full h-full object-cover scale-105 pointer-events-none select-none opacity-40"
             />
           </div>
 

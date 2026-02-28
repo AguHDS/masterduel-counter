@@ -30,6 +30,7 @@ import {
   createGetGuideByIdRoute,
   createSearchArchetypeGuidesRoute,
   createSearchUserGuidesRoute,
+  createGetLatestGuidesRoute,
   admin,
   report,
   comments,
@@ -148,6 +149,7 @@ app.use("/api", createSearchArchetypeGuidesRoute(getDependencies()));
 app.use("/api", createSearchUserGuidesRoute(getDependencies()));
 app.use("/api", createOrUpdateGuideRoute(getDependencies()));
 app.use("/api", createGetGuideByIdRoute(getDependencies()));
+app.use("/api", createGetLatestGuidesRoute(getDependencies()));
 app.use("/api", getInstanceCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 app.use("/api/comments", comments);

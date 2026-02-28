@@ -17,6 +17,7 @@ export interface ArchetypeInstanceWithDetails {
   updatedAt: string;
   archetypeName: string;
   userName: string;
+  userProfilePictureUrl?: string | null;
   headerCardName?: string;
   headerCardImageUrl?: string;
 }
@@ -195,6 +196,18 @@ export const instanceApi = {
     const response = await axios.post<{ success: boolean; message: string }>(
       `${API_BASE_URL}/api/instances/${instanceId}/view`,
       {}
+    );
+    return response.data;
+  },
+
+  /**
+   * Get the latest created guide instances across all archetypes
+   * @param limit - Number of instances to fetch (default: 5, max: 50)
+   */
+  getLatestCreatedGuides: async (limit: number = 5): Promise<ArchetypeInstanceWithDetails[]> => {
+    const response = await axios.get<ArchetypeInstanceWithDetails[]>(
+      `${API_BASE_URL}/api/guides/latest`,
+      { params: { limit } }
     );
     return response.data;
   },

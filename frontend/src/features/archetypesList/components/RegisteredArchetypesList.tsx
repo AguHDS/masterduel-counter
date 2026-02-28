@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
-import { FramedContainer } from "@/layouts/FramedContainer";
+import { ListFramedContainer } from "@/layouts/ListFramedContainer";
 import { useRegisteredArchetypes } from "../hooks/useRegisteredArchetypes";
 import instanceItemBg from "@/assets/background_instanceitem_plane.webp";
 
@@ -44,13 +44,13 @@ export const RegisteredArchetypesList = ({
 
   if (archetypes.length === 0) {
     return (
-      <FramedContainer>
+      <ListFramedContainer>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-blue-300 text-lg">
             No registered archetypes yet
           </div>
         </div>
-      </FramedContainer>
+      </ListFramedContainer>
     );
   }
 
@@ -68,7 +68,7 @@ export const RegisteredArchetypesList = ({
   };
 
   return (
-    <FramedContainer
+    <ListFramedContainer
       aria-label="Latest registered archetypes"
       contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6"
     >
@@ -114,7 +114,7 @@ export const RegisteredArchetypesList = ({
           </button>
         </div>
 
-        <div className="flex flex-col gap-[0.25rem]">
+        <div className="flex flex-col gap-[0.28rem]">
           {currentArchetypes.map((archetype, index) => {
             const positionLabel = startIndex + index + 1;
             const instanceCount = archetype.instance_count || 0;
@@ -135,22 +135,22 @@ export const RegisteredArchetypesList = ({
                   loading="lazy"
                   decoding="async"
                   aria-hidden="true"
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full"
                 />
-                <div className="absolute inset-0 bg-black/35 group-hover:bg-black/10 group-active:bg-black/40" />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 group-active:bg-black/30" />
 
                 <div
                   className="absolute inset-y-0 left-0 w-8 pointer-events-none"
                   style={{
                     background:
-                      "linear-gradient(to right, rgba(0,0,39,0.6), transparent)",
+                      "linear-gradient(to right, rgba(0,0,30,0.4), transparent)",
                   }}
                 />
                 <div
                   className="absolute inset-y-0 right-0 w-8 pointer-events-none"
                   style={{
                     background:
-                      "linear-gradient(to left, rgba(0,0,39,0.6), transparent)",
+                      "linear-gradient(to left, rgba(0,0,30,0.4), transparent)",
                   }}
                 />
 
@@ -177,7 +177,7 @@ export const RegisteredArchetypesList = ({
                       {positionLabel}
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/30 to-blue-500/70 flex items-center justify-center text-yellow-500 font-semibold text-xl">
+                      <div className="w-12 h-12 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-800/30 to-blue-500/70 flex items-center justify-center text-yellow-500 font-semibold text-xl">
                         {badgeContent}
                       </div>
                       <span
@@ -217,7 +217,7 @@ export const RegisteredArchetypesList = ({
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 0}
-            className="p-2 text-yellow-400 hover:text-yellow-300 disabled:text-yellow-400/30 disabled:cursor-not-allowed transition-colors"
+            className="p-2 text-blue-400 hover:text-blue-300 disabled:text-blue-400/30 disabled:cursor-not-allowed transition-colors"
             aria-label="Previous page"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -230,13 +230,13 @@ export const RegisteredArchetypesList = ({
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages - 1}
-            className="p-2 text-yellow-400 hover:text-yellow-300 disabled:text-yellow-400/30 disabled:cursor-not-allowed transition-colors"
+            className="p-2 text-blue-400 hover:text-blue-300 disabled:text-blue-400/30 disabled:cursor-not-allowed transition-colors"
             aria-label="Next page"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
         </div>
       )}
-    </FramedContainer>
+    </ListFramedContainer>
   );
 };

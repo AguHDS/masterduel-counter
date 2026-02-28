@@ -49,4 +49,6 @@ export interface ArchetypeInstanceRepository {
   incrementViewCount(instanceId: number, incrementBy: number): Promise<void>;
   /** Gets the total view count across all instances for a user */
   getTotalViewsByUserId(userId: string): Promise<number>;
+  /** Gets the latest created instances across all archetypes with user profile data */
+  findLatestCreatedInstances(limit: number): Promise<ArchetypeInstanceWithDetails[]>;
 }
