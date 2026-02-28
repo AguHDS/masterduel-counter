@@ -118,7 +118,7 @@ export const ArchetypeInstancesPage = () => {
         <title>{archetype.name} Guides - Masterduel Counter</title>
         <meta
           name="description"
-          content={`Browse and create guides for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`}
+          content={`Browse and create guides for the ${archetype.name} archetype to learn how to win against them in Yu-Gi-Oh! Master Duel.`}
         />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">

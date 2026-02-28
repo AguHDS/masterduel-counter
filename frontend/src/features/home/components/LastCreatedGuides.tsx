@@ -82,7 +82,7 @@ export const LastCreatedGuides = () => {
           <div className="p-2 rounded-lg">
             <Clock className="w-6 h-6 text-blue-300" />
           </div>
-          <h3 className="text-2xl font-bold text-white">Last Created Guides</h3>
+          <h3 className="text-2xl font-bold text-white">Lastest Counter Guides</h3>
         </div>
 
         <div className="flex-1 overflow-y-auto scrollbar-comments">

@@ -133,4 +133,48 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
 
     return result || null;
   }
+
+  async getGeneralStats(limit: number = 15): Promise<import("@/domain/ports/ArchetypeRepository").GeneralStats> {
+    // Get total registered archetypes
+    const totalArchetypesStmt = this.db.prepare(`
+      SELECT COUNT(*) as count
+      FROM archetypes
+      WHERE registered = 1
+    `);
+    const totalArchetypesResult = totalArchetypesStmt.get() as { count: number };
+    const totalArchetypes = totalArchetypesResult.count;
+
+    // Get total guides (archetype instances)
+    const totalGuidesStmt = this.db.prepare(`
+      SELECT COUNT(*) as count
+      FROM archetype_instances
+    `);
+    const totalGuidesResult = totalGuidesStmt.get() as { count: number };
+    const totalGuides = totalGuidesResult.count;
+
+    // Get top archetypes by guide count
+    const topArchetypesStmt = this.db.prepare(`
+      SELECT 
+        a.id,
+        a.name,
+        COUNT(ai.id) as guideCount
+      FROM archetypes a
+      INNER JOIN archetype_instances ai ON a.id = ai.archetype_id
+      WHERE a.registered = 1
+      GROUP BY a.id, a.name
+      ORDER BY guideCount DESC
+      LIMIT ?
+    `);
+    const topArchetypes = topArchetypesStmt.all(limit) as Array<{
+      id: number;
+      name: string;
+      guideCount: number;
+    }>;
+
+    return {
+      totalArchetypes,
+      totalGuides,
+      topArchetypes,
+    };
+  }
 }

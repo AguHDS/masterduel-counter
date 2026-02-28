@@ -1,27 +1,31 @@
 import { TrendingUp, Users } from "lucide-react";
+import { useGeneralStats } from "../hooks/useGeneralStats";
+import { useNavigate } from "react-router-dom";
 
-interface GeneralStatsProps {
-  totalArchetypes?: number;
-  totalGuides?: number;
-  topArchetypes?: Array<{ name: string; count: number }>;
-}
+export const GeneralStats = () => {
+  const { data, isLoading, error } = useGeneralStats(15);
+  const navigate = useNavigate();
 
-export const GeneralStats = ({
-  totalArchetypes = 156,
-  totalGuides = 342,
-  topArchetypes = [
-    { name: "Vanquish Soul", count: 12 },
-    { name: "Kashtira", count: 10 },
-    { name: "Purrely", count: 8 },
-    { name: "Labrynth", count: 7 },
-    { name: "Tearlaments", count: 6 },
-    { name: "Spright", count: 5 },
-    { name: "Branded", count: 5 },
-    { name: "Runick", count: 4 },
-    { name: "Live☆Twin", count: 4 },
-    { name: "Mathmech", count: 3 },
-  ],
-}: GeneralStatsProps) => {
+  if (isLoading) {
+    return (
+      <div className="relative flex flex-col h-full items-center justify-center">
+        <div className="text-blue-300 text-lg">Loading stats...</div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="relative flex flex-col h-full items-center justify-center">
+        <div className="text-red-400 text-lg">Failed to load stats</div>
+      </div>
+    );
+  }
+
+  const handleArchetypeClick = (archetypeId: number) => {
+    navigate(`/archetype/${archetypeId}`);
+  };
+
   return (
     <div className="relative flex flex-col h-full">
       <div
@@ -45,7 +49,7 @@ export const GeneralStats = ({
             <div className="flex items-center gap-2 mb-1">
               <p className="text-sm text-blue-300 font-semibold">Registered Archetypes</p>
             </div>
-            <p className="text-3xl font-bold text-white">{totalArchetypes}</p>
+            <p className="text-3xl font-bold text-white">{data.totalArchetypes}</p>
           </div>
 
           <div className="p-4 rounded-lg bg-black/40 border border-purple-500/30">
@@ -53,19 +57,20 @@ export const GeneralStats = ({
               <Users className="w-4 h-4 text-purple-400" />
               <p className="text-sm text-purple-300 font-semibold">Guides</p>
             </div>
-            <p className="text-3xl font-bold text-white">{totalGuides}</p>
+            <p className="text-3xl font-bold text-white">{data.totalGuides}</p>
           </div>
         </div>
 
         <div className="flex-1 overflow-hidden flex flex-col">
           <h4 className="text-sm font-semibold text-blue-300 mb-3 uppercase tracking-wide">
-            Top 10 Most Demanded
+            Top 15 Most Demanded
           </h4>
           <div className="space-y-2 flex-1 overflow-y-auto scrollbar-comments pr-2">
-            {topArchetypes.map((archetype, index) => (
+            {data.topArchetypes.map((archetype, index) => (
               <div
-                key={archetype.name}
-                className="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-blue-500/20 hover:border-blue-400/40 hover:bg-black/50 transition-all"
+                key={archetype.id}
+                onClick={() => handleArchetypeClick(archetype.id)}
+                className="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-blue-500/20 hover:border-blue-400/40 hover:bg-black/50 transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <span
@@ -79,7 +84,7 @@ export const GeneralStats = ({
                   </span>
                   <span className="text-white font-medium">{archetype.name}</span>
                 </div>
-                <span className="text-blue-300 font-semibold">{archetype.count}</span>
+                <span className="text-blue-300 font-semibold">{archetype.guideCount}</span>
               </div>
             ))}
           </div>

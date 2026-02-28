@@ -51,7 +51,7 @@ export const HomePage = () => {
         </title>
         <meta
           name="description"
-          content="Find the best counter strategies for Yu-Gi-Oh! Master Duel archetypes. Community-driven deck guides, card recommendations, and effective counter plays."
+          content="Find the best counter strategies for Yu-Gi-Oh! Master Duel archetypes and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
         />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">

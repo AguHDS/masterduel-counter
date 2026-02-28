@@ -25,4 +25,8 @@ export class ArchetypeService implements ArchetypeServicePort {
 
     return this.repository.searchArchetypeByName(trimmedTerm, limit);
   }
+
+  async getGeneralStats(limit: number = 15): Promise<import("@/domain/ports/ArchetypeRepository").GeneralStats> {
+    return this.repository.getGeneralStats(limit);
+  }
 }

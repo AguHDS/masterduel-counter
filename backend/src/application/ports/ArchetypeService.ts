@@ -1,6 +1,7 @@
 import {
   Archetype,
 } from "@/domain/Archetype";
+import { GeneralStats } from "@/domain/ports/ArchetypeRepository";
 
 export interface ArchetypeServicePort {
   /**
@@ -10,4 +11,10 @@ export interface ArchetypeServicePort {
    * @returns Array of archetypes that match the search term
    */
   searchArchetypes(searchTerm: string, limit?: number): Promise<Archetype[]>;
+  /**
+   * Gets general statistics about archetypes and guides
+   * @param limit - Maximum number of top archetypes to return (default: 15)
+   * @returns General statistics including total archetypes, guides, and top archetypes
+   */
+  getGeneralStats(limit?: number): Promise<GeneralStats>;
 }

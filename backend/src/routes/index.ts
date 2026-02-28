@@ -23,6 +23,7 @@ import { createSearchArchetypeGuidesRoute } from "./guides/searchArchetypeGuides
 import { createSearchUserGuidesRoute } from "./profile/searchUserGuides";
 import { createNotificationsRoute } from "./notifications/notifications";
 import { createGetLatestGuidesRoute } from "./guides/getLatestGuides";
+import { createGetGeneralStatsRoute } from "./archetypes/getGeneralStats";
 
 export {
   searchArchetype,
@@ -50,4 +51,5 @@ export {
   createSearchUserGuidesRoute,
   createNotificationsRoute,
   createGetLatestGuidesRoute,
+  createGetGeneralStatsRoute,
 };

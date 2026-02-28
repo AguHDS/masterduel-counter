@@ -87,7 +87,7 @@ export const InstanceEditorPage = () => {
         <title>{archetype.name} - Instance Editor - Masterduel Counter</title>
         <meta
           name="description"
-          content={`Create or edit your guide for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`}
+          content={`Create or edit your counter guide for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`}
         />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">

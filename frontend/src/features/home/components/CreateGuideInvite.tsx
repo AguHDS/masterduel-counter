@@ -1,14 +1,18 @@
-import { BookCheck, User, Star, Heart, Layers } from "lucide-react";
+import { BookCheck, ThumbsUp, User, Star, Heart, Layers } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const CreateGuideInvite = () => {
   const navigate = useNavigate();
 
   const features = [
-    { icon: BookCheck, text: "Create your own guides", color: "text-blue-400" },
-    { icon: User, text: "Customizable profile", color: "text-purple-400" },
+    { icon: User, text: "Customizable user profile", color: "text-purple-400" },
+    {
+      icon: ThumbsUp,
+      text: "Rate guides created by users",
+      color: "text-green-500",
+    },
     { icon: Star, text: "Save guides as favorites", color: "text-yellow-400" },
-    { icon: Layers, text: "Save your personal decks", color: "text-green-400" },
+    { icon: Layers, text: "Save your personal decks", color: "text-cyan-400" },
     { icon: Heart, text: "And much more!", color: "text-pink-400" },
   ];
 
@@ -28,11 +32,14 @@ export const CreateGuideInvite = () => {
             <div className="p-2 rounded-lg">
               <BookCheck className="w-6 h-6 text-purple-300" />
             </div>
-            <h3 className="text-2xl font-bold text-white">Create Your Own Guide</h3>
+            <h3 className="text-2xl font-bold text-white">
+              Create Counter Guides
+            </h3>
           </div>
 
           <p className="text-blue-200 mb-6 leading-relaxed">
-            The content is created by the community. Sign up and create your own guides, either for personal use or sharing.
+            The content is added by the community. Sign up and create your own
+            counter guides, either for personal use or sharing.
           </p>
 
           <div className="space-y-3 mb-6">
@@ -57,7 +64,8 @@ export const CreateGuideInvite = () => {
             onClick={() => navigate("/signup")}
             className="relative w-full py-4 rounded-lg font-bold text-lg text-white bg-gradient-to-r from-[#1a1030] via-[#2d1b4e] to-[#1a1030] border-2 border-[#ffa94d] hover:border-[#ffce6d] transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(255,169,77,0.3)] hover:shadow-[0_0_30px_rgba(255,206,109,0.5)] uppercase tracking-wide"
             style={{
-              textShadow: '0 0 10px rgba(255, 206, 109, 0.5), 0 0 20px rgba(255, 169, 77, 0.3)',
+              textShadow:
+                "0 0 10px rgba(255, 206, 109, 0.5), 0 0 20px rgba(255, 169, 77, 0.3)",
             }}
           >
             <span className="bg-gradient-to-r from-[#ffa94d] via-[#ffce6d] to-[#ffa94d] bg-clip-text text-transparent font-extrabold">
