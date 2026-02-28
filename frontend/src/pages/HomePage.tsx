@@ -9,6 +9,7 @@ import { SearchResults } from "../shared/components/Search/SearchResults";
 import { useArchetypeSearch } from "../features/ArchetypeAnalyzer/hooks/useArchetypeSearch";
 import { FeatureErrorBoundary } from "../shared/components";
 import { MainLogo } from "../shared/components/MainLogo";
+import { HomeStatsSection } from "../features/home";
 import type { Archetype } from "../features/ArchetypeAnalyzer/api/archetypeApi";
 
 export const HomePage = () => {
@@ -50,11 +51,12 @@ export const HomePage = () => {
         </title>
         <meta
           name="description"
-          content="Find the best counter strategies for Yu-Gi-Oh! Master Duel archetypes. Community-driven deck guides, card recommendations, and effective counter plays."
+          content="Find the best counter strategies for Yu-Gi-Oh! Master Duel archetypes and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
         />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />
+
         <MainLogo />
 
         <SearchInput
@@ -79,6 +81,13 @@ export const HomePage = () => {
             />
           )}
         </SearchInput>
+
+        <div
+          className="w-full mx-auto px-4 sm:px-6 lg:px-8"
+          style={{ maxWidth: "87.5rem" }}
+        >
+          <HomeStatsSection />
+        </div>
 
         <main
           className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-3"

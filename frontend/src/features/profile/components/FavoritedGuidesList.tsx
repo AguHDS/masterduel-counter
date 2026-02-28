@@ -84,9 +84,12 @@ export const FavoritedGuidesList = ({
   if (guides.length === 0) {
     return (
       <div className="text-center text-gray-400 py-20">
-        <Star className="w-16 h-16 mx-auto mb-4 opacity-50" />
-        <p className="text-lg">No favorited guides yet</p>
-        <p className="text-sm mt-2">
+        <div className="relative inline-block">
+          <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full" />
+          <Star className="w-20 h-20 mx-auto mb-6 opacity-30 text-yellow-500 relative" />
+        </div>
+        <p className="text-xl font-bold text-gray-300 mb-2">No favorited guides yet</p>
+        <p className="text-sm text-gray-500">
           Explore guides and mark them as favorites!
         </p>
       </div>
@@ -94,10 +97,10 @@ export const FavoritedGuidesList = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Search Bar */}
       <div className="flex justify-end">
-        <div className="w-full sm:w-64">
+        <div className="w-full sm:w-72">
           <GuideSearch
             searchQuery={searchQuery}
             onSearchChange={handleSearchChange}
@@ -107,101 +110,156 @@ export const FavoritedGuidesList = ({
       </div>
 
       {filteredGuides.length === 0 ? (
-        <div className="text-center text-gray-400 py-20">
-          <p className="text-lg">
+        <div className="text-center text-gray-400 py-20 bg-[#1a1530]/60 rounded-lg border border-[#4a4070]/40">
+          <p className="text-lg font-semibold text-gray-300">
             {searchQuery ? "No favorites match your search" : "No favorited guides"}
           </p>
+          {searchQuery && (
+            <p className="text-sm mt-2 text-gray-500">Try a different search term</p>
+          )}
         </div>
       ) : (
         <>
-          {/* List of guides */}
-          <div className="space-y-3">
-            {currentGuides.map((guide) => (
+          {/* List of guides - Table style */}
+          <div className="space-y-1">
+            {currentGuides.map((guide, index) => (
               <div
                 key={guide.id}
-                className="relative bg-gradient-to-r from-slate-800 to-slate-800/90 rounded-lg p-4 hover:from-slate-700 hover:to-slate-700/90 transition-all duration-300 cursor-pointer group border-2 border-slate-600/50 hover:border-cyan-500/60 shadow-lg"
+                className="relative group"
                 onClick={() => handleGuideClick(guide.archetypeId, guide.id)}
               >
-            <div className="flex items-center gap-4">
-              {/* Header Card Image */}
-              {guide.headerCardImageUrl ? (
-                <img
-                  src={guide.headerCardImageUrl}
-                  alt={guide.headerCardName || "Card"}
-                  className="h-[80px] w-[80px] object-cover rounded-lg border-2 border-yellow-500 shadow-md flex-shrink-0 group-hover:border-cyan-400 transition-colors"
-                />
-              ) : (
-                <div className="w-[80px] h-[80px] bg-slate-700/80 rounded-lg border-2 border-slate-500 flex items-center justify-center flex-shrink-0">
-                  <span className="text-slate-400 text-sm">No Card</span>
-                </div>
-              )}
+                {/* Glow border effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
+                
+                {/* Main row */}
+                <div className="relative bg-gradient-to-r from-[#1a1545]/95 via-purple-950/60 to-[#1a1545]/95 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-cyan-400/80 transition-all duration-200 cursor-pointer overflow-hidden">
+                  <div className="flex items-center gap-4 p-3">
+                    {/* ID Number */}
+                    <div className="flex-shrink-0 w-10 text-center">
+                      <span className="text-2xl font-bold text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">
+                        {startIndex + index + 1}
+                      </span>
+                    </div>
 
-              {/* Guide Info */}
-              <div className="flex-1 min-w-0">
-                <h4 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors truncate mb-1">
-                  {guide.title}
-                </h4>
-                <p className="text-sm text-yellow-400 font-semibold truncate mb-2">
-                  {guide.archetypeName}
-                </p>
-                <div className="flex items-center gap-4 text-xs text-gray-300">
-                  <span className="text-slate-400">by <span className="text-gray-200 font-medium">{guide.userName}</span></span>
-                  <span className="flex items-center gap-1 text-green-400 font-bold bg-green-500/10 px-2 py-1 rounded">
-                    ↑ {guide.likes}
-                  </span>
-                  <span className="text-slate-400">{new Date(guide.createdAt).toLocaleDateString()}</span>
+                    {/* Card Image */}
+                    <div className="flex-shrink-0">
+                      {guide.headerCardImageUrl ? (
+                        <img
+                          src={guide.headerCardImageUrl}
+                          alt={guide.headerCardName || "Card"}
+                          className="h-[65px] w-[65px] object-cover rounded border-2 border-cyan-500/60 group-hover:border-cyan-400 transition-colors shadow-lg"
+                        />
+                      ) : (
+                        <div className="w-[65px] h-[65px] bg-[#2a2550] rounded border-2 border-[#4a4070] flex items-center justify-center">
+                          <span className="text-gray-500 text-xs">No Card</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Title */}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors truncate">
+                        {guide.title}
+                      </h4>
+                    </div>
+
+                    {/* Archetype */}
+                    <div className="flex-shrink-0 w-40 hidden md:block">
+                      <p className="text-sm font-semibold text-white truncate">
+                        {guide.archetypeName}
+                      </p>
+                    </div>
+
+                    {/* Last Update */}
+                    <div className="flex-shrink-0 w-28 text-center hidden lg:block">
+                      <span className="text-sm text-gray-300">
+                        {new Date(guide.createdAt).toLocaleDateString('en-US', { 
+                          day: 'numeric',
+                          month: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+
+                    {/* Likes */}
+                    <div className="flex-shrink-0 w-16 text-center">
+                      <span className="inline-flex items-center gap-1 text-green-400 font-bold text-sm">
+                        <span className="text-lg">↑</span> {guide.likes}
+                      </span>
+                    </div>
+
+                    {/* Remove Favorite Button */}
+                    {onRemoveFavorite && (
+                      <div className="flex-shrink-0">
+                        <button
+                          onClick={(e) =>
+                            handleRemoveFavorite(e, guide.id, guide.archetypeId)
+                          }
+                          disabled={removingId === guide.id}
+                          className="p-2 hover:bg-yellow-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Remove from favorites"
+                        >
+                          <Star
+                            className={`w-5 h-5 fill-yellow-400 text-yellow-400 hover:fill-yellow-300 transition-colors ${
+                              removingId === guide.id ? "animate-pulse" : ""
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              {/* Remove Favorite Button */}
-              {onRemoveFavorite && (
-                <button
-                  onClick={(e) =>
-                    handleRemoveFavorite(e, guide.id, guide.archetypeId)
-                  }
-                  disabled={removingId === guide.id}
-                  className="flex-shrink-0 text-yellow-400 hover:text-yellow-500 hover:scale-110 transition-all disabled:opacity-50 p-2 bg-yellow-500/10 hover:bg-yellow-500/20 rounded-lg"
-                  title="Remove from favorites"
-                >
-                  <Star
-                    className={`w-6 h-6 fill-yellow-400 ${
-                      removingId === guide.id ? "animate-pulse" : ""
-                    }`}
-                  />
-                </button>
-              )}
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Pagination */}
+      {/* Enhanced Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-4 pt-2">
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 0}
-            className="p-2 bg-blue-600/50 hover:bg-blue-600/70 disabled:bg-gray-600/30 disabled:cursor-not-allowed rounded transition-colors"
+            className="group relative p-3 bg-gradient-to-r from-blue-600/60 to-blue-700/60 hover:from-blue-500/80 hover:to-blue-600/80 disabled:from-gray-700/40 disabled:to-gray-800/40 disabled:cursor-not-allowed rounded-lg transition-all duration-200 border-2 border-blue-500/40 hover:border-blue-400/60 disabled:border-gray-600/30 shadow-lg hover:shadow-blue-500/30 disabled:shadow-none"
             aria-label="Previous page"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5 text-white group-disabled:text-gray-500" />
           </button>
 
-          <span className="text-gray-300 font-medium">
-            Page {currentPage + 1} of {totalPages}
-          </span>
+          <div className="px-6 py-2 bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-lg border-2 border-slate-600/50 shadow-lg">
+            <span className="text-gray-200 font-bold text-sm">
+              Page <span className="text-cyan-400">{currentPage + 1}</span> of <span className="text-cyan-400">{totalPages}</span>
+            </span>
+          </div>
 
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages - 1}
-            className="p-2 bg-blue-600/50 hover:bg-blue-600/70 disabled:bg-gray-600/30 disabled:cursor-not-allowed rounded transition-colors"
+            className="group relative p-3 bg-gradient-to-r from-blue-600/60 to-blue-700/60 hover:from-blue-500/80 hover:to-blue-600/80 disabled:from-gray-700/40 disabled:to-gray-800/40 disabled:cursor-not-allowed rounded-lg transition-all duration-200 border-2 border-blue-500/40 hover:border-blue-400/60 disabled:border-gray-600/30 shadow-lg hover:shadow-blue-500/30 disabled:shadow-none"
             aria-label="Next page"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5 text-white group-disabled:text-gray-500" />
           </button>
         </div>
       )}
         </>
+      )}
+
+      {/* Support Message */}
+      {onRemoveFavorite && (
+        <div className="mt-6 p-4 bg-gradient-to-r from-[#1a1545]/60 via-[#1e1850]/60 to-[#1a1545]/60 rounded-lg border-2 border-[#3d3470]/50 text-center">
+          <p className="text-sm text-gray-300">
+            Need more space?{" "}
+            <a
+              href="https://www.paypal.com/paypalme/ponyrosa?locale.x=es_XC&country.x=AR"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
+            >
+              Support us
+            </a>{" "}
+            and gain unlimited favorite guides space!
+          </p>
+        </div>
       )}
     </div>
   );

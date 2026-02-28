@@ -12,10 +12,12 @@ export interface ArchetypeInstanceWithDetails {
   generalTip?: string | null;
   likes: number;
   favorites: number;
+  views: number;
   createdAt: string;
   updatedAt: string;
   archetypeName: string;
   userName: string;
+  userProfilePictureUrl?: string | null;
   headerCardName?: string;
   headerCardImageUrl?: string;
 }
@@ -30,6 +32,7 @@ export interface UserInstanceWithCardPairs {
     generalTip?: string | null;
     likes: number;
     favorites: number;
+    views: number;
     createdAt: string;
     updatedAt: string;
   };
@@ -181,6 +184,30 @@ export const instanceApi = {
     const response = await axios.get<{ success: boolean; favorited: boolean }>(
       `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/favorite/status`,
       { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  /**
+   * Register a view for an instance
+   * No authentication required - tracks all views
+   */
+  registerView: async (instanceId: number): Promise<{ success: boolean; message: string }> => {
+    const response = await axios.post<{ success: boolean; message: string }>(
+      `${API_BASE_URL}/api/instances/${instanceId}/view`,
+      {}
+    );
+    return response.data;
+  },
+
+  /**
+   * Get the latest created guide instances across all archetypes
+   * @param limit - Number of instances to fetch (default: 5, max: 50)
+   */
+  getLatestCreatedGuides: async (limit: number = 5): Promise<ArchetypeInstanceWithDetails[]> => {
+    const response = await axios.get<ArchetypeInstanceWithDetails[]>(
+      `${API_BASE_URL}/api/guides/latest`,
+      { params: { limit } }
     );
     return response.data;
   },

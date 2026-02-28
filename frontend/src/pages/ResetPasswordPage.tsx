@@ -67,7 +67,7 @@ export const ResetPasswordPage = () => {
               "Password reset successfully! You can now sign in with your new password.",
           },
         });
-      }, 3000);
+      }, 1000);
     } catch (error: unknown) {
       setStatus("error");
 

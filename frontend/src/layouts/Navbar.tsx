@@ -9,21 +9,28 @@ import {
   X,
   Crown,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logoImg from "../assets/NavbarLogo.webp";
 import discordContainerIcon from "../assets/discord_container.webp";
 import discordSvgIcon from "../assets/discord-square-icon.webp";
 import { NotificationBell, NotificationPopup } from "../features/notifications";
 import { RankingPopup } from "../features/ranking/components/RankingPopup";
-import { MOCK_RANKING_USERS } from "../features/ranking/components/mockData";
+import { RankingModal } from "../features/ranking/components/RankingModal";
+import { useRanking } from "../features/ranking/hooks/useRanking";
+import { UserDropdown } from "./UserDropdown";
 import { useState, useEffect, useRef } from "react";
 
 export const Navbar = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
+  const navigate = useNavigate();
   const [showBetaTooltip, setShowBetaTooltip] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRankingOpen, setIsRankingOpen] = useState(false);
+  const [isRankingModalOpen, setIsRankingModalOpen] = useState(false);
   const rankingButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Fetch ranking data (top 50 for dropdown)
+  const { data: rankingData, isLoading: isLoadingRanking } = useRanking(1, 50);
 
   const handleLogout = async () => {
     await logout();
@@ -48,14 +55,22 @@ export const Navbar = () => {
     setIsMenuOpen(false);
   };
 
-  const handleUserClick = (username: string, userId: number) => {
-    console.log(`Navigate to user ${username} with id ${userId}`);
+  const handleUserClick = (_username: string, userId: string) => {
+    navigate(`/profile/${userId}`);
     setIsRankingOpen(false);
+    setIsRankingModalOpen(false);
+    setIsMenuOpen(false);
   };
 
   const handleViewFullRanking = () => {
-    console.log("Navigate to full ranking");
     setIsRankingOpen(false);
+    setIsRankingModalOpen(true);
+    setIsMenuOpen(false);
+  };
+
+  const handleToggleRanking = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsRankingOpen((prev) => !prev);
   };
 
   return (
@@ -89,7 +104,8 @@ export const Navbar = () => {
               {showBetaTooltip && (
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-2 bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-xl whitespace-nowrap z-50 text-xs text-gray-200">
                   <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#1f1a24] border-t border-l border-[#c2901c]/30 transform rotate-45"></div>
-                  Website is currently in beta version. Expect possible bugs. Please report any issues on our Discord!
+                  Website is currently in beta version. Expect possible bugs.
+                  Please report any issues on our Discord!
                 </div>
               )}
             </div>
@@ -100,7 +116,7 @@ export const Navbar = () => {
             <div className="relative flex items-center px-4">
               <button
                 ref={rankingButtonRef}
-                onClick={() => setIsRankingOpen(!isRankingOpen)}
+                onClick={handleToggleRanking}
                 className="flex items-center space-x-1 px-2 py-1.5 hover:bg-[#c2901c]/10 rounded-lg transition-colors group"
                 aria-label="Open ranking"
               >
@@ -113,50 +129,25 @@ export const Navbar = () => {
               <RankingPopup
                 isOpen={isRankingOpen}
                 onClose={() => setIsRankingOpen(false)}
-                users={MOCK_RANKING_USERS}
+                users={rankingData?.ranking ?? []}
                 onUserClick={handleUserClick}
                 onViewFullRanking={handleViewFullRanking}
                 triggerRef={rankingButtonRef}
+                isLoading={isLoadingRanking}
               />
             </div>
 
             {!isLoading && isAuthenticated && user ? (
               <>
-                {/* Welcome message */}
-                <span className="hidden xl:flex items-center text-sm text-gray-300 px-4 whitespace-nowrap">
-                  Welcome,{" "}
-                  <span className="font-semibold text-blue-400 ml-1">
-                    {user.name}
-                  </span>
-                </span>
-
                 {/* Notifications */}
-                <div className="relative flex items-center px-4">
+                <div className="relative flex items-center px-4 py-[2px]">
                   <NotificationBell />
                   <NotificationPopup />
                 </div>
 
                 {/* Profile, Logout, Admin */}
-                <div className="flex items-center gap-4 px-4">
-                  <Link
-                    to={`/profile/${user.id}`}
-                    className="flex items-center gap-1 text-blue-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
-                  >
-                    <User className="h-4 w-4" />
-                    <span className="hidden xl:inline hover:underline underline-offset-4">
-                      Profile
-                    </span>
-                  </Link>
-
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-1 text-red-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span className="hidden xl:inline hover:underline underline-offset-4">
-                      Logout
-                    </span>
-                  </button>
+                <div className="flex items-center gap-4 px-4 ">
+                  <UserDropdown />
 
                   {isAdmin && (
                     <Link
@@ -164,7 +155,7 @@ export const Navbar = () => {
                       className="flex items-center gap-1 text-yellow-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity group"
                       aria-label="Admin Panel"
                     >
-                      <Shield className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                      <Shield className="h-4 w-4  group-hover:scale-110 transition-transform" />
                       <span className="hidden xl:inline hover:underline underline-offset-4">
                         Admin Panel
                       </span>
@@ -200,7 +191,7 @@ export const Navbar = () => {
             ) : null}
 
             {/* Discord */}
-            <div className="flex items-center pl-4">
+            <div className="flex items-center pl-1 border-none">
               <a
                 href="https://discord.gg/masterduelcounter"
                 target="_blank"
@@ -233,43 +224,34 @@ export const Navbar = () => {
           <div className="hidden sm:flex lg:hidden items-center gap-3 absolute right-8 top-1/2 -translate-y-1/2">
             <button
               ref={rankingButtonRef}
-              onClick={() => setIsRankingOpen(!isRankingOpen)}
+              onClick={handleToggleRanking}
               className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"
               aria-label="Open ranking"
             >
               <Crown className="w-5 h-5 text-[#c2901c] group-hover:text-[#e9b53c] transition-colors" />
-              <span className="absolute -top-1 -right-1 bg-[#c2901c] text-[10px] text-white rounded-full w-4 h-4 flex items-center justify-center">
-                {MOCK_RANKING_USERS.length}
-              </span>
+              {rankingData && rankingData.ranking.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#c2901c] text-[10px] text-white rounded-full w-4 h-4 flex items-center justify-center">
+                  {rankingData.ranking.length}
+                </span>
+              )}
             </button>
 
             <RankingPopup
               isOpen={isRankingOpen}
               onClose={() => setIsRankingOpen(false)}
-              users={MOCK_RANKING_USERS}
+              users={rankingData?.ranking ?? []}
               onUserClick={handleUserClick}
               onViewFullRanking={handleViewFullRanking}
               triggerRef={rankingButtonRef}
+              isLoading={isLoadingRanking}
             />
 
             {!isLoading && isAuthenticated && user ? (
               <>
                 <NotificationBell />
                 <NotificationPopup />
-                
-                <Link
-                  to={`/profile/${user.id}`}
-                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
-                >
-                  <User className="w-5 h-5 text-blue-500" />
-                </Link>
 
-                <button
-                  onClick={handleLogout}
-                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
-                >
-                  <LogOut className="w-5 h-5 text-red-500" />
-                </button>
+                <UserDropdown />
 
                 {isAdmin && (
                   <Link
@@ -339,44 +321,69 @@ export const Navbar = () => {
                 className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 transition-opacity py-2 w-full text-left"
               >
                 <Crown className="h-4 w-4" />
-                <span>Ranking ({MOCK_RANKING_USERS.length})</span>
+                <span>
+                  Ranking
+                  {rankingData &&
+                    rankingData.ranking.length > 0 &&
+                    ` (${rankingData.ranking.length})`}
+                </span>
               </button>
 
               {/* Mobile ranking popup */}
               {isRankingOpen && (
                 <div className="mt-2 bg-[#2a2430] rounded-lg border border-[#c2901c]/30 p-2 max-h-64 overflow-y-auto scrollbar-cardpair">
-                  {MOCK_RANKING_USERS.map((user) => (
-                    <div
-                      key={user.id}
-                      onClick={() => handleUserClick(user.username, user.id)}
-                      className="flex items-center gap-2 p-2 hover:bg-[#3a2f40] rounded-lg transition-colors"
-                    >
-                      <img
-                        src={user.avatarUrl}
-                        alt={user.username}
-                        className="w-8 h-8 rounded-full border border-[#c2901c]/30"
-                      />
-                      <div className="flex-1">
-                        <span className="text-white text-sm">
-                          {user.username}
-                        </span>
-                        <div className="text-xs text-gray-400">
-                          #{user.rank} • {user.points} pts
-                        </div>
-                      </div>
-                      {user.rank <= 3 && (
-                        <Crown
-                          className={`w-3 h-3 ${user.rank === 1 ? "text-yellow-400" : user.rank === 2 ? "text-gray-400" : "text-amber-700"}`}
-                        />
-                      )}
+                  {isLoadingRanking ? (
+                    <div className="text-center text-gray-400 py-4">
+                      Loading ranking...
                     </div>
-                  ))}
-                  <button
-                    onClick={handleViewFullRanking}
-                    className="w-full text-center text-sm text-[#c2901c] hover:text-[#d4a534] transition-colors py-2 mt-2 border-t border-[#c2901c]/30"
-                  >
-                    View Full Ranking →
-                  </button>
+                  ) : rankingData && rankingData.ranking.length > 0 ? (
+                    <>
+                      {rankingData.ranking.map((user) => (
+                        <div
+                          key={user.userId}
+                          onClick={() =>
+                            handleUserClick(user.username, user.userId)
+                          }
+                          className="flex items-center gap-2 p-2 hover:bg-[#3a2f40] rounded-lg transition-colors cursor-pointer"
+                        >
+                          <img
+                            src={user.profilePictureUrl}
+                            alt={user.username}
+                            className="w-8 h-8 rounded-full border border-[#c2901c]/30"
+                          />
+                          <div className="flex-1">
+                            <span className="text-white text-sm">
+                              {user.username}
+                            </span>
+                            <div className="text-xs text-gray-400">
+                              #{user.rank} • {user.totalLikes} likes
+                            </div>
+                          </div>
+                          {user.rank <= 3 && (
+                            <Crown
+                              className={`w-3 h-3 ${
+                                user.rank === 1
+                                  ? "text-yellow-400"
+                                  : user.rank === 2
+                                    ? "text-gray-400"
+                                    : "text-amber-700"
+                              }`}
+                            />
+                          )}
+                        </div>
+                      ))}
+                      <button
+                        onClick={handleViewFullRanking}
+                        className="w-full text-center text-sm text-[#c2901c] hover:text-[#d4a534] transition-colors py-2 mt-2 border-t border-[#c2901c]/30"
+                      >
+                        View Full Ranking →
+                      </button>
+                    </>
+                  ) : (
+                    <div className="text-center text-gray-400 py-4">
+                      No users in ranking yet
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -467,6 +474,13 @@ export const Navbar = () => {
           </div>
         </div>
       )}
+
+      {/* Ranking Modal */}
+      <RankingModal
+        isOpen={isRankingModalOpen}
+        onClose={() => setIsRankingModalOpen(false)}
+        onUserClick={handleUserClick}
+      />
     </header>
   );
 };

@@ -32,8 +32,8 @@ const validatorRegistration: ValidationChain[] = [
   check("password")
     .notEmpty()
     .withMessage("Password cannot be empty")
-    .isLength({ min: 5 })
-    .withMessage("Password should be at least 5 characters long"),
+    .isLength({ min: 8 })
+    .withMessage("Password should be at least 8 characters long"),
   check("email")
     .notEmpty()
     .withMessage("Email cannot be empty")

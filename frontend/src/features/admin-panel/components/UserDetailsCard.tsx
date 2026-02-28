@@ -128,7 +128,7 @@ export const UserDetailsCard = ({
       }
       
       if (editForm.password.length < 5) {
-        setErrorMessage("Password must be at least 5 characters long");
+        setErrorMessage("Password must be at least 8 characters long");
         return;
       }
     }

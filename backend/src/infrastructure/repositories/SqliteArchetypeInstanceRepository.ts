@@ -56,6 +56,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
     }
@@ -72,6 +73,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     };
@@ -110,6 +112,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -129,10 +132,12 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
       userName: row.user_name,
+      userProfilePictureUrl: null,
       headerCardName: row.header_card_name ?? undefined,
       headerCardImageUrl: row.header_card_image_url ?? undefined,
     }));
@@ -171,6 +176,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -190,10 +196,12 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
       userName: row.user_name,
+      userProfilePictureUrl: null,
       headerCardName: row.header_card_name ?? undefined,
       headerCardImageUrl: row.header_card_image_url ?? undefined,
     }));
@@ -233,6 +241,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -252,10 +261,12 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
       userName: row.user_name,
+      userProfilePictureUrl: null,
       headerCardName: row.header_card_name ?? undefined,
       headerCardImageUrl: row.header_card_image_url ?? undefined,
     }));
@@ -295,6 +306,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -314,10 +326,12 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
       userName: row.user_name,
+      userProfilePictureUrl: null,
       headerCardName: row.header_card_name ?? undefined,
       headerCardImageUrl: row.header_card_image_url ?? undefined,
     }));
@@ -342,6 +356,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
     }
@@ -358,6 +373,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     };
@@ -591,6 +607,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       general_tip: string | null;
       likes: number;
       favorites: number;
+      views: number;
       created_at: string;
       updated_at: string;
       archetype_name: string;
@@ -610,10 +627,93 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
       generalTip: row.general_tip,
       likes: row.likes,
       favorites: row.favorites,
+      views: row.views,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       archetypeName: row.archetype_name,
       userName: row.user_name,
+      userProfilePictureUrl: null,
+      headerCardName: row.header_card_name ?? undefined,
+      headerCardImageUrl: row.header_card_image_url ?? undefined,
+    }));
+  }
+
+  async incrementViewCount(instanceId: number, incrementBy: number): Promise<void> {
+    // Use raw SQL to increment without triggering @updatedAt
+    await this.prisma.$executeRaw`
+      UPDATE archetype_instances 
+      SET views = views + ${incrementBy}
+      WHERE id = ${instanceId}
+    `;
+  }
+
+  async getTotalViewsByUserId(userId: string): Promise<number> {
+    const result = await this.prisma.archetypeInstance.aggregate({
+      where: { userId },
+      _sum: {
+        views: true,
+      },
+    });
+
+    return result._sum.views ?? 0;
+  }
+
+  async findLatestCreatedInstances(
+    limit: number,
+  ): Promise<ArchetypeInstanceWithDetails[]> {
+    const stmt = this.db.prepare(`
+      SELECT 
+        ai.*,
+        a.name as archetype_name,
+        u.namedb as user_name,
+        p.profile_picture_url as user_profile_picture_url,
+        c.name as header_card_name,
+        c.image_url_cropped as header_card_image_url
+      FROM archetype_instances ai
+      JOIN archetypes a ON ai.archetype_id = a.id
+      JOIN users u ON ai.user_id = u.id
+      LEFT JOIN profiles p ON u.id = p.user_id
+      LEFT JOIN cards c ON ai.header_card_id = c.id
+      ORDER BY ai.created_at DESC
+      LIMIT ?
+    `);
+
+    interface InstanceRow {
+      id: number;
+      archetype_id: number;
+      user_id: string;
+      title: string;
+      header_card_id: number | null;
+      general_tip: string | null;
+      likes: number;
+      favorites: number;
+      views: number;
+      created_at: string;
+      updated_at: string;
+      archetype_name: string;
+      user_name: string;
+      user_profile_picture_url: string | null;
+      header_card_name: string | null;
+      header_card_image_url: string | null;
+    }
+
+    const rows = stmt.all(limit) as InstanceRow[];
+
+    return rows.map((row) => ({
+      id: row.id,
+      archetypeId: row.archetype_id,
+      userId: row.user_id,
+      title: row.title,
+      headerCardId: row.header_card_id,
+      generalTip: row.general_tip,
+      likes: row.likes,
+      favorites: row.favorites,
+      views: row.views,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at),
+      archetypeName: row.archetype_name,
+      userName: row.user_name,
+      userProfilePictureUrl: row.user_profile_picture_url,
       headerCardName: row.header_card_name ?? undefined,
       headerCardImageUrl: row.header_card_image_url ?? undefined,
     }));

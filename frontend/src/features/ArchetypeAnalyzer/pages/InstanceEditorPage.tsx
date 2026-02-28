@@ -6,14 +6,14 @@ import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { ArchetypeAnalyzerContainer } from "../components/ArchetypeAnalyzerContainer";
 import { useArchetypeWithHeader } from "../hooks/useArchetypeQueries";
+import { FeatureErrorBoundary } from "@/shared/components";
+import { GuideModalHelp } from "../components/GuideModalHelp";
+import { MainLogo } from "@/shared/components/MainLogo";
+import { CommentSection } from "@/features/comments";
 import { SearchInput } from "@/shared/components/Search/Search";
 import { SearchResults } from "@/shared/components/Search/SearchResults";
 import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
-import { FeatureErrorBoundary } from "@/shared/components";
-import { GuideModalHelp } from "../components/GuideModalHelp";
 import type { Archetype } from "../api/archetypeApi";
-import { MainLogo } from "@/shared/components/MainLogo";
-import { CommentSection } from "@/features/comments";
 
 export const InstanceEditorPage = () => {
   const { archetypeId, instanceId } = useParams<{
@@ -21,24 +21,17 @@ export const InstanceEditorPage = () => {
     instanceId: string;
   }>();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [isGuideHelpOpen, setIsGuideHelpOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
-  const instanceIdNum = instanceId ? parseInt(instanceId) : undefined;
-
-  const {
-    data: archetypeWithHeaderData,
-    isLoading,
-    error,
-  } = useArchetypeWithHeader(archetypeIdNum);
-  const {
-    results,
-    loading: searchLoading,
-    error: searchError,
-  } = useArchetypeSearch({ searchQuery, debounceDelay: 300, limit: 20 });
+  const { results, loading: searchLoading, error: searchError } = useArchetypeSearch({
+    searchQuery,
+    debounceDelay: 300,
+    limit: 20,
+  });
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -56,6 +49,17 @@ export const InstanceEditorPage = () => {
       setIsDropdownOpen(false);
     }
   }, [searchQuery]);
+
+  const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
+  const instanceIdNum = instanceId ? parseInt(instanceId) : undefined;
+
+  const {
+    data: archetypeWithHeaderData,
+    isLoading,
+    error,
+  } = useArchetypeWithHeader(archetypeIdNum);
+
+
 
   if (isLoading) {
     return (
@@ -113,18 +117,18 @@ export const InstanceEditorPage = () => {
         <title>{archetype.name} - Instance Editor - Masterduel Counter</title>
         <meta
           name="description"
-          content={`Create or edit your guide for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`}
+          content={`Create or edit your counter guide for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`}
         />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />
         <MainLogo />
+
         <SearchInput
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
           isDropdownOpen={
-            isDropdownOpen &&
-            (searchLoading || searchError !== null || results.length > 0)
+            isDropdownOpen && (searchLoading || searchError !== null || results.length > 0)
           }
           onRequestClose={() => setIsDropdownOpen(false)}
           onInputFocus={() => {
@@ -152,7 +156,7 @@ export const InstanceEditorPage = () => {
                 title="Guide Help"
               >
                 <AlertCircle className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
-                <span className="text-sm">Guide Help</span>
+                <span className="text-sm">How to correctly create a guide?</span>
               </button>
             </div>
           </div>

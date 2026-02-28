@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, memo } from "react";
+import { useEffect, useRef, useState, memo, useImperativeHandle, forwardRef } from "react";
 
 interface TurnstileProps {
   siteKey: string;
@@ -7,6 +7,10 @@ interface TurnstileProps {
   onExpire?: () => void;
   theme?: "light" | "dark" | "auto";
   size?: "normal" | "compact";
+}
+
+export interface TurnstileRef {
+  reset: () => void;
 }
 
 declare global {
@@ -29,17 +33,29 @@ declare global {
   }
 }
 
-const TurnstileComponent = ({
+const TurnstileComponent = forwardRef<TurnstileRef, TurnstileProps>(({
   siteKey,
   onVerify,
   onError,
   onExpire,
   theme = "dark",
   size = "normal",
-}: TurnstileProps) => {
+}, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      if (widgetIdRef.current && window.turnstile) {
+        try {
+          window.turnstile.reset(widgetIdRef.current);
+        } catch (error) {
+          console.error("Failed to reset Turnstile widget:", error);
+        }
+      }
+    },
+  }));
 
   useEffect(() => {
     // Load Turnstile script
@@ -85,7 +101,9 @@ const TurnstileComponent = ({
   }, [isLoaded, siteKey, onVerify, onError, onExpire, theme, size]);
 
   return <div ref={containerRef} />;
-};
+});
+
+TurnstileComponent.displayName = "Turnstile";
 
 // Memoize component to prevent unnecessary re-renders
 export const Turnstile = memo(TurnstileComponent);

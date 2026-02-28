@@ -1,5 +1,15 @@
 import { Archetype, ArchetypeUpdateDTO } from "../Archetype";
 
+export interface GeneralStats {
+  totalArchetypes: number;
+  totalGuides: number;
+  topArchetypes: Array<{
+    id: number;
+    name: string;
+    guideCount: number;
+  }>;
+}
+
 export interface ArchetypeRepository {
   /** Search archetype by name
    * @searchTerm - Term to search for in archetype names
@@ -24,4 +34,6 @@ export interface ArchetypeRepository {
     id: number,
     archetypeData: ArchetypeUpdateDTO,
   ): Promise<Archetype | null>;
+  /** Get general statistics */
+  getGeneralStats(limit?: number): Promise<GeneralStats>;
 }

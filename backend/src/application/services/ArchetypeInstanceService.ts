@@ -10,14 +10,26 @@ import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRep
 import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import { NotificationServicePort } from "@/application/ports/NotificationService";
+import { ViewCountCache } from "@/infrastructure/adapters/ViewCountCache";
+import { UserRepository } from "@/domain/ports/UserRepository";
+
+const MAX_FAVORITES_USER = 20;
 
 export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
+  private viewCountCache: ViewCountCache;
+
   constructor(
     private instanceRepository: ArchetypeInstanceRepository,
     private cardPairRepository: ArchetypeCardPairRepository,
     private archetypeRepository: ArchetypeRepository,
     private notificationService: NotificationServicePort,
-  ) {}
+    private userRepository: UserRepository,
+  ) {
+    // Initialize view count cache with flush callback
+    this.viewCountCache = new ViewCountCache((instanceId, count) =>
+      this.instanceRepository.incrementViewCount(instanceId, count)
+    );
+  }
 
   async createOrUpdateInstance(
     data: ArchetypeInstanceCreateDTO,
@@ -225,6 +237,27 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
       throw new Error("Instance not found");
     }
 
+    // Check if user already has this favorited
+    const alreadyFavorited = await this.instanceRepository.hasUserFavoritedInstance(instanceId, userId);
+
+    // If trying to add favorite (not remove), check limits
+    if (!alreadyFavorited) {
+      // Get user to check role
+      const user = await this.userRepository.findUserById(userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      // Count current favorites
+      const favoritedInstances = await this.instanceRepository.findFavoritedInstancesByUserId(userId);
+      const currentCount = favoritedInstances.length;
+
+      // Check limit based on role (supporters have unlimited)
+      if (user.role === "user" && currentCount >= MAX_FAVORITES_USER) {
+        throw new Error(`Maximum favorite limit reached (${MAX_FAVORITES_USER}). Upgrade to Supporter for unlimited favorites!`);
+      }
+    }
+
     const result = await this.instanceRepository.ToggleFavoriteInstance(instanceId, userId);
 
     // Only notify if favoriting someone else's guide (users can favorite their own)
@@ -255,5 +288,34 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     userId: string,
   ): Promise<ArchetypeInstanceWithDetails[]> {
     return this.instanceRepository.findFavoritedInstancesByUserId(userId);
+  }
+
+  async registerView(instanceId: number): Promise<void> {
+    // Verify instance exists
+    const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
+    if (!instance) {
+      throw new Error("Instance not found");
+    }
+
+    // Increment in cache (will be flushed periodically)
+    this.viewCountCache.increment(instanceId);
+  }
+
+  async getTotalViewsByUserId(userId: string): Promise<number> {
+    return this.instanceRepository.getTotalViewsByUserId(userId);
+  }
+
+  async getLatestCreatedInstances(
+    limit: number,
+  ): Promise<ArchetypeInstanceWithDetails[]> {
+    return this.instanceRepository.findLatestCreatedInstances(limit);
+  }
+
+  /**
+   * Cleanup method to flush remaining views and stop the cache
+   * Should be called on application shutdown
+   */
+  async shutdown(): Promise<void> {
+    await this.viewCountCache.stop();
   }
 }

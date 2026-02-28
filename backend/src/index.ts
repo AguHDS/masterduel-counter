@@ -21,6 +21,7 @@ import {
   deleteGuide,
   guideLikes,
   guideFavorites,
+  guideViews,
   recommendedDeck,
   getCardDetails,
   createGetArchetypeGuidesRoute,
@@ -29,9 +30,12 @@ import {
   createGetGuideByIdRoute,
   createSearchArchetypeGuidesRoute,
   createSearchUserGuidesRoute,
+  createGetLatestGuidesRoute,
+  createGetGeneralStatsRoute,
   admin,
   report,
   comments,
+  ranking,
   createNotificationsRoute,
 } from "./routes/index";
 import auth from "./routes/auth/auth";
@@ -138,6 +142,7 @@ app.use("/api/archetypes", registeredArchetypes);
 app.use("/api", deleteGuide);
 app.use("/api", guideLikes);
 app.use("/api", guideFavorites);
+app.use("/api", guideViews);
 app.use("/api", recommendedDeck);
 app.use("/api", createGetArchetypeGuidesRoute(getDependencies()));
 app.use("/api", createGetUserGuidesRoute(getDependencies()));
@@ -145,12 +150,17 @@ app.use("/api", createSearchArchetypeGuidesRoute(getDependencies()));
 app.use("/api", createSearchUserGuidesRoute(getDependencies()));
 app.use("/api", createOrUpdateGuideRoute(getDependencies()));
 app.use("/api", createGetGuideByIdRoute(getDependencies()));
+app.use("/api", createGetLatestGuidesRoute(getDependencies()));
+app.use("/api", createGetGeneralStatsRoute());
 app.use("/api", getInstanceCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 app.use("/api/comments", comments);
 
 // Notifications
 app.use("/api/notifications", createNotificationsRoute(getDependencies()));
+
+// Ranking
+app.use("/api/ranking", ranking);
 
 // Cards
 app.use("/api/cards/search", searchCards);

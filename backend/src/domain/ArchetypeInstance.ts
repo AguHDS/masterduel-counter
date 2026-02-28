@@ -7,6 +7,7 @@ export interface ArchetypeInstance {
   generalTip?: string | null;
   likes: number;
   favorites: number;
+  views: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,6 +44,7 @@ export interface RegisterInstanceDTO {
 export interface ArchetypeInstanceWithDetails extends ArchetypeInstance {
   archetypeName: string;
   userName: string;
+  userProfilePictureUrl?: string | null;
   headerCardName?: string;
   headerCardImageUrl?: string;
 }

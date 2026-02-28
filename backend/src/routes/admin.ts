@@ -11,6 +11,7 @@ import {
   getUserInstancesController,
   searchUsersController,
   unbanUserController,
+  getTotalUsersController,
 } from "@/http/controllers/admin";
 import {
   deleteUserMiddleware,
@@ -61,5 +62,6 @@ router.delete(
   verifyAdminMiddleware,
   deleteReportController,
 );
+router.get("/tracking/total-users", verifyAdminMiddleware, getTotalUsersController);
 
 export default router;

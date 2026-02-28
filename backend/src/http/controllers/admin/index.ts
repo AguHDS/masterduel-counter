@@ -8,3 +8,4 @@ export { getUserController } from "./getUserController";
 export { getUserInstancesController } from "./getUserInstancesController";
 export { searchUsersController } from "./searchUsersController";
 export { unbanUserController } from "./unbanUserController";
+export { getTotalUsersController } from "./getTotalUsersController";

@@ -22,6 +22,7 @@ import { useRef, useState, useCallback } from "react";
 import { instanceApi } from "@/lib/http/instanceApi";
 import { type Card } from "@/features/ArchetypeAnalyzer/api/cardApi";
 import background_profile from "@/assets/MDC-profile_background.webp";
+import { formatCompactNumber } from "@/shared/utils/formatNumber";
 
 export const ProfilePage = () => {
   const { userId, tab } = useParams<{ userId: string; tab?: string }>();
@@ -77,6 +78,8 @@ export const ProfilePage = () => {
 
   // Get profile data
   const profile = profileData?.profile;
+  const totalViews = profileData?.totalViews ?? 0;
+  const userRank = profileData?.rank;
 
   // Use favoriteCardAndDecks hook
   const {
@@ -199,7 +202,7 @@ export const ProfilePage = () => {
                     <div className="relative z-10 bg-gradient-to-br from-purple-950/40 to-slate-900/80 backdrop-blur-sm p-4 sm:p-5 space-y-4 h-full">
                       {/* Username and Profile Photo Square */}
                       <div className="flex flex-col items-center">
-                        <h1 className="text-xl sm:text-2xl font-bold text-yellow-400 mb-3">
+                        <h1 className="text-xl sm:text-2xl font-semibold text-yellow-400 mb-3">
                           {profile?.userName}
                         </h1>
                         <div className="relative w-32 h-32 sm:w-44 sm:h-44">
@@ -212,7 +215,7 @@ export const ProfilePage = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-blue-300 text-4xl font-bold bg-gradient-to-br from-slate-800 to-slate-900">
+                              <div className="w-full h-full flex items-center justify-center text-blue-300 text-4xl font-semibold bg-gradient-to-br from-slate-800 to-slate-900">
                                 {profile?.userName?.charAt(0).toUpperCase() || "U"}
                               </div>
                             )}
@@ -227,21 +230,23 @@ export const ProfilePage = () => {
                             <Trophy className="w-5 h-5 text-yellow-400" />
                             <span className="text-amber-200 font-semibold text-sm">Rank</span>
                           </div>
-                          <span className="text-base font-bold text-yellow-400">#2</span>
+                          <span className="text-base font-semibold text-yellow-400">
+                            {userRank ? `#${userRank}` : "Unranked"}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
                           <div className="flex items-center gap-2">
                             <ThumbsUp className="w-5 h-5 text-green-500" />
                             <span className="text-amber-200 font-semibold text-sm">Guide Likes</span>
                           </div>
-                          <span className="text-base font-bold text-green-500">{profile?.totalLikes ?? 0}</span>
+                          <span className="text-base font-semibold text-green-500">{profile?.totalLikes ?? 0}</span>
                         </div>
                         <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
                           <div className="flex items-center gap-2">
                             <Eye className="w-5 h-5 text-purple-400" />
                             <span className="text-amber-200 font-semibold text-sm">Guide Views</span>
                           </div>
-                          <span className="text-base font-bold text-purple-300">12.4k</span>
+                          <span className="text-base font-semibold text-purple-300">{formatCompactNumber(totalViews)}</span>
                         </div>
                         <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
                           <div className="flex items-center gap-2">
@@ -249,7 +254,7 @@ export const ProfilePage = () => {
                             <span className="text-amber-200 font-semibold text-sm">Role</span>
                           </div>
                           <span
-                            className={`text-base font-bold ${
+                            className={`text-base font-semibold ${
                               profile?.role === "admin"
                                 ? "text-red-400"
                                 : profile?.role === "user"
@@ -381,7 +386,7 @@ export const ProfilePage = () => {
                           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                             {/* Bio */}
                             <div className="flex-1 min-w-0">
-                              <h2 className="text-yellow-400 font-bold text-xl mb-3">
+                              <h2 className="text-yellow-400 font-semibold text-xl mb-3">
                                 Bio
                               </h2>
                               <div className="relative min-h-fit bg-gradient-to-br from-slate-900/40 to-purple-900/40 overflow-hidden rounded-lg border-2 border-yellow-500/60 shadow-lg shadow-yellow-500/20">

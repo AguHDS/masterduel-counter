@@ -10,6 +10,7 @@ import { InstanceEditorPage } from "./features/ArchetypeAnalyzer";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { AdminPanelPage } from "./features/admin-panel/pages/AdminPanelPage";
+import { ConfigurationPage } from "./features/configuration";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 import NotFound from "./shared/components/NotFound";
 
@@ -34,6 +35,14 @@ function App() {
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route
+              path="/configuration"
+              element={
+                <ProtectedRoute>
+                  <ConfigurationPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/admin"
               element={

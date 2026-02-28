@@ -88,6 +88,7 @@ export const createGetGuideByIdController = (
           generalTip: instance.generalTip,
           likes: instance.likes,
           favorites: instance.favorites,
+          views: instance.views,
           createdAt: instance.createdAt,
           updatedAt: instance.updatedAt,
         },

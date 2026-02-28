@@ -54,7 +54,19 @@ export const useInstanceFavorites = ({
       });
     } catch (error) {
       console.error("Error toggling favorite:", error);
-      alert("Failed to update favorite. Please try again.");
+      
+      // Extract error message from axios error response
+      let errorMessage = "Failed to update favorite. Please try again.";
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as { response?: { data?: { error?: string } } };
+        if (axiosError.response?.data?.error) {
+          errorMessage = axiosError.response.data.error;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
     }
   };
 

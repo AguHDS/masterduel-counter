@@ -1,22 +1,16 @@
 // frontend/src/features/ranking/components/RankingPopup.tsx
 import React, { useRef, useEffect } from "react";
 import { Crown } from "lucide-react";
-
-export interface RankingUser {
-  id: number;
-  rank: number;
-  username: string;
-  avatarUrl: string;
-  points: number;
-}
+import type { RankingUser } from "@/lib/http/rankingApi";
 
 interface RankingPopupProps {
   isOpen: boolean;
   onClose: () => void;
   users: RankingUser[];
-  onUserClick: (username: string, userId: number) => void;
+  onUserClick: (username: string, userId: string) => void;
   onViewFullRanking: () => void;
-  triggerRef: React.RefObject<HTMLElement | null>; // Tipo más flexible
+  triggerRef: React.RefObject<HTMLElement | null>;
+  isLoading?: boolean;
 }
 
 export const RankingPopup: React.FC<RankingPopupProps> = ({
@@ -26,11 +20,14 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
   onUserClick,
   onViewFullRanking,
   triggerRef,
+  isLoading = false,
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
 
   // Close popup when clicking outside
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (
         popupRef.current &&
@@ -42,12 +39,11 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
       }
     };
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+    // Use "click" event instead of "mousedown" to avoid conflicts with the toggle button
+    document.addEventListener("click", handleClickOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, [isOpen, onClose, triggerRef]);
 
@@ -96,19 +92,31 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
       <div className="p-3 border-b border-[#c2901c]/30">
         <div className="flex items-center space-x-2">
           <Crown className="w-5 h-5 text-[#c2901c]" />
-          <h3 className="text-white font-semibold">Top Users (Coming soon!)</h3>
+          <h3 className="text-white font-semibold">Top 50 Users</h3>
         </div>
       </div>
 
       {/* Ranking List */}
       <div className="max-h-96 overflow-y-auto scrollbar-cardpair">
-        {users.map((user) => {
+        {isLoading && (
+          <div className="flex items-center justify-center p-8">
+            <div className="text-white text-sm">Loading ranking...</div>
+          </div>
+        )}
+
+        {!isLoading && users.length === 0 && (
+          <div className="flex items-center justify-center p-8">
+            <div className="text-gray-400 text-sm">No users in ranking yet.</div>
+          </div>
+        )}
+
+        {!isLoading && users.map((user) => {
           const styles = getRankStyles(user.rank);
 
           return (
             <div
-              key={user.id}
-              onClick={() => onUserClick(user.username, user.id)}
+              key={user.userId}
+              onClick={() => onUserClick(user.username, user.userId)}
               className={`p-3 border-b border-[#c2901c]/10 hover:bg-[#2a2430] transition-colors cursor-pointer ${styles.bg}`}
             >
               <div className="flex items-center space-x-3">
@@ -119,7 +127,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
 
                 {/* Avatar */}
                 <img
-                  src={user.avatarUrl}
+                  src={user.profilePictureUrl}
                   alt={user.username}
                   className="w-10 h-10 rounded-full border-2 border-[#c2901c]/30 object-cover"
                   loading="lazy"
@@ -137,9 +145,9 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                       />
                     )}
                   </div>
-                  {user.points && (
+                  {user.totalLikes > 0 && (
                     <div className="text-xs text-green-500">
-                      {user.points.toLocaleString()} Likes
+                      {user.totalLikes.toLocaleString()} Likes
                     </div>
                   )}
                 </div>

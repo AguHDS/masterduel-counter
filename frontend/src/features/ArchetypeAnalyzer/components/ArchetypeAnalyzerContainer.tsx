@@ -10,6 +10,7 @@ import {
   X,
   Flag,
   ArrowLeft,
+  Eye,
 } from "lucide-react";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
@@ -28,6 +29,7 @@ import {
   useArchetypeWithHeader,
   useUserInstance,
 } from "../hooks/useArchetypeQueries";
+import { useRegisterView } from "@/shared/hooks/useRegisterView";
 
 interface CardPair {
   id: string;
@@ -102,6 +104,9 @@ export const ArchetypeAnalyzerContainer = ({
   });
 
   const recommendedDeck = useRecommendedDeck(instanceIdNum);
+
+  // Register view for this instance
+  useRegisterView(instanceIdNum, archetypeIdNum);
 
   const memoizedMainDeck = useMemo(
     () => recommendedDeck.deck?.mainDeck || [],
@@ -400,64 +405,73 @@ export const ArchetypeAnalyzerContainer = ({
                 </button>
 
                 <div className="ml-auto  flex items-center space-x-4 relative left-5">
-                  {!isCreatingNew &&
-                    isAuthenticated &&
-                    selectedArchetype.registered && (
-                      <div className="flex items-center space-x-1">
-                        {/* Favorite button */}
-                        <button
-                          onClick={favorites.toggleFavorite}
-                          className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
-                            favorites.favorited
-                              ? "text-yellow-400"
-                              : "text-white"
-                          }`}
-                          title={
-                            favorites.favorited
+                  {!isCreatingNew && selectedArchetype.registered && (
+                    <div className="flex items-center space-x-1">
+                      {/* View counter */}
+                      <div className="flex items-center space-x-2 px-3 py-1 text-purple-400">
+                        <Eye className="w-5 h-5" />
+                        <span>{userInstanceData?.instance.views || 0}</span>
+                      </div>
+
+                      {/* Favorite button */}
+                      <button
+                        onClick={isAuthenticated ? favorites.toggleFavorite : undefined}
+                        disabled={!isAuthenticated}
+                        className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
+                          favorites.favoriteCount > 0
+                            ? "text-yellow-400"
+                            : "text-white"
+                        } ${
+                          !isAuthenticated ? "cursor-not-allowed" : ""
+                        }`}
+                        title={
+                          !isAuthenticated
+                            ? "Log in to favorite this guide"
+                            : favorites.favorited
                               ? "Remove from favorites"
                               : "Add to favorites"
-                          }
-                        >
-                          <Star
-                            className={`w-5 h-5 ${
-                              favorites.favorited
-                                ? "text-yellow-400 fill-yellow-400"
-                                : ""
-                            }`}
-                          />
-                          <span>{favorites.favoriteCount}</span>
-                        </button>
-
-                        {/* Like button */}
-                        <button
-                          onClick={likes.toggleLike}
-                          disabled={isOwner}
-                          className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
-                            isOwner
-                              ? likes.likeCount > 0
-                                ? "text-green-500 cursor-not-allowed"
-                                : "text-white cursor-not-allowed"
-                              : likes.liked
-                                ? "text-green-500"
-                                : "text-white"
+                        }
+                      >
+                        <Star
+                          className={`w-5 h-5 ${
+                            favorites.favoriteCount > 0
+                              ? "text-yellow-400 fill-yellow-400"
+                              : ""
                           }`}
-                          title={
-                            isOwner
+                        />
+                        <span>{favorites.favoriteCount}</span>
+                      </button>
+
+                      {/* Like button */}
+                      <button
+                        onClick={isAuthenticated && !isOwner ? likes.toggleLike : undefined}
+                        disabled={!isAuthenticated || isOwner}
+                        className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
+                          likes.likeCount > 0
+                            ? "text-green-500"
+                            : "text-white"
+                        } ${
+                          !isAuthenticated || isOwner ? "cursor-not-allowed" : ""
+                        }`}
+                        title={
+                          !isAuthenticated
+                            ? "Log in to like this guide"
+                            : isOwner
                               ? "You cannot like your own guide"
                               : undefined
-                          }
-                        >
-                          <ThumbsUp
-                            className={`w-5 h-5 ${
-                              (isOwner && likes.likeCount > 0) || likes.liked
-                                ? "text-green-500"
-                                : ""
-                            }`}
-                          />
-                          <span>{likes.likeCount}</span>
-                        </button>
-                      </div>
-                    )}
+                        }
+                      >
+                        <ThumbsUp
+                          className={`w-5 h-5 ${
+                            likes.likeCount > 0
+                              ? "text-green-500"
+                              : ""
+                          }`}
+                        />
+                        <span>{likes.likeCount}</span>
+                      </button>
+                    </div>
+                  )}
 
                   {/* Creator Info */}
                   {!isCreatingNew && userInstanceData && (

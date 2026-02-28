@@ -243,4 +243,11 @@ export class AdminServiceImpl implements AdminServicePort {
       };
     }
   }
+
+  async getTotalUsers(): Promise<{
+    total: number;
+  }> {
+    const total = await this.adminRepository.getTotalUsers();
+    return { total };
+  }
 }
