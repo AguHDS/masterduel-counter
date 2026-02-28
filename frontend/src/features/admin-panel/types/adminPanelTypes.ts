@@ -69,4 +69,4 @@ export interface UpdateUserData {
   is_banned?: boolean;
 }
 
-export type AdminTab = "accounts" | "reports";
+export type AdminTab = "accounts" | "reports" | "tracking";

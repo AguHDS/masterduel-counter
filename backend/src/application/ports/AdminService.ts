@@ -71,4 +71,9 @@ export interface AdminService {
     success: boolean;
     message: string;
   }>;
+
+  /** Get total number of registered users */
+  getTotalUsers(): Promise<{
+    total: number;
+  }>;
 }

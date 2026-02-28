@@ -1,4 +1,4 @@
-import { TrendingUp, Users } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { useGeneralStats } from "../hooks/useGeneralStats";
 import { useNavigate } from "react-router-dom";
 
@@ -54,8 +54,7 @@ export const GeneralStats = () => {
 
           <div className="p-4 rounded-lg bg-black/40 border border-purple-500/30">
             <div className="flex items-center gap-2 mb-1">
-              <Users className="w-4 h-4 text-purple-400" />
-              <p className="text-sm text-purple-300 font-semibold">Guides</p>
+              <p className="text-sm text-purple-300 font-semibold">Total Guides</p>
             </div>
             <p className="text-3xl font-bold text-white">{data.totalGuides}</p>
           </div>

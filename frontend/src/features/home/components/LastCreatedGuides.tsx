@@ -22,8 +22,12 @@ const getTimeAgo = (dateString: string): string => {
   return `${diffYears}y ago`;
 };
 
-const getDefaultAvatar = (userName: string): string => {
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userName)}`;
+const getGuideInitials = (title: string): string => {
+  // Obtener las primeras letras de las primeras dos palabras
+  const words = title.trim().split(/\s+/);
+  if (words.length === 0) return "?";
+  if (words.length === 1) return words[0].charAt(0).toUpperCase();
+  return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
 };
 
 export const LastCreatedGuides = () => {
@@ -82,20 +86,24 @@ export const LastCreatedGuides = () => {
           <div className="p-2 rounded-lg">
             <Clock className="w-6 h-6 text-blue-300" />
           </div>
-          <h3 className="text-2xl font-bold text-white">Lastest Counter Guides</h3>
+          <h3 className="text-2xl font-bold text-white">
+            Lastest Counter Guides
+          </h3>
         </div>
 
         <div className="flex-1 overflow-y-auto scrollbar-comments">
           {!guides || guides.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-blue-300">
               <p className="text-center">No guides created yet</p>
-              <p className="text-sm text-gray-400 mt-2">Be the first to create one!</p>
+              <p className="text-sm text-gray-400 mt-2">
+                Be the first to create one!
+              </p>
             </div>
           ) : (
             guides.map((guide) => {
-              const avatarUrl = guide.userProfilePictureUrl || getDefaultAvatar(guide.userName);
               const timeAgo = getTimeAgo(guide.createdAt);
-              
+              const guideInitials = getGuideInitials(guide.title);
+
               return (
                 <div
                   key={guide.id}
@@ -103,23 +111,37 @@ export const LastCreatedGuides = () => {
                   className="p-4 rounded-lg bg-black/40 border border-blue-500/30 hover:border-blue-400/50 hover:bg-black/60 transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3 mb-1">
-                    {avatarUrl ? (
-                      <img
-                        src={avatarUrl}
-                        alt={guide.userName}
-                        className="w-10 h-10 rounded-full border-2 border-blue-400/50 object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = getDefaultAvatar(guide.userName);
-                        }}
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full border-2 border-blue-400/50 bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
-                        <User className="w-5 h-5 text-blue-300" />
-                      </div>
-                    )}
+                    {/* Avatar del usuario (se mantiene igual) */}
+                    <div className="flex-shrink-0">
+                      {guide.userProfilePictureUrl ? (
+                        <img
+                          src={guide.userProfilePictureUrl}
+                          alt={guide.userName}
+                          className="w-10 h-10 rounded-full border-2 border-blue-400/50 object-cover"
+                          onError={(e) => {
+                            // Si falla la imagen, mostramos el avatar por defecto con iniciales del usuario
+                            e.currentTarget.style.display = "none";
+                            e.currentTarget.parentElement!.innerHTML = `
+                              <div class="w-10 h-10 rounded-full border-2 border-blue-400/50 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                                ${guide.userName.charAt(0).toUpperCase()}
+                              </div>
+                            `;
+                          }}
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full border-2 border-blue-400/50 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                          {guide.userName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+
                     <div className="flex-1 min-w-0">
-                      <p className="text-white font-semibold truncate">{guide.userName}</p>
-                      <p className="text-blue-300 text-sm line-clamp-2">{guide.title}</p>
+                      <p className="text-white font-semibold truncate">
+                        {guide.userName}
+                      </p>
+                      <p className="text-blue-300 text-sm line-clamp-2">
+                        {guide.title}
+                      </p>
                     </div>
                     <span className="text-xs text-gray-400">{timeAgo}</span>
                   </div>
@@ -127,11 +149,15 @@ export const LastCreatedGuides = () => {
                   <div className="flex items-center gap-4 text-sm">
                     <div className="flex items-center gap-1.5 text-blue-300">
                       <Eye className="w-4 h-4" />
-                      <span className="font-medium">{guide.views.toLocaleString()}</span>
+                      <span className="font-medium">
+                        {guide.views.toLocaleString()}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-pink-400">
                       <Heart className="w-4 h-4" />
-                      <span className="font-medium">{guide.likes.toLocaleString()}</span>
+                      <span className="font-medium">
+                        {guide.likes.toLocaleString()}
+                      </span>
                     </div>
                   </div>
                 </div>

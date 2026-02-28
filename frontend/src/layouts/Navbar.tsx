@@ -17,6 +17,7 @@ import { NotificationBell, NotificationPopup } from "../features/notifications";
 import { RankingPopup } from "../features/ranking/components/RankingPopup";
 import { RankingModal } from "../features/ranking/components/RankingModal";
 import { useRanking } from "../features/ranking/hooks/useRanking";
+import { UserDropdown } from "./UserDropdown";
 import { useState, useEffect, useRef } from "react";
 
 export const Navbar = () => {
@@ -139,32 +140,14 @@ export const Navbar = () => {
             {!isLoading && isAuthenticated && user ? (
               <>
                 {/* Notifications */}
-                <div className="relative flex items-center px-4">
+                <div className="relative flex items-center px-4 py-[2px]">
                   <NotificationBell />
                   <NotificationPopup />
                 </div>
 
                 {/* Profile, Logout, Admin */}
-                <div className="flex items-center gap-4 px-4">
-                  <Link
-                    to={`/profile/${user.id}`}
-                    className="flex items-center gap-1 text-blue-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
-                  >
-                    <User className="h-4 w-4" />
-                    <span className="hidden xl:inline hover:underline underline-offset-4">
-                      Profile
-                    </span>
-                  </Link>
-
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-1 text-red-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span className="hidden xl:inline hover:underline underline-offset-4">
-                      Logout
-                    </span>
-                  </button>
+                <div className="flex items-center gap-4 px-4 ">
+                  <UserDropdown />
 
                   {isAdmin && (
                     <Link
@@ -172,7 +155,7 @@ export const Navbar = () => {
                       className="flex items-center gap-1 text-yellow-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity group"
                       aria-label="Admin Panel"
                     >
-                      <Shield className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                      <Shield className="h-4 w-4  group-hover:scale-110 transition-transform" />
                       <span className="hidden xl:inline hover:underline underline-offset-4">
                         Admin Panel
                       </span>
@@ -208,7 +191,7 @@ export const Navbar = () => {
             ) : null}
 
             {/* Discord */}
-            <div className="flex items-center pl-4">
+            <div className="flex items-center pl-1 border-none">
               <a
                 href="https://discord.gg/masterduelcounter"
                 target="_blank"
@@ -268,19 +251,7 @@ export const Navbar = () => {
                 <NotificationBell />
                 <NotificationPopup />
 
-                <Link
-                  to={`/profile/${user.id}`}
-                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
-                >
-                  <User className="w-5 h-5 text-blue-500" />
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
-                >
-                  <LogOut className="w-5 h-5 text-red-500" />
-                </button>
+                <UserDropdown />
 
                 {isAdmin && (
                   <Link
@@ -352,9 +323,9 @@ export const Navbar = () => {
                 <Crown className="h-4 w-4" />
                 <span>
                   Ranking
-                  {rankingData && rankingData.ranking.length > 0 && 
-                    ` (${rankingData.ranking.length})`
-                  }
+                  {rankingData &&
+                    rankingData.ranking.length > 0 &&
+                    ` (${rankingData.ranking.length})`}
                 </span>
               </button>
 
@@ -370,7 +341,9 @@ export const Navbar = () => {
                       {rankingData.ranking.map((user) => (
                         <div
                           key={user.userId}
-                          onClick={() => handleUserClick(user.username, user.userId)}
+                          onClick={() =>
+                            handleUserClick(user.username, user.userId)
+                          }
                           className="flex items-center gap-2 p-2 hover:bg-[#3a2f40] rounded-lg transition-colors cursor-pointer"
                         >
                           <img

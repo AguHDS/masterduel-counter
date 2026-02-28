@@ -38,8 +38,14 @@ export const CreateGuideInvite = () => {
           </div>
 
           <p className="text-blue-200 mb-6 leading-relaxed">
-            The content is added by the community. Sign up and create your own
-            counter guides, either for personal use or sharing.
+            The content is added by the community.{" "}
+            <button
+              onClick={() => navigate("/signup")}
+              className="text-blue-500 hover:text-blue-100 transition-colors inline"
+            >
+              Sign up
+            </button>{" "}
+            and create your own counter guides, either for personal use or sharing.
           </p>
 
           <div className="space-y-3 mb-6">

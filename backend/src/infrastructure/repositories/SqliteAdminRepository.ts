@@ -374,4 +374,9 @@ export class SqliteAdminRepository implements AdminRepository {
       where: { id: reportId },
     });
   }
+
+  async getTotalUsers(): Promise<number> {
+    const count = await this.prisma.user.count();
+    return count;
+  }
 }

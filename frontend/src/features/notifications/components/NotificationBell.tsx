@@ -1,14 +1,8 @@
 import React from "react";
-import notificationImg from "../../../assets/notification-icon.webp";
+import notificationImg from "@/assets/notification-icon.webp";
 import { useNotifications } from "../context/useNotifications";
 
-interface NotificationBellProps {
-  className?: string;
-}
-
-export const NotificationBell: React.FC<NotificationBellProps> = ({
-  className = "",
-}) => {
+export const NotificationBell = ({}) => {
   const { unreadCount, showNotifications, setShowNotifications, buttonRef } =
     useNotifications();
 
@@ -22,7 +16,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
       <img
         src={notificationImg}
         alt="Notifications"
-        className={`h-6 w-6 cursor-pointer hover:opacity-80 transition-opacity ${className}`}
+        className={`h-6 w-6 cursor-pointer hover:opacity-80 transition-opacity`}
       />
       {unreadCount > 0 && (
         <span className="absolute -top-1 left-4 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">

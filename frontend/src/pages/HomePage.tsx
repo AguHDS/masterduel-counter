@@ -57,7 +57,7 @@ export const HomePage = () => {
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />
 
-                <MainLogo />
+        <MainLogo />
 
         <SearchInput
           searchQuery={searchQuery}
@@ -88,7 +88,6 @@ export const HomePage = () => {
         >
           <HomeStatsSection />
         </div>
-
 
         <main
           className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-3"

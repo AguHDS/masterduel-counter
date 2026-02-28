@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Shield } from "lucide-react";
+import { Navbar } from "@/layouts/Navbar";
 import { useAdminData } from "../hooks/useAdminData";
 import { useAdminAuth } from "../hooks/useAdminAuth";
 import { TabNavigation } from "../components/TabNavigation";
 import { ManageAccountsTab } from "../components/ManageAccountsTab";
 import { ReportsTab } from "../components/ReportsTab";
+import { TrackingTab } from "../components/TrackingTab";
 import type { AdminTab } from "../types/adminPanelTypes";
 
 export const AdminPanelPage = () => {
@@ -21,7 +23,9 @@ export const AdminPanelPage = () => {
   const loading = authLoading || dataLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-gradient-to-br from-slate-900/80 to-blue-900/40 border-2 border-yellow-600/40 rounded-xl shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-blue-950/90 to-purple-950/90 border-b-2 border-yellow-600/30 px-8 py-6">
@@ -73,12 +77,13 @@ export const AdminPanelPage = () => {
                     reports={reports}
                     onRefetchReports={refetchReports}
                   />
-                )}
+                )}                {activeTab === "tracking" && <TrackingTab />}
               </>
             )}
           </div>
         </div>
       </div>
     </div>
+    </>
   );
 };
