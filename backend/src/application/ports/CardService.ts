@@ -10,28 +10,20 @@ export interface CardService {
   searchCards(query: string): Promise<CardSearchResult[]>;
 
   /**
-   * Retrieves or creates a card with its images in Cloudinary.
-   * If the card exists in the DB (temporary or permanent), returns its URLs.
-   * If it does not exist, downloads it from YGOProDeck, uploads it to Cloudinary as temporary, and saves it in the DB.
+   * Retrieves or creates a card with its YGOProdeck image URLs.
+   * If the card exists in the DB, returns its cached URLs.
+   * If it does not exist, fetches URLs from YGOProDeck API and saves them in the DB.
    * @param cardId - Unique card ID in YGOProDeck
-   * @returns Card data including Cloudinary image URLs
+   * @returns Card data including YGOProdeck image URLs
    * @throws Error if the card does not exist in YGOProDeck or has no images
    */
   selectCard(cardId: number): Promise<CardPreviewDTO>;
 
   /**
-   * Confirms the selected cards by marking them as permanent.
-   * Performs immediate cleanup by deleting temporary cards not included in the list.
-   * Deletes Cloudinary images and DB records of unconfirmed cards.
-   * @param cardIds - Array of card IDs to mark as permanent
+   * Ensures all selected cards exist in DB (fetches missing ones from YGOProdeck API).
+   * Cards are reused if they already exist (INSERT OR REPLACE with PRIMARY KEY).
+   * This creates a permanent cache of card URLs for better performance.
+   * @param cardIds - Array of card IDs to ensure exist in DB
    */
   confirmSelectedCards(cardIds: number[]): Promise<void>;
-
-  /**
-   * Cleans up old temporary cards (>24 hours).
-   * Deletes Cloudinary images and DB records.
-   * Used by a cron job to clean up resources from users who abandoned without confirming.
-   * @returns Number of deleted cards
-   */
-  cleanupTemporaryCards(): Promise<number>;
 }

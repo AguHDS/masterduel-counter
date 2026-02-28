@@ -1,33 +1,20 @@
 /**
- * Card entity stored in database with Cloudinary-hosted images
- *
- * isTemporary: Failsafe flag for crash recovery DURING save process
- * 1. User selects cards → Cards stored in browser memory (NOT in DB)
- * 2. User clicks Save → confirmSelectedCards starts:
- *    - Creates cards with isTemporary=true
- *    - Uploads images to Cloudinary
- *    - Marks cards as isTemporary=false
- * 3. If server crashes during step 2, some cards remain temporary
- * 4. Cron job cleans temporary cards older than 24h
- *
- * NOTE: Cards selected but never saved don't create temporary records.
+ * Card entity stored in database with YGOProdeck direct URLs
+ * Images are served directly from YGOProdeck CDN (https://images.ygoprodeck.com)
+ * Each card is uniquely identified by its id (PRIMARY KEY prevents duplicates)
  */
 export interface Card {
   id: number;
   name: string;
-  imageUrl: string;
-  imageUrlSmall: string;
-  imageUrlCropped: string;
-  cloudinaryPublicId: string;
-  cloudinaryPublicIdSmall: string;
-  cloudinaryPublicIdCropped: string;
-  isTemporary: boolean; // Failsafe flag for cleanup
+  imageUrl: string; // Direct URL from YGOProdeck API
+  imageUrlSmall: string; // Direct URL from YGOProdeck API
+  imageUrlCropped: string; // Direct URL from YGOProdeck API
   createdAt: string;
 }
 
 /**
  * Card search result from YGOPRODeck API
- * Uses external URLs (not uploaded to Cloudinary yet)
+ * Contains direct URLs from YGOProdeck (for search preview purposes)
  */
 export interface CardSearchResult {
   id: number;

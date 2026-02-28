@@ -20,19 +20,13 @@ export class SqliteCardRepository implements CardRepository {
   async saveOrUpdateCard(card: Card): Promise<void> {
     const stmt = this.db.prepare(`
       INSERT INTO cards (
-        id, name, image_url, image_url_small, image_url_cropped,
-        cloudinary_public_id, cloudinary_public_id_small, cloudinary_public_id_cropped,
-        is_temporary, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        id, name, image_url, image_url_small, image_url_cropped, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
         image_url = excluded.image_url,
         image_url_small = excluded.image_url_small,
-        image_url_cropped = excluded.image_url_cropped,
-        cloudinary_public_id = excluded.cloudinary_public_id,
-        cloudinary_public_id_small = excluded.cloudinary_public_id_small,
-        cloudinary_public_id_cropped = excluded.cloudinary_public_id_cropped,
-        is_temporary = excluded.is_temporary
+        image_url_cropped = excluded.image_url_cropped
     `);
 
     stmt.run(
@@ -41,36 +35,21 @@ export class SqliteCardRepository implements CardRepository {
       card.imageUrl,
       card.imageUrlSmall,
       card.imageUrlCropped,
-      card.cloudinaryPublicId,
-      card.cloudinaryPublicIdSmall,
-      card.cloudinaryPublicIdCropped,
-      card.isTemporary ? 1 : 0,
       card.createdAt
     );
   }
 
-  // Mark card as permanent (not temporary) after successful save
-  async updateCardToPermanent(id: number): Promise<void> {
-    const stmt = this.db.prepare("UPDATE cards SET is_temporary = 0 WHERE id = ?");
-    stmt.run(id);
-  }
-
-  // Find temporary cards older than specified hours - used by cleanup cron job
-  async findTemporaryCardOlderThan(hours: number): Promise<Card[]> {
-    const stmt = this.db.prepare(`
-      SELECT * FROM cards 
-      WHERE is_temporary = 1 
-      AND datetime(created_at) <= datetime('now', '-' || ? || ' hours')
-    `);
-    
-    const rows = stmt.all(hours) as unknown[];
-    return rows.map(this.mapRowToCard);
-  }
-
-  // Delete card from database (cleanup also deletes from Cloudinary)
+  // Delete card from database
   async deleteCardById(id: number): Promise<void> {
     const stmt = this.db.prepare("DELETE FROM cards WHERE id = ?");
     stmt.run(id);
+  }
+
+  // Get all cards from database
+  async getAllCards(): Promise<Card[]> {
+    const stmt = this.db.prepare("SELECT * FROM cards");
+    const rows = stmt.all() as unknown[];
+    return rows.map(this.mapRowToCard);
   }
 
   private mapRowToCard(row: unknown): Card {
@@ -80,10 +59,6 @@ export class SqliteCardRepository implements CardRepository {
       image_url: string;
       image_url_small: string;
       image_url_cropped: string;
-      cloudinary_public_id: string;
-      cloudinary_public_id_small: string;
-      cloudinary_public_id_cropped: string;
-      is_temporary: number;
       created_at: string;
     };
     return {
@@ -92,10 +67,6 @@ export class SqliteCardRepository implements CardRepository {
       imageUrl: r.image_url,
       imageUrlSmall: r.image_url_small,
       imageUrlCropped: r.image_url_cropped,
-      cloudinaryPublicId: r.cloudinary_public_id,
-      cloudinaryPublicIdSmall: r.cloudinary_public_id_small,
-      cloudinaryPublicIdCropped: r.cloudinary_public_id_cropped,
-      isTemporary: r.is_temporary === 1,
       createdAt: r.created_at,
     };
   }

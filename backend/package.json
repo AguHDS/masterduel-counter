@@ -11,7 +11,6 @@
     "lint": "eslint . --ext .ts",
     "populate-archetypes": "tsx src/scripts/populate-archetypes.ts",
     "reset-db": "tsx src/scripts/reset-database.ts",
-    "cleanup-cards": "tsx src/scripts/cleanup-temporary-cards.ts",
     "create-admin": "tsx src/scripts/create-admin.ts"
   },
   "keywords": [],
@@ -26,7 +25,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^25.0.9",
-    "@types/node-cron": "^3.0.11",
     "@types/streamifier": "^0.1.2",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.53.1",
@@ -50,7 +48,6 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.0",
-    "node-cron": "^3.0.3",
     "streamifier": "^0.1.1",
     "tsconfig-paths": "^4.2.0"
   }

@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import cron from "node-cron";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import { getDependencies } from "./compositionRoot";
@@ -174,25 +173,6 @@ app.use("/api/admin", admin);
 // Reports
 app.use("/api/reports", report);
 
-// Cron job: Failsafe cleanup of temporary cards every 24 hours (at 3:00 AM)
-// Cards are created as temporary only when confirmCards is called.
-// This cleans up cards that weren't confirmed due to crashes, errors, or user cancellation.
-cron.schedule("0 3 * * *", async () => {
-  console.log("[Cron] Starting failsafe cleanup of temporary cards...");
-  try {
-    const cardService = getDependencies().getCardService();
-    const deletedCount = await cardService.cleanupTemporaryCards();
-    console.log(
-      `[Cron] Cleanup completed: ${deletedCount} temporary card(s) deleted`,
-    );
-  } catch (error) {
-    console.error("[Cron] Error during cleanup:", error);
-  }
-});
-
 app.listen(PORT, () => {
   console.log(`Listening to: http://localhost:${PORT}`);
-  console.log(
-    "Failsafe temporary card cleanup cron job activated (every day at 3:00 AM)",
-  );
 });

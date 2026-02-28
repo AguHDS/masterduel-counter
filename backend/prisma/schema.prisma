@@ -171,22 +171,15 @@ model Comment {
   @@map("comments")
 }
 
-// Card storage with Cloudinary integration
-// isTemporary: Failsafe flag used ONLY during confirmSelectedCards process:
-//              1. Cards are created with isTemporary=true
-//              2. Then marked isTemporary=false after successful creation
-//              If server crashes DURING this process, cards remain temporary and are cleaned by cron.
-//              Cards selected but never saved don't reach DB at all (only in browser memory).
+// Card storage with YGOProdeck direct URLs
+// Images are served directly from YGOProdeck CDN (https://images.ygoprodeck.com)
+// Each card is uniquely identified by id (PRIMARY KEY prevents duplicates)
 model Card {
   id                      Int       @id
   name                    String
   imageUrl                String    @map("image_url")
   imageUrlSmall           String    @map("image_url_small")
   imageUrlCropped         String    @map("image_url_cropped")
-  cloudinaryPublicId      String    @map("cloudinary_public_id")
-  cloudinaryPublicIdSmall String    @map("cloudinary_public_id_small")
-  cloudinaryPublicIdCropped String  @map("cloudinary_public_id_cropped")
-  isTemporary             Boolean   @default(true) @map("is_temporary") // Failsafe cleanup flag
   createdAt               DateTime  @default(now()) @map("created_at")
 
   instanceHeaders        ArchetypeInstance[] @relation("InstanceHeaderCard")
@@ -194,7 +187,6 @@ model Card {
   bottomCardPairs        CardPairBottom[] @relation("BottomCardPairs")
 
   @@index([name])
-  @@index([isTemporary, createdAt]) // For efficient cleanup queries
   @@map("cards")
 }
 
