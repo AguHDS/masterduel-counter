@@ -48,6 +48,24 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: process.env.REQUIRE_EMAIL_VERIFICATION === "true",
+    autoSignIn: false,
+    minPasswordLength: 5,
+    sendResetPassword: async ({ user, url, token }: any) => {
+      const frontendUrl = `${getFrontendUrl()}/reset-password?token=${token}`;
+
+      if (config.nodeEnv === "development") {
+        console.log("\n===== PASSWORD RESET REQUEST (DEVELOPMENT MODE) =====");
+        console.log(`User: ${user.email}`);
+        console.log(`Reset URL: ${frontendUrl}`);
+        console.log(`Token: ${token}`);
+        console.log(`In development, copy the URL above and paste in your browser`);
+        console.log("============================================\n");
+      } else {
+        console.log(`Password reset email sent to: ${user.email}`);
+        console.log(`Reset link: ${frontendUrl}`);
+      }
+      // BetterAuth handles email sending automatically
+    },
   },
 
   emailVerification: {
@@ -90,24 +108,6 @@ export const auth = betterAuth({
     // Additional configuration for better deliverability
     tls: {
       rejectUnauthorized: false, // Useful for development/auto-signed certificates
-    },
-
-    // Custom email for password reset
-    sendResetPassword: async ({ user, url, token }: any) => {
-      const frontendUrl = `${getFrontendUrl()}/reset-password?token=${token}`;
-
-      if (config.nodeEnv === "development") {
-        console.log("\n===== PASSWORD RESET REQUEST (DEVELOPMENT MODE) =====");
-        console.log(`User: ${user.email}`);
-        console.log(`Reset URL: ${frontendUrl}`);
-        console.log(`Token: ${token}`);
-        console.log(`In development, copy the URL above and paste in your browser`);
-        console.log("============================================\n");
-      } else {
-        console.log(`Password reset email sent to: ${user.email}`);
-        console.log(`Reset link: ${frontendUrl}`);
-      }
-      // BetterAuth handles email sending automatically
     },
   },
 

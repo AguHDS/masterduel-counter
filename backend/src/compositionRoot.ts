@@ -194,6 +194,7 @@ export class Dependencies {
         this.getCardPairRepository(),
         this.getArchetypeRepository(),
         this.getNotificationService(),
+        this.getUserRepository(),
       );
     }
     return this.instanceService;

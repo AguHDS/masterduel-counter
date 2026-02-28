@@ -11,6 +11,9 @@ import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRep
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
 import { NotificationServicePort } from "@/application/ports/NotificationService";
 import { ViewCountCache } from "@/infrastructure/adapters/ViewCountCache";
+import { UserRepository } from "@/domain/ports/UserRepository";
+
+const MAX_FAVORITES_USER = 20;
 
 export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
   private viewCountCache: ViewCountCache;
@@ -20,6 +23,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     private cardPairRepository: ArchetypeCardPairRepository,
     private archetypeRepository: ArchetypeRepository,
     private notificationService: NotificationServicePort,
+    private userRepository: UserRepository,
   ) {
     // Initialize view count cache with flush callback
     this.viewCountCache = new ViewCountCache((instanceId, count) =>
@@ -231,6 +235,27 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
 
     if (!instance) {
       throw new Error("Instance not found");
+    }
+
+    // Check if user already has this favorited
+    const alreadyFavorited = await this.instanceRepository.hasUserFavoritedInstance(instanceId, userId);
+
+    // If trying to add favorite (not remove), check limits
+    if (!alreadyFavorited) {
+      // Get user to check role
+      const user = await this.userRepository.findUserById(userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      // Count current favorites
+      const favoritedInstances = await this.instanceRepository.findFavoritedInstancesByUserId(userId);
+      const currentCount = favoritedInstances.length;
+
+      // Check limit based on role (supporters have unlimited)
+      if (user.role === "user" && currentCount >= MAX_FAVORITES_USER) {
+        throw new Error(`Maximum favorite limit reached (${MAX_FAVORITES_USER}). Upgrade to Supporter for unlimited favorites!`);
+      }
     }
 
     const result = await this.instanceRepository.ToggleFavoriteInstance(instanceId, userId);

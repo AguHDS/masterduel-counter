@@ -48,26 +48,32 @@ export const ChangePasswordForm = () => {
     }
 
     try {
-      await changePasswordMutation.mutateAsync({
+      const result = await changePasswordMutation.mutateAsync({
         currentPassword,
         newPassword,
         confirmPassword,
       });
       
-      setSuccessMessage("Password changed successfully. Redirecting to login...");
-      
-      // Clear form
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      // Only set success message and logout if password was actually changed
+      if (result.success) {
+        setSuccessMessage("Password changed successfully. Redirecting to login...");
+        
+        // Clear form
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
 
-      // Logout after a short delay to show the success message
-      setTimeout(async () => {
-        await logout();
-      }, 2000);
-    } catch {
+        // Logout after a short delay to show the success message
+        setTimeout(async () => {
+          await logout();
+        }, 1000);
+      } else {
+        setValidationError("Failed to change password. Please try again.");
+      }
+    } catch (error) {
       // Error message is shown via changePasswordMutation.error
-      // No need to handle it here as it's displayed in the UI
+      // Don't logout on error
+      console.error("Password change error:", error);
     }
   };
 

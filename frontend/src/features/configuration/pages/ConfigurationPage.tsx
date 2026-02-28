@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Settings, ArrowLeft } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
@@ -11,8 +12,16 @@ export const ConfigurationPage = () => {
   const [activeTab, setActiveTab] = useState<ConfigurationTab>("account");
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0f0c14] via-[#1a1425] to-[#0f0c14]">
-      <Navbar />
+    <>
+      <Helmet>
+        <title>Configuration - Masterduel Counter</title>
+        <meta
+          name="description"
+          content="Manage your account settings and preferences for Masterduel Counter."
+        />
+      </Helmet>
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0f0c14] via-[#1a1425] to-[#0f0c14]">
+        <Navbar />
       
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         {/* Back Button */}
@@ -68,5 +77,6 @@ export const ConfigurationPage = () => {
 
       <Footer />
     </div>
+    </>
   );
 };

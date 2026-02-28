@@ -117,7 +117,7 @@ export const CustomDecksList = ({ userId, isOwner }: CustomDecksListProps) => {
 
       {/* Existing Decks Grid */}
       {(decks.length > 0 || (isOwner && !isCreatingNew)) && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           {decks.map((deck) => {
             const canView = isOwner || deck.isPublic;
             const previewCards =

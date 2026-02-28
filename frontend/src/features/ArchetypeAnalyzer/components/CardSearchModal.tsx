@@ -237,7 +237,7 @@ export const CardSearchModal = ({
     cardWidth > 0;
 
   return (
-    <div className={styles.container} onClick={handleClose}>
+    <div className={styles.container}>
       <div ref={containerRef} className={styles.modal} style={styles.size} onClick={(e) => e.stopPropagation()}>
         {/* Animated gradient borders */}
         <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">

@@ -243,6 +243,24 @@ export const FavoritedGuidesList = ({
       )}
         </>
       )}
+
+      {/* Support Message */}
+      {onRemoveFavorite && (
+        <div className="mt-6 p-4 bg-gradient-to-r from-[#1a1545]/60 via-[#1e1850]/60 to-[#1a1545]/60 rounded-lg border-2 border-[#3d3470]/50 text-center">
+          <p className="text-sm text-gray-300">
+            Need more space?{" "}
+            <a
+              href="https://www.paypal.com/paypalme/ponyrosa?locale.x=es_XC&country.x=AR"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
+            >
+              Support us
+            </a>{" "}
+            and gain unlimited favorite guides space!
+          </p>
+        </div>
+      )}
     </div>
   );
 };
