@@ -3,6 +3,7 @@ import { getUserMiddleware, searchUserMiddleware } from "@/http/middlewares";
 import {
   banUserController,
   changeUserCredentialsController,
+  changeUserRoleController,
   deleteReportController,
   deleteUserController,
   deleteUserInstanceController,
@@ -53,6 +54,11 @@ router.put(
   "/users/:userId/credentials",
   verifyAdminMiddleware,
   changeUserCredentialsController,
+);
+router.put(
+  "/users/:userId/role",
+  verifyAdminMiddleware,
+  changeUserRoleController,
 );
 router.put("/users/:userId/ban", verifyAdminMiddleware, banUserController);
 router.put("/users/:userId/unban", verifyAdminMiddleware, unbanUserController);

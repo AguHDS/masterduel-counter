@@ -45,15 +45,6 @@ export const validateUsername = (
     return { isValid: true };
   }
 
-  // Regex inline ya que no se reutiliza
-  if (!/^[a-zA-Z0-9\s\-_ñ]+$/.test(username)) {
-    return {
-      isValid: false,
-      error:
-        "Username can only contain letters, numbers, spaces, hyphens, and underscores",
-    };
-  }
-
   if (checkNormalizedLength) {
     const normalized = username.replace(/\s+/g, " ");
     if (normalized.length > USERNAME_MAX_LENGTH) {

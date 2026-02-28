@@ -28,6 +28,8 @@ export interface AdminRepository {
   deleteUserInstance(userId: string, instanceId: number): Promise<void>;
   /** Change user credentials */
   changeUserCredentials(userId: string, credentials: { username?: string; email?: string; password?: string }): Promise<void>;
+  /** Change user role */
+  changeUserRole(userId: string, role: string): Promise<void>;
   /** Ban user */
   banUser(userId: string, reason: string, expiresAt?: Date | null): Promise<void>;
   /** Unban user */

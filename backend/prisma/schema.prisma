@@ -15,7 +15,7 @@ model User {
   image         String?
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
-  role          String   @default("user")
+  role          String   @default("user") // Roles: "user", "supporter", "admin"
   lastUsernameChange DateTime? @map("last_username_change")
   lastActiveAt DateTime? @map("last_active_at")
 

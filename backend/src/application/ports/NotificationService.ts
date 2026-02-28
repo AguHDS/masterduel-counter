@@ -1,7 +1,6 @@
 import {
   Notification,
   NotificationWithDetails,
-  CreateNotificationDTO,
   NotificationType,
 } from "@/domain/Notification";
 

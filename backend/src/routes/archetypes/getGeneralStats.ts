@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { ArchetypeServicePort } from "@/application/ports/ArchetypeService";
 import { createGetGeneralStatsController } from "@/http/controllers/archetypes/getGeneralStatsController";
 import { getDependencies } from "@/compositionRoot";
 

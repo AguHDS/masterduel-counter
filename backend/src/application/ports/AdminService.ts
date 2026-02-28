@@ -44,6 +44,15 @@ export interface AdminService {
     message: string;
   }>;
 
+  /** Change user role */
+  changeUserRole(
+    userId: string,
+    role: string,
+  ): Promise<{
+    success: boolean;
+    message: string;
+  }>;
+
   /** Ban user */
   banUser(
     userId: string,

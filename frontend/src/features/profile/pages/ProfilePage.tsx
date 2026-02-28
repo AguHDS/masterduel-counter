@@ -257,9 +257,9 @@ export const ProfilePage = () => {
                             className={`text-base font-semibold ${
                               profile?.role === "admin"
                                 ? "text-red-400"
-                                : profile?.role === "user"
-                                  ? "text-green-400"
-                                  : "text-blue-400"
+                                : profile?.role === "supporter"
+                                  ? "text-pink-400"
+                                  : "text-green-400"
                             }`}
                           >
                             {profile?.role}
@@ -439,7 +439,11 @@ export const ProfilePage = () => {
                       )}
 
                       {activeTab === "decks" && (
-                        <CustomDecksList userId={userId} isOwner={isOwner} />
+                        <CustomDecksList
+                          userId={userId}
+                          isOwner={isOwner}
+                          userRole={profile?.role}
+                        />
                       )}
 
                       {activeTab === "guides" && (
@@ -465,6 +469,7 @@ export const ProfilePage = () => {
                               ? handleRemoveFavorite
                               : undefined
                           }
+                          userRole={profile?.role}
                         />
                       )}
                     </div>

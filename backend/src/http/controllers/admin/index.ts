@@ -1,5 +1,6 @@
 export { banUserController } from "./banUserController";
 export { changeUserCredentialsController } from "./changeUserCredentialsController";
+export { changeUserRoleController } from "./changeUserRoleController";
 export { deleteReportController } from "./deleteReportController";
 export { deleteUserController } from "./deleteUserController";
 export { deleteUserInstanceController } from "./deleteUserInstanceController";

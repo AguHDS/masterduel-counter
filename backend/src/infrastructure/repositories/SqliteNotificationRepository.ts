@@ -162,7 +162,19 @@ export class SqliteNotificationRepository implements NotificationRepository {
     });
   }
 
-  private mapToNotification(data: any): Notification {
+  private mapToNotification(data: {
+    id: number;
+    userId: string;
+    type: string;
+    read: boolean;
+    count: number;
+    instanceId: number | null;
+    commentId: number | null;
+    actorId: string | null;
+    actorName: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }): Notification {
     return {
       id: data.id,
       userId: data.userId,
