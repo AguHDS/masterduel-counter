@@ -212,7 +212,6 @@ export class Dependencies {
       this.cardService = new CardServiceImpl(
         this.getCardRepository(),
         this.getCardApiService(),
-        this.getImageStorageService(),
       );
     }
     return this.cardService;
