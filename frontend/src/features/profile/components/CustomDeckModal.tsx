@@ -18,7 +18,7 @@ interface CustomDeckModalProps {
   deck: CustomDeck;
   isOwner: boolean;
   onClose: () => void;
-  onUpdate: (deckId: number, updates: { mainDeckCards?: number[]; extraDeckCards?: number[]; isPublic?: boolean }) => void;
+  onUpdate: (deckId: number, updates: { title?: string; mainDeckCards?: number[]; extraDeckCards?: number[]; isPublic?: boolean }) => void;
   onDelete: (deckId: number, deckTitle: string) => void;
   isUpdating: boolean;
   isDeleting: boolean;
@@ -36,6 +36,7 @@ export const CustomDeckModal = ({
   const [mainDeck, setMainDeck] = useState(deck.mainDeck);
   const [extraDeck, setExtraDeck] = useState(deck.extraDeck);
   const [isPublic, setIsPublic] = useState(deck.isPublic);
+  const [title, setTitle] = useState(deck.title);
   const [hasChanges, setHasChanges] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSelectingCard, setIsSelectingCard] = useState(false);
@@ -97,12 +98,25 @@ export const CustomDeckModal = ({
   const handleSaveChanges = () => {
     if (!hasChanges) return;
     
+    if (!title.trim()) {
+      alert("Please enter a title for the deck");
+      return;
+    }
+    
     const mainDeckCards = mainDeck.map(card => card.id);
     const extraDeckCards = extraDeck.map(card => card.id);
     
-    onUpdate(deck.id, { mainDeckCards, extraDeckCards });
+    onUpdate(deck.id, { title: title.trim(), mainDeckCards, extraDeckCards });
     setHasChanges(false);
     setIsEditMode(false);
+  };
+
+  const handleClose = () => {
+    if (hasChanges && isEditMode) {
+      const confirmed = confirm("Close without saving?");
+      if (!confirmed) return;
+    }
+    onClose();
   };
 
   const handleDelete = () => {
@@ -116,7 +130,7 @@ export const CustomDeckModal = ({
   return (
     <div
       className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
-      onClick={onClose}
+      onClick={handleClose}
     >
       <div
         className="bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-2xl shadow-2xl border-2 border-cyan-500/40 backdrop-blur-xl max-w-4xl w-full max-h-[90vh] overflow-auto scrollbar-cardpair"
@@ -124,9 +138,22 @@ export const CustomDeckModal = ({
       >
         <div className="sticky top-0 bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/30 px-6 py-4 flex items-center justify-between gap-4 z-10">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent truncate">
-              {deck.title}
-            </h2>
+            {isOwner && isEditMode ? (
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  setHasChanges(true);
+                }}
+                className="text-xl font-bold bg-slate-800/50 border-2 border-cyan-500/30 focus:border-cyan-400/60 rounded-lg px-3 py-1 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/30 transition-all"
+                maxLength={100}
+              />
+            ) : (
+              <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent truncate">
+                {title}
+              </h2>
+            )}
             {isOwner && (
               <div className="flex items-center gap-2">
                 <button
@@ -197,7 +224,7 @@ export const CustomDeckModal = ({
               </button>
             )}
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-2 hover:bg-slate-800/50 rounded-lg transition-colors"
             >
               <X className="w-5 h-5 text-cyan-400" />

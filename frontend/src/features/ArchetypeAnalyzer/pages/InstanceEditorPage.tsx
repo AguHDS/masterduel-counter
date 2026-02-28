@@ -156,14 +156,14 @@ export const InstanceEditorPage = () => {
                 title="Guide Help"
               >
                 <AlertCircle className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
-                <span className="text-sm">Guide Help</span>
+                <span className="text-sm">How to correctly create a guide?</span>
               </button>
             </div>
           </div>
         )}
 
         <main
-          className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-5"
+          className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
           style={{ maxWidth: "87.5rem" }}
           role="main"
           aria-label="Main content"

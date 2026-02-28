@@ -1,6 +1,5 @@
-// frontend\src\features\ArchetypeAnalyzer\components\CardSearchModal.tsx
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { X, Search, Loader2, Sparkles } from "lucide-react";
+import { X, Search, Loader2 } from "lucide-react";
 import { Virtuoso } from "react-virtuoso";
 import { useSearchCards } from "../hooks/useCardQueries";
 import { type Card } from "../api/cardApi";

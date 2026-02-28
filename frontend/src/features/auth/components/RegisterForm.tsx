@@ -1,9 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useRegister } from "../hooks/useAuthQueries";
 import { Lock, User, Mail } from "lucide-react";
-import { Turnstile } from "@/shared/components/Turnstile";
+import { Turnstile, type TurnstileRef } from "@/shared/components/Turnstile";
 import { DiscordButton } from "./DiscordButton";
 import {
   validateUsername,
@@ -23,6 +23,7 @@ export const RegisterForm = () => {
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const { mutate: register, isPending } = useRegister();
   const navigate = useNavigate();
+  const turnstileRef = useRef<TurnstileRef>(null);
 
   // Memoize callbacks to prevent Turnstile re-render
   const handleTurnstileVerify = useCallback((token: string) => {
@@ -84,6 +85,10 @@ export const RegisterForm = () => {
             error?.message ||
             "Registration failed";
           setErrorMessage(message);
+          
+          // Reset turnstile and clear token so user can try again
+          setTurnstileToken(null);
+          turnstileRef.current?.reset();
         },
       },
     );
@@ -197,6 +202,7 @@ export const RegisterForm = () => {
           {/* Cloudflare Turnstile CAPTCHA */}
           <div className="flex justify-center">
             <Turnstile
+              ref={turnstileRef}
               siteKey={TURNSTILE_SITE_KEY}
               onVerify={handleTurnstileVerify}
               onError={handleTurnstileError}

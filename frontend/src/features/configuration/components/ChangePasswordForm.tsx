@@ -33,7 +33,7 @@ export const ChangePasswordForm = () => {
     }
 
     if (newPassword.length < 5) {
-      setValidationError("New password must be at least 5 characters long");
+      setValidationError("New password must be at least 8 characters long");
       return;
     }
 
@@ -140,7 +140,7 @@ export const ChangePasswordForm = () => {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             className="w-full pl-10 pr-10 py-2 bg-[#2a2430] border border-[#c2901c]/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c2901c] transition-colors"
-            placeholder="Enter new password (min. 5 characters)"
+            placeholder="Enter new password (min. 8 characters)"
             autoComplete="new-password"
           />
           <button
