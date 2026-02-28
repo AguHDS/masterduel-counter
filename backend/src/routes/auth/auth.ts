@@ -12,7 +12,7 @@ router.use("/register", registerRouter);
 router.use("/login", loginRouter);
 router.use("/verify-email", verifyEmailRouter);
 
-// Handle all other BetterAuth routes
+// Handle all BetterAuth routes (including change-password)
 router.use(toNodeHandler(auth));
 
 export default router;

@@ -110,17 +110,14 @@ export const UserDropdown = () => {
               <span>Profile</span>
             </Link>
 
-            <button
-              disabled
-              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-500 cursor-not-allowed w-full opacity-50"
-              title="Coming soon"
+            <Link
+              to="/configuration"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-200 hover:bg-[#c2901c]/10 hover:text-white transition-colors"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-4 h-4 text-purple-400" />
               <span>Configuration</span>
-              <span className="ml-auto text-xs bg-gray-700 px-2 py-0.5 rounded">
-                Soon
-              </span>
-            </button>
+            </Link>
 
             <div className="my-1 border-t border-[#c2901c]/20" />
 
