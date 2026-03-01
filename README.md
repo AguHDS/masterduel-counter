@@ -3,24 +3,26 @@
 This app is meant to help players so they when and why use each handtrap/card agianst different archetypes. In the future we will let users to create their own counter-guides and share them with the community.
 
 #### Features
-- Create and share your own counter-guide
-- Search for archetypes and see the best handtraps/cards to use against them
+- Counter guides
+- Search for archetypes and find their guides created by users
 - Guides table (ordered by date or likes)
 - Profiles
-- Comments
+- Personal Deck builder, save guides as favorites
+- Notifications
+- Ranking
 - Report system
-- Admin panel (only for admins)
+- Admin panel
 
 #### Preview
 
 Homepage
-![Homepage](./assets/showcase/MDC_preview_instances.png)
+![Homepage](./assets/showcase/MDC_Homepage.webp)
 
-Archetype counter setup
-![Archetype counter setup](./assets/showcase/MDC_editinstance_paircards.png)
+Profile
+![Profile](./assets/showcase/MDC_Profile.webp)
 
-Edit-mode
-![Edit-mode](./assets/showcase/MDC_editinstance_extradeck.png)
+Guides
+![Edit-mode](./assets/showcase/MDC_Guides_CardPairs.webp)
 
 You can check all preview images in the [assets/showcase](./assets/showcase) folder.
 
@@ -30,11 +32,8 @@ You can check all preview images in the [assets/showcase](./assets/showcase) fol
 - Better-sqlite3
 - BetterAuth
 - Prisma
-- Multer
-- bcrypt
 - Cloudinary
 - React
-- Cloudinary react
 - TailwindCSS
 - Tanstack/query
 - Axios

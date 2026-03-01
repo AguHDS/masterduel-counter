@@ -1,4 +1,10 @@
 import { InfoModal } from "@/shared/components/info/components/InfoModal";
+import {
+  guideHelp_CardPairs,
+  guideHelp_Header,
+  guideHelp_Recommended,
+  guideHelp_TitleAndDescr,
+} from "../assets";
 
 interface GuideModalHelpProps {
   isOpen: boolean;
@@ -22,13 +28,16 @@ export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
-              <div className="aspect-video bg-slate-800/80 rounded-lg mb-2 flex items-center justify-center text-slate-500 text-sm border border-slate-700/50">
-                [Title & Description]
-              </div>
+              <img
+                src={guideHelp_TitleAndDescr}
+                alt="Title and description section example"
+                className="w-full rounded-lg mb-2 border border-slate-700/50"
+              />
               <p className="text-sm">
                 <span className="text-blue-300 font-semibold">Title:</span> Give
                 your guide a clear title.
-                <br /> For a direct counter guide: <b>“How to counter [deck]”</b>
+                <br /> For a direct counter guide:{" "}
+                <b>“How to counter [deck]”</b>
                 <br />
                 For a counter guide using a specific deck:{" "}
                 <b>“How to counter [deck] using [deck]”</b>
@@ -42,21 +51,28 @@ export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
               </p>
             </div>
             <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
-              <div className="aspect-video bg-slate-800/80 rounded-lg mb-2 flex items-center justify-center text-slate-500 text-sm border border-slate-700/50">
-                [Header Card Image]
-              </div>
+              <img
+                src={guideHelp_Header}
+                alt="Header card image example"
+                className="w-full rounded-lg mb-2 border border-slate-700/50"
+              />
               <p className="text-sm">
                 <span className="text-blue-300 font-semibold">
                   Header Card:
                 </span>{" "}
-                Main card that represents the archetype you are
-                discussing.
+                Main card that represents the archetype you are discussing.
                 <br />
                 For a direct counter guide:{" "}
-                <b>Select a header card that represents the deck you are countering</b>
+                <b>
+                  Select a header card that represents the deck you are
+                  countering
+                </b>
                 <br />
                 For a counter guide using a specific deck:{" "}
-                <b>Select a header card that represents the deck you are using to counter the other one</b>
+                <b>
+                  Select a header card that represents the deck you are using to
+                  counter the other one
+                </b>
                 <br />
               </p>
             </div>
@@ -72,9 +88,11 @@ export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
             Card Pairs
           </h3>
           <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
-            <div className="aspect-video bg-slate-800/80 rounded-lg mb-2 flex items-center justify-center text-slate-500 text-sm border border-slate-700/50">
-              [Card Pair Example]
-            </div>
+            <img
+              src={guideHelp_CardPairs}
+              alt="Card pair example showing target cards and their counters"
+              className="w-full rounded-lg mb-2 border border-slate-700/50"
+            />
             <p className="text-sm mb-2">
               <span className="text-blue-300 font-semibold">
                 Creating Card Pairs:
@@ -108,9 +126,9 @@ export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
               </li>
             </ul>
             <p className="text-xs mt-2">
-              Note: You can also select cards without pairing them,
-              and they will be treated as standalone counters or cards you want
-              to discuss.
+              Note: You can also select cards without pairing them, and they
+              will be treated as standalone counters or cards you want to
+              discuss.
             </p>
           </div>
         </section>
@@ -131,21 +149,18 @@ export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
             The recommended deck represents the deck you suggest playing against
             the archetype you are trying to counter.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
-              <div className="aspect-video bg-slate-800/80 rounded-lg mb-2 flex items-center justify-center text-slate-500 text-sm border border-slate-700/50">
-                [Main Deck]
-              </div>
-              <p className="text-sm">
+          <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
+            <img
+              src={guideHelp_Recommended}
+              alt="Recommended deck sections example showing main and extra deck"
+              className="w-full rounded-lg mb-2 border border-slate-700/50"
+            />
+            <div className="text-sm space-y-1">
+              <p>
                 <span className="text-blue-300 font-semibold">Main Deck:</span>{" "}
                 Cards from the main deck (Max. 60).
               </p>
-            </div>
-            <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
-              <div className="aspect-video bg-slate-800/80 rounded-lg mb-2 flex items-center justify-center text-slate-500 text-sm border border-slate-700/50">
-                [Extra Deck]
-              </div>
-              <p className="text-sm">
+              <p>
                 <span className="text-blue-300 font-semibold">Extra Deck:</span>{" "}
                 Cards from the extra deck (Max. 15).
               </p>

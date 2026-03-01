@@ -156,7 +156,7 @@ export const InstanceEditorPage = () => {
                 title="Guide Help"
               >
                 <AlertCircle className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
-                <span className="text-sm">How to correctly create a guide?</span>
+                <span className="text-sm">How to create a guide correctly?</span>
               </button>
             </div>
           </div>
