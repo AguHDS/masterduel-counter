@@ -64,6 +64,7 @@ app.use(
           "'self'",
           "'unsafe-inline'",
           "https://challenges.cloudflare.com",
+          "https://www.googletagmanager.com",
           "blob:",
         ],
         styleSrc: [
@@ -81,6 +82,8 @@ app.use(
               "https://challenges.cloudflare.com",
               "https://discord.com",
               "https://*.discord.com",
+              "https://www.google-analytics.com",
+              "https://www.googletagmanager.com",
               "https://discordapp.com",
               "https://*.discordapp.com",
               "https://*.sentry.io",
