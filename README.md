@@ -22,7 +22,7 @@ Profile
 ![Profile](./assets/showcase/MDC_Profile.webp)
 
 Guides
-![Edit-mode](./assets/showcase/MDC_Guides_CardPairs.webp)
+![Edit-mode](./assets/showcase/MDC_Guides_02CardPairs.webp)
 
 You can check all preview images in the [assets/showcase](./assets/showcase) folder.
 
