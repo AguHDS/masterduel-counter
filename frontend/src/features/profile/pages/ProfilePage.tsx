@@ -256,9 +256,9 @@ export const ProfilePage = () => {
                           <span
                             className={`text-base font-semibold ${
                               profile?.role === "admin"
-                                ? "text-red-400"
+                                ? "text-red-600"
                                 : profile?.role === "supporter"
-                                  ? "text-pink-400"
+                                  ? "text-pink-500"
                                   : "text-green-400"
                             }`}
                           >

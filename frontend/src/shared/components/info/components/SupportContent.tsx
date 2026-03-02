@@ -4,7 +4,6 @@ import {
   Star,
   ExternalLink,
   Shield,
-  Sparkles,
 } from "lucide-react";
 
 export const SupportContent = () => {
@@ -15,7 +14,6 @@ export const SupportContent = () => {
 
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-6 h-6 text-yellow-400" />
             <h3 className="text-2xl font-bold text-white">
               Support Masterduel Counter
             </h3>
@@ -80,7 +78,7 @@ export const SupportContent = () => {
           <div>
             <h4 className="font-semibold text-white mb-1">Get Support Role</h4>
             <p className="text-sm text-gray-300">
-              If you donate at least $3, you will get the Support role. This
+              If you donate at least $5, you will get the Support role. This
               will grant you benefits, such as extra space for your personal decks (Max. 30) and unlimited favorite guides.
             </p><br />
             <span className="text-sm text-yellow-400 font-semibold">
@@ -114,7 +112,6 @@ export const SupportContent = () => {
 
         <div className="flex items-center gap-2 text-xs text-gray-500">
           <span>Suggested:</span>
-          <span className="px-2 py-1 bg-slate-800 rounded-md">$3</span>
           <span className="px-2 py-1 bg-slate-800 rounded-md">$5</span>
           <span className="px-2 py-1 bg-slate-800 rounded-md">$10</span>
           <span className="px-2 py-1 bg-slate-800 rounded-md">$25</span>

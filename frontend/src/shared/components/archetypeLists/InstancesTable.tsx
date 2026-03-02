@@ -81,7 +81,7 @@ export const InstancesTable = ({
         }}
       />
       <div
-        className={`hidden lg:grid gap-3 py-2 bg-black/60 border-b border-blue-600 rounded-t-lg px-6 ${
+        className={`hidden lg:grid gap-3 py-2 bg-black/40 border-b border-blue-600 rounded-t-lg px-6 ${
           isProfilePage
             ? "grid-cols-[60px_48px_minmax(200px,1.5fr)_minmax(120px,0.7fr)_0.75fr_96px]"
             : "grid-cols-[60px_48px_minmax(200px,1.5fr)_minmax(95px,0.7fr)_minmax(105px,0.75fr)_96px]"

@@ -47,14 +47,20 @@ export const GeneralStats = () => {
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="p-4 rounded-lg bg-black/40 border border-blue-500/30">
             <div className="flex items-center gap-2 mb-1">
-              <p className="text-sm text-blue-300 font-semibold">Registered Archetypes</p>
+              <p className="text-sm text-blue-300 font-semibold">
+                Registered Archetypes
+              </p>
             </div>
-            <p className="text-3xl font-bold text-white">{data.totalArchetypes}</p>
+            <p className="text-3xl font-bold text-white">
+              {data.totalArchetypes}
+            </p>
           </div>
 
           <div className="p-4 rounded-lg bg-black/40 border border-purple-500/30">
             <div className="flex items-center gap-2 mb-1">
-              <p className="text-sm text-purple-300 font-semibold">Total Guides</p>
+              <p className="text-sm text-purple-300 font-semibold">
+                Total Guides
+              </p>
             </div>
             <p className="text-3xl font-bold text-white">{data.totalGuides}</p>
           </div>
@@ -75,15 +81,19 @@ export const GeneralStats = () => {
                   <span
                     className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
                       index < 3
-                        ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-black"
+                        ? "bg-blue-500/20 text-amber-400/90"
                         : "bg-blue-500/20 text-blue-300"
                     }`}
                   >
                     {index + 1}
                   </span>
-                  <span className="text-white font-medium">{archetype.name}</span>
+                  <span className="text-white font-medium">
+                    {archetype.name}
+                  </span>
                 </div>
-                <span className="text-blue-300 font-semibold">{archetype.guideCount}</span>
+                <span className="text-blue-300 font-semibold">
+                  {archetype.guideCount}
+                </span>
               </div>
             ))}
           </div>
