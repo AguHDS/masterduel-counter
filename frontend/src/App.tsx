@@ -13,6 +13,7 @@ import { AdminPanelPage } from "./features/admin-panel/pages/AdminPanelPage";
 import { ConfigurationPage } from "./features/configuration";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 import NotFound from "./shared/components/NotFound";
+import { SupportPage } from "./pages/SupportPage";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/support" element={<SupportPage />} /> {/* Nueva ruta */}
             <Route
               path="/archetype/:archetypeId"
               element={<ArchetypeInstancesPage />}

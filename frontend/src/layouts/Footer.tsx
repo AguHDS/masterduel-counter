@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   InfoModal,
   AboutContent,
@@ -11,14 +12,31 @@ type ModalType = "about" | "terms" | "contact" | "support" | null;
 
 export const Footer = () => {
   const [openModal, setOpenModal] = useState<ModalType>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Efecto para manejar la apertura del modal cuando la ruta es /support
+  useEffect(() => {
+    if (location.pathname === "/support") {
+      setOpenModal("support");
+    }
+  }, [location.pathname]);
 
   const handleOpenModal = (type: ModalType) => (e: React.MouseEvent) => {
     e.preventDefault();
     setOpenModal(type);
+    // Si es support, actualizamos la URL sin recargar la página
+    if (type === "support") {
+      navigate("/support", { replace: true });
+    }
   };
 
   const handleCloseModal = () => {
     setOpenModal(null);
+    // Si estamos en /support, volvemos a la página anterior o al home
+    if (location.pathname === "/support") {
+      navigate("/", { replace: true });
+    }
   };
 
   return (

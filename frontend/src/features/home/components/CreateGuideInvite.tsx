@@ -1,5 +1,5 @@
 import {
-  BookCheck,
+  GamepadDirectional,
   ThumbsUp,
   User,
   Star,
@@ -7,6 +7,17 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
+  Bug,
+  Lightbulb,
+  Sword,
+  TrendingUp,
+  FileQuestion,
+  Crown,
+  Diff,
+  Focus,
+  Laptop,
+  Blocks,
+  RectangleEllipsis,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -16,14 +27,27 @@ export const CreateGuideInvite = () => {
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
 
   const features = [
-    { icon: User, text: "Customizable user profile", color: "text-purple-400" },
     {
-      icon: ThumbsUp,
-      text: "Rate guides created by users",
-      color: "text-green-500",
+      icon: GamepadDirectional,
+      text: "Counter guides",
+      color: "text-green-400",
+      details: [
+        "Create or search counter guides",
+        "Rate and comment on guides",
+        "Save guides as favorites",
+        "Can't find a guide? Be the first to create one",
+      ],
     },
-    { icon: Layers, text: "Save your personal decks", color: "text-cyan-400" },
-    { icon: Star, text: "Save guides as favorites", color: "text-yellow-400" },
+    {
+      icon: User,
+      text: "Customizable user profile",
+      color: "text-purple-400",
+      details: [
+        "Show your favorite card and decks",
+        "Save your personal decks",
+        "Check your favorite guides",
+      ],
+    },
     {
       icon: Heart,
       text: "Get Supporter role to gain benefits",
@@ -34,10 +58,36 @@ export const CreateGuideInvite = () => {
         "More benefits will be added for Supporters",
       ],
     },
+    {
+      icon: Crown,
+      text: "Ranking system",
+      color: "text-yellow-400",
+      details: ["Rank up by getting likes on your guides"],
+    },
+    {
+      icon: RectangleEllipsis,
+      text: "Feedback",
+      color: "text-blue-400",
+      details: [
+        "Join Discord server",
+        "Report errors, bugs",
+        "Suggest new features",
+      ],
+    },
   ];
 
   const toggleExpand = (index: number) => {
     setExpandedFeature(expandedFeature === index ? null : index);
+  };
+
+  const handleSupportClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate("/support");
+  };
+
+  const handleDiscordClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open("https://discord.gg/wzkGb4Zgnw", "_blank");
   };
 
   return (
@@ -55,23 +105,14 @@ export const CreateGuideInvite = () => {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg">
-                <BookCheck className="w-6 h-6 text-purple-300" />
+                <Blocks className="w-6 h-6 text-purple-300" />
               </div>
-              <h3 className="text-2xl font-bold text-white">
-                Create Counter Guides
-              </h3>
+              <h3 className="text-2xl font-bold text-white">Main Features</h3>
             </div>
 
             <p className="text-blue-200 mb-6 leading-relaxed">
-              The content is added by the community.{" "}
-              <button
-                onClick={() => navigate("/signup")}
-                className="text-blue-500 hover:text-blue-100 transition-colors inline"
-              >
-                Sign up
-              </button>{" "}
-              and create your own counter guides, either for personal use or
-              sharing.
+              Save your personal decks, favorite guides, and create counter
+              guides either for sharing knowledge or personal use
             </p>
 
             <div className="space-y-2 mb-6">
@@ -118,35 +159,108 @@ export const CreateGuideInvite = () => {
                       <div className="overflow-hidden">
                         <div className="p-3 rounded-lg bg-purple-900/20 border border-purple-500/30 w-full">
                           <div className="space-y-2 max-h-[200px] overflow-y-auto scrollbar-comments pr-2">
-                            {feature.details?.map((detail, detailIndex) => (
-                              <div
-                                key={detailIndex}
-                                className="flex items-start gap-2 text-sm"
-                              >
-                                <span className="text-pink-400 mt-1 relative bottom-1">
-                                  •
-                                </span>
-                                <span className="text-purple-200 font-semibold">
-                                  {detail}
-                                </span>
-                              </div>
-                            ))}
+                            {feature.details?.map((detail, detailIndex) => {
+                              let DetailIcon = Star;
+                              let iconColor = "text-yellow-400";
 
-                            {/* PayPal support link */}
-                            <div className="flex justify-center pt-3 mt-2 border-t border-purple-500/30">
-                              <p className="text-sm text-purple-200">
-                                Click{" "}
-                                <a
-                                  href="https://paypal.me/ponyrosa?locale.x=es_XC&country.x=AR"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-pink-400 hover:text-pink-300 font-bold transition-colors underline decoration-pink-400/30 hover:decoration-pink-300"
+                              if (detail.includes("Show your favorite card")) {
+                                DetailIcon = Focus;
+                                iconColor = "text-purple-400";
+                              } else if (detail.includes("personal decks")) {
+                                DetailIcon = Layers;
+                                iconColor = "text-cyan-400";
+                              } else if (
+                                detail.includes("favorite guides") ||
+                                (detail.includes("favorites") &&
+                                  !detail.includes("Unlimited"))
+                              ) {
+                                DetailIcon = Star;
+                                iconColor = "text-yellow-400";
+                              } else if (detail.includes("+15")) {
+                                DetailIcon = Layers;
+                                iconColor = "text-cyan-400";
+                              } else if (detail.includes("Unlimited")) {
+                                DetailIcon = Star;
+                                iconColor = "text-yellow-400";
+                              } else if (detail.includes("Join Discord")) {
+                                DetailIcon = Laptop;
+                                iconColor = "text-indigo-400";
+                                return (
+                                  <div
+                                    key={detailIndex}
+                                    onClick={handleDiscordClick}
+                                    className="flex items-center gap-2 text-sm cursor-pointer hover:bg-purple-800/30 rounded-lg p-1 -m-1 transition-colors"
+                                  >
+                                    <DetailIcon
+                                      className={`w-4 h-4 ${iconColor} flex-shrink-0`}
+                                    />
+                                    <span className="text-purple-200 font-semibold">
+                                      {detail}
+                                    </span>
+                                  </div>
+                                );
+                              } else if (detail.includes("Create or search")) {
+                                DetailIcon = Diff;
+                                iconColor = "text-purple-300";
+                              } else if (detail.includes("Rate and comment")) {
+                                DetailIcon = ThumbsUp;
+                                iconColor = "text-green-500";
+                              } else if (
+                                detail.includes("Save guides as favorites")
+                              ) {
+                                DetailIcon = Star;
+                                iconColor = "text-yellow-400";
+                              } else if (detail.includes("how to counter")) {
+                                DetailIcon = Sword;
+                                iconColor = "text-orange-400";
+                              } else if (detail.includes("first to create")) {
+                                DetailIcon = FileQuestion;
+                                iconColor = "text-blue-400";
+                              } else if (detail.includes("Rank up")) {
+                                DetailIcon = TrendingUp;
+                                iconColor = "text-green-400";
+                              } else if (detail.includes("Report")) {
+                                DetailIcon = Bug;
+                                iconColor = "text-red-400";
+                              } else if (detail.includes("Suggest")) {
+                                DetailIcon = Lightbulb;
+                                iconColor = "text-yellow-400";
+                              } else {
+                                DetailIcon = Heart;
+                                iconColor = "text-pink-400";
+                              }
+
+                              // Items sin enlace (solo texto)
+                              return (
+                                <div
+                                  key={detailIndex}
+                                  className="flex items-center gap-2 text-sm"
                                 >
-                                  here
-                                </a>{" "}
-                                to support Masterduel Counter!
-                              </p>
-                            </div>
+                                  <DetailIcon
+                                    className={`w-4 h-4 ${iconColor} flex-shrink-0`}
+                                  />
+                                  <span className="text-purple-200 font-semibold">
+                                    {detail}
+                                  </span>
+                                </div>
+                              );
+                            })}
+
+                            {/* PayPal support link - solo para la sección de supporter (índice 2) */}
+                            {index === 2 && (
+                              <div className="flex justify-center pt-3 mt-2 border-t border-purple-500/30">
+                                <p className="text-sm text-purple-200">
+                                  Click{" "}
+                                  <button
+                                    onClick={handleSupportClick}
+                                    className="text-pink-400 hover:text-pink-300 font-bold transition-colors underline decoration-pink-400/30 hover:decoration-pink-300 bg-transparent border-none p-0 cursor-pointer"
+                                  >
+                                    here
+                                  </button>{" "}
+                                  to support Masterduel Counter!
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

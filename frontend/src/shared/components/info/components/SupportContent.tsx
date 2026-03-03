@@ -81,7 +81,7 @@ export const SupportContent = () => {
               If you donate at least $5, you will get the Support role. This
               will grant you benefits, such as extra space for your personal decks (Max. 30) and unlimited favorite guides.
             </p><br />
-            <span className="text-sm text-yellow-400 font-semibold">
+            <span className="text-sm text-yellow-400 font-semibold flex justify-center">
               IMPORTANT: Make sure you put your username in the donation
               comment, so you can get the role
             </span>
