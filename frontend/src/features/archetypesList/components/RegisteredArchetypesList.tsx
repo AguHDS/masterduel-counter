@@ -89,7 +89,7 @@ export const RegisteredArchetypesList = ({
               "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
           }}
         />
-        <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 border-b border-blue-600 bg-black/60 md:px-6 md:py-4">
+        <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 border-b border-blue-600 bg-black/0 md:px-6 md:py-4">
           <div className="text-blue-300 font-semibold text-lg">ID</div>
           <div className="text-blue-300 font-semibold text-lg relative left-18">
             Archetype
