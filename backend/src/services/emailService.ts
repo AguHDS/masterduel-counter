@@ -39,8 +39,10 @@ export interface SendEmailOptions {
  */
 export async function sendEmail(options: SendEmailOptions): Promise<void> {
   try {
+    // Use SMTP_USER as sender (verified by Brevo) instead of custom email
+    // To use custom email, you need to verify the domain in Brevo first
     const info = await transporter.sendMail({
-      from: `${config.smtpFromName} <${config.smtpFromEmail}>`,
+      from: `${config.smtpFromName} <${config.smtpUser}>`,
       to: options.to,
       subject: options.subject,
       text: options.text,
@@ -54,7 +56,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
     });
   } catch (error) {
     console.error("❌ Failed to send email:", error);
-    throw new Error("Failed to send email");
+    throw error; // Throw original error for better debugging
   }
 }
 
