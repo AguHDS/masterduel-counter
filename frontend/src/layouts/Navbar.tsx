@@ -193,7 +193,7 @@ export const Navbar = () => {
             {/* Discord */}
             <div className="flex items-center pl-1 border-none">
               <a
-                href="https://discord.gg/masterduelcounter"
+                href="https://discord.gg/wzkGb4Zgnw"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Join our Discord community"
@@ -282,7 +282,7 @@ export const Navbar = () => {
 
             {/* Discord icon without text */}
             <a
-              href="https://discord.gg/masterduelcounter"
+              href="https://discord.gg/wzkGb4Zgnw"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
@@ -458,7 +458,7 @@ export const Navbar = () => {
 
             {/* Discord link for mobile */}
             <a
-              href="https://discord.gg/masterduelcounter"
+              href="https://discord.gg/wzkGb4Zgnw"
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleLinkClick}
