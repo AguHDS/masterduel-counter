@@ -64,6 +64,7 @@ app.use(
           "'self'",
           "'unsafe-inline'",
           "https://challenges.cloudflare.com",
+          "https://static.cloudflareinsights.com",
           "https://www.googletagmanager.com",
           "blob:",
         ],

@@ -15,11 +15,11 @@ export function getFrontendUrl(): string {
 /**
  * Returns the backend URL based on the current environment
  * - Development: http://localhost:3001 (or configured port)
- * - Production: https://masterduelcounter.com/api
+ * - Production: https://masterduelcounter.com (without /api, nginx handles routing)
  */
 export function getBackendUrl(): string {
   if (config.nodeEnv === "production") {
-    return "https://masterduelcounter.com/api";
+    return "https://masterduelcounter.com";
   }
   return `http://localhost:${config.portBackend}`;
 }
