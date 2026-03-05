@@ -37,7 +37,13 @@ export const getProfileController = async (req: Request, res: Response) => {
         ),
       }))
       .filter((user) => user.totalLikes > 0)
-      .sort((a, b) => b.totalLikes - a.totalLikes);
+      .sort((a, b) => {
+        // Sort by total likes descending, then by userId ascending for deterministic order
+        if (b.totalLikes !== a.totalLikes) {
+          return b.totalLikes - a.totalLikes;
+        }
+        return a.userId.localeCompare(b.userId);
+      });
 
     // Find the rank of the current user
     const userRank = rankedUsers.findIndex((u) => u.userId === userId) + 1;

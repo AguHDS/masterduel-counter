@@ -54,7 +54,13 @@ export const getRankingController = async (req: Request, res: Response) => {
         };
       })
       .filter((user) => user.totalLikes > 0) // Only include users with at least 1 like
-      .sort((a, b) => b.totalLikes - a.totalLikes) // Sort by total likes descending
+      .sort((a, b) => {
+        // Sort by total likes descending, then by userId ascending for deterministic order
+        if (b.totalLikes !== a.totalLikes) {
+          return b.totalLikes - a.totalLikes;
+        }
+        return a.userId.localeCompare(b.userId);
+      })
       .map((user, index) => ({
         ...user,
         rank: index + 1, // Assign rank based on position in sorted array
