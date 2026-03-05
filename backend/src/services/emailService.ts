@@ -7,14 +7,14 @@ import config from "@/infrastructure/config/environmentVars.js";
 
 const transporter = nodemailer.createTransport({
   host: config.smtpHost,
-  port: config.smtpPort,
-  secure: false, // Use STARTTLS (port 587)
+  port: 465, // Use SSL port 465 instead of 587 (STARTTLS)
+  secure: true, // Use SSL
   auth: {
     user: config.smtpUser,
     pass: config.smtpPassword,
   },
   tls: {
-    rejectUnauthorized: false, // Accept self-signed certificates
+    rejectUnauthorized: true, // Validate certificates
   },
 });
 
@@ -39,10 +39,9 @@ export interface SendEmailOptions {
  */
 export async function sendEmail(options: SendEmailOptions): Promise<void> {
   try {
-    // Use SMTP_USER as sender (verified by Brevo) instead of custom email
-    // To use custom email, you need to verify the domain in Brevo first
+    // Use verified sender from your domain
     const info = await transporter.sendMail({
-      from: `${config.smtpFromName} <${config.smtpUser}>`,
+      from: `${config.smtpFromName} <${config.smtpFromEmail}>`,
       to: options.to,
       subject: options.subject,
       text: options.text,
