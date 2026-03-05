@@ -60,11 +60,8 @@ export const auth = betterAuth({
         console.log(`Token: ${token}`);
         console.log(`In development, copy the URL above and paste in your browser`);
         console.log("============================================\n");
-      } else {
-        console.log(`Password reset email sent to: ${user.email}`);
-        console.log(`Reset link: ${frontendUrl}`);
       }
-      // BetterAuth handles email sending automatically
+      // In production, BetterAuth sends the email via the SMTP config below
     },
   },
 
@@ -81,11 +78,8 @@ export const auth = betterAuth({
         console.log(`Token: ${token}`);
         console.log(`In development, copy the URL above and paste in your browser`);
         console.log("============================================\n");
-      } else {
-        console.log(`Verification email sent to: ${user.email}`);
-        console.log(`Verification link: ${frontendUrl}`);
       }
-      // BetterAuth handles email sending automatically via 'email' config
+      // In production, BetterAuth sends the email via the SMTP config below
     },
   },
 
