@@ -65,8 +65,13 @@ export const auth = betterAuth({
         console.log(`In development, copy the URL above and paste in your browser`);
         console.log("============================================\n");
       } else {
-        // Send email in production
-        await sendPasswordResetEmail(user.email, user.name, frontendUrl);
+        // Send email in production (don't block if fails)
+        try {
+          await sendPasswordResetEmail(user.email, user.name, frontendUrl);
+        } catch (error) {
+          console.error("⚠️ Failed to send password reset email:", error);
+          // Don't throw - allow password reset process to continue
+        }
       }
     },
   },
@@ -85,8 +90,15 @@ export const auth = betterAuth({
         console.log(`In development, copy the URL above and paste in your browser`);
         console.log("============================================\n");
       } else {
-        // Send email in production
-        await sendVerificationEmail(user.email, user.name, frontendUrl);
+        // Send email in production (don't block registration if fails)
+        try {
+          await sendVerificationEmail(user.email, user.name, frontendUrl);
+          console.log(`✅ Verification email sent to ${user.email}`);
+        } catch (error) {
+          console.error("⚠️ Failed to send verification email:", error);
+          // Don't throw - allow registration to complete
+          // User can request verification email resend later
+        }
       }
     },
   },
