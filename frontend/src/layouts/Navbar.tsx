@@ -9,7 +9,7 @@ import {
   X,
   Crown,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import logoImg from "../assets/NavbarLogo.webp";
 import discordContainerIcon from "../assets/discord_container.webp";
 import discordSvgIcon from "../assets/discord-square-icon.webp";
@@ -22,7 +22,6 @@ import { useState, useEffect, useRef } from "react";
 
 export const Navbar = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
-  const navigate = useNavigate();
   const [showBetaTooltip, setShowBetaTooltip] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRankingOpen, setIsRankingOpen] = useState(false);
@@ -56,7 +55,7 @@ export const Navbar = () => {
   };
 
   const handleUserClick = (_username: string, userId: string) => {
-    navigate(`/profile/${userId}`);
+    window.location.href = `/profile/${userId}`;
     setIsRankingOpen(false);
     setIsRankingModalOpen(false);
     setIsMenuOpen(false);
