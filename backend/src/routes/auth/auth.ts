@@ -1,9 +1,9 @@
 import express from "express";
 import { auth } from "@/lib/auth.js";
 import { toNodeHandler } from "better-auth/node";
-import registerRouter from "./register";
-import loginRouter from "./login";
-import verifyEmailRouter from "./verifyEmail";
+import registerRouter from "./register.js";
+import loginRouter from "./login.js";
+import verifyEmailRouter from "./verifyEmail.js";
 
 const router = express.Router();
 
