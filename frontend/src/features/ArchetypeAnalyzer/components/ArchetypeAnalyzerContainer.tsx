@@ -30,6 +30,7 @@ import {
   useUserInstance,
 } from "../hooks/useArchetypeQueries";
 import { useRegisterView } from "@/shared/hooks/useRegisterView";
+import instanceEditorBackground from "@/assets/instanceEditorAndProfile_background.webp";
 
 interface CardPair {
   id: string;
@@ -379,7 +380,7 @@ export const ArchetypeAnalyzerContainer = ({
         <div className="relative w-full max-w-[1456px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
           <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
             <img
-              src="/src/assets/instanceEditorAndProfile_background.webp"
+              src={instanceEditorBackground}
               alt=""
               loading="lazy"
               fetchPriority="low"
