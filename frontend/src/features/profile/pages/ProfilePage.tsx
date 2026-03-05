@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Flag, Edit, Eye, Crown, Trophy, ThumbsUp } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
-import { UserInstancesList } from "../components/UserInstancesList";
 import { FavoriteCardEditor } from "../components/FavoriteCardEditor";
 import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
 import { FavoritedGuidesList } from "../components/FavoritedGuidesList";
@@ -380,7 +379,7 @@ export const ProfilePage = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto scrollbar-cardpair relative z-10">
+                    <div className="flex-1 p-4 sm:p-6 overflow-auto scrollbar-cardpair relative z-10">
                       {activeTab === "profile" && (
                         <div className="space-y-8 sm:space-y-12">
                           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
@@ -447,18 +446,11 @@ export const ProfilePage = () => {
                       )}
 
                       {activeTab === "guides" && (
-                        <div>
-                          {userGuides && userGuides.length > 0 ? (
-                            <UserInstancesList
-                              userId={userId}
-                              onSelectArchetype={handleSelectArchetype}
-                            />
-                          ) : (
-                            <div className="text-center text-gray-400 py-20">
-                              <p className="text-lg">No guides yet...</p>
-                            </div>
-                          )}
-                        </div>
+                        <FavoritedGuidesList
+                          guides={userGuides || []}
+                          showFavoriteButton={false}
+                          title={`${profile?.userName || "User"}'s Guides`}
+                        />
                       )}
 
                       {activeTab === "favorites" && (

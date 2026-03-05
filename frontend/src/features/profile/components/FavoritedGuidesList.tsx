@@ -11,10 +11,10 @@ interface FavoritedGuide {
   archetypeName: string;
   title: string;
   headerCardId: number | null;
-  headerCardName: string | null;
-  headerCardImageUrl: string | null;
-  headerCardImageUrlSmall: string | null;
-  headerCardImageUrlCropped: string | null;
+  headerCardName?: string | null;
+  headerCardImageUrl?: string | null;
+  headerCardImageUrlSmall?: string | null;
+  headerCardImageUrlCropped?: string | null;
   likes: number;
   createdAt: string;
   updatedAt: string;
@@ -24,6 +24,8 @@ interface FavoritedGuidesListProps {
   guides: FavoritedGuide[];
   onRemoveFavorite?: (guideId: number, archetypeId: number) => void;
   userRole?: string;
+  showFavoriteButton?: boolean;
+  title?: string;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -32,6 +34,8 @@ export const FavoritedGuidesList = ({
   guides,
   onRemoveFavorite,
   userRole,
+  showFavoriteButton = true,
+  title = "Favorite Guides",
 }: FavoritedGuidesListProps) => {
   const navigate = useNavigate();
   const [removingId, setRemovingId] = useState<number | null>(null);
@@ -106,7 +110,7 @@ export const FavoritedGuidesList = ({
       <div className="flex justify-between">
         <div className="w-full sm:w-72">
           <h3 className="text-lg font-semibold text-amber-400">
-            Favorite Guides{userRole === "user" ? " (Max. 20)" : ""}
+            {title}{userRole === "user" && showFavoriteButton ? " (Max. 20)" : ""}
           </h3>
         </div>
         <div className="w-full sm:w-72">
@@ -146,7 +150,8 @@ export const FavoritedGuidesList = ({
 
                 {/* Main row */}
                 <div className="relative bg-gradient-to-r from-[#1a1545]/95 via-purple-950/60 to-[#1a1545]/95 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-cyan-400/80 transition-all duration-200 cursor-pointer overflow-hidden">
-                  <div className="flex items-center gap-4 p-3">
+                  {/* Desktop Layout */}
+                  <div className="hidden xl:flex items-center gap-4 p-3">
                     {/* ID Number */}
                     <div className="flex-shrink-0 w-10 text-center">
                       <span className="text-2xl font-bold text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">
@@ -177,7 +182,7 @@ export const FavoritedGuidesList = ({
                     </div>
 
                     {/* Archetype */}
-                    <div className="flex-shrink-0 w-40 hidden md:block">
+                    <div className="flex-shrink-0 w-40">
                       <p className="text-sm font-semibold text-white truncate">
                         {guide.archetypeName}
                       </p>
@@ -202,7 +207,7 @@ export const FavoritedGuidesList = ({
                     </div>
 
                     {/* Remove Favorite Button */}
-                    {onRemoveFavorite && (
+                    {showFavoriteButton && onRemoveFavorite && (
                       <div className="flex-shrink-0">
                         <button
                           onClick={(e) =>
@@ -216,6 +221,70 @@ export const FavoritedGuidesList = ({
                         </button>
                       </div>
                     )}
+                  </div>
+
+                  {/* Mobile Layout */}
+                  <div className="xl:hidden p-3">
+                    <div className="flex gap-3">
+                      {/* ID Number + Card Image */}
+                      <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                        <span className="text-xl font-bold text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">
+                          {startIndex + index + 1}
+                        </span>
+                        {guide.headerCardImageUrl ? (
+                          <img
+                            src={guide.headerCardImageUrl}
+                            alt={guide.headerCardName || "Card"}
+                            className="h-[55px] w-[55px] object-cover rounded border-2 border-cyan-500/60 group-hover:border-cyan-400 transition-colors shadow-lg"
+                          />
+                        ) : (
+                          <div className="w-[55px] h-[55px] bg-[#2a2550] rounded border-2 border-[#4a4070] flex items-center justify-center">
+                            <span className="text-gray-500 text-xs">No Card</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0 flex flex-col gap-2">
+                        {/* Title */}
+                        <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
+                          {guide.title}
+                        </h4>
+
+                        {/* Archetype */}
+                        <p className="text-xs font-semibold text-cyan-400/80 truncate">
+                          {guide.archetypeName}
+                        </p>
+
+                        {/* Bottom Info */}
+                        <div className="flex items-center justify-between gap-2 text-xs">
+                          <span className="text-gray-400">
+                            {new Date(guide.createdAt).toLocaleDateString("en-US", {
+                              day: "numeric",
+                              month: "numeric",
+                              year: "2-digit",
+                            })}
+                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="inline-flex items-center gap-1 text-green-400 font-bold">
+                              <span className="text-base">↑</span> {guide.likes}
+                            </span>
+                            {showFavoriteButton && onRemoveFavorite && (
+                              <button
+                                onClick={(e) =>
+                                  handleRemoveFavorite(e, guide.id, guide.archetypeId)
+                                }
+                                disabled={removingId === guide.id}
+                                className="p-1 hover:bg-yellow-500/10 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Remove from favorites"
+                              >
+                                <Star className="w-4 h-4 text-yellow-400" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

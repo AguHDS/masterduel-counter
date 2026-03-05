@@ -2,7 +2,7 @@ Interfaz visual:
 `npx prisma studio`
 
 ▶️ arrancar SQLite (abrir una DB) 
-backend\src\data\database.db > `sqlite3 database.db`
+backend/src/data/database.db > `sqlite3 database.db`
 
 ▶️ ver todas las tablas
 `.tables`
@@ -29,3 +29,8 @@ salida mas legible:
 
 Nota:
 **Todos los comandos SQL se ejecutan dentro del prompt sqlite>, luego de abrir la DB con sqlite3**
+
+---
+
+VPS:
+`sqlite3 prisma/src/data/database.db`

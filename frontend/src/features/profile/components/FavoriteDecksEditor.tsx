@@ -5,7 +5,7 @@ import { useSearchArchetypes } from "@/features/ArchetypeAnalyzer/hooks/useArche
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import type { FavoriteDeck } from "../types/profileTypes";
 import border_profile from "@/assets/MDC-border.webp";
-import { Edit, X, Search } from "lucide-react";
+import { CreditCard as Edit, X, Search } from "lucide-react";
 import { useFavoriteCards } from "../hooks/useFavoriteCards";
 
 interface FavoriteDecksEditorProps {
@@ -86,15 +86,15 @@ export const FavoriteDecksEditor = ({
         <div className="flex-1 border-t border-yellow-600"></div>
       </div>
 
-      <div className="flex justify-center gap-32 flex-wrap">
+      <div className="flex justify-center gap-2 sm:gap-4 md:gap-6 lg:gap-10 xl:gap-16 2xl:gap-24 max-sm:flex-wrap lg:max-xl:flex-wrap">
         {slots.map((slotIndex) => {
           const deckWithCard = favoriteDecksWithCards[slotIndex];
           const deck = favoriteDecks[slotIndex];
 
           return (
-            <div key={slotIndex} className="relative w-[168px]">
+            <div key={slotIndex} className="relative w-[180px] min-w-[140px] flex-shrink max-sm:flex-shrink-0 lg:max-xl:flex-shrink-0">
               {deck ? (
-                <div className="relative h-[210px] group">
+                <div className="relative h-[220px] group">
                   <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600 to-amber-600 rounded blur opacity-30 group-hover:opacity-60 transition-opacity"></div>
 
                   <div
@@ -143,7 +143,7 @@ export const FavoriteDecksEditor = ({
                   )}
                 </div>
               ) : (
-                <div className="w-[168px] aspect-[168/280]">
+                <div className="w-full aspect-[168/280]">
                   {isEditMode ? (
                     <button
                       onClick={() => handleStartEdit(slotIndex)}
