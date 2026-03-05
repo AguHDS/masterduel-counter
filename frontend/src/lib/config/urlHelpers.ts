@@ -10,10 +10,10 @@ const isDevelopment = import.meta.env.VITE_QUERY_ENV === "development";
 
 /**
  * Get the backend API base URL based on environment
- * @returns Backend URL (localhost:3001 in dev, masterduelcounter.com/api in prod)
+ * @returns Backend URL (localhost:3001 in dev, masterduelcounter.com in prod)
  */
 export function getBackendUrl(): string {
-  return isDevelopment ? "http://localhost:3001" : "https://masterduelcounter.com/api";
+  return isDevelopment ? "http://localhost:3001" : "https://masterduelcounter.com";
 }
 
 /**

@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log
 /.docs/SENTRY_PRODUCTION_SETUP.md
+/.docs/VPS_COMMANDS.md
 
 node_modules
 dist
