@@ -54,17 +54,18 @@ export const getRankingController = async (req: Request, res: Response) => {
         };
       })
       .filter((user) => user.totalLikes > 0) // Only include users with at least 1 like
-      .sort((a, b) => b.totalLikes - a.totalLikes); // Sort by total likes descending
+      .sort((a, b) => b.totalLikes - a.totalLikes) // Sort by total likes descending
+      .map((user, index) => ({
+        ...user,
+        rank: index + 1, // Assign rank based on position in sorted array
+      }));
 
     // Get total count
     const total = ranking.length;
     const totalPages = Math.ceil(total / limit);
 
     // Apply pagination
-    const paginatedRanking = ranking.slice(skip, skip + limit).map((user, index) => ({
-      ...user,
-      rank: skip + index + 1,
-    }));
+    const paginatedRanking = ranking.slice(skip, skip + limit);
 
     return res.json({
       success: true,
