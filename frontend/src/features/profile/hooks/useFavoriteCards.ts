@@ -14,7 +14,7 @@ export const useFavoriteCards = (
   }
   
   favoriteDecks.forEach((deck) => {
-    if (deck.cardId) {
+    if (deck && deck.cardId) {
       cardIds.push(deck.cardId);
     }
   });
@@ -45,10 +45,12 @@ export const useFavoriteCards = (
   const favoriteCard = favoriteCardId ? cardsMap.get(favoriteCardId) : null;
 
   // Get favorite deck cards
-  const favoriteDecksWithCards = favoriteDecks.map((deck) => ({
-    ...deck,
-    card: deck.cardId ? cardsMap.get(deck.cardId) : null,
-  }));
+  const favoriteDecksWithCards = favoriteDecks.map((deck) => 
+    deck ? {
+      ...deck,
+      card: deck.cardId ? cardsMap.get(deck.cardId) : null,
+    } : null
+  );
 
   return {
     favoriteCard,

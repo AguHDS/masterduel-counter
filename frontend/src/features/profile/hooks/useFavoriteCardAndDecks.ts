@@ -16,8 +16,10 @@ export const useFavoriteCardAndDecks = (userId: string, profile: Profile | undef
       setFavoriteCardId(profile.favoriteCardId || null);
       if (profile.favoriteDecks) {
         try {
-          const decks = JSON.parse(profile.favoriteDecks) as FavoriteDeck[];
-          setFavoriteDecks(decks);
+          const decks = JSON.parse(profile.favoriteDecks) as (FavoriteDeck | null)[];
+          // Filter out null/undefined entries that may have been saved incorrectly
+          const validDecks = decks.filter((deck): deck is FavoriteDeck => deck !== null && deck !== undefined);
+          setFavoriteDecks(validDecks);
         } catch {
           setFavoriteDecks([]);
         }
