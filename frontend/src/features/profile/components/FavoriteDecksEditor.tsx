@@ -158,7 +158,7 @@ export const FavoriteDecksEditor = ({
                   {isEditMode ? (
                     <button
                       onClick={() => handleStartEdit(slotIndex)}
-                      className="w-full h-full bg-purple-950/40 border-2 border-dashed border-yellow-600/50 rounded-lg flex items-center justify-center hover:border-yellow-600 hover:bg-purple-950/60 transition-colors"
+                      className="w-full h-[220px] bg-purple-950/40 border-2 border-dashed border-yellow-600/50 rounded-lg flex items-center justify-center hover:border-yellow-600 hover:bg-purple-950/60 transition-colors"
                     >
                       <div className="text-center">
                         <Edit className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
@@ -168,7 +168,7 @@ export const FavoriteDecksEditor = ({
                       </div>
                     </button>
                   ) : (
-                    <div className="w-full h-full bg-purple-950/40 border-2 border-yellow-600/30 rounded-lg flex items-center justify-center">
+                    <div className="w-full h-[220px] bg-purple-950/40 border-2 border-yellow-600/30 rounded-lg flex items-center justify-center">
                       <p className="text-gray-400 text-xs text-center px-2">
                         Empty slot
                       </p>

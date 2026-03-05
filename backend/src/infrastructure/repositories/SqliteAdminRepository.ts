@@ -86,6 +86,27 @@ export class SqliteAdminRepository implements AdminRepository {
   async deleteUser(userId: string): Promise<void> {
     await this.prisma.$transaction(
       async (tx) => {
+        // 0. Get user's profile picture info for Cloudinary deletion
+        const profile = await tx.profile.findUnique({
+          where: { userId },
+          select: { cloudinaryPublicId: true },
+        });
+
+        // Delete profile picture from Cloudinary if it exists
+        if (profile?.cloudinaryPublicId) {
+          try {
+            // Import cloudinary dynamically to avoid circular dependencies
+            const { cloudinary } = await import("@/services/cloudinary.js");
+            await cloudinary.uploader.destroy(profile.cloudinaryPublicId);
+          } catch (error) {
+            console.error(
+              "Error deleting profile picture from Cloudinary:",
+              error,
+            );
+            // Continue with user deletion even if Cloudinary deletion fails
+          }
+        }
+
         // 1. Obtener todos los instanceIds que le gustaron al usuario
         const userLikes = await tx.instanceLike.findMany({
           where: { userId },
