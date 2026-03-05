@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import helmet from "helmet";
-import { getDependencies } from "./compositionRoot";
+import { getDependencies } from "./compositionRoot.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT_BACKEND ?? 3001;
@@ -36,11 +36,11 @@ import {
   comments,
   ranking,
   createNotificationsRoute,
-} from "./routes/index";
-import auth from "./routes/auth/auth";
-import getInstanceCardPairs from "./routes/guides/getInstanceCardPairs";
-import profile from "./routes/profile/profile";
-import customDecks from "./routes/customDecks";
+} from "./routes/index.js";
+import auth from "./routes/auth/auth.js";
+import getInstanceCardPairs from "./routes/guides/getInstanceCardPairs.js";
+import profile from "./routes/profile/profile.js";
+import customDecks from "./routes/customDecks.js";
 
 // SCP configuration
 const isDevelopment = NODE_ENV === "development";
