@@ -1,4 +1,4 @@
-import { Eye, Heart, Clock, User } from "lucide-react";
+import { Eye, Heart, Clock } from "lucide-react";
 import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
 import { useNavigate } from "react-router-dom";
 
@@ -20,14 +20,6 @@ const getTimeAgo = (dateString: string): string => {
   if (diffWeeks < 4) return `${diffWeeks}w ago`;
   if (diffMonths < 12) return `${diffMonths}mo ago`;
   return `${diffYears}y ago`;
-};
-
-const getGuideInitials = (title: string): string => {
-  // Obtener las primeras letras de las primeras dos palabras
-  const words = title.trim().split(/\s+/);
-  if (words.length === 0) return "?";
-  if (words.length === 1) return words[0].charAt(0).toUpperCase();
-  return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
 };
 
 export const LastCreatedGuides = () => {
@@ -102,7 +94,6 @@ export const LastCreatedGuides = () => {
           ) : (
             guides.map((guide) => {
               const timeAgo = getTimeAgo(guide.createdAt);
-              const guideInitials = getGuideInitials(guide.title);
 
               return (
                 <div
