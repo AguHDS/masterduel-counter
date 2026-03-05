@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => {
             "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com blob:",
             "style-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
             isDevelopment
-              ? "connect-src 'self' http://localhost:3001 http://localhost:5173 ws://localhost:5173 https://db.ygoprodeck.com https://challenges.cloudflare.com https://www.google-analytics.com https://www.googletagmanager.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io"
-              : "connect-src 'self' https://masterduelcounter.com https://*.masterduelcounter.com https://db.ygoprodeck.com https://challenges.cloudflare.com https://www.google-analytics.com https://www.googletagmanager.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
+              ? "connect-src 'self' http://localhost:3001 http://localhost:5173 ws://localhost:5173 https://db.ygoprodeck.com https://challenges.cloudflare.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://stats.g.doubleclick.net https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io"
+              : "connect-src 'self' https://masterduelcounter.com https://*.masterduelcounter.com https://db.ygoprodeck.com https://challenges.cloudflare.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://stats.g.doubleclick.net https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
             "font-src 'self' https://challenges.cloudflare.com",
             "object-src 'none'",
             "frame-src 'self' https://challenges.cloudflare.com",
