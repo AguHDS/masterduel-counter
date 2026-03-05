@@ -36,6 +36,30 @@ export const validateFavoriteCardAndDecksMiddleware = (
             message: "favoriteDecks must be a JSON array",
           });
         }
+
+        // Validate that array doesn't contain null/undefined entries
+        if (parsed.some((item) => item === null || item === undefined)) {
+          return res.status(400).json({
+            success: false,
+            message: "favoriteDecks array cannot contain null or undefined entries",
+          });
+        }
+
+        // Validate structure of each deck entry
+        for (const deck of parsed) {
+          if (
+            typeof deck !== "object" ||
+            typeof deck.archetypeId !== "number" ||
+            typeof deck.archetypeName !== "string" ||
+            typeof deck.cardId !== "number"
+          ) {
+            return res.status(400).json({
+              success: false,
+              message:
+                "Each deck must have archetypeId (number), archetypeName (string), and cardId (number)",
+            });
+          }
+        }
       } catch {
         return res.status(400).json({
           success: false,

@@ -57,12 +57,23 @@ export const FavoriteDecksEditor = ({
 
   const handleCardSelect = (card: Card) => {
     if (editingSlot !== null && selectedArchetype) {
-      const newDecks = [...favoriteDecks];
-      newDecks[editingSlot] = {
+      const newDeck = {
         archetypeId: selectedArchetype.id,
         archetypeName: selectedArchetype.name,
         cardId: card.id,
       };
+
+      let newDecks: FavoriteDeck[];
+      
+      // If editing an existing deck (within current array bounds)
+      if (editingSlot < favoriteDecks.length) {
+        newDecks = [...favoriteDecks];
+        newDecks[editingSlot] = newDeck;
+      } else {
+        // Adding a new deck - just append it to avoid sparse arrays
+        newDecks = [...favoriteDecks, newDeck];
+      }
+
       onDecksUpdate(newDecks);
       setIsCardModalOpen(false);
       setEditingSlot(null);
