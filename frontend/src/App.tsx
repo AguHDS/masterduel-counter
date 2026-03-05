@@ -14,47 +14,61 @@ import { ConfigurationPage } from "./features/configuration";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 import NotFound from "./shared/components/NotFound";
 import { SupportPage } from "./pages/SupportPage";
+import { useAnalyticsPageTracking } from "./shared/hooks/useAnalyticsPageTracking";
+
+/**
+ * Componente que renderiza todas las rutas y trackea automaticamente
+ * los page views cuando cambia la ruta (solo produccion)
+ */
+function AppRoutes() {
+  // Hook que trackea automáticamente cada cambio de ruta
+  useAnalyticsPageTracking();
+
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/support" element={<SupportPage />} />
+      <Route
+        path="/archetype/:archetypeId"
+        element={<ArchetypeInstancesPage />}
+      />
+      <Route
+        path="/archetype/:archetypeId/instance/:instanceId"
+        element={<InstanceEditorPage />}
+      />
+      <Route path="/profile/:userId" element={<ProfilePage />} />
+      <Route path="/profile/:userId/:tab" element={<ProfilePage />} />
+      <Route path="/signin" element={<SignInPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route
+        path="/configuration"
+        element={
+          <ProtectedRoute>
+            <ConfigurationPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminPanelPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
         <Router>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/support" element={<SupportPage />} /> {/* Nueva ruta */}
-            <Route
-              path="/archetype/:archetypeId"
-              element={<ArchetypeInstancesPage />}
-            />
-            <Route
-              path="/archetype/:archetypeId/instance/:instanceId"
-              element={<InstanceEditorPage />}
-            />
-            <Route path="/profile/:userId" element={<ProfilePage />} />
-            <Route path="/profile/:userId/:tab" element={<ProfilePage />} />
-            <Route path="/signin" element={<SignInPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route
-              path="/configuration"
-              element={
-                <ProtectedRoute>
-                  <ConfigurationPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <AdminPanelPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </Router>
       </NotificationProvider>
     </AuthProvider>
