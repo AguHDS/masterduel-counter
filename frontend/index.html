@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="src/assets/icon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Google Analytics -->
+    <!-- Google Analytics 4 -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-P57LFNSW84"
@@ -16,7 +16,29 @@
         dataLayer.push(arguments);
       }
       gtag("js", new Date());
-      gtag("config", "G-P57LFNSW84");
+
+      // Configuración mejorada de Google Analytics 4
+      gtag("config", "G-P57LFNSW84", {
+        // Enviar page view inicial al cargar
+        send_page_view: true,
+        
+        // Configuración de cookies para compatibilidad cross-browser
+        cookie_flags: "SameSite=None;Secure",
+        
+        // Permitir medición sin cookies si el navegador las bloquea
+        allow_google_signals: true,
+        allow_ad_personalization_signals: false,
+        
+        // Anonimizar IPs para cumplimiento de privacidad
+        anonymize_ip: true,
+        
+        // Configuración de dominio para tracking correcto
+        // Si tienes subdominios, descomenta la siguiente línea:
+        // cookie_domain: 'masterduelcounter.com',
+      });
+
+      // Debug: confirmar que GA se inicializó (solo visible en consola)
+      console.log('[GA] Initialized');
     </script>
 
     <title>
