@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { requireAuth } from "@/http/middlewares/auth/authMiddleware";
-import { validateCreateOrUpdateRecommendedDeck } from "@/http/middlewares/guides/createOrUpdateRecommendedDeckMiddleware";
-import { validateGetRecommendedDeck } from "@/http/middlewares/guides/getRecommendedDeckMiddleware";
-import { validateDeleteRecommendedDeck } from "@/http/middlewares/guides/deleteRecommendedDeckMiddleware";
-import { createOrUpdateRecommendedDeckController } from "@/http/controllers/guides/createOrUpdateRecommendedDeckController";
-import { getRecommendedDeckController } from "@/http/controllers/guides/getRecommendedDeckController";
-import { deleteRecommendedDeckController } from "@/http/controllers/guides/deleteRecommendedDeckController";
+import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
+import { validateCreateOrUpdateRecommendedDeck } from "@/http/middlewares/guides/createOrUpdateRecommendedDeckMiddleware.js";
+import { validateGetRecommendedDeck } from "@/http/middlewares/guides/getRecommendedDeckMiddleware.js";
+import { validateDeleteRecommendedDeck } from "@/http/middlewares/guides/deleteRecommendedDeckMiddleware.js";
+import { createOrUpdateRecommendedDeckController } from "@/http/controllers/guides/createOrUpdateRecommendedDeckController.js";
+import { getRecommendedDeckController } from "@/http/controllers/guides/getRecommendedDeckController.js";
+import { deleteRecommendedDeckController } from "@/http/controllers/guides/deleteRecommendedDeckController.js";
 
 const router = Router();
 

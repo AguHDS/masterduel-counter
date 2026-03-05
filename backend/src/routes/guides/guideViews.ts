@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerInstanceViewController } from "@/http/controllers/guides/registerInstanceViewController";
+import { registerInstanceViewController } from "@/http/controllers/guides/registerInstanceViewController.js";
 
 const router = Router();
 

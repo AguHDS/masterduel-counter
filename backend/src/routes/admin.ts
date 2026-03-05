@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUserMiddleware, searchUserMiddleware } from "@/http/middlewares";
+import { getUserMiddleware, searchUserMiddleware } from "@/http/middlewares/index.js";
 import {
   banUserController,
   changeUserCredentialsController,
@@ -13,12 +13,12 @@ import {
   searchUsersController,
   unbanUserController,
   getTotalUsersController,
-} from "@/http/controllers/admin";
+} from "@/http/controllers/admin/index.js";
 import {
   deleteUserMiddleware,
   getUserInstancesMiddleware,
   verifyAdminMiddleware,
-} from "@/http/middlewares/admin";
+} from "@/http/middlewares/admin/index.js";
 
 const router = Router();
 router.get(

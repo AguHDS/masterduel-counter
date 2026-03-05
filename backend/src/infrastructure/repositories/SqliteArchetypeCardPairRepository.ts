@@ -1,9 +1,9 @@
-import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
+import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository.js";
 import {
   ArchetypeCardPair,
   ArchetypeCardPairCreateDTO,
   ArchetypeCardPairWithDetails,
-} from "@/domain/ArchetypeCardPair";
+} from "@/domain/ArchetypeCardPair.js";
 import Database from "better-sqlite3";
 
 export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepository {

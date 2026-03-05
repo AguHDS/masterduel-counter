@@ -1,4 +1,4 @@
-import { CardDetailsApiService, CardDetails } from "@/domain/ports/externalServices/CardDetailsApiService";
+import { CardDetailsApiService, CardDetails } from "@/domain/ports/externalServices/CardDetailsApiService.js";
 
 export class YgoProDeckCardDetailsAdapter implements CardDetailsApiService {
   private readonly baseUrl = "https://db.ygoprodeck.com/api/v7/cardinfo.php";

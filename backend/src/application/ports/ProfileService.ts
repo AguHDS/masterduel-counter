@@ -1,4 +1,4 @@
-import type { Profile } from "@/domain/Profile";
+import type { Profile } from "@/domain/Profile.js";
 
 export interface ProfileService {
   /** Get profile by user ID */

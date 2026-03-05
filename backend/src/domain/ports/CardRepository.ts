@@ -1,4 +1,4 @@
-import { Card } from "../Card";
+import { Card } from "../Card.js";
 
 export interface CardRepository {
   /** Find Card by its ID */

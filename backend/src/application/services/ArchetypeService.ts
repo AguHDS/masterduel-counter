@@ -1,6 +1,6 @@
-import { ArchetypeServicePort } from "@/application/ports/ArchetypeService";
-import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
-import { Archetype } from "@/domain/Archetype";
+import { ArchetypeServicePort } from "@/application/ports/ArchetypeService.js";
+import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
+import { Archetype } from "@/domain/Archetype.js";
 
 export class ArchetypeService implements ArchetypeServicePort {
   private repository: ArchetypeRepository;
@@ -26,7 +26,7 @@ export class ArchetypeService implements ArchetypeServicePort {
     return this.repository.searchArchetypeByName(trimmedTerm, limit);
   }
 
-  async getGeneralStats(limit: number = 15): Promise<import("@/domain/ports/ArchetypeRepository").GeneralStats> {
+  async getGeneralStats(limit: number = 15): Promise<import("@/domain/ports/ArchetypeRepository.js").GeneralStats> {
     return this.repository.getGeneralStats(limit);
   }
 }

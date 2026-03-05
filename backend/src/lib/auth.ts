@@ -2,8 +2,8 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { admin } from "better-auth/plugins";
 import { PrismaClient } from "@prisma/client";
-import config from "@/infrastructure/config/environmentVars";
-import { getFrontendUrl, getBackendUrl } from "@/infrastructure/config/urlHelpers";
+import config from "@/infrastructure/config/environmentVars.js";
+import { getFrontendUrl, getBackendUrl } from "@/infrastructure/config/urlHelpers.js";
 
 const prisma = new PrismaClient();
 

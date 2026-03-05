@@ -1,5 +1,5 @@
-import type { UserSearchResult } from "@/shared/dtos/userDto";
-import type { ReportWithDetails } from "@/domain/Report";
+import type { UserSearchResult } from "@/shared/dtos/userDto.js";
+import type { ReportWithDetails } from "@/domain/Report.js";
 
 export interface AdminInstanceResult {
   id: number;

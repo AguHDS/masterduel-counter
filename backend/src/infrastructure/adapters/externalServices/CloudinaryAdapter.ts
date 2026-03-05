@@ -1,5 +1,5 @@
-import { ImageStorageService, UploadResult } from "@/domain/ports/externalServices/ImageStorageService";
-import { cloudinary } from "@/services/cloudinary";
+import { ImageStorageService, UploadResult } from "@/domain/ports/externalServices/ImageStorageService.js";
+import { cloudinary } from "@/services/cloudinary.js";
 import streamifier from "streamifier";
 
 export class CloudinaryAdapter implements ImageStorageService {

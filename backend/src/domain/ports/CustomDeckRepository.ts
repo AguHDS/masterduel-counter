@@ -2,7 +2,7 @@ import {
   CustomDeck,
   CustomDeckCreateDTO,
   CustomDeckUpdateDTO,
-} from "../CustomDeck";
+} from "../CustomDeck.js";
 
 /** Used for managing custom decks in user profiles */
 export interface CustomDeckRepository {

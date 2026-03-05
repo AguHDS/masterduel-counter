@@ -3,8 +3,8 @@ import {
   RecommendedDeck,
   RecommendedDeckCreateDTO,
   RecommendedDeckUpdateDTO,
-} from "@/domain/RecommendedDeck";
-import { RecommendedDeckRepository } from "@/domain/ports/RecommendedDeckRepository";
+} from "@/domain/RecommendedDeck.js";
+import { RecommendedDeckRepository } from "@/domain/ports/RecommendedDeckRepository.js";
 
 export class PrismaRecommendedDeckRepository implements RecommendedDeckRepository {
   constructor(private prisma: PrismaClient) {}

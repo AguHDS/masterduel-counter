@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AuthenticatedRequest } from "../auth/authMiddleware";
+import { AuthenticatedRequest } from "../auth/authMiddleware.js";
 
 /** Validates the data for updating a custom deck for user profiles */
 export const validateUpdateCustomDeck = async (

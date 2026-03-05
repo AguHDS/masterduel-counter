@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ArchetypeServicePort } from "@/application/ports/ArchetypeService";
+import { ArchetypeServicePort } from "@/application/ports/ArchetypeService.js";
 
 export const createGetGeneralStatsController = (
   archetypeService: ArchetypeServicePort

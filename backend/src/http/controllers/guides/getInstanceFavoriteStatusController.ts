@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware";
-import { getDependencies } from "@/compositionRoot";
+import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware.js";
+import { getDependencies } from "@/compositionRoot.js";
 
 /**
  * Gets the favorite status for an instance by the current user.

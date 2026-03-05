@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth.js";
-import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRepository";
+import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRepository.js";
 
 interface RegisterResult {
   user: {

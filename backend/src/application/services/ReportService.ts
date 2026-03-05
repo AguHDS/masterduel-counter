@@ -1,6 +1,6 @@
-import { ReportRepository } from "@/domain/ports/ReportRepository";
-import { ReportService as ReportServicePort } from "@/application/ports/ReportService";
-import type { ReportCreateDTO } from "@/domain/Report";
+import { ReportRepository } from "@/domain/ports/ReportRepository.js";
+import { ReportService as ReportServicePort } from "@/application/ports/ReportService.js";
+import type { ReportCreateDTO } from "@/domain/Report.js";
 import { PrismaClient } from "@prisma/client";
 
 export class ReportServiceImpl implements ReportServicePort {

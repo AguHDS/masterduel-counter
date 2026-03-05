@@ -1,4 +1,4 @@
-import config from "@/infrastructure/config/environmentVars";
+import config from "@/infrastructure/config/environmentVars.js";
 
 /**
  * Returns frontend URL based on the current environment

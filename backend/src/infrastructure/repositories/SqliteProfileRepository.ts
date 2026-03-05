@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import type { ProfileRepository } from "@/domain/ports/ProfileRepository";
-import type { Profile, CreateProfileData, UpdateProfileData } from "@/domain/Profile";
+import type { ProfileRepository } from "@/domain/ports/ProfileRepository.js";
+import type { Profile, CreateProfileData, UpdateProfileData } from "@/domain/Profile.js";
 
 export class SqliteProfileRepository implements ProfileRepository {
   constructor(private prisma: PrismaClient) {}

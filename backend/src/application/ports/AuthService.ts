@@ -1,4 +1,4 @@
-import { UserLoginDTO, UserLoginResponse } from "@/domain/User";
+import { UserLoginDTO, UserLoginResponse } from "@/domain/User.js";
 
 export interface AuthService {
   /** Authenticate a user with their credentials */

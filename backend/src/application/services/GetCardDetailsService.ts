@@ -1,5 +1,5 @@
-import { GetCardDetailsPort } from "@/application/ports/GetCardDetailsPort";
-import { CardDetailsApiService, CardDetails } from "@/domain/ports/externalServices/CardDetailsApiService";
+import { GetCardDetailsPort } from "@/application/ports/GetCardDetailsPort.js";
+import { CardDetailsApiService, CardDetails } from "@/domain/ports/externalServices/CardDetailsApiService.js";
 
 export class GetCardDetailsService implements GetCardDetailsPort {
   constructor(private readonly cardDetailsApi: CardDetailsApiService) {}

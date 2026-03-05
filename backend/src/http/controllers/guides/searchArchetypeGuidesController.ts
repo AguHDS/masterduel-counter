@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService";
+import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
 
 /** Search guide instances for an archetype by title */
 export const createSearchArchetypeGuidesController =

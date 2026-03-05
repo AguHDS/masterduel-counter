@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AuthenticatedRequest } from "../auth/authMiddleware";
+import { AuthenticatedRequest } from "../auth/authMiddleware.js";
 
 export const validateCreateOrUpdateRecommendedDeck = async (
   req: Request,

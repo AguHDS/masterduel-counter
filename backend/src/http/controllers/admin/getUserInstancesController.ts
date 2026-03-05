@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { AdminUserInstancesResponse } from "@/shared/dtos/admin/AdminUserInstancesResponse.dto";
+import { getDependencies } from "@/compositionRoot.js";
+import { AdminUserInstancesResponse } from "@/shared/dtos/admin/AdminUserInstancesResponse.dto.js";
 
 interface ValidatedUserIdRequest extends Request {
   validatedUserId?: string;

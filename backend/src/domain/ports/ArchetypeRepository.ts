@@ -1,4 +1,4 @@
-import { Archetype, ArchetypeUpdateDTO } from "../Archetype";
+import { Archetype, ArchetypeUpdateDTO } from "../Archetype.js";
 
 export interface GeneralStats {
   totalArchetypes: number;

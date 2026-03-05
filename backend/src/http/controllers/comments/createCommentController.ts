@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
+import { getDependencies } from "@/compositionRoot.js";
 import {
   validateNumberParam,
   validateStringParam,
-} from "@/shared/utils/paramValidation";
+} from "@/shared/utils/paramValidation.js";
 
 export const createCommentController = async (req: Request, res: Response) => {
   try {

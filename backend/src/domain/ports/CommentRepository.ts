@@ -3,7 +3,7 @@ import {
   CreateCommentDTO,
   UpdateCommentDTO,
   CommentsPaginatedResponse,
-} from "../Comment";
+} from "../Comment.js";
 
 export interface CommentRepository {
   /** Create a new comment (supports replies via parentCommentId) */

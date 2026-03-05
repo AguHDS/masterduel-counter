@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
+import { getDependencies } from "@/compositionRoot.js";
 
 /** Deletes a custom deck for a user in their profile */
 export const deleteCustomDeckController = async (

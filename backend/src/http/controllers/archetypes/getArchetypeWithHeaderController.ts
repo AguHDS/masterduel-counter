@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
+import { getDependencies } from "@/compositionRoot.js";
 
 /** Get archetype with its header card */
 export const getArchetypeWithHeaderController = async (

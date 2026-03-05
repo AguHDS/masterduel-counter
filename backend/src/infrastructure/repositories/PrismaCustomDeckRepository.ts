@@ -3,8 +3,8 @@ import {
   CustomDeck,
   CustomDeckCreateDTO,
   CustomDeckUpdateDTO,
-} from "@/domain/CustomDeck";
-import { CustomDeckRepository } from "@/domain/ports/CustomDeckRepository";
+} from "@/domain/CustomDeck.js";
+import { CustomDeckRepository } from "@/domain/ports/CustomDeckRepository.js";
 
 export class PrismaCustomDeckRepository implements CustomDeckRepository {
   constructor(private prisma: PrismaClient) {}

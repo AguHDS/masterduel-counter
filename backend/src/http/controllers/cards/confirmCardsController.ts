@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
+import { getDependencies } from "@/compositionRoot.js";
 
 /** Confirm selected cards by converting them from temporary to permanent */
 export const confirmCardsController = async (req: Request, res: Response) => {

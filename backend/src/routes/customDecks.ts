@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { requireAuth } from "@/http/middlewares/auth/authMiddleware";
-import { validateCreateCustomDeck } from "@/http/middlewares/customDecks/createCustomDeckMiddleware";
-import { validateUpdateCustomDeck } from "@/http/middlewares/customDecks/updateCustomDeckMiddleware";
-import { createCustomDeckController } from "@/http/controllers/customDecks/createCustomDeckController";
-import { getCustomDecksController } from "@/http/controllers/customDecks/getCustomDecksController";
-import { getCustomDeckController } from "@/http/controllers/customDecks/getCustomDeckController";
-import { updateCustomDeckController } from "@/http/controllers/customDecks/updateCustomDeckController";
-import { deleteCustomDeckController } from "@/http/controllers/customDecks/deleteCustomDeckController";
+import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
+import { validateCreateCustomDeck } from "@/http/middlewares/customDecks/createCustomDeckMiddleware.js";
+import { validateUpdateCustomDeck } from "@/http/middlewares/customDecks/updateCustomDeckMiddleware.js";
+import { createCustomDeckController } from "@/http/controllers/customDecks/createCustomDeckController.js";
+import { getCustomDecksController } from "@/http/controllers/customDecks/getCustomDecksController.js";
+import { getCustomDeckController } from "@/http/controllers/customDecks/getCustomDeckController.js";
+import { updateCustomDeckController } from "@/http/controllers/customDecks/updateCustomDeckController.js";
+import { deleteCustomDeckController } from "@/http/controllers/customDecks/deleteCustomDeckController.js";
 
 const router = Router();
 

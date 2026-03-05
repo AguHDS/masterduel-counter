@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { NotificationServicePort } from "@/application/ports/NotificationService";
-import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware";
+import { NotificationServicePort } from "@/application/ports/NotificationService.js";
+import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware.js";
 
 /** Get unread notification count */
 export const createGetUnreadCountController =

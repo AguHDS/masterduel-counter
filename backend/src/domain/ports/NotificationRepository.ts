@@ -4,7 +4,7 @@ import {
   CreateNotificationDTO,
   UpdateNotificationDTO,
   NotificationType,
-} from "../Notification";
+} from "../Notification.js";
 
 export interface NotificationRepository {
   /** Create a new notification */

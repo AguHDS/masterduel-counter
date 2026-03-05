@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { validateStringParam } from "@/shared/utils/paramValidation";
+import { getDependencies } from "@/compositionRoot.js";
+import { validateStringParam } from "@/shared/utils/paramValidation.js";
 
 /** Retrieves all custom decks for a specific user */
 export const getCustomDecksController = async (

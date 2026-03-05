@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
+import { getDependencies } from "@/compositionRoot.js";
 
 export const getCommentsController = async (req: Request, res: Response) => {
   try {

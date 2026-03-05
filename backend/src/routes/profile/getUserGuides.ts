@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { Dependencies } from "@/compositionRoot";
-import { createGetUserGuidesController } from "@/http/controllers/profile/getUserGuidesController";
+import { Dependencies } from "@/compositionRoot.js";
+import { createGetUserGuidesController } from "@/http/controllers/profile/getUserGuidesController.js";
 
 /** Get user guides (for user profile) */
 export function createGetUserGuidesRoute(dependencies: Dependencies) {

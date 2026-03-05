@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { NotificationServicePort } from "@/application/ports/NotificationService";
-import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware";
-import { extractNumberParam } from "@/shared/utils/paramValidation";
+import { NotificationServicePort } from "@/application/ports/NotificationService.js";
+import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware.js";
+import { extractNumberParam } from "@/shared/utils/paramValidation.js";
 
 /** Mark a single notification as read */
 export const createMarkAsReadController =

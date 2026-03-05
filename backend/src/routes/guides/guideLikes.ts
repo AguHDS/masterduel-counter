@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { toggleInstanceLikeController } from "@/http/controllers/guides/toggleInstanceLikeController";
-import { getInstanceLikeStatusController } from "@/http/controllers/guides/getInstanceLikeStatusController";
-import { requireAuth } from "@/http/middlewares/auth/authMiddleware";
+import { toggleInstanceLikeController } from "@/http/controllers/guides/toggleInstanceLikeController.js";
+import { getInstanceLikeStatusController } from "@/http/controllers/guides/getInstanceLikeStatusController.js";
+import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 
 const router = Router();
 

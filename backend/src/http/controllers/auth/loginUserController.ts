@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { LoginUserWithBetterAuthUseCase } from "../../../application/services/LoginUserWithBetterAuth";
-import { SqliteUserRepository } from "../../../infrastructure/repositories/SqliteUserRepository";
+import { LoginUserWithBetterAuthUseCase } from "@/application/services/LoginUserWithBetterAuth.js";
+import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRepository.js";
 import { PrismaClient } from "@prisma/client";
 
 /** Autentica un usuario con email y contraseña */

@@ -4,11 +4,11 @@ import {
   ArchetypeInstanceCreateDTO,
   ArchetypeInstanceUpdateDTO,
   ArchetypeInstanceWithDetails,
-} from "@/domain/ArchetypeInstance";
+} from "@/domain/ArchetypeInstance.js";
 import {
   ArchetypeInstanceRepository,
   LikeToggleResult,
-} from "@/domain/ports/ArchetypeInstanceRepository";
+} from "@/domain/ports/ArchetypeInstanceRepository.js";
 import { PrismaClient } from "@prisma/client";
 
 export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepository {

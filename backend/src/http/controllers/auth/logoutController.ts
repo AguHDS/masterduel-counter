@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth.js";
 
 /** Cierra la sesión del usuario actual */
 export const logoutController = async (req: Request, res: Response) => {

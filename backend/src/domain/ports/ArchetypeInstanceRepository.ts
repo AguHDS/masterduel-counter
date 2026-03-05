@@ -3,7 +3,7 @@ import {
   ArchetypeInstanceCreateDTO,
   ArchetypeInstanceUpdateDTO,
   ArchetypeInstanceWithDetails,
-} from "../ArchetypeInstance";
+} from "../ArchetypeInstance.js";
 
 export type SortOrder = "likes" | "updated";
 

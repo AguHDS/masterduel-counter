@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { AdminDeleteInstanceResponse } from "@/shared/dtos/admin/AdminDeleteInstanceResponse.dto";
-import { validateStringParam, validateNumberParam } from "@/shared/utils/paramValidation";
+import { getDependencies } from "@/compositionRoot.js";
+import { AdminDeleteInstanceResponse } from "@/shared/dtos/admin/AdminDeleteInstanceResponse.dto.js";
+import { validateStringParam, validateNumberParam } from "@/shared/utils/paramValidation.js";
 
 export const deleteUserInstanceController = async (
   req: Request,

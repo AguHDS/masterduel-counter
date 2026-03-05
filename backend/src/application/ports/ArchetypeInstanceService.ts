@@ -4,7 +4,7 @@ import {
   ArchetypeInstanceUpdateDTO,
   ArchetypeInstanceWithDetails,
   RegisterInstanceDTO,
-} from "@/domain/ArchetypeInstance";
+} from "@/domain/ArchetypeInstance.js";
 
 export interface ArchetypeInstanceServicePort {
   /** Creates a new instance or updates it if it already exists for the user */

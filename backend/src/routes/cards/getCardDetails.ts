@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { createGetCardDetailsController } from "@/http/controllers/cards/getCardDetailsController";
-import { compositionRoot } from "@/compositionRoot";
+import { createGetCardDetailsController } from "@/http/controllers/cards/getCardDetailsController.js";
+import { compositionRoot } from "@/compositionRoot.js";
 
 const router = Router();
 

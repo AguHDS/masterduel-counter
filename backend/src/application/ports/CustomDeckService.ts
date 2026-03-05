@@ -3,7 +3,7 @@ import {
   CustomDeckCreateDTO,
   CustomDeckUpdateDTO,
   CustomDeckWithCards,
-} from "@/domain/CustomDeck";
+} from "@/domain/CustomDeck.js";
 
 /** Custom deck por for user profiles */
 export interface CustomDeckServicePort {

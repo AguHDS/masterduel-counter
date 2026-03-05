@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { Dependencies } from "@/compositionRoot";
-import { createGetLatestGuidesController } from "@/http/controllers/guides/getLatestGuidesController";
+import { Dependencies } from "@/compositionRoot.js";
+import { createGetLatestGuidesController } from "@/http/controllers/guides/getLatestGuidesController.js";
 
 /** Get the latest created guide instances across all archetypes */
 export function createGetLatestGuidesRoute(dependencies: Dependencies) {

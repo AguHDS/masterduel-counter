@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
+import { getDependencies } from "@/compositionRoot.js";
 
 /** Search for letters by name in the local db and/or external Api */
 export const searchCardsController = async (req: Request, res: Response) => {

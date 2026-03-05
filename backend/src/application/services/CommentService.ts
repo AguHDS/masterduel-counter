@@ -4,11 +4,11 @@ import {
   CreateCommentDTO,
   UpdateCommentDTO,
   CommentsPaginatedResponse,
-} from "@/domain/Comment";
-import { CommentRepository } from "@/domain/ports/CommentRepository";
-import { CommentServicePort } from "@/application/ports/CommentService";
-import { NotificationServicePort } from "@/application/ports/NotificationService";
-import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository";
+} from "@/domain/Comment.js";
+import { CommentRepository } from "@/domain/ports/CommentRepository.js";
+import { CommentServicePort } from "@/application/ports/CommentService.js";
+import { NotificationServicePort } from "@/application/ports/NotificationService.js";
+import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository.js";
 
 export class CommentServiceImpl implements CommentServicePort {
   constructor(
@@ -44,10 +44,10 @@ export class CommentServiceImpl implements CommentServicePort {
 
     // Create notifications (async, don't wait)
     this.createCommentNotification(
-      data.instanceId, 
-      comment.id, 
-      data.authorId, 
-      data.parentCommentId
+      data.instanceId,
+      comment.id,
+      data.authorId,
+      data.parentCommentId,
     ).catch((error) => {
       console.error("Failed to create comment notification:", error);
     });
@@ -63,16 +63,19 @@ export class CommentServiceImpl implements CommentServicePort {
   ): Promise<void> {
     try {
       // Get instance to find the owner
-      const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
+      const instance =
+        await this.instanceRepository.findArchetypeInstanceById(instanceId);
       if (!instance) return;
 
       // Get commentor info
-      const commentor = await this.commentRepository.getCommentAuthor(commentorId);
+      const commentor =
+        await this.commentRepository.getCommentAuthor(commentorId);
       if (!commentor) return;
 
       // If this is a reply, notify the parent comment author
       if (parentCommentId) {
-        const parentComment = await this.commentRepository.findCommentById(parentCommentId);
+        const parentComment =
+          await this.commentRepository.findCommentById(parentCommentId);
         if (parentComment && parentComment.authorId !== commentorId) {
           // Notify parent comment author about the reply
           await this.notificationService.createCommentNotification(
@@ -106,7 +109,7 @@ export class CommentServiceImpl implements CommentServicePort {
       1,
       1,
     );
-    const comment = result.comments.find((c) => c.id === id);
+    const comment = result.comments.find((c: CommentWithAuthor) => c.id === id);
     return comment || null;
   }
 

@@ -1,4 +1,4 @@
-import { User } from "../User";
+import { User } from "../User.js";
 
 export interface UserRepository {
   /** Find User by its username */

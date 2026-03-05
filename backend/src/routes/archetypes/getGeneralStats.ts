@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { createGetGeneralStatsController } from "@/http/controllers/archetypes/getGeneralStatsController";
-import { getDependencies } from "@/compositionRoot";
+import { createGetGeneralStatsController } from "@/http/controllers/archetypes/getGeneralStatsController.js";
+import { getDependencies } from "@/compositionRoot.js";
 
 export const createGetGeneralStatsRoute = (): Router => {
   const router = Router();

@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { RegisterUserWithBetterAuthUseCase } from "../../../application/services/RegisterUserWithBetterAuth";
-import { SqliteUserRepository } from "../../../infrastructure/repositories/SqliteUserRepository";
+import { RegisterUserWithBetterAuthUseCase } from "@/application/services/RegisterUserWithBetterAuth.js";
+import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRepository.js";
 import { PrismaClient } from "@prisma/client";
-import { verifyTurnstileToken } from "../../../services/turnstile";
+import { verifyTurnstileToken } from "@/services/turnstile.js";
 
 /** Registra un nuevo usuario en el sistema */
 // Dependency injection

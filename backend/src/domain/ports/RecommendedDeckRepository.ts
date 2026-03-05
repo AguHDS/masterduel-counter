@@ -1,4 +1,4 @@
-import { RecommendedDeck, RecommendedDeckCreateDTO, RecommendedDeckUpdateDTO } from "../RecommendedDeck";
+import { RecommendedDeck, RecommendedDeckCreateDTO, RecommendedDeckUpdateDTO } from "../RecommendedDeck.js";
 
 export interface RecommendedDeckRepository {
   /** Create a recommended deck for a specific instance */

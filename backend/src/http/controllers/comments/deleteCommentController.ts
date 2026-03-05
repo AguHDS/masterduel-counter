@@ -1,7 +1,7 @@
 // backend/src/http/controllers/comments/deleteCommentController.ts
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { validateNumberParam } from "@/shared/utils/paramValidation";
+import { getDependencies } from "@/compositionRoot.js";
+import { validateNumberParam } from "@/shared/utils/paramValidation.js";
 
 export const deleteCommentController = async (req: Request, res: Response) => {
   try {

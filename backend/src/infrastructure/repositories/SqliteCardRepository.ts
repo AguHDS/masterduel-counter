@@ -1,6 +1,6 @@
-import { Card } from "@/domain/Card";
-import { CardRepository } from "@/domain/ports/CardRepository";
-import { DatabaseConnection } from "@/database/database";
+import { Card } from "@/domain/Card.js";
+import { CardRepository } from "@/domain/ports/CardRepository.js";
+import { DatabaseConnection } from "@/database/database.js";
 
 export class SqliteCardRepository implements CardRepository {
   constructor(private db: DatabaseConnection) {}

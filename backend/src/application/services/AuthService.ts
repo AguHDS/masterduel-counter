@@ -1,6 +1,6 @@
-import { AuthService } from "@/application/ports/AuthService";
-import { UserRepository } from "@/domain/ports/UserRepository";
-import { UserLoginDTO, UserLoginResponse } from "@/domain/User";
+import { AuthService } from "@/application/ports/AuthService.js";
+import { UserRepository } from "@/domain/ports/UserRepository.js";
+import { UserLoginDTO, UserLoginResponse } from "@/domain/User.js";
 import { verifyPassword } from "better-auth/crypto";
 import jwt from "jsonwebtoken";
 

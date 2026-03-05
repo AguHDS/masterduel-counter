@@ -3,7 +3,7 @@ import {
   RecommendedDeckCreateDTO,
   RecommendedDeckUpdateDTO,
   RecommendedDeckWithCards,
-} from "@/domain/RecommendedDeck";
+} from "@/domain/RecommendedDeck.js";
 
 export interface RecommendedDeckServicePort {
   /** Create a new recommended deck */

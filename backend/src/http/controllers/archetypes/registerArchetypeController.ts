@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware";
+import { getDependencies } from "@/compositionRoot.js";
+import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware.js";
 
 /** Registers or updates an archetype guide with its card pairs and header card */
 export const registerArchetypeController = async (

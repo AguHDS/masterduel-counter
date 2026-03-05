@@ -1,7 +1,7 @@
-import type { ProfileService } from "@/application/ports/ProfileService";
-import type { ProfileRepository } from "@/domain/ports/ProfileRepository";
-import type { ImageStorageService } from "@/domain/ports/externalServices/ImageStorageService";
-import type { Profile } from "@/domain/Profile";
+import type { ProfileService } from "@/application/ports/ProfileService.js";
+import type { ProfileRepository } from "@/domain/ports/ProfileRepository.js";
+import type { ImageStorageService } from "@/domain/ports/externalServices/ImageStorageService.js";
+import type { Profile } from "@/domain/Profile.js";
 
 export class ProfileServiceImpl implements ProfileService {
   constructor(
