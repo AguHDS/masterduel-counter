@@ -27,6 +27,9 @@ export const FavoriteDecksEditor = ({
     id: number;
     name: string;
   } | null>(null);
+  
+  // Estado para el visualizador de cartas (ahora guarda la URL)
+  const [viewingCardUrl, setViewingCardUrl] = useState<string | null>(null);
 
   const debouncedArchetypeQuery = useDebounce(archetypeSearchQuery, 300);
   const { data: archetypeResults } = useSearchArchetypes(
@@ -86,6 +89,11 @@ export const FavoriteDecksEditor = ({
     onDecksUpdate(newDecks);
   };
 
+  // Función para manejar el clic en la imagen (ahora recibe URL)
+  const handleImageView = (imageUrl: string) => {
+    setViewingCardUrl(imageUrl);
+  };
+
   const slots = [0, 1, 2];
 
   return (
@@ -125,7 +133,12 @@ export const FavoriteDecksEditor = ({
                       <img
                         src={deckWithCard.card.imageUrlCropped}
                         alt={deck.archetypeName}
-                        className="w-full h-full object-cover cursor-pointer"
+                        className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => {
+                          if (deckWithCard.card?.imageUrlCropped) {
+                            handleImageView(deckWithCard.card.imageUrlCropped);
+                          }
+                        }}
                       />
                     )}
 
@@ -180,6 +193,28 @@ export const FavoriteDecksEditor = ({
           );
         })}
       </div>
+
+      {/* Modal para visualizar carta (usando URL) */}
+      {viewingCardUrl && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          onClick={() => setViewingCardUrl(null)}
+        >
+          <div className="relative top-5 max-w-3xl w-full max-h-[90vh] flex items-center justify-center">
+            <button
+              onClick={() => setViewingCardUrl(null)}
+              className="absolute -top-12 right-0 text-white/80 hover:text-white transition-colors"
+            >
+            </button>
+            <img
+              src={viewingCardUrl}
+              alt="Card view"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
 
       {isArchetypeSearchOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
