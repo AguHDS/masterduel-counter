@@ -4,6 +4,10 @@ import { admin } from "better-auth/plugins";
 import { PrismaClient } from "@prisma/client";
 import config from "@/infrastructure/config/environmentVars.js";
 import { getFrontendUrl, getBackendUrl } from "@/infrastructure/config/urlHelpers.js";
+import {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+} from "@/services/emailService.js";
 
 const prisma = new PrismaClient();
 
@@ -60,8 +64,10 @@ export const auth = betterAuth({
         console.log(`Token: ${token}`);
         console.log(`In development, copy the URL above and paste in your browser`);
         console.log("============================================\n");
+      } else {
+        // Send email in production
+        await sendPasswordResetEmail(user.email, user.name, frontendUrl);
       }
-      // In production, BetterAuth sends the email via the SMTP config below
     },
   },
 
@@ -78,30 +84,10 @@ export const auth = betterAuth({
         console.log(`Token: ${token}`);
         console.log(`In development, copy the URL above and paste in your browser`);
         console.log("============================================\n");
+      } else {
+        // Send email in production
+        await sendVerificationEmail(user.email, user.name, frontendUrl);
       }
-      // In production, BetterAuth sends the email via the SMTP config below
-    },
-  },
-
-  email: {
-    // Use environment variables directly
-    from: process.env.SMTP_FROM_EMAIL
-      ? `masterduelcounter <${process.env.SMTP_FROM_EMAIL}>`
-      : "masterduelcounter <noreply@masterduelcounter.com>",
-
-    server: {
-      host: process.env.SMTP_HOST || "smtp.ethereal.email",
-      port: parseInt(process.env.SMTP_PORT || "587"),
-      secure: false, // 587 uses STARTTLS, not direct SSL
-      auth: {
-        user: process.env.SMTP_USER || "test@ethereal.email",
-        pass: process.env.SMTP_PASSWORD || "test123",
-      },
-    },
-
-    // Additional configuration for better deliverability
-    tls: {
-      rejectUnauthorized: false, // Useful for development/auto-signed certificates
     },
   },
 
