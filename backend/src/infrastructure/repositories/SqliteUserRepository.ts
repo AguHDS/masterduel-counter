@@ -1,5 +1,5 @@
-import { UserRepository } from "@/domain/ports/UserRepository";
-import { User } from "@/domain/User";
+import { UserRepository } from "@/domain/ports/UserRepository.js";
+import { User } from "@/domain/User.js";
 import { PrismaClient } from "@prisma/client";
 
 export class SqliteUserRepository implements UserRepository {

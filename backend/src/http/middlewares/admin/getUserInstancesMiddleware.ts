@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { validateStringParam } from "@/shared/utils/paramValidation";
+import { getDependencies } from "@/compositionRoot.js";
+import { validateStringParam } from "@/shared/utils/paramValidation.js";
 
 interface ValidatedUserIdRequest extends Request {
   validatedUserId?: string;

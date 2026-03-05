@@ -2,7 +2,7 @@ import {
   Notification,
   NotificationWithDetails,
   NotificationType,
-} from "@/domain/Notification";
+} from "@/domain/Notification.js";
 
 export interface NotificationServicePort {
   /** Create a comment notification */

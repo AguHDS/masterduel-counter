@@ -1,4 +1,4 @@
-import type { UserSearchResult } from "../userDto";
+import type { UserSearchResult } from "../userDto.js";
 
 export interface AdminUserSearchResponse {
   success: boolean;

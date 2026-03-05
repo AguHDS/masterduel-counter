@@ -1,4 +1,4 @@
-import type { Profile, CreateProfileData, UpdateProfileData } from "../Profile";
+import type { Profile, CreateProfileData, UpdateProfileData } from "../Profile.js";
 
 export interface ProfileRepository {
   /** Find profile by user ID */

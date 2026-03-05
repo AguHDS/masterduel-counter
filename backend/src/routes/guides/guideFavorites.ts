@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { toggleInstanceFavoriteController } from "@/http/controllers/guides/toggleInstanceFavoriteController";
-import { getInstanceFavoriteStatusController } from "@/http/controllers/guides/getInstanceFavoriteStatusController";
-import { requireAuth } from "@/http/middlewares/auth/authMiddleware";
+import { toggleInstanceFavoriteController } from "@/http/controllers/guides/toggleInstanceFavoriteController.js";
+import { getInstanceFavoriteStatusController } from "@/http/controllers/guides/getInstanceFavoriteStatusController.js";
+import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 
 const router = Router();
 

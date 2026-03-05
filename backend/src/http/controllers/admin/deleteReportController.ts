@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { validateNumberParam } from "@/shared/utils/paramValidation";
+import { getDependencies } from "@/compositionRoot.js";
+import { validateNumberParam } from "@/shared/utils/paramValidation.js";
 
 export const deleteReportController = async (
   req: Request,

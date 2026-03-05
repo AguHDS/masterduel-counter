@@ -1,15 +1,15 @@
 import express from "express";
 import multer from "multer";
-import { getProfileController } from "@/http/controllers/profile/getProfileController";
-import { updateBioController } from "@/http/controllers/profile/updateBioController";
-import { uploadProfilePictureController } from "@/http/controllers/profile/uploadProfilePictureController";
-import { deleteProfilePictureController } from "@/http/controllers/profile/deleteProfilePictureController";
-import { updateFavoriteCardAndDecksController } from "@/http/controllers/profile/updateFavoriteCardAndDecksController";
-import { getFavoritedGuidesController } from "@/http/controllers/profile/getFavoritedGuidesController";
-import { validateBioMiddleware } from "@/http/middlewares/profile/validateBioMiddleware";
-import { validateFavoriteCardAndDecksMiddleware } from "@/http/middlewares/profile/validateFavoriteCardAndDecksMiddleware";
-import { validateUserIdMiddleware } from "@/http/middlewares/validateUserIdMiddleware";
-import { validateFileUploadMiddleware } from "@/http/middlewares/validateFileUploadMiddleware";
+import { getProfileController } from "@/http/controllers/profile/getProfileController.js";
+import { updateBioController } from "@/http/controllers/profile/updateBioController.js";
+import { uploadProfilePictureController } from "@/http/controllers/profile/uploadProfilePictureController.js";
+import { deleteProfilePictureController } from "@/http/controllers/profile/deleteProfilePictureController.js";
+import { updateFavoriteCardAndDecksController } from "@/http/controllers/profile/updateFavoriteCardAndDecksController.js";
+import { getFavoritedGuidesController } from "@/http/controllers/profile/getFavoritedGuidesController.js";
+import { validateBioMiddleware } from "@/http/middlewares/profile/validateBioMiddleware.js";
+import { validateFavoriteCardAndDecksMiddleware } from "@/http/middlewares/profile/validateFavoriteCardAndDecksMiddleware.js";
+import { validateUserIdMiddleware } from "@/http/middlewares/validateUserIdMiddleware.js";
+import { validateFileUploadMiddleware } from "@/http/middlewares/validateFileUploadMiddleware.js";
 
 const router = express.Router();
 

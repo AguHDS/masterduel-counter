@@ -2,7 +2,7 @@ import {
   ArchetypeCardPair,
   ArchetypeCardPairCreateDTO,
   ArchetypeCardPairWithDetails,
-} from "../ArchetypeCardPair";
+} from "../ArchetypeCardPair.js";
 
 export interface ArchetypeCardPairRepository {
   /**

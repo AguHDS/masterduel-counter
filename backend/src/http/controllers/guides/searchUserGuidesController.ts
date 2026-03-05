@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService";
-import { validateStringParam } from "@/shared/utils/paramValidation";
+import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
+import { validateStringParam } from "@/shared/utils/paramValidation.js";
 
 /** Search guide instances for a user by title */
 export const createSearchUserGuidesController =

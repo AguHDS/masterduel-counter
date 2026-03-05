@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { AdminBanResponse } from "@/shared/dtos/admin/AdminBanRequest.dto";
-import { validateStringParam } from "@/shared/utils/paramValidation";
+import { getDependencies } from "@/compositionRoot.js";
+import { AdminBanResponse } from "@/shared/dtos/admin/AdminBanRequest.dto.js";
+import { validateStringParam } from "@/shared/utils/paramValidation.js";
 
 export const banUserController = async (
   req: Request,

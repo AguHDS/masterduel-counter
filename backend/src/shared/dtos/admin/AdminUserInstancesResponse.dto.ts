@@ -1,4 +1,4 @@
-import type { AdminInstanceResult } from "@/domain/ports/AdminRepository";
+import type { AdminInstanceResult } from "@/domain/ports/AdminRepository.js";
 
 export interface AdminUserInstancesResponse {
   success: boolean;

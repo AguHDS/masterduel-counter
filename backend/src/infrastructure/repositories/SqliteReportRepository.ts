@@ -1,5 +1,5 @@
-import { ReportRepository } from "@/domain/ports/ReportRepository";
-import type { ReportCreateDTO, Report } from "@/domain/Report";
+import { ReportRepository } from "@/domain/ports/ReportRepository.js";
+import type { ReportCreateDTO, Report } from "@/domain/Report.js";
 import { PrismaClient } from "@prisma/client";
 
 export class SqliteReportRepository implements ReportRepository {

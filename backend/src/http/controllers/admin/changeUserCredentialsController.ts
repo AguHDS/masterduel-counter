@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { AdminChangeCredentialsResponse } from "@/shared/dtos/admin/AdminChangeCredentialsRequest.dto";
-import { validateStringParam } from "@/shared/utils/paramValidation";
+import { getDependencies } from "@/compositionRoot.js";
+import { AdminChangeCredentialsResponse } from "@/shared/dtos/admin/AdminChangeCredentialsRequest.dto.js";
+import { validateStringParam } from "@/shared/utils/paramValidation.js";
 
 export const changeUserCredentialsController = async (
   req: Request,

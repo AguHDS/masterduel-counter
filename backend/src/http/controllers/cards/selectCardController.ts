@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
+import { getDependencies } from "@/compositionRoot.js";
 
 /** Select a card (temporarily creating it if it does not exist in the database) */
 export const selectCardController = async (req: Request, res: Response) => {

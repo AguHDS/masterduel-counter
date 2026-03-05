@@ -6,8 +6,8 @@ import {
   CreateNotificationDTO,
   UpdateNotificationDTO,
   NotificationType,
-} from "@/domain/Notification";
-import { NotificationRepository } from "@/domain/ports/NotificationRepository";
+} from "@/domain/Notification.js";
+import { NotificationRepository } from "@/domain/ports/NotificationRepository.js";
 
 export class SqliteNotificationRepository implements NotificationRepository {
   constructor(

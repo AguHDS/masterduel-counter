@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService";
+import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
 
 /** Get the latest created guide instances across all archetypes */
 export const createGetLatestGuidesController =

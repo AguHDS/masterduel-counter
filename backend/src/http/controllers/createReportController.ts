@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { CreateReportResponse } from "@/shared/dtos/CreateReportRequest.dto";
+import { getDependencies } from "@/compositionRoot.js";
+import { CreateReportResponse } from "@/shared/dtos/CreateReportRequest.dto.js";
 
 interface AuthenticatedRequest extends Request {
   user?: {

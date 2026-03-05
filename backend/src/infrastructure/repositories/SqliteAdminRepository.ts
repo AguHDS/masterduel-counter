@@ -1,8 +1,8 @@
-import { AdminRepository } from "@/domain/ports/AdminRepository";
-import type { UserSearchResult } from "@/shared/dtos/userDto";
+import { AdminRepository } from "@/domain/ports/AdminRepository.js";
+import type { UserSearchResult } from "@/shared/dtos/userDto.js";
 import { PrismaClient } from "@prisma/client";
-import { AdminInstanceResult } from "@/domain/ports/AdminRepository";
-import type { ReportWithDetails } from "@/domain/Report";
+import { AdminInstanceResult } from "@/domain/ports/AdminRepository.js";
+import type { ReportWithDetails } from "@/domain/Report.js";
 import { hashPassword } from "better-auth/crypto";
 
 export class SqliteAdminRepository implements AdminRepository {

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { NotificationServicePort } from "@/application/ports/NotificationService";
-import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware";
+import { NotificationServicePort } from "@/application/ports/NotificationService.js";
+import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware.js";
 
 /** Mark all notifications as read for the current user */
 export const createMarkAllAsReadController =

@@ -1,2 +1,2 @@
-export { getUserMiddleware } from "./getUserMiddleware";
-export { searchUserMiddleware } from "./searchUserMiddleware";
+export { getUserMiddleware } from "./getUserMiddleware.js";
+export { searchUserMiddleware } from "./searchUserMiddleware.js";

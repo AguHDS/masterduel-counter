@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware";
-import { getDependencies } from "@/compositionRoot";
+import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware.js";
+import { getDependencies } from "@/compositionRoot.js";
 
 /**
  * Toggles a favorite on an archetype instance (add if not exists, remove if exists).

@@ -3,9 +3,9 @@ import {
   NotificationWithDetails,
   CreateNotificationDTO,
   NotificationType,
-} from "@/domain/Notification";
-import { NotificationServicePort } from "@/application/ports/NotificationService";
-import { NotificationRepository } from "@/domain/ports/NotificationRepository";
+} from "@/domain/Notification.js";
+import { NotificationServicePort } from "@/application/ports/NotificationService.js";
+import { NotificationRepository } from "@/domain/ports/NotificationRepository.js";
 
 export class NotificationService implements NotificationServicePort {
   constructor(private notificationRepository: NotificationRepository) {}

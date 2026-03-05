@@ -4,7 +4,7 @@ import {
   CreateCommentDTO,
   UpdateCommentDTO,
   CommentsPaginatedResponse,
-} from "@/domain/Comment";
+} from "@/domain/Comment.js";
 
 export interface CommentServicePort {
   /** Create a new comment (supports replies) */

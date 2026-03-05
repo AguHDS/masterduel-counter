@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { GetCardDetailsPort } from "@/application/ports/GetCardDetailsPort";
+import { GetCardDetailsPort } from "@/application/ports/GetCardDetailsPort.js";
 
 /** Generally used for tooltip purposes */
 export const createGetCardDetailsController = (

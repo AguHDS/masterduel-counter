@@ -5,8 +5,8 @@ import {
   CreateCommentDTO,
   UpdateCommentDTO,
   CommentsPaginatedResponse,
-} from "@/domain/Comment";
-import { CommentRepository } from "@/domain/ports/CommentRepository";
+} from "@/domain/Comment.js";
+import { CommentRepository } from "@/domain/ports/CommentRepository.js";
 
 export class SqliteCommentRepository implements CommentRepository {
   constructor(private prisma: PrismaClient) {}

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { AdminUserSearchResponse } from "@/shared/dtos/admin/AdminUserSearchResponse.dto";
+import { getDependencies } from "@/compositionRoot.js";
+import { AdminUserSearchResponse } from "@/shared/dtos/admin/AdminUserSearchResponse.dto.js";
 
 export const searchUsersController = async (
   req: Request,

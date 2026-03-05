@@ -3,10 +3,10 @@ import {
   CustomDeckCreateDTO,
   CustomDeckUpdateDTO,
   CustomDeckWithCards,
-} from "@/domain/CustomDeck";
-import { CustomDeckServicePort } from "../ports/CustomDeckService";
-import { CustomDeckRepository } from "@/domain/ports/CustomDeckRepository";
-import { CardRepository } from "@/domain/ports/CardRepository";
+} from "@/domain/CustomDeck.js";
+import { CustomDeckServicePort } from "../ports/CustomDeckService.js";
+import { CustomDeckRepository } from "@/domain/ports/CustomDeckRepository.js";
+import { CardRepository } from "@/domain/ports/CardRepository.js";
 
 const MAX_DECKS_USER = 10;
 const MAX_DECKS_SUPPORTER = 30;

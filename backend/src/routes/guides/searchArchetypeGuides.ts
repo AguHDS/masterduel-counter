@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { Dependencies } from "@/compositionRoot";
-import { createSearchArchetypeGuidesController } from "@/http/controllers/guides/searchArchetypeGuidesController";
+import { Dependencies } from "@/compositionRoot.js";
+import { createSearchArchetypeGuidesController } from "@/http/controllers/guides/searchArchetypeGuidesController.js";
 
 /** Search guide instances for an archetype by title */
 export function createSearchArchetypeGuidesRoute(dependencies: Dependencies) {

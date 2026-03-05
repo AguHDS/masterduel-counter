@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService";
+import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
 
 /** Create or update a guide of an archetype for the authenticated user */
 export const createCreateOrUpdateInstanceController =

@@ -1,8 +1,8 @@
-import { AdminRepository } from "@/domain/ports/AdminRepository";
-import { AdminService as AdminServicePort } from "@/application/ports/AdminService";
-import type { UserSearchResult } from "@/shared/dtos/userDto";
-import type { AdminInstanceResult } from "@/domain/ports/AdminRepository";
-import type { ReportWithDetails } from "@/domain/Report";
+import { AdminRepository } from "@/domain/ports/AdminRepository.js";
+import { AdminService as AdminServicePort } from "@/application/ports/AdminService.js";
+import type { UserSearchResult } from "@/shared/dtos/userDto.js";
+import type { AdminInstanceResult } from "@/domain/ports/AdminRepository.js";
+import type { ReportWithDetails } from "@/domain/Report.js";
 
 export class AdminServiceImpl implements AdminServicePort {
   constructor(private readonly adminRepository: AdminRepository) {}

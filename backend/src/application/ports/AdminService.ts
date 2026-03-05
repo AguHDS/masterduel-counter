@@ -1,6 +1,6 @@
-import type { UserSearchResult } from "@/shared/dtos/userDto";
-import type { AdminInstanceResult } from "@/domain/ports/AdminRepository";
-import type { ReportWithDetails } from "@/domain/Report";
+import type { UserSearchResult } from "@/shared/dtos/userDto.js";
+import type { AdminInstanceResult } from "@/domain/ports/AdminRepository.js";
+import type { ReportWithDetails } from "@/domain/Report.js";
 
 export interface AdminService {
   /** Search users by name or email */

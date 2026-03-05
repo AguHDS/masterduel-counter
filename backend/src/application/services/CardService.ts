@@ -1,7 +1,7 @@
-import { CardService } from "@/application/ports/CardService";
-import { CardSearchResult, CardPreviewDTO, Card } from "@/domain/Card";
-import { CardRepository } from "@/domain/ports/CardRepository";
-import { CardApiService } from "@/domain/ports/externalServices/CardApiService";
+import { CardService } from "@/application/ports/CardService.js";
+import { CardSearchResult, CardPreviewDTO, Card } from "@/domain/Card.js";
+import { CardRepository } from "@/domain/ports/CardRepository.js";
+import { CardApiService } from "@/domain/ports/externalServices/CardApiService.js";
 
 export class CardServiceImpl implements CardService {
   constructor(

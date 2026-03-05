@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
+import { getDependencies } from "@/compositionRoot.js";
 
 /** Gets the card pairs of a specific instance by its ID */
 export const getInstanceCardPairsController = async (

@@ -1,4 +1,4 @@
-import { CardSearchResult, CardPreviewDTO } from "@/domain/Card";
+import { CardSearchResult, CardPreviewDTO } from "@/domain/Card.js";
 
 export interface CardService {
   /**

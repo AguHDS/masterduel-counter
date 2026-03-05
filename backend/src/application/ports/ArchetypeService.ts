@@ -1,7 +1,7 @@
 import {
   Archetype,
-} from "@/domain/Archetype";
-import { GeneralStats } from "@/domain/ports/ArchetypeRepository";
+} from "@/domain/Archetype.js";
+import { GeneralStats } from "@/domain/ports/ArchetypeRepository.js";
 
 export interface ArchetypeServicePort {
   /**

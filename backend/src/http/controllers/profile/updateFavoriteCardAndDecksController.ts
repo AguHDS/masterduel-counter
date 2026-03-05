@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getDependencies } from "@/compositionRoot";
-import { validateStringParam, validateNumberParam } from "@/shared/utils/paramValidation";
+import { getDependencies } from "@/compositionRoot.js";
+import { validateStringParam, validateNumberParam } from "@/shared/utils/paramValidation.js";
 
 export const updateFavoriteCardAndDecksController = async (req: Request, res: Response) => {
   try {

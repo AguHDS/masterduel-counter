@@ -4,14 +4,14 @@ import {
   ArchetypeInstanceUpdateDTO,
   ArchetypeInstanceWithDetails,
   RegisterInstanceDTO,
-} from "@/domain/ArchetypeInstance";
-import { ArchetypeInstanceServicePort } from "../ports/ArchetypeInstanceService";
-import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository";
-import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository";
-import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
-import { NotificationServicePort } from "@/application/ports/NotificationService";
-import { ViewCountCache } from "@/infrastructure/adapters/ViewCountCache";
-import { UserRepository } from "@/domain/ports/UserRepository";
+} from "@/domain/ArchetypeInstance.js";
+import { ArchetypeInstanceServicePort } from "../ports/ArchetypeInstanceService.js";
+import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository.js";
+import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository.js";
+import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
+import { NotificationServicePort } from "@/application/ports/NotificationService.js";
+import { ViewCountCache } from "@/infrastructure/adapters/ViewCountCache.js";
+import { UserRepository } from "@/domain/ports/UserRepository.js";
 
 const MAX_FAVORITES_USER = 20;
 

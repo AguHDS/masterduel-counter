@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { Dependencies } from "@/compositionRoot";
-import { createSearchUserGuidesController } from "@/http/controllers/guides/searchUserGuidesController";
+import { Dependencies } from "@/compositionRoot.js";
+import { createSearchUserGuidesController } from "@/http/controllers/guides/searchUserGuidesController.js";
 
 /** Search guide instances for a user by title */
 export function createSearchUserGuidesRoute(dependencies: Dependencies) {

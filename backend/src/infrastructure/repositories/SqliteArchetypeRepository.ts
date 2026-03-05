@@ -1,5 +1,5 @@
-import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository";
-import { Archetype, ArchetypeUpdateDTO } from "@/domain/Archetype";
+import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
+import { Archetype, ArchetypeUpdateDTO } from "@/domain/Archetype.js";
 import Database from "better-sqlite3";
 
 export class SqliteArchetypeRepository implements ArchetypeRepository {
@@ -134,7 +134,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async getGeneralStats(limit: number = 15): Promise<import("@/domain/ports/ArchetypeRepository").GeneralStats> {
+  async getGeneralStats(limit: number = 15): Promise<import("@/domain/ports/ArchetypeRepository.js").GeneralStats> {
     // Get total registered archetypes
     const totalArchetypesStmt = this.db.prepare(`
       SELECT COUNT(*) as count

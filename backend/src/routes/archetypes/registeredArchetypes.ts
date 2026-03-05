@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getRegisteredArchetypesController } from "@/http/controllers/archetypes/getRegisteredArchetypesController";
+import { getRegisteredArchetypesController } from "@/http/controllers/archetypes/getRegisteredArchetypesController.js";
 
 const router = Router();
 

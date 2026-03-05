@@ -1,4 +1,4 @@
-import type { ReportCreateDTO } from "@/domain/Report";
+import type { ReportCreateDTO } from "@/domain/Report.js";
 
 export interface ReportService {
   /** Create a new report */

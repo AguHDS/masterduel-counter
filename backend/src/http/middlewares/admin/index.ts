@@ -1,3 +1,3 @@
-export * from "./deleteUserMiddleware";
-export * from "./getUserInstancesMiddleware";
-export * from "./verifyAdminMiddleware";
+export * from "./deleteUserMiddleware.js";
+export * from "./getUserInstancesMiddleware.js";
+export * from "./verifyAdminMiddleware.js";
