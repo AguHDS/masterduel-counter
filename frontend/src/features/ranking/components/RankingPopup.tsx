@@ -1,4 +1,3 @@
-// frontend/src/features/ranking/components/RankingPopup.tsx
 import React, { useRef, useEffect } from "react";
 import { Crown } from "lucide-react";
 import type { RankingUser } from "@/lib/http/rankingApi";
