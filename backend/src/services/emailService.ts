@@ -9,9 +9,9 @@ const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 const BREVO_API_KEY = process.env.BREVO_API_KEY || "";
 
 if (!BREVO_API_KEY) {
-  console.warn("⚠️ BREVO_API_KEY not set. Email sending will fail.");
+  console.warn("BREVO_API_KEY not set. Email sending will fail. Check if this works in production");
 } else {
-  console.log("✅ Brevo API configured for email sending");
+  console.log(" Brevo API configured for email sending");
 }
 
 export interface SendEmailOptions {

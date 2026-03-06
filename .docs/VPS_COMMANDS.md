@@ -1,55 +1,54 @@
-Conectarme al vps
-- ssh root@142.93.66.243 
-
-root pass: project-TON618a
-
-Directorio del repo
-- cd /var/www/masterduel-counter
-
-Rebuildear backend:
-cd /var/www/masterduel-counter/backend
-
-npm run build
-
-pm2 restart masterduel-backend 
-
-systemctl reload nginx
-
----
-
-reset db:
-pm2 stop all
-cd /var/www/masterduel-counter/backend/prisma/src/data
-rm database.db
-cd /var/www/masterduel-counter/backend
-npx prisma migrate deploy
-pm2 restart masterduel-backend
-
-----------
-
-
-COMANDOS ÚTILES PARA MÁS TARDE
-Ver logs del backend:
-pm2 logs masterduel-backend
-
-Reiniciar backend:
-pm2 restart masterduel-backend
-
-Ver status del backend:
-pm2 status
-
-Reiniciar nginx:
-systemctl restart nginx
-
-Ver logs de nginx:
-tail -f /var/log/nginx/error.log
-
-Actualizar código después de hacer cambios:
+## Conexión al Servidor VPS
+```bash
+ssh root@10.108.0.3
+# Password: project-TON618a
 cd /var/www/masterduel-counter
-git pull
-cd backend
-npm run build
+```
+
+## Rebuildear backend
+- cd /var/www/masterduel-counter/backend
+- npm run build
+- pm2 restart masterduel-backend
+- systemctl reload nginx
+Cuando reiniciar nginx:
+La configuración de nginx (rutas, headers, etc.)
+Los certificados SSL
+Los upstreams del backend
+
+## Verificar nginx
+# Verificar sintaxis
+sudo nginx -t
+# Ver configuración completa
+sudo nginx -T
+
+## Reiniciar DB
+
+pm2 stop all -> Detener todos los servicios
+
+cd /var/www/masterduel-counter/backend/prisma/src/data
+rm database.db -> Eliminar la base de datos actual
+
+cd /var/www/masterduel-counter/backend
+npx prisma db push > Crear la nueva base de datos con el nuevo esquema
+npx prisma migrate deploy -> Aplicar las migraciones
+
+# Reiniciar backend
 pm2 restart masterduel-backend
-cd ../frontend
-npm run build
-systemctl reload nginx
+
+-------------
+
+## Monitoreo y Mantenimiento
+
+pm2 logs masterduel-backend -> Ver logs en tiempo real
+
+pm2 restart masterduel-backend -> Reiniciar el servicio
+
+pm2 status -> Ver estado de los servicios
+
+pm2 stop all -> Detener todos los servicios
+
+--------------
+
+## Monitorear uso de memoria VPS
+free -h -> Ver uso de memoria RAM y swap
+htop -> Ver uso de CPU, memoria y procesos en tiempo real

@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type { FormEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useRegister } from "../hooks/useAuthQueries";
-import { Lock, User, Mail } from "lucide-react";
+import { Lock, User, Mail, X } from "lucide-react";
 import { Turnstile, type TurnstileRef } from "@/shared/components/Turnstile";
 import { DiscordButton } from "./DiscordButton";
 import {
@@ -21,9 +21,46 @@ export const RegisterForm = () => {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
   const { mutate: register, isPending } = useRegister();
-  const navigate = useNavigate();
   const turnstileRef = useRef<TurnstileRef>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        setShowVerificationModal(false);
+      }
+    };
+
+    if (showVerificationModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showVerificationModal]);
+
+  // Handle ESC key
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && showVerificationModal) {
+        setShowVerificationModal(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [showVerificationModal]);
 
   // Memoize callbacks to prevent Turnstile re-render
   const handleTurnstileVerify = useCallback((token: string) => {
@@ -70,12 +107,14 @@ export const RegisterForm = () => {
       { username: normalizedUsername, email, password, turnstileToken },
       {
         onSuccess: () => {
-          navigate("/signin", {
-            state: {
-              message:
-                "Account created! Please check your email to verify your account.",
-            },
-          });
+          setRegisteredEmail(email);
+          setShowVerificationModal(true);
+          // Reset form
+          setUsername("");
+          setEmail("");
+          setPassword("");
+          setTurnstileToken(null);
+          turnstileRef.current?.reset();
         },
         onError: (
           error: Error & { response?: { data?: { message?: string } } },
@@ -85,7 +124,7 @@ export const RegisterForm = () => {
             error?.message ||
             "Registration failed";
           setErrorMessage(message);
-          
+
           // Reset turnstile and clear token so user can try again
           setTurnstileToken(null);
           turnstileRef.current?.reset();
@@ -249,6 +288,67 @@ export const RegisterForm = () => {
           </div>
         </form>
       </div>
+
+      {/* Verification Modal */}
+      {showVerificationModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity" />
+
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div
+              ref={modalRef}
+              className="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-blue-900 p-6 text-left shadow-xl transition-all border border-blue-500/30"
+            >
+              <button
+                onClick={() => setShowVerificationModal(false)}
+                className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-600/20 mb-4">
+                <Mail className="h-8 w-8 text-blue-400" />
+              </div>
+
+              <h3 className="text-2xl font-bold text-center text-white mb-2">
+                Verify Your Email
+              </h3>
+
+              <div className="text-center space-y-3">
+                <p className="text-gray-300">
+                  We've sent a verification email to:
+                </p>
+                <p className="text-lg font-semibold text-blue-400 break-all">
+                  {registeredEmail}
+                </p>
+                <p className="text-gray-400 text-sm">
+                  Click the link in the email to verify your account and
+                  complete the registration process.
+                </p>
+              </div>
+
+              <div className="mt-6 bg-blue-950/50 border border-blue-800 rounded-lg p-4">
+                <p className="text-sm text-blue-200 text-center">
+                  <span className="font-semibold">Don't see the email?</span>
+                  <br />
+                  Check your "spam" and "others" folder.
+                </p>
+              </div>
+
+              {/* Action button */}
+              <div className="mt-6">
+                <button
+                  onClick={() => setShowVerificationModal(false)}
+                  className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors"
+                >
+                  Got it
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

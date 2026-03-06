@@ -33,13 +33,6 @@ export const ForgotPasswordModal = ({
         "Password reset link sent! Check your email (or console in development mode).",
       );
       setEmail("");
-
-      // Auto close after 3 seconds on success
-      setTimeout(() => {
-        onClose();
-        setStatus("idle");
-        setMessage("");
-      }, 3000);
     } catch (error: unknown) {
       setStatus("error");
 
@@ -82,24 +75,35 @@ export const ForgotPasswordModal = ({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Header */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white">Forgot Password?</h2>
-          <p className="text-sm text-gray-400 mt-2">
-            Enter your email address and we'll send you a link to reset your
-            password.
-          </p>
-        </div>
+        {status !== "success" && (
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-white">Forgot Password?</h2>
+            <p className="text-sm text-gray-400 mt-2">
+              Enter your email address and we'll send you a link to reset your
+              password.
+            </p>
+          </div>
+        )}
 
         {/* Success state */}
         {status === "success" ? (
-          <div className="text-center space-y-4 py-4">
+          <div className="text-center space-y-6 py-4">
             <CheckCircle className="w-16 h-16 text-green-400 mx-auto" />
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">
                 Email Sent!
               </h3>
               <p className="text-sm text-gray-400">{message}</p>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="flex-1 py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
         ) : (
