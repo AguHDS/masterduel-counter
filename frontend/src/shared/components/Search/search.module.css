@@ -80,7 +80,7 @@
   font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
   background: transparent;
   border: none;
-  color: white;
+  color: rgba(191, 219, 254, 0.8);
   font-weight: 300;
   border-radius: 0.5rem;
   outline: none;
@@ -89,6 +89,15 @@
   opacity: 0.85;
   padding: 0 1rem;
   z-index: 3;
+  caret-color: #37248d;
+}
+
+/* Firefox */
+@-moz-document url-prefix() {
+  .searchInput {
+    caret-color: #1e3a8a;
+    caret-shape: block;
+  }
 }
 
 /* Ocultar el botón de clear nativo del navegador */
@@ -113,7 +122,7 @@
 .searchInput::-moz-placeholder,
 .searchInput:-ms-input-placeholder,
 .searchInput:-moz-placeholder {
-  color: rgba(191, 219, 254, 0.9);
+  color: rgba(254, 191, 242, 0.9);
   opacity: 0.9;
   text-align: center;
 }

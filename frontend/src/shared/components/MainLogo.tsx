@@ -7,7 +7,7 @@ export const MainLogo = () => {
         <div className="flex justify-center">
           <img
             src={mainLogo}
-            alt="Masterduel Counter - Yu-Gi-Oh! Master Duel Archetype Counter Guide"
+            alt="Masterduel Counter - Yu-Gi-Oh! Master Duel Archetype Counter Guides"
             loading="eager"
             decoding="async"
             width={800}
