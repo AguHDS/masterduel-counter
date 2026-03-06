@@ -111,8 +111,8 @@ export const CreateGuideInvite = () => {
             </div>
 
             <p className="text-blue-200 mb-6 leading-relaxed">
-              Save your personal decks, favorite guides, and create counter
-              guides either for sharing knowledge or personal use
+              Create counter guides, save your personal decks and favorite guides in your profile, and give
+              feedback to help masterduelcounter improve!
             </p>
 
             <div className="space-y-2 mb-6">

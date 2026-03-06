@@ -47,7 +47,7 @@ export const HomePage = () => {
     <>
       <Helmet>
         <title>
-          Masterduel Counter - Yu-Gi-Oh! Master Duel Archetype Counter Guide
+          Masterduel Counter - Yu-Gi-Oh! Master Duel Archetype Counter Guides
         </title>
         <meta
           name="description"

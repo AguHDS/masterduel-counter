@@ -1,4 +1,4 @@
-import { Eye, Heart, Clock } from "lucide-react";
+import { Eye, Clock, ThumbsUp, Star } from "lucide-react";
 import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
 import { useNavigate } from "react-router-dom";
 
@@ -137,15 +137,22 @@ export const LastCreatedGuides = () => {
                     <span className="text-xs text-gray-400">{timeAgo}</span>
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-1.5 text-blue-300">
+                  <div className="flex justify-end items-center ml-14 gap-4 text-sm">
+                    <div className="flex items-center gap-1.5 text-purple-400">
                       <Eye className="w-4 h-4" />
                       <span className="font-medium">
                         {guide.views.toLocaleString()}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-pink-400">
-                      <Heart className="w-4 h-4" />
+                    {/* Favoritos - agregado entre el ojo y el thumbs up */}
+                    <div className="flex items-center gap-1.5 text-yellow-400">
+                      <Star className="w-4 h-4" />
+                      <span className="font-medium">
+                        {guide.favorites?.toLocaleString() || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-green-500">
+                      <ThumbsUp className="w-4 h-4" />
                       <span className="font-medium">
                         {guide.likes.toLocaleString()}
                       </span>
