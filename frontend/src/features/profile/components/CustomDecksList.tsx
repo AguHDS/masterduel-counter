@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Info, Lock } from "lucide-react";
+import { Plus, Info } from "lucide-react";
 import { useCustomDecks } from "../hooks/useCustomDecks";
 import { CustomDeckEditor } from "./CustomDeckEditor";
 import { CustomDeckModal } from "./CustomDeckModal";
@@ -22,7 +22,11 @@ interface CustomDecksListProps {
 const MAX_DECKS_USER = 10;
 const MAX_DECKS_SUPPORTER = 30;
 
-export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListProps) => {
+export const CustomDecksList = ({
+  userId,
+  isOwner,
+  userRole,
+}: CustomDecksListProps) => {
   const {
     decks,
     isLoading,
@@ -33,15 +37,16 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
     isUpdating,
     isDeleting,
   } = useCustomDecks(userId);
+
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [selectedDeck, setSelectedDeck] = useState<CustomDeck | null>(null);
 
-  // Sort decks by creation date (oldest first, so new decks appear at the end)
   const sortedDecks = [...decks].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
   );
 
-  const maxDecks = userRole === "supporter" ? MAX_DECKS_SUPPORTER : MAX_DECKS_USER;
+  const maxDecks =
+    userRole === "supporter" ? MAX_DECKS_SUPPORTER : MAX_DECKS_USER;
   const canCreateMore = sortedDecks.length < maxDecks;
 
   const handleCreateDeck = (
@@ -55,9 +60,7 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
     createDeck(
       { title, mainDeckCards, extraDeckCards, isPublic: true },
       {
-        onSuccess: () => {
-          setIsCreatingNew(false);
-        },
+        onSuccess: () => setIsCreatingNew(false),
         onError: (error) => {
           console.error("Error creating deck:", error);
           alert("Failed to create deck. Please try again.");
@@ -84,14 +87,6 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
     setSelectedDeck(deck);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-cyan-400 text-lg">Loading decks...</div>
-      </div>
-    );
-  }
-
   const handleUpdateDeck = (
     deckId: number,
     updates: {
@@ -112,9 +107,16 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-cyan-400 text-lg">Loading decks...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {/* Deck Creation Form */}
       {isCreatingNew && (
         <CustomDeckEditor
           onSave={handleCreateDeck}
@@ -123,7 +125,6 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
         />
       )}
 
-      {/* Existing Decks Grid */}
       {(sortedDecks.length > 0 || (isOwner && !isCreatingNew)) && (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           {sortedDecks.map((deck) => {
@@ -137,14 +138,12 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
                 className="relative group cursor-pointer"
                 onClick={() => handleDeckClick(deck)}
               >
-                {/* Glow border effect */}
                 {canView && (
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
                 )}
 
-                {/* Main deck card */}
                 <div className="relative bg-gradient-to-b from-blue-900/90 via-slate-900 to-blue-900/90 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-cyan-400/80 transition-all duration-200 overflow-hidden">
-                  {/* Public/Private Label - inside container */}
+                  {/* Public/Private label */}
                   <div className="mb-1 flex justify-end">
                     {deck.isPublic ? (
                       <div className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold text-slate-300 shadow-lg">
@@ -157,57 +156,41 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
                     )}
                   </div>
 
-                  {canView ? (
-                    <div className="p-3 pt-0">
-                      {/* Preview Image */}
-                      <div className="flex justify-center mb-3">
-                        {previewCards.length > 0 ? (
-                          <img
-                            src={previewCards[0].imageUrlCropped}
-                            alt={previewCards[0].name}
-                            className="h-[80px] w-[80px] object-cover rounded border-2 border-[#4a5866] shadow-lg"
-                          />
-                        ) : (
-                          <div className="w-[80px] h-[80px] bg-[#6a7888] rounded border-2 border-[#4a5866] flex items-center justify-center">
-                            <span className="text-gray-700 text-xs font-semibold">
-                              Empty
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Deck Title */}
-                      <div className="text-center mb-2">
-                        <div className="flex items-center justify-center gap-2">
-                          <h3 className="text-sm font-bold text-white truncate">
-                            {deck.title}
-                          </h3>
-                          {!deck.isPublic && (
-                            <Lock className="w-3 h-3 text-[#4a5866] flex-shrink-0" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-3 pt-0">
-                      {/* Locked Icon */}
-                      <div className="flex justify-center mb-3">
+                  <div className="p-3 pt-0 relative">
+                    {/* Preview Image */}
+                    <div className="flex justify-center mb-3">
+                      {previewCards.length > 0 ? (
+                        <img
+                          src={previewCards[0].imageUrlCropped}
+                          alt={previewCards[0].name}
+                          className={`h-[80px] w-[80px] object-cover rounded border-2 border-[#4a5866] shadow-lg ${
+                            !canView ? "opacity-60" : ""
+                          }`}
+                        />
+                      ) : (
                         <div className="w-[80px] h-[80px] bg-[#6a7888] rounded border-2 border-[#4a5866] flex items-center justify-center">
-                          <Lock className="w-8 h-8 text-[#4a5866]" />
+                          <span className="text-gray-700 text-xs font-semibold">
+                            Empty
+                          </span>
                         </div>
-                      </div>
+                      )}
+                    </div>
 
-                      {/* Locked Title */}
-                      <div className="text-center">
-                        <h3 className="text-sm font-bold text-[#4a5866] truncate">
+                    {/* Deck title */}
+                    <div className="text-center mb-2">
+                      <div className="flex items-center justify-center">
+                        <h3
+                          className={`text-sm font-bold truncate ${
+                            canView ? "text-white" : "text-[#4a5866]"
+                          }`}
+                        >
                           {deck.title}
                         </h3>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Labels OUTSIDE the card - below */}
                 {canView && (
                   <div className="flex items-center justify-start gap-3 mt-2 px-1">
                     <div className="flex items-center gap-1">
@@ -232,10 +215,8 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
             );
           })}
 
-          {/* Create New Deck Placeholder */}
           {isOwner && !isCreatingNew && (
             <div className="relative group">
-              {/* Glow border effect */}
               {canCreateMore && (
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
               )}
@@ -250,7 +231,6 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
                 }`}
               >
                 <div className="flex flex-col items-center justify-center h-full p-4">
-                  {/* Plus Icon */}
                   <Plus
                     className={`w-10 h-10 mb-2 ${
                       canCreateMore
@@ -259,7 +239,6 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
                     }`}
                   />
 
-                  {/* Text */}
                   <h3
                     className={`text-sm font-bold text-center mb-1 ${
                       canCreateMore
@@ -269,6 +248,7 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
                   >
                     Create New Deck
                   </h3>
+
                   <p
                     className={`text-xs text-center ${
                       canCreateMore ? "text-slate-400" : "text-slate-600"
@@ -296,7 +276,6 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
         </div>
       )}
 
-      {/* Empty State */}
       {sortedDecks.length === 0 && !isCreatingNew && (
         <div className="text-center py-20">
           <p className="text-slate-400 text-lg mb-4">
@@ -307,7 +286,6 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
         </div>
       )}
 
-      {/* Support Message - Only for role "user" */}
       {isOwner && userRole === "user" && (
         <div className="mt-6 p-4 bg-gradient-to-r from-[#1a1545]/60 via-[#1e1850]/60 to-[#1a1545]/60 rounded-lg border-2 border-[#3d3470]/50 text-center">
           <p className="text-sm text-gray-300">
@@ -325,7 +303,6 @@ export const CustomDecksList = ({ userId, isOwner, userRole }: CustomDecksListPr
         </div>
       )}
 
-      {/* Deck Modal */}
       {selectedDeck && (
         <CustomDeckModal
           deck={selectedDeck}
