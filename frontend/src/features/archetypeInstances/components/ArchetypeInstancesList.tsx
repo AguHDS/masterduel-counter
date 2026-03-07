@@ -67,9 +67,7 @@ const ArchetypeInstancesListComponent = ({
   if (isLoading) {
     return (
       <div className="flex flex-col items-start p-4 w-full">
-        <ListFramedContainer
-          contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4"
-        >
+        <ListFramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
           {/* Back button */}
           <div className="flex">
             <button
@@ -92,9 +90,7 @@ const ArchetypeInstancesListComponent = ({
   if (error) {
     return (
       <div className="flex flex-col items-start p-4 w-full">
-        <ListFramedContainer
-          contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4"
-        >
+        <ListFramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
           {/* Back button */}
           <div className="flex">
             <button
@@ -117,9 +113,7 @@ const ArchetypeInstancesListComponent = ({
   if (!hasInstances) {
     return (
       <div className="flex flex-col items-start p-4 w-full">
-        <ListFramedContainer
-          contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4"
-        >
+        <ListFramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
           {/* Back button */}
           <div className="flex">
             <button
@@ -166,7 +160,7 @@ const ArchetypeInstancesListComponent = ({
             }}
           />
 
-          <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
+          <div className="flex flex-col items-center justify-center min-h-[300px] gap-1">
             <div className="text-blue-300 text-lg text-center">
               {debouncedSearchQuery.trim()
                 ? `No guides found matching "${debouncedSearchQuery}"`
@@ -183,7 +177,10 @@ const ArchetypeInstancesListComponent = ({
             )}
             {!canCreateInstance && !debouncedSearchQuery.trim() && (
               <div className="text-blue-300 text-lg text-center">
-                <Link to="/signin" className="text-blue-400 hover:text-blue-300 underline">
+                <Link
+                  to="/signin"
+                  className="text-blue-400 hover:text-blue-300 underline"
+                >
                   Sign in
                 </Link>
                 <span> and be the first to create a guide!</span>
@@ -197,11 +194,9 @@ const ArchetypeInstancesListComponent = ({
 
   return (
     <div className="flex flex-col items-start p-4 w-full">
-      <ListFramedContainer
-        contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4"
-      >
+      <ListFramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
         {/* Back button */}
-        <div className="flex relative top-3 right-3">
+        <div className="flex items-center justify-between">
           <button
             onClick={handleBackClick}
             className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
@@ -210,6 +205,19 @@ const ArchetypeInstancesListComponent = ({
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
           </button>
+
+          {!canCreateInstance && (
+            <span className="text-sm text-blue-300">
+              You must{" "}
+              <Link
+                to="/signin"
+                className="text-blue-400 hover:text-blue-300 underline"
+              >
+                sign in
+              </Link>{" "}
+              to create a guide
+            </span>
+          )}
         </div>
 
         <div className="flex items-center w-full justify-between gap-4">
