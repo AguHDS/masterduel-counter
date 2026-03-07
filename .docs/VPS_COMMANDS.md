@@ -6,7 +6,6 @@ cd /var/www/masterduel-counter
 ```
 
 ## Rebuildear backend
-- cd /var/www/masterduel-counter/backend
 - npm run build
 - pm2 restart masterduel-backend
 - systemctl reload nginx
