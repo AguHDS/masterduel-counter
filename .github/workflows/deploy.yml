@@ -19,21 +19,17 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd /var/www/masterduel-counter
-
             git pull origin master
 
             cd /var/www/masterduel-counter/backend
-            npm ci
+            npm ci || npm install
             npm run build
-
-            # Reiniciar PM2 (manejar error si no existe)
             pm2 restart masterduel-backend || pm2 start npm --name "masterduel-backend" -- start
 
             cd /var/www/masterduel-counter/frontend
-            npm ci
+            npm ci || npm install
             npm run build
 
             pm2 save
