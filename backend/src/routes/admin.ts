@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { getUserMiddleware, searchUserMiddleware } from "@/http/middlewares/index.js";
+import {
+  getUserMiddleware,
+  searchUserMiddleware,
+} from "@/http/middlewares/index.js";
 import {
   banUserController,
   changeUserCredentialsController,
@@ -13,6 +16,7 @@ import {
   searchUsersController,
   unbanUserController,
   getTotalUsersController,
+  getAllUsersController
 } from "@/http/controllers/admin/index.js";
 import {
   deleteUserMiddleware,
@@ -21,6 +25,8 @@ import {
 } from "@/http/middlewares/admin/index.js";
 
 const router = Router();
+
+// User search and management
 router.get(
   "/users/search",
   verifyAdminMiddleware,
@@ -62,12 +68,21 @@ router.put(
 );
 router.put("/users/:userId/ban", verifyAdminMiddleware, banUserController);
 router.put("/users/:userId/unban", verifyAdminMiddleware, unbanUserController);
+
+// Reports
 router.get("/reports", verifyAdminMiddleware, getReportsController);
 router.delete(
   "/reports/:reportId",
   verifyAdminMiddleware,
   deleteReportController,
 );
-router.get("/tracking/total-users", verifyAdminMiddleware, getTotalUsersController);
+
+// Tracking
+router.get(
+  "/tracking/total-users",
+  verifyAdminMiddleware,
+  getTotalUsersController,
+);
+router.get("/tracking/users", verifyAdminMiddleware, getAllUsersController);
 
 export default router;

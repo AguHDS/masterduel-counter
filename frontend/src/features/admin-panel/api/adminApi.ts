@@ -13,4 +13,9 @@ export const adminApi = {
   // Reports
   getReports: adminHttpApi.getReports,
   deleteReport: adminHttpApi.deleteReport,
+
+  // Tracking
+  getTotalUsers: adminHttpApi.getTotalUsers,
+  getAllUsers: (page: number, limit: number, sortBy?: string, sortOrder?: string, search?: string) => 
+    adminHttpApi.getAllUsers(page, limit, sortBy, sortOrder, search),
 };

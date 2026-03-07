@@ -1,6 +1,6 @@
 ## Conexión al Servidor VPS
 ```bash
-ssh root@10.108.0.3
+ssh root@104.236.51.1
 # Password: project-TON618a
 cd /var/www/masterduel-counter
 ```

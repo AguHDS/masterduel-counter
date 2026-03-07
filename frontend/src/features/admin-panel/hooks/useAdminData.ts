@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { adminHttpApi } from "@/lib/http/adminApi";
 import { queryKeys } from "@/lib/query/queryKeys";
 
@@ -7,7 +7,7 @@ export const useSearchUsers = (query: string, enabled: boolean = false) => {
   return useQuery({
     queryKey: [...queryKeys.admin.users.all, "search", query],
     queryFn: () => adminHttpApi.searchUsers(query),
-    enabled: enabled && !!query.trim(), // Only run if there is a query and enabled is true
+    enabled: enabled && !!query.trim(),
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
   });
@@ -19,6 +19,39 @@ export const useAdminUser = (userId: string) => {
     queryKey: queryKeys.admin.users.detail(userId),
     queryFn: () => adminHttpApi.getUser(userId),
     enabled: !!userId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+};
+
+/** Get total users count */
+export const useTotalUsers = () => {
+  return useQuery({
+    queryKey: ["admin", "totalUsers"],
+    queryFn: () => adminHttpApi.getTotalUsers(),
+    staleTime: 1000 * 60 * 5,
+    retry: 2,
+  });
+};
+
+/** Get all users with pagination (infinite query for lazy loading) */
+export const useAllUsers = (
+  limit: number = 50,
+  sortBy: string = "created_at",
+  sortOrder: string = "desc",
+  search?: string,
+) => {
+  return useInfiniteQuery({
+    queryKey: [...queryKeys.admin.users.all, "paginated", sortBy, sortOrder, search],
+    queryFn: ({ pageParam = 1 }) => 
+      adminHttpApi.getAllUsers(pageParam, limit, sortBy, sortOrder, search),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.totalPages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
   });
@@ -51,13 +84,8 @@ export const useDeleteUser = () => {
         queryKey: queryKeys.admin.users.all,
       });
 
-      // Remove user data from cache to prevent showing deleted user details
       queryClient.removeQueries({
         queryKey: queryKeys.admin.users.detail(userId),
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [...queryKeys.admin.users.all, "search"],
       });
     },
     onError: (error: Error) => {

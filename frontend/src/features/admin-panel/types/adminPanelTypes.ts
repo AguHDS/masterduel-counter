@@ -69,4 +69,12 @@ export interface UpdateUserData {
   is_banned?: boolean;
 }
 
+export interface PaginatedUsersResponse {
+  users: SearchUserResult[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export type AdminTab = "accounts" | "reports" | "tracking";

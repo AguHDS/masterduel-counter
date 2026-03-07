@@ -85,4 +85,19 @@ export interface AdminService {
   getTotalUsers(): Promise<{
     total: number;
   }>;
+
+  /** Get all users with pagination */
+  getAllUsersPaginated(
+    page: number,
+    limit: number,
+    sortBy?: "created_at" | "name" | "email",
+    sortOrder?: "asc" | "desc",
+    search?: string
+  ): Promise<{
+    users: UserSearchResult[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>;
 }

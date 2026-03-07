@@ -10,3 +10,4 @@ export { getUserInstancesController } from "./getUserInstancesController.js";
 export { searchUsersController } from "./searchUsersController.js";
 export { unbanUserController } from "./unbanUserController.js";
 export { getTotalUsersController } from "./getTotalUsersController.js";
+export { getAllUsersController } from "./getAllUsersController.js";

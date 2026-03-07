@@ -4,6 +4,7 @@ import type {
   Report,
   SearchUserResult,
   UserInstance,
+  PaginatedUsersResponse,
 } from "@/features/admin-panel/types/adminPanelTypes";
 
 interface ApiResponse<T> {
@@ -37,6 +38,10 @@ interface DeleteInstanceResponse {
   success: boolean;
   deletedCount?: number;
   message?: string;
+}
+
+interface TotalUsersResponse {
+  total: number;
 }
 
 export const adminHttpApi = {
@@ -129,6 +134,35 @@ export const adminHttpApi = {
     await axiosClient.delete<ApiResponse<void>>(
       `/api/admin/reports/${reportId}`,
     );
+  },
+
+  async getTotalUsers(): Promise<TotalUsersResponse> {
+    const { data } = await axiosClient.get<ApiResponse<TotalUsersResponse>>(
+      `/api/admin/tracking/total-users`,
+    );
+    return data.data;
+  },
+
+  async getAllUsers(
+    page: number,
+    limit: number,
+    sortBy: string = "created_at",
+    sortOrder: string = "desc",
+    search?: string,
+  ): Promise<PaginatedUsersResponse> {
+    const { data } = await axiosClient.get<ApiResponse<PaginatedUsersResponse>>(
+      `/api/admin/tracking/users`,
+      {
+        params: {
+          page,
+          limit,
+          sortBy,
+          sortOrder,
+          search,
+        },
+      },
+    );
+    return data.data;
   },
 };
 

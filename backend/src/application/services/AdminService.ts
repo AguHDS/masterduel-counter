@@ -283,4 +283,34 @@ export class AdminServiceImpl implements AdminServicePort {
     const total = await this.adminRepository.getTotalUsers();
     return { total };
   }
+
+  /** Get all users with pagination */
+  async getAllUsersPaginated(
+    page: number,
+    limit: number,
+    sortBy: "created_at" | "name" | "email" = "created_at",
+    sortOrder: "asc" | "desc" = "desc",
+    search?: string,
+  ): Promise<{
+    users: UserSearchResult[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const result = await this.adminRepository.getAllUsersPaginated(
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+      search,
+    );
+
+    return {
+      ...result,
+      page,
+      limit,
+      totalPages: Math.ceil(result.total / limit),
+    };
+  }
 }

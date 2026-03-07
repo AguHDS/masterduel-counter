@@ -1,45 +1,66 @@
 import { Users } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { getBackendUrl } from "@/lib/config/urlHelpers";
-
-const API_BASE_URL = getBackendUrl();
-
-interface TotalUsersResponse {
-  success: boolean;
-  data: {
-    total: number;
-  };
-}
-
-const fetchTotalUsers = async (): Promise<number> => {
-  const response = await axios.get<TotalUsersResponse>(
-    `${API_BASE_URL}/api/admin/tracking/total-users`,
-    { withCredentials: true }
-  );
-  return response.data.data.total;
-};
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { useTotalUsers, useAllUsers } from "../hooks/useAdminData";
+import { UsersList } from "./UserList";
 
 export const TrackingTab = () => {
-  const { data: totalUsers, isLoading, error } = useQuery({
-    queryKey: ["admin", "totalUsers"],
-    queryFn: fetchTotalUsers,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: 2,
-  });
+  const [sortBy, setSortBy] = useState("created_at");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [showUsersList, setShowUsersList] = useState(false);
+  const { data: totalUsers, isLoading: totalUsersLoading } = useTotalUsers();
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: usersLoading,
+    refetch,
+  } = useAllUsers(50, sortBy, sortOrder, debouncedSearch || undefined);
 
-  if (isLoading) {
+  const users = useMemo(() => {
+    return data?.pages.flatMap((page) => page.users) || [];
+  }, [data]);
+
+  const handleSort = useCallback(
+    (field: string) => {
+      if (sortBy === field) {
+        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+      } else {
+        setSortBy(field);
+        setSortOrder("desc");
+      }
+    },
+    [sortBy, sortOrder],
+  );
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    setShowUsersList(true);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
+
+  // Refetch when sort or search changes
+  useEffect(() => {
+    if (showUsersList) {
+      refetch();
+    }
+  }, [sortBy, sortOrder, debouncedSearch, refetch, showUsersList]);
+
+  if (totalUsersLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-        <p className="text-red-300">Failed to load tracking data</p>
       </div>
     );
   }
@@ -54,46 +75,44 @@ export const TrackingTab = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Total Users Card */}
-        <div className="bg-gradient-to-br from-blue-950/40 to-purple-950/20 border border-blue-500/30 rounded-lg p-6 shadow-lg">
+        <div
+          onClick={() => setShowUsersList(!showUsersList)}
+          className="bg-gradient-to-br from-blue-950/40 to-purple-950/20 border border-blue-500/30 rounded-lg p-6 shadow-lg cursor-pointer hover:border-blue-400/50 transition-all"
+        >
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
               <Users className="w-8 h-8 text-blue-400" />
             </div>
+            <span className="text-xs text-blue-400 bg-blue-500/20 px-2 py-1 rounded-full">
+              Click to {showUsersList ? "hide" : "view"} list
+            </span>
           </div>
           <h3 className="text-sm font-medium text-blue-300 mb-1">
             Total Registered Users
           </h3>
           <p className="text-4xl font-bold text-white">
-            {totalUsers?.toLocaleString() || 0}
+            {totalUsers?.total.toLocaleString() || 0}
           </p>
         </div>
-
-        {/* Placeholder cards for future stats */}
-        <div className="bg-gradient-to-br from-slate-900/40 to-slate-950/20 border border-slate-500/20 rounded-lg p-6 shadow-lg opacity-50">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-slate-500/10 border border-slate-500/30 rounded-lg">
-              <Users className="w-8 h-8 text-slate-400" />
-            </div>
-          </div>
-          <h3 className="text-sm font-medium text-slate-400 mb-1">
-            Active Users (Coming Soon)
-          </h3>
-          <p className="text-4xl font-bold text-slate-300">--</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-slate-900/40 to-slate-950/20 border border-slate-500/20 rounded-lg p-6 shadow-lg opacity-50">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-slate-500/10 border border-slate-500/30 rounded-lg">
-              <Users className="w-8 h-8 text-slate-400" />
-            </div>
-          </div>
-          <h3 className="text-sm font-medium text-slate-400 mb-1">
-            New Users (30d) (Coming Soon)
-          </h3>
-          <p className="text-4xl font-bold text-slate-300">--</p>
-        </div>
       </div>
+
+      {showUsersList && (
+        <div className="mt-8">
+          <UsersList
+            users={users}
+            totalCount={totalUsers?.total || 0}
+            loadMore={fetchNextPage}
+            hasMore={!!hasNextPage}
+            isLoading={usersLoading}
+            isFetchingNextPage={isFetchingNextPage}
+            onSort={handleSort}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSearch={handleSearch}
+            searchQuery={searchQuery}
+          />
+        </div>
+      )}
     </div>
   );
 };

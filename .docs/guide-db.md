@@ -33,4 +33,4 @@ Nota:
 ---
 
 VPS:
-`sqlite3 prisma/src/data/database.db`
+sqlite3 prisma/src/data/database.db

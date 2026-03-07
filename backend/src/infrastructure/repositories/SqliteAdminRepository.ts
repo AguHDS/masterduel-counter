@@ -1,7 +1,7 @@
 import { AdminRepository } from "@/domain/ports/AdminRepository.js";
 import type { UserSearchResult } from "@/shared/dtos/userDto.js";
 import { PrismaClient } from "@prisma/client";
-import { AdminInstanceResult } from "@/domain/ports/AdminRepository.js";
+import type { AdminInstanceResult } from "@/domain/ports/AdminRepository.js";
 import type { ReportWithDetails } from "@/domain/Report.js";
 import { hashPassword } from "better-auth/crypto";
 
@@ -401,7 +401,7 @@ export class SqliteAdminRepository implements AdminRepository {
       reportedInstanceTitle: report.reportedInstance?.title,
       reportedInstanceAuthorId: report.reportedInstance?.user?.id || null,
       reportedInstanceAuthorName: report.reportedInstance?.user?.name || null,
-      reportedInstanceArchetypeId: report.reportedInstance?.archetypeId || null, // NUEVO
+      reportedInstanceArchetypeId: report.reportedInstance?.archetypeId || null,
     }));
   }
 
@@ -414,5 +414,63 @@ export class SqliteAdminRepository implements AdminRepository {
   async getTotalUsers(): Promise<number> {
     const count = await this.prisma.user.count();
     return count;
+  }
+
+  /** Get all users with pagination */
+  async getAllUsersPaginated(
+    page: number,
+    limit: number,
+    sortBy: "created_at" | "name" | "email" = "created_at",
+    sortOrder: "asc" | "desc" = "desc",
+    search?: string,
+  ): Promise<{
+    users: UserSearchResult[];
+    total: number;
+  }> {
+    const skip = (page - 1) * limit;
+
+    const where = search
+      ? {
+          OR: [{ name: { contains: search } }, { email: { contains: search } }],
+        }
+      : {};
+
+    const total = await this.prisma.user.count({ where });
+    const users = await this.prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        banned: true,
+        banReason: true,
+        banExpires: true,
+      },
+      orderBy: {
+        [sortBy === "name"
+          ? "name"
+          : sortBy === "email"
+            ? "email"
+            : "createdAt"]: sortOrder,
+      },
+      skip,
+      take: limit,
+    });
+
+    return {
+      users: users.map((user) => ({
+        id: user.id,
+        username: user.name,
+        email: user.email,
+        role: user.role,
+        created_at: user.createdAt.toISOString(),
+        is_banned: user.banned || false,
+        ban_reason: user.banReason || null,
+        ban_expires: user.banExpires?.toISOString() || null,
+      })),
+      total,
+    };
   }
 }

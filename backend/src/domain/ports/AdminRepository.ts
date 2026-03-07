@@ -40,4 +40,16 @@ export interface AdminRepository {
   deleteReport(reportId: number): Promise<void>;
   /** Get total number of registered users */
   getTotalUsers(): Promise<number>;
+
+  /** Get all users with pagination */
+  getAllUsersPaginated(
+    page: number,
+    limit: number,
+    sortBy?: "created_at" | "name" | "email",
+    sortOrder?: "asc" | "desc",
+    search?: string
+  ): Promise<{
+    users: UserSearchResult[];
+    total: number;
+  }>;
 }
