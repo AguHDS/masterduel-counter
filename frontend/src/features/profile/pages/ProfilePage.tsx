@@ -29,7 +29,7 @@ export const ProfilePage = () => {
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  
+
   // Determine active tab from URL or default to "profile"
   const getActiveTab = (): TabType => {
     if (!tab) return "profile";
@@ -37,7 +37,7 @@ export const ProfilePage = () => {
     if (tab === "guides" || tab === "favorites") return tab as TabType;
     return "profile";
   };
-  
+
   const activeTab = getActiveTab();
 
   const { data: profileData } = useQuery({
@@ -65,6 +65,8 @@ export const ProfilePage = () => {
     isEditMode,
     bioValue,
     previewUrl,
+    selectedFile,
+    fileError,
     isSaving,
     isDeletingPhoto,
     handleFileSelect,
@@ -102,6 +104,8 @@ export const ProfilePage = () => {
     if (file) {
       handleFileSelect(file);
     }
+    // Limpiar el input para permitir seleccionar el mismo archivo nuevamente
+    e.target.value = "";
   };
 
   const handleViewAllGuides = () => {
@@ -205,21 +209,45 @@ export const ProfilePage = () => {
                           {profile?.userName}
                         </h1>
                         <div className="relative w-32 h-32 sm:w-44 sm:h-44">
-                          <div className="absolute inset-0 rounded-lg border-2 border-yellow-500/90 shadow-amber-500/30"></div>
-                          <div className="absolute inset-1 overflow-hidden border-2 border-yellow-400/40 bg-slate-900">
+                          <div
+                            className={`absolute inset-0 rounded-lg border-2 ${
+                              fileError && previewUrl && !selectedFile
+                                ? "border-red-500 shadow-red-500/30"
+                                : "border-yellow-500/90 shadow-amber-500/30"
+                            }`}
+                          ></div>
+                          <div
+                            className={`absolute inset-1 overflow-hidden border-2 ${
+                              fileError && previewUrl && !selectedFile
+                                ? "border-red-400/40"
+                                : "border-yellow-400/40"
+                            } bg-slate-900`}
+                          >
                             {displayPhotoUrl ? (
                               <img
                                 src={displayPhotoUrl}
                                 alt={`${profile?.userName}'s profile`}
-                                className="w-full h-full object-cover"
+                                className={`w-full h-full object-cover ${
+                                  fileError && previewUrl && !selectedFile
+                                    ? "opacity-50"
+                                    : ""
+                                }`}
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-blue-300 text-4xl font-semibold bg-gradient-to-br from-slate-800 to-slate-900">
-                                {profile?.userName?.charAt(0).toUpperCase() || "U"}
+                                {profile?.userName?.charAt(0).toUpperCase() ||
+                                  "U"}
                               </div>
                             )}
                           </div>
                         </div>
+
+                        {/* Error message directly below the photo */}
+                        {isEditMode && isOwner && fileError && (
+                          <div className="mt-3 w-full p-2 bg-red-900/50 border border-red-500 rounded text-xs text-red-200">
+                            <p>{fileError}</p>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex flex-col">
@@ -227,7 +255,9 @@ export const ProfilePage = () => {
                         <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
                           <div className="flex items-center gap-2">
                             <Trophy className="w-5 h-5 text-yellow-400" />
-                            <span className="text-amber-200 font-semibold text-sm">Rank</span>
+                            <span className="text-amber-200 font-semibold text-sm">
+                              Rank
+                            </span>
                           </div>
                           <span className="text-base font-semibold text-yellow-400">
                             {userRank ? `#${userRank}` : "Unranked"}
@@ -236,21 +266,31 @@ export const ProfilePage = () => {
                         <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
                           <div className="flex items-center gap-2">
                             <ThumbsUp className="w-5 h-5 text-green-500" />
-                            <span className="text-amber-200 font-semibold text-sm">Guide Likes</span>
+                            <span className="text-amber-200 font-semibold text-sm">
+                              Guide Likes
+                            </span>
                           </div>
-                          <span className="text-base font-semibold text-green-500">{profile?.totalLikes ?? 0}</span>
+                          <span className="text-base font-semibold text-green-500">
+                            {profile?.totalLikes ?? 0}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
                           <div className="flex items-center gap-2">
                             <Eye className="w-5 h-5 text-purple-400" />
-                            <span className="text-amber-200 font-semibold text-sm">Guide Views</span>
+                            <span className="text-amber-200 font-semibold text-sm">
+                              Guide Views
+                            </span>
                           </div>
-                          <span className="text-base font-semibold text-purple-300">{formatCompactNumber(totalViews)}</span>
+                          <span className="text-base font-semibold text-purple-300">
+                            {formatCompactNumber(totalViews)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
                           <div className="flex items-center gap-2">
                             <Crown className="w-5 h-5 text-yellow-400" />
-                            <span className="text-amber-200 font-semibold text-sm">Role</span>
+                            <span className="text-amber-200 font-semibold text-sm">
+                              Role
+                            </span>
                           </div>
                           <span
                             className={`text-base font-semibold ${
@@ -282,6 +322,7 @@ export const ProfilePage = () => {
                           >
                             Change Photo
                           </button>
+
                           {profile?.profilePictureUrl && (
                             <button
                               onClick={handleDeletePhoto}
@@ -297,7 +338,9 @@ export const ProfilePage = () => {
                       {/* Personal Decks */}
                       <PersonalDecks
                         decks={customDecks || []}
-                        onViewAll={() => navigate(`/profile/${userId}/my-decks`)}
+                        onViewAll={() =>
+                          navigate(`/profile/${userId}/my-decks`)
+                        }
                         isOwner={isOwner}
                       />
                     </div>
@@ -319,13 +362,25 @@ export const ProfilePage = () => {
                         <div className="flex flex-wrap gap-2">
                           {[
                             { id: "profile", label: "Profile", path: "" },
-                            { id: "decks", label: "My Decks", path: "my-decks" },
+                            {
+                              id: "decks",
+                              label: "My Decks",
+                              path: "my-decks",
+                            },
                             { id: "guides", label: "Guides", path: "guides" },
-                            { id: "favorites", label: "Favorites", path: "favorites" },
+                            {
+                              id: "favorites",
+                              label: "Favorites",
+                              path: "favorites",
+                            },
                           ].map((tab) => (
                             <button
                               key={tab.id}
-                              onClick={() => navigate(`/profile/${userId}${tab.path ? `/${tab.path}` : ""}`)}
+                              onClick={() =>
+                                navigate(
+                                  `/profile/${userId}${tab.path ? `/${tab.path}` : ""}`,
+                                )
+                              }
                               className={`px-4 py-2.5 text-sm font-bold transition-all relative overflow-hidden rounded border whitespace-nowrap ${
                                 activeTab === tab.id
                                   ? "text-yellow-400 border-yellow-500/60 bg-yellow-600/10"
@@ -350,7 +405,9 @@ export const ProfilePage = () => {
                             <div className="flex gap-2 flex-shrink-0 flex-wrap sm:flex-nowrap">
                               {!isEditMode ? (
                                 <button
-                                  onClick={() => toggleEditMode(profile?.bio || "")}
+                                  onClick={() =>
+                                    toggleEditMode(profile?.bio || "")
+                                  }
                                   className="flex items-center gap-2 py-2 px-4 bg-yellow-600/80 hover:bg-yellow-600 text-white rounded transition-colors border border-yellow-500 text-sm"
                                 >
                                   <Edit className="w-4 h-4" />
@@ -360,10 +417,16 @@ export const ProfilePage = () => {
                                 <>
                                   <button
                                     onClick={handleSaveProfile}
-                                    disabled={isSaving || isSavingFavorites}
+                                    disabled={
+                                      isSaving ||
+                                      isSavingFavorites ||
+                                      !!fileError
+                                    }
                                     className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-sm"
                                   >
-                                    {isSaving || isSavingFavorites ? "Saving..." : "Save"}
+                                    {isSaving || isSavingFavorites
+                                      ? "Saving..."
+                                      : "Save"}
                                   </button>
                                   <button
                                     onClick={handleCancelEdit}
@@ -531,7 +594,9 @@ export const ProfilePage = () => {
                                 ))}
                             </div>
                             <button
-                              onClick={() => navigate(`/profile/${userId}/favorites`)}
+                              onClick={() =>
+                                navigate(`/profile/${userId}/favorites`)
+                              }
                               className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
                             >
                               View all ({favoritedGuidesData.guides.length})

@@ -19,6 +19,7 @@ Los upstreams del backend
 sudo nginx -t
 # Ver configuración completa
 sudo nginx -T
+`Nota: Acordarse de permitir hasta 3MB como max en la cfg de nginx para evitar errores 413 Payload Too Large`
 
 ## Reiniciar DB
 
