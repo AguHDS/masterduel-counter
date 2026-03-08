@@ -9,11 +9,10 @@ import { getFavoritedGuidesController } from "@/http/controllers/profile/getFavo
 import { validateBioMiddleware } from "@/http/middlewares/profile/validateBioMiddleware.js";
 import { validateFavoriteCardAndDecksMiddleware } from "@/http/middlewares/profile/validateFavoriteCardAndDecksMiddleware.js";
 import { validateUserIdMiddleware } from "@/http/middlewares/validateUserIdMiddleware.js";
-import { validateFileUploadMiddleware } from "@/http/middlewares/validateFileUploadMiddleware.js";
+import { profilePictureUploadMiddleware } from "@/http/middlewares/profile/profilePictureUploadMiddleware.js";
 
 const router = express.Router();
 
-// Configure multer for memory storage
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -32,12 +31,11 @@ router.put(
   updateBioController,
 );
 
-// Upload profile picture
 router.post(
   "/:userId/upload-photo",
   validateUserIdMiddleware,
   upload.single("profilePicture"),
-  validateFileUploadMiddleware,
+  profilePictureUploadMiddleware,
   uploadProfilePictureController,
 );
 

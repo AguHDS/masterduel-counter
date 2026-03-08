@@ -50,7 +50,7 @@ export const useProfileEditor = (userId: string) => {
     };
     reader.readAsDataURL(file);
 
-    const maxSize = 3 * 1024 * 1024; // 3MB
+    const maxSize = 3 * 1024 * 1024; // 3MB, if change, also change backend limit size validation
     if (file.size > maxSize) {
       setFileError(
         `File is too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). Maximum size is 3MB.`,

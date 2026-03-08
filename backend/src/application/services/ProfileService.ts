@@ -39,18 +39,6 @@ export class ProfileServiceImpl implements ProfileService {
     userId: string,
     file: Express.Multer.File
   ): Promise<Profile> {
-    // Validate file size (3MB max)
-    const maxSize = 3 * 1024 * 1024; // 3MB in bytes
-    if (file.size > maxSize) {
-      throw new Error("Profile picture must be 3MB or less");
-    }
-
-    // Validate file type
-    const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-      throw new Error("Profile picture must be a valid image (JPEG, PNG, WEBP)");
-    }
-
     // Ensure profile exists
     let profile = await this.profileRepository.findProfileByUserId(userId);
     if (!profile) {
