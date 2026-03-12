@@ -1,35 +1,34 @@
-import { HomeFeatureContainer } from "@/layouts/HomeFeatureContainer";
+import { CounterGuides } from "./CounterGuides";
+import { DeckGuides } from "./DeckGuides";
 import { GeneralStats } from "./GeneralStats";
-import { LastCreatedGuides } from "./LastCreatedGuides";
-import { CreateGuideInvite } from "./CreateGuideInvite";
+import { LatestUpdates } from "./LastestUpdates";
 
 export const HomeStatsSection = () => {
   return (
     <div className="w-full mb-8 mt-4">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <HomeFeatureContainer
-          maxWidthClassName="max-w-full"
-          contentClassName="h-[580px]"
-          aria-label="General statistics"
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="lg:col-span-2 bg-black/70 shadow-2xl  p-1">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="h-[550px]" aria-label="Counter guides section">
+              <CounterGuides />
+            </div>
+
+            <div className="h-[550px]" aria-label="Deck guides section">
+              <DeckGuides />
+            </div>
+          </div>
+        </div>
+
+        <div
+          className="h-[550px] border-2 border-red-900"
+          aria-label="General statistics section"
         >
           <GeneralStats />
-        </HomeFeatureContainer>
+        </div>
 
-        <HomeFeatureContainer
-          maxWidthClassName="max-w-full"
-          contentClassName="h-[580px]"
-          aria-label="Create guide invitation"
-        >
-          <CreateGuideInvite />
-        </HomeFeatureContainer>
-
-        <HomeFeatureContainer
-          maxWidthClassName="max-w-full"
-          contentClassName="h-[580px]"
-          aria-label="Last created guides"
-        >
-          <LastCreatedGuides />
-        </HomeFeatureContainer>
+        <div className="h-[550px]" aria-label="Latest updates section">
+          <LatestUpdates />
+        </div>
       </div>
     </div>
   );
