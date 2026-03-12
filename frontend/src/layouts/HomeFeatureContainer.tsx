@@ -6,7 +6,7 @@ interface FramedContainerProps extends HTMLAttributes<HTMLElement> {
   contentClassName?: string;
 }
 
-export const FramedContainer = ({
+export const HomeFeatureContainer = ({
   children,
   className,
   maxWidthClassName = "max-w-[1456px]",
