@@ -1,11 +1,29 @@
-import { BookOpen, ArrowRight } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import backgroundImage from "@/assets/home-rework/background_container_blue.webp";
 
 const mockDeckGuides = [
-  { id: 1, title: "Branded Guide", author: "Jared Wong", archetype: "Branded", date: "April 24, 2024" },
-  { id: 2, title: "Rescue-Ace Deck Guide", author: "Jared Wong", archetype: "Rescue-Ace", date: "April 24, 2024" },
-  { id: 3, title: "Labrynth Deck Guide", author: "Jared Wong", archetype: "Labrynth", date: "April 24, 2024" },
+  {
+    id: 1,
+    title: "Branded Guide",
+    author: "Jared Wong",
+    archetype: "Branded",
+    date: "April 24, 2024",
+  },
+  {
+    id: 2,
+    title: "Rescue-Ace Deck Guide",
+    author: "Jared Wong",
+    archetype: "Rescue-Ace",
+    date: "April 24, 2024",
+  },
+  {
+    id: 3,
+    title: "Labrynth Deck Guide",
+    author: "Jared Wong",
+    archetype: "Labrynth",
+    date: "April 24, 2024",
+  },
 ];
 
 export const DeckGuides = () => {
@@ -34,14 +52,12 @@ export const DeckGuides = () => {
           </div>
 
           <p className="text-gray-300 text-xl mb-1 relative top-1 left-11">
-            Learn how to play decks efficiently.
+            Learn combo lines and deck builds
           </p>
         </div>
 
         <div className="mb-20 relative top-14">
-          <h3 className="text-blue-300 text-2xl">
-            Learn Combo Lines, and how to build
-          </h3>
+          <h3 className="text-blue-300 text-2xl">Lastest Deck Guides</h3>
         </div>
 
         <div className="flex-1 min-h-0 mb-2 space-y-1">
@@ -61,14 +77,10 @@ export const DeckGuides = () => {
                   {guide.title}
                 </h4>
 
-                <p className="text-sm text-gray-400">
-                  by {guide.author}
-                </p>
+                <p className="text-sm text-gray-400">by {guide.author}</p>
 
                 <div className="flex justify-end mt-2">
-                  <span className="text-xs text-gray-500">
-                    {guide.date}
-                  </span>
+                  <span className="text-xs text-gray-500">{guide.date}</span>
                 </div>
               </div>
             </div>
@@ -77,10 +89,9 @@ export const DeckGuides = () => {
 
         <div
           onClick={handleViewAll}
-          className="relative top-1 flex items-center justify-center gap-2 text-blue-400 hover:text-blue-300 text-[20px] cursor-pointer transition-colors"
+          className="relative top-3 m-auto flex items-center justify-center gap-2 px-3 py-1.5 text-blue-400/90 hover:text-blue-300 active:text-blue-600/90 text-[20px] cursor-pointer transition-all duration-150 border border-blue-500/30 hover:border-blue-400/60 active:border-blue-700/50 rounded-lg bg-transparent hover:bg-blue-500/5 active:bg-blue-700/20 backdrop-blur-sm"
         >
-          View All Deck Guides
-          <ArrowRight className="w-5 h-5" />
+          <span>View All Deck Guides</span>
         </div>
       </div>
     </div>

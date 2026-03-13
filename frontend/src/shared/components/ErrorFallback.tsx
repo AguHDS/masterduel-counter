@@ -26,11 +26,11 @@ export function ErrorFallback({ error, resetError, showDetails = false }: ErrorF
         </div>
 
         <h1 className="text-3xl font-bold text-gray-900 text-center mb-4">
-          Oops! Algo salió mal
+          Something went wrong!
         </h1>
 
         <p className="text-gray-600 text-center mb-8">
-          Lo sentimos, ha ocurrido un error inesperado. Nuestro equipo ha sido notificado automáticamente.
+          Sorry, an unexpected error has occurred. Our team has been automatically notified.
         </p>
 
         {(showDetails && env.isDevelopment) && (
@@ -51,7 +51,7 @@ export function ErrorFallback({ error, resetError, showDetails = false }: ErrorF
             className="flex items-center justify-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
           >
             <RefreshCw className="w-5 h-5" />
-            Recargar Página
+            Reload Page
           </button>
 
           <button
@@ -59,7 +59,7 @@ export function ErrorFallback({ error, resetError, showDetails = false }: ErrorF
             className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
           >
             <Home className="w-5 h-5" />
-            Volver al Inicio
+            Back to Home
           </button>
 
           {resetError && (
@@ -67,13 +67,13 @@ export function ErrorFallback({ error, resetError, showDetails = false }: ErrorF
               onClick={resetError}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              Reintentar
+              Retry
             </button>
           )}
         </div>
 
         <p className="text-sm text-gray-500 text-center mt-8">
-          Si el problema persiste, por favor contacta con soporte.
+          If the problem persists, please contact support.
         </p>
       </div>
     </div>

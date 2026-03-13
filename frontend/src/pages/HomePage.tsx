@@ -9,7 +9,7 @@ import { SearchResults } from "../shared/components/Search/SearchResults";
 import { useArchetypeSearch } from "../features/ArchetypeAnalyzer/hooks/useArchetypeSearch";
 import { FeatureErrorBoundary } from "../shared/components";
 import { MainLogo } from "../shared/components/MainLogo";
-import { HomeStatsSection } from "../features/home";
+import { HomeAllComponents } from "../features/home";
 import type { Archetype } from "../features/ArchetypeAnalyzer/api/archetypeApi";
 
 export const HomePage = () => {
@@ -103,7 +103,7 @@ export const HomePage = () => {
           className="w-full mx-auto px-4 sm:px-6 lg:px-8"
           style={{ maxWidth: "87.5rem" }}
         >
-          <HomeStatsSection />
+          <HomeAllComponents />
         </div>
 
         <main

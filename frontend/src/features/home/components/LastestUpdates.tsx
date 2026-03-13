@@ -1,26 +1,29 @@
-import { Newspaper, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import duelist_cup from "@/assets/home-rework/LastUpdatesList/Duelist_Cup.webp";
+import banlist_preview from "@/assets/home-rework/LastUpdatesList/Banlist_Preview.webp";
+import masterduel_background from "@/assets/home-rework/LastUpdatesList/masterduel_background.webp";
 
 const mockUpdates = [
   {
     id: 1,
-    title: "Breaking Down The Current Tier List",
+    title: "Duelist Cup: Stage 2 Results and Top Decks",
     date: "April 24, 2024",
-    badge: "LZ3 S$",
-    imageUrl: "/mock-images/tier-list.webp",
+    image: duelist_cup,
+    alt: "Duelist Cup",
   },
   {
     id: 2,
-    title: "Top 10 Budget Decks in the Meta",
+    title: "April 2024 Banlist: Forbidden & Limited Updates",
     date: "April 23, 2024",
-    badge: "LZ9 S$",
-    imageUrl: "/mock-images/budget-decks.webp",
+    image: banlist_preview,
+    alt: "Banlist Preview",
   },
   {
     id: 3,
-    title: "Learn These Must-Know Combos",
+    title: "Balance Patch Notes: Card Adjustments",
     date: "April 24, 2024",
-    badge: "LZ3 S$",
-    imageUrl: "/mock-images/combos.webp",
+    image: masterduel_background,
+    alt: "Master Duel Background",
   },
 ];
 
@@ -34,48 +37,50 @@ export const LatestUpdates = () => {
   };
 
   return (
-    <div className="relative flex flex-col h-full rounded-2xl overflow-hidden border border-cyan-500/30">
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(6, 182, 212, 0.6) 0%, rgba(14, 165, 233, 0.6) 50%, rgba(37, 99, 235, 0.6) 100%)",
-        }}
-      />
+    <div className="relative w-full flex flex-col h-full overflow-hidden border border-slate-600/40">
+      {/* background image */}
+      <div className="absolute inset-0 bg-cover bg-center opacity-30" />
 
-      <div className="relative z-10 flex flex-col h-full p-8">
+      {/* gradient background (same as GeneralStats) */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 opacity-90" />
+
+      {/* Overlay más sutil para "Coming Soon!" */}
+      <div className="absolute inset-0 bg-black/40 z-20 flex items-center justify-center">
+        <h2 className="text-5xl font-light text-white/80 tracking-[0.2em]">
+          COMING SOON
+        </h2>
+      </div>
+
+      {/* Contenido original ligeramente oscurecido */}
+      <div className="relative z-10 flex flex-col h-full p-6 opacity-40">
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-3">
-            <Newspaper className="w-7 h-7 text-cyan-400" />
+          <div className="flex items-center gap-2">
             <h2 className="text-3xl font-bold text-white">Latest Updates</h2>
-            <span className="text-sm text-cyan-400 font-semibold px-3 py-1 bg-cyan-500/20 rounded-full border border-cyan-500/30">
-              Coming soon!
-            </span>
           </div>
         </div>
 
-        <div className="flex-1 space-y-4 mb-6">
+        <div className="flex-1 space-y-3">
           {mockUpdates.map((update) => (
             <div
               key={update.id}
               onClick={() => handleUpdateClick(update.id)}
-              className="flex items-start gap-4 p-3 rounded-lg bg-black/40 border border-cyan-500/30 hover:border-cyan-400/50 hover:bg-black/60 transition-all cursor-pointer"
+              className="flex items-start gap-4 p-3 rounded-lg bg-black/40 border border-slate-700 hover:border-slate-500 hover:bg-black/60 transition-all cursor-pointer"
             >
               <div className="flex-shrink-0">
-                <div className="w-20 h-16 rounded-lg border-2 border-cyan-400/50 bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
-                  {update.title.charAt(0)}
-                </div>
+                <img
+                  src={update.image}
+                  alt={update.alt}
+                  className="w-20 h-14 rounded-lg border border-slate-500 object-cover"
+                />
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h4 className="text-white font-bold text-base line-clamp-2 flex-1">
+                <div className="flex justify-between gap-2 mb-1">
+                  <h4 className="text-white font-semibold text-base line-clamp-2">
                     {update.title}
                   </h4>
-                  <span className="text-xs text-cyan-400 font-semibold px-2 py-1 bg-cyan-500/20 rounded border border-cyan-500/30 whitespace-nowrap">
-                    {update.badge}
-                  </span>
                 </div>
+
                 <p className="text-sm text-gray-400">{update.date}</p>
               </div>
             </div>
@@ -84,7 +89,7 @@ export const LatestUpdates = () => {
 
         <button
           onClick={handleViewAll}
-          className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/50 hover:border-cyan-400 rounded-lg text-white font-semibold transition-all"
+          className="mt-4 flex items-center justify-center gap-2 text-slate-300 hover:text-white text-lg transition-colors"
         >
           View All Updates
           <ArrowRight className="w-5 h-5" />

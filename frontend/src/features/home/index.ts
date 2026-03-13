@@ -1,2 +1,2 @@
-export { HomeStatsSection } from "./components/HomeStatsSection";
-export { CreateGuideInvite } from "./components/CreateGuideInvite";
+export { HomeAllComponents } from "./components/HomeAllComponents";
+export { CounterGuides } from "./components/CounterGuides";
