@@ -1,4 +1,4 @@
-import Searchbar_WithBlueBackground from "@/assets/Bluesearch.webp";
+import search_v2 from "@/assets/home-rework/Search_v2.webp";
 import { useEffect, useRef, useState } from "react";
 import styles from "./search.module.css";
 
@@ -15,7 +15,7 @@ interface SearchInputProps {
 export const SearchInput = ({
   searchQuery,
   onSearchChange,
-  placeholder = "Search archetypes...",
+  placeholder = "Search archetypes to counter...",
   children,
   isDropdownOpen = false,
   onRequestClose,
@@ -65,7 +65,7 @@ export const SearchInput = ({
     <div ref={containerRef} className={styles.searchInputContainer}>
       <div className={styles.searchInputWrapper}>
         <img
-          src={Searchbar_WithBlueBackground}
+          src={search_v2}
           alt="searchbar background"
           className={styles.searchBackground}
           draggable="false"
@@ -82,7 +82,7 @@ export const SearchInput = ({
               onBlur={handleBlur}
               placeholder={isFocused ? "" : placeholder}
               autoComplete="off"
-              aria-label="Search for Yu-Gi-Oh archetypes"
+              aria-label="Search for Yu-Gi-Oh archetypes to counter"
               role="searchbox"
               spellCheck="false"
               className={styles.searchInput}
