@@ -19,7 +19,7 @@ import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
 import { useRef, useState, useCallback } from "react";
 import { instanceApi } from "@/lib/http/instanceApi";
-import { type Card } from "@/features/ArchetypeAnalyzer/api/cardApi";
+import { type Card } from "@/features/guide-editor/api/cardApi";
 import background_profile from "@/assets/MDC-profile_background.webp";
 import { formatCompactNumber } from "@/shared/utils/formatNumber";
 

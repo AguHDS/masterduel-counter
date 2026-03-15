@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "../layouts/Navbar";
 import { Footer } from "../layouts/Footer";
-import { RegisteredArchetypesList } from "../features/archetypesList";
+import { RegisteredArchetypesList } from "../features/registered-archetypes";
 import { FeatureErrorBoundary } from "../shared/components";
 import { MainLogo } from "../shared/components/MainLogo";
 import { HomeAllComponents } from "../features/home";
@@ -18,7 +18,7 @@ export const HomePage = () => {
     <>
       <Helmet>
         <title>
-          Masterduel Counter - Yu-Gi-Oh! Master Duel Archetype Counter Guides
+          Masterduel Counter - Yu-Gi-Oh! Counters and Deck Guides
         </title>
         <meta
           name="description"
@@ -54,6 +54,11 @@ export const HomePage = () => {
           <HomeAllComponents />
         </div>
 
+        {/* Este componente RegisteredArchetypesList, esta destinado a mostrar todas las guias creadas de Counters Guides o Deck Guides.
+        Al buscar y clickear un resultado tipo Counter o Deck en la ArchetypeSearcher, va a mostrar RegisteredArchetypesList con las guias
+        de Counter Guides o Deck Guides dependiendo de que se haya seleccionado.
+        Ahora mismo, solo existe un unico tipo de guia en mi app (revisar App.tsx). Hay que agregar logica para identificar si las guias 
+        conseguidas son de tipo counter guides o deck guide. */}
         <main
           className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-3"
           style={{ maxWidth: "87.5rem" }}

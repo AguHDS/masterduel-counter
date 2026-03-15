@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, Trash2, Lock, Globe, Edit2, Plus, Save } from "lucide-react";
-import { CardTooltip } from "@/features/ArchetypeAnalyzer/components/CardTooltip";
-import { CardSearchModal } from "@/features/ArchetypeAnalyzer/components/CardSearchModal";
+import { CardTooltip } from "@/features/guide-editor/components/CardTooltip";
+import { CardSearchModal } from "@/features/guide-editor/components/CardSearchModal";
 import type { CustomDeck } from "../api/customDeckApi";
 
 interface Card {

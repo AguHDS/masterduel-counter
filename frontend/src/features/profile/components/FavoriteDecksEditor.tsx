@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { CardSearchModal } from "@/features/ArchetypeAnalyzer/components/CardSearchModal";
-import { type Card } from "@/features/ArchetypeAnalyzer/api/cardApi";
-import { useSearchArchetypes } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeQueries";
+import { CardSearchModal } from "@/features/guide-editor/components/CardSearchModal";
+import { useSearchArchetypes } from "@/features/archetypes/hooks/useArchetypes";
 import { useDebounce } from "@/shared/hooks/useDebounce";
-import type { FavoriteDeck } from "../types/profileTypes";
 import border_profile from "@/assets/MDC-border.webp";
 import { CreditCard as Edit, X, Search } from "lucide-react";
 import { useFavoriteCards } from "../hooks/useFavoriteCards";
+import type { FavoriteDeck } from "../types/profileTypes";
+import type { Card } from "@/features/archetypes/types";
 
 interface FavoriteDecksEditorProps {
   favoriteDecks: FavoriteDeck[];
@@ -27,7 +27,7 @@ export const FavoriteDecksEditor = ({
     id: number;
     name: string;
   } | null>(null);
-  
+
   // Estado para el visualizador de cartas (ahora guarda la URL)
   const [viewingCardUrl, setViewingCardUrl] = useState<string | null>(null);
 
@@ -67,7 +67,7 @@ export const FavoriteDecksEditor = ({
       };
 
       let newDecks: FavoriteDeck[];
-      
+
       // If editing an existing deck (within current array bounds)
       if (editingSlot < favoriteDecks.length) {
         newDecks = [...favoriteDecks];
@@ -111,7 +111,10 @@ export const FavoriteDecksEditor = ({
           const deck = favoriteDecks[slotIndex];
 
           return (
-            <div key={slotIndex} className="relative w-[180px] min-w-[140px] flex-shrink max-sm:flex-shrink-0 lg:max-xl:flex-shrink-0">
+            <div
+              key={slotIndex}
+              className="relative w-[180px] min-w-[140px] flex-shrink max-sm:flex-shrink-0 lg:max-xl:flex-shrink-0"
+            >
               {deck ? (
                 <div className="relative h-[220px] group">
                   <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600 to-amber-600 rounded blur opacity-30 group-hover:opacity-60 transition-opacity"></div>
@@ -196,7 +199,7 @@ export const FavoriteDecksEditor = ({
 
       {/* Modal para visualizar carta (usando URL) */}
       {viewingCardUrl && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
           onClick={() => setViewingCardUrl(null)}
         >
@@ -204,8 +207,7 @@ export const FavoriteDecksEditor = ({
             <button
               onClick={() => setViewingCardUrl(null)}
               className="absolute -top-12 right-0 text-white/80 hover:text-white transition-colors"
-            >
-            </button>
+            ></button>
             <img
               src={viewingCardUrl}
               alt="Card view"

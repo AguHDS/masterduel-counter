@@ -5,8 +5,8 @@ import { HomePage } from "./pages/HomePage";
 import { SignInPage } from "./pages/SignInPage";
 import { SignUpPage } from "./pages/SignUpPage";
 import { ProfilePage } from "./features/profile/pages/ProfilePage";
-import { ArchetypeInstancesPage } from "./features/archetypeInstances";
-import { InstanceEditorPage } from "./features/ArchetypeAnalyzer";
+import { ArchetypeInstancesPage } from "./features/guides-instances";
+import { InstanceEditorPage } from "./features/guide-editor";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { AdminPanelPage } from "./features/admin-panel/pages/AdminPanelPage";
@@ -17,21 +17,23 @@ import { SupportPage } from "./pages/SupportPage";
 import { useAnalyticsPageTracking } from "./shared/hooks/useAnalyticsPageTracking";
 
 /**
- * Componente que renderiza todas las rutas y trackea automaticamente
- * los page views cuando cambia la ruta (solo produccion)
+ * Component that renders all routes and tracks automatically
+ * page views when the route changes (production only)
  */
 function AppRoutes() {
-  // Hook que trackea automáticamente cada cambio de ruta
+  // Hook that automatically tracks every route change
   useAnalyticsPageTracking();
 
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/support" element={<SupportPage />} />
+      {/** Guide list of selected archetype */}
       <Route
         path="/archetype/:archetypeId"
         element={<ArchetypeInstancesPage />}
       />
+      {/** Guide creation instance page */}
       <Route
         path="/archetype/:archetypeId/instance/:instanceId"
         element={<InstanceEditorPage />}

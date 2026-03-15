@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { customDeckApi } from "../api/customDeckApi";
 import { queryKeys } from "@/lib/query/queryKeys";
-import { confirmCards } from "@/features/ArchetypeAnalyzer/api/cardApi";
+import { confirmCards } from "@/features/archetypes/api/archetypesApi";
 
 export const useCustomDecks = (userId: string) => {
   const queryClient = useQueryClient();

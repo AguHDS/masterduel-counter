@@ -1,4 +1,4 @@
-import { type Archetype } from "@/features/ArchetypeAnalyzer/api/archetypeApi";
+import { type Archetype } from "@/features/archetypes/types/archetypes.types";
 import { Search, CheckCircle, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -7,6 +7,7 @@ interface SearchResultsProps {
   loading: boolean;
   error: string | null;
   onSelectArchetype: (archetype: Archetype) => void;
+  selectedButton: "counters" | "decks";
 }
 
 export const SearchResults = ({
@@ -14,9 +15,9 @@ export const SearchResults = ({
   loading,
   error,
   onSelectArchetype,
+  selectedButton,
 }: SearchResultsProps) => {
   const [isVisible, setIsVisible] = useState(false);
-
   const hasContent = loading || error || results.length > 0;
 
   useEffect(() => {
@@ -31,11 +32,48 @@ export const SearchResults = ({
     return null;
   }
 
-  // Anchura reducida para que coincida mejor con la searchbar
-  const baseWrapperClass = "absolute left-1/2 top-[calc(100%-16px)] z-[100] w-[65%] sm:w-[90%] md:w-[600px] lg:w-[635px] -translate-x-1/2";
+  const colors = {
+    counters: {
+      border: "border-red-500/40",
+      shadow: "shadow-[0_0_25px_rgba(239,68,68,0.25)]",
+      text: "text-red-400/80",
+      borderBottom: "border-red-500/30",
+      hover: "hover:bg-red-950/30",
+      active: "active:bg-red-900/40",
+      borderHover: "hover:border-red-500/40",
+      borderItem: "border-red-500/20",
+      focus: "focus-visible:outline-red-500",
+      badgeBorder: "border-red-500/30",
+      badgeText: "text-red-400/70",
+      loadingText: "text-red-200/90",
+      loadingIcon: "text-red-400",
+      errorBorder: "border-red-500/40",
+      errorIcon: "text-red-400",
+      errorText: "text-red-300/90",
+    },
+    decks: {
+      border: "border-blue-500/40",
+      shadow: "shadow-[0_0_25px_rgba(59,130,246,0.25)]",
+      text: "text-blue-400/80",
+      borderBottom: "border-blue-500/30",
+      hover: "hover:bg-blue-950/30",
+      active: "active:bg-blue-900/40",
+      borderHover: "hover:border-blue-500/40",
+      borderItem: "border-blue-500/20",
+      focus: "focus-visible:outline-blue-500",
+      badgeBorder: "border-blue-500/30",
+      badgeText: "text-blue-400/70",
+      loadingText: "text-blue-200/90",
+      loadingIcon: "text-blue-400",
+      errorBorder: "border-blue-500/40",
+      errorIcon: "text-blue-400",
+      errorText: "text-blue-300/90",
+    },
+  };
 
-  // Efecto de blur + transparencia con la gama de colores del entorno (ámbar/negro)
-  const basePanelClass = `rounded-lg border-2 border-amber-500/40 bg-black/80 shadow-[0_0_25px_rgba(245,158,11,0.25)] backdrop-blur-md overflow-hidden transition-all duration-300 ease-out ${
+  const currentColors = colors[selectedButton];
+  const baseWrapperClass = "absolute left-1/2 top-[calc(100%-16px)] z-[100] w-[65%] sm:w-[90%] md:w-[600px] lg:w-[635px] -translate-x-1/2";
+  const basePanelClass = `rounded-lg border-2 ${currentColors.border} bg-black/80 ${currentColors.shadow} backdrop-blur-md overflow-hidden transition-all duration-300 ease-out ${
     isVisible
       ? "opacity-100 max-h-[500px] scale-100"
       : "opacity-0 max-h-0 scale-95 pointer-events-none"
@@ -47,9 +85,9 @@ export const SearchResults = ({
         <div
           className={`${basePanelClass} px-6 py-8 flex items-center justify-center gap-3`}
         >
-          <Search className="w-5 h-5 text-amber-400 animate-spin" />
-          <span className="text-amber-200/90 text-sm tracking-wide">
-            Searching archetypes…
+          <Search className={`w-5 h-5 ${currentColors.loadingIcon} animate-spin`} />
+          <span className={`${currentColors.loadingText} text-sm tracking-wide`}>
+            Searching {selectedButton === "counters" ? "counter guides" : "deck guides"}…
           </span>
         </div>
       </div>
@@ -60,10 +98,10 @@ export const SearchResults = ({
     return (
       <div className={`${baseWrapperClass}`}>
         <div
-          className={`${basePanelClass} px-6 py-4 flex items-center gap-3 border-red-500/40`}
+          className={`${basePanelClass} px-6 py-4 flex items-center gap-3 ${currentColors.errorBorder}`}
         >
-          <XCircle className="w-5 h-5 text-red-400" />
-          <span className="text-red-300/90 text-sm">{error}</span>
+          <XCircle className={`w-5 h-5 ${currentColors.errorIcon}`} />
+          <span className={`${currentColors.errorText} text-sm`}>{error}</span>
         </div>
       </div>
     );
@@ -72,12 +110,11 @@ export const SearchResults = ({
   return (
     <div className={`${baseWrapperClass}`}>
       <div className={`${basePanelClass}`}>
-        {/* Header con estilo del entorno */}
-        <div className="px-5 py-3 text-xs tracking-wide uppercase text-amber-400/80 border-b border-amber-500/30 animate-in slide-in-from-top-2 fade-in duration-200 fill-mode-both">
-          Found {results.length} archetype{results.length !== 1 ? "s" : ""}
+        <div className={`px-5 py-3 text-xs tracking-wide uppercase ${currentColors.text} border-b ${currentColors.borderBottom} animate-in slide-in-from-top-2 fade-in duration-200 fill-mode-both`}>
+          Found {results.length} {selectedButton === "counters" ? "archetype" : "deck"}
+          {results.length !== 1 ? "s" : ""} to {selectedButton === "counters" ? "counter" : "explore"}
         </div>
 
-        {/* Contenedor de resultados */}
         <div className="max-h-80 overflow-y-auto search-dropdown px-2 py-3 space-y-2">
           {results.map((archetype, index) => {
             const delay = index * 40;
@@ -86,7 +123,7 @@ export const SearchResults = ({
               <button
                 key={archetype.id}
                 onClick={() => onSelectArchetype(archetype)}
-                className="w-full rounded-lg px-4 py-3 text-left transition-all duration-150 bg-black/40 hover:bg-amber-950/30 active:bg-amber-900/40 active:scale-[0.98] border border-amber-500/20 hover:border-amber-500/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 animate-in slide-in-from-top-3 fade-in fill-mode-both"
+                className={`w-full rounded-lg px-4 py-3 text-left transition-all duration-150 bg-black/40 ${currentColors.hover} ${currentColors.active} active:scale-[0.98] border ${currentColors.borderItem} ${currentColors.borderHover} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${currentColors.focus} animate-in slide-in-from-top-3 fade-in fill-mode-both`}
                 style={{
                   animationDuration: "200ms",
                   animationDelay: `${delay}ms`,
@@ -114,13 +151,13 @@ export const SearchResults = ({
                     </div>
                   </div>
                   <div
-                    className="text-[10px] uppercase tracking-wider text-amber-400/70 px-2 py-1 rounded-full bg-black/40 border border-amber-500/30 animate-in fade-in fill-mode-both"
+                    className={`text-[10px] uppercase tracking-wider ${currentColors.badgeText} px-2 py-1 rounded-full bg-black/40 border ${currentColors.badgeBorder} animate-in fade-in fill-mode-both`}
                     style={{
                       animationDuration: "200ms",
                       animationDelay: `${delay + 60}ms`,
                     }}
                   >
-                    ID {archetype.id}
+                    {selectedButton === "counters" ? "ID" : "Deck"} {archetype.id}
                   </div>
                 </div>
               </button>

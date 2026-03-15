@@ -1,5 +1,6 @@
 import { useQueries, type UseQueryResult } from '@tanstack/react-query';
-import { selectCard, type Card } from '@/features/ArchetypeAnalyzer/api/cardApi';
+import { selectCard } from "@/features/archetypes/api/archetypesApi";
+import type { Card } from '@/features/archetypes/types';
 import type { FavoriteDeck } from '../types/profileTypes';
 
 export const useFavoriteCards = (

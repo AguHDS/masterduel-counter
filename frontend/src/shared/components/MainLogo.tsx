@@ -54,7 +54,7 @@ export const MainLogo = () => {
                 md:text-base
                 lg:text-lg
               ">
-                Find Counters. Learn Combos. Master Decks.
+                Find Counters. Learn Combos. Build Decks.
               </p>
             </div>
           </div>

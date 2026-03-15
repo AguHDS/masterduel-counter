@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import searchImg from "@/assets/home-rework/Search_v2.webp";
 import search_button from "@/assets/home-rework/search_button.webp";
 
 interface SearchInputProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
+  selectedButton: "counters" | "decks";
+  onButtonChange: (button: "counters" | "decks") => void;
   children?: React.ReactNode;
   isDropdownOpen?: boolean;
   onRequestClose?: () => void;
@@ -14,15 +16,14 @@ interface SearchInputProps {
 export const ArchetypeSearcher = ({
   searchQuery,
   onSearchChange,
+  selectedButton,
+  onButtonChange,
   children,
   isDropdownOpen = false,
   onRequestClose,
   onInputFocus,
 }: SearchInputProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [selectedButton, setSelectedButton] = useState<"counters" | "decks">(
-    "counters",
-  );
 
   useEffect(() => {
     if (!isDropdownOpen) return;
@@ -121,7 +122,7 @@ export const ArchetypeSearcher = ({
       <div className="flex justify-center gap-6 mt-3">
         {/* COUNTERS */}
         <button
-          onClick={() => setSelectedButton("counters")}
+          onClick={() => onButtonChange("counters")}
           className="relative flex items-center justify-center transition-all duration-200"
           style={{ transform: "translateX(-10%)" }}
         >
@@ -139,7 +140,7 @@ export const ArchetypeSearcher = ({
 
         {/* DECKS */}
         <button
-          onClick={() => setSelectedButton("decks")}
+          onClick={() => onButtonChange("decks")}
           className="relative flex items-center justify-center transition-all duration-200"
           style={{ transform: "translateX(10%)" }}
         >

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { CardSearchModal } from "@/features/ArchetypeAnalyzer/components/CardSearchModal";
-import { CardTooltip } from "@/features/ArchetypeAnalyzer/components/CardTooltip";
-import { type Card } from "@/features/ArchetypeAnalyzer/api/cardApi";
+import { CardSearchModal } from "@/features/guide-editor/components/CardSearchModal";
+import { CardTooltip } from "@/features/guide-editor/components/CardTooltip";
+import { type Card } from "@/features/guide-editor/api/cardApi";
 import { useFavoriteCards } from "../hooks/useFavoriteCards";
 import border_profile from "@/assets/MDC-border.webp";
 import { Edit } from "lucide-react";

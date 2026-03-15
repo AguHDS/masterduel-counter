@@ -7,13 +7,16 @@ import { LatestUpdates } from "./LastestUpdates";
 import { MainFeatures } from "./MainFeatures";
 import { ArchetypeSearcher } from "@/shared/components/ArchetypeSearcher/ArchetypeSearcher";
 import { SearchResults } from "@/shared/components/ArchetypeSearcher/SearchResults";
-import { useArchetypeSearch } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeSearch";
-import type { Archetype } from "@/features/ArchetypeAnalyzer/api/archetypeApi";
+import { useArchetypeSearch } from "@/features/archetypes/hooks/useArchetypes";
+import type { Archetype } from "@/features/archetypes/types";
 
 export const HomeAllComponents = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedButton, setSelectedButton] = useState<"counters" | "decks">(
+    "counters",
+  );
 
   const { results, loading, error } = useArchetypeSearch({
     searchQuery,
@@ -29,6 +32,8 @@ export const HomeAllComponents = () => {
   const handleSelectArchetype = (archetype: Archetype) => {
     setIsDropdownOpen(false);
     setSearchQuery("");
+    // Aquí puedes usar selectedButton para determinar a dónde navegar (counters o decks guides)
+    // Por ejemplo: navigate(`/${selectedButton}/${archetype.id}`);
     navigate(`/archetype/${archetype.id}`);
   };
 
@@ -42,11 +47,16 @@ export const HomeAllComponents = () => {
     setIsDropdownOpen(false);
   };
 
+  const handleButtonChange = (button: "counters" | "decks") => {
+    setSelectedButton(button);
+    // Aquí puedes agregar lógica adicional cuando cambia el botón
+    // Por ejemplo: resetear la búsqueda, cambiar el placeholder, etc.
+  };
+
   return (
     <div className="w-full mb-8 mt-4">
       <div className="bg-black/70 shadow-2xl p-1 rounded-lg">
         <div className="relative border-2 border-amber-500/60 rounded-lg overflow-hidden shadow-[0_0_25px_rgba(245,158,11,0.35)]">
-          
           {/* BORDE INTERIOR BRILLANTE */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute" />
@@ -75,9 +85,9 @@ export const HomeAllComponents = () => {
                 }}
               />
             </div>
-            
+
             {/* Imagen para móvil/tablet (solo azul) - visible en menores de lg */}
-            <div 
+            <div
               className="lg:hidden w-full h-full"
               style={{
                 backgroundImage: `url(/src/assets/home-rework/bg_noline.webp)`,
@@ -93,12 +103,12 @@ export const HomeAllComponents = () => {
 
           {/* CONTENT */}
           <div className="relative z-10 p-4">
-
-            {/* SEARCH */}
             <div className="mb-4">
               <ArchetypeSearcher
                 searchQuery={searchQuery}
                 onSearchChange={handleSearchChange}
+                selectedButton={selectedButton}
+                onButtonChange={handleButtonChange}
                 isDropdownOpen={
                   isDropdownOpen &&
                   (loading || error !== null || results.length > 0)
@@ -112,11 +122,11 @@ export const HomeAllComponents = () => {
                     loading={loading}
                     error={error ?? null}
                     onSelectArchetype={handleSelectArchetype}
+                    selectedButton={selectedButton}
                   />
                 )}
               </ArchetypeSearcher>
             </div>
-
             {/* GUIDES */}
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="h-[550px] relative">
