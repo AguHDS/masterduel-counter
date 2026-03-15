@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { recommendedDeckApi, type RecommendedDeck } from "@/lib/http/recommendedDeckApi";
 
-export const useRecommendedDeck = (instanceId: number | undefined) => {
+export const useGuideRecommendedDeck = (instanceId: number | undefined) => {
   const [deck, setDeck] = useState<RecommendedDeck | null>(null);
   const [isEditingDeck, setIsEditingDeck] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +15,7 @@ export const useRecommendedDeck = (instanceId: number | undefined) => {
         const deckData = await recommendedDeckApi.getDeck(instanceId);
         setDeck(deckData);
       } catch (error) {
-        console.error("[useRecommendedDeck] Error loading recommended deck:", error);
+        console.error("useGuideRecommendedDeck Error loading recommended deck:", error);
       } finally {
         setIsLoading(false);
       }
@@ -24,11 +24,11 @@ export const useRecommendedDeck = (instanceId: number | undefined) => {
     loadDeck();
   }, [instanceId]);
 
-  const saveDeck = async (title: string | undefined, mainDeckIds: number[], extraDeckIds: number[]) => {
+  const saveRecommendedDeck = async (title: string | undefined, mainDeckIds: number[], extraDeckIds: number[]) => {
     if (!instanceId) return;
 
     try {
-      const savedDeck = await recommendedDeckApi.saveDeck(instanceId, title, mainDeckIds, extraDeckIds);
+      const savedDeck = await recommendedDeckApi.saveRecommendedDeck(instanceId, title, mainDeckIds, extraDeckIds);
       setDeck(savedDeck);
       setIsEditingDeck(false);
     } catch (error) {
@@ -37,11 +37,11 @@ export const useRecommendedDeck = (instanceId: number | undefined) => {
     }
   };
 
-  const deleteDeck = async () => {
+  const deleteRecommendedDeck = async () => {
     if (!instanceId) return;
 
     try {
-      await recommendedDeckApi.deleteDeck(instanceId);
+      await recommendedDeckApi.deleteRecommendedDeck(instanceId);
       setDeck(null);
       setIsEditingDeck(false);
     } catch (error) {
@@ -55,7 +55,7 @@ export const useRecommendedDeck = (instanceId: number | undefined) => {
     isEditingDeck,
     isLoading,
     setIsEditingDeck,
-    saveDeck,
-    deleteDeck,
+    saveRecommendedDeck,
+    deleteRecommendedDeck,
   };
 };

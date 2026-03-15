@@ -43,7 +43,7 @@ export const recommendedDeckApi = {
   },
 
   // Create or update recommended deck
-  saveDeck: async (
+  saveRecommendedDeck: async (
     instanceId: number,
     title: string | undefined,
     mainDeckCards: number[],
@@ -58,7 +58,7 @@ export const recommendedDeckApi = {
   },
 
   // Delete recommended deck
-  deleteDeck: async (instanceId: number): Promise<void> => {
+  deleteRecommendedDeck: async (instanceId: number): Promise<void> => {
     await axios.delete(
       `${API_BASE_URL}/api/instances/${instanceId}/recommended-deck`,
       { withCredentials: true }

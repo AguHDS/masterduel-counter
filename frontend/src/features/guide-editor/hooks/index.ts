@@ -1,3 +1,3 @@
-export { useInstanceEditor } from "./useInstanceEditor";
-export { useInstanceLikes } from "./useInstanceLikes";
-export { useInstanceData } from "./useInstanceData";
+export { useInstanceGuideEditor } from "./useInstanceGuideEditor";
+export { useInstanceGuideLikes } from "./useInstanceGuideLikes";
+export { useInstanceGuideData } from "./useInstanceGuideData";

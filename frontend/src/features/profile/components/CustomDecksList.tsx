@@ -32,7 +32,7 @@ export const CustomDecksList = ({
     isLoading,
     createDeck,
     updateDeck,
-    deleteDeck,
+    deleteCustomDeck,
     isCreating,
     isUpdating,
     isDeleting,
@@ -75,7 +75,7 @@ export const CustomDecksList = ({
     );
     if (!confirmed) return;
 
-    deleteDeck(deckId, {
+    deleteCustomDeck(deckId, {
       onError: (error) => {
         console.error("Error deleting deck:", error);
         alert("Failed to delete deck. Please try again.");

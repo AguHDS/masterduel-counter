@@ -16,47 +16,27 @@ import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "./CardSearchModal";
 import { InstanceHeader } from "./InstanceHeader";
 import { RecommendedDeckEditor } from "./RecommendedDeckEditor";
-import { useInstanceEditor } from "../hooks/useInstanceEditor";
-import { useInstanceLikes } from "../hooks/useInstanceLikes";
-import { useInstanceFavorites } from "../hooks/useInstanceFavorites";
-import { useInstanceData } from "../hooks/useInstanceData";
-import { useRecommendedDeck } from "../hooks/useRecommendedDeck";
-import { useSaveInstance } from "../hooks/useSaveInstance";
+import { useInstanceGuideEditor } from "../hooks/useInstanceGuideEditor";
+import { useInstanceGuideLikes } from "../hooks/useInstanceGuideLikes";
+import { useInstanceGuideFavorites } from "../hooks/useInstanceGuideFavorites";
+import { useInstanceGuideData } from "../hooks/useInstanceGuideData";
+import { useGuideRecommendedDeck } from "../hooks/useGuideRecommendedDeck";
+import { useSaveInstanceGuide } from "../hooks/useSaveInstanceGuide";
 import { useAuth } from "@/features/auth";
 import { instanceApi } from "@/lib/http/instanceApi";
 import { ReportModal } from "@/features/report/components/ReportModal";
-import { useUserInstance } from "../hooks/useArchetypeQueries";
+import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
 import { useRegisterView } from "@/shared/hooks/useRegisterView";
 import instanceEditorBackground from "@/assets/instanceEditorAndProfile_background.webp";
+import type { CardPair } from "@/features/archetypes/types";
 
-interface CardPair {
-  id: string;
-  topCards: Array<{
-    id: number;
-    name: string;
-    imageUrl: string;
-    imageUrlSmall: string;
-    imageUrlCropped: string;
-  }>;
-  bottomCards: Array<{
-    id: number;
-    name: string;
-    imageUrl: string;
-    imageUrlSmall: string;
-    imageUrlCropped: string;
-  }>;
-  effectiveness?: string;
-  comment?: string;
-}
-
-interface ArchetypeAnalyzerContainerProps {
+interface GuideContainerProps {
   onEditModeChange?: (isEditMode: boolean) => void;
 }
 
-export const ArchetypeAnalyzerContainer = ({
-  onEditModeChange,
-}: ArchetypeAnalyzerContainerProps) => {
+/** Guide main container */
+export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
   const { archetypeId, instanceId } = useParams<{
     archetypeId: string;
     instanceId: string;
@@ -64,9 +44,9 @@ export const ArchetypeAnalyzerContainer = ({
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
 
-  const editor = useInstanceEditor();
+  const editor = useInstanceGuideEditor();
   const { saving, validationError, saveInstance, clearValidationError } =
-    useSaveInstance();
+    useSaveInstanceGuide();
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
 
@@ -77,32 +57,32 @@ export const ArchetypeAnalyzerContainer = ({
   const { data: archetypeWithHeaderData } =
     useArchetypeWithHeader(archetypeIdNum);
 
-  const { data: userInstanceData, isError } = useUserInstance(
+  const { data: guideInstanceData, isError } = useGetGuideInstance(
     archetypeIdNum,
     isCreatingNew ? undefined : instanceIdNum,
   );
 
   const isOwner =
     isAuthenticated &&
-    (isCreatingNew || user?.id === userInstanceData?.instance.userId);
+    (isCreatingNew || user?.id === guideInstanceData?.instance.userId);
 
   const selectedArchetype = archetypeWithHeaderData?.archetype;
 
-  const likes = useInstanceLikes({
+  const likes = useInstanceGuideLikes({
     isAuthenticated,
     archetypeId,
-    instanceId: userInstanceData?.instance.id,
+    instanceId: guideInstanceData?.instance.id,
     userId: user?.id,
-    ownerId: userInstanceData?.instance.userId,
+    ownerId: guideInstanceData?.instance.userId,
   });
 
-  const favorites = useInstanceFavorites({
+  const favorites = useInstanceGuideFavorites({
     isAuthenticated,
     archetypeId,
-    instanceId: userInstanceData?.instance.id,
+    instanceId: guideInstanceData?.instance.id,
   });
 
-  const recommendedDeck = useRecommendedDeck(instanceIdNum);
+  const recommendedDeck = useGuideRecommendedDeck(instanceIdNum);
 
   // Register view for this instance
   useRegisterView(instanceIdNum, archetypeIdNum);
@@ -173,9 +153,9 @@ export const ArchetypeAnalyzerContainer = ({
     [],
   );
 
-  useInstanceData({
+  useInstanceGuideData({
     isCreatingNew,
-    userInstanceData,
+    guideInstanceData,
     isError,
     isOwner,
     onDataLoaded: (data) => {
@@ -242,8 +222,8 @@ export const ArchetypeAnalyzerContainer = ({
     editor.setIsEditMode(false);
     clearValidationError();
 
-    if (!isCreatingNew && userInstanceData) {
-      const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
+    if (!isCreatingNew && guideInstanceData) {
+      const pairs: CardPair[] = guideInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
         topCards: pair.topCards,
         bottomCards: pair.bottomCards,
@@ -253,19 +233,20 @@ export const ArchetypeAnalyzerContainer = ({
 
       // Sanitize only the title (multiple spaces -> single space)
       const sanitizedTitle =
-        userInstanceData.instance.title?.replace(/\s+/g, " ").trim() || "Title";
+        guideInstanceData.instance.title?.replace(/\s+/g, " ").trim() ||
+        "Title";
       // generalTip preserves formatting (spaces and line breaks)
-      const generalTip = userInstanceData.instance.generalTip || "";
+      const generalTip = guideInstanceData.instance.generalTip || "";
 
       editor.resetToInitialData({
         pairs,
         title: sanitizedTitle,
         generalTip: generalTip,
-        headerCard: userInstanceData.headerCard
+        headerCard: guideInstanceData.headerCard
           ? {
-              id: userInstanceData.headerCard.id,
-              name: userInstanceData.headerCard.name,
-              imageUrl: userInstanceData.headerCard.imageUrl,
+              id: guideInstanceData.headerCard.id,
+              name: guideInstanceData.headerCard.name,
+              imageUrl: guideInstanceData.headerCard.imageUrl,
             }
           : null,
       });
@@ -321,7 +302,7 @@ export const ArchetypeAnalyzerContainer = ({
   };
 
   const handleDeleteInstance = async () => {
-    if (!selectedArchetype || !userInstanceData?.instance.id || !archetypeId)
+    if (!selectedArchetype || !guideInstanceData?.instance.id || !archetypeId)
       return;
 
     const confirmed = confirm(
@@ -331,7 +312,7 @@ export const ArchetypeAnalyzerContainer = ({
     if (!confirmed) return;
 
     try {
-      await instanceApi.deleteInstance(userInstanceData.instance.id);
+      await instanceApi.deleteInstance(guideInstanceData.instance.id);
       window.location.href = "/";
     } catch (error) {
       console.error("Error deleting instance:", error);
@@ -406,23 +387,23 @@ export const ArchetypeAnalyzerContainer = ({
                 <div className="ml-auto  flex items-center space-x-4 relative left-5">
                   {!isCreatingNew && selectedArchetype.registered && (
                     <div className="flex items-center space-x-1">
-                      {/* View counter */}
+                      {/* Views counter */}
                       <div className="flex items-center space-x-2 px-3 py-1 text-purple-400">
                         <Eye className="w-5 h-5" />
-                        <span>{userInstanceData?.instance.views || 0}</span>
+                        <span>{guideInstanceData?.instance.views || 0}</span>
                       </div>
 
                       {/* Favorite button */}
                       <button
-                        onClick={isAuthenticated ? favorites.toggleFavorite : undefined}
+                        onClick={
+                          isAuthenticated ? favorites.toggleFavorite : undefined
+                        }
                         disabled={!isAuthenticated}
                         className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
                           favorites.favoriteCount > 0
                             ? "text-yellow-400"
                             : "text-white"
-                        } ${
-                          !isAuthenticated ? "cursor-not-allowed" : ""
-                        }`}
+                        } ${!isAuthenticated ? "cursor-not-allowed" : ""}`}
                         title={
                           !isAuthenticated
                             ? "Log in to favorite this guide"
@@ -433,9 +414,7 @@ export const ArchetypeAnalyzerContainer = ({
                       >
                         <Star
                           className={`w-5 h-5 ${
-                            favorites.favoriteCount > 0
-                              ? "text-yellow-400"
-                              : ""
+                            favorites.favoriteCount > 0 ? "text-yellow-400" : ""
                           }`}
                         />
                         <span>{favorites.favoriteCount}</span>
@@ -443,14 +422,18 @@ export const ArchetypeAnalyzerContainer = ({
 
                       {/* Like button */}
                       <button
-                        onClick={isAuthenticated && !isOwner ? likes.toggleLike : undefined}
+                        onClick={
+                          isAuthenticated && !isOwner
+                            ? likes.toggleLike
+                            : undefined
+                        }
                         disabled={!isAuthenticated || isOwner}
                         className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
-                          likes.likeCount > 0
-                            ? "text-green-500"
-                            : "text-white"
+                          likes.likeCount > 0 ? "text-green-500" : "text-white"
                         } ${
-                          !isAuthenticated || isOwner ? "cursor-not-allowed" : ""
+                          !isAuthenticated || isOwner
+                            ? "cursor-not-allowed"
+                            : ""
                         }`}
                         title={
                           !isAuthenticated
@@ -462,9 +445,7 @@ export const ArchetypeAnalyzerContainer = ({
                       >
                         <ThumbsUp
                           className={`w-5 h-5 ${
-                            likes.likeCount > 0
-                              ? "text-green-500"
-                              : ""
+                            likes.likeCount > 0 ? "text-green-500" : ""
                           }`}
                         />
                         <span>{likes.likeCount}</span>
@@ -473,26 +454,26 @@ export const ArchetypeAnalyzerContainer = ({
                   )}
 
                   {/* Creator Info */}
-                  {!isCreatingNew && userInstanceData && (
+                  {!isCreatingNew && guideInstanceData && (
                     <div className="flex items-center space-x-2">
-                      {userInstanceData.userProfilePictureUrl ? (
+                      {guideInstanceData.userProfilePictureUrl ? (
                         <img
-                          src={userInstanceData.userProfilePictureUrl}
-                          alt={`${userInstanceData.userName}'s profile`}
+                          src={guideInstanceData.userProfilePictureUrl}
+                          alt={`${guideInstanceData.userName}'s profile`}
                           className="w-8 h-8 rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
-                          {userInstanceData.userName.charAt(0).toUpperCase()}
+                          {guideInstanceData.userName?.charAt(0).toUpperCase()}
                         </div>
                       )}
                       <div className="flex items-center space-x-1">
                         <span className="text-slate-400 text-xs">Made by</span>
                         <Link
-                          to={`/profile/${userInstanceData.instance.userId}`}
+                          to={`/profile/${guideInstanceData.instance.userId}`}
                           className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors underline"
                         >
-                          {userInstanceData.userName}
+                          {guideInstanceData.userName}
                         </Link>
                       </div>
                     </div>
@@ -548,7 +529,7 @@ export const ArchetypeAnalyzerContainer = ({
                 initialMainDeck={displayMainDeck}
                 initialExtraDeck={displayExtraDeck}
                 onDeckChange={handleDeckChange}
-                onDelete={recommendedDeck.deleteDeck}
+                onDelete={recommendedDeck.deleteRecommendedDeck}
               />
 
               {editor.isEditMode && isOwner && (
@@ -635,13 +616,13 @@ export const ArchetypeAnalyzerContainer = ({
         />
       )}
 
-      {isReportModalOpen && userInstanceData && (
+      {isReportModalOpen && guideInstanceData && (
         <ReportModal
           isOpen={isReportModalOpen}
           onClose={() => setIsReportModalOpen(false)}
           targetType="instance"
-          targetId={userInstanceData.instance.id}
-          targetName={userInstanceData.instance.title}
+          targetId={guideInstanceData.instance.id}
+          targetName={guideInstanceData.instance.title}
         />
       )}
     </>

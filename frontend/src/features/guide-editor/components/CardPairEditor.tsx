@@ -1,15 +1,7 @@
 import { useState, useEffect } from "react";
 import { CardPairItem } from "./CardPairItem";
 import { CardSearchModal } from "./CardSearchModal";
-import { type Card } from "../api/cardApi";
-
-interface CardPair {
-  id: string;
-  topCards: Card[];
-  bottomCards: Card[];
-  effectiveness?: string;
-  comment?: string;
-}
+import type { CardPair, Card } from "@/features/archetypes/types";
 
 interface CardPairEditorProps {
   isEditMode: boolean;
@@ -129,7 +121,7 @@ export const CardPairEditor = ({
 
   const getGridColumns = () => {
     const count = pairs.length;
-    
+
     if (count <= 3) {
       return "grid-cols-1 md:grid-cols-3";
     } else if (count <= 6) {
@@ -142,7 +134,7 @@ export const CardPairEditor = ({
   // Función para renderizar los pares con separadores
   const renderPairsWithSeparators = () => {
     const items = [];
-    
+
     for (let i = 0; i < pairs.length; i++) {
       // Agregar el par de cartas
       const pair = pairs[i];
@@ -172,7 +164,7 @@ export const CardPairEditor = ({
             canMoveRight={i < pairs.length - 1}
             isEditMode={isEditMode}
           />
-        </div>
+        </div>,
       );
 
       if ((i + 1) % 3 === 0 && i < pairs.length - 1) {
@@ -181,11 +173,11 @@ export const CardPairEditor = ({
             <div className="flex justify-center my-8">
               <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
             </div>
-          </div>
+          </div>,
         );
       }
     }
-    
+
     return items;
   };
 
@@ -198,7 +190,9 @@ export const CardPairEditor = ({
       )}
       <div className="flex-1">
         {pairs.length > 0 ? (
-          <div className={`grid ${getGridColumns()} gap-10 justify-items-center`}>
+          <div
+            className={`grid ${getGridColumns()} gap-10 justify-items-center`}
+          >
             {renderPairsWithSeparators()}
           </div>
         ) : (

@@ -1,22 +1,4 @@
-interface CardPair {
-  id: string;
-  topCards: Array<{
-    id: number;
-    name: string;
-    imageUrl: string;
-    imageUrlSmall: string;
-    imageUrlCropped: string;
-  }>;
-  bottomCards: Array<{
-    id: number;
-    name: string;
-    imageUrl: string;
-    imageUrlSmall: string;
-    imageUrlCropped: string;
-  }>;
-  effectiveness?: string;
-  comment?: string;
-}
+import type { CardPair } from "@/features/archetypes/types";
 
 interface HeaderCard {
   id: number;
@@ -32,7 +14,7 @@ interface ValidationResult {
 export const validateInstanceData = (
   pairs: CardPair[],
   headerCard: HeaderCard | null,
-  title: string
+  title: string,
 ): ValidationResult => {
   // Validate at least one pair
   if (pairs.length === 0) {
@@ -44,10 +26,11 @@ export const validateInstanceData = (
 
   // Each pair must have at least one card in top or bottom
   for (const pair of pairs) {
-    if ((pair.topCards.length === 0) && (pair.bottomCards.length === 0)) {
+    if (pair.topCards.length === 0 && pair.bottomCards.length === 0) {
       return {
         isValid: false,
-        errorMessage: "Each card pair must have at least one card in Top or Bottom.",
+        errorMessage:
+          "Each card pair must have at least one card in Top or Bottom.",
       };
     }
   }

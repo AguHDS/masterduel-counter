@@ -1,25 +1,5 @@
 import { useState } from "react";
-import type { Card } from "@/features/archetypes/types";
-
-interface CardPair {
-  id: string;
-  topCards: Array<{
-    id: number;
-    name: string;
-    imageUrl: string;
-    imageUrlSmall: string;
-    imageUrlCropped: string;
-  }>;
-  bottomCards: Array<{
-    id: number;
-    name: string;
-    imageUrl: string;
-    imageUrlSmall: string;
-    imageUrlCropped: string;
-  }>;
-  effectiveness?: string;
-  comment?: string;
-}
+import type { CardPair, Card } from "@/features/archetypes/types";
 
 interface HeaderCard {
   id: number;
@@ -27,17 +7,23 @@ interface HeaderCard {
   imageUrl: string;
 }
 
-export const useInstanceEditor = (initialData?: {
+export const useInstanceGuideEditor = (initialData?: {
   title?: string;
   generalTip?: string;
   headerCard?: HeaderCard | null;
   pairs?: CardPair[];
 }) => {
   const [isEditMode, setIsEditMode] = useState(false);
-  const [loadedPairs, setLoadedPairs] = useState<CardPair[]>(initialData?.pairs || []);
-  const [headerCard, setHeaderCard] = useState<HeaderCard | null>(initialData?.headerCard || null);
+  const [loadedPairs, setLoadedPairs] = useState<CardPair[]>(
+    initialData?.pairs || [],
+  );
+  const [headerCard, setHeaderCard] = useState<HeaderCard | null>(
+    initialData?.headerCard || null,
+  );
   const [title, setTitle] = useState<string>(initialData?.title || "Title");
-  const [generalTip, setGeneralTip] = useState<string>(initialData?.generalTip || "");
+  const [generalTip, setGeneralTip] = useState<string>(
+    initialData?.generalTip || "",
+  );
   const [isSelectingHeader, setIsSelectingHeader] = useState(false);
 
   const resetToInitialData = (data: {

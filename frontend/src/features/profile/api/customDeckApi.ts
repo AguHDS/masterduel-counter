@@ -79,7 +79,7 @@ export const customDeckApi = {
   },
 
   // Delete a custom deck
-  deleteDeck: async (userId: string, deckId: number): Promise<void> => {
+  deleteCustomDeck: async (userId: string, deckId: number): Promise<void> => {
     await axios.delete(
       `${API_BASE_URL}/api/users/${userId}/custom-decks/${deckId}`,
       { withCredentials: true }

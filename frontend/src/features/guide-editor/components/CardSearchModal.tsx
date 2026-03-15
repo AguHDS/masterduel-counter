@@ -17,7 +17,7 @@ interface CardSearchModalProps {
   autoCloseAfterSelect?: boolean;
 }
 
-// Constantes fuera del componente para evitar recreaciones
+// Constants outside the component to avoid recreations
 const GAP = { center: 12, sidebar: 8 };
 const PADDING = { center: 16, sidebar: 12 };
 const CARD_ASPECT_RATIO = 86 / 59;
@@ -38,7 +38,7 @@ export const CardSearchModal = ({
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Debounce más rápido y buscar desde la primera letra
+  // Debounce faster and search from the first letter
   useEffect(() => {
     if (!isOpen) {
       setHasSearched(false);
@@ -56,21 +56,21 @@ export const CardSearchModal = ({
     return () => clearTimeout(timer);
   }, [searchQuery, isOpen]);
 
-  // Resetear hasSearched cuando se cierra el modal
+  // Reset hasSearched when the modal is closed
   useEffect(() => {
     if (!isOpen) {
       setHasSearched(false);
     }
   }, [isOpen]);
 
-  // Ejecutar búsqueda para cualquier query (incluyendo 1 carácter)
+  // Run search for any query (including 1 character)
   const {
     data: searchResults = [],
     isLoading,
     error,
   } = useSearchCards(debouncedQuery);
 
-  // Resetear cuando se cierra el modal
+  // Reset when the modal is closed
   useEffect(() => {
     if (!isOpen) {
       setSearchQuery("");
@@ -79,7 +79,7 @@ export const CardSearchModal = ({
     }
   }, [isOpen]);
 
-  // Optimizar la medición del contenedor
+  // Optimize container measurement
   useEffect(() => {
     if (!isOpen || !containerRef.current) return;
 

@@ -11,26 +11,25 @@ import {
 } from "@/lib/http/instanceApi";
 
 /**
- * Hook to get user instance with card pairs
- * Uses staleTime: 0 to always refetch and ensure likes are up to date
+ * Get user instance guide for an archetype
  * Can fetch by instanceId (when editing existing) or return undefined (when creating new)
  */
-export const useUserInstance = (
+export const useGetGuideInstance = (
   archetypeId: number | undefined,
   instanceId: number | undefined,
 ) => {
   return useQuery<UserInstanceWithCardPairs>({
     queryKey: ["userInstance", archetypeId, instanceId],
-    queryFn: () => instanceApi.getInstanceById(instanceId!),
-    staleTime: 0, // Always refetch to ensure likes and data are up to date
+    queryFn: () => instanceApi.getInstanceGuideById(instanceId!),
+    staleTime: 0,
     enabled: !!archetypeId && !!instanceId,
   });
 };
 
 /**
- * Hook to save a guide for an archetype
+ * Save a guide for an archetype
  */
-export const useRegisterArchetype = () => {
+export const useSaveGuide = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -62,7 +61,6 @@ export const useRegisterArchetype = () => {
         instanceId,
       ),
     onSuccess: (_data, variables) => {
-      // Invalidate related queries
       queryClient.invalidateQueries({
         queryKey: queryKeys.archetypes.withHeader(variables.archetypeId),
       });

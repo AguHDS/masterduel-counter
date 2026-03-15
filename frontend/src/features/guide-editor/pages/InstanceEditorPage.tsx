@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
-import { ArchetypeAnalyzerContainer } from "../components/ArchetypeAnalyzerContainer";
+import { GuideContainer } from "../components/GuideContainer";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { GuideModalHelp } from "../components/GuideModalHelp";
@@ -102,7 +102,9 @@ export const InstanceEditorPage = () => {
                 title="Guide Help"
               >
                 <AlertCircle className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
-                <span className="text-sm">How to create a guide correctly?</span>
+                <span className="text-sm">
+                  How to create a guide correctly?
+                </span>
               </button>
             </div>
           </div>
@@ -115,7 +117,7 @@ export const InstanceEditorPage = () => {
           aria-label="Main content"
         >
           <FeatureErrorBoundary featureName="Instance Editor">
-            <ArchetypeAnalyzerContainer onEditModeChange={setIsEditMode} />
+            <GuideContainer onEditModeChange={setIsEditMode} />
           </FeatureErrorBoundary>
         </main>
 

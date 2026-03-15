@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { instanceApi } from "@/lib/http/instanceApi";
 
-interface UseInstanceLikesProps {
+interface UseInstanceGuideLikesProps {
   isAuthenticated: boolean;
   archetypeId?: string;
   instanceId?: number;
@@ -10,13 +10,13 @@ interface UseInstanceLikesProps {
   ownerId?: string;
 }
 
-export const useInstanceLikes = ({
+export const useInstanceGuideLikes = ({
   isAuthenticated,
   archetypeId,
   instanceId,
   userId,
   ownerId,
-}: UseInstanceLikesProps) => {
+}: UseInstanceGuideLikesProps) => {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const queryClient = useQueryClient();

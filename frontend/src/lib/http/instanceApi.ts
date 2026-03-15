@@ -118,8 +118,8 @@ export const instanceApi = {
     return response.data;
   },
 
-  /** Get instance by its ID */
-  getInstanceById: async (instanceId: number): Promise<UserInstanceWithCardPairs> => {
+  /** Get instance guide by its ID */
+  getInstanceGuideById: async (instanceId: number): Promise<UserInstanceWithCardPairs> => {
     const response = await axios.get(
       `${API_BASE_URL}/api/instances/${instanceId}`
     );

@@ -2,17 +2,17 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { instanceApi } from "@/lib/http/instanceApi";
 
-interface UseInstanceFavoritesProps {
+interface UseInstanceGuideFavoritesProps {
   isAuthenticated: boolean;
   archetypeId?: string;
   instanceId?: number;
 }
 
-export const useInstanceFavorites = ({
+export const useInstanceGuideFavorites = ({
   isAuthenticated,
   archetypeId,
   instanceId,
-}: UseInstanceFavoritesProps) => {
+}: UseInstanceGuideFavoritesProps) => {
   const [favorited, setFavorited] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
   const queryClient = useQueryClient();

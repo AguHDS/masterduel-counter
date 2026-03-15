@@ -1,20 +1,12 @@
 import { useState } from "react";
 import { confirmCards } from "@/features/archetypes/api/archetypesApi";
-import { useRegisterArchetype } from "./useArchetypeQueries";
+import { useSaveGuide } from "./useArchetypeQueries";
 import { recommendedDeckApi } from "@/lib/http/recommendedDeckApi";
 import {
   validateInstanceData,
   transformPairsForApi,
 } from "../utils/validation";
-import type { Card } from "@/features/archetypes/types";
-
-interface CardPair {
-  id: string;
-  topCards: Card[];
-  bottomCards: Card[];
-  effectiveness?: string;
-  comment?: string;
-}
+import type { CardPair, Card } from "@/features/archetypes/types";
 
 interface SaveInstanceParams {
   pairs: CardPair[];
@@ -30,10 +22,10 @@ interface SaveInstanceParams {
   existingDeck: boolean;
 }
 
-export const useSaveInstance = () => {
+export const useSaveInstanceGuide = () => {
   const [saving, setSaving] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const registerMutation = useRegisterArchetype();
+  const saveGuideMutation = useSaveGuide();
 
   const validatePairs = (pairs: CardPair[]): boolean => {
     const validPairs = pairs.filter(
@@ -117,10 +109,10 @@ export const useSaveInstance = () => {
 
       // Sanitize only the title (multiple spaces -> single space)
       const sanitizedTitle = title.replace(/\s+/g, " ").trim();
-      // generalTip preserves formatting (only trim edges)
+      // Optional Comment preserves formatting (only trim edges)
       const processedGeneralTip = generalTip.trim();
 
-      const response = await registerMutation.mutateAsync({
+      const response = await saveGuideMutation.mutateAsync({
         archetypeId,
         cardPairs,
         title: sanitizedTitle,
@@ -133,14 +125,14 @@ export const useSaveInstance = () => {
       const savedInstanceId = response.instance?.id || instanceId;
       if (savedInstanceId) {
         if (hasDeckContent) {
-          await recommendedDeckApi.saveDeck(
+          await recommendedDeckApi.saveRecommendedDeck(
             savedInstanceId,
             deckTitle,
             mainDeckIds,
             extraDeckIds,
           );
         } else if (existingDeck) {
-          await recommendedDeckApi.deleteDeck(savedInstanceId);
+          await recommendedDeckApi.deleteRecommendedDeck(savedInstanceId);
         }
       }
 
@@ -148,11 +140,11 @@ export const useSaveInstance = () => {
         window.location.href = `/archetype/${archetypeId}/instance/${response.instance.id}`;
       }
     } catch (error) {
-      console.error("Error saving archetype:", error);
+      console.error("Error saving guide:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Failed to register archetype. Please try again.";
+          : "Failed to register guide. Please try again.";
       throw new Error(errorMessage);
     } finally {
       setSaving(false);

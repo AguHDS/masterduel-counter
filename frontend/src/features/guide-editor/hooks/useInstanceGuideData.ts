@@ -1,24 +1,5 @@
 import { useEffect } from "react";
-
-interface CardPair {
-  id: string;
-  topCards: Array<{
-    id: number;
-    name: string;
-    imageUrl: string;
-    imageUrlSmall: string;
-    imageUrlCropped: string;
-  }>;
-  bottomCards: Array<{
-    id: number;
-    name: string;
-    imageUrl: string;
-    imageUrlSmall: string;
-    imageUrlCropped: string;
-  }>;
-  effectiveness?: string;
-  comment?: string;
-}
+import type { CardPair } from "@/features/archetypes/types";
 
 interface HeaderCard {
   id: number;
@@ -26,7 +7,7 @@ interface HeaderCard {
   imageUrl: string;
 }
 
-interface UserInstanceData {
+interface GuideInstanceData {
   cardPairs: Array<{
     id: number;
     topCards: Array<{
@@ -61,9 +42,9 @@ interface UserInstanceData {
   userName?: string;
 }
 
-interface UseInstanceDataProps {
+interface UseInstanceGuideDataProps {
   isCreatingNew: boolean;
-  userInstanceData?: UserInstanceData;
+  guideInstanceData?: GuideInstanceData;
   isError: boolean;
   isOwner: boolean;
   onDataLoaded: (data: {
@@ -78,21 +59,21 @@ interface UseInstanceDataProps {
   onReset: () => void;
 }
 
-export const useInstanceData = ({
+export const useInstanceGuideData = ({
   isCreatingNew,
-  userInstanceData,
+  guideInstanceData,
   isError,
   onDataLoaded,
   onNewInstance,
   onReset,
-}: UseInstanceDataProps) => {
+}: UseInstanceGuideDataProps) => {
   useEffect(() => {
     if (isCreatingNew) {
       // Creating new instance
       onNewInstance();
-    } else if (userInstanceData) {
+    } else if (guideInstanceData) {
       // Load existing instance data
-      const pairs: CardPair[] = userInstanceData.cardPairs.map((pair) => ({
+      const pairs: CardPair[] = guideInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
         topCards: pair.topCards,
         bottomCards: pair.bottomCards,
@@ -100,25 +81,25 @@ export const useInstanceData = ({
         comment: pair.comment,
       }));
 
-      const headerCard: HeaderCard | null = userInstanceData.headerCard
+      const headerCard: HeaderCard | null = guideInstanceData.headerCard
         ? {
-            id: userInstanceData.headerCard.id,
-            name: userInstanceData.headerCard.name,
-            imageUrl: userInstanceData.headerCard.imageUrl,
+            id: guideInstanceData.headerCard.id,
+            name: guideInstanceData.headerCard.name,
+            imageUrl: guideInstanceData.headerCard.imageUrl,
           }
         : null;
 
       onDataLoaded({
         pairs,
-        title: userInstanceData.instance.title || "Title",
-        generalTip: userInstanceData.instance.generalTip || "",
+        title: guideInstanceData.instance.title || "Title",
+        generalTip: guideInstanceData.instance.generalTip || "",
         headerCard,
-        likes: userInstanceData.instance.likes,
-        favorites: userInstanceData.instance.favorites,
+        likes: guideInstanceData.instance.likes,
+        favorites: guideInstanceData.instance.favorites,
       });
     } else if (!isCreatingNew && isError) {
       // Error loading existing instance
       onReset();
     }
-  }, [isCreatingNew, userInstanceData, isError]);
+  }, [isCreatingNew, guideInstanceData, isError]);
 };

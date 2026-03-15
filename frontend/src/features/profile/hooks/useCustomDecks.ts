@@ -79,7 +79,7 @@ export const useCustomDecks = (userId: string) => {
   });
 
   const deleteDeckMutation = useMutation({
-    mutationFn: (deckId: number) => customDeckApi.deleteDeck(userId, deckId),
+    mutationFn: (deckId: number) => customDeckApi.deleteCustomDeck(userId, deckId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.customDecks.byUser(userId),
@@ -93,7 +93,7 @@ export const useCustomDecks = (userId: string) => {
     error,
     createDeck: createDeckMutation.mutate,
     updateDeck: updateDeckMutation.mutate,
-    deleteDeck: deleteDeckMutation.mutate,
+    deleteCustomDeck: deleteDeckMutation.mutate,
     isCreating: createDeckMutation.isPending,
     isUpdating: updateDeckMutation.isPending,
     isDeleting: deleteDeckMutation.isPending,
