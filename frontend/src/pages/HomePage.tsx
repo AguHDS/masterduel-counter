@@ -1,47 +1,18 @@
-import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "../layouts/Navbar";
 import { Footer } from "../layouts/Footer";
 import { RegisteredArchetypesList } from "../features/archetypesList";
-import { SearchInput } from "../shared/components/Search/Search";
-import { SearchResults } from "../shared/components/Search/SearchResults";
-import { useArchetypeSearch } from "../features/ArchetypeAnalyzer/hooks/useArchetypeSearch";
 import { FeatureErrorBoundary } from "../shared/components";
 import { MainLogo } from "../shared/components/MainLogo";
 import { HomeAllComponents } from "../features/home";
-import type { Archetype } from "../features/ArchetypeAnalyzer/api/archetypeApi";
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { results, loading, error } = useArchetypeSearch({
-    searchQuery,
-    debounceDelay: 300,
-    limit: 20,
-  });
-
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    setIsDropdownOpen(value.trim().length > 0);
-  };
-
-  const handleSelectArchetype = (archetype: Archetype) => {
-    setIsDropdownOpen(false);
-    setSearchQuery("");
-    navigate(`/archetype/${archetype.id}`);
-  };
 
   const handleSelectRegisteredArchetype = (archetypeId: number) => {
     navigate(`/archetype/${archetypeId}`);
   };
-
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setIsDropdownOpen(false);
-    }
-  }, [searchQuery]);
 
   return (
     <>
@@ -75,29 +46,6 @@ export const HomePage = () => {
         <Navbar />
 
         <MainLogo />
-
-        <SearchInput
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          isDropdownOpen={
-            isDropdownOpen && (loading || error !== null || results.length > 0)
-          }
-          onRequestClose={() => setIsDropdownOpen(false)}
-          onInputFocus={() => {
-            if (searchQuery.trim()) {
-              setIsDropdownOpen(true);
-            }
-          }}
-        >
-          {isDropdownOpen && (
-            <SearchResults
-              results={results}
-              loading={loading}
-              error={error ?? null}
-              onSelectArchetype={handleSelectArchetype}
-            />
-          )}
-        </SearchInput>
 
         <div
           className="w-full mx-auto px-4 sm:px-6 lg:px-8"

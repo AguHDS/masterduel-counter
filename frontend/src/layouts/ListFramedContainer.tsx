@@ -30,7 +30,7 @@ export const ListFramedContainer = ({
       >
         <div className="relative w-full overflow-hidden">
           {/* Background with gradient overlay */}
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-950/40 via-slate-950/40 to-slate-950/40 border-y-2 border-blue-700/90" />
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-950/40 via-slate-950/40 to-slate-950/40 border-[1px] border-blue-700/90" />
           <div className={contentClasses}>{children}</div>
         </div>
       </div>

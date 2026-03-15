@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
@@ -10,45 +10,15 @@ import { FeatureErrorBoundary } from "@/shared/components";
 import { GuideModalHelp } from "../components/GuideModalHelp";
 import { MainLogo } from "@/shared/components/MainLogo";
 import { CommentSection } from "@/features/comments";
-import { SearchInput } from "@/shared/components/Search/Search";
-import { SearchResults } from "@/shared/components/Search/SearchResults";
-import { useArchetypeSearch } from "../hooks/useArchetypeSearch";
-import type { Archetype } from "../api/archetypeApi";
 
 export const InstanceEditorPage = () => {
   const { archetypeId, instanceId } = useParams<{
     archetypeId: string;
     instanceId: string;
   }>();
-  const navigate = useNavigate();
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isGuideHelpOpen, setIsGuideHelpOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const { results, loading: searchLoading, error: searchError } = useArchetypeSearch({
-    searchQuery,
-    debounceDelay: 300,
-    limit: 20,
-  });
-
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    setIsDropdownOpen(value.trim().length > 0);
-  };
-
-  const handleSelectArchetype = (archetype: Archetype) => {
-    setIsDropdownOpen(false);
-    setSearchQuery("");
-    navigate(`/archetype/${archetype.id}`);
-  };
-
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setIsDropdownOpen(false);
-    }
-  }, [searchQuery]);
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
   const instanceIdNum = instanceId ? parseInt(instanceId) : undefined;
@@ -58,8 +28,6 @@ export const InstanceEditorPage = () => {
     isLoading,
     error,
   } = useArchetypeWithHeader(archetypeIdNum);
-
-
 
   if (isLoading) {
     return (
@@ -123,29 +91,6 @@ export const InstanceEditorPage = () => {
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />
         <MainLogo />
-
-        <SearchInput
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          isDropdownOpen={
-            isDropdownOpen && (searchLoading || searchError !== null || results.length > 0)
-          }
-          onRequestClose={() => setIsDropdownOpen(false)}
-          onInputFocus={() => {
-            if (searchQuery.trim()) {
-              setIsDropdownOpen(true);
-            }
-          }}
-        >
-          {isDropdownOpen && (
-            <SearchResults
-              results={results}
-              loading={searchLoading}
-              error={searchError ?? null}
-              onSelectArchetype={handleSelectArchetype}
-            />
-          )}
-        </SearchInput>
 
         {isEditMode && (
           <div className="max-w-[84rem] mx-auto px-4 sm:px-14 lg:px-16 w-full z-20">

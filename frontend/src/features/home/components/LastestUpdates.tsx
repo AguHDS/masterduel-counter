@@ -1,28 +1,27 @@
 import { ArrowRight } from "lucide-react";
-import duelist_cup from "@/assets/home-rework/LastUpdatesList/Duelist_Cup.webp";
-import banlist_preview from "@/assets/home-rework/LastUpdatesList/Banlist_Preview.webp";
-import masterduel_background from "@/assets/home-rework/LastUpdatesList/masterduel_background.webp";
+import banlist_preview_left from "@/assets/home-rework/LastUpdatesList/Banlist_Preview.webp";
+import banlist_preview_right from "@/assets/home-rework/LastUpdatesList/masterduel_background.webp";
 
 const mockUpdates = [
   {
     id: 1,
     title: "Duelist Cup: Stage 2 Results and Top Decks",
     date: "April 24, 2024",
-    image: duelist_cup,
+    image: banlist_preview_right,
     alt: "Duelist Cup",
   },
   {
     id: 2,
     title: "April 2024 Banlist: Forbidden & Limited Updates",
     date: "April 23, 2024",
-    image: banlist_preview,
+    image: banlist_preview_left,
     alt: "Banlist Preview",
   },
   {
     id: 3,
     title: "Balance Patch Notes: Card Adjustments",
     date: "April 24, 2024",
-    image: masterduel_background,
+    image: banlist_preview_right,
     alt: "Master Duel Background",
   },
 ];

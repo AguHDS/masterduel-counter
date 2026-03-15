@@ -1,7 +1,6 @@
 import { Shield, Eye, ThumbsUp, Star } from "lucide-react";
 import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
 import { useNavigate } from "react-router-dom";
-import backgroundImage from "@/assets/home-rework/background_container_red.webp";
 
 const getTimeAgo = (dateString: string): string => {
   const now = new Date();
@@ -37,12 +36,7 @@ export const CounterGuides = () => {
 
   if (isLoading) {
     return (
-      <div className="relative w-full flex flex-col h-full overflow-hidden border border-orange-500/30">
-        <div
-          className="absolute inset-0 opacity-70"
-          style={{ backgroundImage: `url(${backgroundImage})` }}
-        />
-        <div className="absolute inset-0 bg-black/20" />
+      <div className="relative w-full flex flex-col h-full overflow-hidden">
         <div className="relative z-10 flex flex-col h-full p-6 overflow-hidden items-center justify-center">
           <div className="text-orange-300 text-lg">Loading...</div>
         </div>
@@ -52,12 +46,7 @@ export const CounterGuides = () => {
 
   if (error) {
     return (
-      <div className="relative w-full flex flex-col h-full overflow-hidden border border-orange-500/30">
-        <div
-          className="absolute inset-0 opacity-70"
-          style={{ backgroundImage: `url(${backgroundImage})` }}
-        />
-        <div className="absolute inset-0 bg-black/20" />
+      <div className="relative w-full flex flex-col h-full overflow-hidden">
         <div className="relative z-10 flex flex-col h-full p-6 overflow-hidden items-center justify-center">
           <div className="text-red-400 text-center">Failed to load guides</div>
         </div>
@@ -66,17 +55,9 @@ export const CounterGuides = () => {
   }
 
   return (
-    <div className="relative w-full flex flex-col h-full overflow-hidden border border-orange-500/30">
-      {/* background único */}
-      <div
-        className="absolute inset-0 opacity-70"
-        style={{ backgroundImage: `url(${backgroundImage})` }}
-      />
-      <div className="absolute inset-0 bg-black/20" />
-
+    <div className="relative w-full flex flex-col h-full overflow-hidden">
       <div className="relative z-10 flex flex-col h-full p-6 overflow-hidden">
-        {/* header */}
-        <div className="mb-2">
+        <div>
           <div className="flex items-center gap-4">
             <Shield className="w-7 h-7 text-orange-400" />
             <h2 className="text-3xl relative bottom-[2px] font-bold text-yellow-100">
@@ -85,15 +66,15 @@ export const CounterGuides = () => {
           </div>
 
           <p className="text-gray-300 text-xl mb-1 relative top-1 left-11">
-            Learn how to beat specific archetypes
+            How to use handtraps 
           </p>
         </div>
 
-        <div className="mb-20 relative top-14">
+        <div className="mb-12 relative top-5">
           <h3 className="text-orange-300 text-2xl">Latest Counter Guides</h3>
         </div>
 
-        <div className="flex-1 min-h-0 mb-2 overflow-y-auto scrollbar-counterguides">
+        <div className="flex-1 relative bottom-6 min-h-0 overflow-y-auto scrollbar-counterguides">
           {!guides || guides.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-orange-300">
               <p className="text-center text-sm">No guides created yet</p>
@@ -109,7 +90,7 @@ export const CounterGuides = () => {
                 <div
                   key={guide.id}
                   onClick={() => handleGuideClick(guide.archetypeId, guide.id)}
-                  className="flex items-start gap-3 p-2 bg-black/40 border border-red-500/20 hover:border-orange-400/50 hover:bg-black/60 transition-all cursor-pointer min-w-0"
+                  className="flex items-start relative top-3 gap-3 p-1 bg-black/40 border border-red-500/30 hover:border-amber-500/60 hover:bg-black/60 transition-all cursor-pointer min-w-0"
                 >
                   <div className="flex-shrink-0">
                     {guide.headerCardImageUrl ? (

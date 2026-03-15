@@ -118,7 +118,7 @@ const ArchetypeInstancesListComponent = ({
           <div className="flex">
             <button
               onClick={handleBackClick}
-              className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
+              className="flex items-center space-x-2 py-1 relative top-3 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
               aria-label="Go back to home"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -196,10 +196,10 @@ const ArchetypeInstancesListComponent = ({
     <div className="flex flex-col items-start p-4 w-full">
       <ListFramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
         {/* Back button */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between relative top-3">
           <button
             onClick={handleBackClick}
-            className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
+            className="flex items-center space-x-2 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
             aria-label="Go back to home"
           >
             <ArrowLeft className="w-4 h-4" />
