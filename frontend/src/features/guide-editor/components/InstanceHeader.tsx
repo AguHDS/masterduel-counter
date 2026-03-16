@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { CardTooltip } from "./CardTooltip";
+import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 
 interface HeaderCard {
   id: number;

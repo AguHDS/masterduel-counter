@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CardSearchModal } from "@/features/guide-editor/components/CardSearchModal";
+import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
 import { useSearchArchetypes } from "@/features/archetypes/hooks/useArchetypes";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import border_profile from "@/assets/MDC-border.webp";

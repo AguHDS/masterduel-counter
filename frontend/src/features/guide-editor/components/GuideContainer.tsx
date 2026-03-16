@@ -13,7 +13,7 @@ import {
   Eye,
 } from "lucide-react";
 import { CardPairEditor } from "./CardPairEditor";
-import { CardSearchModal } from "./CardSearchModal";
+import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
 import { InstanceHeader } from "./InstanceHeader";
 import { RecommendedDeckEditor } from "./RecommendedDeckEditor";
 import { useInstanceGuideEditor } from "../hooks/useInstanceGuideEditor";

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { X, Search, Loader2 } from "lucide-react";
 import { Virtuoso } from "react-virtuoso";
 import { useSearchCards } from "../hooks/useCardQueries";
-import { CardTooltip } from "./CardTooltip";
+import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
 
 export type ModalVariant = "center" | "sidebar";
@@ -238,7 +238,12 @@ export const CardSearchModal = ({
 
   return (
     <div className={styles.container}>
-      <div ref={containerRef} className={styles.modal} style={styles.size} onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={containerRef}
+        className={styles.modal}
+        style={styles.size}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Animated gradient borders */}
         <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500"></div>

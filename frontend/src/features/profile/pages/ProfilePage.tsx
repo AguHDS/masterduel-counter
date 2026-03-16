@@ -9,7 +9,6 @@ import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
 import { FavoritedGuidesList } from "../components/FavoritedGuidesList";
 import { CustomDecksList } from "../components/CustomDecksList";
 import { PersonalDecks } from "../components/PersonalDecks";
-import type { TabType } from "../types/profileTypes";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
 import { useFavoriteCardAndDecks } from "../hooks/useFavoriteCardAndDecks";
@@ -19,9 +18,10 @@ import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
 import { useRef, useState, useCallback } from "react";
 import { instanceApi } from "@/lib/http/instanceApi";
-import { type Card } from "@/features/guide-editor/api/cardApi";
 import background_profile from "@/assets/MDC-profile_background.webp";
 import { formatCompactNumber } from "@/shared/utils/formatNumber";
+import type { TabType } from "../types/profileTypes";
+import type { Card } from "@/features/archetypes/types";
 
 export const ProfilePage = () => {
   const { userId, tab } = useParams<{ userId: string; tab?: string }>();

@@ -1,6 +1,6 @@
 import { X, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
-import { CardTooltip } from "./CardTooltip";
 
 interface CardPairItemProps {
   topCards: Card[];

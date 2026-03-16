@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus, X, Loader2 } from "lucide-react";
-import { CardSearchModal } from "./CardSearchModal";
-import { CardTooltip } from "./CardTooltip";
+import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
+import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 
 interface Card {
   id: number;
