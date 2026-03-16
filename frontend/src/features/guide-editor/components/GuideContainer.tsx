@@ -503,7 +503,6 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                   pairs={pairs}
                   setPairs={setPairs}
                   onAddPair={editor.isEditMode && isOwner ? addPair : undefined}
-                  validationError={validationError}
                 />
               </div>
 
@@ -533,23 +532,30 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
               />
 
               {editor.isEditMode && isOwner && (
-                <div className="flex justify-center gap-4 mt-12 pt-8 border-t border-slate-700">
-                  <button
-                    onClick={validateAndSave}
-                    disabled={saving}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>{saving ? "Saving..." : "Save Changes"}</span>
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    disabled={saving}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
-                  >
-                    <X className="w-4 h-4" />
-                    <span>Cancel</span>
-                  </button>
+                <div className="flex flex-col items-center gap-4 mt-12 pt-8 border-t border-slate-700">
+                  <div className="flex justify-center gap-4">
+                    <button
+                      onClick={validateAndSave}
+                      disabled={saving}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>{saving ? "Saving..." : "Save Changes"}</span>
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      disabled={saving}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
+                    >
+                      <X className="w-4 h-4" />
+                      <span>Cancel</span>
+                    </button>
+                  </div>
+                  {validationError && (
+                    <p className="text-red-400 text-sm text-center max-w-md">
+                      {validationError}
+                    </p>
+                  )}
                 </div>
               )}
 

@@ -22,23 +22,23 @@ export const HomePage = () => {
         </title>
         <meta
           name="description"
-          content="Find the best counter strategies for Yu-Gi-Oh! Master Duel archetypes and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
+          content="Find the best counter strategies and deck guides for Yu-Gi-Oh! Master Duel, and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
         />
         <meta
           name="keywords"
           content="Yu-Gi-Oh, Master Duel, archetypes, counters, deck guides, strategy, card game"
         />
-        <meta property="og:title" content="Masterduel Counter - Yu-Gi-Oh! Master Duel Archetype Counter Guides" />
+        <meta property="og:title" content="Masterduel Counter - Yu-Gi-Oh! Master Duel Counters and Deck Guides" />
         <meta
           property="og:description"
-          content="Find the best counter strategies for Yu-Gi-Oh! Master Duel archetypes and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
+          content="Find the best counter strategies and deck guides for Yu-Gi-Oh! Master Duel, and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
         />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Masterduel Counter - Yu-Gi-Oh! Master Duel Archetype Counter Guides" />
+        <meta name="twitter:title" content="Masterduel Counter - Yu-Gi-Oh! Master Duel Counters and Deck Guides" />
         <meta
           name="twitter:description"
-          content="Find the best counter strategies for Yu-Gi-Oh! Master Duel archetypes and learn how to win against them."
+          content="Find the best counter strategies and deck guides for Yu-Gi-Oh! Master Duel, and learn how to win against them."
         />
         <link rel="canonical" href="https://masterduelcounter.com" />
       </Helmet>

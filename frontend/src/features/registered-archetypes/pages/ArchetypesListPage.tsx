@@ -16,7 +16,7 @@ export const ArchetypesListPage = () => {
     <>
       <Helmet>
         <title>Masterduel Counter - Yu-Gi-Oh! Master Duel Archetype Counter Guide</title>
-        <meta name="description" content="Find the best counter strategies for Yu-Gi-Oh! Master Duel archetypes. Community-driven deck guides, card recommendations, and effective counter plays." />
+        <meta name="description" content="Find the best counter strategies and deck guides for Yu-Gi-Oh! Master Duel. Community-driven deck guides, card recommendations, and effective counter plays." />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />

@@ -5,7 +5,7 @@ import { HomePage } from "./pages/HomePage";
 import { SignInPage } from "./pages/SignInPage";
 import { SignUpPage } from "./pages/SignUpPage";
 import { ProfilePage } from "./features/profile/pages/ProfilePage";
-import { ArchetypeInstancesPage } from "./features/guides-instances";
+import { ArchetypeGuideListPage } from "./features/guides-instances";
 import { InstanceEditorPage } from "./features/guide-editor";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
@@ -31,7 +31,7 @@ function AppRoutes() {
       {/** Guide list of selected archetype */}
       <Route
         path="/archetype/:archetypeId"
-        element={<ArchetypeInstancesPage />}
+        element={<ArchetypeGuideListPage />}
       />
       {/** Guide creation instance page */}
       <Route

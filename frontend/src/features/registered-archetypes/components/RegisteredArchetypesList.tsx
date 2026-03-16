@@ -10,7 +10,11 @@ interface RegisteredArchetypesListProps {
 
 const ITEMS_PER_PAGE = 10;
 
-/** List of archetypes that are registered (with at least 1 guide instance) */
+/** List of archetypes that are registered (with at least 1 guide instance)
+ * TODO: The idea is that this component must show all registered archetypes (with at least one guide) of Counter Guides or Deck 
+ * Guides, depending on what button was clicked: View all Counter Guides or View All Deck Guides in CounterGuides.tsx/DeckGuides.tsx.
+ * Right now, we don't have a way to differenciate between Counter Guides and Deck Guides.
+*/
 export const RegisteredArchetypesList = ({
   onSelectArchetype,
 }: RegisteredArchetypesListProps) => {

@@ -3,13 +3,13 @@ import { Helmet } from "react-helmet-async";
 import { useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
-import { ArchetypeInstancesList } from "../components/ArchetypeInstancesList";
+import { ArchetypeInstancesGuideList } from "../components/ArchetypeGuideList";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { MainLogo } from "@/shared/components/MainLogo";
 
-/** Page for displaying a list of created guides of specific archetype */
-export const ArchetypeInstancesPage = () => {
+/** Page for displaying a list of created guides of selected archetype */
+export const ArchetypeGuideListPage = () => {
   const { archetypeId } = useParams<{ archetypeId: string }>();
   const navigate = useNavigate();
 
@@ -105,7 +105,7 @@ export const ArchetypeInstancesPage = () => {
           aria-label="Main content"
         >
           <FeatureErrorBoundary featureName="Archetype Instances">
-            <ArchetypeInstancesList
+            <ArchetypeInstancesGuideList
               archetypeId={parseInt(archetypeId!)}
               archetypeName={archetype.name}
               onSelectInstance={handleSelectInstance}

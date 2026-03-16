@@ -1,1 +1,1 @@
-export { ArchetypeInstancesPage } from "./pages/ArchetypeInstancesPage";
+export { ArchetypeGuideListPage } from "./pages/ArchetypeGuideListPage";

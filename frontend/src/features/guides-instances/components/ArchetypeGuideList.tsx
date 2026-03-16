@@ -21,7 +21,14 @@ interface ArchetypeInstancesListProps {
 
 const ITEMS_PER_PAGE = 10;
 
-const ArchetypeInstancesListComponent = ({
+/** List of instances (guides) of the selected archetype
+ * TODO: This component must show all created instances (guides) of the selected archetype. The idea is that it will display 
+ * counter guides or deck guides depending on what button has been selected (counter or decks) when the user uses the search. 
+ * (see CounterGuides.tsx, DeckGuides.tsx and HomeAllComponents.tsx for better understanding).
+ * Right now, we don't have a way to differenciate between Counter Guides and Deck Guides.
+ */
+
+const ArchetypeGuideList = ({
   archetypeId,
   archetypeName,
   onSelectInstance,
@@ -275,4 +282,4 @@ const ArchetypeInstancesListComponent = ({
   );
 };
 
-export const ArchetypeInstancesList = memo(ArchetypeInstancesListComponent);
+export const ArchetypeInstancesGuideList = memo(ArchetypeGuideList);
