@@ -1,14 +1,7 @@
-import { axiosClient } from "./axiosClient";
+import { axiosClient } from "@/lib/http/axiosClient";
+import type { RankingUser } from "../types/ranking.types";
 
-export interface RankingUser {
-  userId: string;
-  username: string;
-  profilePictureUrl: string;
-  totalLikes: number;
-  rank: number;
-}
-
-export interface RankingResponse {
+interface RankingResponse {
   success: boolean;
   ranking: RankingUser[];
   pagination: {

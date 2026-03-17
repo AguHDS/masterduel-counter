@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { archetypeApi } from "@/lib/http/archetypeApi";
+import { homeApi } from "../api/homeApi";
 
 export interface GeneralStatsData {
   totalArchetypes: number;
@@ -15,7 +15,7 @@ export const useGeneralStats = (limit: number = 15) => {
   return useQuery({
     queryKey: ["generalStats", limit],
     queryFn: async (): Promise<GeneralStatsData> => {
-      const data = await archetypeApi.getGeneralStats(limit);
+      const data = await homeApi.getGeneralStats(limit);
       return data;
     },
     staleTime: 1000 * 60 * 5,

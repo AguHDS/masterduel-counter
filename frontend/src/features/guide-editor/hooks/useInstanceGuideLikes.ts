@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { instanceApi } from "@/lib/http/instanceApi";
+import { getGuideLikeStatus, toggleLike } from "../api/guideEditorApi";
 
 interface UseInstanceGuideLikesProps {
   isAuthenticated: boolean;
@@ -24,7 +24,7 @@ export const useInstanceGuideLikes = ({
   const loadLikeStatus = async () => {
     if (isAuthenticated && archetypeId && instanceId) {
       try {
-        const response = await instanceApi.getGuideLikeStatus(
+        const response = await getGuideLikeStatus(
           parseInt(archetypeId),
           instanceId,
         );
@@ -37,7 +37,7 @@ export const useInstanceGuideLikes = ({
     }
   };
 
-  const toggleLike = async () => {
+  const handleToggleLike = async () => {
     if (!isAuthenticated || !instanceId || !archetypeId) return;
 
     if (userId && ownerId && userId === ownerId) {
@@ -46,10 +46,7 @@ export const useInstanceGuideLikes = ({
     }
 
     try {
-      const response = await instanceApi.toggleLike(
-        parseInt(archetypeId),
-        instanceId,
-      );
+      const response = await toggleLike(parseInt(archetypeId), instanceId);
       setLiked(response.liked);
       setLikeCount(response.likes);
 
@@ -68,6 +65,6 @@ export const useInstanceGuideLikes = ({
     likeCount,
     setLikeCount,
     loadLikeStatus,
-    toggleLike,
+    toggleLike: handleToggleLike,
   };
 };

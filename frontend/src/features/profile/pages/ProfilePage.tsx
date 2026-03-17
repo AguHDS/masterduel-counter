@@ -17,7 +17,7 @@ import { useSession } from "@/lib/auth-client";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
 import { useRef, useState, useCallback } from "react";
-import { instanceApi } from "@/lib/http/instanceApi";
+import { guideInstancesApi } from "@/lib/http/guideInstancesApi";
 import background_profile from "@/assets/MDC-profile_background.webp";
 import { formatCompactNumber } from "@/shared/utils/formatNumber";
 import type { TabType } from "../types/profileTypes";
@@ -48,7 +48,7 @@ export const ProfilePage = () => {
 
   const { data: userGuides } = useQuery({
     queryKey: ["userInstances", userId],
-    queryFn: () => instanceApi.getGuidesByUserId(userId!, "likes"),
+    queryFn: () => profileApi.getGuidesByUserId(userId!, "likes"),
     enabled: !!userId,
   });
 
@@ -122,7 +122,7 @@ export const ProfilePage = () => {
 
   const handleRemoveFavorite = async (guideId: number, archetypeId: number) => {
     try {
-      await instanceApi.toggleFavoriteGuide(archetypeId, guideId);
+      await guideInstancesApi.toggleFavoriteGuide(archetypeId, guideId);
       await refetchFavoritedGuides();
     } catch (error) {
       console.error("Error removing favorite:", error);

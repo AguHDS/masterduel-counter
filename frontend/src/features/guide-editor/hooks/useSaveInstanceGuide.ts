@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { confirmCards } from "@/features/archetypes/api/archetypesApi";
 import { useSaveGuide } from "./useArchetypeQueries";
-import { recommendedDeckApi } from "@/lib/http/recommendedDeckApi";
+import {
+  saveRecommendedDeck,
+  deleteRecommendedDeck,
+} from "../api/guideEditorApi";
 import {
   validateInstanceData,
   transformPairsForApi,
@@ -125,14 +128,14 @@ export const useSaveInstanceGuide = () => {
       const savedInstanceId = response.instance?.id || instanceId;
       if (savedInstanceId) {
         if (hasDeckContent) {
-          await recommendedDeckApi.saveRecommendedDeck(
+          await saveRecommendedDeck(
             savedInstanceId,
             deckTitle,
             mainDeckIds,
             extraDeckIds,
           );
         } else if (existingDeck) {
-          await recommendedDeckApi.deleteRecommendedDeck(savedInstanceId);
+          await deleteRecommendedDeck(savedInstanceId);
         }
       }
 

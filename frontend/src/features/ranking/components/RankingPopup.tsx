@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { Crown } from "lucide-react";
-import type { RankingUser } from "@/lib/http/rankingApi";
+import type { RankingUser } from "../types/ranking.types";
 
 interface RankingPopupProps {
   isOpen: boolean;

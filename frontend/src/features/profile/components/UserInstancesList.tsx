@@ -1,9 +1,7 @@
 import { useState, useCallback, memo, useEffect } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import {
-  instanceApi,
-  type ArchetypeInstanceWithDetails,
-} from "@/lib/http/instanceApi";
+import { profileApi } from "../api/profileApi";
+import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 import { GuidesTable } from "@/shared/components/archetypeLists/GuidesTable";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
@@ -38,20 +36,20 @@ const UserInstancesListComponent = ({
 
   const queryFn = useCallback(async () => {
     if (debouncedSearchQuery.trim()) {
-      return instanceApi.searchGuidesByUserId(
+      return profileApi.searchGuidesByUserId(
         userId,
         debouncedSearchQuery,
         sortBy,
       );
     }
-    return instanceApi.getGuidesByUserId(userId, sortBy);
+    return profileApi.getGuidesByUserId(userId, sortBy);
   }, [userId, debouncedSearchQuery, sortBy]);
 
   const {
     data: instances,
     isLoading,
     error,
-  } = useQuery<ArchetypeInstanceWithDetails[]>({
+  } = useQuery<GuideListItem[]>({
     queryKey: ["userInstances", userId, sortBy, debouncedSearchQuery],
     queryFn,
     enabled: !!userId,

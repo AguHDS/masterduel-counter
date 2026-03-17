@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { instanceApi } from "@/lib/http/instanceApi";
+import { guideInstancesApi } from "@/lib/http/guideInstancesApi";
+import { getFavoriteGuideStatus } from "../api/guideEditorApi";
 
 interface UseInstanceGuideFavoritesProps {
   isAuthenticated: boolean;
@@ -20,7 +21,7 @@ export const useInstanceGuideFavorites = ({
   const loadFavoriteStatus = async () => {
     if (isAuthenticated && archetypeId && instanceId) {
       try {
-        const response = await instanceApi.getInstanceFavoriteStatus(
+        const response = await getFavoriteGuideStatus(
           parseInt(archetypeId),
           instanceId,
         );
@@ -37,7 +38,7 @@ export const useInstanceGuideFavorites = ({
     if (!isAuthenticated || !instanceId || !archetypeId) return;
 
     try {
-      const response = await instanceApi.toggleFavoriteGuide(
+      const response = await guideInstancesApi.toggleFavoriteGuide(
         parseInt(archetypeId),
         instanceId,
       );
@@ -54,18 +55,20 @@ export const useInstanceGuideFavorites = ({
       });
     } catch (error) {
       console.error("Error toggling favorite:", error);
-      
+
       // Extract error message from axios error response
       let errorMessage = "Failed to update favorite. Please try again.";
       if (error && typeof error === "object" && "response" in error) {
-        const axiosError = error as { response?: { data?: { error?: string } } };
+        const axiosError = error as {
+          response?: { data?: { error?: string } };
+        };
         if (axiosError.response?.data?.error) {
           errorMessage = axiosError.response.data.error;
         }
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       alert(errorMessage);
     }
   };

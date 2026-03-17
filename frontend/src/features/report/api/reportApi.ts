@@ -1,4 +1,4 @@
-import { axiosClient } from "./axiosClient";
+import { axiosClient } from "@/lib/http/axiosClient";
 
 interface CreateReportRequest {
   reportedUserId?: string;

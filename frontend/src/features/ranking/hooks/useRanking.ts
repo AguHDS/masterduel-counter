@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { rankingApi } from "@/lib/http/rankingApi";
+import { rankingApi } from "../api/rankingApi";
 
 export const useRanking = (page: number = 1, limit: number = 50) => {
   return useQuery({

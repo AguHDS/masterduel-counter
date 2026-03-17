@@ -2,13 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query";
 import {
   saveArchetypeGuide,
+  getInstanceGuideById,
   type SaveArchetypeGuideResponse,
   type CardPairDTO,
 } from "../api/guideEditorApi";
-import {
-  instanceApi,
-  type UserInstanceWithCardPairs,
-} from "@/lib/http/instanceApi";
+import type { GuideInstanceWithFullDetails } from "@/lib/http/guideInstancesApi";
 
 /**
  * Get user instance guide for an archetype
@@ -18,9 +16,9 @@ export const useGetGuideInstance = (
   archetypeId: number | undefined,
   instanceId: number | undefined,
 ) => {
-  return useQuery<UserInstanceWithCardPairs>({
+  return useQuery<GuideInstanceWithFullDetails>({
     queryKey: ["userInstance", archetypeId, instanceId],
-    queryFn: () => instanceApi.getInstanceGuideById(instanceId!),
+    queryFn: () => getInstanceGuideById(instanceId!),
     staleTime: 0,
     enabled: !!archetypeId && !!instanceId,
   });

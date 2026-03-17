@@ -1,10 +1,8 @@
 import { useState, useCallback, memo } from "react";
 import { Plus, ArrowLeft } from "lucide-react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import {
-  instanceApi,
-  type ArchetypeInstanceWithDetails,
-} from "@/lib/http/instanceApi";
+import { guideInstancesApi } from "../api/guideInstancesApi";
+import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 import { useAuth } from "@/features/auth";
 import { GuidesTable } from "@/shared/components/archetypeLists/GuidesTable";
 import { FramedContainer } from "@/layouts/FramedContainer";
@@ -22,8 +20,8 @@ interface ArchetypeInstancesListProps {
 const ITEMS_PER_PAGE = 10;
 
 /** Main container for the list of guides of the selected archetype, with back button, search, etc...
- * TODO: This component must show all created instances (guides) of the selected archetype. The idea is that it will display 
- * counter guides or deck guides depending on what button has been selected (counter or decks) when the user uses the search. 
+ * TODO: This component must show all created instances (guides) of the selected archetype. The idea is that it will display
+ * counter guides or deck guides depending on what button has been selected (counter or decks) when the user uses the search.
  * (see CounterGuides.tsx, DeckGuides.tsx and HomeAllComponents.tsx for better understanding).
  * Right now, we don't have a way to differenciate between Counter Guides and Deck Guides.
  */
@@ -43,20 +41,20 @@ const ArchetypeGuideList = ({
 
   const queryFn = useCallback(async () => {
     if (debouncedSearchQuery.trim()) {
-      return instanceApi.searchGuidesByArchetypeId(
+      return guideInstancesApi.searchGuidesByArchetypeId(
         archetypeId,
         debouncedSearchQuery,
         sortBy,
       );
     }
-    return instanceApi.getGuidesByArchetypeId(archetypeId, sortBy);
+    return guideInstancesApi.getGuidesByArchetypeId(archetypeId, sortBy);
   }, [archetypeId, debouncedSearchQuery, sortBy]);
 
   const {
     data = [],
     isLoading,
     error,
-  } = useQuery<ArchetypeInstanceWithDetails[]>({
+  } = useQuery<GuideListItem[]>({
     queryKey: ["archetypeInstances", archetypeId, sortBy, debouncedSearchQuery],
     queryFn,
     enabled: Number.isFinite(archetypeId),

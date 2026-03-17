@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getBackendUrl } from "@/lib/config/urlHelpers";
+import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 
 const API_URL = getBackendUrl();
 
@@ -99,6 +100,31 @@ export const profileApi = {
     }>;
   }> {
     const response = await axios.get(`${API_URL}/api/profile/${userId}/favoritedGuides`);
+    return response.data;
+  },
+
+  /** Get all archetype guides created by a specific user */
+  getGuidesByUserId: async (
+    userId: string,
+    sortBy: "likes" | "updated" = "updated",
+  ): Promise<GuideListItem[]> => {
+    const response = await axios.get(
+      `${API_URL}/api/users/${userId}/instances`,
+      { params: { sortBy } },
+    );
+    return response.data;
+  },
+
+  /** Search guide instances by user ID and title */
+  searchGuidesByUserId: async (
+    userId: string,
+    title: string,
+    sortBy: "likes" | "updated" = "updated",
+  ): Promise<GuideListItem[]> => {
+    const response = await axios.get(
+      `${API_URL}/api/users/${userId}/instances/search`,
+      { params: { title, sortBy } },
+    );
     return response.data;
   },
 };

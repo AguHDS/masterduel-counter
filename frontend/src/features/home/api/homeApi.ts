@@ -13,9 +13,9 @@ export interface GeneralStats {
   }>;
 }
 
-export const archetypeApi = {
+export const homeApi = {
   /**
-   * Get general statistics about archetypes and guides
+   * Get general statistics about registered archetypes and created guides
    * @param limit - Maximum number of top archetypes to return (default: 15)
    */
   async getGeneralStats(limit: number = 15): Promise<GeneralStats> {
@@ -23,7 +23,7 @@ export const archetypeApi = {
       `${API_BASE_URL}/api/archetypes/stats`,
       {
         params: { limit },
-      }
+      },
     );
     return response.data.data;
   },

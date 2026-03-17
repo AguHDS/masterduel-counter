@@ -1,12 +1,12 @@
 import type { MouseEvent } from "react";
 import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
-import { type ArchetypeInstanceWithDetails } from "@/lib/http/instanceApi";
+import { type GuideListItem } from "@/lib/http/guideInstancesApi";
 import { useAuth } from "@/features/auth";
 import { useNavigate } from "react-router-dom";
 import instanceItemPlaneBg from "@/assets/background_instanceitem_plane.webp";
 
 interface InstancesTableProps {
-  instances: ArchetypeInstanceWithDetails[];
+  instances: GuideListItem[];
   currentPage: number;
   itemsPerPage: number;
   onSelectInstance: (instanceId: number, archetypeId: number) => void;

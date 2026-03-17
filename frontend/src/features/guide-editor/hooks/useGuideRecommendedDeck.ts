@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { recommendedDeckApi, type RecommendedDeck } from "@/lib/http/recommendedDeckApi";
+import {
+  getRecommendedDeck,
+  saveRecommendedDeck,
+  deleteRecommendedDeck,
+  type RecommendedDeck,
+} from "../api/guideEditorApi";
 
 export const useGuideRecommendedDeck = (instanceId: number | undefined) => {
   const [deck, setDeck] = useState<RecommendedDeck | null>(null);
@@ -12,10 +17,13 @@ export const useGuideRecommendedDeck = (instanceId: number | undefined) => {
     const loadDeck = async () => {
       setIsLoading(true);
       try {
-        const deckData = await recommendedDeckApi.getDeck(instanceId);
+        const deckData = await getRecommendedDeck(instanceId);
         setDeck(deckData);
       } catch (error) {
-        console.error("useGuideRecommendedDeck Error loading recommended deck:", error);
+        console.error(
+          "Error loading recommended deck:",
+          error,
+        );
       } finally {
         setIsLoading(false);
       }
@@ -24,28 +32,37 @@ export const useGuideRecommendedDeck = (instanceId: number | undefined) => {
     loadDeck();
   }, [instanceId]);
 
-  const saveRecommendedDeck = async (title: string | undefined, mainDeckIds: number[], extraDeckIds: number[]) => {
+  const handleSaveRecommendedDeck = async (
+    title: string | undefined,
+    mainDeckIds: number[],
+    extraDeckIds: number[],
+  ) => {
     if (!instanceId) return;
 
     try {
-      const savedDeck = await recommendedDeckApi.saveRecommendedDeck(instanceId, title, mainDeckIds, extraDeckIds);
+      const savedDeck = await saveRecommendedDeck(
+        instanceId,
+        title,
+        mainDeckIds,
+        extraDeckIds,
+      );
       setDeck(savedDeck);
       setIsEditingDeck(false);
     } catch (error) {
-      console.error("Error saving deck:", error);
+      console.error("Error saving recommended deck:", error);
       throw error;
     }
   };
 
-  const deleteRecommendedDeck = async () => {
+  const handleDeleteRecommendedDeck = async () => {
     if (!instanceId) return;
 
     try {
-      await recommendedDeckApi.deleteRecommendedDeck(instanceId);
+      await deleteRecommendedDeck(instanceId);
       setDeck(null);
       setIsEditingDeck(false);
     } catch (error) {
-      console.error("Error deleting deck:", error);
+      console.error("Error deleting recommended deck:", error);
       throw error;
     }
   };
@@ -55,7 +72,7 @@ export const useGuideRecommendedDeck = (instanceId: number | undefined) => {
     isEditingDeck,
     isLoading,
     setIsEditingDeck,
-    saveRecommendedDeck,
-    deleteRecommendedDeck,
+    saveRecommendedDeck: handleSaveRecommendedDeck,
+    deleteRecommendedDeck: handleDeleteRecommendedDeck,
   };
 };
