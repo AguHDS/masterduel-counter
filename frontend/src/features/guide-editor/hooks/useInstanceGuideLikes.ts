@@ -24,7 +24,7 @@ export const useInstanceGuideLikes = ({
   const loadLikeStatus = async () => {
     if (isAuthenticated && archetypeId && instanceId) {
       try {
-        const response = await instanceApi.getInstanceLikeStatus(
+        const response = await instanceApi.getGuideLikeStatus(
           parseInt(archetypeId),
           instanceId,
         );
@@ -46,7 +46,7 @@ export const useInstanceGuideLikes = ({
     }
 
     try {
-      const response = await instanceApi.toggleInstanceLike(
+      const response = await instanceApi.toggleLike(
         parseInt(archetypeId),
         instanceId,
       );

@@ -38,13 +38,13 @@ const UserInstancesListComponent = ({
 
   const queryFn = useCallback(async () => {
     if (debouncedSearchQuery.trim()) {
-      return instanceApi.searchInstancesByUserId(
+      return instanceApi.searchGuidesByUserId(
         userId,
         debouncedSearchQuery,
         sortBy,
       );
     }
-    return instanceApi.getInstancesByUserId(userId, sortBy);
+    return instanceApi.getGuidesByUserId(userId, sortBy);
   }, [userId, debouncedSearchQuery, sortBy]);
 
   const {

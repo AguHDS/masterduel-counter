@@ -43,13 +43,13 @@ const ArchetypeGuideList = ({
 
   const queryFn = useCallback(async () => {
     if (debouncedSearchQuery.trim()) {
-      return instanceApi.searchInstancesByArchetypeId(
+      return instanceApi.searchGuidesByArchetypeId(
         archetypeId,
         debouncedSearchQuery,
         sortBy,
       );
     }
-    return instanceApi.getInstancesByArchetypeId(archetypeId, sortBy);
+    return instanceApi.getGuidesByArchetypeId(archetypeId, sortBy);
   }, [archetypeId, debouncedSearchQuery, sortBy]);
 
   const {

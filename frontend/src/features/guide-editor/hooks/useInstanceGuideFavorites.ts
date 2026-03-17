@@ -37,7 +37,7 @@ export const useInstanceGuideFavorites = ({
     if (!isAuthenticated || !instanceId || !archetypeId) return;
 
     try {
-      const response = await instanceApi.toggleInstanceFavorite(
+      const response = await instanceApi.toggleFavoriteGuide(
         parseInt(archetypeId),
         instanceId,
       );

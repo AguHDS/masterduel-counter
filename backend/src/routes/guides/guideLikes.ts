@@ -5,14 +5,14 @@ import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 
 const router = Router();
 
-// Toggle like on an instance
+// Toggle like on a guide
 router.post(
   "/archetypes/:archetypeId/instances/:instanceId/like",
   requireAuth,
   toggleInstanceLikeController
 );
 
-// Get like status for an instance
+// Get like status for a guide
 router.get(
   "/archetypes/:archetypeId/instances/:instanceId/like/status",
   requireAuth,

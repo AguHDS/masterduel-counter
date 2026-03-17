@@ -1,5 +1,9 @@
 import { axiosClient } from "@/lib/http";
 import { type Archetype } from "@/features/archetypes/types";
+import axios from "axios";
+import { getBackendUrl } from "@/lib/config/urlHelpers";
+
+const API_BASE_URL = getBackendUrl();
 
 export interface CardPairDTO {
   topCardIds: number[];
@@ -41,5 +45,18 @@ export const saveArchetypeGuide = async (
     { cardPairs, title, headerCardId, generalTip, instanceId },
   );
 
+  return response.data;
+};
+
+/**
+ * Delete a guide by its ID (with ownership verification)
+ */
+export const deleteArchetypeGuide = async (
+  instanceId: number
+): Promise<{ success: boolean; message: string }> => {
+  const response = await axios.delete<{ success: boolean; message: string }>(
+    `${API_BASE_URL}/api/instances/${instanceId}`,
+    { withCredentials: true }
+  );
   return response.data;
 };

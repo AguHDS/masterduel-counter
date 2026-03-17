@@ -23,7 +23,7 @@ import { useInstanceGuideData } from "../hooks/useInstanceGuideData";
 import { useGuideRecommendedDeck } from "../hooks/useGuideRecommendedDeck";
 import { useSaveInstanceGuide } from "../hooks/useSaveInstanceGuide";
 import { useAuth } from "@/features/auth";
-import { instanceApi } from "@/lib/http/instanceApi";
+import { deleteArchetypeGuide } from "../api/guideEditorApi";
 import { ReportModal } from "@/features/report/components/ReportModal";
 import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
@@ -312,7 +312,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
     if (!confirmed) return;
 
     try {
-      await instanceApi.deleteGuide(guideInstanceData.instance.id);
+      await deleteArchetypeGuide(guideInstanceData.instance.id);
       window.location.href = "/";
     } catch (error) {
       console.error("Error deleting instance:", error);

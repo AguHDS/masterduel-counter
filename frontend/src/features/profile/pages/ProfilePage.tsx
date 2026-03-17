@@ -48,7 +48,7 @@ export const ProfilePage = () => {
 
   const { data: userGuides } = useQuery({
     queryKey: ["userInstances", userId],
-    queryFn: () => instanceApi.getInstancesByUserId(userId!, "likes"),
+    queryFn: () => instanceApi.getGuidesByUserId(userId!, "likes"),
     enabled: !!userId,
   });
 
@@ -122,7 +122,7 @@ export const ProfilePage = () => {
 
   const handleRemoveFavorite = async (guideId: number, archetypeId: number) => {
     try {
-      await instanceApi.toggleInstanceFavorite(archetypeId, guideId);
+      await instanceApi.toggleFavoriteGuide(archetypeId, guideId);
       await refetchFavoritedGuides();
     } catch (error) {
       console.error("Error removing favorite:", error);
