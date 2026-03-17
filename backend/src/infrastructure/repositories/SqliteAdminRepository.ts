@@ -222,33 +222,33 @@ export class SqliteAdminRepository implements AdminRepository {
     }));
   }
 
-  async deleteUserInstance(userId: string, instanceId: number): Promise<void> {
-    // Verify the instance belongs to the user
-    const instance = await this.prisma.archetypeInstance.findUnique({
-      where: { id: instanceId },
+  async deleteUserGuide(userId: string, guideId: number): Promise<void> {
+    // Verify the guide belongs to the user
+    const guide = await this.prisma.archetypeInstance.findUnique({
+      where: { id: guideId },
     });
 
-    if (!instance) {
-      throw new Error("Instance not found");
+    if (!guide) {
+      throw new Error("Guide not found");
     }
 
-    if (instance.userId !== userId) {
-      throw new Error("Instance does not belong to this user");
+    if (guide.userId !== userId) {
+      throw new Error("Guide does not belong to this user");
     }
 
-    // Delete the instance (cascade will handle related data)
+    // Delete the guide (cascade will handle related data)
     await this.prisma.archetypeInstance.delete({
-      where: { id: instanceId },
+      where: { id: guideId },
     });
 
     // Check if archetype should be unregistered
     const remainingInstances = await this.prisma.archetypeInstance.count({
-      where: { archetypeId: instance.archetypeId },
+      where: { archetypeId: guide.archetypeId },
     });
 
     if (remainingInstances === 0) {
       await this.prisma.archetype.update({
-        where: { id: instance.archetypeId },
+        where: { id: guide.archetypeId },
         data: { registered: false },
       });
     }

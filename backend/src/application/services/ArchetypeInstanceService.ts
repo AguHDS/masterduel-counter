@@ -31,10 +31,10 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     );
   }
 
-  async createOrUpdateInstance(
+  async createOrUpdateGuide(
     data: ArchetypeInstanceCreateDTO,
   ): Promise<ArchetypeInstance> {
-    // Always create new instance
+    // Always create new guide
     return this.instanceRepository.createArchetypeInstance(data);
   }
 
@@ -42,7 +42,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     return this.instanceRepository.findArchetypeInstanceById(id);
   }
 
-  // Used for Archetype instances list 
+  // Used for Archetype guide list 
   async getInstancesByArchetypeId(
     archetypeId: number,
     sortBy: "likes" | "updated" = "updated",
@@ -50,7 +50,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     return this.instanceRepository.findArchetypeInstanceByArchetypeId(archetypeId, sortBy);
   }
 
-  /** Get all archetype instances created by a specific user (for user profile) */
+  /** Get all archetype guides (instances) created by a user (for user profile) */
   async getInstancesByUserId(
     userId: string,
     sortBy: "likes" | "updated" = "updated",
@@ -141,7 +141,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
       });
     } else {
       // Create new instance
-      instance = await this.createOrUpdateInstance({
+      instance = await this.createOrUpdateGuide({
         archetypeId,
         userId,
         title,

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
-import { ListFramedContainer } from "@/layouts/ListFramedContainer";
+import { FramedContainer } from "@/layouts/FramedContainer";
 import { useRegisteredArchetypes } from "../hooks/useRegisteredArchetypes";
-import instanceItemBg from "@/assets/background_instanceitem_plane.webp";
+import instanceItemBg from "@/assets/test.webp";
 
 interface RegisteredArchetypesListProps {
   onSelectArchetype: (archetypeId: number) => void;
@@ -49,13 +49,13 @@ export const RegisteredArchetypesList = ({
 
   if (archetypes.length === 0) {
     return (
-      <ListFramedContainer>
+      <FramedContainer>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-blue-300 text-lg">
             No registered archetypes yet
           </div>
         </div>
-      </ListFramedContainer>
+      </FramedContainer>
     );
   }
 
@@ -73,7 +73,7 @@ export const RegisteredArchetypesList = ({
   };
 
   return (
-    <ListFramedContainer
+    <FramedContainer
       aria-label="Latest registered archetypes"
       contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] py-6 gap-6"
     >
@@ -242,6 +242,6 @@ export const RegisteredArchetypesList = ({
           </button>
         </div>
       )}
-    </ListFramedContainer>
+    </FramedContainer>
   );
 };

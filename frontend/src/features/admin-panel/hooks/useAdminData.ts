@@ -104,17 +104,17 @@ export const useUserInstances = (userId: string) => {
   });
 };
 
-/** Delete user instance */
-export const useDeleteUserInstance = () => {
+/** Delete user guide */
+export const useDeleteUserGuide = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
       userId,
-      instanceId,
+      guideId,
     }: {
       userId: string;
-      instanceId: string;
-    }) => adminHttpApi.deleteUserInstance(userId, instanceId),
+      guideId: string;
+    }) => adminHttpApi.deleteUserGuide(userId, guideId),
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.instances(userId),

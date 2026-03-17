@@ -312,7 +312,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
     if (!confirmed) return;
 
     try {
-      await instanceApi.deleteInstance(guideInstanceData.instance.id);
+      await instanceApi.deleteGuide(guideInstanceData.instance.id);
       window.location.href = "/";
     } catch (error) {
       console.error("Error deleting instance:", error);

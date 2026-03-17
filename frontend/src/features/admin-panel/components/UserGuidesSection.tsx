@@ -1,28 +1,28 @@
 import { Trash2, Heart, Calendar } from "lucide-react";
-import { useUserInstances, useDeleteUserInstance } from "../hooks/useAdminData";
+import { useUserInstances, useDeleteUserGuide } from "../hooks/useAdminData";
 import type { UserInstance } from "../types/adminPanelTypes";
 
-interface UserInstancesSectionProps {
+interface UserGuidesSectionProps {
   userId: string;
 }
 
-export const UserInstancesSection = ({ userId }: UserInstancesSectionProps) => {
+export const UserGuidesSection = ({ userId }: UserGuidesSectionProps) => {
   const { data: instances, isLoading, error } = useUserInstances(userId);
-  const deleteUserInstanceMutation = useDeleteUserInstance();
+  const deleteUserGuideMutation = useDeleteUserGuide();
 
   const handleDeleteInstance = async (instanceId: number) => {
-    if (!confirm("Are you sure you want to delete this instance?")) {
+    if (!confirm("Are you sure you want to delete this guide?")) {
       return;
     }
 
     try {
-      await deleteUserInstanceMutation.mutateAsync({
+      await deleteUserGuideMutation.mutateAsync({
         userId,
-        instanceId: instanceId.toString(),
+        guideId: instanceId.toString(),
       });
     } catch (error) {
-      alert("Failed to delete instance");
-      console.error("Delete instance error:", error);
+      alert("Failed to delete guide. Please try again.");
+      console.error("Delete guide error:", error);
     }
   };
 

@@ -22,7 +22,7 @@ export const createCreateOrUpdateInstanceController =
 
       const { title, headerCardId, generalTip } = req.body;
 
-      const instance = await instanceService.createOrUpdateInstance({
+      const instance = await instanceService.createOrUpdateGuide({
         archetypeId,
         userId,
         title: title || "Title",

@@ -5,7 +5,7 @@ export const adminApi = {
   getUser: adminHttpApi.getUser,
   deleteUser: adminHttpApi.deleteUser,
   getUserInstances: adminHttpApi.getUserInstances,
-  deleteUserInstance: adminHttpApi.deleteUserInstance,
+  deleteUserGuide: adminHttpApi.deleteUserGuide,
   changeUserCredentials: adminHttpApi.changeUserCredentials,
   banUser: adminHttpApi.banUser,
   unbanUser: adminHttpApi.unbanUser,

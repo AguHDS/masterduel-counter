@@ -29,8 +29,8 @@ export interface AdminService {
     total: number;
   }>;
 
-  /** Delete user instance by ID */
-  deleteUserInstance(userId: string, instanceId: number): Promise<{
+  /** Delete user guide by ID */
+  deleteUserGuide(userId: string, guideId: number): Promise<{
     success: boolean;
     message: string;
   }>;

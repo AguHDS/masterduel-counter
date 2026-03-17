@@ -24,8 +24,8 @@ export interface AdminRepository {
   deleteUser(userId: string): Promise<void>;
   /** Get user instances for admin panel */
   getUserInstancesAdminPanel(userId: string): Promise<AdminInstanceResult[]>;
-  /** Delete user instance by ID */
-  deleteUserInstance(userId: string, instanceId: number): Promise<void>;
+  /** Delete user guide by ID */
+  deleteUserGuide(userId: string, guideId: number): Promise<void>;
   /** Change user credentials */
   changeUserCredentials(userId: string, credentials: { username?: string; email?: string; password?: string }): Promise<void>;
   /** Change user role */

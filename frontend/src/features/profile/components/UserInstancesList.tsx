@@ -4,7 +4,7 @@ import {
   instanceApi,
   type ArchetypeInstanceWithDetails,
 } from "@/lib/http/instanceApi";
-import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTable";
+import { GuidesTable } from "@/shared/components/archetypeLists/GuidesTable";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 
@@ -122,7 +122,7 @@ const UserInstancesListComponent = ({
             </div>
           </div>
         ) : (
-          <InstancesTable
+          <GuidesTable
             instances={instances}
             currentPage={currentPage}
             itemsPerPage={ITEMS_PER_PAGE}

@@ -79,7 +79,7 @@ export const adminHttpApi = {
     return data.data.instances;
   },
 
-  async deleteUserInstance(
+  async deleteUserGuide(
     userId: string,
     instanceId: string,
   ): Promise<DeleteInstanceResponse> {

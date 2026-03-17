@@ -1,1 +1,1 @@
-export { InstancesTable } from "./InstancesTable";
+export { GuidesTable } from "./GuidesTable";

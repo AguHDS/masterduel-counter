@@ -99,27 +99,27 @@ export class AdminServiceImpl implements AdminServicePort {
     };
   }
 
-  async deleteUserInstance(
+  async deleteUserGuide(
     userId: string,
-    instanceId: number,
+    guideId: number,
   ): Promise<{
     success: boolean;
     message: string;
   }> {
     try {
-      await this.adminRepository.deleteUserInstance(userId, instanceId);
+      await this.adminRepository.deleteUserGuide(userId, guideId);
       return {
         success: true,
-        message: "Instance deleted successfully",
+        message: "Guide deleted successfully",
       };
     } catch (error) {
-      console.error("Error deleting instance:", error);
+      console.error("Error deleting guide:", error);
       return {
         success: false,
         message:
           error instanceof Error
             ? error.message
-            : "Internal error deleting instance",
+            : "Internal error deleting guide",
       };
     }
   }

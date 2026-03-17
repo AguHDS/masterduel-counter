@@ -17,7 +17,8 @@ interface InstancesTableProps {
   onSortChange: (sortBy: "likes" | "updated") => void;
 }
 
-export const InstancesTable = ({
+/** Table for displaying list of guides of selected archetype or in user profile */
+export const GuidesTable = ({
   instances,
   currentPage,
   itemsPerPage,

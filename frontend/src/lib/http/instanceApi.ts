@@ -67,6 +67,7 @@ export interface UserInstanceWithCardPairs {
   }>;
 }
 
+/** Centralized API for guide-related operations (public operations) */
 export const instanceApi = {
   // Get all user instances for a specific archetype
   getInstancesByArchetypeId: async (
@@ -126,23 +127,10 @@ export const instanceApi = {
     return response.data;
   },
 
-  /** Create a new instance or update an existing instance with a header card */
-  createOrUpdateInstance: async (
-    archetypeId: number,
-    data: { title: string; headerCardId: number | null; generalTip?: string | null }
-  ): Promise<{ instance: ArchetypeInstanceWithDetails }> => {
-    const response = await axios.post<{ instance: ArchetypeInstanceWithDetails }>(
-      `${API_BASE_URL}/api/archetypes/${archetypeId}/instances`,
-      data,
-      { withCredentials: true }
-    );
-    return response.data;
-  },
-
   /** 
-   * Delete an instance guide by its ID (with ownership verification)
+   * Delete a guide by its ID (with ownership verification)
    */
-  deleteInstance: async (instanceId: number): Promise<{ success: boolean; message: string }> => {
+  deleteGuide: async (instanceId: number): Promise<{ success: boolean; message: string }> => {
     const response = await axios.delete<{ success: boolean; message: string }>(
       `${API_BASE_URL}/api/instances/${instanceId}`,
       { withCredentials: true }
@@ -189,7 +177,7 @@ export const instanceApi = {
   },
 
   /**
-   * Register a view for an instance
+   * Register a viewcount for an instance
    * No authentication required - tracks all views
    */
   registerView: async (instanceId: number): Promise<{ success: boolean; message: string }> => {

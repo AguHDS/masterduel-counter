@@ -23,7 +23,7 @@ export const deleteUserInstanceController = async (
     }
 
     const adminService = getDependencies().getAdminService();
-    const result = await adminService.deleteUserInstance(
+    const result = await adminService.deleteUserGuide(
       userIdString,
       instanceIdNumber,
     );

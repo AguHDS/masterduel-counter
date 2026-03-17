@@ -1,17 +1,18 @@
 import type { HTMLAttributes, PropsWithChildren } from "react";
 
-interface ListFramedContainerProps extends HTMLAttributes<HTMLElement> {
+interface FramedContainerProps extends HTMLAttributes<HTMLElement> {
   maxWidthClassName?: string;
   contentClassName?: string;
 }
 
-export const ListFramedContainer = ({
+/** Container that wraps content in a gradient-framed box with configurable dimensions */
+export const FramedContainer = ({
   children,
   className,
   maxWidthClassName = "max-w-[1456px]",
   contentClassName,
   ...sectionProps
-}: PropsWithChildren<ListFramedContainerProps>) => {
+}: PropsWithChildren<FramedContainerProps>) => {
   const sectionClasses = ["w-full flex justify-center", className]
     .filter(Boolean)
     .join(" ");

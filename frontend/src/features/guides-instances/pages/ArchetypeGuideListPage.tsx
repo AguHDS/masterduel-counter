@@ -8,7 +8,7 @@ import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetype
 import { FeatureErrorBoundary } from "@/shared/components";
 import { MainLogo } from "@/shared/components/MainLogo";
 
-/** Page for displaying a list of created guides of selected archetype */
+/** Page for the list of guides of the selected archetype */
 export const ArchetypeGuideListPage = () => {
   const { archetypeId } = useParams<{ archetypeId: string }>();
   const navigate = useNavigate();

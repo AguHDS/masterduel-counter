@@ -6,8 +6,8 @@ import {
   type ArchetypeInstanceWithDetails,
 } from "@/lib/http/instanceApi";
 import { useAuth } from "@/features/auth";
-import { InstancesTable } from "@/shared/components/archetypeLists/InstancesTable";
-import { ListFramedContainer } from "@/layouts/ListFramedContainer";
+import { GuidesTable } from "@/shared/components/archetypeLists/GuidesTable";
+import { FramedContainer } from "@/layouts/FramedContainer";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import { useNavigate, Link } from "react-router-dom";
@@ -21,7 +21,7 @@ interface ArchetypeInstancesListProps {
 
 const ITEMS_PER_PAGE = 10;
 
-/** List of instances (guides) of the selected archetype
+/** Main container for the list of guides of the selected archetype, with back button, search, etc...
  * TODO: This component must show all created instances (guides) of the selected archetype. The idea is that it will display 
  * counter guides or deck guides depending on what button has been selected (counter or decks) when the user uses the search. 
  * (see CounterGuides.tsx, DeckGuides.tsx and HomeAllComponents.tsx for better understanding).
@@ -74,7 +74,7 @@ const ArchetypeGuideList = ({
   if (isLoading) {
     return (
       <div className="flex flex-col items-start p-4 w-full">
-        <ListFramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
           {/* Back button */}
           <div className="flex">
             <button
@@ -89,7 +89,7 @@ const ArchetypeGuideList = ({
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-blue-300 text-lg">Loading instances...</div>
           </div>
-        </ListFramedContainer>
+        </FramedContainer>
       </div>
     );
   }
@@ -97,7 +97,7 @@ const ArchetypeGuideList = ({
   if (error) {
     return (
       <div className="flex flex-col items-start p-4 w-full">
-        <ListFramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
           {/* Back button */}
           <div className="flex">
             <button
@@ -112,7 +112,7 @@ const ArchetypeGuideList = ({
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-red-400 text-lg">Failed to load instances</div>
           </div>
-        </ListFramedContainer>
+        </FramedContainer>
       </div>
     );
   }
@@ -120,7 +120,7 @@ const ArchetypeGuideList = ({
   if (!hasInstances) {
     return (
       <div className="flex flex-col items-start p-4 w-full">
-        <ListFramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
           {/* Back button */}
           <div className="flex">
             <button
@@ -194,14 +194,14 @@ const ArchetypeGuideList = ({
               </div>
             )}
           </div>
-        </ListFramedContainer>
+        </FramedContainer>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col items-start p-4 w-full">
-      <ListFramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
+      <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
         {/* Back button */}
         <div className="flex items-center justify-between relative top-3">
           <button
@@ -267,7 +267,7 @@ const ArchetypeGuideList = ({
           </div>
         </div>
 
-        <InstancesTable
+        <GuidesTable
           instances={data}
           currentPage={currentPage}
           itemsPerPage={ITEMS_PER_PAGE}
@@ -277,7 +277,7 @@ const ArchetypeGuideList = ({
           sortBy={sortBy}
           onSortChange={setSortBy}
         />
-      </ListFramedContainer>
+      </FramedContainer>
     </div>
   );
 };

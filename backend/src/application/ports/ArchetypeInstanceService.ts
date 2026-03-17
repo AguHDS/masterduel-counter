@@ -7,8 +7,8 @@ import {
 } from "@/domain/ArchetypeInstance.js";
 
 export interface ArchetypeInstanceServicePort {
-  /** Creates a new instance or updates it if it already exists for the user */
-  createOrUpdateInstance(data: ArchetypeInstanceCreateDTO): Promise<ArchetypeInstance>;
+  /** Creates a new guide or updates it if it already exists */
+  createOrUpdateGuide(data: ArchetypeInstanceCreateDTO): Promise<ArchetypeInstance>;
   
   /** Gets an instance by its ID */
   getInstanceById(id: number): Promise<ArchetypeInstance | null>;
