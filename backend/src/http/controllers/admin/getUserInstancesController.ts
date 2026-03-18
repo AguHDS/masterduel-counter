@@ -28,7 +28,7 @@ export const getUserInstancesController = async (
 
     const adminService = getDependencies().getAdminService();
     const result =
-      await adminService.getUserInstancesAdminPanel(validatedUserId);
+      await adminService.getUserGuidesAdminPanel(validatedUserId);
 
     const response: AdminUserInstancesResponse = {
       success: true,

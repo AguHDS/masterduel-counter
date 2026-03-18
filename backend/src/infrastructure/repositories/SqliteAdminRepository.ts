@@ -1,9 +1,9 @@
-import { AdminRepository } from "@/domain/ports/AdminRepository.js";
-import type { UserSearchResult } from "@/shared/dtos/userDto.js";
 import { PrismaClient } from "@prisma/client";
-import type { AdminInstanceResult } from "@/domain/ports/AdminRepository.js";
-import type { ReportWithDetails } from "@/domain/Report.js";
+import { AdminRepository } from "@/domain/ports/AdminRepository.js";
 import { hashPassword } from "better-auth/crypto";
+import type { UserSearchResult } from "@/shared/dtos/userDto.js";
+import type { InstanceGuideResultAdminPanel } from "@/domain/ports/AdminRepository.js";
+import type { ReportWithDetails } from "@/domain/Report.js";
 
 export class SqliteAdminRepository implements AdminRepository {
   private prisma: PrismaClient;
@@ -176,9 +176,9 @@ export class SqliteAdminRepository implements AdminRepository {
     );
   }
 
-  async getUserInstancesAdminPanel(
+  async getUserGuidesAdminPanel(
     userId: string,
-  ): Promise<AdminInstanceResult[]> {
+  ): Promise<InstanceGuideResultAdminPanel[]> {
     const instances = await this.prisma.archetypeInstance.findMany({
       where: { userId },
       select: {

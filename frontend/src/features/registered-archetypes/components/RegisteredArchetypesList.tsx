@@ -119,7 +119,7 @@ export const RegisteredArchetypesList = ({
           </button>
         </div>
 
-        <div className="flex flex-col gap-[0.28rem]">
+        <div className="flex flex-col">
           {currentArchetypes.map((archetype, index) => {
             const positionLabel = startIndex + index + 1;
             const instanceCount = archetype.instance_count || 0;

@@ -3,7 +3,7 @@ import {
   ArchetypeInstance,
   ArchetypeInstanceCreateDTO,
   ArchetypeInstanceUpdateDTO,
-  ArchetypeInstanceWithDetails,
+  ArchetypeGuideListItem,
 } from "@/domain/ArchetypeInstance.js";
 import {
   ArchetypeInstanceRepository,
@@ -82,7 +82,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
   async findArchetypeInstanceByArchetypeId(
     archetypeId: number,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
@@ -146,7 +146,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
   async findArchetypeInstanceByUserId(
     userId: string,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
@@ -211,7 +211,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     archetypeId: number,
     title: string,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
@@ -276,7 +276,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     userId: string,
     title: string,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
@@ -580,7 +580,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     return favorite !== null;
   }
 
-  async findFavoritedInstancesByUserId(userId: string): Promise<ArchetypeInstanceWithDetails[]> {
+  async findFavoritedInstancesByUserId(userId: string): Promise<ArchetypeGuideListItem[]> {
     const stmt = this.db.prepare(`
       SELECT 
         ai.*,
@@ -660,7 +660,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
 
   async findLatestCreatedInstances(
     limit: number,
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     const stmt = this.db.prepare(`
       SELECT 
         ai.*,

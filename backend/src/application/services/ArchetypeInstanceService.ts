@@ -2,7 +2,7 @@ import {
   ArchetypeInstance,
   ArchetypeInstanceCreateDTO,
   ArchetypeInstanceUpdateDTO,
-  ArchetypeInstanceWithDetails,
+  ArchetypeGuideListItem,
   RegisterInstanceDTO,
 } from "@/domain/ArchetypeInstance.js";
 import { ArchetypeInstanceServicePort } from "../ports/ArchetypeInstanceService.js";
@@ -38,15 +38,15 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     return this.instanceRepository.createArchetypeInstance(data);
   }
 
-  async getInstanceById(id: number): Promise<ArchetypeInstance | null> {
+  async getGuideById(id: number): Promise<ArchetypeInstance | null> {
     return this.instanceRepository.findArchetypeInstanceById(id);
   }
 
   // Used for Archetype guide list 
-  async getInstancesByArchetypeId(
+  async getGuidesByArchetypeId(
     archetypeId: number,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     return this.instanceRepository.findArchetypeInstanceByArchetypeId(archetypeId, sortBy);
   }
 
@@ -54,7 +54,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
   async getInstancesByUserId(
     userId: string,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     return this.instanceRepository.findArchetypeInstanceByUserId(userId, sortBy);
   }
 
@@ -62,7 +62,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     archetypeId: number,
     title: string,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     return this.instanceRepository.searchInstancesByArchetypeIdAndTitle(archetypeId, title, sortBy);
   }
 
@@ -70,7 +70,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
     userId: string,
     title: string,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     return this.instanceRepository.searchInstancesByUserIdAndTitle(userId, title, sortBy);
   }
 
@@ -286,7 +286,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
 
   async getFavoritedInstancesByUserId(
     userId: string,
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     return this.instanceRepository.findFavoritedInstancesByUserId(userId);
   }
 
@@ -307,7 +307,7 @@ export class ArchetypeInstanceService implements ArchetypeInstanceServicePort {
 
   async getLatestCreatedInstances(
     limit: number,
-  ): Promise<ArchetypeInstanceWithDetails[]> {
+  ): Promise<ArchetypeGuideListItem[]> {
     return this.instanceRepository.findLatestCreatedInstances(limit);
   }
 

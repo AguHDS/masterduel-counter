@@ -17,9 +17,9 @@ export const deleteGuideController = async (
 
     const { instanceId, userId } = validatedData;
 
-    // Get instance data before deleting (to get archetypeId)
+    // Get guide data before deleting (to get archetypeId)
     const instanceService = getDependencies().getInstanceService();
-    const instance = await instanceService.getInstanceById(instanceId);
+    const instance = await instanceService.getGuideById(instanceId);
 
     if (!instance) {
       res.status(404).json({ success: false, error: "Guide not found" });
@@ -33,7 +33,7 @@ export const deleteGuideController = async (
 
     // Check if there are any remaining instances for this archetype
     const remainingInstances =
-      await instanceService.getInstancesByArchetypeId(archetypeId);
+      await instanceService.getGuidesByArchetypeId(archetypeId);
 
     // If no instances left, mark archetype as not registered
     if (remainingInstances.length === 0) {

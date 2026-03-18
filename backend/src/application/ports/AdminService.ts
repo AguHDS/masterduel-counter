@@ -1,5 +1,5 @@
 import type { UserSearchResult } from "@/shared/dtos/userDto.js";
-import type { AdminInstanceResult } from "@/domain/ports/AdminRepository.js";
+import type { InstanceGuideResultAdminPanel } from "@/domain/ports/AdminRepository.js";
 import type { ReportWithDetails } from "@/domain/Report.js";
 
 export interface AdminService {
@@ -23,9 +23,9 @@ export interface AdminService {
     message: string;
   }>;
 
-  /** Get user instances for admin panel */
-  getUserInstancesAdminPanel(userId: string): Promise<{
-    instances: AdminInstanceResult[];
+  /** Get created guides of a user for the Admin Panel */
+  getUserGuidesAdminPanel(userId: string): Promise<{
+    instances: InstanceGuideResultAdminPanel[];
     total: number;
   }>;
 

@@ -1,9 +1,9 @@
-import type { AdminInstanceResult } from "@/domain/ports/AdminRepository.js";
+import type { InstanceGuideResultAdminPanel } from "@/domain/ports/AdminRepository.js";
 
 export interface AdminUserInstancesResponse {
   success: boolean;
   data: {
-    instances: AdminInstanceResult[];
+    instances: InstanceGuideResultAdminPanel[];
     total: number;
   };
   error?: string;

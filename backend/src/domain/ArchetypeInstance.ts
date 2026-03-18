@@ -41,7 +41,7 @@ export interface RegisterInstanceDTO {
   instanceId?: number;
 }
 
-export interface ArchetypeInstanceWithDetails extends ArchetypeInstance {
+export interface ArchetypeGuideListItem extends ArchetypeInstance {
   archetypeName: string;
   userName: string;
   userProfilePictureUrl?: string | null;

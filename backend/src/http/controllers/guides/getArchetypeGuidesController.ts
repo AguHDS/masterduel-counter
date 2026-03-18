@@ -20,7 +20,7 @@ export const createGetArchetypeGuidesController =
         return;
       }
 
-      const instances = await instanceService.getInstancesByArchetypeId(
+      const instances = await instanceService.getGuidesByArchetypeId(
         archetypeId,
         sortBy || 'updated'
       );

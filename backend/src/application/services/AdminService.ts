@@ -1,7 +1,7 @@
 import { AdminRepository } from "@/domain/ports/AdminRepository.js";
 import { AdminService as AdminServicePort } from "@/application/ports/AdminService.js";
 import type { UserSearchResult } from "@/shared/dtos/userDto.js";
-import type { AdminInstanceResult } from "@/domain/ports/AdminRepository.js";
+import type { InstanceGuideResultAdminPanel } from "@/domain/ports/AdminRepository.js";
 import type { ReportWithDetails } from "@/domain/Report.js";
 
 export class AdminServiceImpl implements AdminServicePort {
@@ -86,12 +86,12 @@ export class AdminServiceImpl implements AdminServicePort {
     }
   }
 
-  async getUserInstancesAdminPanel(userId: string): Promise<{
-    instances: AdminInstanceResult[];
+  async getUserGuidesAdminPanel(userId: string): Promise<{
+    instances: InstanceGuideResultAdminPanel[];
     total: number;
   }> {
     const instances =
-      await this.adminRepository.getUserInstancesAdminPanel(userId);
+      await this.adminRepository.getUserGuidesAdminPanel(userId);
 
     return {
       instances,

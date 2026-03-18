@@ -20,7 +20,7 @@ export const createOrUpdateRecommendedDeckController = async (
 
     // Verify instance ownership
     const instanceService = getDependencies().getInstanceService();
-    const instance = await instanceService.getInstanceById(instanceId);
+    const instance = await instanceService.getGuideById(instanceId);
 
     if (!instance) {
       res.status(404).json({ success: false, error: "Instance not found" });

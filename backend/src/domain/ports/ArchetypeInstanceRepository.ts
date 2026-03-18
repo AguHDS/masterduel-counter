@@ -2,7 +2,7 @@ import {
   ArchetypeInstance,
   ArchetypeInstanceCreateDTO,
   ArchetypeInstanceUpdateDTO,
-  ArchetypeInstanceWithDetails,
+  ArchetypeGuideListItem,
 } from "../ArchetypeInstance.js";
 
 export type SortOrder = "likes" | "updated";
@@ -20,17 +20,17 @@ export interface ArchetypeInstanceRepository {
   /** Find instance by archetype ID
    * @param sortBy - Optional sorting order (by Last Update or Likes)
    */
-  findArchetypeInstanceByArchetypeId(archetypeId: number, sortBy?: SortOrder): Promise<ArchetypeInstanceWithDetails[]>;
-  /** Find instance by user ID
+  findArchetypeInstanceByArchetypeId(archetypeId: number, sortBy?: SortOrder): Promise<ArchetypeGuideListItem[]>;
+  /** Find instance by user ID (for user profile)
    * @param sortBy - Optional sorting order (by Last Update or Likes)
    */
-  findArchetypeInstanceByUserId(userId: string, sortBy?: SortOrder): Promise<ArchetypeInstanceWithDetails[]>;
+  findArchetypeInstanceByUserId(userId: string, sortBy?: SortOrder): Promise<ArchetypeGuideListItem[]>;
   /** Find archetype instance by archetype ID and user ID */
   findArchetypeInstanceByArchetypeAndUserId(archetypeId: number, userId: string): Promise<ArchetypeInstance | null>;
   /** Search instances by archetype ID and title */
-  searchInstancesByArchetypeIdAndTitle(archetypeId: number, title: string, sortBy?: SortOrder): Promise<ArchetypeInstanceWithDetails[]>;
+  searchInstancesByArchetypeIdAndTitle(archetypeId: number, title: string, sortBy?: SortOrder): Promise<ArchetypeGuideListItem[]>;
   /** Search instances by user ID and title */
-  searchInstancesByUserIdAndTitle(userId: string, title: string, sortBy?: SortOrder): Promise<ArchetypeInstanceWithDetails[]>;
+  searchInstancesByUserIdAndTitle(userId: string, title: string, sortBy?: SortOrder): Promise<ArchetypeGuideListItem[]>;
   /** Update an existing archetype instance */
   updateArchetypeInstance(id: number, data: ArchetypeInstanceUpdateDTO): Promise<ArchetypeInstance>;
   /** Delete an archetype instance by its ID */
@@ -44,11 +44,11 @@ export interface ArchetypeInstanceRepository {
   /** Checks if a user has favorited an instance */
   hasUserFavoritedInstance(instanceId: number, userId: string): Promise<boolean>;
   /** Gets all favorited instances by a user */
-  findFavoritedInstancesByUserId(userId: string): Promise<ArchetypeInstanceWithDetails[]>;
+  findFavoritedInstancesByUserId(userId: string): Promise<ArchetypeGuideListItem[]>;
   /** Increments the view count for an instance by a specified amount */
   incrementViewCount(instanceId: number, incrementBy: number): Promise<void>;
   /** Gets the total view count across all instances for a user */
   getTotalViewsByUserId(userId: string): Promise<number>;
   /** Gets the latest created instances across all archetypes with user profile data */
-  findLatestCreatedInstances(limit: number): Promise<ArchetypeInstanceWithDetails[]>;
+  findLatestCreatedInstances(limit: number): Promise<ArchetypeGuideListItem[]>;
 }
