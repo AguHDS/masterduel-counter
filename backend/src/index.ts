@@ -15,7 +15,7 @@ import {
   searchCards,
   selectCard,
   confirmCards,
-  registerArchetype,
+  archetypeGuide,
   registeredArchetypes,
   deleteGuide,
   guideLikes,
@@ -38,7 +38,7 @@ import {
   createNotificationsRoute,
 } from "./routes/index.js";
 import auth from "./routes/auth/auth.js";
-import getInstanceCardPairs from "./routes/guides/getInstanceCardPairs.js";
+import getGuideCardPairs from "./routes/guides/getGuideCardPairs.js";
 import profile from "./routes/profile/profile.js";
 import customDecks from "./routes/customDecks.js";
 
@@ -140,7 +140,7 @@ app.use("/api/profile", profile);
 app.use("/api", customDecks);
 
 // Archetypes & Instances
-app.use("/api/archetypes", registerArchetype);
+app.use("/api/archetypes", archetypeGuide);
 app.use("/api/archetypes", registeredArchetypes);
 app.use("/api", deleteGuide);
 app.use("/api", guideLikes);
@@ -155,7 +155,7 @@ app.use("/api", createOrUpdateGuideRoute(getDependencies()));
 app.use("/api", createGetGuideByIdRoute(getDependencies()));
 app.use("/api", createGetLatestGuidesRoute(getDependencies()));
 app.use("/api", createGetGeneralStatsRoute());
-app.use("/api", getInstanceCardPairs);
+app.use("/api", getGuideCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 app.use("/api/comments", comments);
 

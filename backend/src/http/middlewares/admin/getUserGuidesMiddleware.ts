@@ -6,7 +6,7 @@ interface ValidatedUserIdRequest extends Request {
   validatedUserId?: string;
 }
 
-export const getUserInstancesMiddleware = async (
+export const getUserGuidesMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -38,7 +38,7 @@ export const getUserInstancesMiddleware = async (
 
     next();
   } catch (error) {
-    console.error("Error in getUserInstancesMiddleware:", error);
+    console.error("Error in getUserGuidesMiddleware:", error);
     return res.status(500).json({
       success: false,
       error: "Internal server error",

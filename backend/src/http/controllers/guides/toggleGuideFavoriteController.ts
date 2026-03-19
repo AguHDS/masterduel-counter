@@ -3,15 +3,9 @@ import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware.js"
 import { getDependencies } from "@/compositionRoot.js";
 
 /**
- * Toggles a like on an archetype instance (add if not exists, remove if exists).
- * Users cannot like their own instances.
- * 
- * @route POST /api/archetypes/:archetypeId/instances/:instanceId/like
- * @param archetypeId - ID of the archetype
- * @param instanceId - ID of the instance to like/unlike
- * @returns Updated like status and count
+ * Toggles a favorite on an archetype instance (add if not exists, remove if exists).
  */
-export const toggleInstanceLikeController = async (
+export const toggleGuideFavoriteController = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
@@ -24,7 +18,7 @@ export const toggleInstanceLikeController = async (
       return;
     }
 
-    if (typeof instanceId !== 'string') {
+    if (typeof instanceId !== "string") {
       res.status(400).json({ success: false, error: "Invalid instance ID" });
       return;
     }
@@ -36,27 +30,25 @@ export const toggleInstanceLikeController = async (
     }
 
     const instanceService = getDependencies().getInstanceService();
-    const result = await instanceService.toggleLikeGuide(instanceIdNum, userId);
+    const result = await instanceService.toggleFavoriteGuide(
+      instanceIdNum,
+      userId,
+    );
 
     res.status(200).json({
       success: true,
-      liked: result.liked,
-      likes: result.likes,
+      favorited: result.favorited,
+      favorites: result.favorites,
     });
   } catch (error) {
-    console.error("Error toggling instance like:", error);
+    console.error("Error toggling Guide favorite:", error);
 
     if (error instanceof Error) {
-      // Handle specific business logic errors
-      if (error.message === "Instance not found") {
+      if (error.message === "Guide not found") {
         res.status(404).json({ success: false, error: error.message });
         return;
       }
-      if (error.message === "You cannot like your own instance") {
-        res.status(403).json({ success: false, error: error.message });
-        return;
-      }
-      
+
       res.status(400).json({
         success: false,
         error: error.message,

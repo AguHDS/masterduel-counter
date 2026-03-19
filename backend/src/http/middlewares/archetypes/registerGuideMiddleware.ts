@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-export const registerArchetypeMiddleware = (
+export const registerGuideMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction,

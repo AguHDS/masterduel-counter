@@ -3,9 +3,10 @@ import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware.js"
 import { getDependencies } from "@/compositionRoot.js";
 
 /**
- * Toggles a favorite on an archetype instance (add if not exists, remove if exists).
+ * Toggles a like on a guide (add if not exists, remove if exists).
+ * Users cannot like their own guides
  */
-export const toggleInstanceFavoriteController = async (
+export const toggleGuideLikeController = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
@@ -18,37 +19,39 @@ export const toggleInstanceFavoriteController = async (
       return;
     }
 
-    if (typeof instanceId !== "string") {
-      res.status(400).json({ success: false, error: "Invalid instance ID" });
+    if (typeof instanceId !== 'string') {
+      res.status(400).json({ success: false, error: "Invalid Guide ID" });
       return;
     }
 
     const instanceIdNum = parseInt(instanceId, 10);
     if (isNaN(instanceIdNum)) {
-      res.status(400).json({ success: false, error: "Invalid instance ID" });
+      res.status(400).json({ success: false, error: "Invalid Guide ID" });
       return;
     }
 
     const instanceService = getDependencies().getInstanceService();
-    const result = await instanceService.toggleFavoriteGuide(
-      instanceIdNum,
-      userId,
-    );
+    const result = await instanceService.toggleLikeGuide(instanceIdNum, userId);
 
     res.status(200).json({
       success: true,
-      favorited: result.favorited,
-      favorites: result.favorites,
+      liked: result.liked,
+      likes: result.likes,
     });
   } catch (error) {
-    console.error("Error toggling instance favorite:", error);
+    console.error("Error toggling Guide like:", error);
 
     if (error instanceof Error) {
-      if (error.message === "Instance not found") {
+      // Handle specific business logic errors
+      if (error.message === "Guide not found") {
         res.status(404).json({ success: false, error: error.message });
         return;
       }
-
+      if (error.message === "You cannot like your own Guide") {
+        res.status(403).json({ success: false, error: error.message });
+        return;
+      }
+      
       res.status(400).json({
         success: false,
         error: error.message,

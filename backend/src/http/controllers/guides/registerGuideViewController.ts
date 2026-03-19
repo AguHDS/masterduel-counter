@@ -32,7 +32,7 @@ export const registerGuideViewController = async (
       message: "View registered successfully" 
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "Instance not found") {
+    if (error instanceof Error && error.message === "Guide not found") {
       res.status(404).json({ success: false, error: error.message });
       return;
     }

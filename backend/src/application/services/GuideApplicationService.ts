@@ -86,7 +86,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     // Verify ownership
     const instance = await this.instanceRepository.findArchetypeInstanceById(id);
     if (!instance) {
-      throw new Error("Instance not found");
+      throw new Error("Guide not found");
     }
 
     if (instance.userId !== userId) {
@@ -201,12 +201,12 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
 
     if (!instance) {
-      throw new Error("Instance not found");
+      throw new Error("Guide not found");
     }
 
-    // Prevent users from liking their own instances
+    // Prevent users from liking their own guides
     if (instance.userId === userId) {
-      throw new Error("You cannot like your own instance");
+      throw new Error("You cannot like your own guide");
     }
 
     const result = await this.instanceRepository.ToggleLikeInstance(instanceId, userId);
@@ -238,11 +238,11 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     instanceId: number,
     userId: string,
   ): Promise<{ favorited: boolean; favorites: number }> {
-    // Get the instance to check if it exists
+    // Get the Guide to check if it exists
     const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
 
     if (!instance) {
-      throw new Error("Instance not found");
+      throw new Error("Guide not found");
     }
 
     // Check if user already has this favorited
@@ -302,10 +302,10 @@ export class GuideApplicationService implements GuideInstanceServicePort {
 
   /** Register a view for a guide */
   async registerView(instanceId: number): Promise<void> {
-    // Verify instance exists
+    // Verify Guide exists
     const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
     if (!instance) {
-      throw new Error("Instance not found");
+      throw new Error("Guide not found");
     }
 
     // Increment in cache (will be flushed periodically)

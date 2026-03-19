@@ -11,7 +11,7 @@ import {
 } from "@/domain/ports/GuideRepository.js";
 import { PrismaClient } from "@prisma/client";
 
-export class SqliteArchetypeInstanceRepository implements GuideRepository {
+export class SqliteArchetypeGuideRepository implements GuideRepository {
   constructor(
     private db: Database.Database,
     private prisma: PrismaClient,

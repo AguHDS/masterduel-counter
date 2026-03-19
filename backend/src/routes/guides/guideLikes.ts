@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { toggleInstanceLikeController } from "@/http/controllers/guides/toggleInstanceLikeController.js";
+import { toggleGuideLikeController } from "@/http/controllers/guides/toggleGuideLikeController.js";
 import { checkGuideLikeStatusController } from "@/http/controllers/guides/checkGuideLikeStatusController.js";
 import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 
@@ -9,7 +9,7 @@ const router = Router();
 router.post(
   "/archetypes/:archetypeId/instances/:instanceId/like",
   requireAuth,
-  toggleInstanceLikeController
+  toggleGuideLikeController
 );
 
 // Get like status for a guide

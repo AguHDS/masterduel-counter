@@ -3,7 +3,7 @@ import { SqliteArchetypeRepository } from "@/infrastructure/repositories/SqliteA
 import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRepository.js";
 import { SqliteCardRepository } from "@/infrastructure/repositories/SqliteCardRepository.js";
 import { SqliteArchetypeCardPairRepository } from "@/infrastructure/repositories/SqliteArchetypeCardPairRepository.js";
-import { SqliteArchetypeInstanceRepository } from "@/infrastructure/repositories/SqliteArchetypeInstanceRepository.js";
+import { SqliteArchetypeGuideRepository } from "@/infrastructure/repositories/SqliteArchetypeGuideRepository.js";
 import { SqliteProfileRepository } from "@/infrastructure/repositories/SqliteProfileRepository.js";
 import { ArchetypeApplicationService } from "@/application/services/ArchetypeApplicationService.js";
 import { GuideApplicationService } from "@/application/services/GuideApplicationService.js";
@@ -133,7 +133,7 @@ export class Dependencies {
 
   getInstanceRepository(): GuideRepository {
     if (!this.instanceRepository) {
-      this.instanceRepository = new SqliteArchetypeInstanceRepository(
+      this.instanceRepository = new SqliteArchetypeGuideRepository(
         this.database.getConnection(),
         this.prisma,
       );

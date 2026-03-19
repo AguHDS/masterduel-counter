@@ -3,7 +3,7 @@ import logout from "./auth/logout.js";
 import searchCards from "./cards/searchCards.js";
 import selectCard from "./cards/selectCard.js";
 import confirmCards from "./cards/confirmCards.js";
-import registerArchetype from "./archetypes/registerArchetype.js";
+import archetypeGuide from "./archetypes/archetypeGuide.js";
 import registeredArchetypes from "./archetypes/registeredArchetypes.js";
 import deleteGuide from "./guides/deleteGuide.js";
 import guideLikes from "./guides/guideLikes.js";
@@ -31,7 +31,7 @@ export {
   searchCards,
   selectCard,
   confirmCards,
-  registerArchetype,
+  archetypeGuide,
   registeredArchetypes,
   deleteGuide,
   guideLikes,

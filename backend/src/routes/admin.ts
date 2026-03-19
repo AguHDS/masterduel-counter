@@ -20,7 +20,7 @@ import {
 } from "@/http/controllers/admin/index.js";
 import {
   deleteUserMiddleware,
-  getUserInstancesMiddleware,
+  getUserGuidesMiddleware,
   verifyAdminMiddleware,
 } from "@/http/middlewares/admin/index.js";
 
@@ -48,7 +48,7 @@ router.delete(
 router.get(
   "/users/:userId/instances",
   verifyAdminMiddleware,
-  getUserInstancesMiddleware,
+  getUserGuidesMiddleware,
   getUserGuidesController,
 );
 router.delete(

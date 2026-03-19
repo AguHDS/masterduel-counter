@@ -24,7 +24,7 @@ export const createOrUpdateRecommendedDeckController = async (
     const instance = await instanceService.getGuideById(instanceId);
 
     if (!instance) {
-      res.status(404).json({ success: false, error: "Instance not found" });
+      res.status(404).json({ success: false, error: "Guide not found" });
       return;
     }
 
@@ -33,7 +33,7 @@ export const createOrUpdateRecommendedDeckController = async (
         .status(403)
         .json({
           success: false,
-          error: "You can only edit your own instances",
+          error: "You can only edit your own guides",
         });
       return;
     }

@@ -35,13 +35,13 @@ export const createGetGuideByIdController = (
         });
       }
 
-      // Search instance by ID
+      // Search Guide by ID
       const instance =
         await instanceRepository.findArchetypeInstanceById(instanceId);
 
       if (!instance) {
         return res.status(404).json({
-          error: "Instance not found",
+          error: "Guide not found",
         });
       }
 
