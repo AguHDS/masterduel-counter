@@ -119,27 +119,13 @@ export const CardPairEditor = ({
     }
   };
 
-  const getGridColumns = () => {
-    const count = pairs.length;
-
-    if (count <= 3) {
-      return "grid-cols-1 md:grid-cols-3";
-    } else if (count <= 6) {
-      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
-    } else {
-      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
-    }
-  };
-
-  // Función para renderizar los pares con separadores
   const renderPairsWithSeparators = () => {
     const items = [];
 
     for (let i = 0; i < pairs.length; i++) {
-      // Agregar el par de cartas
       const pair = pairs[i];
       items.push(
-        <div key={pair.id} className="w-full max-w-[400px]">
+        <div key={pair.id} className="flex justify-center">
           <CardPairItem
             topCards={pair.topCards}
             bottomCards={pair.bottomCards}
@@ -166,33 +152,21 @@ export const CardPairEditor = ({
           />
         </div>,
       );
-
-      if ((i + 1) % 3 === 0 && i < pairs.length - 1) {
-        items.push(
-          <div key={`separator-${i}`} className="col-span-full w-full">
-            <div className="flex justify-center my-8">
-              <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
-            </div>
-          </div>,
-        );
-      }
     }
 
     return items;
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full">
       {validationError && (
         <div className="mb-4 text-red-400 font-semibold text-sm text-center">
           {validationError}
         </div>
       )}
-      <div className="flex-1">
+      <div className="flex-1 w-full">
         {pairs.length > 0 ? (
-          <div
-            className={`grid ${getGridColumns()} gap-10 justify-items-center`}
-          >
+          <div className="flex flex-wrap gap-8 justify-center">
             {renderPairsWithSeparators()}
           </div>
         ) : (

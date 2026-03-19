@@ -1,16 +1,13 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useCallback, useMemo, useEffect } from "react";
 import {
-  Edit3,
+  CreditCard as Edit3,
   Trash2,
-  ThumbsUp,
-  Star,
   Plus,
   Save,
   X,
   Flag,
   ArrowLeft,
-  Eye,
 } from "lucide-react";
 import { CardPairEditor } from "./CardPairEditor";
 import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
@@ -35,7 +32,6 @@ interface GuideContainerProps {
   onEditModeChange?: (isEditMode: boolean) => void;
 }
 
-/** Guide main container */
 export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
   const { archetypeId, instanceId } = useParams<{
     archetypeId: string;
@@ -84,7 +80,6 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
 
   const recommendedDeck = useGuideRecommendedDeck(instanceIdNum);
 
-  // Register view for this instance
   useRegisterView(instanceIdNum, archetypeIdNum);
 
   const memoizedMainDeck = useMemo(
@@ -118,11 +113,9 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
     }>
   >(memoizedExtraDeck);
 
-  // Status for card pairs
   const [pairs, setPairs] = useState<CardPair[]>([]);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
-  // Notify parent of edit mode changes
   useEffect(() => {
     onEditModeChange?.(editor.isEditMode && isOwner);
   }, [editor.isEditMode, isOwner, onEditModeChange]);
@@ -133,7 +126,6 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
       setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
     } else if (recommendedDeck.deck === null) {
-      // If the deck was deleted (deck is null), empty the arrays even in edit mode
       setDeckTitle("Recommended Deck");
       setDeckMainCards([]);
       setDeckExtraCards([]);
@@ -159,9 +151,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
     isError,
     isOwner,
     onDataLoaded: (data) => {
-      // Sanitize only the title (multiple spaces -> single space)
       const sanitizedTitle = data.title.replace(/\s+/g, " ").trim();
-      // generalTip preserves formatting (spaces and line breaks)
       const generalTip = data.generalTip || "";
 
       editor.setLoadedPairs(data.pairs);
@@ -172,7 +162,6 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       favorites.setFavoriteCount(data.favorites);
       editor.setIsEditMode(false);
 
-      // Update local pairs state
       const transformedPairs: CardPair[] = data.pairs.map((pair) => ({
         id: pair.id.toString(),
         topCards: pair.topCards,
@@ -188,7 +177,6 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
         likes.setLiked(false);
       }
 
-      // Load favorite status for all authenticated users (can favorite own guides)
       if (isAuthenticated) {
         favorites.loadFavoriteStatus();
       } else {
@@ -231,11 +219,9 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
         comment: pair.comment,
       }));
 
-      // Sanitize only the title (multiple spaces -> single space)
       const sanitizedTitle =
         guideInstanceData.instance.title?.replace(/\s+/g, " ").trim() ||
         "Title";
-      // generalTip preserves formatting (spaces and line breaks)
       const generalTip = guideInstanceData.instance.generalTip || "";
 
       editor.resetToInitialData({
@@ -355,8 +341,8 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
 
   return (
     <>
-      <section className="w-full opacity-[95%] relative bottom-5 flex justify-center px-4 sm:px-6 lg:px-8">
-        <div className="relative w-full max-w-[1456px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5),0_20px_40px_-20px_rgba(0,0,0,0.5)]">
+      <section className="w-full relative flex justify-center top-2 px-4 sm:px-6 lg:px-8">
+        <div className="relative w-full max-w-[2100px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d]">
           <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
             <img
               src={instanceEditorBackground}
@@ -368,7 +354,6 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
               className="absolute inset-0 w-full h-full pointer-events-none select-none rounded-[24px]"
             />
 
-            {/* Dark overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80 rounded-[24px]"></div>
 
             <div className="relative z-10 space-y-6">
@@ -384,100 +369,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                   <span>Back</span>
                 </button>
 
-                <div className="ml-auto  flex items-center space-x-4 relative left-5">
-                  {!isCreatingNew && selectedArchetype.registered && (
-                    <div className="flex items-center space-x-1">
-                      {/* Views counter */}
-                      <div className="flex items-center space-x-2 px-3 py-1 text-purple-400">
-                        <Eye className="w-5 h-5" />
-                        <span>{guideInstanceData?.instance.views || 0}</span>
-                      </div>
-
-                      {/* Favorite button */}
-                      <button
-                        onClick={
-                          isAuthenticated ? favorites.toggleFavorite : undefined
-                        }
-                        disabled={!isAuthenticated}
-                        className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
-                          favorites.favoriteCount > 0
-                            ? "text-yellow-400"
-                            : "text-white"
-                        } ${!isAuthenticated ? "cursor-not-allowed" : ""}`}
-                        title={
-                          !isAuthenticated
-                            ? "Log in to favorite this guide"
-                            : favorites.favorited
-                              ? "Remove from favorites"
-                              : "Add to favorites"
-                        }
-                      >
-                        <Star
-                          className={`w-5 h-5 ${
-                            favorites.favoriteCount > 0 ? "text-yellow-400" : ""
-                          }`}
-                        />
-                        <span>{favorites.favoriteCount}</span>
-                      </button>
-
-                      {/* Like button */}
-                      <button
-                        onClick={
-                          isAuthenticated && !isOwner
-                            ? likes.toggleLike
-                            : undefined
-                        }
-                        disabled={!isAuthenticated || isOwner}
-                        className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors shadow-lg ${
-                          likes.likeCount > 0 ? "text-green-500" : "text-white"
-                        } ${
-                          !isAuthenticated || isOwner
-                            ? "cursor-not-allowed"
-                            : ""
-                        }`}
-                        title={
-                          !isAuthenticated
-                            ? "Log in to like this guide"
-                            : isOwner
-                              ? "You cannot like your own guide"
-                              : undefined
-                        }
-                      >
-                        <ThumbsUp
-                          className={`w-5 h-5 ${
-                            likes.likeCount > 0 ? "text-green-500" : ""
-                          }`}
-                        />
-                        <span>{likes.likeCount}</span>
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Creator Info */}
-                  {!isCreatingNew && guideInstanceData && (
-                    <div className="flex items-center space-x-2">
-                      {guideInstanceData.userProfilePictureUrl ? (
-                        <img
-                          src={guideInstanceData.userProfilePictureUrl}
-                          alt={`${guideInstanceData.userName}'s profile`}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
-                          {guideInstanceData.userName?.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                      <div className="flex items-center space-x-1">
-                        <span className="text-slate-400 text-xs">Made by</span>
-                        <Link
-                          to={`/profile/${guideInstanceData.instance.userId}`}
-                          className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors underline"
-                        >
-                          {guideInstanceData.userName}
-                        </Link>
-                      </div>
-                    </div>
-                  )}
+                <div className="ml-auto flex items-center space-x-4">
                 </div>
               </div>
 
@@ -490,10 +382,23 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                 onTitleChange={editor.setTitle}
                 onGeneralTipChange={editor.setGeneralTip}
                 onSelectHeaderCard={() => editor.setIsSelectingHeader(true)}
+                views={guideInstanceData?.instance.views || 0}
+                favorites={favorites.favoriteCount}
+                likes={likes.likeCount}
+                userName={guideInstanceData?.userName}
+                userId={guideInstanceData?.instance.userId}
+                userProfilePictureUrl={guideInstanceData?.userProfilePictureUrl ?? undefined}
+                isCreatingNew={isCreatingNew}
+                onFavoriteToggle={favorites.toggleFavorite}
+                onLikeToggle={likes.toggleLike}
+                isFavorited={favorites.favorited}
+                isLiked={likes.liked}
+                isAuthenticated={isAuthenticated}
+                currentUserId={user?.id}
               />
 
-              <div className="flex justify-center my-8">
-                <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+              <div className="flex justify-center">
+                <div className="w-4/5 h-px my-2 bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
               </div>
 
               <div className="mt-8">
@@ -519,7 +424,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
               )}
 
               <div className="flex justify-center my-8">
-                <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+                <div className="w-4/5 h-px bg-gradient-to-r my-4 from-transparent via-slate-600 to-transparent"></div>
               </div>
 
               <RecommendedDeckEditor
