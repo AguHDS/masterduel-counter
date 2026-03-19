@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot.js";
-import { ArchetypeService } from "@/application/services/ArchetypeService.js";
+import { ArchetypeApplicationService } from "@/application/services/ArchetypeApplicationService.js";
 
-/** Busca arquetipos por nombre con filtros opcionales */
-let archetypeService: ArchetypeService | null = null;
+/** Search archetypes with optional filters */
+let archetypeService: ArchetypeApplicationService | null = null;
 
-const getArchetypeService = (): ArchetypeService => {
+const getArchetypeService = (): ArchetypeApplicationService => {
   if (!archetypeService) {
     const dependencies = getDependencies();
     archetypeService = dependencies.getArchetypeService();

@@ -1,22 +1,22 @@
 import { Router } from "express";
 import { toggleInstanceFavoriteController } from "@/http/controllers/guides/toggleInstanceFavoriteController.js";
-import { getInstanceFavoriteStatusController } from "@/http/controllers/guides/getInstanceFavoriteStatusController.js";
+import { checkGuideFavoriteStatusController } from "@/http/controllers/guides/checkGuideFavoriteStatusController.js";
 import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 
 const router = Router();
 
-// Toggle favorite on an instance
+// Toggle favorite on a guide
 router.post(
   "/archetypes/:archetypeId/instances/:instanceId/favorite",
   requireAuth,
   toggleInstanceFavoriteController
 );
 
-// Get favorite status for an instance
+// Check favorite status for a guide
 router.get(
   "/archetypes/:archetypeId/instances/:instanceId/favorite/status",
   requireAuth,
-  getInstanceFavoriteStatusController
+  checkGuideFavoriteStatusController
 );
 
 export default router;

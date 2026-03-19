@@ -134,7 +134,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async getGeneralStats(limit: number = 15): Promise<import("@/domain/ports/ArchetypeRepository.js").GeneralStats> {
+  async getGuidesGeneralStats(limit: number = 15): Promise<import("@/domain/ports/ArchetypeRepository.js").GeneralStats> {
     // Get total registered archetypes
     const totalArchetypesStmt = this.db.prepare(`
       SELECT COUNT(*) as count

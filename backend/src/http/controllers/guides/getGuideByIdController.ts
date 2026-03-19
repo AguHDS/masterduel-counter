@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository.js";
-import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository.js";
+import { GuideRepository } from "@/domain/ports/GuideRepository.js";
+import { GuideCardPairRepository } from "@/domain/ports/GuideCardPairRepository.js";
 import { CardRepository } from "@/domain/ports/CardRepository.js";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
 import { UserRepository } from "@/domain/ports/UserRepository.js";
@@ -11,8 +11,8 @@ import { getDependencies } from "@/compositionRoot.js";
  * Includes archetype name, username, user profile picture, header card details, and card pairs with details.
  */
 export const createGetGuideByIdController = (
-  instanceRepository: ArchetypeInstanceRepository,
-  cardPairRepository: ArchetypeCardPairRepository,
+  instanceRepository: GuideRepository,
+  cardPairRepository: GuideCardPairRepository,
   cardRepository: CardRepository,
   archetypeRepository: ArchetypeRepository,
   userRepository: UserRepository,
@@ -46,7 +46,7 @@ export const createGetGuideByIdController = (
       }
 
       // Get card pairs with details
-      const cardPairs = await cardPairRepository.findByInstanceIdWithDetails(
+      const cardPairs = await cardPairRepository.findCardPairsByGuideId(
         instance.id,
       );
 

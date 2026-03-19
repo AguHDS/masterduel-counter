@@ -17,7 +17,7 @@ export const getFavoritedGuidesController = async (
     }
 
     const instanceService = getDependencies().getInstanceService();
-    const favoritedGuides = await instanceService.getFavoritedInstancesByUserId(userId);
+    const favoritedGuides = await instanceService.getFavoritedGuidesByUserId(userId);
 
     res.status(200).json({
       success: true,

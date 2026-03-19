@@ -9,10 +9,10 @@ import {
   changeUserRoleController,
   deleteReportController,
   deleteUserController,
-  deleteUserInstanceController,
+  deleteUserGuideController,
   getReportsController,
   getUserController,
-  getUserInstancesController,
+  getUserGuidesController,
   searchUsersController,
   unbanUserController,
   getTotalUsersController,
@@ -49,12 +49,12 @@ router.get(
   "/users/:userId/instances",
   verifyAdminMiddleware,
   getUserInstancesMiddleware,
-  getUserInstancesController,
+  getUserGuidesController,
 );
 router.delete(
   "/users/:userId/instances/:instanceId",
   verifyAdminMiddleware,
-  deleteUserInstanceController,
+  deleteUserGuideController,
 );
 router.put(
   "/users/:userId/credentials",

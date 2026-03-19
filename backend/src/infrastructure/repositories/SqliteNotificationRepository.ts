@@ -96,7 +96,7 @@ export class SqliteNotificationRepository implements NotificationRepository {
     });
   }
 
-  async markAsRead(id: number): Promise<Notification> {
+  async markNotificationAsRead(id: number): Promise<Notification> {
     // Get the notification before deleting it
     const notification = await this.prisma.notification.findUnique({
       where: { id },

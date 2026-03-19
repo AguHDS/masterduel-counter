@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerArchetypeController } from "@/http/controllers/archetypes/registerArchetypeController.js";
+import { registerGuideController } from "@/http/controllers/archetypes/registerGuideController.js";
 import { registerArchetypeMiddleware } from "@/http/middlewares/archetypes/registerArchetypeMiddleware.js";
 import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 import { getArchetypeWithHeaderController } from "@/http/controllers/archetypes/getArchetypeWithHeaderController.js";
@@ -11,7 +11,7 @@ router.post(
   "/:id/register",
   requireAuth,
   registerArchetypeMiddleware,
-  registerArchetypeController,
+  registerGuideController,
 );
 
 /** Get archetype guide with its header card to display as list */

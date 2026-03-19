@@ -28,8 +28,8 @@ export const deleteGuideController = async (
 
     const archetypeId = instance.archetypeId;
 
-    // Delete the instance (with ownership verification in service)
-    await instanceService.deleteInstance(instanceId, userId);
+    // Delete the guide (with ownership verification in service)
+    await instanceService.deleteGuide(instanceId, userId);
 
     // Check if there are any remaining instances for this archetype
     const remainingInstances =

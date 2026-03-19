@@ -3,10 +3,10 @@ export { changeUserCredentialsController } from "./changeUserCredentialsControll
 export { changeUserRoleController } from "./changeUserRoleController.js";
 export { deleteReportController } from "./deleteReportController.js";
 export { deleteUserController } from "./deleteUserController.js";
-export { deleteUserInstanceController } from "./deleteUserInstanceController.js";
+export { deleteUserGuideController } from "./deleteUserGuideController.js";
 export { getReportsController } from "./getReportsController.js";
 export { getUserController } from "./getUserController.js";
-export { getUserInstancesController } from "./getUserInstancesController.js";
+export { getUserGuidesController } from "./getUserGuidesController.js";
 export { searchUsersController } from "./searchUsersController.js";
 export { unbanUserController } from "./unbanUserController.js";
 export { getTotalUsersController } from "./getTotalUsersController.js";

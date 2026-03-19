@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
-import { LoginUserWithBetterAuthUseCase } from "@/application/services/LoginUserWithBetterAuth.js";
+import { LoginUserWithBetterAuthApplicationService } from "@/application/services/LoginUserWithBetterAuthApplicationService.js";
 import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRepository.js";
 import { PrismaClient } from "@prisma/client";
 
-/** Autentica un usuario con email y contraseña */
-// Dependency injection
+/** Authenticate a user with email and password */
 const prisma = new PrismaClient();
-const loginUserUseCase = new LoginUserWithBetterAuthUseCase(
+const loginUserUseCase = new LoginUserWithBetterAuthApplicationService(
   new SqliteUserRepository(prisma),
 );
 

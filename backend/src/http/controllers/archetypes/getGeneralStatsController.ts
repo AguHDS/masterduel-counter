@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { ArchetypeServicePort } from "@/application/ports/ArchetypeService.js";
+import { ArchetypeApplicationPort } from "@/application/ports/ArchetypeApplicationPort.js";
 
 export const createGetGeneralStatsController = (
-  archetypeService: ArchetypeServicePort
+  archetypeService: ArchetypeApplicationPort
 ) => {
   return async (req: Request, res: Response) => {
     try {
@@ -16,7 +16,7 @@ export const createGetGeneralStatsController = (
         });
       }
 
-      const stats = await archetypeService.getGeneralStats(limit);
+      const stats = await archetypeService.getGuidesGeneralStats(limit);
 
       return res.status(200).json({
         success: true,

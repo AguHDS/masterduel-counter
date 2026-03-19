@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { toggleInstanceLikeController } from "@/http/controllers/guides/toggleInstanceLikeController.js";
-import { getInstanceLikeStatusController } from "@/http/controllers/guides/getInstanceLikeStatusController.js";
+import { checkGuideLikeStatusController } from "@/http/controllers/guides/checkGuideLikeStatusController.js";
 import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 
 const router = Router();
@@ -16,7 +16,7 @@ router.post(
 router.get(
   "/archetypes/:archetypeId/instances/:instanceId/like/status",
   requireAuth,
-  getInstanceLikeStatusController
+  checkGuideLikeStatusController
 );
 
 export default router;

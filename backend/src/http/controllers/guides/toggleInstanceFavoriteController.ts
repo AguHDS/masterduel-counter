@@ -30,7 +30,7 @@ export const toggleInstanceFavoriteController = async (
     }
 
     const instanceService = getDependencies().getInstanceService();
-    const result = await instanceService.toggleInstanceFavorite(
+    const result = await instanceService.toggleFavoriteGuide(
       instanceIdNum,
       userId,
     );

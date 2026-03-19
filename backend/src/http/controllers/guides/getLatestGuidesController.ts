@@ -1,9 +1,17 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
+import { GuideInstanceServicePort } from "@/application/ports/GuideApplicationPort.js";
 
 /** Get the latest created guide instances across all archetypes */
+/** TODO:
+ * En la ruta, no se esta implementando este controller como se hace convencionalmente con otros controllers
+ * Chequea como se trabaja con controllers en otros archivos bien implementados (ej: backend\src\routes\guides\guideLikes.ts & backend\src\http\controllers\guides\toggleInstanceLikeController.ts)
+ * y si es necesario hacer X cosa en el compositionRoot para que funcione correctamente, hacerlo, pero siempre
+ * siguiendo la forma de trabajo que se hace en los flujos que funcionan bien.
+ * El archivo de ruta deberia conectar la ruta con el controller.
+ * Cambiar tambien el nombre del controller a getLastestGuidesController.ts
+ */
 export const createGetLatestGuidesController =
-  (instanceService: ArchetypeInstanceServicePort) =>
+  (instanceService: GuideInstanceServicePort) =>
   async (req: Request, res: Response) => {
     try {
       const limitParam = req.query.limit as string | undefined;
@@ -14,7 +22,7 @@ export const createGetLatestGuidesController =
         return;
       }
 
-      const instances = await instanceService.getLatestCreatedInstances(limit);
+      const instances = await instanceService.getLastedCreatedGuides(limit);
 
       res.status(200).json(instances);
     } catch (error) {

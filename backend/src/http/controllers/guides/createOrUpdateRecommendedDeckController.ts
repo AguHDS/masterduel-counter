@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot.js";
 
+/** Creates or updates a recommended deck for a guide */
 export const createOrUpdateRecommendedDeckController = async (
   req: Request,
   res: Response,

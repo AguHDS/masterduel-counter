@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
+import { GuideInstanceServicePort } from "@/application/ports/GuideApplicationPort.js";
 import { validateStringParam } from "@/shared/utils/paramValidation.js";
 
 /** Search guide instances for a user by title */
 export const createSearchUserGuidesController =
-  (instanceService: ArchetypeInstanceServicePort) =>
+  (instanceService: GuideInstanceServicePort) =>
   async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;
@@ -30,7 +30,7 @@ export const createSearchUserGuidesController =
         return;
       }
 
-      const instances = await instanceService.searchInstancesByUserIdAndTitle(
+      const instances = await instanceService.searchGuideItemListProfile(
         userIdString,
         title,
         sortBy || "updated",

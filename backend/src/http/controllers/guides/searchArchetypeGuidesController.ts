@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
+import { GuideInstanceServicePort } from "@/application/ports/GuideApplicationPort.js";
 
 /** Search guide instances for an archetype by title */
 export const createSearchArchetypeGuidesController =
-  (instanceService: ArchetypeInstanceServicePort) =>
+  (instanceService: GuideInstanceServicePort) =>
   async (req: Request, res: Response) => {
     try {
       const id = req.params.id;
@@ -26,7 +26,7 @@ export const createSearchArchetypeGuidesController =
         return;
       }
 
-      const instances = await instanceService.searchInstancesByArchetypeIdAndTitle(
+      const instances = await instanceService.searchGuideItemList(
         archetypeId,
         title,
         sortBy || 'updated'

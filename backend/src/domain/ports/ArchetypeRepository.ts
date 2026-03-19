@@ -35,5 +35,5 @@ export interface ArchetypeRepository {
     archetypeData: ArchetypeUpdateDTO,
   ): Promise<Archetype | null>;
   /** Get general statistics */
-  getGeneralStats(limit?: number): Promise<GeneralStats>;
+  getGuidesGeneralStats(limit?: number): Promise<GeneralStats>;
 }

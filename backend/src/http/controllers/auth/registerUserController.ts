@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-import { RegisterUserWithBetterAuthUseCase } from "@/application/services/RegisterUserWithBetterAuth.js";
+import { RegisterUserWithBetterAuthApplicationService } from "@/application/services/RegisterUserWithBetterAuthApplicationService.js";
 import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRepository.js";
 import { PrismaClient } from "@prisma/client";
 import { verifyTurnstileToken } from "@/services/turnstile.js";
 
-/** Registra un nuevo usuario en el sistema */
+/** Registers a new user */
 // Dependency injection
 const prisma = new PrismaClient();
-const registerUserUseCase = new RegisterUserWithBetterAuthUseCase(
+const registerUserUseCase = new RegisterUserWithBetterAuthApplicationService(
   new SqliteUserRepository(prisma),
 );
 

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
+import { GuideInstanceServicePort } from "@/application/ports/GuideApplicationPort.js";
 
 /** Get all guide instances for an archetype created by all users */
 export const createGetArchetypeGuidesController =
-  (instanceService: ArchetypeInstanceServicePort) =>
+  (instanceService: GuideInstanceServicePort) =>
   async (req: Request, res: Response) => {
     try {
       const id = req.params.id;

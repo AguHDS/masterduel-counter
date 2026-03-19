@@ -1,3 +1,5 @@
+// Custom deck for user profile
+
 export interface CustomDeck {
   id: number;
   userId: string;

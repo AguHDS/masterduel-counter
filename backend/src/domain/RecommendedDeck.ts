@@ -1,3 +1,5 @@
+// Recommende deck for guides
+
 export interface RecommendedDeck {
   id: number;
   instanceId: number;

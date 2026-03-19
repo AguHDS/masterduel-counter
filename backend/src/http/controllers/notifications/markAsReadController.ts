@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { NotificationServicePort } from "@/application/ports/NotificationService.js";
+import { NotificationApplicationPort } from "@/application/ports/NotificationApplicationPort.js";
 import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware.js";
 import { extractNumberParam } from "@/shared/utils/paramValidation.js";
 
 /** Mark a single notification as read */
 export const createMarkAsReadController =
-  (notificationService: NotificationServicePort) =>
+  (notificationService: NotificationApplicationPort) =>
   async (req: Request, res: Response) => {
     try {
       const userId = (req as AuthenticatedRequest).user?.id;
@@ -17,7 +17,7 @@ export const createMarkAsReadController =
 
       const notificationId = extractNumberParam(req.params.id, "Notification ID");
 
-      const notification = await notificationService.markAsRead(
+      const notification = await notificationService.markNotificationAsRead(
         notificationId,
         userId,
       );

@@ -1,12 +1,12 @@
-import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository.js";
+import { GuideCardPairRepository } from "@/domain/ports/GuideCardPairRepository.js";
 import {
-  ArchetypeCardPair,
-  ArchetypeCardPairCreateDTO,
-  ArchetypeCardPairWithDetails,
-} from "@/domain/ArchetypeCardPair.js";
+  GuideCardPair,
+  GuideCardPairCreateDTO,
+  GuideCardPairWithDetails,
+} from "@/domain/GuideCardPair.js";
 import Database from "better-sqlite3";
 
-export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepository {
+export class SqliteArchetypeCardPairRepository implements GuideCardPairRepository {
   private db: Database.Database;
 
   constructor(db: Database.Database) {
@@ -14,8 +14,8 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
   }
 
   async CreateManyPairCards(
-    pairs: ArchetypeCardPairCreateDTO[],
-  ): Promise<ArchetypeCardPair[]> {
+    pairs: GuideCardPairCreateDTO[],
+  ): Promise<GuideCardPair[]> {
     const pairStmt = this.db.prepare(`
       INSERT INTO archetype_card_pairs (instance_id, pair_order, effectiveness, comment)
       VALUES (?, ?, ?, ?)
@@ -32,7 +32,7 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
       VALUES (?, ?, ?)
     `);
 
-    const results: ArchetypeCardPair[] = [];
+    const results: GuideCardPair[] = [];
 
     for (const pair of pairs) {
       // Create the pair
@@ -41,7 +41,7 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
         pair.pair_order,
         pair.effectiveness || null,
         pair.comment || null,
-      ) as Omit<ArchetypeCardPair, "top_card_ids" | "bottom_card_ids">;
+      ) as Omit<GuideCardPair, "top_card_ids" | "bottom_card_ids">;
 
       pair.top_card_ids.forEach((cardId, index) => {
         topStmt.run(result.id, cardId, index);
@@ -61,9 +61,9 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
     return results;
   }
 
-  async findByInstanceIdWithDetails(
+  async findCardPairsByGuideId(
     instanceId: number,
-  ): Promise<ArchetypeCardPairWithDetails[]> {
+  ): Promise<GuideCardPairWithDetails[]> {
     const pairStmt = this.db.prepare(`
       SELECT id, instance_id, pair_order, effectiveness, comment, created_at
       FROM archetype_card_pairs
@@ -88,7 +88,7 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
     `);
 
     const pairs = pairStmt.all(instanceId) as Omit<
-      ArchetypeCardPairWithDetails,
+      GuideCardPairWithDetails,
       "top_cards" | "bottom_cards"
     >[];
 
@@ -111,7 +111,7 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
     }));
   }
 
-  async deleteByInstanceId(instanceId: number): Promise<void> {
+  async deleteCardPairsByGuideId(instanceId: number): Promise<void> {
     const stmt = this.db.prepare(`
       DELETE FROM archetype_card_pairs
       WHERE instance_id = ?

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
+import { GuideInstanceServicePort } from "@/application/ports/GuideApplicationPort.js";
 
 /** Create or update a guide of an archetype for the authenticated user */
 export const createCreateOrUpdateInstanceController =
-  (instanceService: ArchetypeInstanceServicePort) =>
+  (instanceService: GuideInstanceServicePort) =>
   async (req: Request, res: Response) => {
     try {
       const id = req.params.id;

@@ -23,7 +23,7 @@ import { createSearchArchetypeGuidesRoute } from "./guides/searchArchetypeGuides
 import { createSearchUserGuidesRoute } from "./profile/searchUserGuides.js";
 import { createNotificationsRoute } from "./notifications/notifications.js";
 import { createGetLatestGuidesRoute } from "./guides/getLatestGuides.js";
-import { createGetGeneralStatsRoute } from "./archetypes/getGeneralStats.js";
+import { createGetGeneralStatsRoute } from "./archetypes/getGuidesGeneralStats.js";
 
 export {
   searchArchetype,

@@ -1,25 +1,25 @@
 import Database from "better-sqlite3";
 import {
-  ArchetypeInstance,
-  ArchetypeInstanceCreateDTO,
-  ArchetypeInstanceUpdateDTO,
-  ArchetypeGuideListItem,
-} from "@/domain/ArchetypeInstance.js";
+  Guide,
+  GuideCreateDTO,
+  GuideUpdateDTO,
+  GuideListItem,
+} from "@/domain/Guide.js";
 import {
-  ArchetypeInstanceRepository,
+  GuideRepository,
   LikeToggleResult,
-} from "@/domain/ports/ArchetypeInstanceRepository.js";
+} from "@/domain/ports/GuideRepository.js";
 import { PrismaClient } from "@prisma/client";
 
-export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepository {
+export class SqliteArchetypeInstanceRepository implements GuideRepository {
   constructor(
     private db: Database.Database,
     private prisma: PrismaClient,
   ) {}
 
   async createArchetypeInstance(
-    data: ArchetypeInstanceCreateDTO,
-  ): Promise<ArchetypeInstance> {
+    data: GuideCreateDTO,
+  ): Promise<Guide> {
     const stmt = this.db.prepare(`
       INSERT INTO archetype_instances (archetype_id, user_id, title, header_card_id, general_tip, likes, updated_at)
       VALUES (?, ?, ?, ?, ?, 0, CURRENT_TIMESTAMP)
@@ -35,12 +35,12 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
 
     return this.findArchetypeInstanceById(
       result.lastInsertRowid as number,
-    ) as Promise<ArchetypeInstance>;
+    ) as Promise<Guide>;
   }
 
   async findArchetypeInstanceById(
     id: number,
-  ): Promise<ArchetypeInstance | null> {
+  ): Promise<Guide | null> {
     const stmt = this.db.prepare(`
       SELECT *
       FROM archetype_instances
@@ -82,7 +82,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
   async findArchetypeInstanceByArchetypeId(
     archetypeId: number,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeGuideListItem[]> {
+  ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
@@ -146,7 +146,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
   async findArchetypeInstanceByUserId(
     userId: string,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeGuideListItem[]> {
+  ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
@@ -207,11 +207,11 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     }));
   }
 
-  async searchInstancesByArchetypeIdAndTitle(
+  async searchGuideItemList(
     archetypeId: number,
     title: string,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeGuideListItem[]> {
+  ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
@@ -272,11 +272,11 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     }));
   }
 
-  async searchInstancesByUserIdAndTitle(
+  async searchGuideItemListProfile(
     userId: string,
     title: string,
     sortBy: "likes" | "updated" = "updated",
-  ): Promise<ArchetypeGuideListItem[]> {
+  ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
@@ -340,7 +340,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
   async findArchetypeInstanceByArchetypeAndUserId(
     archetypeId: number,
     userId: string,
-  ): Promise<ArchetypeInstance | null> {
+  ): Promise<Guide | null> {
     const stmt = this.db.prepare(`
       SELECT *
       FROM archetype_instances
@@ -381,8 +381,8 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
 
   async updateArchetypeInstance(
     id: number,
-    data: ArchetypeInstanceUpdateDTO,
-  ): Promise<ArchetypeInstance> {
+    data: GuideUpdateDTO,
+  ): Promise<Guide> {
     const updates: string[] = [];
     const values: (number | string | null)[] = [];
 
@@ -402,7 +402,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     }
 
     if (updates.length === 0) {
-      return this.findArchetypeInstanceById(id) as Promise<ArchetypeInstance>;
+      return this.findArchetypeInstanceById(id) as Promise<Guide>;
     }
 
     values.push(id);
@@ -415,7 +415,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
 
     stmt.run(...values);
 
-    return this.findArchetypeInstanceById(id) as Promise<ArchetypeInstance>;
+    return this.findArchetypeInstanceById(id) as Promise<Guide>;
   }
 
   async deleteArchetypeInstanceById(id: number): Promise<void> {
@@ -490,7 +490,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     };
   }
 
-  async hasUserLikedInstance(instanceId: number, userId: string): Promise<boolean> {
+  async hasUserLikedGuide(instanceId: number, userId: string): Promise<boolean> {
     const like = await this.prisma.instanceLike.findUnique({
       where: {
         instanceId_userId: {
@@ -503,7 +503,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     return like !== null;
   }
 
-  async ToggleFavoriteInstance(
+  async toggleFavoriteGuide(
     instanceId: number,
     userId: string,
   ): Promise<{ favorited: boolean; favorites: number }> {
@@ -567,7 +567,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     };
   }
 
-  async hasUserFavoritedInstance(instanceId: number, userId: string): Promise<boolean> {
+  async hasUserFavoritedGuide(instanceId: number, userId: string): Promise<boolean> {
     const favorite = await this.prisma.instanceFavorite.findUnique({
       where: {
         instanceId_userId: {
@@ -580,7 +580,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
     return favorite !== null;
   }
 
-  async findFavoritedInstancesByUserId(userId: string): Promise<ArchetypeGuideListItem[]> {
+  async findFavoritedInstancesByUserId(userId: string): Promise<GuideListItem[]> {
     const stmt = this.db.prepare(`
       SELECT 
         ai.*,
@@ -660,7 +660,7 @@ export class SqliteArchetypeInstanceRepository implements ArchetypeInstanceRepos
 
   async findLatestCreatedInstances(
     limit: number,
-  ): Promise<ArchetypeGuideListItem[]> {
+  ): Promise<GuideListItem[]> {
     const stmt = this.db.prepare(`
       SELECT 
         ai.*,

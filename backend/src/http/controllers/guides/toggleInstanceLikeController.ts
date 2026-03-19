@@ -36,7 +36,7 @@ export const toggleInstanceLikeController = async (
     }
 
     const instanceService = getDependencies().getInstanceService();
-    const result = await instanceService.toggleInstanceLike(instanceIdNum, userId);
+    const result = await instanceService.toggleLikeGuide(instanceIdNum, userId);
 
     res.status(200).json({
       success: true,

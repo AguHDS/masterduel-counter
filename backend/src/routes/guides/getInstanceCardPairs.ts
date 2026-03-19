@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { getInstanceCardPairsController } from "@/http/controllers/guides/getInstanceCardPairsController.js";
+import { getGuideCardPairsController } from "@/http/controllers/guides/getGuideCardPairsController.js";
 
 const router = Router();
 
-router.get("/instances/:id/cardpairs", getInstanceCardPairsController);
+router.get("/instances/:id/cardpairs", getGuideCardPairsController);
 
 export default router;
