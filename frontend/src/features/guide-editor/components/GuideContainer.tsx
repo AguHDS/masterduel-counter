@@ -25,7 +25,6 @@ import { ReportModal } from "@/features/report/components/ReportModal";
 import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
 import { useRegisterView } from "@/shared/hooks/useRegisterView";
-import instanceEditorBackground from "@/assets/instanceEditorAndProfile_background.webp";
 import type { CardPair } from "@/features/archetypes/types";
 
 interface GuideContainerProps {
@@ -342,19 +341,17 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
   return (
     <>
       <section className="w-full relative flex justify-center top-2 px-4 sm:px-6 lg:px-8">
-        <div className="relative w-full max-w-[2100px] rounded-[28px] p-[3px] bg-gradient-to-br from-[#ffa94d] via-[#ff7e29] to-[#ffce6d]">
-          <div className="relative flex flex-col w-full min-h-[600px] rounded-[24px] py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
-            <img
-              src={instanceEditorBackground}
-              alt=""
-              loading="lazy"
-              fetchPriority="low"
-              decoding="async"
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full pointer-events-none select-none rounded-[24px]"
-            />
+        <div className="relative w-full max-w-[2100px] rounded-[28px] p-[3px]">
+          {/* Background image with transparency effect */}
+          <div className="absolute inset-0 rounded-[24px] overflow-hidden">
+            {/* Semi-transparent overlay to maintain the original transparency effect */}
+            <div className="absolute inset-0 " />
+          </div>
 
-            <div className="absolute inset-0 bg-gradient-to-br from-[#030717]/80 via-[#0a0f2c]/80 to-[#1a1743]/80 rounded-[24px]"></div>
+          {/* Content container with gradient and transparency */}
+          <div className="relative flex flex-col w-full min-h-[600px] border-2 rounded-md border-amber-500/70 py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
+            {/* Gradient overlay with transparency - this maintains the original effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#120b31]/85 to-[#060017]/85"></div>
 
             <div className="relative z-10 space-y-6">
               <div className="absolute right-3 top-[-26px] flex items-center justify-between w-full px-4">
@@ -369,8 +366,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                   <span>Back</span>
                 </button>
 
-                <div className="ml-auto flex items-center space-x-4">
-                </div>
+                <div className="ml-auto flex items-center space-x-4"></div>
               </div>
 
               <InstanceHeader
@@ -387,7 +383,9 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                 likes={likes.likeCount}
                 userName={guideInstanceData?.userName}
                 userId={guideInstanceData?.instance.userId}
-                userProfilePictureUrl={guideInstanceData?.userProfilePictureUrl ?? undefined}
+                userProfilePictureUrl={
+                  guideInstanceData?.userProfilePictureUrl ?? undefined
+                }
                 isCreatingNew={isCreatingNew}
                 onFavoriteToggle={favorites.toggleFavorite}
                 onLikeToggle={likes.toggleLike}

@@ -1,6 +1,7 @@
-import { Plus, Eye, Star, ThumbsUp } from "lucide-react";
+import { Plus, Eye, Star, ThumbsUp, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
+import { useState, useRef, useEffect } from "react";
 
 interface HeaderCard {
   id: number;
@@ -61,11 +62,26 @@ export const InstanceHeader = ({
     currentUserId.toString() === userId.toString()
   );
 
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [needsReadMore, setNeedsReadMore] = useState(false);
+  const descriptionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isEditMode && descriptionRef.current) {
+      const element = descriptionRef.current;
+      const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+      const maxLines = 6;
+      const maxHeight = lineHeight * maxLines;
+
+      setNeedsReadMore(element.scrollHeight > maxHeight);
+    }
+  }, [generalTip, isEditMode]);
+
   return (
-    <div className="flex items-start gap-8 mb-8 w-full">
-      <div className="flex-shrink-0">
+    <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 mb-8 w-full">
+      <div className="flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
         {headerCard ? (
-          <div className="relative top-8 w-60 h-auto overflow-hidden">
+          <div className="relative top-0 lg:top-8 w-48 sm:w-56 lg:w-60 h-auto overflow-hidden">
             <CardTooltip
               imageUrl={headerCard.imageUrl}
               cardName={headerCard.name}
@@ -107,9 +123,9 @@ export const InstanceHeader = ({
         )}
       </div>
 
-      <div className="flex-1 min-w-0 relative bottom-12">
+      <div className="flex-1 min-w-0 w-full lg:relative lg:bottom-12">
         <div className="w-full flex flex-col items-start mb-2">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-3">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-3">
             {archetypeName}
           </h1>
           <div className="flex w-full my-2">
@@ -124,7 +140,7 @@ export const InstanceHeader = ({
         </div>
 
         <div className="w-full">
-          <label className="text-blue-400 text-xl font-semibold block">
+          <label className="text-blue-400 text-lg sm:text-xl font-semibold block">
             Title
           </label>
           {isEditMode ? (
@@ -137,7 +153,7 @@ export const InstanceHeader = ({
               }}
               maxLength={100}
               placeholder="Enter a title for your guide (Max. 100 characters)"
-              className="w-full max-w-[88%] px-4 py-2 bg-slate-800/40 text-white text-xl font-normal rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 shadow-sm"
+              className="w-full px-4 py-2 bg-slate-800/40 text-white text-lg sm:text-xl font-normal rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 shadow-sm"
               style={{
                 wordBreak: "break-word",
                 overflowWrap: "break-word",
@@ -146,7 +162,7 @@ export const InstanceHeader = ({
             />
           ) : (
             <h2
-              className="text-3xl font-semibold text-white max-w-4xl break-words overflow-wrap-anywhere"
+              className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white max-w-full break-words overflow-wrap-anywhere"
               style={{
                 wordBreak: "break-word",
                 overflowWrap: "anywhere",
@@ -159,7 +175,7 @@ export const InstanceHeader = ({
         </div>
 
         <div className="w-full mt-2">
-          <label className="text-blue-400 text-xl font-semibold mb-2 block">
+          <label className="text-blue-400 text-lg sm:text-xl font-semibold mb-2 block">
             Description
           </label>
           {isEditMode ? (
@@ -168,7 +184,7 @@ export const InstanceHeader = ({
               onChange={(e) => onGeneralTipChange(e.target.value)}
               maxLength={3000}
               placeholder="Add optional description for this guide (Max. 3000 characters)"
-              className="w-full px-4 py-3 max-w-[88%] bg-slate-800/40 text-white text-base rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 resize-none shadow-sm min-h-[120px]"
+              className="w-full px-4 py-3 bg-slate-800/40 text-white text-base rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 resize-none shadow-sm min-h-[120px]"
               rows={5}
               style={{
                 wordBreak: "break-word",
@@ -177,27 +193,52 @@ export const InstanceHeader = ({
               }}
             />
           ) : (
-            <div
-              className="py-4 border-l-2 max-w-[88%] min-h-[250px] border-r-2 border-blue-700/30 bg-slate-900/30 px-4 rounded overflow-hidden"
-              style={{
-                wordBreak: "break-word",
-                overflowWrap: "anywhere",
-                wordWrap: "break-word",
-              }}
-            >
-              <p
-                className="text-slate-300 text-base leading-relaxed break-words overflow-wrap-anywhere"
-                style={{ whiteSpace: "pre-wrap" }}
+            <div className="w-full">
+              <div
+                className={`py-4 border-l-2 border-r-2 border-blue-700/30 bg-slate-900/30 px-4 rounded overflow-hidden transition-all duration-300 ${
+                  isDescriptionExpanded || !needsReadMore ? '' : 'max-h-[180px]'
+                }`}
+                style={{
+                  wordBreak: "break-word",
+                  overflowWrap: "anywhere",
+                  wordWrap: "break-word",
+                }}
               >
-                {generalTip || "No description"}
-              </p>
+                <p
+                  ref={descriptionRef}
+                  className={`text-slate-300 text-base leading-relaxed break-words overflow-wrap-anywhere ${
+                    !isDescriptionExpanded && needsReadMore ? 'line-clamp-6' : ''
+                  }`}
+                  style={{ whiteSpace: "pre-wrap" }}
+                >
+                  {generalTip || "No description"}
+                </p>
+              </div>
+              {needsReadMore && (
+                <button
+                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  className="mt-2 flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
+                >
+                  {isDescriptionExpanded ? (
+                    <>
+                      <ChevronUp className="w-4 h-4" />
+                      <span>Read less</span>
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4" />
+                      <span>Read more</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           )}
         </div>
       </div>
 
       {!isCreatingNew && !isEditMode && (
-        <div className="flex-shrink-0 w-56 relative bottom-10">
+        <div className="flex-shrink-0 w-full lg:w-56 lg:relative lg:bottom-10">
           <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm p-4 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
             <div className="flex flex-col gap-2">
               {userName && userId && (

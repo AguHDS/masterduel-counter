@@ -32,8 +32,8 @@ export const HomeAllComponents = () => {
   const handleSelectArchetype = (archetype: Archetype) => {
     setIsDropdownOpen(false);
     setSearchQuery("");
-    // Aquí puedes usar selectedButton para determinar a dónde navegar (counters o decks guides)
-    // Por ejemplo: navigate(`/${selectedButton}/${archetype.id}`);
+    // Here we can use selectedButton to determine where to navigate (counters or decks guides)
+    // For example: navigate(`/${selectedButton}/${archetype.id}`);
     navigate(`/archetype/${archetype.id}`);
   };
 
@@ -49,22 +49,20 @@ export const HomeAllComponents = () => {
 
   const handleButtonChange = (button: "counters" | "decks") => {
     setSelectedButton(button);
-    // Aquí puedes agregar lógica adicional cuando cambia el botón
-    // Por ejemplo: resetear la búsqueda, cambiar el placeholder, etc.
   };
 
   return (
     <div className="w-full mb-8 mt-4">
       <div className="bg-black/70 shadow-2xl p-1 rounded-lg">
-        <div className="relative border-2 border-amber-500/60 rounded-lg overflow-hidden shadow-[0_0_25px_rgba(245,158,11,0.35)]">
-          {/* BORDE INTERIOR BRILLANTE */}
+        <div className="relative border-2 border-red-500/40 overflow-hidden">
+          {/* INNER GLOWING BORDER */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute" />
           </div>
 
           {/* BACKGROUNDS */}
           <div className="absolute inset-0 pointer-events-none">
-            {/* Imagen para desktop (ambas) - visible solo en lg y superior */}
+            {/* Image for desktop (both) - visible only on lg and above */}
             <div className="hidden lg:grid lg:grid-cols-2 w-full h-full">
               <div
                 className="h-full w-full"
@@ -86,7 +84,7 @@ export const HomeAllComponents = () => {
               />
             </div>
 
-            {/* Imagen para móvil/tablet (solo azul) - visible en menores de lg */}
+            {/* Image for mobile/tablet (blue only) - visible on screens smaller than LG */}
             <div
               className="lg:hidden w-full h-full"
               style={{

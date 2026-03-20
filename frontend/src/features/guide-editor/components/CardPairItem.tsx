@@ -33,9 +33,11 @@ const BOTTOM_CARD_WIDTH = 96;
 const BOTTOM_CARD_HEIGHT = 128;
 const TOP_CARD_WIDTH = Math.round(BOTTOM_CARD_WIDTH * 0.7);
 const TOP_CARD_HEIGHT = Math.round(BOTTOM_CARD_HEIGHT * 0.75);
-const MAX_VISIBLE_TOP_CARDS = 4;
+const MAX_VISIBLE_TOP_CARDS = 3;
 const MAX_VISIBLE_BOTTOM_CARDS = 3;
 const FIXED_CONTAINER_WIDTH = 360;
+const SHOW_MORE_BUTTON_HEIGHT = 40;
+const READ_MORE_BUTTON_HEIGHT = 32;
 
 export const CardPairItem = ({
   topCards,
@@ -131,24 +133,19 @@ export const CardPairItem = ({
     const cardWidth = isTop ? TOP_CARD_WIDTH : BOTTOM_CARD_WIDTH;
     const cardHeight = isTop ? TOP_CARD_HEIGHT : BOTTOM_CARD_HEIGHT;
 
-    // Calculate height based on the number of rows needed
     const calculateHeight = () => {
-      if (!hasMoreCards) {
-        // If there is no button, only the height of the cards visible
-        const cardsPerRow = isTop ? 4 : 3;
-        const visibleCount = visibleCards.length;
-        const rows = Math.ceil(visibleCount / cardsPerRow);
-        const gapHeight = (rows - 1) * 6;
-        return rows * cardHeight + gapHeight;
-      } else {
-        // With button, we calculate height for the expanded or collapsed state
-        const cardsPerRow = isTop ? 4 : 3;
-        const totalCards = isExpanded ? cards.length : maxVisible;
-        const rows = Math.ceil(totalCards / cardsPerRow);
-        const gapHeight = (rows - 1) * 6;
-        const buttonSpace = 40;
-        return rows * cardHeight + gapHeight + buttonSpace;
+      const cardsPerRow = isTop ? 4 : 3;
+
+      let totalElements = visibleCards.length;
+      if (isEditMode) {
+        totalElements += 1;
       }
+
+      const rows = Math.ceil(totalElements / cardsPerRow);
+      const gapHeight = (rows - 1) * 6;
+      const cardsHeight = rows * cardHeight + gapHeight;
+
+      return cardsHeight + SHOW_MORE_BUTTON_HEIGHT;
     };
 
     return (
@@ -211,8 +208,8 @@ export const CardPairItem = ({
               </button>
             )}
           </div>
-          {hasMoreCards && (
-            <div className="absolute bottom-0 left-0 right-0 flex justify-center">
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center" style={{ height: `${SHOW_MORE_BUTTON_HEIGHT}px` }}>
+            {hasMoreCards && (
               <button
                 onClick={() => setExpanded(!isExpanded)}
                 className="mt-2 mb-1 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1"
@@ -229,8 +226,8 @@ export const CardPairItem = ({
                   </>
                 )}
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     );
@@ -288,7 +285,8 @@ export const CardPairItem = ({
         )}
       </div>
 
-      <div className="relative bg-gradient-to-br from-slate-800/70 via-slate-900/70 to-slate-800/70 p-2 rounded-lg border border-blue-500/20 hover:border-blue-500/40">
+      <div className="relative bg-gradient-to-br  p-2  border border-blue-500/40 hover:border-blue-500/50">
+        {" "}
         {isEditMode && (
           <button
             onClick={onRemove}
@@ -298,7 +296,6 @@ export const CardPairItem = ({
             <X className="w-3 h-3" />
           </button>
         )}
-
         <div className="flex flex-col items-center space-y-2">
           {isSingleSlotPair ? (
             <div className="flex flex-col items-center">
@@ -431,7 +428,6 @@ export const CardPairItem = ({
             </>
           )}
         </div>
-
         <div ref={commentRef} className="flex items-center justify-center mt-2">
           {isEditMode ? (
             <div className="w-full">
@@ -466,18 +462,21 @@ export const CardPairItem = ({
                   lineHeight: "1.3em",
                   maxHeight: !isCommentExpanded ? "4.5rem" : "500px",
                   transition: "max-height 0.3s ease-in-out",
+                  minHeight: "4.5rem",
                 }}
               >
                 {renderCommentWithLineBreaks(comment || "No comment")}
               </div>
-              {comment && comment.length > 150 && (
-                <button
-                  onClick={() => setIsCommentExpanded(!isCommentExpanded)}
-                  className="mt-2 text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1"
-                >
-                  {isCommentExpanded ? "Read Less" : "Read More"}
-                </button>
-              )}
+              <div style={{ height: `${READ_MORE_BUTTON_HEIGHT}px` }} className="flex items-center justify-center">
+                {comment && comment.length > 150 && (
+                  <button
+                    onClick={() => setIsCommentExpanded(!isCommentExpanded)}
+                    className="text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1"
+                  >
+                    {isCommentExpanded ? "Read Less" : "Read More"}
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
