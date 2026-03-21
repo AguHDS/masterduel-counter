@@ -49,13 +49,13 @@ export const HomePage = () => {
 
         <div
           className="w-full mx-auto px-4 sm:px-6 lg:px-8"
-          style={{ maxWidth: "87.5rem" }}
+          style={{ maxWidth: "92rem" }}
         >
           <HomeAllComponents />
         </div>
 
         {/* Este componente RegisteredArchetypesList, esta destinado a mostrar todas las guias creadas de Counters Guides o Deck Guides.
-        Al buscar y clickear un resultado tipo Counter o Deck en la ArchetypeSearcher, va a mostrar RegisteredArchetypesList con las guias
+        Al buscar y clickear un resultado tipo Counter o Deck en la MainSearch, va a mostrar RegisteredArchetypesList con las guias
         de Counter Guides o Deck Guides dependiendo de que se haya seleccionado.
         Ahora mismo, solo existe un unico tipo de guia en mi app (revisar App.tsx). Hay que agregar logica para identificar si las guias 
         conseguidas son de tipo counter guides o deck guide. */}

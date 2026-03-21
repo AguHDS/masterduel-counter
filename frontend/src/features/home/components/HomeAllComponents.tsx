@@ -5,10 +5,11 @@ import { DeckGuides } from "./DeckGuides";
 import { GeneralStats } from "./GeneralStats";
 import { LatestUpdates } from "./LastestUpdates";
 import { MainFeatures } from "./MainFeatures";
-import { ArchetypeSearcher } from "@/shared/components/ArchetypeSearcher/ArchetypeSearcher";
-import { SearchResults } from "@/shared/components/ArchetypeSearcher/SearchResults";
+import { MainSearch } from "@/shared/components/main-search/MainSearch";
+import { MainSearchResults } from "@/shared/components/main-search/MainSearchResults";
 import { useArchetypeSearch } from "@/features/archetypes/hooks/useArchetypes";
 import type { Archetype } from "@/features/archetypes/types";
+import MDCBackground from "@/assets/Maincontainer_background.webp";
 
 export const HomeAllComponents = () => {
   const navigate = useNavigate();
@@ -52,70 +53,45 @@ export const HomeAllComponents = () => {
   };
 
   return (
-    <div className="w-full mb-8 mt-4">
-      <div className="bg-black/70 shadow-2xl p-1 rounded-lg">
-        <div className="relative border-2 border-red-500/40 overflow-hidden">
+    <div className="w-full mt-4">
+      {/* MAIN CONTAINER */}
+      <div className="bg-black/90 shadow-[0_12px_32px_-12px_rgba(0,0,0,1)] border border-white/10">
+        <div className="relative overflow-hidden">
           {/* INNER GLOWING BORDER */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute" />
           </div>
 
-          {/* BACKGROUNDS */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Image for desktop (both) - visible only on lg and above */}
-            <div className="hidden lg:grid lg:grid-cols-2 w-full h-full">
-              <div
-                className="h-full w-full"
-                style={{
-                  backgroundImage: `url(/src/assets/home-rework/bg_red.webp)`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }}
-              />
-              <div
-                className="h-full w-full"
-                style={{
-                  backgroundImage: `url(/src/assets/home-rework/bg_blue.webp)`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }}
-              />
-            </div>
-
-            {/* Image for mobile/tablet (blue only) - visible on screens smaller than LG */}
-            <div
-              className="lg:hidden w-full h-full"
-              style={{
-                backgroundImage: `url(/src/assets/home-rework/bg_noline.webp)`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-              }}
-            />
-          </div>
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: `url(${MDCBackground})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
 
           {/* DARK OVERLAY */}
-          <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
 
           {/* CONTENT */}
           <div className="relative z-10 p-4">
-            <div className="mb-4">
-              <ArchetypeSearcher
+            {/* SEARCH SECTION - NOW INSIDE MAIN CONTAINER */}
+            <div className="mt-5">
+              <MainSearch
                 searchQuery={searchQuery}
                 onSearchChange={handleSearchChange}
                 selectedButton={selectedButton}
                 onButtonChange={handleButtonChange}
                 isDropdownOpen={
-                  isDropdownOpen &&
-                  (loading || error !== null || results.length > 0)
+                  isDropdownOpen && (loading || error !== null || results.length > 0)
                 }
                 onRequestClose={handleRequestClose}
                 onInputFocus={handleInputFocus}
               >
                 {isDropdownOpen && (
-                  <SearchResults
+                  <MainSearchResults
                     results={results}
                     loading={loading}
                     error={error ?? null}
@@ -123,8 +99,9 @@ export const HomeAllComponents = () => {
                     selectedButton={selectedButton}
                   />
                 )}
-              </ArchetypeSearcher>
+              </MainSearch>
             </div>
+
             {/* GUIDES */}
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="h-[550px] relative">

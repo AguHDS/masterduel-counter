@@ -33,7 +33,7 @@ export const DeckGuides = () => {
   };
 
   return (
-    <div className="relative w-full flex flex-col h-full overflow-hidden">
+    <div className="relative mt-2 w-full flex flex-col h-full overflow-hidden">
       <div className="relative z-10 flex flex-col h-full p-6 overflow-hidden">
         <div>
           <div className="flex items-center gap-4">
@@ -52,7 +52,7 @@ export const DeckGuides = () => {
           <h3 className="text-blue-300 text-2xl">Latest Deck Guides</h3>
         </div>
 
-        <div className="flex-1 relative bottom-6 min-h-0 overflow-y-auto scrollbar-counterguides">
+        <div className="flex-1 relative bottom-6 min-h-0 overflow-y-auto scrollbar-deckguides">
           {mockDeckGuides.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-blue-300">
               <p className="text-center text-sm">No guides created yet</p>

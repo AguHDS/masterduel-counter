@@ -10,7 +10,7 @@ interface SearchResultsProps {
   selectedButton: "counters" | "decks";
 }
 
-export const SearchResults = ({
+export const MainSearchResults = ({
   results,
   loading,
   error,
@@ -50,6 +50,7 @@ export const SearchResults = ({
       errorBorder: "border-red-500/40",
       errorIcon: "text-red-400",
       errorText: "text-red-300/90",
+      scrollbar: "scrollbar-counterguides",
     },
     decks: {
       border: "border-blue-500/40",
@@ -68,6 +69,7 @@ export const SearchResults = ({
       errorBorder: "border-blue-500/40",
       errorIcon: "text-blue-400",
       errorText: "text-blue-300/90",
+      scrollbar: "scrollbar-deckguides",
     },
   };
 
@@ -115,7 +117,7 @@ export const SearchResults = ({
           {results.length !== 1 ? "s" : ""} to {selectedButton === "counters" ? "counter" : "explore"}
         </div>
 
-        <div className="max-h-80 overflow-y-auto search-dropdown px-2 py-3 space-y-2">
+        <div className={`max-h-80 overflow-y-auto px-2 py-3 space-y-2 ${currentColors.scrollbar}`}>
           {results.map((archetype, index) => {
             const delay = index * 40;
 

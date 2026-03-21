@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
-import searchImg from "@/assets/home-rework/Search_v2.webp";
-import search_button from "@/assets/home-rework/search_button.webp";
+import search_button from "@/assets/home-rework/search_button_blackandwhite.webp";
 
 interface SearchInputProps {
   searchQuery: string;
@@ -13,7 +12,7 @@ interface SearchInputProps {
   onInputFocus?: () => void;
 }
 
-export const ArchetypeSearcher = ({
+export const MainSearch = ({
   searchQuery,
   onSearchChange,
   selectedButton,
@@ -55,40 +54,48 @@ export const ArchetypeSearcher = ({
 
   const countersFilter =
     selectedButton === "counters"
-      ? "hue-rotate(90deg) saturate(1) brightness(1)"
+      ? "sepia(1) hue-rotate(-35deg) saturate(4.5) brightness(0.75)"
       : "saturate(0) brightness(0.6)";
 
   const decksFilter =
     selectedButton === "decks"
-      ? "hue-rotate(310deg) saturate(1) brightness(1)"
+      ? "sepia(1) hue-rotate(190deg) saturate(4.5) brightness(0.75)"
       : "saturate(0) brightness(0.6)";
 
-  const searchFilter =
-    selectedButton === "decks"
-      ? "hue-rotate(310deg) saturate(0.9)"
-      : "hue-rotate(90deg) saturate(0.9)";
+  const searchBorderColor =
+    selectedButton === "decks" ? "border-blue-500/60" : "border-red-500/60";
+
+  const searchFocusRingColor =
+    selectedButton === "decks" ? "focus:ring-blue-500" : "focus:ring-red-500";
+
+  const searchBackgroundColor =
+    selectedButton === "decks" ? "bg-blue-950/30" : "bg-red-950/30";
 
   const activePlaceholder =
-    selectedButton === "decks"
-      ? "Search decks and learn combo lines"
-      : "Search archetypes to counter";
+    selectedButton === "decks" ? "Search deck guides" : "Search counter guides";
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-2">
+    <div className="w-full max-w-2xl mx-auto">
       {/* SEARCH */}
       <div ref={containerRef} className="relative w-full">
-        <div
-          className="relative w-full h-[72px] flex items-center"
-          style={{
-            backgroundImage: `url(${searchImg})`,
-            backgroundSize: "100% 100%",
-            backgroundRepeat: "no-repeat",
-            filter: searchFilter,
-            opacity: 0.4,
-          }}
-        />
+        <div className="relative w-full flex items-center">
+          {/* Magnifying glass icon */}
+          <div className="absolute left-4 pointer-events-none">
+            <svg
+              className="w-5 h-5 text-slate-400 ml-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
 
-        <div className="absolute inset-0 flex items-center px-[14%]">
           <input
             type="search"
             value={searchQuery}
@@ -100,13 +107,13 @@ export const ArchetypeSearcher = ({
             aria-label="Search for Yu-Gi-Oh archetypes to counter"
             role="searchbox"
             spellCheck="false"
-            className="w-full bg-transparent text-white placeholder:text-slate-300 outline-none text-base sm:text-lg [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-webkit-search-results-button]:hidden [&::-webkit-search-results-decoration]:hidden"
+            className={`w-full text-white rounded-xs h-12 placeholder:text-slate-300 outline-none text-base sm:text-lg py-4 pl-12 pr-6 border-2 ${searchBorderColor} ${searchFocusRingColor} ${searchBackgroundColor} focus:ring-2 focus:outline-none transition-all duration-200 ease-linear [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-webkit-search-results-button]:hidden [&::-webkit-search-results-decoration]:hidden`}
           />
 
           {searchQuery && (
             <button
               onClick={() => onSearchChange("")}
-              className="relative left-10 px-3 py-1 text-sm text-white bg-slate-700/40 hover:bg-slate-600/50 rounded transition-colors border border-slate-400/40 whitespace-nowrap"
+              className="absolute right-4 px-3 py-1 text-sm text-white bg-slate-700/40 hover:bg-slate-600/50 rounded transition-colors border border-slate-400/40 whitespace-nowrap"
             >
               Clear
             </button>
@@ -119,7 +126,7 @@ export const ArchetypeSearcher = ({
       </div>
 
       {/* BUTTONS */}
-      <div className="flex justify-center gap-6 mt-3">
+      <div className="flex justify-center gap-6 mt-5">
         {/* COUNTERS */}
         <button
           onClick={() => onButtonChange("counters")}

@@ -19,6 +19,7 @@ import { ReportModal } from "@/features/report/components/ReportModal";
 import { useRef, useState, useCallback } from "react";
 import { guideInstancesApi } from "@/lib/http/guideInstancesApi";
 import background_profile from "@/assets/MDC-profile_background.webp";
+import profile_background from "@/assets/Profile_Background.webp";
 import { formatCompactNumber } from "@/shared/utils/formatNumber";
 import type { TabType } from "../types/profileTypes";
 import type { Card } from "@/features/archetypes/types";
@@ -167,7 +168,15 @@ export const ProfilePage = () => {
         <Helmet>
           <title>Profile - Masterduel Counter</title>
         </Helmet>
-        <div className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex flex-col">
+        <div 
+          className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex flex-col"
+          style={{
+            backgroundImage: `url(${profile_background})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}
+        >
           <Navbar />
           <main className="flex-1 flex items-center justify-center">
             <div className="text-red-400 text-xl">User ID not provided</div>
@@ -186,7 +195,15 @@ export const ProfilePage = () => {
         <title>{profile?.userName || "User"} - Profile</title>
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950/20 to-slate-950 flex flex-col">
+      <div 
+        className="min-h-screen flex flex-col"
+        style={{
+          backgroundImage: `url(${profile_background})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}
+      >
         <Navbar />
 
         <main className="flex-1 px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
@@ -349,7 +366,7 @@ export const ProfilePage = () => {
 
                 <div className="flex-1 min-w-0">
                   {/* Main Content Container */}
-                  <div className="bg-gradient-to-br relative from-purple-950/40 to-slate-900/80 rounded-lg border-2 border-yellow-600/40 overflow-hidden h-auto lg:h-[800px] flex flex-col">
+                  <div className="bg-gradient-to-br relative from-purple-950 to-slate-900/90 rounded-lg border-2 border-yellow-600/50 overflow-hidden h-auto lg:h-[800px] flex flex-col">
                     <img
                       src={background_profile}
                       alt=""

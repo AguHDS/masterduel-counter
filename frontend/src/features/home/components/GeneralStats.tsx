@@ -1,7 +1,6 @@
 import { TrendingUp } from "lucide-react";
 import { useGeneralStats } from "../hooks/useGeneralStats";
 import { useNavigate } from "react-router-dom";
-import backgroundImage from "@/assets/instanceEditorAndProfile_background.webp";
 
 export const GeneralStats = () => {
   const { data, isLoading, error } = useGeneralStats(15);
@@ -32,10 +31,7 @@ export const GeneralStats = () => {
   if (isLoading) {
     return (
       <div className="relative flex flex-col h-full rounded-2xl overflow-hidden border border-purple-500/30">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
-          style={{ backgroundImage: `url(${backgroundImage})` }}
-        />
+        <div className="absolute inset-0 bg-cover bg-center opacity-30" />
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-purple-950 to-blue-950 opacity-90" />
 
         <div className="relative z-10 p-8 flex items-center justify-center h-full">
@@ -48,10 +44,7 @@ export const GeneralStats = () => {
   if (error || !data) {
     return (
       <div className="relative flex flex-col h-full rounded-2xl overflow-hidden border border-purple-500/30">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
-          style={{ backgroundImage: `url(${backgroundImage})` }}
-        />
+        <div className="absolute inset-0 bg-cover bg-center opacity-30" />
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-purple-950 to-blue-950 opacity-90" />
 
         <div className="relative z-10 p-8 flex items-center justify-center h-full">
@@ -67,12 +60,9 @@ export const GeneralStats = () => {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-30"
-        style={{ backgroundImage: `url(${backgroundImage})` }}
-      />
+      <div className="absolute inset-0 bg-cover bg-center opacity-30" />
 
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 opacity-90" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900/70" />
 
       <div className="relative z-10 flex flex-col h-full p-8 min-h-0">
         <div className="flex items-center gap-3 mb-6">
@@ -81,7 +71,6 @@ export const GeneralStats = () => {
         </div>
 
         <div className="grid grid-cols-2 divide-x divide-slate-700 flex-1 min-h-0">
-
           {/* COUNTER GUIDES (ROJO / NARANJA / AMARILLO) */}
           <div className="flex flex-col h-full pr-6 min-h-0">
             <h3 className="text-xl font-semibold text-orange-400 mb-4">
@@ -174,7 +163,6 @@ export const GeneralStats = () => {
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </div>

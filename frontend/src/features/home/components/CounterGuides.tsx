@@ -55,18 +55,18 @@ export const CounterGuides = () => {
   }
 
   return (
-    <div className="relative w-full flex flex-col h-full overflow-hidden">
+    <div className="relative mt-2 w-full flex flex-col h-full overflow-hidden">
       <div className="relative z-10 flex flex-col h-full p-6 overflow-hidden">
         <div>
           <div className="flex items-center gap-4">
-            <Shield className="w-7 h-7 text-orange-400" />
+            <Shield className="w-7 h-7 text-orange-500" />
             <h2 className="text-3xl relative bottom-[2px] font-bold text-yellow-100">
               Counter Guides
             </h2>
           </div>
 
           <p className="text-gray-300 text-xl mb-1 relative top-1 left-11">
-            How to use handtraps 
+            How to counter with handtraps 
           </p>
         </div>
 
