@@ -6,7 +6,7 @@ import { SignInPage } from "./pages/SignInPage";
 import { SignUpPage } from "./pages/SignUpPage";
 import { ProfilePage } from "./features/profile/pages/ProfilePage";
 import { ArchetypeGuideListPage } from "./features/guides-instances";
-import { InstanceEditorPage } from "./features/guide-editor";
+import { GuideContainerPage } from "./features/guide-editor";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { AdminPanelPage } from "./features/admin-panel/pages/AdminPanelPage";
@@ -36,7 +36,7 @@ function AppRoutes() {
       {/** Guide creation instance page */}
       <Route
         path="/archetype/:archetypeId/instance/:instanceId"
-        element={<InstanceEditorPage />}
+        element={<GuideContainerPage />}
       />
       <Route path="/profile/:userId" element={<ProfilePage />} />
       <Route path="/profile/:userId/:tab" element={<ProfilePage />} />

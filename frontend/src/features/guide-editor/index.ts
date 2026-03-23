@@ -1,1 +1,1 @@
-export { InstanceEditorPage } from "./pages/InstanceEditorPage";
+export { GuideContainerPage } from "./pages/GuideContainerPage";

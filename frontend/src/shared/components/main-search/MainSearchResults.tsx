@@ -122,7 +122,7 @@ export const MainSearchResults = memo(
         <div className="flex flex-col items-center justify-center py-12 px-6">
           <AlertCircle className="w-12 h-12 text-yellow-400/60 mb-3" />
           <p className="text-yellow-200/90 text-base font-medium text-center">
-            No results found
+            Archetype not found
           </p>
           <p className="text-yellow-300/60 text-sm mt-1 text-center">
             Try a different search term
@@ -190,8 +190,8 @@ export const MainSearchResults = memo(
               onClick={() => handleTabChange("all")}
               className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all ${
                 activeTab === "all"
-                  ? "text-yellow-300 border-b-2 border-yellow-400 bg-yellow-900/60"
-                  : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-900/10"
+                  ? "text-yellow-300 border-b-2 border-yellow-400 bg-yellow-900/50"
+                  : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-500/10 border border-[#242231]"
               }`}
             >
               All
@@ -200,8 +200,8 @@ export const MainSearchResults = memo(
               onClick={() => handleTabChange("counters")}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-all ${
                 activeTab === "counters"
-                  ? "text-yellow-300 border-b-2 border-yellow-400 bg-yellow-900/60"
-                  : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-900/10"
+                  ? "text-yellow-300 border-b-2 border-yellow-400 bg-yellow-900/50"
+                  : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-500/10 border border-[#201e2e]"
               }`}
             >
               Counter Guides
@@ -210,8 +210,8 @@ export const MainSearchResults = memo(
               onClick={() => handleTabChange("decks")}
               className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all ${
                 activeTab === "decks"
-                  ? "text-yellow-300 border-b-2 border-yellow-400 bg-yellow-900/60"
-                  : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-900/10"
+                  ? "text-yellow-300 border-b-2 border-yellow-400 bg-yellow-900/50"
+                  : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-500/10 border border-[#242231]"
               }`}
             >
               Deck Guides

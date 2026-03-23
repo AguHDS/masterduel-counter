@@ -74,7 +74,7 @@ export const CounterGuides = () => {
           <h3 className="text-orange-300 text-2xl">Latest Counter Guides</h3>
         </div>
 
-        <div className="flex-1 min-h-[320px] border border-red-500/30 overflow-y-auto scrollbar-counterguides">
+        <div className="flex-1 min-h-[320px] overflow-y-auto scrollbar-homeAllPages">
           {!guides || guides.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-orange-300">
               <p className="text-center text-sm">No guides created yet</p>
@@ -90,14 +90,14 @@ export const CounterGuides = () => {
                 <div
                   key={guide.id}
                   onClick={() => handleGuideClick(guide.archetypeId, guide.id)}
-                  className="flex items-start gap-3 p-2 bg-black border border-red-500/30 hover:border-amber-500/60 hover:bg-black/60 transition-all cursor-pointer min-w-0 relative"
+                  className="flex items-start gap-2 p-2 bg-black border border-[#30303b] hover:border-slate-600 transition-all cursor-pointer min-w-0 relative"
                 >
                   <div className="flex-shrink-0 p-1">
                     {guide.headerCardImageUrl ? (
                       <img
                         src={guide.headerCardImageUrl}
                         alt={guide.headerCardName || "Header card"}
-                        className="w-20 h-20 object-cover rounded-md border-2 border-amber-500/50 hover:border-amber-400 transition-all"
+                        className="w-[74px] h-[74px] object-cover border-2 border-[#30303b]"
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
                           const parent = e.currentTarget.parentElement;
@@ -122,7 +122,7 @@ export const CounterGuides = () => {
                   </div>
 
                   <div className="flex-1 min-w-0 pr-24">
-                    <h4 className="text-yellow-200 font-bold text-lg line-clamp-2">
+                    <h4 className="text-yellow-200 font-semibold text-lg line-clamp-2">
                       {guide.title}
                     </h4>
                     

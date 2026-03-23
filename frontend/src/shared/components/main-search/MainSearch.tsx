@@ -61,7 +61,7 @@ export const MainSearch = ({
 
   return (
     <div className="w-full">
-      <div ref={containerRef} className="relative w-full">
+      <div ref={containerRef} className="relative w-full mt-12">
         <div className="relative w-full flex items-center">
           {/* Wrapper para borde tipo neón */}
           <div
@@ -93,7 +93,7 @@ export const MainSearch = ({
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onClick={handleFocus}
-                placeholder="Search counter and deck guides"
+                placeholder="Search archetypes and find guides"
                 autoComplete="off"
                 aria-label="Search for Yu-Gi-Oh archetypes"
                 role="searchbox"

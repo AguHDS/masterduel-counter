@@ -340,7 +340,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
 
   return (
     <>
-      <section className="w-full relative flex justify-center top-2 px-4 sm:px-6 lg:px-8">
+      <section className="w-full relative flex justify-center top-2 px-4 sm:px-6 lg:px-8 mt-2">
         <div className="relative w-full max-w-[2100px] rounded-[28px] p-[3px]">
           {/* Background image with transparency effect */}
           <div className="absolute inset-0 rounded-[24px] overflow-hidden">

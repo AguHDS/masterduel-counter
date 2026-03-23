@@ -18,14 +18,9 @@ body {
   scrollbar-color: #a9703f #0b0227;
 }
 
-.scrollbar-deckguides {
+.scrollbar-homeAllPages {
   scrollbar-width: thin;
-  scrollbar-color: #201a7d #0b0227;
-}
-
-.scrollbar-counterguides {
-  scrollbar-width: thin;
-  scrollbar-color: #63210d #0b0227;
+  scrollbar-color: #4b4b69 #0b0227;
 }
 
 .scrollbar-cardpair {

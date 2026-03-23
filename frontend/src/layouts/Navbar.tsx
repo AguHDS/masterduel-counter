@@ -45,12 +45,12 @@ export const Navbar = () => {
     const handleResize = () => {
       const width = window.innerWidth;
       setIsTabletView(width >= 640 && width < 1024);
-
+      
       if (width >= 1024) {
         setIsMenuOpen(false);
       }
     };
-
+    
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -114,13 +114,12 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="relative top-0 z-[200] bg-[#18121a]/90 border-b-4 border-[#c2901c] shadow-[0_10px_50px_-5px_rgba(0,0,0,0.7)]">
+    <header className="relative  top-0 z-[200] bg-[#18121a]/90 border-b-4 border-[#c2901c] shadow-[0_10px_50px_-5px_rgba(0,0,0,0.7)]">
       <nav
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4"
+        className="px-4 sm:px-6 lg:px-8 py-4"
         aria-label="Main navigation"
       >
-        <div className="flex items-center justify-between">
-          {/* Logo - Left side */}
+        <div className="absolute ml-1 left-0 top-1/2 -translate-y-1/2 pl-4 sm:pl-6 lg:pl-8">
           <Link
             to="/"
             className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity flex-shrink-0"
@@ -150,20 +149,146 @@ export const Navbar = () => {
               )}
             </div>
           </Link>
+        </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center flex-nowrap absolute right-8 top-1/2 -translate-y-1/2 divide-x divide-[#c2901c]/20">
-            <div className="relative flex items-center px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="invisible">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <img
+                  src={logoImg}
+                  alt=""
+                  className="h-8 sm:h-9 md:h-10 w-auto opacity-0"
+                />
+                <span className="px-1.5 py-0.5 text-[0.6rem] sm:text-[0.65rem] opacity-0">
+                  OPEN BETA
+                </span>
+              </div>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center flex-nowrap absolute right-8 top-1/2 -translate-y-1/2 divide-x divide-[#c2901c]/20">
+              <div className="relative flex items-center px-4">
+                <button
+                  ref={rankingButtonRef}
+                  onClick={handleToggleRanking}
+                  className="flex items-center space-x-1 px-2 py-1.5 hover:bg-[#c2901c]/10 rounded-lg transition-colors group"
+                  aria-label="Open ranking"
+                >
+                  <Crown className="w-5 h-5 text-[#c2901c] group-hover:text-[#e9b53c] transition-colors" />
+                  <span className="text-xs font-medium text-[#c2901c] group-hover:text-[#e9b53c] transition-colors">
+                    Ranking
+                  </span>
+                </button>
+
+                <RankingPopup
+                  isOpen={isRankingOpen}
+                  onClose={() => setIsRankingOpen(false)}
+                  users={rankingData?.ranking ?? []}
+                  onUserClick={handleUserClick}
+                  onViewFullRanking={handleViewFullRanking}
+                  triggerRef={rankingButtonRef}
+                  isLoading={isLoadingRanking}
+                />
+              </div>
+
+              {!isLoading && isAuthenticated && user ? (
+                <>
+                  {/* Notifications */}
+                  <div className="relative flex items-center px-4 py-[2px]">
+                    <NotificationBell />
+                    <NotificationPopup />
+                  </div>
+
+                  {/* Profile, Logout, Admin */}
+                  <div className="flex items-center gap-4 px-4 ">
+                    <UserDropdown />
+
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        className="flex items-center gap-1 text-yellow-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity group"
+                        aria-label="Admin Panel"
+                      >
+                        <Shield className="h-4 w-4  group-hover:scale-110 transition-transform" />
+                        <span className="hidden xl:inline hover:underline underline-offset-4">
+                          Admin Panel
+                        </span>
+                      </Link>
+                    )}
+                  </div>
+                </>
+              ) : !isLoading ? (
+                <>
+                  {/* Auth links */}
+                  <div className="flex items-center gap-4 px-4">
+                    <Link
+                      to="/signin"
+                      className="flex items-center gap-1 text-blue-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      <span className="hidden xl:inline hover:underline underline-offset-4">
+                        Sign In
+                      </span>
+                    </Link>
+
+                    <Link
+                      to="/signup"
+                      className="flex items-center gap-1 text-green-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      <span className="hidden xl:inline hover:underline underline-offset-4">
+                        Sign Up
+                      </span>
+                    </Link>
+                  </div>
+                </>
+              ) : null}
+
+              {/* Discord */}
+              <div className="flex items-center pl-1 border-none">
+                <a
+                  href="https://discord.gg/wzkGb4Zgnw"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Join our Discord community"
+                  className="hover:opacity-90 transition-opacity shrink-0"
+                >
+                  <div className="relative">
+                    <img
+                      src={discordContainerIcon}
+                      alt="Discord background"
+                      className="h-8 sm:h-9 md:h-10 w-auto"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center gap-[0.2rem]">
+                      <img
+                        src={discordSvgIcon}
+                        alt="Discord logo"
+                        className="w-3 sm:w-4 md:w-5"
+                      />
+                      <span className="hidden xl:inline text-[#c2901c] font-semibold text-xs whitespace-nowrap">
+                        Join Discord
+                      </span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            {/* Tablet Navigation */}
+            <div className="hidden sm:flex lg:hidden items-center gap-3 absolute right-8 top-1/2 -translate-y-1/2">
               <button
                 ref={rankingButtonRef}
                 onClick={handleToggleRanking}
-                className="flex items-center space-x-1 px-2 py-1.5 hover:bg-[#c2901c]/10 rounded-lg transition-colors group"
+                className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"
                 aria-label="Open ranking"
               >
                 <Crown className="w-5 h-5 text-[#c2901c] group-hover:text-[#e9b53c] transition-colors" />
-                <span className="text-xs font-medium text-[#c2901c] group-hover:text-[#e9b53c] transition-colors">
-                  Ranking
-                </span>
+                {rankingData && rankingData.ranking.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#c2901c] text-[10px] text-white rounded-full w-4 h-4 flex items-center justify-center">
+                    {rankingData.ranking.length}
+                  </span>
+                )}
               </button>
 
               <RankingPopup
@@ -174,180 +299,71 @@ export const Navbar = () => {
                 onViewFullRanking={handleViewFullRanking}
                 triggerRef={rankingButtonRef}
                 isLoading={isLoadingRanking}
+                alignRight={isTabletView}
               />
-            </div>
 
-            {!isLoading && isAuthenticated && user ? (
-              <>
-                {/* Notifications */}
-                <div className="relative flex items-center px-4 py-[2px]">
+              {!isLoading && isAuthenticated && user ? (
+                <>
                   <NotificationBell />
                   <NotificationPopup />
-                </div>
 
-                {/* Profile, Logout, Admin */}
-                <div className="flex items-center gap-4 px-4 ">
                   <UserDropdown />
 
                   {isAdmin && (
                     <Link
                       to="/admin"
-                      className="flex items-center gap-1 text-yellow-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity group"
-                      aria-label="Admin Panel"
+                      className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
                     >
-                      <Shield className="h-4 w-4  group-hover:scale-110 transition-transform" />
-                      <span className="hidden xl:inline hover:underline underline-offset-4">
-                        Admin Panel
-                      </span>
+                      <Shield className="w-5 h-5 text-yellow-500" />
                     </Link>
                   )}
-                </div>
-              </>
-            ) : !isLoading ? (
-              <>
-                {/* Auth links */}
-                <div className="flex items-center gap-4 px-4">
+                </>
+              ) : !isLoading ? (
+                <>
                   <Link
                     to="/signin"
-                    className="flex items-center gap-1 text-blue-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
+                    className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
                   >
-                    <LogIn className="h-4 w-4" />
-                    <span className="hidden xl:inline hover:underline underline-offset-4">
-                      Sign In
-                    </span>
+                    <LogIn className="w-5 h-5 text-blue-500" />
                   </Link>
 
                   <Link
                     to="/signup"
-                    className="flex items-center gap-1 text-green-500 text-sm font-medium shrink-0 hover:opacity-80 transition-opacity"
+                    className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
                   >
-                    <UserPlus className="h-4 w-4" />
-                    <span className="hidden xl:inline hover:underline underline-offset-4">
-                      Sign Up
-                    </span>
+                    <UserPlus className="w-5 h-5 text-green-500" />
                   </Link>
-                </div>
-              </>
-            ) : null}
+                </>
+              ) : null}
 
-            {/* Discord */}
-            <div className="flex items-center pl-1 border-none">
+              {/* Discord icon without text */}
               <a
                 href="https://discord.gg/wzkGb4Zgnw"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Join our Discord community"
-                className="hover:opacity-90 transition-opacity shrink-0"
+                className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
               >
-                <div className="relative">
-                  <img
-                    src={discordContainerIcon}
-                    alt="Discord background"
-                    className="h-8 sm:h-9 md:h-10 w-auto"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center gap-[0.2rem]">
-                    <img
-                      src={discordSvgIcon}
-                      alt="Discord logo"
-                      className="w-3 sm:w-4 md:w-5"
-                    />
-                    <span className="hidden xl:inline text-[#c2901c] font-semibold text-xs whitespace-nowrap">
-                      Join Discord
-                    </span>
-                  </div>
-                </div>
+                <img
+                  src={discordSvgIcon}
+                  alt="Discord logo"
+                  className="w-5 h-5"
+                />
               </a>
             </div>
-          </div>
 
-          {/* Tablet Navigation */}
-          <div className="hidden sm:flex lg:hidden items-center gap-3 absolute right-8 top-1/2 -translate-y-1/2">
+            {/* Mobile menu button  */}
             <button
-              ref={rankingButtonRef}
-              onClick={handleToggleRanking}
-              className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"
-              aria-label="Open ranking"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="sm:hidden p-2 text-[#c2901c] hover:text-[#d4a534] transition-colors"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
-              <Crown className="w-5 h-5 text-[#c2901c] group-hover:text-[#e9b53c] transition-colors" />
-              {rankingData && rankingData.ranking.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#c2901c] text-[10px] text-white rounded-full w-4 h-4 flex items-center justify-center">
-                  {rankingData.ranking.length}
-                </span>
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
               )}
             </button>
-
-            <RankingPopup
-              isOpen={isRankingOpen}
-              onClose={() => setIsRankingOpen(false)}
-              users={rankingData?.ranking ?? []}
-              onUserClick={handleUserClick}
-              onViewFullRanking={handleViewFullRanking}
-              triggerRef={rankingButtonRef}
-              isLoading={isLoadingRanking}
-              alignRight={isTabletView}
-            />
-
-            {!isLoading && isAuthenticated && user ? (
-              <>
-                <NotificationBell />
-                <NotificationPopup />
-
-                <UserDropdown />
-
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
-                  >
-                    <Shield className="w-5 h-5 text-yellow-500" />
-                  </Link>
-                )}
-              </>
-            ) : !isLoading ? (
-              <>
-                <Link
-                  to="/signin"
-                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
-                >
-                  <LogIn className="w-5 h-5 text-blue-500" />
-                </Link>
-
-                <Link
-                  to="/signup"
-                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
-                >
-                  <UserPlus className="w-5 h-5 text-green-500" />
-                </Link>
-              </>
-            ) : null}
-
-            {/* Discord icon without text */}
-            <a
-              href="https://discord.gg/wzkGb4Zgnw"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors"
-            >
-              <img
-                src={discordSvgIcon}
-                alt="Discord logo"
-                className="w-5 h-5"
-              />
-            </a>
           </div>
-
-          {/* Mobile menu button  */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="sm:hidden p-2 text-[#c2901c] hover:text-[#d4a534] transition-colors"
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {isMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
         </div>
       </nav>
 
@@ -388,8 +404,6 @@ export const Navbar = () => {
                     </div>
                   ) : rankingData && rankingData.ranking.length > 0 ? (
                     <>
-                      // En Navbar.tsx, dentro del menú móvil, reemplaza la
-                      parte de la imagen:
                       {rankingData.ranking.map((user) => {
                         const styles = getRankStyles(user.rank);
                         return (

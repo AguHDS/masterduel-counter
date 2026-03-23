@@ -42,6 +42,16 @@ const mockDeckGuides = [
     likes: 987,
     favorites: 654,
   },
+      {
+    id: 5,
+    title: "Labrynth Deck Guide - Comprehensive Guide to Labrynth",
+    author: "Jared Wong",
+    archetype: "Labrynth",
+    date: "2024-04-24T10:00:00Z",
+    views: 4,
+    likes: 987,
+    favorites: 654,
+  },
 ];
 
 const getTimeAgo = (dateString: string): string => {
@@ -91,7 +101,7 @@ export const DeckGuides = () => {
           <h3 className="text-blue-300 text-2xl">Latest Deck Guides</h3>
         </div>
 
-        <div className="flex-1 min-h-[320px] border border-blue-500/30 overflow-y-auto scrollbar-deckguides">
+        <div className="flex-1 min-h-[320px] overflow-y-auto scrollbar-homeAllPages">
           {mockDeckGuides.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-blue-300">
               <p className="text-center text-sm">No guides created yet</p>
@@ -106,16 +116,16 @@ export const DeckGuides = () => {
               return (
                 <div
                   key={guide.id}
-                  className="flex items-start gap-3 p-2 bg-black border border-blue-500/30 hover:border-blue-400/60 hover:bg-black/60 transition-all cursor-pointer min-w-0 relative"
+                  className="flex items-start gap-3 p-2 bg-black border border-[#30303b] hover:border-slate-600 transition-all cursor-pointer min-w-0 relative"
                 >
                   <div className="flex-shrink-0">
-                    <div className="w-20 h-20 rounded-md border-2 border-blue-400/50 bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-white font-bold text-2xl">
+                    <div className="w-[74px] h-[74px] object-cover border-2 border-[#30303b] text-white flex items-center justify-center">
                       {guide.archetype.charAt(0)}
                     </div>
                   </div>
 
                   <div className="flex-1 min-w-0 pr-44">
-                    <h4 className="text-yellow-200 font-bold text-lg line-clamp-2">
+                    <h4 className="text-yellow-200 font-semibold text-lg line-clamp-2">
                       {guide.title}
                     </h4>
                     

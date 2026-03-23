@@ -11,8 +11,8 @@ import { GuideModalHelp } from "../components/GuideModalHelp";
 import { MainLogo } from "@/shared/components/MainLogo";
 import { CommentSection } from "@/features/comments";
 
-/** Page for creating or editing a guide for a specific archetype instance */
-export const InstanceEditorPage = () => {
+/** Container page for guides of a specific archetype */
+export const GuideContainerPage = () => {
   const { archetypeId, instanceId } = useParams<{
     archetypeId: string;
     instanceId: string;
@@ -94,8 +94,8 @@ export const InstanceEditorPage = () => {
         <MainLogo />
 
         {isEditMode && (
-          <div className="max-w-[84rem] mx-auto px-4 sm:px-14 lg:px-16 w-full z-20">
-            <div className="flex justify-end">
+          <div className="max-w-[98rem] relative top-7 mx-auto px-4 sm:px-14 lg:px-16 w-full z-20">
+            <div className="flex justify-center">
               <button
                 onClick={() => setIsGuideHelpOpen(true)}
                 className="flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-tr from-blue-900/80 via-blue-700/20 to-blue-800/50 hover:bg-blue-700/20 active:bg-blue-900/10 border border-blue-800/40 text-white"
