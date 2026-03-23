@@ -8,6 +8,7 @@ export interface Archetype {
 export interface SearchResponse {
   data: {
     archetypes: Archetype[];
+    total?: number;
   };
   message?: string;
 }

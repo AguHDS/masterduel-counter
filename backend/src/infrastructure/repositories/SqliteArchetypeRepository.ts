@@ -1,4 +1,4 @@
-import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
+import { ArchetypeRepository, GeneralStats } from "@/domain/ports/ArchetypeRepository.js";
 import { Archetype, ArchetypeUpdateDTO } from "@/domain/Archetype.js";
 import Database from "better-sqlite3";
 
@@ -7,6 +7,17 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
 
   constructor(db: Database.Database) {
     this.db = db;
+  }
+
+  async getTotalSearchCount(searchTerm: string): Promise<number> {
+    const stmt = this.db.prepare(`
+      SELECT COUNT(*) as total
+      FROM archetypes 
+      WHERE LOWER(name) LIKE LOWER(?)
+    `);
+    
+    const result = stmt.get(`%${searchTerm}%`) as { total: number };
+    return result.total;
   }
 
   async searchArchetypeByName(
@@ -134,7 +145,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async getGuidesGeneralStats(limit: number = 15): Promise<import("@/domain/ports/ArchetypeRepository.js").GeneralStats> {
+  async getGuidesGeneralStats(limit: number = 15): Promise<GeneralStats> {
     // Get total registered archetypes
     const totalArchetypesStmt = this.db.prepare(`
       SELECT COUNT(*) as count

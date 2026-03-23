@@ -1,4 +1,4 @@
-import mainLogo from "@/assets/home-rework/Main_Logo_Extended.webp";
+import mainLogo from "@/assets/home-rework/MDC_logo_full.webp";
 
 export const MainLogo = () => {
   return (
@@ -27,36 +27,6 @@ export const MainLogo = () => {
                 mx-auto
               "
             />
-            
-            <div className="
-              absolute 
-              text-center 
-              z-20 
-              w-max
-              left-1/2
-              ml-14 
-              -translate-x-1/2
-              top-20
-              sm:top-16
-              md:top-[68px]
-              lg:top-20
-              xl:top-20
-            ">
-              <p className="
-                text-yellow-500 
-                font-semibold 
-                tracking-wide 
-                whitespace-nowrap 
-                rounded-full 
-                backdrop-blur-sm
-                text-xs
-                sm:text-sm
-                md:text-base
-                lg:text-lg
-              ">
-                Find Counters. Learn Combos. Build Decks.
-              </p>
-            </div>
           </div>
         </div>
       </div>

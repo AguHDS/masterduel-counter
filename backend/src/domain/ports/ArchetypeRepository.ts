@@ -11,6 +11,8 @@ export interface GeneralStats {
 }
 
 export interface ArchetypeRepository {
+  /** Get total count of archetypes matching search term */
+  getTotalSearchCount(searchTerm: string): Promise<number>;
   /** Search archetype by name
    * @searchTerm - Term to search for in archetype names
    * @limit - Maximum number of results to return (default = 50)

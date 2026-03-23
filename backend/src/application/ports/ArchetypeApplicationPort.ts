@@ -8,9 +8,9 @@ export interface ArchetypeApplicationPort {
    * Searches archetypes by a search term using partial matching
    * @param searchTerm - Search term (partial or full name)
    * @param limit - Maximum number of results (optional)
-   * @returns Array of archetypes that match the search term
+   * @returns Object containing array of archetypes that match the search term and total count
    */
-  searchArchetypes(searchTerm: string, limit?: number): Promise<Archetype[]>;
+  searchArchetypes(searchTerm: string, limit?: number): Promise<{ archetypes: Archetype[]; total: number }>;
   /**
    * Gets general statistics about archetypes and guides
    * @param limit - Maximum number of top archetypes to return (default: 15)

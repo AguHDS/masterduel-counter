@@ -16,11 +16,15 @@ export const useSearchArchetypes = (
   searchQuery: string,
   limit: number = 50,
 ) => {
+  const trimmedQuery = searchQuery.trim();
+  
   return useQuery<SearchResponse>({
-    queryKey: queryKeys.archetypes.search(searchQuery, limit),
-    queryFn: () => searchArchetypes(searchQuery, limit),
+    queryKey: queryKeys.archetypes.search(trimmedQuery, limit),
+    queryFn: () => searchArchetypes(trimmedQuery, limit),
     staleTime: QUERY_STALE_TIME.SHORT,
-    enabled: searchQuery.trim().length > 0,
+    enabled: trimmedQuery.length > 0,
+    // Keep previous data while fetching to prevent UI flicker
+    placeholderData: (previousData) => previousData,
   });
 };
 
@@ -50,9 +54,11 @@ export const useArchetypeSearch = ({
   const { data, isLoading, error } = useSearchArchetypes(debouncedQuery, limit);
 
   const results: Archetype[] = data?.data?.archetypes || [];
+  const totalResults = data?.data?.total;
 
   return {
     results,
+    totalResults,
     loading: isLoading,
     error: error?.message || null,
   };

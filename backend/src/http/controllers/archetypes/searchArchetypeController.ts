@@ -23,7 +23,7 @@ export const searchArchetypeController = async (
 
     const sanitizedName = name as string;
     const service = getArchetypeService();
-    const archetypes = await service.searchArchetypes(sanitizedName, limit);
+    const { archetypes, total } = await service.searchArchetypes(sanitizedName, limit);
 
     const response = {
       data: {
@@ -32,6 +32,7 @@ export const searchArchetypeController = async (
           name: archetype.name,
           registered: archetype.registered,
         })),
+        total,
       },
     };
 

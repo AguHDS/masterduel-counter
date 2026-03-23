@@ -65,7 +65,7 @@ export const GeneralStats = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900/70" />
 
       <div className="relative z-10 flex flex-col h-full p-8 min-h-0">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-4">
           <TrendingUp className="w-7 h-7 text-orange-400" />
           <h2 className="text-3xl font-bold text-white">General Stats</h2>
         </div>

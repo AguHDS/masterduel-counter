@@ -13,18 +13,24 @@ export class ArchetypeApplicationService implements ArchetypeApplicationPort {
   async searchArchetypes(
     searchTerm: string,
     limit: number = 50,
-  ): Promise<Archetype[]> {
+  ): Promise<{ archetypes: Archetype[]; total: number }> {
     if (!searchTerm || searchTerm.trim() === "") {
-      return [];
+      return { archetypes: [], total: 0 };
     }
 
     const trimmedTerm = searchTerm.trim();
-
+    let archetypes: Archetype[];
+    
     if (trimmedTerm.length < 3) {
-      return this.repository.searchAutocomplete(trimmedTerm, limit);
+      archetypes = await this.repository.searchAutocomplete(trimmedTerm, limit);
+    } else {
+      archetypes = await this.repository.searchArchetypeByName(trimmedTerm, limit);
     }
-
-    return this.repository.searchArchetypeByName(trimmedTerm, limit);
+    
+    // Get total count without limit
+    const total = await this.repository.getTotalSearchCount(trimmedTerm);
+    
+    return { archetypes, total };
   }
 
   /** Get Guides general stats */

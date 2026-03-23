@@ -1,172 +1,305 @@
 import { type Archetype } from "@/features/archetypes/types/archetypes.types";
-import { Search, CheckCircle, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Search, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { useState, useCallback, memo } from "react";
 
 interface SearchResultsProps {
+  isVisible: boolean;
   results: Archetype[];
+  totalResults?: number;
   loading: boolean;
   error: string | null;
   onSelectArchetype: (archetype: Archetype) => void;
-  selectedButton: "counters" | "decks";
 }
 
-export const MainSearchResults = ({
-  results,
-  loading,
-  error,
-  onSelectArchetype,
-  selectedButton,
-}: SearchResultsProps) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const hasContent = loading || error || results.length > 0;
+type TabType = "all" | "counters" | "decks";
 
-  useEffect(() => {
-    if (hasContent) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
-  }, [hasContent]);
+export const MainSearchResults = memo(
+  ({
+    isVisible,
+    results,
+    totalResults,
+    loading,
+    error,
+    onSelectArchetype,
+  }: SearchResultsProps) => {
+    const [activeTab, setActiveTab] = useState<TabType>("all");
 
-  if (!hasContent) {
-    return null;
-  }
+    const handleTabChange = useCallback((tab: TabType) => {
+      setActiveTab(tab);
+      setTimeout(() => {
+        const searchInput = document.querySelector<HTMLInputElement>(
+          'input[role="searchbox"]',
+        );
+        searchInput?.focus();
+      }, 0);
+    }, []);
 
-  const colors = {
-    counters: {
-      border: "border-red-500/40",
-      shadow: "shadow-[0_0_25px_rgba(239,68,68,0.25)]",
-      text: "text-red-400/80",
-      borderBottom: "border-red-500/30",
-      hover: "hover:bg-red-950/30",
-      active: "active:bg-red-900/40",
-      borderHover: "hover:border-red-500/40",
-      borderItem: "border-red-500/20",
-      focus: "focus-visible:outline-red-500",
-      badgeBorder: "border-red-500/30",
-      badgeText: "text-red-400/70",
-      loadingText: "text-red-200/90",
-      loadingIcon: "text-red-400",
-      errorBorder: "border-red-500/40",
-      errorIcon: "text-red-400",
-      errorText: "text-red-300/90",
-      scrollbar: "scrollbar-counterguides",
-    },
-    decks: {
-      border: "border-blue-500/40",
-      shadow: "shadow-[0_0_25px_rgba(59,130,246,0.25)]",
-      text: "text-blue-400/80",
-      borderBottom: "border-blue-500/30",
-      hover: "hover:bg-blue-950/30",
-      active: "active:bg-blue-900/40",
-      borderHover: "hover:border-blue-500/40",
-      borderItem: "border-blue-500/20",
-      focus: "focus-visible:outline-blue-500",
-      badgeBorder: "border-blue-500/30",
-      badgeText: "text-blue-400/70",
-      loadingText: "text-blue-200/90",
-      loadingIcon: "text-blue-400",
-      errorBorder: "border-blue-500/40",
-      errorIcon: "text-blue-400",
-      errorText: "text-blue-300/90",
-      scrollbar: "scrollbar-deckguides",
-    },
-  };
+    const renderGuideItem = useCallback(
+      (archetype: Archetype, index: number, type: "counter" | "deck") => {
+        const delay = index * 40;
 
-  const currentColors = colors[selectedButton];
-  const baseWrapperClass = "absolute left-1/2 top-[calc(100%-16px)] z-[100] w-[65%] sm:w-[90%] md:w-[600px] lg:w-[635px] -translate-x-1/2";
-  const basePanelClass = `rounded-lg border-2 ${currentColors.border} bg-black/80 ${currentColors.shadow} backdrop-blur-md overflow-hidden transition-all duration-300 ease-out ${
-    isVisible
-      ? "opacity-100 max-h-[500px] scale-100"
-      : "opacity-0 max-h-0 scale-95 pointer-events-none"
-  }`;
+        return (
+          <button
+            key={`${type}-${archetype.id}`}
+            onClick={() => onSelectArchetype(archetype)}
+            className="
+              w-full px-3 py-1.5 text-left
+              transition-all duration-150
+              bg-black/70
+              hover:bg-amber-900/20
+              active:bg-amber-800/30 active:scale-[0.98]
+              border border-yellow-500/30
+              hover:border-amber-400/40
+              rounded-md
+              shadow-[0_0_8px_rgba(250,204,21,0.15)]
+              hover:shadow-[0_0_12px_rgba(250,204,21,0.3)]
+              focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400
+              animate-in slide-in-from-top-3 fade-in fill-mode-both
+            "
+            style={{
+              animationDuration: "200ms",
+              animationDelay: `${delay}ms`,
+            }}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="font-semibold text-white/90 tracking-wide text-md">
+                {archetype.name}
+              </div>
+              <div className="flex items-center gap-1">
+                {archetype.registered ? (
+                  <>
+                    <CheckCircle className="w-3 h-3 text-green-400" />
+                    <span className="text-green-400/90 text-xs">
+                      Registered
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-3 h-3 text-gray-500/80" />
+                    <span className="text-gray-500/80 text-xs">
+                      No Guides
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          </button>
+        );
+      },
+      [onSelectArchetype],
+    );
 
-  if (loading) {
-    return (
-      <div className={`${baseWrapperClass}`}>
-        <div
-          className={`${basePanelClass} px-6 py-8 flex items-center justify-center gap-3`}
-        >
-          <Search className={`w-5 h-5 ${currentColors.loadingIcon} animate-spin`} />
-          <span className={`${currentColors.loadingText} text-sm tracking-wide`}>
-            Searching {selectedButton === "counters" ? "counter guides" : "deck guides"}…
+    const renderNoResults = useCallback(
+      () => (
+        <div className="flex flex-col items-center justify-center py-12 px-6">
+          <AlertCircle className="w-12 h-12 text-yellow-400/60 mb-3" />
+          <p className="text-yellow-200/90 text-base font-medium text-center">
+            No results found
+          </p>
+          <p className="text-yellow-300/60 text-sm mt-1 text-center">
+            Try a different search term
+          </p>
+        </div>
+      ),
+      [],
+    );
+
+    const hasResults = results.length > 0;
+    const counterGuides = hasResults ? results.slice(0, 7) : [];
+    const deckGuides = hasResults ? results.slice(0, 7) : [];
+
+    const getFilteredResults = () => {
+      if (activeTab === "counters") return results.slice(0, 15);
+      if (activeTab === "decks") return results.slice(0, 15);
+      return [];
+    };
+
+    const filteredResults = getFilteredResults();
+    const actualTotal =
+      totalResults !== undefined ? totalResults : results.length;
+
+    const baseWrapperClass = `absolute left-1/2 top-[calc(100%-13px)] z-50 w-[91%] sm:w-[90%] md:w-[95%] lg:w-[840px] -translate-x-1/2 ${
+      !isVisible ? "pointer-events-none" : ""
+    }`;
+
+    const basePanelClass = `
+      border border-amber-400/50
+      bg-[#0f0d22]/90
+      shadow-[0_0_20px_rgba(250,204,21,0.25)]
+      backdrop-blur-md
+      overflow-hidden
+      transition-all duration-200 ease-out
+      ${
+        isVisible
+          ? "opacity-100 scale-100 pointer-events-auto"
+          : "opacity-0 scale-95 pointer-events-none"
+      }
+    `;
+
+    let content;
+
+    if (loading) {
+      content = (
+        <div className="px-6 py-8 flex items-center justify-center gap-3">
+          <Search className="w-5 h-5 text-yellow-300 animate-spin" />
+          <span className="text-yellow-200/90 text-sm tracking-wide">
+            Searching guides…
           </span>
         </div>
-      </div>
-    );
-  }
+      );
+    } else if (error) {
+      content = (
+        <div className="px-6 py-4 flex items-center gap-3">
+          <XCircle className="w-5 h-5 text-yellow-400" />
+          <span className="text-yellow-300/90 text-sm">{error}</span>
+        </div>
+      );
+    } else {
+      content = (
+        <>
+          <div className="flex border-b border-yellow-400/20">
+            <button
+              onClick={() => handleTabChange("all")}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all ${
+                activeTab === "all"
+                  ? "text-yellow-300 border-b-2 border-yellow-400 bg-yellow-900/60"
+                  : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-900/10"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => handleTabChange("counters")}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-all ${
+                activeTab === "counters"
+                  ? "text-yellow-300 border-b-2 border-yellow-400 bg-yellow-900/60"
+                  : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-900/10"
+              }`}
+            >
+              Counter Guides
+            </button>
+            <button
+              onClick={() => handleTabChange("decks")}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all ${
+                activeTab === "decks"
+                  ? "text-yellow-300 border-b-2 border-yellow-400 bg-yellow-900/60"
+                  : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-900/10"
+              }`}
+            >
+              Deck Guides
+            </button>
+          </div>
 
-  if (error) {
+          <div className="max-h-[550px] overflow-y-auto px-2 py-2 scrollbar-mainsearch">
+            {!hasResults ? (
+              renderNoResults()
+            ) : (
+              <>
+                {activeTab === "all" && (
+                  <div className="space-y-3">
+                    <div>
+                      <h3 className="px-2 mb-3 text-[14px] tracking-wide uppercase text-yellow-400/80 font-semibold">
+                        Counter Guides
+                      </h3>
+                      {counterGuides.length > 0 ? (
+                        <>
+                          <div className="space-y-1.5">
+                            {counterGuides.map((archetype, index) =>
+                              renderGuideItem(archetype, index, "counter"),
+                            )}
+                          </div>
+                          <button className="w-full mt-2 px-3 py-1.5 text-[14px] text-amber-400/90 hover:text-amber-300 active:text-amber-600 transition-all">
+                            View All Counter Guides
+                          </button>
+                        </>
+                      ) : (
+                        <p className="text-yellow-300/60 text-sm px-2 py-4 text-center">
+                          No counter guides found
+                        </p>
+                      )}
+                    </div>
+
+                    <h3 className="px-2 mb-3 text-[14px] tracking-wide uppercase text-yellow-400/80 font-semibold">
+                      Deck Guides
+                    </h3>
+                    {deckGuides.length > 0 ? (
+                      <>
+                        <div className="space-y-1.5">
+                          {deckGuides.map((archetype, index) =>
+                            renderGuideItem(archetype, index, "deck"),
+                          )}
+                        </div>
+                        <button className="w-full mt-2 px-3 py-1.5 text-[14px] text-amber-400/90 hover:text-amber-300 active:text-amber-600 transition-all">
+                          View All Deck Guides
+                        </button>
+                      </>
+                    ) : (
+                      <p className="text-yellow-300/60 text-sm px-2 py-4 text-center">
+                        No deck guides found
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === "counters" && (
+                  <div className="space-y-1.5">
+                    <div className="px-2 py-1 text-[14px] tracking-wide uppercase text-yellow-400/80">
+                      Found {actualTotal} counter guide
+                      {actualTotal !== 1 ? "s" : ""}
+                      {actualTotal > 15 && (
+                        <span className="ml-1 text-yellow-500/70">
+                          (showing first 15)
+                        </span>
+                      )}
+                    </div>
+                    {filteredResults.map((archetype, index) =>
+                      renderGuideItem(archetype, index, "counter"),
+                    )}
+                  </div>
+                )}
+
+                {activeTab === "decks" && (
+                  <div className="space-y-1.5">
+                    <div className="px-2 py-1 text-[14px] tracking-wide uppercase text-yellow-400/80">
+                      Found {actualTotal} deck guide
+                      {actualTotal !== 1 ? "s" : ""}
+                      {actualTotal > 15 && (
+                        <span className="ml-1 text-yellow-500/70">
+                          (showing first 15)
+                        </span>
+                      )}
+                    </div>
+                    {filteredResults.map((archetype, index) =>
+                      renderGuideItem(archetype, index, "deck"),
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </>
+      );
+    }
+
     return (
       <div className={`${baseWrapperClass}`}>
-        <div
-          className={`${basePanelClass} px-6 py-4 flex items-center gap-3 ${currentColors.errorBorder}`}
-        >
-          <XCircle className={`w-5 h-5 ${currentColors.errorIcon}`} />
-          <span className={`${currentColors.errorText} text-sm`}>{error}</span>
-        </div>
+        <div className={`${basePanelClass}`}>{content}</div>
       </div>
     );
-  }
+  },
+  (prevProps, nextProps) => {
+    if (prevProps.isVisible !== nextProps.isVisible) return false;
+    if (prevProps.loading !== nextProps.loading) return false;
+    if (prevProps.error !== nextProps.error) return false;
 
-  return (
-    <div className={`${baseWrapperClass}`}>
-      <div className={`${basePanelClass}`}>
-        <div className={`px-5 py-3 text-xs tracking-wide uppercase ${currentColors.text} border-b ${currentColors.borderBottom} animate-in slide-in-from-top-2 fade-in duration-200 fill-mode-both`}>
-          Found {results.length} {selectedButton === "counters" ? "archetype" : "deck"}
-          {results.length !== 1 ? "s" : ""} to {selectedButton === "counters" ? "counter" : "explore"}
-        </div>
+    if (!nextProps.isVisible) return true;
 
-        <div className={`max-h-80 overflow-y-auto px-2 py-3 space-y-2 ${currentColors.scrollbar}`}>
-          {results.map((archetype, index) => {
-            const delay = index * 40;
+    if (prevProps.totalResults !== nextProps.totalResults) return false;
+    if (prevProps.results.length !== nextProps.results.length) return false;
+    if (prevProps.results === nextProps.results) return true;
 
-            return (
-              <button
-                key={archetype.id}
-                onClick={() => onSelectArchetype(archetype)}
-                className={`w-full rounded-lg px-4 py-3 text-left transition-all duration-150 bg-black/40 ${currentColors.hover} ${currentColors.active} active:scale-[0.98] border ${currentColors.borderItem} ${currentColors.borderHover} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${currentColors.focus} animate-in slide-in-from-top-3 fade-in fill-mode-both`}
-                style={{
-                  animationDuration: "200ms",
-                  animationDelay: `${delay}ms`,
-                }}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <div className="font-semibold text-white/90 tracking-wide">
-                      {archetype.name}
-                    </div>
-                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-                      <div className="flex items-center gap-1">
-                        {archetype.registered ? (
-                          <>
-                            <CheckCircle className="w-3 h-3 text-emerald-400" />
-                            <span className="text-emerald-400/90">Registered</span>
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="w-3 h-3 text-amber-600" />
-                            <span className="text-amber-600/90">Not registered</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className={`text-[10px] uppercase tracking-wider ${currentColors.badgeText} px-2 py-1 rounded-full bg-black/40 border ${currentColors.badgeBorder} animate-in fade-in fill-mode-both`}
-                    style={{
-                      animationDuration: "200ms",
-                      animationDelay: `${delay + 60}ms`,
-                    }}
-                  >
-                    {selectedButton === "counters" ? "ID" : "Deck"} {archetype.id}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-};
+    return false;
+  },
+);
+
+MainSearchResults.displayName = "MainSearchResults";

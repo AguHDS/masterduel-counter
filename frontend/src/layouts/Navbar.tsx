@@ -73,7 +73,7 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="relative top-0 z-50 bg-[#18121a]/90 border-b-4 border-[#c2901c] shadow-[0_10px_50px_-5px_rgba(0,0,0,0.7)]">
+    <header className="relative top-0 z-[200] bg-[#18121a]/90 border-b-4 border-[#c2901c] shadow-[0_10px_50px_-5px_rgba(0,0,0,0.7)]">
       <nav
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4"
         aria-label="Main navigation"
