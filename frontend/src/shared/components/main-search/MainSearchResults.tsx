@@ -1,6 +1,6 @@
 import { type Archetype } from "@/features/archetypes/types/archetypes.types";
 import { Search, CheckCircle, XCircle, AlertCircle } from "lucide-react";
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useRef, useEffect } from "react";
 
 interface SearchResultsProps {
   isVisible: boolean;
@@ -23,6 +23,34 @@ export const MainSearchResults = memo(
     onSelectArchetype,
   }: SearchResultsProps) => {
     const [activeTab, setActiveTab] = useState<TabType>("all");
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    // Prevent body scroll when dropdown is open and user is scrolling within results
+    useEffect(() => {
+      if (!isVisible) return;
+
+      const scrollContainer = scrollContainerRef.current;
+      if (!scrollContainer) return;
+
+      const handleWheel = (e: WheelEvent) => {
+        const container = scrollContainer;
+        const { scrollTop, scrollHeight, clientHeight } = container;
+        const isAtTop = scrollTop === 0;
+        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+
+        if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+          if (scrollHeight > clientHeight) {
+            e.preventDefault();
+          }
+        }
+      };
+
+      scrollContainer.addEventListener("wheel", handleWheel, { passive: false });
+      
+      return () => {
+        scrollContainer.removeEventListener("wheel", handleWheel);
+      };
+    }, [isVisible]);
 
     const handleTabChange = useCallback((tab: TabType) => {
       setActiveTab(tab);
@@ -190,7 +218,10 @@ export const MainSearchResults = memo(
             </button>
           </div>
 
-          <div className="max-h-[550px] overflow-y-auto px-2 py-2 scrollbar-mainsearch">
+          <div 
+            ref={scrollContainerRef}
+            className="max-h-[550px] overflow-y-auto px-2 py-2 scrollbar-mainsearch"
+          >
             {!hasResults ? (
               renderNoResults()
             ) : (

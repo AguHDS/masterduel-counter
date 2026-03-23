@@ -2,7 +2,7 @@ import mainLogo from "@/assets/home-rework/MDC_logo_full.webp";
 
 export const MainLogo = () => {
   return (
-    <div className="relative mt-6 w-full mb-7">
+    <div className="relative mt-2 w-full mb-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-center items-center relative top-3">
           <div className="relative">

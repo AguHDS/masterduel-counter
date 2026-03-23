@@ -74,7 +74,7 @@ export const CounterGuides = () => {
           <h3 className="text-orange-300 text-2xl">Latest Counter Guides</h3>
         </div>
 
-        <div className="flex-1 min-h-[320px] overflow-y-auto scrollbar-counterguides">
+        <div className="flex-1 min-h-[320px] border border-red-500/30 overflow-y-auto scrollbar-counterguides">
           {!guides || guides.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-orange-300">
               <p className="text-center text-sm">No guides created yet</p>
@@ -92,12 +92,12 @@ export const CounterGuides = () => {
                   onClick={() => handleGuideClick(guide.archetypeId, guide.id)}
                   className="flex items-start gap-3 p-2 bg-black border border-red-500/30 hover:border-amber-500/60 hover:bg-black/60 transition-all cursor-pointer min-w-0 relative"
                 >
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 p-1">
                     {guide.headerCardImageUrl ? (
                       <img
                         src={guide.headerCardImageUrl}
                         alt={guide.headerCardName || "Header card"}
-                        className="w-20 h-20 object-cover rounded-md"
+                        className="w-20 h-20 object-cover rounded-md border-2 border-amber-500/50 hover:border-amber-400 transition-all"
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
                           const parent = e.currentTarget.parentElement;
@@ -107,7 +107,7 @@ export const CounterGuides = () => {
                           ) {
                             const fallbackDiv = document.createElement("div");
                             fallbackDiv.className =
-                              "fallback-image w-16 h-16 rounded-md border-2 border-orange-400/50 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-xl";
+                              "fallback-image w-20 h-20 rounded-md border-2 border-amber-500/50 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-xl";
                             fallbackDiv.textContent =
                               guide.archetypeName?.charAt(0) || "?";
                             parent.appendChild(fallbackDiv);
@@ -115,7 +115,7 @@ export const CounterGuides = () => {
                         }}
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-md border-2 border-orange-400/50 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-xl">
+                      <div className="w-20 h-20 rounded-md border-2 border-amber-500/50 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-xl">
                         {guide.archetypeName?.charAt(0) || "?"}
                       </div>
                     )}
@@ -173,7 +173,7 @@ export const CounterGuides = () => {
 
         <div
           onClick={handleViewAll}
-          className="relative mt-8 m-auto flex items-center text-[21px] justify-center px-3 py-1.5 text-orange-400 hover:text-orange-300 active:text-orange-600/90 cursor-pointer transition-all duration-150 border border-orange-500/30 hover:border-orange-400/60 active:border-orange-700/50 rounded-lg hover:bg-orange-500/20 active:bg-orange-700/20"
+          className="relative mt-4 m-auto flex items-center text-[21px] justify-center px-3 py-1.5 text-orange-400 hover:text-orange-300 active:text-orange-600/90 cursor-pointer transition-all duration-150 border border-orange-500/45 hover:border-orange-400/60 active:border-orange-700/50 rounded-lg hover:bg-orange-500/20 active:bg-orange-700/20"
         >
           <span>View All Counter Guides</span>
         </div>

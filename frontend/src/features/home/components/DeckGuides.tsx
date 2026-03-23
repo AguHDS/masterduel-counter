@@ -91,7 +91,7 @@ export const DeckGuides = () => {
           <h3 className="text-blue-300 text-2xl">Latest Deck Guides</h3>
         </div>
 
-        <div className="flex-1 min-h-[320px] overflow-y-auto scrollbar-deckguides">
+        <div className="flex-1 min-h-[320px] border border-blue-500/30 overflow-y-auto scrollbar-deckguides">
           {mockDeckGuides.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-blue-300">
               <p className="text-center text-sm">No guides created yet</p>
@@ -166,7 +166,7 @@ export const DeckGuides = () => {
 
         <div
           onClick={handleViewAll}
-          className="relative mt-8 m-auto flex items-center text-[21px] justify-center px-3 py-1.5 text-blue-400/90 hover:text-blue-300 active:text-blue-600/90 cursor-pointer transition-all duration-150 border border-blue-500/30 hover:border-blue-400/60 active:border-blue-700/50 rounded-lg bg-transparent hover:bg-blue-500/20 active:bg-blue-700/20 backdrop-blur-sm"
+          className="relative mt-4 m-auto flex items-center text-[21px] justify-center px-3 py-1.5 text-blue-400/90 hover:text-blue-300 active:text-blue-600/90 cursor-pointer transition-all duration-150 border border-blue-500/50 hover:border-blue-400/60 active:border-blue-700/50 rounded-lg bg-transparent hover:bg-blue-500/20 active:bg-blue-700/20 backdrop-blur-sm"
         >
           <span>View All Deck Guides</span>
         </div>

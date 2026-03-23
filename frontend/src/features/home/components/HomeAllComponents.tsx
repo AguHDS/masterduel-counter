@@ -5,10 +5,13 @@ import { LatestUpdates } from "./LastestUpdates";
 import { MainFeatures } from "./MainFeatures";
 import MDCBackground from "@/assets/HomeAllPages_Background.webp";
 
-export const HomeAllComponents = () => {
+interface HomeAllComponentsProps {
+  isSearchActive?: boolean;
+}
 
+export const HomeAllComponents = ({ isSearchActive = false }: HomeAllComponentsProps) => {
   return (
-    <div className="w-full mt-4">
+    <div className={`w-full mt-12 transition-opacity duration-300 ${isSearchActive ? 'opacity-70' : 'opacity-85'}`}>
       <div className="bg-black/70 shadow-[0_12px_32px_-12px_rgba(0,0,0,1)] border border-white/10">
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">
@@ -25,9 +28,9 @@ export const HomeAllComponents = () => {
             }}
           />
 
-          <div className="absolute inset-0 bg-black/40 pointer-events-none border border-amber-400/40" />
+          <div className="absolute inset-0 bg-black/65 pointer-events-none border border-slate-500/20" />
 
-          <div className="relative z-10 p-8 pt-4">
+          <div className="relative z-10 p-8 py-1">
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="h-[650px] relative">
                 <CounterGuides />

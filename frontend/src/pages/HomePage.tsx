@@ -103,62 +103,65 @@ export const HomePage = () => {
 
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <MainLogo />
+        
+        <div className="scale-[0.92] origin-top">
+          <MainLogo />
 
-        {/* Main Search Section - Prominent entry point */}
-        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 mb-8 mt-2 relative z-[100]">
-          <div className="max-w-4xl mx-auto">
-            <div className="relative mt-3">
-              <MainSearch
-                searchQuery={searchQuery}
-                onSearchChange={handleSearchChange}
-                isDropdownOpen={shouldShowDropdown}
-                onRequestClose={handleRequestClose}
-                onInputFocus={handleInputFocus}
-              >
-                <MainSearchResults
-                  isVisible={shouldShowDropdown}
-                  results={results}
-                  totalResults={totalResults}
-                  loading={loading}
-                  error={error ?? null}
-                  onSelectArchetype={handleSelectArchetype}
-                />
-              </MainSearch>
+          {/* Main Search Section - Prominent entry point */}
+          <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 mb-9 mt-2 relative z-[100]">
+            <div className="max-w-4xl mx-auto">
+              <div className="relative mt-3">
+                <MainSearch
+                  searchQuery={searchQuery}
+                  onSearchChange={handleSearchChange}
+                  isDropdownOpen={shouldShowDropdown}
+                  onRequestClose={handleRequestClose}
+                  onInputFocus={handleInputFocus}
+                >
+                  <MainSearchResults
+                    isVisible={shouldShowDropdown}
+                    results={results}
+                    totalResults={totalResults}
+                    loading={loading}
+                    error={error ?? null}
+                    onSelectArchetype={handleSelectArchetype}
+                  />
+                </MainSearch>
+              </div>
             </div>
           </div>
+
+          <div
+            className="w-full mx-auto px-4 sm:px-6 lg:px-8"
+            style={{ maxWidth: "96rem" }}
+          >
+            <HomeAllComponents isSearchActive={shouldShowDropdown} />
+          </div>
+
+          {/* 
+            Este componente RegisteredArchetypesList, esta destinado a mostrar todas las guias creadas de Counters Guides o Deck Guides.
+            Al buscar y clickear un resultado tipo Counter o Deck en la MainSearch, va a mostrar RegisteredArchetypesList con las guias 
+            de Counter Guides o Deck Guides dependiendo de que se haya seleccionado.
+
+            Ahora mismo, solo existe un unico tipo de guia en mi app (revisar App.tsx).
+            Hay que agregar logica para identificar si las guias conseguidas son de tipo counter guides o deck guide.
+          */}
+
+          <main
+            className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-3"
+            style={{ maxWidth: "87.5rem" }}
+            role="main"
+            aria-label="Main content"
+          >
+            <FeatureErrorBoundary featureName="Archetypes List">
+              <RegisteredArchetypesList
+                onSelectArchetype={handleSelectRegisteredArchetype}
+              />
+            </FeatureErrorBoundary>
+          </main>
+
+          <Footer />
         </div>
-
-        <div
-          className="w-full mx-auto px-4 sm:px-6 lg:px-8"
-          style={{ maxWidth: "96rem" }}
-        >
-          <HomeAllComponents />
-        </div>
-
-        {/* 
-          Este componente RegisteredArchetypesList, esta destinado a mostrar todas las guias creadas de Counters Guides o Deck Guides.
-          Al buscar y clickear un resultado tipo Counter o Deck en la MainSearch, va a mostrar RegisteredArchetypesList con las guias 
-          de Counter Guides o Deck Guides dependiendo de que se haya seleccionado.
-
-          Ahora mismo, solo existe un unico tipo de guia en mi app (revisar App.tsx).
-          Hay que agregar logica para identificar si las guias conseguidas son de tipo counter guides o deck guide.
-        */}
-
-        <main
-          className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-3"
-          style={{ maxWidth: "87.5rem" }}
-          role="main"
-          aria-label="Main content"
-        >
-          <FeatureErrorBoundary featureName="Archetypes List">
-            <RegisteredArchetypesList
-              onSelectArchetype={handleSelectRegisteredArchetype}
-            />
-          </FeatureErrorBoundary>
-        </main>
-
-        <Footer />
       </div>
     </>
   );
