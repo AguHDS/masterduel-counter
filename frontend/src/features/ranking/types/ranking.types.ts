@@ -5,3 +5,13 @@ export interface RankingUser {
   totalLikes: number;
   rank: number;
 }
+
+export interface RankingResponse {
+  ranking: RankingUser[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}

@@ -42,8 +42,8 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 
   const renderMessage = () => {
     const titleElement = messageData.link ? (
-      <Link 
-        to={messageData.link} 
+      <Link
+        to={messageData.link}
         className="text-[#c2901c] hover:text-[#d4a730] underline font-medium"
         onClick={(e) => e.stopPropagation()}
       >
@@ -56,7 +56,8 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     if (messageData.actorName) {
       return (
         <>
-          <span className="font-medium">{messageData.actorName}</span> {messageData.actionText} {titleElement}
+          <span className="font-medium">{messageData.actorName}</span>{" "}
+          {messageData.actionText} {titleElement}
         </>
       );
     }

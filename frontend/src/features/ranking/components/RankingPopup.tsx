@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { Crown } from "lucide-react";
 import type { RankingUser } from "../types/ranking.types";
+import { Avatar } from "@/shared/components/DefaultAvatar";
 
 interface RankingPopupProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface RankingPopupProps {
   onViewFullRanking: () => void;
   triggerRef: React.RefObject<HTMLElement | null>;
   isLoading?: boolean;
+  alignRight?: boolean;
 }
 
 export const RankingPopup: React.FC<RankingPopupProps> = ({
@@ -20,10 +22,10 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
   onViewFullRanking,
   triggerRef,
   isLoading = false,
+  alignRight = false,
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
 
-  // Close popup when clicking outside
   useEffect(() => {
     if (!isOpen) return;
 
@@ -38,7 +40,6 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
       }
     };
 
-    // Use "click" event instead of "mousedown" to avoid conflicts with the toggle button
     document.addEventListener("click", handleClickOutside);
 
     return () => {
@@ -84,10 +85,11 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
   return (
     <div
       ref={popupRef}
-      className="absolute left-0 mt-2 w-80 bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-xl overflow-hidden z-50"
+      className={`absolute mt-2 w-80 bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-xl overflow-hidden z-50 ${
+        alignRight ? "right-0" : "left-0"
+      }`}
       style={{ top: "100%" }}
     >
-      {/* Header */}
       <div className="p-3 border-b border-[#c2901c]/30">
         <div className="flex items-center space-x-2">
           <Crown className="w-5 h-5 text-[#c2901c]" />
@@ -95,7 +97,6 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
         </div>
       </div>
 
-      {/* Ranking List */}
       <div className="max-h-96 overflow-y-auto scrollbar-cardpair">
         {isLoading && (
           <div className="flex items-center justify-center p-8">
@@ -109,63 +110,58 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
           </div>
         )}
 
-        {!isLoading && users.map((user) => {
-          const styles = getRankStyles(user.rank);
+        {!isLoading &&
+          users.map((user) => {
+            const styles = getRankStyles(user.rank);
 
-          return (
-            <div
-              key={user.userId}
-              onClick={() => onUserClick(user.username, user.userId)}
-              className={`p-3 border-b border-[#c2901c]/10 hover:bg-[#2a2430] transition-colors cursor-pointer ${styles.bg}`}
-            >
-              <div className="flex items-center space-x-3">
-                {/* Rank */}
-                <div className={`w-8 text-center font-bold ${styles.text}`}>
-                  #{user.rank}
-                </div>
+            return (
+              <div
+                key={user.userId}
+                onClick={() => onUserClick(user.username, user.userId)}
+                className={`p-3 border-b border-[#c2901c]/10 hover:bg-[#2a2430] transition-colors cursor-pointer ${styles.bg}`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-8 text-center font-bold ${styles.text}`}>
+                    #{user.rank}
+                  </div>
 
-                {/* Avatar */}
-                <img
-                  src={user.profilePictureUrl}
-                  alt={user.username}
-                  className="w-10 h-10 rounded-full border-2 border-[#c2901c]/30 object-cover"
-                  loading="lazy"
-                />
+                  <Avatar
+                    username={user.username}
+                    profilePictureUrl={user.profilePictureUrl}
+                    size="sm"
+                  />
 
-                {/* User Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium text-white hover:text-[#c2901c] transition-colors truncate">
-                      {user.username}
-                    </span>
-                    {user.rank <= 3 && (
-                      <Crown
-                        className={`w-3 h-3 flex-shrink-0 ${styles.icon}`}
-                      />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium text-white hover:text-[#c2901c] transition-colors truncate">
+                        {user.username}
+                      </span>
+                      {user.rank <= 3 && (
+                        <Crown
+                          className={`w-3 h-3 flex-shrink-0 ${styles.icon}`}
+                        />
+                      )}
+                    </div>
+                    {user.totalLikes > 0 && (
+                      <div className="text-xs text-green-500">
+                        {user.totalLikes.toLocaleString()} Likes
+                      </div>
                     )}
                   </div>
-                  {user.totalLikes > 0 && (
-                    <div className="text-xs text-green-500">
-                      {user.totalLikes.toLocaleString()} Likes
+
+                  {user.rank <= 3 && (
+                    <div
+                      className={`text-xs font-bold px-2 py-1 rounded-full ${styles.bg} ${styles.border} border ${styles.text} flex-shrink-0`}
+                    >
+                      Top {user.rank}
                     </div>
                   )}
                 </div>
-
-                {/* Top Badge */}
-                {user.rank <= 3 && (
-                  <div
-                    className={`text-xs font-bold px-2 py-1 rounded-full ${styles.bg} ${styles.border} border ${styles.text} flex-shrink-0`}
-                  >
-                    Top {user.rank}
-                  </div>
-                )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
 
-      {/* Footer */}
       <div className="p-2 border-t border-[#c2901c]/30 bg-[#151017]">
         <button
           onClick={onViewFullRanking}

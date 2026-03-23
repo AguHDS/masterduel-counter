@@ -19,16 +19,18 @@ import { RankingModal } from "../features/ranking/components/RankingModal";
 import { useRanking } from "../features/ranking/hooks/useRanking";
 import { UserDropdown } from "./UserDropdown";
 import { useState, useEffect, useRef } from "react";
+import { Avatar } from "@/shared/components/DefaultAvatar";
 
 export const Navbar = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
   const [showBetaTooltip, setShowBetaTooltip] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRankingOpen, setIsRankingOpen] = useState(false);
+  const [isMobileRankingOpen, setIsMobileRankingOpen] = useState(false);
   const [isRankingModalOpen, setIsRankingModalOpen] = useState(false);
+  const [isTabletView, setIsTabletView] = useState(false);
   const rankingButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Fetch ranking data (top 50 for dropdown)
   const { data: rankingData, isLoading: isLoadingRanking } = useRanking(1, 50);
 
   const handleLogout = async () => {
@@ -38,14 +40,18 @@ export const Navbar = () => {
 
   const isAdmin = user?.role === "admin";
 
-  // Responsive behavior
+  // Detect tablet view between 640px and 1024px
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
+      const width = window.innerWidth;
+      setIsTabletView(width >= 640 && width < 1024);
+
+      if (width >= 1024) {
         setIsMenuOpen(false);
       }
     };
 
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -57,12 +63,14 @@ export const Navbar = () => {
   const handleUserClick = (_username: string, userId: string) => {
     window.location.href = `/profile/${userId}`;
     setIsRankingOpen(false);
+    setIsMobileRankingOpen(false);
     setIsRankingModalOpen(false);
     setIsMenuOpen(false);
   };
 
   const handleViewFullRanking = () => {
     setIsRankingOpen(false);
+    setIsMobileRankingOpen(false);
     setIsRankingModalOpen(true);
     setIsMenuOpen(false);
   };
@@ -70,6 +78,39 @@ export const Navbar = () => {
   const handleToggleRanking = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsRankingOpen((prev) => !prev);
+  };
+
+  const handleToggleMobileRanking = () => {
+    setIsMobileRankingOpen((prev) => !prev);
+  };
+
+  const getRankStyles = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return {
+          bg: "bg-gradient-to-r from-yellow-500/20 to-amber-600/20",
+          text: "text-yellow-400",
+          icon: "text-yellow-400",
+        };
+      case 2:
+        return {
+          bg: "bg-gradient-to-r from-purple-700/40 to-blue-500/20",
+          text: "text-gray-300",
+          icon: "text-gray-400",
+        };
+      case 3:
+        return {
+          bg: "bg-gradient-to-r from-yellow-700/20 to-amber-800/50",
+          text: "text-amber-600",
+          icon: "text-amber-700",
+        };
+      default:
+        return {
+          bg: "bg-blue-950/30",
+          text: "text-blue-300",
+          icon: "text-blue-400",
+        };
+    }
   };
 
   return (
@@ -243,6 +284,7 @@ export const Navbar = () => {
               onViewFullRanking={handleViewFullRanking}
               triggerRef={rankingButtonRef}
               isLoading={isLoadingRanking}
+              alignRight={isTabletView}
             />
 
             {!isLoading && isAuthenticated && user ? (
@@ -312,11 +354,21 @@ export const Navbar = () => {
       {/* Mobile Menu Dropdown */}
       {isMenuOpen && (
         <div className="sm:hidden absolute top-full left-0 right-0 bg-[#1f1a24] border-b border-[#c2901c]/30 shadow-xl py-4 px-4 z-50">
-          <div className="flex flex-col space-y-4">
-            {/* Ranking for mobile */}
-            <div className="relative">
+          <div className="flex flex-col space-y-3">
+            {!isLoading && isAuthenticated && user && (
+              <div className="pb-3 mb-3 border-b border-[#c2901c]/30">
+                <div className="text-sm text-gray-300">
+                  Welcome,{" "}
+                  <span className="font-semibold text-blue-400">
+                    {user.name}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
               <button
-                onClick={() => setIsRankingOpen(!isRankingOpen)}
+                onClick={handleToggleMobileRanking}
                 className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 transition-opacity py-2 w-full text-left"
               >
                 <Crown className="h-4 w-4" />
@@ -328,49 +380,52 @@ export const Navbar = () => {
                 </span>
               </button>
 
-              {/* Mobile ranking popup */}
-              {isRankingOpen && (
-                <div className="mt-2 bg-[#2a2430] rounded-lg border border-[#c2901c]/30 p-2 max-h-64 overflow-y-auto scrollbar-cardpair">
+              {isMobileRankingOpen && (
+                <div className="ml-6 bg-[#2a2430] rounded-lg border border-[#c2901c]/30 p-2 max-h-64 overflow-y-auto scrollbar-cardpair">
                   {isLoadingRanking ? (
-                    <div className="text-center text-gray-400 py-4">
+                    <div className="text-center text-gray-400 py-4 text-sm">
                       Loading ranking...
                     </div>
                   ) : rankingData && rankingData.ranking.length > 0 ? (
                     <>
-                      {rankingData.ranking.map((user) => (
-                        <div
-                          key={user.userId}
-                          onClick={() =>
-                            handleUserClick(user.username, user.userId)
-                          }
-                          className="flex items-center gap-2 p-2 hover:bg-[#3a2f40] rounded-lg transition-colors cursor-pointer"
-                        >
-                          <img
-                            src={user.profilePictureUrl}
-                            alt={user.username}
-                            className="w-8 h-8 rounded-full border border-[#c2901c]/30"
-                          />
-                          <div className="flex-1">
-                            <span className="text-white text-sm">
-                              {user.username}
-                            </span>
-                            <div className="text-xs text-gray-400">
-                              #{user.rank} • {user.totalLikes} likes
+                      // En Navbar.tsx, dentro del menú móvil, reemplaza la
+                      parte de la imagen:
+                      {rankingData.ranking.map((user) => {
+                        const styles = getRankStyles(user.rank);
+                        return (
+                          <div
+                            key={user.userId}
+                            onClick={() =>
+                              handleUserClick(user.username, user.userId)
+                            }
+                            className={`flex items-center gap-2 p-2 hover:bg-[#3a2f40] rounded-lg transition-colors cursor-pointer ${styles.bg}`}
+                          >
+                            <div
+                              className={`w-8 text-center font-bold text-xs ${styles.text}`}
+                            >
+                              #{user.rank}
                             </div>
-                          </div>
-                          {user.rank <= 3 && (
-                            <Crown
-                              className={`w-3 h-3 ${
-                                user.rank === 1
-                                  ? "text-yellow-400"
-                                  : user.rank === 2
-                                    ? "text-gray-400"
-                                    : "text-amber-700"
-                              }`}
+                            <Avatar
+                              username={user.username}
+                              profilePictureUrl={user.profilePictureUrl}
+                              size="sm"
                             />
-                          )}
-                        </div>
-                      ))}
+                            <div className="flex-1 min-w-0">
+                              <span className="text-white text-sm truncate block">
+                                {user.username}
+                              </span>
+                              <div className="text-xs text-green-500">
+                                {user.totalLikes} likes
+                              </div>
+                            </div>
+                            {user.rank <= 3 && (
+                              <Crown
+                                className={`w-3 h-3 flex-shrink-0 ${styles.icon}`}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
                       <button
                         onClick={handleViewFullRanking}
                         className="w-full text-center text-sm text-[#c2901c] hover:text-[#d4a534] transition-colors py-2 mt-2 border-t border-[#c2901c]/30"
@@ -379,97 +434,86 @@ export const Navbar = () => {
                       </button>
                     </>
                   ) : (
-                    <div className="text-center text-gray-400 py-4">
+                    <div className="text-center text-gray-400 py-4 text-sm">
                       No users in ranking yet
                     </div>
                   )}
                 </div>
               )}
-            </div>
 
-            {!isLoading && isAuthenticated && user ? (
-              <>
-                {/* Welcome message for mobile */}
-                <div className="text-sm text-gray-300 pb-2 border-b border-[#c2901c]/30">
-                  Welcome,{" "}
-                  <span className="font-semibold text-blue-400">
-                    {user.name}
-                  </span>
-                </div>
+              {!isLoading && isAuthenticated && user ? (
+                <>
+                  <div className="relative">
+                    <NotificationBell isMobile={true} />
+                    <NotificationPopup isMobile={true} />
+                  </div>
 
-                {/* Notifications for mobile */}
-                <div className="relative">
-                  <NotificationBell />
-                  <NotificationPopup />
-                </div>
-
-                {/* Mobile menu items */}
-                <Link
-                  to={`/profile/${user.id}`}
-                  onClick={handleLinkClick}
-                  className="flex items-center gap-2 text-blue-500 text-sm font-medium hover:opacity-80 transition-opacity py-2"
-                >
-                  <User className="h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 text-red-500 text-sm font-medium hover:opacity-80 transition-opacity py-2 text-left"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
-                </button>
-
-                {isAdmin && (
                   <Link
-                    to="/admin"
+                    to={`/profile/${user.id}`}
                     onClick={handleLinkClick}
-                    className="flex items-center gap-2 text-yellow-500 text-sm font-medium hover:opacity-80 transition-opacity py-2"
+                    className="flex items-center gap-2 text-blue-500 text-sm font-medium hover:opacity-80 transition-opacity py-2"
                   >
-                    <Shield className="h-4 w-4" />
-                    <span>Admin Panel</span>
+                    <User className="h-4 w-4" />
+                    <span>Profile</span>
                   </Link>
-                )}
-              </>
-            ) : !isLoading ? (
-              <>
-                {/* Auth links for mobile */}
-                <Link
-                  to="/signin"
-                  onClick={handleLinkClick}
-                  className="flex items-center gap-2 text-blue-500 text-sm font-medium hover:opacity-80 transition-opacity py-2"
-                >
-                  <LogIn className="h-4 w-4" />
-                  <span>Sign In</span>
-                </Link>
 
-                <Link
-                  to="/signup"
-                  onClick={handleLinkClick}
-                  className="flex items-center gap-2 text-green-500 text-sm font-medium hover:opacity-80 transition-opacity py-2"
-                >
-                  <UserPlus className="h-4 w-4" />
-                  <span>Sign Up</span>
-                </Link>
-              </>
-            ) : null}
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 text-red-500 text-sm font-medium hover:opacity-80 transition-opacity py-2 text-left"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </button>
 
-            {/* Discord link for mobile */}
-            <a
-              href="https://discord.gg/wzkGb4Zgnw"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleLinkClick}
-              className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 transition-opacity py-2 border-t border-[#c2901c]/30 pt-4"
-            >
-              <img
-                src={discordSvgIcon}
-                alt="Discord logo"
-                className="w-5 h-5"
-              />
-              <span>Join Discord</span>
-            </a>
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      onClick={handleLinkClick}
+                      className="flex items-center gap-2 text-yellow-500 text-sm font-medium hover:opacity-80 transition-opacity py-2"
+                    >
+                      <Shield className="h-4 w-4" />
+                      <span>Admin Panel</span>
+                    </Link>
+                  )}
+                </>
+              ) : !isLoading ? (
+                <>
+                  <Link
+                    to="/signin"
+                    onClick={handleLinkClick}
+                    className="flex items-center gap-2 text-blue-500 text-sm font-medium hover:opacity-80 transition-opacity py-2"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    <span>Sign In</span>
+                  </Link>
+
+                  <Link
+                    to="/signup"
+                    onClick={handleLinkClick}
+                    className="flex items-center gap-2 text-green-500 text-sm font-medium hover:opacity-80 transition-opacity py-2"
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    <span>Sign Up</span>
+                  </Link>
+                </>
+              ) : null}
+
+              {/* Discord link for mobile */}
+              <a
+                href="https://discord.gg/wzkGb4Zgnw"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleLinkClick}
+                className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 transition-opacity py-2 border-t border-[#c2901c]/30 pt-4 mt-2"
+              >
+                <img
+                  src={discordSvgIcon}
+                  alt="Discord logo"
+                  className="w-5 h-5"
+                />
+                <span>Join Discord</span>
+              </a>
+            </div>
           </div>
         </div>
       )}

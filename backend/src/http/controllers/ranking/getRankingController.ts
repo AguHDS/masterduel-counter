@@ -47,9 +47,7 @@ export const getRankingController = async (req: Request, res: Response) => {
         return {
           userId: user.id,
           username: user.name,
-          profilePictureUrl:
-            user.profile?.profilePictureUrl ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`,
+          profilePictureUrl: user.profile?.profilePictureUrl,
           totalLikes,
         };
       })
@@ -87,8 +85,7 @@ export const getRankingController = async (req: Request, res: Response) => {
     console.error("Error getting ranking:", error);
     return res.status(500).json({
       success: false,
-      message:
-        error instanceof Error ? error.message : "Failed to get ranking",
+      message: error instanceof Error ? error.message : "Failed to get ranking",
     });
   }
 };

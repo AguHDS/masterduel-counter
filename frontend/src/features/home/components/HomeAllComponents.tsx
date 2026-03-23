@@ -11,7 +11,7 @@ interface HomeAllComponentsProps {
 
 export const HomeAllComponents = ({ isSearchActive = false }: HomeAllComponentsProps) => {
   return (
-    <div className={`w-full mt-12 transition-opacity duration-300 ${isSearchActive ? 'opacity-70' : 'opacity-85'}`}>
+    <div className={`w-full mt-12 transition-opacity duration-300 ${isSearchActive ? 'opacity-75' : 'opacity-85'}`}>
       <div className="bg-black/70 shadow-[0_12px_32px_-12px_rgba(0,0,0,1)] border border-white/10">
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">
