@@ -2,6 +2,7 @@ import { TrendingUp } from "lucide-react";
 import { useGeneralStats } from "../hooks/useGeneralStats";
 import { useNavigate } from "react-router-dom";
 
+/** Displays quantity of Counter Guides and Deck Guides */
 export const GeneralStats = () => {
   const { data, isLoading, error } = useGeneralStats(15);
   const navigate = useNavigate();

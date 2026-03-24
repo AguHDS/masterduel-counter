@@ -3,7 +3,7 @@ import { DeckGuides } from "./DeckGuides";
 import { GeneralStats } from "./GeneralStats";
 import { LatestUpdates } from "./LastestUpdates";
 import { MainFeatures } from "./MainFeatures";
-import MDCBackground from "@/assets/HomeAllPages_Background.webp";
+import MDCBackground from "@/assets/HomeAllPages_Background2.webp";
 
 interface HomeAllComponentsProps {
   isSearchActive?: boolean;
@@ -28,7 +28,7 @@ export const HomeAllComponents = ({ isSearchActive = false }: HomeAllComponentsP
             }}
           />
 
-          <div className="absolute inset-0 bg-black/65 pointer-events-none border border-slate-500/20" />
+          <div className="absolute inset-0 bg-black/45 pointer-events-none border border-slate-500/20" />
 
           <div className="relative z-10 p-8 py-1">
             <div className="grid grid-cols-1 lg:grid-cols-2">

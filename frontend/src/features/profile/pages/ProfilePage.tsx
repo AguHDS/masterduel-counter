@@ -18,8 +18,7 @@ import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
 import { useRef, useState, useCallback } from "react";
 import { guideInstancesApi } from "@/lib/http/guideInstancesApi";
-import background_profile from "@/assets/MDC-profile_background.webp";
-import profile_background from "@/assets/Profile_Background.webp";
+import profile_background from "@/assets/Profile_Backgroundnew.webp";
 import { formatCompactNumber } from "@/shared/utils/formatNumber";
 import type { TabType } from "../types/profileTypes";
 import type { Card } from "@/features/archetypes/types";
@@ -168,13 +167,13 @@ export const ProfilePage = () => {
         <Helmet>
           <title>Profile - Masterduel Counter</title>
         </Helmet>
-        <div 
+        <div
           className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex flex-col"
           style={{
             backgroundImage: `url(${profile_background})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed'
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
           }}
         >
           <Navbar />
@@ -195,13 +194,13 @@ export const ProfilePage = () => {
         <title>{profile?.userName || "User"} - Profile</title>
       </Helmet>
 
-      <div 
+      <div
         className="min-h-screen flex flex-col"
         style={{
           backgroundImage: `url(${profile_background})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed'
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
         }}
       >
         <Navbar />
@@ -213,13 +212,7 @@ export const ProfilePage = () => {
                 {/* Left Sidebar */}
                 <aside className="w-full lg:w-[280px] xl:w-[320px] flex-shrink-0 lg:sticky lg:top-8">
                   <div className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]">
-                    <img
-                      src={background_profile}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover opacity-70"
-                    />
-                    <div className="relative z-10 bg-gradient-to-br from-purple-950/40 to-slate-900/80 backdrop-blur-sm p-4 sm:p-5 space-y-4 h-full">
+                    <div className="relative z-10 bg-gradient-to-br bg-slate-900/95 backdrop-blur-sm p-4 sm:p-5 space-y-4 h-full">
                       {/* Username and Profile Photo Square */}
                       <div className="flex flex-col items-center">
                         <h1 className="text-xl sm:text-2xl font-semibold text-yellow-400 mb-3">
@@ -366,13 +359,7 @@ export const ProfilePage = () => {
 
                 <div className="flex-1 min-w-0">
                   {/* Main Content Container */}
-                  <div className="bg-gradient-to-br relative from-purple-950 to-slate-900/90 rounded-lg border-2 border-yellow-600/50 overflow-hidden h-auto lg:h-[800px] flex flex-col">
-                    <img
-                      src={background_profile}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover opacity-30 -z-10"
-                    />
+                  <div className="bg-gradient-to-br relative bg-slate-900/95  rounded-lg border-2 border-yellow-600/50 overflow-hidden h-auto lg:h-[800px] flex flex-col">
                     {/* Tabs inside container */}
                     <div className="relative z-10 border-b border-yellow-600/30 bg-slate-900/40 backdrop-blur-sm">
                       <div className="flex flex-col gap-2 sm:gap-3 p-3 lg:flex-row lg:items-center lg:justify-between">
@@ -551,13 +538,7 @@ export const ProfilePage = () => {
                 {/* Right Sidebar */}
                 <aside className="w-full lg:w-[280px] xl:w-[320px] flex-shrink-0 lg:sticky lg:top-8">
                   <div className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]">
-                    <img
-                      src={background_profile}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover opacity-70"
-                    />
-                    <div className="relative z-10 bg-gradient-to-br from-purple-950/40 to-slate-900/80 backdrop-blur-sm p-4 sm:p-6 space-y-4 sm:space-y-6 h-full">
+                    <div className="relative z-10 bg-gradient-to-br bg-slate-900/95 backdrop-blur-sm p-4 sm:p-6 space-y-4 sm:space-y-6 h-full">
                       <div className="space-y-3">
                         <h3 className="text-yellow-500 font-bold text-sm flex items-center gap-2 mt-1">
                           <span className="text-lg">♦</span> Favorite Guides

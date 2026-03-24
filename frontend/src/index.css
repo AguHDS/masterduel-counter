@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  background: url("./assets/MDC_Background.webp") no-repeat center center
+  background: url("./assets/Homebackground.webp") no-repeat center center
     fixed;
   background-size: cover;
 }
