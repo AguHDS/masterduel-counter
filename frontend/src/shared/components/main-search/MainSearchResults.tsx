@@ -98,14 +98,14 @@ export const MainSearchResults = memo(
                   <>
                     <CheckCircle className="w-3 h-3 text-green-400" />
                     <span className="text-green-400/90 text-xs">
-                      Registered
+                      has guides
                     </span>
                   </>
                 ) : (
                   <>
                     <XCircle className="w-3 h-3 text-gray-500/80" />
                     <span className="text-gray-500/80 text-xs">
-                      No Guides
+                      no guides
                     </span>
                   </>
                 )}
@@ -146,7 +146,7 @@ export const MainSearchResults = memo(
     const actualTotal =
       totalResults !== undefined ? totalResults : results.length;
 
-    const baseWrapperClass = `absolute left-1/2 top-[calc(100%-13px)] z-50 w-[91%] sm:w-[90%] md:w-[95%] lg:w-[840px] -translate-x-1/2 ${
+    const baseWrapperClass = `absolute left-1/2 top-[calc(100%-13px)] z-50 w-[91%] sm:w-[90%] md:w-[92%] lg:w-[815px] -translate-x-1/2 ${
       !isVisible ? "pointer-events-none" : ""
     }`;
 
@@ -275,8 +275,7 @@ export const MainSearchResults = memo(
                 {activeTab === "counters" && (
                   <div className="space-y-1.5">
                     <div className="px-2 py-1 text-[14px] tracking-wide uppercase text-yellow-400/80">
-                      Found {actualTotal} counter guide
-                      {actualTotal !== 1 ? "s" : ""}
+                      Found {actualTotal} archetypes
                       {actualTotal > 15 && (
                         <span className="ml-1 text-yellow-500/70">
                           (showing first 15)
@@ -292,8 +291,7 @@ export const MainSearchResults = memo(
                 {activeTab === "decks" && (
                   <div className="space-y-1.5">
                     <div className="px-2 py-1 text-[14px] tracking-wide uppercase text-yellow-400/80">
-                      Found {actualTotal} deck guide
-                      {actualTotal !== 1 ? "s" : ""}
+                      Found {actualTotal} archetypes
                       {actualTotal > 15 && (
                         <span className="ml-1 text-yellow-500/70">
                           (showing first 15)

@@ -103,7 +103,7 @@ export const HomePage = () => {
 
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        
+
         <div className="scale-[0.92] origin-top">
           <MainLogo />
 
@@ -159,9 +159,8 @@ export const HomePage = () => {
               />
             </FeatureErrorBoundary>
           </main>
-
-          <Footer />
         </div>
+        <Footer />
       </div>
     </>
   );

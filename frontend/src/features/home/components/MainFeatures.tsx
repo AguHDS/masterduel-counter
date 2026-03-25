@@ -84,7 +84,7 @@ export const MainFeatures = () => {
       <div className="absolute inset-[2px] rounded-[24px]" />
 
       <div className="relative z-10 p-6 flex flex-col h-full min-h-0 overflow-hidden">
-        <div className="flex-1 overflow-y-auto scrollbar-comments pr-1 min-h-0">
+        <div className="flex-1 overflow-y-auto scrollbar-homeAllPages pr-1 min-h-0">
           <div className="flex items-center gap-3 mb-4">
             <h3 className="text-2xl font-bold text-white">
               Masterduel Counter
@@ -198,7 +198,7 @@ export const MainFeatures = () => {
         </div>
 
         <div className="relative mt-5 pt-1 flex justify-center">
-          <div className="absolute w-[50%] inset-y-0 rounded-lg bg-gradient-to-r from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] opacity-80 blur-md" />
+          <div className="absolute w-[50%] inset-y-0 rounded-lg bg-gradient-to-r from-[#ffa94d] via-[#ff7e29] to-[#ffce6d] opacity-40 blur-md" />
           <button
             onClick={() => navigate("/signup")}
             className="relative w-[50%] py-2.5 rounded-lg font-bold text-sm bg-gradient-to-r from-[#1a1030] via-[#2d1b4e] to-[#1a1030] border-2 border-[#ffa94d] hover:border-[#ffce6d] uppercase tracking-wide transition-all duration-200 hover:brightness-110 active:brightness-75"

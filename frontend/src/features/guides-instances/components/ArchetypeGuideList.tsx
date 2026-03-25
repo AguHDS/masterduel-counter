@@ -117,7 +117,7 @@ const ArchetypeGuideList = ({
 
   if (!hasInstances) {
     return (
-      <div className="flex flex-col items-start p-4 w-full">
+      <div className="flex flex-col items-start p-4 w-full mt-7">
         <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
           {/* Back button */}
           <div className="flex">
