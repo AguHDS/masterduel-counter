@@ -2,13 +2,12 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
 import { FramedContainer } from "@/layouts/FramedContainer";
 import { useRegisteredArchetypes } from "../hooks/useRegisteredArchetypes";
-import instanceItemBg from "@/assets/Archetypelist-background.webp";
 
 interface RegisteredArchetypesListProps {
   onSelectArchetype: (archetypeId: number) => void;
 }
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 15;
 
 /** List of archetypes that are registered (with at least 1 guide instance)
  * TODO: The idea is that this component must show all registered archetypes (with at least one guide) of Counter Guides or Deck 
@@ -86,129 +85,89 @@ export const RegisteredArchetypesList = ({
         </span>
       </div>
 
-      <div className="rounded-lg overflow-hidden border-t border-blue-600 bg-black/60">
+      <div className="rounded-lg overflow-hidden border border-blue-600/40 bg-gradient-to-b from-slate-900/80 to-slate-950/80 backdrop-blur-sm">
         <div
-          className="w-full flex justify-center m-auto h-[1px]"
+          className="w-full h-[2px]"
           style={{
             background:
               "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
           }}
         />
-        <div className="hidden md:grid grid-cols-[60px_minmax(220px,1fr)_160px] gap-3 border-b border-blue-600 bg-black/0 md:px-6 md:py-4">
-          <div className="text-blue-300 font-semibold text-lg">ID</div>
-          <div className="text-blue-300 font-semibold text-lg relative left-18">
+        
+        <div className="hidden md:grid grid-cols-[1fr_100px] border-b border-blue-500/50 bg-slate-950/80 px-5 py-3">
+          <div className="text-blue-300 font-semibold text-sm ml-9">
             Archetype
           </div>
           <button
             onClick={toggleSortBy}
-            className="flex relative left-3 items-center justify-end gap-2 text-blue-300 font-semibold text-lg hover:text-blue-200 transition-colors group"
+            className="flex items-center justify-end gap-2 text-blue-300 font-semibold text-sm hover:text-blue-200 transition-colors group"
             title={`Sort by ${sortBy === "recent" ? "instance count" : "most recent"}`}
           >
-            <span>Instances</span>
+            <span>Guides</span>
             {sortBy === "instances" ? (
               <ArrowDown
-                className="w-4 h-4 relative top-[2px] right-[5px] group-hover:scale-110 transition-transform text-green-400"
+                className="w-3.5 h-3.5 group-hover:scale-110 transition-transform text-green-400"
                 aria-hidden="true"
               />
             ) : (
               <ArrowUp
-                className="w-4 h-4 relative top-[2px] right-[4px] group-hover:scale-110 transition-transform"
+                className="w-3.5 h-3.5 group-hover:scale-110 transition-transform"
                 aria-hidden="true"
               />
             )}
           </button>
         </div>
 
-        <div className="flex flex-col">
+        <div className="space-y-1 p-3">
           {currentArchetypes.map((archetype, index) => {
             const positionLabel = startIndex + index + 1;
             const instanceCount = archetype.instance_count || 0;
-            const instanceLabel = `${instanceCount} ${
-              instanceCount === 1 ? "instance" : "instances"
-            }`;
-            const badgeContent = archetype.name.charAt(0).toUpperCase();
 
             return (
               <button
                 key={archetype.id}
                 onClick={() => onSelectArchetype(archetype.id)}
-                className="group relative w-full overflow-hidden border-b border-blue-900/30 last:border-b-0 transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
+                className="group relative w-full overflow-hidden rounded transition-all hover:scale-[1.01] hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
               >
-                <img
-                  src={instanceItemBg}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  aria-hidden="true"
-                  className="absolute inset-0 h-full w-full"
-                />
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 group-active:bg-black/30" />
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-950/50 via-purple-900/40 to-violet-950/50 border border-blue-500/40 rounded" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-800/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded" />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 group-active:bg-black/40 transition-colors rounded" />
 
-                <div
-                  className="absolute inset-y-0 left-0 w-8 pointer-events-none"
-                  style={{
-                    background:
-                      "linear-gradient(to right, rgba(0,0,30,0.4), transparent)",
-                  }}
-                />
-                <div
-                  className="absolute inset-y-0 right-0 w-8 pointer-events-none"
-                  style={{
-                    background:
-                      "linear-gradient(to left, rgba(0,0,30,0.4), transparent)",
-                  }}
-                />
-
-                <div className="relative z-10 flex flex-col gap-3 p-4 md:p-0 md:gap-0">
-                  <div className="flex items-center gap-3 md:hidden">
-                    <span className="text-[#FFD700] text-xl font-bold drop-shadow-md">
-                      {positionLabel}
-                    </span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-600/70 to-blue-500/70 flex items-center justify-center text-white font-semibold text-lg">
-                        {badgeContent}
-                      </div>
+                <div className="relative z-10">
+                  <div className="hidden md:grid md:grid-cols-[1fr_100px] md:gap-4 md:items-center md:px-5 md:py-2.5">
+                    <div className="flex items-center gap-5">
+                      <span className="text-slate-500 text-sm font-medium">
+                        {positionLabel}
+                      </span>
                       <span
-                        className="text-white text-base font-semibold leading-tight truncate"
+                        className="text-white text-base font-medium truncate group-hover:text-blue-100 transition-colors"
                         title={archetype.name}
                       >
                         {archetype.name}
                       </span>
                     </div>
+                    <div className="text-blue-200 text-sm text-right font-semibold">
+                      {instanceCount}
+                    </div>
                   </div>
 
-                  <div className="hidden md:grid md:grid-cols-[60px_minmax(220px,1fr)_160px] md:gap-3 md:items-center md:px-6 md:py-4">
-                    <div className="text-[#ffbf1f] flex text-2xl font-bold drop-shadow-md">
-                      {positionLabel}
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded border border-yellow-400/50 bg-gradient-to-br from-purple-800/30 to-blue-500/70 flex items-center justify-center text-yellow-500 font-semibold text-xl">
-                        {badgeContent}
+                  <div className="md:hidden px-4 py-2.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-slate-500 text-sm font-medium flex-shrink-0">
+                          {positionLabel}
+                        </span>
+                        <span
+                          className="text-white text-sm font-medium truncate group-hover:text-blue-100 transition-colors"
+                          title={archetype.name}
+                        >
+                          {archetype.name}
+                        </span>
                       </div>
-                      <span
-                        className="text-white text-lg font-semibold truncate"
-                        title={archetype.name}
-                      >
-                        {archetype.name}
+                      <span className="text-blue-200 text-sm font-semibold flex-shrink-0">
+                        {instanceCount}
                       </span>
                     </div>
-                    <div className="text-blue-200 text-lg text-right">
-                      {instanceLabel}
-                    </div>
-                  </div>
-
-                  <div className="md:hidden text-left relative mx-5 grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
-                    <span className="text-blue-300">Archetype</span>
-                    <span
-                      className="text-white text-right"
-                      title={archetype.name}
-                    >
-                      {archetype.name}
-                    </span>
-                    <span className="text-blue-300">Instances</span>
-                    <span className="text-blue-100 text-right">
-                      {instanceLabel}
-                    </span>
                   </div>
                 </div>
               </button>
@@ -218,27 +177,27 @@ export const RegisteredArchetypesList = ({
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-6 mt-2">
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 0}
-            className="p-2 text-blue-400 hover:text-blue-300 disabled:text-blue-400/30 disabled:cursor-not-allowed transition-colors"
+            className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 disabled:text-blue-400/30 disabled:cursor-not-allowed transition-all rounded"
             aria-label="Previous page"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-7 h-7" />
           </button>
 
-          <span className="text-blue-300 text-sm font-medium">
+          <span className="text-blue-300 text-base font-semibold min-w-max">
             Page {currentPage + 1} of {totalPages}
           </span>
 
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages - 1}
-            className="p-2 text-blue-400 hover:text-blue-300 disabled:text-blue-400/30 disabled:cursor-not-allowed transition-colors"
+            className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 disabled:text-blue-400/30 disabled:cursor-not-allowed transition-all rounded"
             aria-label="Next page"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-7 h-7" />
           </button>
         </div>
       )}

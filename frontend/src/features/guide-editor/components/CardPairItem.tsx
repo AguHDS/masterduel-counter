@@ -285,7 +285,7 @@ export const CardPairItem = ({
         )}
       </div>
 
-      <div className="relative bg-gradient-to-br  p-2  border border-blue-500/40 hover:border-blue-500/50">
+      <div className="relative bg-gradient-to-br  p-2  border border-blue-500/40">
         {" "}
         {isEditMode && (
           <button
