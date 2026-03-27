@@ -9,7 +9,8 @@ interface CardPairEditorProps {
   pairs: CardPair[];
   setPairs: React.Dispatch<React.SetStateAction<CardPair[]>>;
   onAddPair?: () => void;
-  validationError?: string | null;
+  onModalStateChange?: (isOpen: boolean) => void;
+  forceCloseModal?: boolean;
 }
 
 type SelectingPosition = { pairId: string; position: "top" | "bottom" } | null;
@@ -20,10 +21,25 @@ export const CardPairEditor = ({
   pairs,
   setPairs,
   onAddPair,
-  validationError = null,
+  onModalStateChange,
+  forceCloseModal = false,
 }: CardPairEditorProps) => {
   const [selectingPosition, setSelectingPosition] =
     useState<SelectingPosition>(null);
+
+  // Close modal when forced from parent
+  useEffect(() => {
+    if (forceCloseModal && selectingPosition) {
+      setSelectingPosition(null);
+    }
+  }, [forceCloseModal]);
+
+  // Notify parent when modal state changes
+  useEffect(() => {
+    if (onModalStateChange) {
+      onModalStateChange(!!selectingPosition);
+    }
+  }, [selectingPosition, onModalStateChange]);
 
   useEffect(() => {
     setPairs(initialPairs);
@@ -159,11 +175,6 @@ export const CardPairEditor = ({
 
   return (
     <div className="flex flex-col w-full">
-      {validationError && (
-        <div className="mb-4 text-red-400 font-semibold text-sm text-center">
-          {validationError}
-        </div>
-      )}
       <div className="flex-1 w-full">
         {pairs.length > 0 ? (
           <div className="flex flex-wrap gap-8 justify-center">
@@ -191,6 +202,8 @@ export const CardPairEditor = ({
               ? "Select Target Card"
               : "Select Counter Card"
           }
+          variant="sidebar"
+          autoCloseAfterSelect={false}
         />
       )}
     </div>

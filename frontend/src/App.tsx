@@ -15,7 +15,7 @@ import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 import NotFound from "./shared/components/NotFound";
 import { SupportPage } from "./pages/SupportPage";
 import { useAnalyticsPageTracking } from "./shared/hooks/useAnalyticsPageTracking";
-import { RegisteredArchetypesPage } from "./pages/RegisteredArchetypesPage";
+import { RegisteredArchetypesPage } from "./features/registered-archetypes/pages/RegisteredArchetypesPage";
 
 /**
  * Component that renders all routes and tracks automatically

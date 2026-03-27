@@ -151,7 +151,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
           "At least one initial hand is required for Deck Guides",
         );
       }
-      // Validate each initial hand has at least one card and max 5
+      // Validate each initial hand has at least one card and max 5 cards per hand
       for (let i = 0; i < initialHands.length; i++) {
         if (!initialHands[i].cardIds || initialHands[i].cardIds.length === 0) {
           throw new Error(`Initial hand ${i + 1} must have at least one card`);

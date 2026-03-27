@@ -6,6 +6,7 @@ import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
 
 export type ModalVariant = "center" | "sidebar";
+export type SidebarVerticalAlign = "center" | "main-deck" | "extra-deck";
 
 interface CardSearchModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface CardSearchModalProps {
   variant?: ModalVariant;
   keepOpenAfterSelect?: boolean;
   autoCloseAfterSelect?: boolean;
+  sidebarVerticalAlign?: SidebarVerticalAlign;
 }
 
 // Constants outside the component to avoid recreations
@@ -31,12 +33,33 @@ export const CardSearchModal = ({
   variant = "center",
   keepOpenAfterSelect = false,
   autoCloseAfterSelect = true,
+  sidebarVerticalAlign = "center",
 }: CardSearchModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [hasSearched, setHasSearched] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  // Auto-focus input when modal opens, with preventScroll for sidebar to avoid page jump
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      // Use preventScroll to avoid the page scrolling when the modal opens
+      inputRef.current.focus({ preventScroll: true });
+    }
+  }, [isOpen]);
+
+  // Track window width for responsive positioning
+  useEffect(() => {
+    const handleWindowResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, []);
 
   // Debounce faster and search from the first letter
   useEffect(() => {
@@ -159,23 +182,58 @@ export const CardSearchModal = ({
 
   const getModalStyles = useCallback(() => {
     if (variant === "sidebar") {
+      // Calculate vertical alignment and sizing for sidebar
+      let containerStyle: React.CSSProperties = {};
+      let modalHeight: string;
+      let maxModalHeight: string;
+      
+      // Adjust positioning based on screen width
+      const isSmallScreen = windowWidth <= 1023;
+      
+      if (sidebarVerticalAlign === "main-deck") {
+        // Position near main deck section
+        // On small screens (<=1023px), position lower to account for different layout
+        containerStyle = { top: isSmallScreen ? '180vh' : '125vh' };
+        modalHeight = "min(85vh, 800px)";
+        maxModalHeight = "calc(100vh - 2rem)";
+      } else if (sidebarVerticalAlign === "extra-deck") {
+        // Position near extra deck section (even lower)
+        containerStyle = { top: isSmallScreen ? '185vh' : '130vh' };
+        modalHeight = "min(85vh, 800px)";
+        maxModalHeight = "calc(100vh - 2rem)";
+      } else {
+        // Center alignment - default for other components
+        containerStyle = {};
+        modalHeight = "min(85vh, 800px)";
+        maxModalHeight = "calc(100vh - 2rem)";
+      }
+      
+      const baseContainerClass = sidebarVerticalAlign === "center" 
+        ? "fixed right-0 top-0 bottom-0 z-[100] flex items-center justify-end pr-2 sm:pr-4"
+        : "fixed right-0 z-[100] flex justify-end pr-2 sm:pr-4";
+      
       return {
-        container:
-          "fixed right-0 top-0 bottom-0 z-[60] flex items-start justify-end pt-16 pr-4",
+        container: baseContainerClass,
+        containerStyle,
         modal:
           "relative bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl border-2 border-blue-500/40 backdrop-blur-md flex flex-col",
-        size: { width: "400px", height: "calc(100vh - 80px)" },
+        size: { 
+          width: "min(400px, calc(100vw - 1rem))", 
+          height: modalHeight,
+          maxHeight: maxModalHeight
+        },
       };
     } else {
       return {
         container:
-          "fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200",
+          "fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200",
+        containerStyle: {},
         modal:
           "relative bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl border-2 border-blue-500/40 w-full max-w-4xl h-[75vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300",
         size: {},
       };
     }
-  }, [variant]);
+  }, [variant, sidebarVerticalAlign, windowWidth]);
 
   // Memorize heavy calculations
   const { columnCount, cardWidth, cardImageHeight, cardHeight } =
@@ -237,12 +295,14 @@ export const CardSearchModal = ({
     cardWidth > 0;
 
   return (
-    <div className={styles.container}>
+    <div 
+      className={styles.container}
+      style={styles.containerStyle}
+    >
       <div
         ref={containerRef}
         className={styles.modal}
         style={styles.size}
-        onClick={(e) => e.stopPropagation()}
       >
         {/* Animated gradient borders */}
         <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
@@ -258,8 +318,14 @@ export const CardSearchModal = ({
             </h3>
           </div>
           <button
-            onClick={handleClose}
-            className="text-slate-400 hover:text-white transition-all duration-300 hover:rotate-90 hover:scale-110"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleClose();
+            }}
+            type="button"
+            className="flex-shrink-0 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg p-2 transition-all duration-300 hover:rotate-90 hover:scale-110"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
@@ -270,12 +336,12 @@ export const CardSearchModal = ({
           <div className="relative flex items-center">
             <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 focus-within:text-cyan-300 transition-colors z-10" />
             <input
+              ref={inputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for a Yu-Gi-Oh! card..."
               className="w-full pl-9 sm:pl-12 pr-8 sm:pr-10 py-2.5 sm:py-3 bg-gradient-to-r from-slate-800/80 via-slate-900/80 to-slate-800/80 border-2 border-blue-500/30 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-500/30 transition-all duration-300 backdrop-blur-sm font-medium text-sm sm:text-base"
-              autoFocus
             />
             <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none"></div>
           </div>

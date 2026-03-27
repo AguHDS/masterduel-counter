@@ -77,7 +77,7 @@ const ArchetypeGuideList = ({
   const canCreateInstance = isAuthenticated;
 
   return (
-    <div className="flex flex-col items-start p-4 w-full mt-8">
+    <div className="flex flex-col items-start w-full">
       <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
         {/* Back button - Always visible */}
         <div className="flex items-center justify-between relative top-3">

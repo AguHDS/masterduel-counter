@@ -18,6 +18,8 @@ interface RecommendedDeckEditorProps {
   initialExtraDeck?: Card[];
   onDeckChange?: (title: string, mainDeck: Card[], extraDeck: Card[]) => void;
   onDelete?: () => Promise<void>;
+  onModalStateChange?: (isOpen: boolean) => void;
+  forceCloseModal?: boolean;
 }
 
 type DeckZone = "main" | "extra" | null;
@@ -29,6 +31,8 @@ export const RecommendedDeckEditor = ({
   initialExtraDeck = [],
   onDeckChange,
   onDelete,
+  onModalStateChange,
+  forceCloseModal = false,
 }: RecommendedDeckEditorProps) => {
   const [title, setTitle] = useState<string>(initialTitle);
   const [mainDeck, setMainDeck] = useState<Card[]>(initialMainDeck);
@@ -36,6 +40,21 @@ export const RecommendedDeckEditor = ({
   const [isSelectingCard, setIsSelectingCard] = useState(false);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Close modal when forced from parent
+  useEffect(() => {
+    if (forceCloseModal && isSelectingCard) {
+      setIsSelectingCard(false);
+      setTargetZone(null);
+    }
+  }, [forceCloseModal]);
+
+  // Notify parent when modal state changes
+  useEffect(() => {
+    if (onModalStateChange) {
+      onModalStateChange(isSelectingCard);
+    }
+  }, [isSelectingCard, onModalStateChange]);
 
   const hasDeck = mainDeck.length > 0 || extraDeck.length > 0;
 
@@ -444,6 +463,7 @@ export const RecommendedDeckEditor = ({
           title={`Add Cards to ${targetZone === "main" ? "Main" : "Extra"} Deck`}
           variant="sidebar"
           autoCloseAfterSelect={false}
+          sidebarVerticalAlign={targetZone === "main" ? "main-deck" : "extra-deck"}
         />
       )}
     </div>

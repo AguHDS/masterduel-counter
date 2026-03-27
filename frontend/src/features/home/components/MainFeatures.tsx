@@ -87,7 +87,7 @@ export const MainFeatures = () => {
         <div className="flex-1 overflow-y-auto scrollbar-homeAllPages pr-1 min-h-0">
           <div className="flex items-center gap-3 mb-4">
             <h3 className="text-2xl font-bold text-white">
-              Masterduel Counter
+              General Features
             </h3>
           </div>
 

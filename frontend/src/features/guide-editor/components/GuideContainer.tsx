@@ -123,6 +123,17 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
   const [pairs, setPairs] = useState<CardPair[]>([]);
   const [initialHands, setInitialHands] = useState<InitialHand[]>([]);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [showRecommendedDeck, setShowRecommendedDeck] = useState(false);
+  const [activeModalComponent, setActiveModalComponent] = useState<'recommended-deck' | 'initial-hands' | 'card-pairs' | null>(null);
+
+  // Handle modal state changes from child components
+  const handleModalStateChange = useCallback((component: 'recommended-deck' | 'initial-hands' | 'card-pairs', isOpen: boolean) => {
+    if (isOpen) {
+      setActiveModalComponent(component);
+    } else {
+      setActiveModalComponent(null);
+    }
+  }, []);
 
   useEffect(() => {
     onEditModeChange?.(editor.isEditMode && isOwner);
@@ -139,6 +150,13 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       setDeckExtraCards([]);
     }
   }, [recommendedDeck.deck, editor.isEditMode, isOwner]);
+
+  // Show recommended deck automatically when not in edit mode if it exists
+  useEffect(() => {
+    if (!editor.isEditMode && recommendedDeck.deck) {
+      setShowRecommendedDeck(true);
+    }
+  }, [editor.isEditMode, recommendedDeck.deck]);
 
   const handleDeckChange = useCallback(
     (
@@ -235,6 +253,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       favorites.setFavorited(false);
       setPairs([]);
       setInitialHands([]);
+      setShowRecommendedDeck(false);
     },
   });
 
@@ -273,7 +292,26 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
       setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
       setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
-      setInitialHands([]);
+      
+      // Reset showRecommendedDeck based on whether deck exists
+      setShowRecommendedDeck(recommendedDeck.deck ? true : false);
+      
+      // Restore initial hands if this is a DECK guide
+      if (
+        guideInstanceData.instance.guideType === "DECK" &&
+        guideInstanceData.initialHands
+      ) {
+        const transformedHands: InitialHand[] =
+          guideInstanceData.initialHands.map(
+            (hand: { id: number; cards: Card[] }) => ({
+              id: hand.id.toString(),
+              cards: hand.cards,
+            }),
+          );
+        setInitialHands(transformedHands);
+      } else {
+        setInitialHands([]);
+      }
     } else {
       navigate(-1);
     }
@@ -288,6 +326,14 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       comment: undefined,
     };
     setPairs([...pairs, newPair]);
+  };
+
+  const addInitialHand = () => {
+    const newHand: InitialHand = {
+      id: `hand-${Date.now()}`,
+      cards: [],
+    };
+    setInitialHands([...initialHands, newHand]);
   };
 
   const validateAndSave = async () => {
@@ -432,13 +478,14 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                 currentUserId={user?.id}
               />
 
+              {/* Invisible separator */}
               <div className="flex justify-center">
-                <div className="w-4/5 h-px my-2 bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+                <div className="w-4/5 h-px my-4"></div>
               </div>
 
               {/* Conditional rendering based on guide type */}
               {guideType === "COUNTER" ? (
-                <>
+                <>  
                   <div className="mt-8">
                     <CardPairEditor
                       isEditMode={editor.isEditMode && isOwner}
@@ -448,7 +495,8 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                       onAddPair={
                         editor.isEditMode && isOwner ? addPair : undefined
                       }
-                      validationError={validationError}
+                      onModalStateChange={(isOpen) => handleModalStateChange('card-pairs', isOpen)}
+                      forceCloseModal={activeModalComponent !== null && activeModalComponent !== 'card-pairs'}
                     />
                   </div>
 
@@ -471,28 +519,60 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                       isEditMode={editor.isEditMode && isOwner}
                       initialHands={initialHands}
                       setInitialHands={setInitialHands}
-                      validationError={validationError}
+                      onAddHand={editor.isEditMode && isOwner ? addInitialHand : undefined}
+                      onModalStateChange={(isOpen) => handleModalStateChange('initial-hands', isOpen)}
+                      forceCloseModal={activeModalComponent !== null && activeModalComponent !== 'initial-hands'}
                     />
                   </div>
+
+                  {editor.isEditMode && isOwner && (
+                    <div className="flex justify-center">
+                      <button
+                        onClick={addInitialHand}
+                        className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Hand</span>
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
 
-              {guideType === "DECK" && recommendedDeck.deck && (
-                <div className="flex justify-center my-8">
-                  <div className="w-4/5 h-px bg-gradient-to-r my-4 from-transparent via-slate-600 to-transparent"></div>
-                </div>
-              )}
-
-              {/* Only show recommended deck for DECK guides */}
+              {/* Show separator and recommended deck section for DECK guides */}
               {guideType === "DECK" && (
-                <RecommendedDeckEditor
-                  isEditMode={editor.isEditMode && isOwner}
-                  initialTitle={displayTitle}
-                  initialMainDeck={displayMainDeck}
-                  initialExtraDeck={displayExtraDeck}
-                  onDeckChange={handleDeckChange}
-                  onDelete={recommendedDeck.deleteRecommendedDeck}
-                />
+                <>
+                  {showRecommendedDeck && recommendedDeck.deck && (
+                    <div className="flex justify-center my-8">
+                      <div className="w-4/5 h-px bg-gradient-to-r my-4 from-transparent via-slate-600 to-transparent"></div>
+                    </div>
+                  )}
+
+                  {editor.isEditMode && isOwner && !showRecommendedDeck && (
+                    <div className="flex justify-center my-8">
+                      <button
+                        onClick={() => setShowRecommendedDeck(true)}
+                        className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Deck</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {showRecommendedDeck && (
+                    <RecommendedDeckEditor
+                      isEditMode={editor.isEditMode && isOwner}
+                      initialTitle={displayTitle}
+                      initialMainDeck={displayMainDeck}
+                      initialExtraDeck={displayExtraDeck}
+                      onDeckChange={handleDeckChange}
+                      onDelete={recommendedDeck.deleteRecommendedDeck}
+                      onModalStateChange={(isOpen) => handleModalStateChange('recommended-deck', isOpen)}
+                      forceCloseModal={activeModalComponent !== null && activeModalComponent !== 'recommended-deck'}
+                    />
+                  )}
+                </>
               )}
 
               {editor.isEditMode && isOwner && (

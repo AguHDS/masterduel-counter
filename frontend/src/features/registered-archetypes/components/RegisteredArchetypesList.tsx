@@ -73,7 +73,7 @@ export const RegisteredArchetypesList = ({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-start p-4 w-full mt-8">
+      <div className="flex flex-col items-start w-full">
         <div className="flex items-center justify-center min-h-[400px] w-full">
           <div className="text-blue-300 text-lg">Loading archetypes...</div>
         </div>
@@ -83,7 +83,7 @@ export const RegisteredArchetypesList = ({
 
   if (error) {
     return (
-      <div className="flex flex-col items-start p-4 w-full mt-8">
+      <div className="flex flex-col items-start w-full">
         <div className="flex items-center justify-center min-h-[400px] w-full">
           <div className="text-red-400 text-lg">
             Failed to load registered archetypes
@@ -95,7 +95,7 @@ export const RegisteredArchetypesList = ({
 
   if (archetypes.length === 0) {
     return (
-      <div className="flex flex-col items-start p-4 w-full mt-8">
+      <div className="flex flex-col items-start w-full">
         <FramedContainer>
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-blue-300 text-lg">
@@ -121,12 +121,12 @@ export const RegisteredArchetypesList = ({
   };
 
   return (
-    <div className="flex flex-col items-start p-4 w-full mt-8">
+    <div className="flex flex-col items-start w-full">
       <FramedContainer
         aria-label="Latest registered archetypes"
         contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4"
       >
-        <div className="flex items-center justify-between relative top-3">
+        <div className="flex items-center justify-between relative top-3 mb-2">
           <button
             onClick={handleBackClick}
             className="flex items-center space-x-2 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
@@ -159,7 +159,7 @@ export const RegisteredArchetypesList = ({
                 setCurrentPage(0);
               }}
               placeholder="Search archetypes"
-              className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-900/80 border border-slate-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors"
+              className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-900/80 border border-slate-700 rounded-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors"
             />
           </div>
         </div>

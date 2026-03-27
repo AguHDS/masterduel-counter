@@ -1,6 +1,6 @@
 import { Shield, Eye, ThumbsUp, Star } from "lucide-react";
 import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const getTimeAgo = (dateString: string): string => {
   const now = new Date();
@@ -23,16 +23,7 @@ const getTimeAgo = (dateString: string): string => {
 };
 
 export const CounterGuides = () => {
-  const navigate = useNavigate();
   const { data: guides, isLoading, error } = useLatestCreatedGuides(10, "COUNTER");
-
-  const handleGuideClick = (archetypeId: number, instanceId: number) => {
-    navigate(`/archetype/${archetypeId}/instance/${instanceId}?type=counter`);
-  };
-
-  const handleViewAll = () => {
-    navigate("/archetypes?type=counter");
-  };
 
   if (isLoading) {
     return (
@@ -87,9 +78,9 @@ export const CounterGuides = () => {
               const timeAgo = getTimeAgo(guide.createdAt);
 
               return (
-                <div
+                <Link
                   key={guide.id}
-                  onClick={() => handleGuideClick(guide.archetypeId, guide.id)}
+                  to={`/archetype/${guide.archetypeId}/instance/${guide.id}?type=counter`}
                   className="flex items-start gap-2 p-2 bg-black border border-[#30303b] hover:border-slate-600 transition-all cursor-pointer min-w-0 relative"
                 >
                   <div className="flex-shrink-0 p-1">
@@ -165,18 +156,18 @@ export const CounterGuides = () => {
                       {timeAgo}
                     </span>
                   </div>
-                </div>
+                </Link>
               );
             })
           )}
         </div>
 
-        <div
-          onClick={handleViewAll}
+        <Link
+          to="/archetypes?type=counter"
           className="relative mt-4 m-auto flex items-center text-[21px] justify-center px-3 py-1.5 text-orange-400 hover:text-orange-300 active:text-orange-600/90 cursor-pointer transition-all duration-150 border border-orange-500/45 hover:border-orange-400/60 active:border-orange-700/50 rounded-lg hover:bg-orange-500/20 active:bg-orange-700/20"
         >
           <span>View All Counter Guides</span>
-        </div>
+        </Link>
       </div>
     </div>
   );
