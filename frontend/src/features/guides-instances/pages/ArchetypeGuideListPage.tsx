@@ -1,17 +1,27 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { ArchetypeInstancesGuideList } from "../components/ArchetypeGuideList";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { MainLogo } from "@/shared/components/MainLogo";
+import { GuideTypeSelectionModal } from "@/shared/components/modals/GuideTypeSelectionModal";
+import type { GuideType } from "@/features/archetypes/types";
 
 /** Page for the list of guides of the selected archetype */
 export const ArchetypeGuideListPage = () => {
   const { archetypeId } = useParams<{ archetypeId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const typeParam = searchParams.get("type");
+  const guideType: GuideType | undefined = 
+    typeParam === "counter" ? "COUNTER" :
+    typeParam === "deck" ? "DECK" :
+    undefined;
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
   const {
@@ -23,17 +33,35 @@ export const ArchetypeGuideListPage = () => {
   const handleSelectInstance = useCallback(
     (instanceId: number) => {
       if (archetypeId) {
-        navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
+        if (typeParam) {
+          navigate(`/archetype/${archetypeId}/instance/${instanceId}?type=${typeParam}`);
+        } else {
+          navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
+        }
+      }
+    },
+    [archetypeId, navigate, typeParam],
+  );
+
+  const handleCreateInstance = useCallback(() => {
+    setIsModalOpen(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
+
+  const handleSelectGuideType = useCallback(
+    (guideType: GuideType) => {
+      if (archetypeId) {
+        navigate(`/archetype/${archetypeId}/instance/new`, {
+          state: { guideType },
+        });
+        setIsModalOpen(false);
       }
     },
     [archetypeId, navigate],
   );
-
-  const handleCreateInstance = useCallback(() => {
-    if (archetypeId) {
-      navigate(`/archetype/${archetypeId}/instance/new`);
-    }
-  }, [archetypeId, navigate]);
 
   if (isLoading) {
     return (
@@ -110,11 +138,20 @@ export const ArchetypeGuideListPage = () => {
               archetypeName={archetype.name}
               onSelectInstance={handleSelectInstance}
               onCreateInstance={handleCreateInstance}
+              guideType={guideType}
             />
           </FeatureErrorBoundary>
         </main>
         <Footer />
       </div>
+
+      {/* Guide Type Selection Modal */}
+      <GuideTypeSelectionModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSelectType={handleSelectGuideType}
+        archetypeName={archetype.name}
+      />
     </>
   );
 };

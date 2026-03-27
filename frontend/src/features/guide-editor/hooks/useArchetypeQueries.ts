@@ -7,6 +7,7 @@ import {
   type CardPairDTO,
 } from "../api/guideEditorApi";
 import type { GuideInstanceWithFullDetails } from "@/lib/http/guideInstancesApi";
+import type { GuideType } from "@/features/archetypes/types";
 
 /**
  * Get user instance guide for an archetype
@@ -35,7 +36,9 @@ export const useSaveGuide = () => {
     Error,
     {
       archetypeId: number;
-      cardPairs: CardPairDTO[];
+      guideType: GuideType;
+      cardPairs?: CardPairDTO[];
+      initialHands?: Array<{ cardIds: number[] }>;
       title: string;
       headerCardId?: number;
       generalTip?: string;
@@ -44,7 +47,9 @@ export const useSaveGuide = () => {
   >({
     mutationFn: ({
       archetypeId,
+      guideType,
       cardPairs,
+      initialHands,
       title,
       headerCardId,
       generalTip,
@@ -52,7 +57,9 @@ export const useSaveGuide = () => {
     }) =>
       saveArchetypeGuide(
         archetypeId,
+        guideType,
         cardPairs,
+        initialHands,
         title,
         headerCardId,
         generalTip,

@@ -4,6 +4,7 @@ import {
   GuideCreateDTO,
   GuideUpdateDTO,
   GuideListItem,
+  GuideType,
 } from "@/domain/Guide.js";
 import {
   GuideRepository,
@@ -21,8 +22,8 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     data: GuideCreateDTO,
   ): Promise<Guide> {
     const stmt = this.db.prepare(`
-      INSERT INTO archetype_instances (archetype_id, user_id, title, header_card_id, general_tip, likes, updated_at)
-      VALUES (?, ?, ?, ?, ?, 0, CURRENT_TIMESTAMP)
+      INSERT INTO archetype_instances (archetype_id, user_id, title, header_card_id, general_tip, guide_type, likes, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, 0, CURRENT_TIMESTAMP)
     `);
 
     const result = stmt.run(
@@ -31,6 +32,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       data.title,
       data.headerCardId,
       data.generalTip || null,
+      data.guideType,
     );
 
     return this.findArchetypeInstanceById(
@@ -54,6 +56,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: string;
       header_card_id: number | null;
       general_tip: string | null;
+      guide_type: string;
       likes: number;
       favorites: number;
       views: number;
@@ -71,6 +74,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
+      guideType: row.guide_type as GuideType,
       likes: row.likes,
       favorites: row.favorites,
       views: row.views,
@@ -82,11 +86,15 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
   async findArchetypeInstanceByArchetypeId(
     archetypeId: number,
     sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
         : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+
+    const guideTypeFilter = guideType ? "AND ai.guide_type = ?" : "";
+    const params = guideType ? [archetypeId, guideType] : [archetypeId];
 
     const stmt = this.db.prepare(`
       SELECT 
@@ -99,7 +107,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       JOIN archetypes a ON ai.archetype_id = a.id
       JOIN users u ON ai.user_id = u.id
       LEFT JOIN cards c ON ai.header_card_id = c.id
-      WHERE ai.archetype_id = ?
+      WHERE ai.archetype_id = ? ${guideTypeFilter}
       ${orderClause}
     `);
 
@@ -110,6 +118,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: string;
       header_card_id: number | null;
       general_tip: string | null;
+      guide_type: string;
       likes: number;
       favorites: number;
       views: number;
@@ -121,7 +130,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       header_card_image_url: string | null;
     }
 
-    const rows = stmt.all(archetypeId) as InstanceRow[];
+    const rows = stmt.all(...params) as InstanceRow[];
 
     return rows.map((row) => ({
       id: row.id,
@@ -130,6 +139,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
+      guideType: row.guide_type as GuideType,
       likes: row.likes,
       favorites: row.favorites,
       views: row.views,
@@ -146,11 +156,15 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
   async findArchetypeInstanceByUserId(
     userId: string,
     sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
         : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+
+    const guideTypeFilter = guideType ? "AND ai.guide_type = ?" : "";
+    const params = guideType ? [userId, guideType] : [userId];
 
     const stmt = this.db.prepare(`
       SELECT 
@@ -163,7 +177,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       JOIN archetypes a ON ai.archetype_id = a.id
       JOIN users u ON ai.user_id = u.id
       LEFT JOIN cards c ON ai.header_card_id = c.id
-      WHERE ai.user_id = ?
+      WHERE ai.user_id = ? ${guideTypeFilter}
       ${orderClause}
     `);
 
@@ -174,6 +188,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: string;
       header_card_id: number | null;
       general_tip: string | null;
+      guide_type: string;
       likes: number;
       favorites: number;
       views: number;
@@ -185,7 +200,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       header_card_image_url: string | null;
     }
 
-    const rows = stmt.all(userId) as InstanceRow[];
+    const rows = stmt.all(...params) as InstanceRow[];
 
     return rows.map((row) => ({
       id: row.id,
@@ -194,6 +209,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
+      guideType: row.guide_type as GuideType,
       likes: row.likes,
       favorites: row.favorites,
       views: row.views,
@@ -211,11 +227,15 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     archetypeId: number,
     title: string,
     sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
         : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+
+    const guideTypeFilter = guideType ? "AND ai.guide_type = ?" : "";
+    const params = guideType ? [archetypeId, `%${title}%`, guideType] : [archetypeId, `%${title}%`];
 
     const stmt = this.db.prepare(`
       SELECT 
@@ -228,7 +248,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       JOIN archetypes a ON ai.archetype_id = a.id
       JOIN users u ON ai.user_id = u.id
       LEFT JOIN cards c ON ai.header_card_id = c.id
-      WHERE ai.archetype_id = ? AND ai.title LIKE ?
+      WHERE ai.archetype_id = ? AND ai.title LIKE ? ${guideTypeFilter}
       ${orderClause}
     `);
 
@@ -239,6 +259,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: string;
       header_card_id: number | null;
       general_tip: string | null;
+      guide_type: string;
       likes: number;
       favorites: number;
       views: number;
@@ -250,7 +271,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       header_card_image_url: string | null;
     }
 
-    const rows = stmt.all(archetypeId, `%${title}%`) as InstanceRow[];
+    const rows = stmt.all(...params) as InstanceRow[];
 
     return rows.map((row) => ({
       id: row.id,
@@ -259,6 +280,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
+      guideType: row.guide_type as GuideType,
       likes: row.likes,
       favorites: row.favorites,
       views: row.views,
@@ -276,11 +298,15 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     userId: string,
     title: string,
     sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
         : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+
+    const guideTypeFilter = guideType ? "AND ai.guide_type = ?" : "";
+    const params = guideType ? [userId, `%${title}%`, guideType] : [userId, `%${title}%`];
 
     const stmt = this.db.prepare(`
       SELECT 
@@ -293,7 +319,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       JOIN archetypes a ON ai.archetype_id = a.id
       JOIN users u ON ai.user_id = u.id
       LEFT JOIN cards c ON ai.header_card_id = c.id
-      WHERE ai.user_id = ? AND ai.title LIKE ?
+      WHERE ai.user_id = ? AND ai.title LIKE ? ${guideTypeFilter}
       ${orderClause}
     `);
 
@@ -304,6 +330,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: string;
       header_card_id: number | null;
       general_tip: string | null;
+      guide_type: string;
       likes: number;
       favorites: number;
       views: number;
@@ -315,7 +342,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       header_card_image_url: string | null;
     }
 
-    const rows = stmt.all(userId, `%${title}%`) as InstanceRow[];
+    const rows = stmt.all(...params) as InstanceRow[];
 
     return rows.map((row) => ({
       id: row.id,
@@ -324,6 +351,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
+      guideType: row.guide_type as GuideType,
       likes: row.likes,
       favorites: row.favorites,
       views: row.views,
@@ -354,6 +382,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: string;
       header_card_id: number | null;
       general_tip: string | null;
+      guide_type: string;
       likes: number;
       favorites: number;
       views: number;
@@ -371,6 +400,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
+      guideType: row.guide_type as GuideType,
       likes: row.likes,
       favorites: row.favorites,
       views: row.views,
@@ -605,6 +635,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: string;
       header_card_id: number | null;
       general_tip: string | null;
+      guide_type: string;
       likes: number;
       favorites: number;
       views: number;
@@ -625,6 +656,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
+      guideType: row.guide_type as GuideType,
       likes: row.likes,
       favorites: row.favorites,
       views: row.views,
@@ -660,7 +692,11 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
 
   async findLatestCreatedInstances(
     limit: number,
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> {
+    const guideTypeFilter = guideType ? "WHERE ai.guide_type = ?" : "";
+    const params = guideType ? [guideType, limit] : [limit];
+
     const stmt = this.db.prepare(`
       SELECT 
         ai.*,
@@ -674,6 +710,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       JOIN users u ON ai.user_id = u.id
       LEFT JOIN profiles p ON u.id = p.user_id
       LEFT JOIN cards c ON ai.header_card_id = c.id
+      ${guideTypeFilter}
       ORDER BY ai.created_at DESC
       LIMIT ?
     `);
@@ -685,6 +722,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: string;
       header_card_id: number | null;
       general_tip: string | null;
+      guide_type: string;
       likes: number;
       favorites: number;
       views: number;
@@ -697,7 +735,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       header_card_image_url: string | null;
     }
 
-    const rows = stmt.all(limit) as InstanceRow[];
+    const rows = stmt.all(...params) as InstanceRow[];
 
     return rows.map((row) => ({
       id: row.id,
@@ -706,6 +744,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       title: row.title,
       headerCardId: row.header_card_id,
       generalTip: row.general_tip,
+      guideType: row.guide_type as GuideType,
       likes: row.likes,
       favorites: row.favorites,
       views: row.views,

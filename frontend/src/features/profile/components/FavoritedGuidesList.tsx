@@ -2,26 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { GuideSearch } from "@/shared/components/GuideSearch";
-
-interface FavoritedGuide {
-  id: number;
-  userId: string;
-  userName: string;
-  archetypeId: number;
-  archetypeName: string;
-  title: string;
-  headerCardId: number | null;
-  headerCardName?: string | null;
-  headerCardImageUrl?: string | null;
-  headerCardImageUrlSmall?: string | null;
-  headerCardImageUrlCropped?: string | null;
-  likes: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 
 interface FavoritedGuidesListProps {
-  guides: FavoritedGuide[];
+  guides: GuideListItem[];
   onRemoveFavorite?: (guideId: number, archetypeId: number) => void;
   userRole?: string;
   showFavoriteButton?: boolean;
@@ -75,8 +59,9 @@ export const FavoritedGuidesList = ({
     }
   };
 
-  const handleGuideClick = (archetypeId: number, guideId: number) => {
-    navigate(`/archetype/${archetypeId}/instance/${guideId}`);
+  const handleGuideClick = (archetypeId: number, guideId: number, guideType: "COUNTER" | "DECK") => {
+    const typeParam = guideType === "COUNTER" ? "counter" : "deck";
+    navigate(`/archetype/${archetypeId}/instance/${guideId}?type=${typeParam}`);
   };
 
   const handlePreviousPage = () => {
@@ -143,7 +128,7 @@ export const FavoritedGuidesList = ({
               <div
                 key={guide.id}
                 className="relative group"
-                onClick={() => handleGuideClick(guide.archetypeId, guide.id)}
+                onClick={() => handleGuideClick(guide.archetypeId, guide.id, guide.guideType)}
               >
                 {/* Glow border effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />

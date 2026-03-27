@@ -30,12 +30,12 @@ export interface ArchetypeRepository {
   /** Find Archetype by name */
   findArchetypeByName(name: string): Promise<Archetype | null>;
   /** Find all registered archetypes */
-  findAllRegisteredArchetypes(sortBy?: "recent" | "instances"): Promise<Archetype[]>;
+  findAllRegisteredArchetypes(sortBy?: "recent" | "instances", guideType?: 'COUNTER' | 'DECK'): Promise<Archetype[]>;
   /** Update existing archetype. */
   updateExistingArchetype(
     id: number,
     archetypeData: ArchetypeUpdateDTO,
   ): Promise<Archetype | null>;
   /** Get general statistics */
-  getGuidesGeneralStats(limit?: number): Promise<GeneralStats>;
+  getGuidesGeneralStats(limit?: number, guideType?: 'COUNTER' | 'DECK'): Promise<GeneralStats>;
 }

@@ -10,7 +10,7 @@ interface GuideSearchProps {
 export const GuideSearch = ({
   searchQuery,
   onSearchChange,
-  placeholder = "Search guides...",
+  placeholder = "Search guides",
 }: GuideSearchProps) => {
   const [isFocused, setIsFocused] = useState(false);
 

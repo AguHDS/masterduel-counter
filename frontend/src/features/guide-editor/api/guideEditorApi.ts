@@ -1,5 +1,5 @@
 import { axiosClient } from "@/lib/http";
-import { type Archetype } from "@/features/archetypes/types";
+import { type Archetype, type GuideType } from "@/features/archetypes/types";
 import axios from "axios";
 import { getBackendUrl } from "@/lib/config/urlHelpers";
 import type { GuideInstanceWithFullDetails } from "@/lib/http/guideInstancesApi";
@@ -53,15 +53,17 @@ export interface SaveArchetypeGuideResponse {
  */
 export const saveArchetypeGuide = async (
   archetypeId: number,
-  cardPairs: CardPairDTO[],
-  title: string,
+  guideType: GuideType,
+  cardPairs?: CardPairDTO[],
+  initialHands?: Array<{ cardIds: number[] }>,
+  title?: string,
   headerCardId?: number,
   generalTip?: string,
   instanceId?: number,
 ): Promise<SaveArchetypeGuideResponse> => {
   const response = await axiosClient.post<SaveArchetypeGuideResponse>(
     `/api/archetypes/${archetypeId}/register`,
-    { cardPairs, title, headerCardId, generalTip, instanceId },
+    { guideType, cardPairs, initialHands, title, headerCardId, generalTip, instanceId },
   );
 
   return response.data;

@@ -100,7 +100,7 @@ const UserInstancesListComponent = ({
             <GuideSearch
               searchQuery={searchQuery}
               onSearchChange={handleSearchChange}
-              placeholder="Search guides..."
+              placeholder="Search guides"
             />
           </div>
         </div>

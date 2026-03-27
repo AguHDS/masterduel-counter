@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getBackendUrl } from "@/lib/config/urlHelpers";
+import type { GuideType, InitialHand } from "@/features/archetypes/types";
 
 const API_BASE_URL = getBackendUrl();
 
@@ -10,6 +11,7 @@ export interface GuideListItem {
   title: string;
   headerCardId: number | null;
   generalTip?: string | null;
+  guideType: GuideType;
   likes: number;
   favorites: number;
   views: number;
@@ -30,6 +32,7 @@ export interface GuideInstanceWithFullDetails {
     title: string;
     headerCardId: number | null;
     generalTip?: string | null;
+    guideType: GuideType;
     likes: number;
     favorites: number;
     views: number;
@@ -64,6 +67,17 @@ export interface GuideInstanceWithFullDetails {
     }>;
     effectiveness?: string;
     comment?: string;
+  }>;
+  initialHands?: Array<{
+    id: number;
+    cards: Array<{
+      id: number;
+      name: string;
+      imageUrl: string;
+      imageUrlSmall: string;
+      imageUrlCropped: string;
+    }>;
+    position: number;
   }>;
 }
 
@@ -102,13 +116,31 @@ export const guideInstancesApi = {
   /**
    * Get the latest created guides across all archetypes
    * @param limit - Number of instances to fetch (default: 5, max: 50)
+   * @param guideType - Optional filter by guide type
    */
   getLatestCreatedGuides: async (
     limit: number = 5,
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> => {
+    const params: { limit: number; type?: string } = { limit };
+    if (guideType) {
+      params.type = guideType.toLowerCase();
+    }
     const response = await axios.get<GuideListItem[]>(
       `${API_BASE_URL}/api/guides/latest`,
-      { params: { limit } },
+      { params },
+    );
+    return response.data;
+  },
+
+  /**
+   * Get initial hands for a deck guide instance
+   */
+  getInitialHands: async (
+    instanceId: number,
+  ): Promise<InitialHand[]> => {
+    const response = await axios.get<InitialHand[]>(
+      `${API_BASE_URL}/api/instances/${instanceId}/initial-hands`,
     );
     return response.data;
   },

@@ -34,7 +34,7 @@ export class ArchetypeApplicationService implements ArchetypeApplicationPort {
   }
 
   /** Get Guides general stats */
-  async getGuidesGeneralStats(limit: number = 15): Promise<import("@/domain/ports/ArchetypeRepository.js").GeneralStats> {
-    return this.repository.getGuidesGeneralStats(limit);
+  async getGuidesGeneralStats(limit: number = 15, guideType?: 'COUNTER' | 'DECK'): Promise<import("@/domain/ports/ArchetypeRepository.js").GeneralStats> {
+    return this.repository.getGuidesGeneralStats(limit, guideType);
   }
 }

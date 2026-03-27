@@ -4,6 +4,7 @@ import {
   GuideUpdateDTO,
   GuideListItem,
   RegisterGuideDTO,
+  GuideType,
 } from "@/domain/Guide.js";
 import { GuideInstanceServicePort } from "../ports/GuideApplicationPort.js";
 import { GuideRepository } from "@/domain/ports/GuideRepository.js";
@@ -12,6 +13,7 @@ import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
 import { NotificationApplicationPort } from "@/application/ports/NotificationApplicationPort.js";
 import { ViewCountCache } from "@/infrastructure/adapters/ViewCountCache.js";
 import { UserRepository } from "@/domain/ports/UserRepository.js";
+import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
 
 const MAX_FAVORITES_USER = 20;
 
@@ -24,6 +26,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     private archetypeRepository: ArchetypeRepository,
     private notificationService: NotificationApplicationPort,
     private userRepository: UserRepository,
+    private initialHandRepository: InitialHandRepository,
   ) {
     // Initialize view count cache with flush callback
     this.viewCountCache = new ViewCountCache((instanceId, count) =>
@@ -47,16 +50,18 @@ export class GuideApplicationService implements GuideInstanceServicePort {
   async getGuidesByArchetypeId(
     archetypeId: number,
     sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> {
-    return this.instanceRepository.findArchetypeInstanceByArchetypeId(archetypeId, sortBy);
+    return this.instanceRepository.findArchetypeInstanceByArchetypeId(archetypeId, sortBy, guideType);
   }
 
   /** Get all archetype guides created by a user (for user profile) */
   async getGuideListByUserId(
     userId: string,
     sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> {
-    return this.instanceRepository.findArchetypeInstanceByUserId(userId, sortBy);
+    return this.instanceRepository.findArchetypeInstanceByUserId(userId, sortBy, guideType);
   }
 
   /** Search guide items by archetype ID and title */
@@ -64,8 +69,9 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     archetypeId: number,
     title: string,
     sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> {
-    return this.instanceRepository.searchGuideItemList(archetypeId, title, sortBy);
+    return this.instanceRepository.searchGuideItemList(archetypeId, title, sortBy, guideType);
   }
 
   /** Search guide items created by a user (for user profile) */
@@ -73,8 +79,9 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     userId: string,
     title: string,
     sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> {
-    return this.instanceRepository.searchGuideItemListProfile(userId, title, sortBy);
+    return this.instanceRepository.searchGuideItemListProfile(userId, title, sortBy, guideType);
   }
 
   /** Updates a guide */
@@ -105,7 +112,9 @@ export class GuideApplicationService implements GuideInstanceServicePort {
       title,
       headerCardId,
       generalTip,
+      guideType,
       cardPairs,
+      initialHands,
       instanceId,
     } = data;
 
@@ -122,11 +131,35 @@ export class GuideApplicationService implements GuideInstanceServicePort {
       throw new Error("Description can't exceed 3000 characters");
     }
 
-    // Validate card pairs
-    if (!cardPairs || cardPairs.length === 0) {
-      throw new Error(
-        "At least one card pair is required to register an archetype",
-      );
+    // Validate guide type
+    if (!guideType) {
+      throw new Error("Guide type is required");
+    }
+
+    // Validate based on guide type
+    if (guideType === "COUNTER") {
+      // COUNTER guides require card pairs
+      if (!cardPairs || cardPairs.length === 0) {
+        throw new Error(
+          "At least one card pair is required for Counter Guides",
+        );
+      }
+    } else if (guideType === "DECK") {
+      // DECK guides require initial hands
+      if (!initialHands || initialHands.length === 0) {
+        throw new Error(
+          "At least one initial hand is required for Deck Guides",
+        );
+      }
+      // Validate each initial hand has at least one card and max 5
+      for (let i = 0; i < initialHands.length; i++) {
+        if (!initialHands[i].cardIds || initialHands[i].cardIds.length === 0) {
+          throw new Error(`Initial hand ${i + 1} must have at least one card`);
+        }
+        if (initialHands[i].cardIds.length > 5) {
+          throw new Error(`Initial hand ${i + 1} cannot have more than 5 cards`);
+        }
+      }
     }
 
     // Validate header card
@@ -151,22 +184,28 @@ export class GuideApplicationService implements GuideInstanceServicePort {
         title,
         headerCardId,
         generalTip: generalTip || null,
+        guideType,
       });
     }
 
-    // Delete existing pairs and create new ones
-    await this.cardPairRepository.deleteCardPairsByGuideId(instance.id);
+    // Delete existing pairs/initial hands and create new ones based on guide type
+    if (guideType === "COUNTER" && cardPairs) {
+      await this.cardPairRepository.deleteCardPairsByGuideId(instance.id);
 
-    const pairsToCreate = cardPairs.map((pair, index) => ({
-      instance_id: instance.id,
-      top_card_ids: pair.topCardIds,
-      bottom_card_ids: pair.bottomCardIds,
-      pair_order: index + 1,
-      effectiveness: pair.effectiveness || null,
-      comment: pair.comment || null,
-    }));
+      const pairsToCreate = cardPairs.map((pair, index) => ({
+        instance_id: instance.id,
+        top_card_ids: pair.topCardIds,
+        bottom_card_ids: pair.bottomCardIds,
+        pair_order: index + 1,
+        effectiveness: pair.effectiveness || null,
+        comment: pair.comment || null,
+      }));
 
-    await this.cardPairRepository.CreateManyPairCards(pairsToCreate);
+      await this.cardPairRepository.CreateManyPairCards(pairsToCreate);
+    } else if (guideType === "DECK" && initialHands) {
+      await this.initialHandRepository.deleteInitialHandsByInstanceId(instance.id);
+      await this.initialHandRepository.createManyInitialHands(instance.id, initialHands);
+    }
 
     // Mark archetype as registered if it is not already
     const archetype = await this.archetypeRepository.findArchetypeById(archetypeId);
@@ -320,8 +359,9 @@ export class GuideApplicationService implements GuideInstanceServicePort {
   /** Get the latest created guides (for guide list) */
   async getLastedCreatedGuides(
     limit: number,
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> {
-    return this.instanceRepository.findLatestCreatedInstances(limit);
+    return this.instanceRepository.findLatestCreatedInstances(limit, guideType);
   }
 
   /**

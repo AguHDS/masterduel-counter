@@ -5,8 +5,6 @@ import { useState, useCallback, useMemo } from "react";
 import { Navbar } from "../layouts/Navbar";
 import { Footer } from "../layouts/Footer";
 
-import { RegisteredArchetypesList } from "../features/registered-archetypes";
-import { FeatureErrorBoundary } from "../shared/components";
 import { MainLogo } from "../shared/components/MainLogo";
 import { HomeAllComponents } from "../features/home";
 
@@ -34,10 +32,16 @@ export const HomePage = () => {
   }, []);
 
   const handleSelectArchetype = useCallback(
-    (archetype: Archetype) => {
+    (archetype: Archetype, guideType?: 'COUNTER' | 'DECK') => {
       setIsDropdownOpen(false);
       setSearchQuery("");
-      navigate(`/archetype/${archetype.id}`);
+      
+      // Navigate to archetype guides filtered by type
+      if (guideType) {
+        navigate(`/archetype/${archetype.id}?type=${guideType.toLowerCase()}`);
+      } else {
+        navigate(`/archetype/${archetype.id}`);
+      }
     },
     [navigate],
   );
@@ -51,13 +55,6 @@ export const HomePage = () => {
   const handleRequestClose = useCallback(() => {
     setIsDropdownOpen(false);
   }, []);
-
-  const handleSelectRegisteredArchetype = useCallback(
-    (archetypeId: number) => {
-      navigate(`/archetype/${archetypeId}`);
-    },
-    [navigate],
-  );
 
   // Memoize the condition for showing dropdown to avoid unnecessary re-renders
   const shouldShowDropdown = useMemo(() => {
@@ -137,28 +134,6 @@ export const HomePage = () => {
           >
             <HomeAllComponents isSearchActive={shouldShowDropdown} />
           </div>
-
-          {/* 
-            Este componente RegisteredArchetypesList, esta destinado a mostrar todas las guias creadas de Counters Guides o Deck Guides.
-            Al buscar y clickear un resultado tipo Counter o Deck en la MainSearch, va a mostrar RegisteredArchetypesList con las guias 
-            de Counter Guides o Deck Guides dependiendo de que se haya seleccionado.
-
-            Ahora mismo, solo existe un unico tipo de guia en mi app (revisar App.tsx).
-            Hay que agregar logica para identificar si las guias conseguidas son de tipo counter guides o deck guide.
-          */}
-
-          <main
-            className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-3"
-            style={{ maxWidth: "87.5rem" }}
-            role="main"
-            aria-label="Main content"
-          >
-            <FeatureErrorBoundary featureName="Archetypes List">
-              <RegisteredArchetypesList
-                onSelectArchetype={handleSelectRegisteredArchetype}
-              />
-            </FeatureErrorBoundary>
-          </main>
         </div>
         <Footer />
       </div>

@@ -53,6 +53,10 @@ import { CustomDeckRepository } from "@/domain/ports/CustomDeckRepository.js";
 import { CustomDeckApplicationPort } from "@/application/ports/CustomDeckApplicationPort.js";
 import { PrismaCustomDeckRepository } from "@/infrastructure/repositories/PrismaCustomDeckRepository.js";
 import { CustomDeckApplicationService } from "@/application/services/CustomDeckApplicationService.js";
+import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
+import { InitialHandApplicationPort } from "@/application/ports/InitialHandApplicationPort.js";
+import { SqliteInitialHandRepository } from "@/infrastructure/repositories/SqliteInitialHandRepository.js";
+import { InitialHandApplicationService } from "@/application/services/InitialHandApplicationService.js";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -84,6 +88,8 @@ export class Dependencies {
   private notificationService: NotificationApplicationPort | null = null;
   private customDeckRepository: CustomDeckRepository | null = null;
   private customDeckService: CustomDeckApplicationPort | null = null;
+  private initialHandRepository: InitialHandRepository | null = null;
+  private initialHandService: InitialHandApplicationPort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -195,6 +201,7 @@ export class Dependencies {
         this.getArchetypeRepository(),
         this.getNotificationService(),
         this.getUserRepository(),
+        this.getInitialHandRepository(),
       );
     }
     return this.instanceService;
@@ -322,6 +329,24 @@ export class Dependencies {
       );
     }
     return this.customDeckService;
+  }
+
+  getInitialHandRepository(): InitialHandRepository {
+    if (!this.initialHandRepository) {
+      this.initialHandRepository = new SqliteInitialHandRepository(
+        this.database.getConnection(),
+      );
+    }
+    return this.initialHandRepository;
+  }
+
+  getInitialHandService(): InitialHandApplicationPort {
+    if (!this.initialHandService) {
+      this.initialHandService = new InitialHandApplicationService(
+        this.getInitialHandRepository(),
+      );
+    }
+    return this.initialHandService;
   }
 
   getDatabase(): DatabasePort {

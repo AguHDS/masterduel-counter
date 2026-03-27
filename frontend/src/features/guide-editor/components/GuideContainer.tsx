@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   CreditCard as Edit3,
@@ -10,6 +10,8 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { CardPairEditor } from "./CardPairEditor";
+import { InitialHandsEditor } from "./InitialHandsEditor";
+import type { InitialHand } from "./InitialHandsEditor";
 import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
 import { InstanceHeader } from "./InstanceHeader";
 import { RecommendedDeckEditor } from "./RecommendedDeckEditor";
@@ -25,7 +27,7 @@ import { ReportModal } from "@/features/report/components/ReportModal";
 import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
 import { useRegisterView } from "@/shared/hooks/useRegisterView";
-import type { CardPair } from "@/features/archetypes/types";
+import type { CardPair, Card, GuideType } from "@/features/archetypes/types";
 
 interface GuideContainerProps {
   onEditModeChange?: (isEditMode: boolean) => void;
@@ -37,6 +39,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
     instanceId: string;
   }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, user } = useAuth();
 
   const editor = useInstanceGuideEditor();
@@ -48,6 +51,11 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
   const isCreatingNew = instanceId === "new";
   const instanceIdNum =
     !isCreatingNew && instanceId ? parseInt(instanceId) : undefined;
+
+  // Get guide type from location state (when creating) or default to COUNTER
+  const [guideType, setGuideType] = useState<GuideType>(
+    (location.state as { guideType?: GuideType })?.guideType || "COUNTER",
+  );
 
   const { data: archetypeWithHeaderData } =
     useArchetypeWithHeader(archetypeIdNum);
@@ -113,6 +121,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
   >(memoizedExtraDeck);
 
   const [pairs, setPairs] = useState<CardPair[]>([]);
+  const [initialHands, setInitialHands] = useState<InitialHand[]>([]);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
@@ -153,6 +162,11 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       const sanitizedTitle = data.title.replace(/\s+/g, " ").trim();
       const generalTip = data.generalTip || "";
 
+      // Set guide type from loaded data
+      if (guideInstanceData?.instance.guideType) {
+        setGuideType(guideInstanceData.instance.guideType as GuideType);
+      }
+
       editor.setLoadedPairs(data.pairs);
       editor.setTitle(sanitizedTitle);
       editor.setGeneralTip(generalTip);
@@ -169,6 +183,23 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
         comment: pair.comment,
       }));
       setPairs(transformedPairs);
+
+      // Load initial hands if this is a DECK guide
+      if (
+        guideInstanceData?.instance.guideType === "DECK" &&
+        guideInstanceData.initialHands
+      ) {
+        const transformedHands: InitialHand[] =
+          guideInstanceData.initialHands.map(
+            (hand: { id: number; cards: Card[] }) => ({
+              id: hand.id.toString(),
+              cards: hand.cards,
+            }),
+          );
+        setInitialHands(transformedHands);
+      } else {
+        setInitialHands([]);
+      }
 
       if (isAuthenticated && !isOwner) {
         likes.loadLikeStatus();
@@ -192,6 +223,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       likes.setLikeCount(0);
       favorites.setFavorited(false);
       setPairs([]);
+      setInitialHands([]);
     },
     onReset: () => {
       editor.setLoadedPairs([]);
@@ -202,6 +234,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       likes.setLikeCount(0);
       favorites.setFavorited(false);
       setPairs([]);
+      setInitialHands([]);
     },
   });
 
@@ -240,6 +273,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
       setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
       setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
+      setInitialHands([]);
     } else {
       navigate(-1);
     }
@@ -266,6 +300,8 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
 
       await saveInstance({
         pairs,
+        initialHands,
+        guideType,
         title: editor.title,
         generalTip: editor.generalTip,
         headerCard: editor.headerCard,
@@ -317,7 +353,8 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
 
   const handleBackClick = () => {
     if (archetypeId) {
-      navigate(`/archetype/${archetypeId}`);
+      const typeParam = guideType.toLowerCase();
+      navigate(`/archetype/${archetypeId}?type=${typeParam}`);
     } else {
       navigate(-1);
     }
@@ -399,43 +436,67 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                 <div className="w-4/5 h-px my-2 bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
               </div>
 
-              <div className="mt-8">
-                <CardPairEditor
-                  isEditMode={editor.isEditMode && isOwner}
-                  initialPairs={editor.loadedPairs}
-                  pairs={pairs}
-                  setPairs={setPairs}
-                  onAddPair={editor.isEditMode && isOwner ? addPair : undefined}
-                />
-              </div>
+              {/* Conditional rendering based on guide type */}
+              {guideType === "COUNTER" ? (
+                <>
+                  <div className="mt-8">
+                    <CardPairEditor
+                      isEditMode={editor.isEditMode && isOwner}
+                      initialPairs={editor.loadedPairs}
+                      pairs={pairs}
+                      setPairs={setPairs}
+                      onAddPair={
+                        editor.isEditMode && isOwner ? addPair : undefined
+                      }
+                      validationError={validationError}
+                    />
+                  </div>
 
-              {editor.isEditMode && isOwner && (
-                <div className="flex justify-center">
-                  <button
-                    onClick={addPair}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Card Pair</span>
-                  </button>
+                  {editor.isEditMode && isOwner && (
+                    <div className="flex justify-center">
+                      <button
+                        onClick={addPair}
+                        className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Card Pair</span>
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="mt-8">
+                    <InitialHandsEditor
+                      isEditMode={editor.isEditMode && isOwner}
+                      initialHands={initialHands}
+                      setInitialHands={setInitialHands}
+                      validationError={validationError}
+                    />
+                  </div>
+                </>
+              )}
+
+              {guideType === "DECK" && recommendedDeck.deck && (
+                <div className="flex justify-center my-8">
+                  <div className="w-4/5 h-px bg-gradient-to-r my-4 from-transparent via-slate-600 to-transparent"></div>
                 </div>
               )}
 
-              <div className="flex justify-center my-8">
-                <div className="w-4/5 h-px bg-gradient-to-r my-4 from-transparent via-slate-600 to-transparent"></div>
-              </div>
-
-              <RecommendedDeckEditor
-                isEditMode={editor.isEditMode && isOwner}
-                initialTitle={displayTitle}
-                initialMainDeck={displayMainDeck}
-                initialExtraDeck={displayExtraDeck}
-                onDeckChange={handleDeckChange}
-                onDelete={recommendedDeck.deleteRecommendedDeck}
-              />
+              {/* Only show recommended deck for DECK guides */}
+              {guideType === "DECK" && (
+                <RecommendedDeckEditor
+                  isEditMode={editor.isEditMode && isOwner}
+                  initialTitle={displayTitle}
+                  initialMainDeck={displayMainDeck}
+                  initialExtraDeck={displayExtraDeck}
+                  onDeckChange={handleDeckChange}
+                  onDelete={recommendedDeck.deleteRecommendedDeck}
+                />
+              )}
 
               {editor.isEditMode && isOwner && (
-                <div className="flex flex-col items-center gap-4 mt-12 pt-8 border-t border-slate-700">
+                <div className="flex flex-col items-center gap-4">
                   <div className="flex justify-center gap-4">
                     <button
                       onClick={validateAndSave}

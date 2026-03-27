@@ -1,4 +1,5 @@
 import type { CardPair } from "@/features/archetypes/types";
+import type { GuideType } from "@/features/archetypes/types";
 
 interface HeaderCard {
   id: number;
@@ -15,23 +16,27 @@ export const validateInstanceData = (
   pairs: CardPair[],
   headerCard: HeaderCard | null,
   title: string,
+  guideType?: GuideType,
 ): ValidationResult => {
-  // Validate at least one pair
-  if (pairs.length === 0) {
-    return {
-      isValid: false,
-      errorMessage: "Please add at least one card pair before saving.",
-    };
-  }
-
-  // Each pair must have at least one card in top or bottom
-  for (const pair of pairs) {
-    if (pair.topCards.length === 0 && pair.bottomCards.length === 0) {
+  // Only validate pairs for COUNTER guides
+  if (guideType === "COUNTER") {
+    // Validate at least one pair
+    if (pairs.length === 0) {
       return {
         isValid: false,
-        errorMessage:
-          "Each card pair must have at least one card in Top or Bottom.",
+        errorMessage: "Please add at least one card pair before saving.",
       };
+    }
+
+    // Each pair must have at least one card in top or bottom
+    for (const pair of pairs) {
+      if (pair.topCards.length === 0 && pair.bottomCards.length === 0) {
+        return {
+          isValid: false,
+          errorMessage:
+            "Each card pair must have at least one card in Top or Bottom.",
+        };
+      }
     }
   }
 

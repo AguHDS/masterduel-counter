@@ -76,20 +76,31 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async findAllRegisteredArchetypes(sortBy: "recent" | "instances" = "recent"): Promise<Archetype[]> {
+  async findAllRegisteredArchetypes(sortBy: "recent" | "instances" = "recent", guideType?: 'COUNTER' | 'DECK'): Promise<Archetype[]> {
     let orderByClause: string;
+    let whereClause = "WHERE a.registered = 1";
+    
+    // Add guide type filter if provided
+    if (guideType) {
+      whereClause += ` AND EXISTS (
+        SELECT 1 FROM archetype_instances ai 
+        WHERE ai.archetype_id = a.id AND ai.guide_type = '${guideType}'
+      )`;
+    }
     
     if (sortBy === "instances") {
+      const guideTypeFilter = guideType ? `AND ai.guide_type = '${guideType}'` : '';
       orderByClause = `ORDER BY (
         SELECT COUNT(*)
         FROM archetype_instances ai
-        WHERE ai.archetype_id = a.id
+        WHERE ai.archetype_id = a.id ${guideTypeFilter}
       ) DESC`;
     } else {
+      const guideTypeFilter = guideType ? `AND ai.guide_type = '${guideType}'` : '';
       orderByClause = `ORDER BY (
         SELECT MAX(ai.created_at)
         FROM archetype_instances ai
-        WHERE ai.archetype_id = a.id
+        WHERE ai.archetype_id = a.id ${guideTypeFilter}
       ) DESC`;
     }
 
@@ -101,7 +112,7 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
         a.created_at, 
         a.updated_at
       FROM archetypes a
-      WHERE a.registered = 1
+      ${whereClause}
       ${orderByClause}
     `);
 
@@ -145,26 +156,47 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
-  async getGuidesGeneralStats(limit: number = 15): Promise<GeneralStats> {
-    // Get total registered archetypes
-    const totalArchetypesStmt = this.db.prepare(`
-      SELECT COUNT(*) as count
-      FROM archetypes
-      WHERE registered = 1
-    `);
-    const totalArchetypesResult = totalArchetypesStmt.get() as { count: number };
+  async getGuidesGeneralStats(limit: number = 15, guideType?: 'COUNTER' | 'DECK'): Promise<GeneralStats> {
+    // Get total registered archetypes (with guides of the specified type if provided)
+    let totalArchetypesQuery = `
+      SELECT COUNT(DISTINCT a.id) as count
+      FROM archetypes a
+      WHERE a.registered = 1
+    `;
+    
+    if (guideType) {
+      totalArchetypesQuery = `
+        SELECT COUNT(DISTINCT a.id) as count
+        FROM archetypes a
+        INNER JOIN archetype_instances ai ON a.id = ai.archetype_id
+        WHERE a.registered = 1 AND ai.guide_type = ?
+      `;
+    }
+
+    const totalArchetypesStmt = this.db.prepare(totalArchetypesQuery);
+    const totalArchetypesResult = (guideType 
+      ? totalArchetypesStmt.get(guideType) 
+      : totalArchetypesStmt.get()) as { count: number };
     const totalArchetypes = totalArchetypesResult.count;
 
-    // Get total guides (archetype instances)
-    const totalGuidesStmt = this.db.prepare(`
+    // Get total guides (archetype instances) filtered by type if provided
+    let totalGuidesQuery = `
       SELECT COUNT(*) as count
       FROM archetype_instances
-    `);
-    const totalGuidesResult = totalGuidesStmt.get() as { count: number };
+    `;
+    
+    if (guideType) {
+      totalGuidesQuery += ` WHERE guide_type = ?`;
+    }
+
+    const totalGuidesStmt = this.db.prepare(totalGuidesQuery);
+    const totalGuidesResult = (guideType 
+      ? totalGuidesStmt.get(guideType) 
+      : totalGuidesStmt.get()) as { count: number };
     const totalGuides = totalGuidesResult.count;
 
-    // Get top archetypes by guide count
-    const topArchetypesStmt = this.db.prepare(`
+    // Get top archetypes by guide count (filtered by type if provided)
+    let topArchetypesQuery = `
       SELECT 
         a.id,
         a.name,
@@ -172,11 +204,22 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       FROM archetypes a
       INNER JOIN archetype_instances ai ON a.id = ai.archetype_id
       WHERE a.registered = 1
+    `;
+    
+    if (guideType) {
+      topArchetypesQuery += ` AND ai.guide_type = ?`;
+    }
+    
+    topArchetypesQuery += `
       GROUP BY a.id, a.name
       ORDER BY guideCount DESC
       LIMIT ?
-    `);
-    const topArchetypes = topArchetypesStmt.all(limit) as Array<{
+    `;
+
+    const topArchetypesStmt = this.db.prepare(topArchetypesQuery);
+    const topArchetypes = (guideType 
+      ? topArchetypesStmt.all(guideType, limit) 
+      : topArchetypesStmt.all(limit)) as Array<{
       id: number;
       name: string;
       guideCount: number;

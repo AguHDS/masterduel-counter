@@ -20,7 +20,13 @@ export const createCreateOrUpdateInstanceController =
         return;
       }
 
-      const { title, headerCardId, generalTip } = req.body;
+      const { title, headerCardId, generalTip, guideType } = req.body;
+
+      // Validate guideType
+      if (guideType && guideType !== "COUNTER" && guideType !== "DECK") {
+        res.status(400).json({ error: "Invalid guide type. Must be COUNTER or DECK" });
+        return;
+      }
 
       const instance = await instanceService.createOrUpdateGuide({
         archetypeId,
@@ -28,6 +34,7 @@ export const createCreateOrUpdateInstanceController =
         title: title || "Title",
         headerCardId: headerCardId || null,
         generalTip: generalTip || null,
+        guideType: guideType || "COUNTER", // Default to COUNTER for backwards compatibility
       });
 
       res.status(200).json(instance);

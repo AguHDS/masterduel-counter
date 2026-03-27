@@ -4,6 +4,7 @@ import { GuideCardPairRepository } from "@/domain/ports/GuideCardPairRepository.
 import { CardRepository } from "@/domain/ports/CardRepository.js";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
 import { UserRepository } from "@/domain/ports/UserRepository.js";
+import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
 import { createGetGuideByIdController } from "@/http/controllers/guides/getGuideByIdController.js";
 
 /** Get a guide created by a user by ID to view. */
@@ -13,6 +14,7 @@ export const createGetGuideByIdRoute = (dependencies: {
   getCardRepository: () => CardRepository;
   getArchetypeRepository: () => ArchetypeRepository;
   getUserRepository: () => UserRepository;
+  getInitialHandRepository: () => InitialHandRepository;
 }) => {
   const router = Router();
 
@@ -22,6 +24,7 @@ export const createGetGuideByIdRoute = (dependencies: {
     dependencies.getCardRepository(),
     dependencies.getArchetypeRepository(),
     dependencies.getUserRepository(),
+    dependencies.getInitialHandRepository(),
   );
 
   router.get("/instances/:instanceId", controller);

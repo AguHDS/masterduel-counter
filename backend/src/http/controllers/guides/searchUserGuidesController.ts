@@ -10,6 +10,7 @@ export const createSearchUserGuidesController =
       const userId = req.params.userId;
       const title = req.query.title as string | undefined;
       const sortBy = req.query.sortBy as "likes" | "updated" | undefined;
+      const type = req.query.type as string | undefined;
 
       const userIdString = validateStringParam(userId);
 
@@ -30,10 +31,19 @@ export const createSearchUserGuidesController =
         return;
       }
 
+      // Validate type parameter if provided
+      if (type && type !== 'counter' && type !== 'deck') {
+        res.status(400).json({ error: "Invalid type parameter. Must be 'counter' or 'deck'" });
+        return;
+      }
+
+      const guideType = type ? (type === 'counter' ? 'COUNTER' : 'DECK') : undefined;
+
       const instances = await instanceService.searchGuideItemListProfile(
         userIdString,
         title,
         sortBy || "updated",
+        guideType,
       );
 
       res.status(200).json(instances);

@@ -5,6 +5,8 @@ export interface Archetype {
   instance_count?: number;
 }
 
+export type GuideType = "COUNTER" | "DECK";
+
 export interface SearchResponse {
   data: {
     archetypes: Archetype[];
@@ -39,4 +41,9 @@ export interface CardPair {
   }>;
   effectiveness?: string;
   comment?: string;
+}
+
+export interface InitialHand {
+  id: string;
+  cards: Card[];
 }

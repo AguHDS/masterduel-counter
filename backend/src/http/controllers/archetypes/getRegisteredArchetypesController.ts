@@ -9,16 +9,32 @@ export const getRegisteredArchetypesController = async (
   try {
     const sortBy = req.query.sortBy as string | undefined;
     const validSortBy = sortBy === "instances" ? "instances" : "recent";
+    
+    const type = req.query.type as string | undefined;
+    
+    // Validate type parameter if provided
+    if (type && type !== 'counter' && type !== 'deck') {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid type parameter. Must be 'counter' or 'deck'",
+      });
+    }
+    
+    const guideType = type ? (type === 'counter' ? 'COUNTER' : 'DECK') : undefined;
 
     const dependencies = getDependencies();
     const archetypeRepository = dependencies.getArchetypeRepository();
-    const archetypes = await archetypeRepository.findAllRegisteredArchetypes(validSortBy);
+    const archetypes = await archetypeRepository.findAllRegisteredArchetypes(validSortBy, guideType);
 
     // Get instance count for each archetype
     const instanceRepository = dependencies.getInstanceRepository();
     const archetypesWithCreator = await Promise.all(
       archetypes.map(async (archetype) => {
-        const instances = await instanceRepository.findArchetypeInstanceByArchetypeId(archetype.id);
+        const instances = await instanceRepository.findArchetypeInstanceByArchetypeId(
+          archetype.id,
+          'updated',
+          guideType,
+        );
         
         return {
           ...archetype,

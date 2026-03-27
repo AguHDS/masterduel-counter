@@ -1,6 +1,7 @@
 import axios from "axios";
 import { getBackendUrl } from "@/lib/config/urlHelpers";
 import type { GuideListItem } from "@/lib/http/guideInstancesApi";
+import type { GuideType } from "@/features/archetypes/types";
 
 const API_BASE_URL = getBackendUrl();
 
@@ -9,10 +10,16 @@ export const guideInstancesApi = {
   getGuidesByArchetypeId: async (
     archetypeId: number,
     sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> => {
+    const params: { sortBy: string; type?: string } = { sortBy };
+    if (guideType) {
+      params.type = guideType.toLowerCase();
+    }
+    
     const response = await axios.get(
       `${API_BASE_URL}/api/archetypes/${archetypeId}/instances`,
-      { params: { sortBy } },
+      { params },
     );
     return response.data;
   },
@@ -22,10 +29,16 @@ export const guideInstancesApi = {
     archetypeId: number,
     title: string,
     sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
   ): Promise<GuideListItem[]> => {
+    const params: { title: string; sortBy: string; type?: string } = { title, sortBy };
+    if (guideType) {
+      params.type = guideType.toLowerCase();
+    }
+    
     const response = await axios.get(
       `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/search`,
-      { params: { title, sortBy } },
+      { params },
     );
     return response.data;
   },

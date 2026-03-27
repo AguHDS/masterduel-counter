@@ -9,21 +9,20 @@ import { FramedContainer } from "@/layouts/FramedContainer";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import { useNavigate, Link } from "react-router-dom";
+import type { GuideType } from "@/features/archetypes/types";
 
 interface ArchetypeInstancesListProps {
   archetypeId: number;
   archetypeName: string;
   onSelectInstance: (instanceId: number) => void;
   onCreateInstance: () => void;
+  guideType?: GuideType;
 }
 
 const ITEMS_PER_PAGE = 10;
 
 /** Main container for the list of guides of the selected archetype, with back button, search, etc...
- * TODO: This component must show all created instances (guides) of the selected archetype. The idea is that it will display
- * counter guides or deck guides depending on what button has been selected (counter or decks) when the user uses the search.
- * (see CounterGuides.tsx, DeckGuides.tsx and HomeAllComponents.tsx for better understanding).
- * Right now, we don't have a way to differenciate between Counter Guides and Deck Guides.
+ * Supports filtering by guide type (COUNTER or DECK) via the guideType prop
  */
 
 const ArchetypeGuideList = ({
@@ -31,6 +30,7 @@ const ArchetypeGuideList = ({
   archetypeName,
   onSelectInstance,
   onCreateInstance,
+  guideType,
 }: ArchetypeInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [sortBy, setSortBy] = useState<"likes" | "updated">("updated");
@@ -45,17 +45,18 @@ const ArchetypeGuideList = ({
         archetypeId,
         debouncedSearchQuery,
         sortBy,
+        guideType,
       );
     }
-    return guideInstancesApi.getGuidesByArchetypeId(archetypeId, sortBy);
-  }, [archetypeId, debouncedSearchQuery, sortBy]);
+    return guideInstancesApi.getGuidesByArchetypeId(archetypeId, sortBy, guideType);
+  }, [archetypeId, debouncedSearchQuery, sortBy, guideType]);
 
   const {
     data = [],
     isLoading,
     error,
   } = useQuery<GuideListItem[]>({
-    queryKey: ["archetypeInstances", archetypeId, sortBy, debouncedSearchQuery],
+    queryKey: ["archetypeInstances", archetypeId, sortBy, debouncedSearchQuery, guideType],
     queryFn,
     enabled: Number.isFinite(archetypeId),
     staleTime: 5000, // 5 seconds - balance between freshness and performance
@@ -63,144 +64,22 @@ const ArchetypeGuideList = ({
   });
 
   const handleBackClick = () => {
-    navigate("/");
+    if (guideType === "COUNTER") {
+      navigate("/archetypes?type=counter");
+    } else if (guideType === "DECK") {
+      navigate("/archetypes?type=deck");
+    } else {
+      navigate("/");
+    }
   };
 
   const hasInstances = data.length > 0;
   const canCreateInstance = isAuthenticated;
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-start p-4 w-full">
-        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
-          {/* Back button */}
-          <div className="flex">
-            <button
-              onClick={handleBackClick}
-              className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
-              aria-label="Go back to home"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back</span>
-            </button>
-          </div>
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-blue-300 text-lg">Loading instances...</div>
-          </div>
-        </FramedContainer>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-start p-4 w-full">
-        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
-          {/* Back button */}
-          <div className="flex">
-            <button
-              onClick={handleBackClick}
-              className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
-              aria-label="Go back to home"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back</span>
-            </button>
-          </div>
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-red-400 text-lg">Failed to load instances</div>
-          </div>
-        </FramedContainer>
-      </div>
-    );
-  }
-
-  if (!hasInstances) {
-    return (
-      <div className="flex flex-col items-start p-4 w-full mt-7">
-        <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
-          {/* Back button */}
-          <div className="flex">
-            <button
-              onClick={handleBackClick}
-              className="flex items-center space-x-2 py-1 relative top-3 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
-              aria-label="Go back to home"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back</span>
-            </button>
-          </div>
-
-          <div className="flex items-center w-full justify-between gap-4">
-            <h1 className="text-2xl relative top-[7px] font-bold text-white">
-              {archetypeName}
-            </h1>
-
-            <div className="flex items-center gap-3 relative top-[7px]">
-              <div className="w-56">
-                <GuideSearch
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  placeholder="Search guides..."
-                />
-              </div>
-
-              {canCreateInstance && (
-                <button
-                  onClick={onCreateInstance}
-                  className="flex px-2 py-1 items-center bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow text-sm whitespace-nowrap"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Create</span>
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div
-            className="w-full h-[2px]"
-            style={{
-              background:
-                "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
-            }}
-          />
-
-          <div className="flex flex-col items-center justify-center min-h-[300px] gap-1">
-            <div className="text-blue-300 text-lg text-center">
-              {debouncedSearchQuery.trim()
-                ? `No guides found matching "${debouncedSearchQuery}"`
-                : `No guides created yet for ${archetypeName}`}
-            </div>
-            {canCreateInstance && !debouncedSearchQuery.trim() && (
-              <button
-                onClick={onCreateInstance}
-                className="flex items-center space-x-1 px-2 py-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors shadow-lg"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Be the first to create a guide!</span>
-              </button>
-            )}
-            {!canCreateInstance && !debouncedSearchQuery.trim() && (
-              <div className="text-blue-300 text-lg text-center">
-                <Link
-                  to="/signin"
-                  className="text-blue-400 hover:text-blue-300 underline"
-                >
-                  Sign in
-                </Link>
-                <span> and be the first to create a guide!</span>
-              </div>
-            )}
-          </div>
-        </FramedContainer>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col items-start p-4 w-full mt-8">
       <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
-        {/* Back button */}
+        {/* Back button - Always visible */}
         <div className="flex items-center justify-between relative top-3">
           <button
             onClick={handleBackClick}
@@ -229,19 +108,19 @@ const ArchetypeGuideList = ({
           <div className="flex mt-2 items-center gap-2 flex-1">
             <h1 className="text-2xl font-bold font-sans flex items-center">
               <span className="text-white max-[767px]:ml-2 mr-2">
-                How to counter
-              </span>
-
-              <span className="relative top-[1px] bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 {archetypeName}
               </span>
             </h1>
-            <span className="text-base relative top-[4px] font-semibold text-white">
-              -
-            </span>
-            <span className="text-base relative top-[4px] font-semibold text-blue-400">
-              Guides ({data.length})
-            </span>
+            {!isLoading && !error && (
+              <>
+                <span className="text-base relative top-[4px] font-semibold text-white">
+                  -
+                </span>
+                <span className="text-base relative top-[4px] font-semibold text-blue-400">
+                  Guides ({data.length})
+                </span>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-3 relative top-[7px]">
@@ -249,7 +128,7 @@ const ArchetypeGuideList = ({
               <GuideSearch
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
-                placeholder="Search guides..."
+                placeholder="Search guides"
               />
             </div>
 
@@ -265,16 +144,69 @@ const ArchetypeGuideList = ({
           </div>
         </div>
 
-        <GuidesTable
-          instances={data}
-          currentPage={currentPage}
-          itemsPerPage={ITEMS_PER_PAGE}
-          onSelectInstance={onSelectInstance}
-          onPageChange={setCurrentPage}
-          showArchetypeName={false}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
+        <div
+          className="w-full h-[2px]"
+          style={{
+            background:
+              "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
+          }}
         />
+
+        {isLoading && (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-blue-300 text-lg">Loading guides...</div>
+          </div>
+        )}
+
+        {error && !isLoading && (
+          <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+            <div className="text-red-400 text-lg">Failed to load guides</div>
+            <div className="text-gray-400 text-sm">Please try again later</div>
+          </div>
+        )}
+
+        {!isLoading && !error && !hasInstances && (
+          <div className="flex flex-col items-center justify-center min-h-[300px] gap-1">
+            <div className="text-blue-300 text-lg text-center">
+              {debouncedSearchQuery.trim()
+                ? `No guides found matching "${debouncedSearchQuery}"`
+                : "No guides created yet"}
+            </div>
+            {canCreateInstance && !debouncedSearchQuery.trim() && (
+              <button
+                onClick={onCreateInstance}
+                className="flex items-center space-x-1 px-2 py-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors shadow-lg"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Be the first to create a guide!</span>
+              </button>
+            )}
+            {!canCreateInstance && !debouncedSearchQuery.trim() && (
+              <div className="text-blue-300 text-lg text-center">
+                <Link
+                  to="/signin"
+                  className="text-blue-400 hover:text-blue-300 underline"
+                >
+                  Sign in
+                </Link>
+                <span> and be the first to create a guide!</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!isLoading && !error && hasInstances && (
+          <GuidesTable
+            instances={data}
+            currentPage={currentPage}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onSelectInstance={onSelectInstance}
+            onPageChange={setCurrentPage}
+            showArchetypeName={false}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+          />
+        )}
       </FramedContainer>
     </div>
   );

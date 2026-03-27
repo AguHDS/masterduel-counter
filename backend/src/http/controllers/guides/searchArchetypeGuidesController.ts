@@ -10,6 +10,7 @@ export const createSearchArchetypeGuidesController =
       const archetypeId = typeof id === 'string' ? parseInt(id) : NaN;
       const title = req.query.title as string | undefined;
       const sortBy = req.query.sortBy as 'likes' | 'updated' | undefined;
+      const type = req.query.type as string | undefined;
 
       if (isNaN(archetypeId)) {
         res.status(400).json({ error: "Invalid archetype ID" });
@@ -26,10 +27,19 @@ export const createSearchArchetypeGuidesController =
         return;
       }
 
+      // Validate type parameter if provided
+      if (type && type !== 'counter' && type !== 'deck') {
+        res.status(400).json({ error: "Invalid type parameter. Must be 'counter' or 'deck'" });
+        return;
+      }
+
+      const guideType = type ? (type === 'counter' ? 'COUNTER' : 'DECK') : undefined;
+
       const instances = await instanceService.searchGuideItemList(
         archetypeId,
         title,
-        sortBy || 'updated'
+        sortBy || 'updated',
+        guideType,
       );
 
       res.status(200).json(instances);

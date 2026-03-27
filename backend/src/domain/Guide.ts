@@ -1,3 +1,5 @@
+export type GuideType = "COUNTER" | "DECK";
+
 export interface Guide {
   id: number;
   archetypeId: number;
@@ -5,6 +7,7 @@ export interface Guide {
   title: string;
   headerCardId: number | null;
   generalTip?: string | null;
+  guideType: GuideType;
   likes: number;
   favorites: number;
   views: number;
@@ -18,6 +21,7 @@ export interface GuideCreateDTO {
   title: string;
   headerCardId: number | null;
   generalTip?: string | null;
+  guideType: GuideType;
 }
 
 export interface GuideUpdateDTO {
@@ -32,11 +36,15 @@ export interface RegisterGuideDTO {
   title: string;
   headerCardId: number;
   generalTip?: string | null;
-  cardPairs: Array<{
+  guideType: GuideType;
+  cardPairs?: Array<{
     topCardIds: number[];
     bottomCardIds: number[];
     effectiveness?: string;
     comment?: string;
+  }>;
+  initialHands?: Array<{
+    cardIds: number[];
   }>;
   instanceId?: number;
 }

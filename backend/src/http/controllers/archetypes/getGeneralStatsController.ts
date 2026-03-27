@@ -16,7 +16,18 @@ export const createGetGeneralStatsController = (
         });
       }
 
-      const stats = await archetypeService.getGuidesGeneralStats(limit);
+      const type = req.query.type as string | undefined;
+      
+      // Validate type parameter if provided
+      if (type && type !== 'counter' && type !== 'deck') {
+        return res.status(400).json({
+          error: "Invalid type parameter. Must be 'counter' or 'deck'.",
+        });
+      }
+
+      const guideType = type ? (type === 'counter' ? 'COUNTER' : 'DECK') : undefined;
+
+      const stats = await archetypeService.getGuidesGeneralStats(limit, guideType);
 
       return res.status(200).json({
         success: true,

@@ -4,30 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 /** Displays quantity of Counter Guides and Deck Guides */
 export const GeneralStats = () => {
-  const { data, isLoading, error } = useGeneralStats(15);
+  const { data: counterData, isLoading: counterLoading, error: counterError } = useGeneralStats(15, 'COUNTER');
+  const { data: deckData, isLoading: deckLoading, error: deckError } = useGeneralStats(15, 'DECK');
   const navigate = useNavigate();
 
-  // MOCK ONLY FOR DECK GUIDES
-  const mockDeckStats = {
-    totalDeckGuides: 142,
-    topDecks: [
-      { id: 1, name: "Branded", guideCount: 32 },
-      { id: 2, name: "Rescue-Ace", guideCount: 28 },
-      { id: 3, name: "Labrynth", guideCount: 21 },
-      { id: 4, name: "Snake-Eyes", guideCount: 19 },
-      { id: 5, name: "Kashtira", guideCount: 17 },
-      { id: 6, name: "Purrely", guideCount: 14 },
-      { id: 7, name: "Spright", guideCount: 12 },
-      { id: 8, name: "Mathmech", guideCount: 11 },
-      { id: 9, name: "Dragon Link", guideCount: 9 },
-      { id: 10, name: "Runick", guideCount: 8 },
-      { id: 11, name: "Floowandereeze", guideCount: 7 },
-      { id: 12, name: "Swordsoul", guideCount: 6 },
-      { id: 13, name: "Tearlaments", guideCount: 5 },
-      { id: 14, name: "Tri-Brigade", guideCount: 4 },
-      { id: 15, name: "Salamangreat", guideCount: 3 },
-    ],
-  };
+  const isLoading = counterLoading || deckLoading;
+  const error = counterError || deckError;
 
   if (isLoading) {
     return (
@@ -42,7 +24,7 @@ export const GeneralStats = () => {
     );
   }
 
-  if (error || !data) {
+  if (error || !counterData || !deckData) {
     return (
       <div className="relative flex flex-col h-full rounded-2xl overflow-hidden border border-purple-500/30">
         <div className="absolute inset-0 bg-cover bg-center opacity-30" />
@@ -84,13 +66,13 @@ export const GeneralStats = () => {
                   Total Counter Guides
                 </p>
                 <p className="text-2xl font-bold text-white">
-                  {data.totalGuides}
+                  {counterData.totalGuides}
                 </p>
               </div>
             </div>
 
             <div className="flex-1 min-h-0 overflow-y-auto scrollbar-homeAllPages pr-2 space-y-2">
-              {data.topArchetypes.map((archetype, index) => (
+              {counterData.topArchetypes.map((archetype, index) => (
                 <div
                   key={archetype.id}
                   onClick={() => handleArchetypeClick(archetype.id)}
@@ -132,16 +114,17 @@ export const GeneralStats = () => {
                   Total Deck Guides
                 </p>
                 <p className="text-2xl font-bold text-white">
-                  {mockDeckStats.totalDeckGuides}
+                  {deckData.totalGuides}
                 </p>
               </div>
             </div>
 
             <div className="flex-1 min-h-0 overflow-y-auto scrollbar-homeAllPages pr-2 space-y-2">
-              {mockDeckStats.topDecks.map((deck, index) => (
+              {deckData.topArchetypes.map((deck, index) => (
                 <div
                   key={deck.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-blue-500/20 hover:border-purple-400/40 hover:bg-black/50 transition-all"
+                  onClick={() => handleArchetypeClick(deck.id)}
+                  className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-blue-500/20 hover:border-purple-400/40 hover:bg-black/50 transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <span

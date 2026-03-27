@@ -10,6 +10,7 @@ import guideLikes from "./guides/guideLikes.js";
 import guideFavorites from "./guides/guideFavorites.js";
 import guideViews from "./guides/guideViews.js";
 import recommendedDeck from "./guides/recommendedDeck.js";
+import initialHands from "./guides/initialHands.js";
 import getCardDetails from "./cards/getCardDetails.js";
 import admin from "./admin.js";
 import report from "./report.js";
@@ -38,6 +39,7 @@ export {
   guideFavorites,
   guideViews,
   recommendedDeck,
+  initialHands,
   getCardDetails,
   admin,
   report,

@@ -1,6 +1,7 @@
 import { type Archetype } from "@/features/archetypes/types/archetypes.types";
 import { Search, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { useState, useCallback, memo, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface SearchResultsProps {
   isVisible: boolean;
@@ -8,7 +9,7 @@ interface SearchResultsProps {
   totalResults?: number;
   loading: boolean;
   error: string | null;
-  onSelectArchetype: (archetype: Archetype) => void;
+  onSelectArchetype: (archetype: Archetype, guideType?: 'COUNTER' | 'DECK') => void;
 }
 
 type TabType = "all" | "counters" | "decks";
@@ -24,6 +25,7 @@ export const MainSearchResults = memo(
   }: SearchResultsProps) => {
     const [activeTab, setActiveTab] = useState<TabType>("all");
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
 
     // Prevent body scroll when dropdown is open and user is scrolling within results
     useEffect(() => {
@@ -62,14 +64,23 @@ export const MainSearchResults = memo(
       }, 0);
     }, []);
 
+    const handleViewAllCounterGuides = useCallback(() => {
+      navigate("/archetypes?type=counter");
+    }, [navigate]);
+
+    const handleViewAllDeckGuides = useCallback(() => {
+      navigate("/archetypes?type=deck");
+    }, [navigate]);
+
     const renderGuideItem = useCallback(
       (archetype: Archetype, index: number, type: "counter" | "deck") => {
         const delay = index * 40;
+        const guideType = type === "counter" ? "COUNTER" : "DECK";
 
         return (
           <button
             key={`${type}-${archetype.id}`}
-            onClick={() => onSelectArchetype(archetype)}
+            onClick={() => onSelectArchetype(archetype, guideType)}
             className="
               w-full px-3 py-1.5 text-left
               transition-all duration-150
@@ -239,7 +250,10 @@ export const MainSearchResults = memo(
                               renderGuideItem(archetype, index, "counter"),
                             )}
                           </div>
-                          <button className="w-full mt-2 px-3 py-1.5 text-[14px] text-amber-400/90 hover:text-amber-300 active:text-amber-600 transition-all">
+                          <button 
+                            onClick={handleViewAllCounterGuides}
+                            className="w-full mt-2 px-3 py-1.5 text-[14px] text-amber-400/90 hover:text-amber-300 active:text-amber-600 transition-all"
+                          >
                             View All Counter Guides
                           </button>
                         </>
@@ -260,7 +274,10 @@ export const MainSearchResults = memo(
                             renderGuideItem(archetype, index, "deck"),
                           )}
                         </div>
-                        <button className="w-full mt-2 px-3 py-1.5 text-[14px] text-amber-400/90 hover:text-amber-300 active:text-amber-600 transition-all">
+                        <button 
+                          onClick={handleViewAllDeckGuides}
+                          className="w-full mt-2 px-3 py-1.5 text-[14px] text-amber-400/90 hover:text-amber-300 active:text-amber-600 transition-all"
+                        >
                           View All Deck Guides
                         </button>
                       </>

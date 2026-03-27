@@ -4,11 +4,12 @@ import { GuideCardPairRepository } from "@/domain/ports/GuideCardPairRepository.
 import { CardRepository } from "@/domain/ports/CardRepository.js";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
 import { UserRepository } from "@/domain/ports/UserRepository.js";
+import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
 import { getDependencies } from "@/compositionRoot.js";
 
 /**
  * Get full guide created by an user by ID to view.
- * Includes archetype name, username, user profile picture, header card details, and card pairs with details.
+ * Includes archetype name, username, user profile picture, header card details, card pairs, and initial hands with details.
  */
 export const createGetGuideByIdController = (
   instanceRepository: GuideRepository,
@@ -16,6 +17,7 @@ export const createGetGuideByIdController = (
   cardRepository: CardRepository,
   archetypeRepository: ArchetypeRepository,
   userRepository: UserRepository,
+  initialHandRepository: InitialHandRepository,
 ) => {
   return async (req: Request, res: Response) => {
     try {
@@ -45,10 +47,18 @@ export const createGetGuideByIdController = (
         });
       }
 
-      // Get card pairs with details
+      // Get card pairs with details (for COUNTER guides)
       const cardPairs = await cardPairRepository.findCardPairsByGuideId(
         instance.id,
       );
+
+      // Get initial hands with details (for DECK guides)
+      let initialHands = null;
+      if (instance.guideType === "DECK") {
+        initialHands = await initialHandRepository.findInitialHandsByInstanceId(
+          instance.id,
+        );
+      }
 
       // Get the header card if exists
       let headerCard = null;
@@ -86,6 +96,7 @@ export const createGetGuideByIdController = (
           title: instance.title,
           headerCardId: instance.headerCardId,
           generalTip: instance.generalTip,
+          guideType: instance.guideType,
           likes: instance.likes,
           favorites: instance.favorites,
           views: instance.views,
@@ -115,6 +126,17 @@ export const createGetGuideByIdController = (
           effectiveness: pair.effectiveness,
           comment: pair.comment,
         })),
+        initialHands: initialHands ? initialHands.map((hand) => ({
+          id: hand.id,
+          cards: hand.cards.map((card) => ({
+            id: card.id,
+            name: card.name,
+            imageUrl: card.imageUrl,
+            imageUrlSmall: card.imageUrlSmall,
+            imageUrlCropped: card.imageUrlCropped,
+          })),
+          position: hand.position,
+        })) : undefined,
       });
     } catch (error) {
       console.error("Error fetching instance by ID:", error);

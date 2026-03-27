@@ -1,9 +1,9 @@
 import { GuideCardPairRepository } from "@/domain/ports/GuideCardPairRepository.js";
 import {
-  GuideCardPair,
+  CardPair,
   GuideCardPairCreateDTO,
   GuideCardPairWithDetails,
-} from "@/domain/GuideCardPair.js";
+} from "@/domain/CardPair.js";
 import Database from "better-sqlite3";
 
 export class SqliteArchetypeCardPairRepository implements GuideCardPairRepository {
@@ -15,7 +15,7 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
 
   async CreateManyPairCards(
     pairs: GuideCardPairCreateDTO[],
-  ): Promise<GuideCardPair[]> {
+  ): Promise<CardPair[]> {
     const pairStmt = this.db.prepare(`
       INSERT INTO archetype_card_pairs (instance_id, pair_order, effectiveness, comment)
       VALUES (?, ?, ?, ?)
@@ -32,7 +32,7 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
       VALUES (?, ?, ?)
     `);
 
-    const results: GuideCardPair[] = [];
+    const results: CardPair[] = [];
 
     for (const pair of pairs) {
       // Create the pair
@@ -41,7 +41,7 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
         pair.pair_order,
         pair.effectiveness || null,
         pair.comment || null,
-      ) as Omit<GuideCardPair, "top_card_ids" | "bottom_card_ids">;
+      ) as Omit<CardPair, "top_card_ids" | "bottom_card_ids">;
 
       pair.top_card_ids.forEach((cardId, index) => {
         topStmt.run(result.id, cardId, index);

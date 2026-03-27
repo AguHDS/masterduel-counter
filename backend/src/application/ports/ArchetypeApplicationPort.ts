@@ -14,7 +14,8 @@ export interface ArchetypeApplicationPort {
   /**
    * Gets general statistics about archetypes and guides
    * @param limit - Maximum number of top archetypes to return (default: 15)
+   * @param guideType - Type of guides to consider for statistics
    * @returns General statistics including total archetypes, guides, and top archetypes
    */
-  getGuidesGeneralStats(limit?: number): Promise<GeneralStats>;
+  getGuidesGeneralStats(limit?: number, guideType?: 'COUNTER' | 'DECK'): Promise<GeneralStats>;
 }

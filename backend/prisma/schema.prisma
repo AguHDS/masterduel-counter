@@ -123,6 +123,7 @@ model ArchetypeInstance {
   title            String    @default("Title")
   headerCardId     Int?      @map("header_card_id")
   generalTip       String?   @map("general_tip")
+  guideType        String    @default("COUNTER") @map("guide_type")
   likes            Int       @default(0)
   favorites        Int       @default(0)
   views            Int       @default(0)
@@ -133,6 +134,7 @@ model ArchetypeInstance {
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   headerCard       Card?     @relation("InstanceHeaderCard", fields: [headerCardId], references: [id], onDelete: SetNull)
   cardPairs        ArchetypeCardPair[]
+  initialHands     InitialHand[]
   reports          Report[]
   likeRecords      InstanceLike[]
   favoriteRecords  InstanceFavorite[]
@@ -142,6 +144,7 @@ model ArchetypeInstance {
 
   @@index([userId])
   @@index([archetypeId])
+  @@index([guideType])
   @@map("archetype_instances")
 }
 
@@ -232,6 +235,19 @@ model CardPairBottom {
 
   @@index([pairId])
   @@map("card_pair_bottom")
+}
+
+model InitialHand {
+  id          Int       @id @default(autoincrement())
+  instanceId  Int       @map("instance_id")
+  cardIds     String    @map("card_ids") // JSON array of card IDs (max 5)
+  position    Int       @default(0) // Order of the initial hand
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  instance    ArchetypeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([instanceId])
+  @@map("initial_hands")
 }
 
 model InstanceLike {

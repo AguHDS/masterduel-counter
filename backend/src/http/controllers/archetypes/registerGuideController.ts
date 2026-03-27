@@ -14,7 +14,7 @@ export const registerGuideController = async (
       return;
     }
     const archetypeId = parseInt(id);
-    const { cardPairs, title, headerCardId, generalTip, instanceId } = req.body;
+    const { guideType, cardPairs, initialHands, title, headerCardId, generalTip, instanceId } = req.body;
     const userId = (req as AuthenticatedRequest).user?.id;
 
     if (!userId) {
@@ -33,10 +33,12 @@ export const registerGuideController = async (
     const instance = await instanceService.registerGuide({
       archetypeId,
       userId,
+      guideType,
       title: sanitizedTitle,
       headerCardId,
       generalTip: processedGeneralTip,
-      cardPairs,
+      cardPairs: guideType === "COUNTER" ? cardPairs : undefined,
+      initialHands: guideType === "DECK" ? initialHands : undefined,
       instanceId,
     });
 

@@ -1,58 +1,6 @@
 import { BookOpen, Eye, ThumbsUp, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-const mockDeckGuides = [
-  {
-    id: 1,
-    title: "Branded Guide - Complete Combo Guide and Deck Building Tips for the Branded Archetype",
-    author: "Jared Wong",
-    archetype: "Branded",
-    date: "2024-04-24T10:00:00Z",
-    views: 15420,
-    likes: 1243,
-    favorites: 876,
-  },
-  {
-    id: 2,
-    title: "Rescue-Ace Deck Guide",
-    author: "Jared Wong",
-    archetype: "Rescue-Ace",
-    date: "2024-04-24T10:00:00Z",
-    views: 8920,
-    likes: 756,
-    favorites: 543,
-  },
-  {
-    id: 3,
-    title: "Labrynth Deck Guide - Comprehensive Guide to Labrynth",
-    author: "Jared Wong",
-    archetype: "Labrynth",
-    date: "2024-04-24T10:00:00Z",
-    views: 12340,
-    likes: 987,
-    favorites: 654,
-  },
-    {
-    id: 4,
-    title: "Labrynth Deck Guide - Comprehensive Guide to Labrynth",
-    author: "Jared Wong",
-    archetype: "Labrynth",
-    date: "2024-04-24T10:00:00Z",
-    views: 4,
-    likes: 987,
-    favorites: 654,
-  },
-      {
-    id: 5,
-    title: "Labrynth Deck Guide - Comprehensive Guide to Labrynth",
-    author: "Jared Wong",
-    archetype: "Labrynth",
-    date: "2024-04-24T10:00:00Z",
-    views: 4,
-    likes: 987,
-    favorites: 654,
-  },
-];
+import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
 
 const getTimeAgo = (dateString: string): string => {
   const now = new Date();
@@ -76,10 +24,35 @@ const getTimeAgo = (dateString: string): string => {
 
 export const DeckGuides = () => {
   const navigate = useNavigate();
+  const { data: guides, isLoading, error } = useLatestCreatedGuides(10, "DECK");
+
+  const handleGuideClick = (archetypeId: number, instanceId: number) => {
+    navigate(`/archetype/${archetypeId}/instance/${instanceId}?type=deck`);
+  };
 
   const handleViewAll = () => {
-    navigate("/deck-guides");
+    navigate("/archetypes?type=deck");
   };
+
+  if (isLoading) {
+    return (
+      <div className="relative w-full flex flex-col h-full overflow-hidden">
+        <div className="relative z-10 flex flex-col h-full p-6 overflow-hidden items-center justify-center">
+          <div className="text-blue-300 text-lg">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="relative w-full flex flex-col h-full overflow-hidden">
+        <div className="relative z-10 flex flex-col h-full p-6 overflow-hidden items-center justify-center">
+          <div className="text-red-400 text-center">Failed to load guides</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative mt-2 w-full flex flex-col h-full overflow-hidden">
@@ -102,7 +75,7 @@ export const DeckGuides = () => {
         </div>
 
         <div className="flex-1 min-h-[320px] overflow-y-auto scrollbar-homeAllPages">
-          {mockDeckGuides.length === 0 ? (
+          {!guides || guides.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-blue-300">
               <p className="text-center text-sm">No guides created yet</p>
               <p className="text-xs text-gray-400 mt-2">
@@ -110,32 +83,56 @@ export const DeckGuides = () => {
               </p>
             </div>
           ) : (
-            mockDeckGuides.map((guide) => {
-              const timeAgo = getTimeAgo(guide.date);
+            guides.map((guide) => {
+              const timeAgo = getTimeAgo(guide.createdAt);
 
               return (
                 <div
                   key={guide.id}
-                  className="flex items-start gap-3 p-2 bg-black border border-[#30303b] hover:border-slate-600 transition-all cursor-pointer min-w-0 relative"
+                  onClick={() => handleGuideClick(guide.archetypeId, guide.id)}
+                  className="flex items-start gap-2 p-2 bg-black border border-[#30303b] hover:border-slate-600 transition-all cursor-pointer min-w-0 relative"
                 >
-                  <div className="flex-shrink-0">
-                    <div className="w-[74px] h-[74px] object-cover border-2 border-[#30303b] text-white flex items-center justify-center">
-                      {guide.archetype.charAt(0)}
-                    </div>
+                  <div className="flex-shrink-0 p-1">
+                    {guide.headerCardImageUrl ? (
+                      <img
+                        src={guide.headerCardImageUrl}
+                        alt={guide.headerCardName || "Header card"}
+                        className="w-[74px] h-[74px] object-cover border-2 border-[#30303b]"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          const parent = e.currentTarget.parentElement;
+                          if (
+                            parent &&
+                            !parent.querySelector(".fallback-image")
+                          ) {
+                            const fallbackDiv = document.createElement("div");
+                            fallbackDiv.className =
+                              "fallback-image w-20 h-20 rounded-md border-2 border-blue-500/50 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl";
+                            fallbackDiv.textContent =
+                              guide.archetypeName?.charAt(0) || "?";
+                            parent.appendChild(fallbackDiv);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-md border-2 border-blue-500/50 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl">
+                        {guide.archetypeName?.charAt(0) || "?"}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex-1 min-w-0 pr-44">
+                  <div className="flex-1 min-w-0 pr-24">
                     <h4 className="text-yellow-200 font-semibold text-lg line-clamp-2">
                       {guide.title}
                     </h4>
                     
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2">
                       <p className="text-gray-300 text-sm font-medium truncate">
-                        By {guide.author}
+                        By {guide.userName}
                       </p>
                       <span className="text-xs text-gray-500">•</span>
                       <p className="text-blue-400 text-sm truncate">
-                        {guide.archetype}
+                        {guide.archetypeName}
                       </p>
                     </div>
                   </div>
@@ -145,19 +142,19 @@ export const DeckGuides = () => {
                     <div className="flex items-center gap-1 text-purple-400">
                       <Eye className="w-3.5 h-3.5" />
                       <span className="text-xs font-medium">
-                        {guide.views.toLocaleString()}
+                        {(guide.views ?? 0).toLocaleString()}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-yellow-400">
                       <Star className="w-3.5 h-3.5" />
                       <span className="text-xs font-medium">
-                        {guide.favorites.toLocaleString()}
+                        {(guide.favorites ?? 0).toLocaleString()}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-green-500">
                       <ThumbsUp className="w-3.5 h-3.5" />
                       <span className="text-xs font-medium">
-                        {guide.likes.toLocaleString()}
+                        {(guide.likes ?? 0).toLocaleString()}
                       </span>
                     </div>
                   </div>

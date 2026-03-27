@@ -24,14 +24,14 @@ const getTimeAgo = (dateString: string): string => {
 
 export const CounterGuides = () => {
   const navigate = useNavigate();
-  const { data: guides, isLoading, error } = useLatestCreatedGuides(10);
+  const { data: guides, isLoading, error } = useLatestCreatedGuides(10, "COUNTER");
 
   const handleGuideClick = (archetypeId: number, instanceId: number) => {
-    navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
+    navigate(`/archetype/${archetypeId}/instance/${instanceId}?type=counter`);
   };
 
   const handleViewAll = () => {
-    navigate("/counter-guides");
+    navigate("/archetypes?type=counter");
   };
 
   if (isLoading) {
@@ -142,19 +142,19 @@ export const CounterGuides = () => {
                     <div className="flex items-center gap-1 text-purple-400">
                       <Eye className="w-3.5 h-3.5" />
                       <span className="text-xs font-medium">
-                        {guide.views.toLocaleString()}
+                        {(guide.views ?? 0).toLocaleString()}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-yellow-400">
                       <Star className="w-3.5 h-3.5" />
                       <span className="text-xs font-medium">
-                        {guide.favorites?.toLocaleString() || 0}
+                        {(guide.favorites ?? 0).toLocaleString()}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-green-500">
                       <ThumbsUp className="w-3.5 h-3.5" />
                       <span className="text-xs font-medium">
-                        {guide.likes.toLocaleString()}
+                        {(guide.likes ?? 0).toLocaleString()}
                       </span>
                     </div>
                   </div>

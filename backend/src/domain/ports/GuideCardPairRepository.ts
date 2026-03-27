@@ -1,8 +1,8 @@
 import {
-  GuideCardPair,
+  CardPair,
   GuideCardPairCreateDTO,
   GuideCardPairWithDetails,
-} from "../GuideCardPair.js";
+} from "../CardPair.js";
 
 /** Repository interface for managing card pairs of guides */
 export interface GuideCardPairRepository {
@@ -11,7 +11,7 @@ export interface GuideCardPairRepository {
    */
   CreateManyPairCards(
     pairs: GuideCardPairCreateDTO[],
-  ): Promise<GuideCardPair[]>;
+  ): Promise<CardPair[]>;
 
   /**
    * Gets all card pairs of a guide with card details

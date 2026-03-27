@@ -1,4 +1,5 @@
 import { axiosClient } from "@/lib/http";
+import type { GuideType } from "@/features/archetypes/types";
 
 export interface Archetype {
   id: number;
@@ -20,15 +21,21 @@ export interface RegisteredArchetypesResponse {
 
 /**
  * Get all registered archetypes (with at least 1 guide instance)
+ * Optionally filtered by guide type
  */
 export const getRegisteredArchetypes = async (
   sortBy: "recent" | "instances" = "recent",
+  guideType?: GuideType,
 ): Promise<RegisteredArchetypesResponse> => {
+  const params: { sortBy: string; type?: string } = { sortBy };
+  
+  if (guideType) {
+    params.type = guideType.toLowerCase();
+  }
+
   const response = await axiosClient.get<RegisteredArchetypesResponse>(
     "/api/archetypes/registered",
-    {
-      params: { sortBy },
-    },
+    { params },
   );
 
   return response.data;

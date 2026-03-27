@@ -1,4 +1,5 @@
-export interface GuideCardPair {
+/** Represents a pair of cards in a counter guide */
+export interface CardPair {
   id: number;
   instance_id: number;
   pair_order: number;
@@ -18,7 +19,7 @@ export interface GuideCardPairCreateDTO {
   comment?: string | null;
 }
 
-export interface GuideCardPairWithDetails extends Omit<GuideCardPair, 'top_card_ids' | 'bottom_card_ids'> {
+export interface GuideCardPairWithDetails extends Omit<CardPair, 'top_card_ids' | 'bottom_card_ids'> {
   top_cards: Array<{
     id: number;
     name: string;

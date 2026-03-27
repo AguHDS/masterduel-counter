@@ -9,10 +9,13 @@ import {
   validateInstanceData,
   transformPairsForApi,
 } from "../utils/validation";
-import type { CardPair, Card } from "@/features/archetypes/types";
+import type { CardPair, Card, GuideType } from "@/features/archetypes/types";
+import type { InitialHand } from "../components/InitialHandsEditor";
 
 interface SaveInstanceParams {
   pairs: CardPair[];
+  initialHands: InitialHand[];
+  guideType: GuideType;
   title: string;
   generalTip: string;
   headerCard: { id: number; name: string; imageUrl: string } | null;
@@ -30,25 +33,42 @@ export const useSaveInstanceGuide = () => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const saveGuideMutation = useSaveGuide();
 
-  const validatePairs = (pairs: CardPair[]): boolean => {
-    const validPairs = pairs.filter(
-      (p) => p.topCards.length > 0 || p.bottomCards.length > 0,
-    );
-
-    if (validPairs.length === 0) {
-      setValidationError(
-        "Please add at least one card (top or bottom) in at least one pair before saving.",
+  const validatePairs = (pairs: CardPair[], guideType: GuideType): boolean => {
+    // COUNTER guides require at least one card pair
+    if (guideType === "COUNTER") {
+      const validPairs = pairs.filter(
+        (p) => p.topCards.length > 0 || p.bottomCards.length > 0,
       );
-      return false;
-    }
 
-    for (let i = 0; i < pairs.length; i++) {
-      if (pairs[i].topCards.length === 0 && pairs[i].bottomCards.length === 0) {
+      if (validPairs.length === 0) {
         setValidationError(
-          `Pair #${i + 1} must have at least one card in Top or Bottom.`,
+          "Counter Guides require at least one card pair. Please add at least one card (top or bottom) in at least one pair before saving.",
         );
         return false;
       }
+
+      // Only validate non-empty pairs (empty ones are ignored)
+      // Users might have created placeholder pairs they haven't filled yet
+    }
+
+    setValidationError(null);
+    return true;
+  };
+
+  const validateInitialHands = (initialHands: InitialHand[], guideType: GuideType): boolean => {
+    // DECK guides require at least one initial hand
+    if (guideType === "DECK") {
+      const validHands = initialHands.filter((h) => h.cards.length > 0);
+
+      if (validHands.length === 0) {
+        setValidationError(
+          "Deck Guides require at least one initial hand. Please add at least one card in at least one initial hand before saving.",
+        );
+        return false;
+      }
+
+      // Only validate non-empty initial hands (empty ones are ignored)
+      // Users might have placeholder hands they haven't filled yet
     }
 
     setValidationError(null);
@@ -58,6 +78,8 @@ export const useSaveInstanceGuide = () => {
   const saveInstance = async (params: SaveInstanceParams): Promise<void> => {
     const {
       pairs,
+      initialHands,
+      guideType,
       title,
       generalTip,
       headerCard,
@@ -70,15 +92,22 @@ export const useSaveInstanceGuide = () => {
       existingDeck,
     } = params;
 
-    if (!validatePairs(pairs)) {
-      return;
+    // Validate based on guide type
+    if (guideType === "COUNTER") {
+      if (!validatePairs(pairs, guideType)) {
+        return;
+      }
+    } else if (guideType === "DECK") {
+      if (!validateInitialHands(initialHands, guideType)) {
+        return;
+      }
     }
 
-    const validPairs = pairs.filter(
-      (p) => p.topCards.length > 0 || p.bottomCards.length > 0,
-    );
+    const validPairs = guideType === "COUNTER" 
+      ? pairs.filter((p) => p.topCards.length > 0 || p.bottomCards.length > 0)
+      : [];
 
-    const validation = validateInstanceData(validPairs, headerCard, title);
+    const validation = validateInstanceData(validPairs, headerCard, title, guideType);
 
     if (!validation.isValid) {
       throw new Error(validation.errorMessage);
@@ -87,7 +116,7 @@ export const useSaveInstanceGuide = () => {
     setSaving(true);
 
     try {
-      const cardPairs = transformPairsForApi(validPairs);
+      const cardPairs = guideType === "COUNTER" ? transformPairsForApi(validPairs) : [];
 
       const allCardIds: number[] = [];
 
@@ -95,9 +124,20 @@ export const useSaveInstanceGuide = () => {
         allCardIds.push(headerCard.id);
       }
 
-      cardPairs.forEach((pair) => {
-        allCardIds.push(...pair.topCardIds, ...pair.bottomCardIds);
-      });
+      // Add card pair IDs for COUNTER guides
+      if (guideType === "COUNTER") {
+        cardPairs.forEach((pair) => {
+          allCardIds.push(...pair.topCardIds, ...pair.bottomCardIds);
+        });
+      }
+
+      // Add initial hand card IDs for DECK guides (only non-empty hands)
+      if (guideType === "DECK") {
+        const validHands = initialHands.filter((h) => h.cards.length > 0);
+        validHands.forEach((hand) => {
+          allCardIds.push(...hand.cards.map((c) => c.id));
+        });
+      }
 
       const mainDeckIds = deckMainCards.map((c) => c.id);
       const extraDeckIds = deckExtraCards.map((c) => c.id);
@@ -115,9 +155,20 @@ export const useSaveInstanceGuide = () => {
       // Optional Comment preserves formatting (only trim edges)
       const processedGeneralTip = generalTip.trim();
 
+      // Transform initial hands for API (only non-empty hands)
+      const initialHandsForApi = guideType === "DECK" 
+        ? initialHands
+            .filter((hand) => hand.cards.length > 0)
+            .map((hand) => ({
+              cardIds: hand.cards.map((c) => c.id),
+            }))
+        : undefined;
+
       const response = await saveGuideMutation.mutateAsync({
         archetypeId,
-        cardPairs,
+        guideType,
+        cardPairs: guideType === "COUNTER" ? cardPairs : [],
+        initialHands: guideType === "DECK" && initialHandsForApi ? initialHandsForApi : [],
         title: sanitizedTitle,
         headerCardId: headerCard!.id,
         generalTip: processedGeneralTip || undefined,

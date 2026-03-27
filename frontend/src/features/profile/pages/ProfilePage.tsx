@@ -93,8 +93,13 @@ export const ProfilePage = () => {
   } = useFavoriteCardAndDecks(userId!, profile);
 
   const handleSelectArchetype = useCallback(
-    (archetypeId: number, instanceId: number) => {
-      navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
+    (archetypeId: number, instanceId: number, guideType?: "COUNTER" | "DECK") => {
+      if (guideType) {
+        const typeParam = guideType === "COUNTER" ? "counter" : "deck";
+        navigate(`/archetype/${archetypeId}/instance/${instanceId}?type=${typeParam}`);
+      } else {
+        navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
+      }
     },
     [navigate],
   );
@@ -557,6 +562,7 @@ export const ProfilePage = () => {
                                       handleSelectArchetype(
                                         guide.archetypeId,
                                         guide.id,
+                                        guide.guideType,
                                       )
                                     }
                                   >
@@ -620,6 +626,7 @@ export const ProfilePage = () => {
                                 handleSelectArchetype(
                                   guide.archetypeId,
                                   guide.id,
+                                  guide.guideType,
                                 )
                               }
                             >

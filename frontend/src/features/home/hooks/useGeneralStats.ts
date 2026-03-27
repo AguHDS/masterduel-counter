@@ -11,11 +11,11 @@ export interface GeneralStatsData {
   }>;
 }
 
-export const useGeneralStats = (limit: number = 15) => {
+export const useGeneralStats = (limit: number = 15, guideType?: 'COUNTER' | 'DECK') => {
   return useQuery({
-    queryKey: ["generalStats", limit],
+    queryKey: ["generalStats", limit, guideType],
     queryFn: async (): Promise<GeneralStatsData> => {
-      const data = await homeApi.getGeneralStats(limit);
+      const data = await homeApi.getGeneralStats(limit, guideType);
       return data;
     },
     staleTime: 1000 * 60 * 5,
