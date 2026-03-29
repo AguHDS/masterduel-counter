@@ -57,9 +57,16 @@ export class PrismaRecommendedDeckRepository implements RecommendedDeckRepositor
   }
 
   async deleteDeck(instanceId: number): Promise<void> {
-    await this.prisma.recommendedDeck.delete({
-      where: { instanceId },
-    });
+    try {
+      await this.prisma.recommendedDeck.delete({
+        where: { instanceId },
+      });
+    } catch (error: unknown) {
+      // If record doesn't exist (P2025), ignore the error since desired state is achieved
+      if (error && typeof error === 'object' && 'code' in error && error.code !== 'P2025') {
+        throw error;
+      }
+    }
   }
 
   private mapToRecommendedDeck(deck: {

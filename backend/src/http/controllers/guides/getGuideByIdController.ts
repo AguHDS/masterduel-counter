@@ -5,6 +5,7 @@ import { CardRepository } from "@/domain/ports/CardRepository.js";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
 import { UserRepository } from "@/domain/ports/UserRepository.js";
 import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
+import { ComboStepRepository } from "@/domain/ports/ComboStepRepository.js";
 import { getDependencies } from "@/compositionRoot.js";
 
 /**
@@ -18,6 +19,7 @@ export const createGetGuideByIdController = (
   archetypeRepository: ArchetypeRepository,
   userRepository: UserRepository,
   initialHandRepository: InitialHandRepository,
+  comboStepRepository: ComboStepRepository,
 ) => {
   return async (req: Request, res: Response) => {
     try {
@@ -55,9 +57,48 @@ export const createGetGuideByIdController = (
       // Get initial hands with details (for DECK guides)
       let initialHands = null;
       if (instance.guideType === "DECK") {
-        initialHands = await initialHandRepository.findInitialHandsByInstanceId(
+        const hands = await initialHandRepository.findInitialHandsByInstanceId(
           instance.id,
         );
+        
+        // Get combo steps for each initial hand
+        const handsWithComboSteps = await Promise.all(
+          hands.map(async (hand) => {
+            const comboSteps = await comboStepRepository.findComboStepsByInitialHandId(hand.id);
+            
+            return {
+              ...hand,
+              comboSteps: comboSteps.map((step) => ({
+                id: step.id,
+                stepOrder: step.stepOrder,
+                description: step.description,
+                mainCards: step.mainCards.map((card) => ({
+                  id: card.id,
+                  name: card.name,
+                  imageUrl: card.image_url,
+                  imageUrlSmall: card.image_url_small,
+                  imageUrlCropped: card.image_url_cropped,
+                })),
+                subCards: step.subCards.map((card) => ({
+                  id: card.id,
+                  name: card.name,
+                  imageUrl: card.image_url,
+                  imageUrlSmall: card.image_url_small,
+                  imageUrlCropped: card.image_url_cropped,
+                })),
+                leftSubCards: step.leftSubCards.map((card) => ({
+                  id: card.id,
+                  name: card.name,
+                  imageUrl: card.image_url,
+                  imageUrlSmall: card.image_url_small,
+                  imageUrlCropped: card.image_url_cropped,
+                })),
+              })),
+            };
+          })
+        );
+        
+        initialHands = handsWithComboSteps;
       }
 
       // Get the header card if exists
@@ -136,6 +177,7 @@ export const createGetGuideByIdController = (
             imageUrlCropped: card.imageUrlCropped,
           })),
           position: hand.position,
+          comboSteps: hand.comboSteps,
         })) : undefined,
       });
     } catch (error) {

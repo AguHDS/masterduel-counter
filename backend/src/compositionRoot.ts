@@ -57,6 +57,10 @@ import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
 import { InitialHandApplicationPort } from "@/application/ports/InitialHandApplicationPort.js";
 import { SqliteInitialHandRepository } from "@/infrastructure/repositories/SqliteInitialHandRepository.js";
 import { InitialHandApplicationService } from "@/application/services/InitialHandApplicationService.js";
+import { ComboStepRepository } from "@/domain/ports/ComboStepRepository.js";
+import { ComboStepApplicationPort } from "@/application/ports/ComboStepApplicationPort.js";
+import { SqliteComboStepRepository } from "@/infrastructure/repositories/SqliteComboStepRepository.js";
+import { ComboStepApplicationService } from "@/application/services/ComboStepApplicationService.js";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -90,6 +94,8 @@ export class Dependencies {
   private customDeckService: CustomDeckApplicationPort | null = null;
   private initialHandRepository: InitialHandRepository | null = null;
   private initialHandService: InitialHandApplicationPort | null = null;
+  private comboStepRepository: ComboStepRepository | null = null;
+  private comboStepService: ComboStepApplicationPort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -202,6 +208,7 @@ export class Dependencies {
         this.getNotificationService(),
         this.getUserRepository(),
         this.getInitialHandRepository(),
+        this.getComboStepRepository(),
       );
     }
     return this.instanceService;
@@ -347,6 +354,24 @@ export class Dependencies {
       );
     }
     return this.initialHandService;
+  }
+
+  getComboStepRepository(): ComboStepRepository {
+    if (!this.comboStepRepository) {
+      this.comboStepRepository = new SqliteComboStepRepository(
+        this.database.getConnection(),
+      );
+    }
+    return this.comboStepRepository;
+  }
+
+  getComboStepService(): ComboStepApplicationPort {
+    if (!this.comboStepService) {
+      this.comboStepService = new ComboStepApplicationService(
+        this.getComboStepRepository(),
+      );
+    }
+    return this.comboStepService;
   }
 
   getDatabase(): DatabasePort {

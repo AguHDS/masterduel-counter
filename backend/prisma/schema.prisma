@@ -188,6 +188,9 @@ model Card {
   instanceHeaders        ArchetypeInstance[] @relation("InstanceHeaderCard")
   topCardPairs           CardPairTop[] @relation("TopCardPairs")
   bottomCardPairs        CardPairBottom[] @relation("BottomCardPairs")
+  comboStepMainCards     ComboStepMainCard[] @relation("ComboStepMainCards")
+  comboStepSubCards      ComboStepSubCard[] @relation("ComboStepSubCards")
+  comboStepLeftSubCards  ComboStepLeftSubCard[] @relation("ComboStepLeftSubCards")
 
   @@index([name])
   @@map("cards")
@@ -245,9 +248,68 @@ model InitialHand {
   createdAt   DateTime  @default(now()) @map("created_at")
 
   instance    ArchetypeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  comboSteps  ComboStep[]
 
   @@index([instanceId])
   @@map("initial_hands")
+}
+
+model ComboStep {
+  id            Int       @id @default(autoincrement())
+  initialHandId Int       @map("initial_hand_id")
+  stepOrder     Int       @map("step_order")
+  description   String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  initialHand   InitialHand @relation(fields: [initialHandId], references: [id], onDelete: Cascade)
+  mainCards     ComboStepMainCard[]
+  subCards      ComboStepSubCard[]
+  leftSubCards  ComboStepLeftSubCard[]
+
+  @@index([initialHandId])
+  @@map("combo_steps")
+}
+
+model ComboStepMainCard {
+  id        Int       @id @default(autoincrement())
+  stepId    Int       @map("step_id")
+  cardId    Int       @map("card_id")
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  step      ComboStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  card      Card      @relation("ComboStepMainCards", fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([stepId])
+  @@map("combo_step_main_cards")
+}
+
+model ComboStepSubCard {
+  id        Int       @id @default(autoincrement())
+  stepId    Int       @map("step_id")
+  cardId    Int       @map("card_id")
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  step      ComboStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  card      Card      @relation("ComboStepSubCards", fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([stepId])
+  @@map("combo_step_sub_cards")
+}
+
+model ComboStepLeftSubCard {
+  id        Int       @id @default(autoincrement())
+  stepId    Int       @map("step_id")
+  cardId    Int       @map("card_id")
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  step      ComboStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  card      Card      @relation("ComboStepLeftSubCards", fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([stepId])
+  @@map("combo_step_left_sub_cards")
 }
 
 model InstanceLike {

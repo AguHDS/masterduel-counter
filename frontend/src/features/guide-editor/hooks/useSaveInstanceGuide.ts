@@ -9,7 +9,7 @@ import {
   validateInstanceData,
   transformPairsForApi,
 } from "../utils/validation";
-import type { CardPair, Card, GuideType } from "@/features/archetypes/types";
+import type { CardPair, Card, GuideType, ComboStep } from "@/features/archetypes/types";
 import type { InitialHand } from "../components/InitialHandsEditor";
 
 interface SaveInstanceParams {
@@ -26,6 +26,7 @@ interface SaveInstanceParams {
   deckExtraCards: Card[];
   hasDeckContent: boolean;
   existingDeck: boolean;
+  comboSteps?: Map<string, ComboStep[]>;
 }
 
 export const useSaveInstanceGuide = () => {
@@ -90,6 +91,7 @@ export const useSaveInstanceGuide = () => {
       deckExtraCards,
       hasDeckContent,
       existingDeck,
+      comboSteps,
     } = params;
 
     // Validate based on guide type
@@ -137,6 +139,19 @@ export const useSaveInstanceGuide = () => {
         validHands.forEach((hand) => {
           allCardIds.push(...hand.cards.map((c) => c.id));
         });
+        
+        // Add combo step card IDs
+        if (comboSteps) {
+          comboSteps.forEach((steps) => {
+            steps.forEach((step) => {
+              allCardIds.push(
+                ...step.mainCards.map((c) => c.id),
+                ...step.subCards.map((c) => c.id),
+                ...step.leftSubCards.map((c) => c.id)
+              );
+            });
+          });
+        }
       }
 
       const mainDeckIds = deckMainCards.map((c) => c.id);
@@ -164,6 +179,32 @@ export const useSaveInstanceGuide = () => {
             }))
         : undefined;
 
+      // Transform combo steps for API (only for non-empty hands with steps)
+      const comboStepsForApi = guideType === "DECK" && comboSteps
+        ? initialHands
+            .filter((hand) => hand.cards.length > 0)
+            .map((hand, index) => {
+              const steps = comboSteps.get(hand.id) || [];
+              if (steps.length === 0) return null;
+              
+              // Validate each step has at least 1 main card
+              const validSteps = steps.filter(s => s.mainCards.length > 0);
+              if (validSteps.length === 0) return null;
+              
+              return {
+                initialHandId: index, // Use index since backend maps by position
+                steps: validSteps.map((step, stepIndex) => ({
+                  mainCardIds: step.mainCards.map((c) => c.id),
+                  subCardIds: step.subCards.map((c) => c.id),
+                  leftSubCardIds: step.leftSubCards.map((c) => c.id),
+                  description: step.description || undefined,
+                  stepOrder: stepIndex,
+                })),
+              };
+            })
+            .filter((item): item is NonNullable<typeof item> => item !== null)
+        : undefined;
+
       const response = await saveGuideMutation.mutateAsync({
         archetypeId,
         guideType,
@@ -173,6 +214,7 @@ export const useSaveInstanceGuide = () => {
         headerCardId: headerCard!.id,
         generalTip: processedGeneralTip || undefined,
         instanceId: instanceId,
+        comboSteps: comboStepsForApi,
       });
 
       // Save or delete recommended deck based on content

@@ -14,6 +14,7 @@ import { NotificationApplicationPort } from "@/application/ports/NotificationApp
 import { ViewCountCache } from "@/infrastructure/adapters/ViewCountCache.js";
 import { UserRepository } from "@/domain/ports/UserRepository.js";
 import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
+import { ComboStepRepository } from "@/domain/ports/ComboStepRepository.js";
 
 const MAX_FAVORITES_USER = 20;
 
@@ -27,6 +28,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     private notificationService: NotificationApplicationPort,
     private userRepository: UserRepository,
     private initialHandRepository: InitialHandRepository,
+    private comboStepRepository: ComboStepRepository,
   ) {
     // Initialize view count cache with flush callback
     this.viewCountCache = new ViewCountCache((instanceId, count) =>
@@ -116,6 +118,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
       cardPairs,
       initialHands,
       instanceId,
+      comboSteps,
     } = data;
 
     // Validate title
@@ -203,8 +206,41 @@ export class GuideApplicationService implements GuideInstanceServicePort {
 
       await this.cardPairRepository.CreateManyPairCards(pairsToCreate);
     } else if (guideType === "DECK" && initialHands) {
+      // Delete existing combo steps and initial hands before creating new ones
+      await this.comboStepRepository.deleteComboStepsByInstanceId(instance.id);
       await this.initialHandRepository.deleteInitialHandsByInstanceId(instance.id);
+      
+      // Create new initial hands
       await this.initialHandRepository.createManyInitialHands(instance.id, initialHands);
+      
+      // Create combo steps if provided
+      if (comboSteps && comboSteps.length > 0) {
+        // Get the created initial hands to map temporary IDs to real IDs
+        const createdHands = await this.initialHandRepository.findInitialHandsByInstanceId(instance.id);
+        
+        // Build all combo steps to create
+        const allSteps = comboSteps.flatMap((handCombo) => {
+          // Find the real initial hand ID by position (matches array index)
+          const realHandId = createdHands[handCombo.initialHandId]?.id;
+          
+          if (!realHandId) {
+            return [];
+          }
+          
+          return handCombo.steps.map((step) => ({
+            initialHandId: realHandId,
+            stepOrder: step.stepOrder,
+            description: step.description || null,
+            mainCardIds: step.mainCardIds,
+            subCardIds: step.subCardIds,
+            leftSubCardIds: step.leftSubCardIds,
+          }));
+        });
+        
+        if (allSteps.length > 0) {
+          await this.comboStepRepository.createManyComboSteps(allSteps);
+        }
+      }
     }
 
     // Mark archetype as registered if it is not already

@@ -164,10 +164,7 @@ export const RegisteredArchetypesList = ({
           </div>
         </div>
 
-        <div
-          className="w-full h-[2px]"
-          style={{ background: getAccentGradient() }}
-        />
+
         
         <div className={`rounded-lg overflow-hidden border ${getBorderColor()} bg-gradient-to-b from-slate-900/80 to-slate-950/80 backdrop-blur-sm`}>
           <div

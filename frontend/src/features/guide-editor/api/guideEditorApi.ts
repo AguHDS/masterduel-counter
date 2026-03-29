@@ -13,6 +13,18 @@ export interface CardPairDTO {
   comment?: string;
 }
 
+export interface ComboStepDTO {
+  mainCardIds: number[];
+  subCardIds: number[];
+  description?: string;
+  stepOrder: number;
+}
+
+export interface ComboStepsDTO {
+  initialHandId: number;
+  steps: ComboStepDTO[];
+}
+
 export interface RecommendedDeckCard {
   id: number;
   name: string;
@@ -60,10 +72,11 @@ export const saveArchetypeGuide = async (
   headerCardId?: number,
   generalTip?: string,
   instanceId?: number,
+  comboSteps?: ComboStepsDTO[],
 ): Promise<SaveArchetypeGuideResponse> => {
   const response = await axiosClient.post<SaveArchetypeGuideResponse>(
     `/api/archetypes/${archetypeId}/register`,
-    { guideType, cardPairs, initialHands, title, headerCardId, generalTip, instanceId },
+    { guideType, cardPairs, initialHands, title, headerCardId, generalTip, instanceId, comboSteps },
   );
 
   return response.data;

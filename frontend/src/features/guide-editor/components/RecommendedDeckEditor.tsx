@@ -263,7 +263,7 @@ export const RecommendedDeckEditor = ({
     <div className="flex justify-center mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="w-full max-w-5xl">
         <div className="flex justify-end mb-4">
-          {hasDeck && onDelete && (
+          {onDelete && (
             <button
               onClick={handleDelete}
               disabled={isDeleting}

@@ -46,6 +46,16 @@ export interface RegisterGuideDTO {
   initialHands?: Array<{
     cardIds: number[];
   }>;
+  comboSteps?: Array<{
+    initialHandId: number;
+    steps: Array<{
+      mainCardIds: number[];
+      subCardIds: number[];
+      leftSubCardIds: number[];
+      description?: string;
+      stepOrder: number;
+    }>;
+  }>;
   instanceId?: number;
 }
 

@@ -23,6 +23,7 @@ import {
   guideViews,
   recommendedDeck,
   initialHands,
+  comboSteps,
   getCardDetails,
   createGetArchetypeGuidesRoute,
   createGetUserGuidesRoute,
@@ -149,6 +150,7 @@ app.use("/api", guideFavorites);
 app.use("/api", guideViews);
 app.use("/api", recommendedDeck);
 app.use("/api/instances", initialHands);
+app.use("/api/initial-hands", comboSteps);
 app.use("/api", createGetArchetypeGuidesRoute(getDependencies()));
 app.use("/api", createGetUserGuidesRoute(getDependencies()));
 app.use("/api", createSearchArchetypeGuidesRoute(getDependencies()));

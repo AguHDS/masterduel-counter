@@ -43,6 +43,15 @@ export const useSaveGuide = () => {
       headerCardId?: number;
       generalTip?: string;
       instanceId?: number;
+      comboSteps?: Array<{
+        initialHandId: number;
+        steps: Array<{
+          mainCardIds: number[];
+          subCardIds: number[];
+          description?: string;
+          stepOrder: number;
+        }>;
+      }>;
     }
   >({
     mutationFn: ({
@@ -54,6 +63,7 @@ export const useSaveGuide = () => {
       headerCardId,
       generalTip,
       instanceId,
+      comboSteps,
     }) =>
       saveArchetypeGuide(
         archetypeId,
@@ -64,6 +74,7 @@ export const useSaveGuide = () => {
         headerCardId,
         generalTip,
         instanceId,
+        comboSteps,
       ),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({

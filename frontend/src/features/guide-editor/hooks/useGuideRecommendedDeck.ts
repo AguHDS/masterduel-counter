@@ -58,7 +58,10 @@ export const useGuideRecommendedDeck = (instanceId: number | undefined) => {
     if (!instanceId) return;
 
     try {
-      await deleteRecommendedDeck(instanceId);
+      // Only call API if deck exists in database
+      if (deck !== null) {
+        await deleteRecommendedDeck(instanceId);
+      }
       setDeck(null);
       setIsEditingDeck(false);
     } catch (error) {

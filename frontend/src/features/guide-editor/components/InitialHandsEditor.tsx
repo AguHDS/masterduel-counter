@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, X, Trash2 } from "lucide-react";
 import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
-import type { Card } from "@/features/archetypes/types";
+import type { Card, ComboStep } from "@/features/archetypes/types";
 
 export interface InitialHand {
   id: string;
@@ -16,15 +16,25 @@ interface InitialHandsEditorProps {
   onAddHand?: () => void;
   onModalStateChange?: (isOpen: boolean) => void;
   forceCloseModal?: boolean;
+  selectedHandId?: string | null;
+  onSelectHand?: (handId: string) => void;
+  onAddCombo?: (handId: string) => void;
+  onShowCombo?: (handId: string) => void;
+  comboSteps?: Map<string, ComboStep[]>;
 }
 
 export const InitialHandsEditor = ({
   isEditMode,
   initialHands,
   setInitialHands,
-  onAddHand,
+  onAddHand: _onAddHand,
   onModalStateChange,
   forceCloseModal = false,
+  selectedHandId: _selectedHandId,
+  onSelectHand: _onSelectHand,
+  onAddCombo,
+  onShowCombo,
+  comboSteps,
 }: InitialHandsEditorProps) => {
   const [selectingHandId, setSelectingHandId] = useState<string | null>(null);
 
@@ -92,7 +102,16 @@ export const InitialHandsEditor = ({
   const getCardRotation = (index: number, totalCards: number) => {
     if (totalCards === 1) return 0;
     // Increased rotation angles for better fan effect
-    const maxRotation = totalCards === 5 ? 60 : totalCards === 4 ? 50 : totalCards === 3 ? 45 : totalCards === 2 ? 25 : 0;
+    const maxRotation =
+      totalCards === 5
+        ? 60
+        : totalCards === 4
+          ? 50
+          : totalCards === 3
+            ? 45
+            : totalCards === 2
+              ? 25
+              : 0;
     const step = (maxRotation * 2) / (totalCards - 1);
     return -maxRotation + step * index;
   };
@@ -104,11 +123,27 @@ export const InitialHandsEditor = ({
 
     // For a proper fan effect: center cards should be elevated (high translateY = more negative in template)
     // and edge cards should be lower (low translateY = less negative or zero)
-    const maxElevation = totalCards === 5 ? 22 : totalCards === 4 ? 20 : totalCards === 3 ? 22 : totalCards === 2 ? 15 : 0;
-    const dropFactor = totalCards === 5 ? 3.5 : totalCards === 4 ? 3.8 : totalCards === 3 ? 4 : 3;
+    const maxElevation =
+      totalCards === 5
+        ? 22
+        : totalCards === 4
+          ? 20
+          : totalCards === 3
+            ? 22
+            : totalCards === 2
+              ? 15
+              : 0;
+    const dropFactor =
+      totalCards === 5
+        ? 3.5
+        : totalCards === 4
+          ? 3.8
+          : totalCards === 3
+            ? 4
+            : 3;
 
     // Center cards get max elevation, outer cards drop down
-    return maxElevation - (distanceFromCenter * distanceFromCenter * dropFactor);
+    return maxElevation - distanceFromCenter * distanceFromCenter * dropFactor;
   };
 
   return (
@@ -144,12 +179,7 @@ export const InitialHandsEditor = ({
           {initialHands.map((hand, index) => (
             <div
               key={hand.id}
-              className={`relative bg-gray-900/50 border rounded-sm p-3 flex flex-col overflow-hidden transition-all ${
-                isEditMode 
-                  ? 'border-blue-500/40 hover:border-blue-500/70 cursor-default' 
-                  : 'border-blue-500/40 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer'
-              }`}
-              onClick={() => !isEditMode && console.log('Future: Open initial hand detail')}
+              className={`relative bg-gray-900/50 border-blue-500/40 cursor-default border rounded-sm p-3 flex flex-col overflow-hidden transition-all`}
             >
               <div className="flex items-center justify-between mb-1">
                 <h4 className="text-xs font-semibold text-yellow-200">
@@ -166,14 +196,6 @@ export const InitialHandsEditor = ({
                   </button>
                 )}
               </div>
-              
-              {!isEditMode && (
-                <div className="absolute top-2 right-2 opacity-70 group-hover:opacity-100 transition-opacity">
-                  <div className="text-xs text-blue-300 bg-blue-950/80 px-1.5 py-0.5 rounded">
-                    SELECT
-                  </div>
-                </div>
-              )}
 
               <div className="flex items-end justify-center h-24 relative px-2">
                 {hand.cards.length === 0 ? (
@@ -181,12 +203,29 @@ export const InitialHandsEditor = ({
                 ) : (
                   <div className="relative flex justify-center items-end h-full w-full scale-[0.85] sm:scale-90 md:scale-95 lg:scale-100">
                     {hand.cards.map((card, cardIndex) => {
-                      const rotation = getCardRotation(cardIndex, hand.cards.length);
-                      const translateY = getCardTranslateY(cardIndex, hand.cards.length);
+                      const rotation = getCardRotation(
+                        cardIndex,
+                        hand.cards.length,
+                      );
+                      const translateY = getCardTranslateY(
+                        cardIndex,
+                        hand.cards.length,
+                      );
                       const zIndex = cardIndex;
                       // Improved spacing for better fan effect
-                      const spacingScale = hand.cards.length === 5 ? 15 : hand.cards.length === 4 ? 14 : hand.cards.length === 3 ? 16 : hand.cards.length === 2 ? 12 : 0;
-                      const horizontalOffset = (cardIndex - (hand.cards.length - 1) / 2) * spacingScale;
+                      const spacingScale =
+                        hand.cards.length === 5
+                          ? 15
+                          : hand.cards.length === 4
+                            ? 14
+                            : hand.cards.length === 3
+                              ? 16
+                              : hand.cards.length === 2
+                                ? 12
+                                : 0;
+                      const horizontalOffset =
+                        (cardIndex - (hand.cards.length - 1) / 2) *
+                        spacingScale;
 
                       return (
                         <div
@@ -194,10 +233,10 @@ export const InitialHandsEditor = ({
                           className="absolute group"
                           style={{
                             transform: `translateX(${horizontalOffset}px) translateY(-${translateY}px) rotate(${rotation}deg)`,
-                            transformOrigin: 'center bottom',
+                            transformOrigin: "center bottom",
                             zIndex: zIndex,
-                            transition: 'transform 0.3s ease',
-                            bottom: '0',
+                            transition: "transform 0.3s ease",
+                            bottom: "0",
                           }}
                         >
                           <CardTooltip
@@ -208,14 +247,16 @@ export const InitialHandsEditor = ({
                             <img
                               src={card.imageUrl || card.imageUrlSmall}
                               alt={card.name}
-                              className="w-14 h-20 object-cover rounded border-2 border-amber-500/50 shadow-lg hover:scale-110 hover:-translate-y-6 transition-all"
+                              className="w-14 h-20 object-cover hover:scale-110 hover:-translate-y-6 transition-all"
                             />
                           </CardTooltip>
 
                           {isEditMode && (
                             <button
-                              onClick={() => removeCardFromHand(hand.id, cardIndex)}
-                              className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                              onClick={() =>
+                                removeCardFromHand(hand.id, cardIndex)
+                              }
+                              className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-[9999] group-hover:-translate-y-6"
                               title="Remove card"
                             >
                               <X className="w-2.5 h-2.5 text-white" />
@@ -228,10 +269,16 @@ export const InitialHandsEditor = ({
                 )}
               </div>
 
-              {isEditMode && hand.cards.length < 5 && (
+              {/* Always render placeholder, but make invisible/unclickable when hand has 5 cards */}
+              {isEditMode && (
                 <button
                   onClick={() => setSelectingHandId(hand.id)}
-                  className="mt-2 w-full py-1 border-2 border-dashed border-blue-500 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors"
+                  disabled={hand.cards.length >= 5}
+                  className={`mt-2 w-full py-1 border-2 border-dashed rounded flex items-center justify-center transition-colors ${
+                    hand.cards.length >= 5
+                      ? "opacity-0 pointer-events-none border-transparent"
+                      : "border-blue-500 hover:border-blue-400 hover:bg-blue-500/10"
+                  }`}
                 >
                   <Plus className="w-3 h-3 text-blue-400" />
                 </button>
@@ -240,6 +287,59 @@ export const InitialHandsEditor = ({
               <div className="mt-1 text-xs text-gray-400 text-center">
                 {hand.cards.length}/5
               </div>
+
+              {isEditMode && onAddCombo && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddCombo(hand.id);
+                  }}
+                  className="mt-2 w-full py-1 bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/50 rounded flex items-center justify-center gap-1 transition-colors group"
+                >
+                  <Plus className="w-3 h-3 text-purple-400 group-hover:text-purple-300" />
+                  <span className="text-xs text-purple-400 group-hover:text-purple-300 font-medium">
+                    {comboSteps && comboSteps.has(hand.id) && comboSteps.get(hand.id)!.length > 0
+                      ? "Edit Combo"
+                      : "Add Combo"}
+                  </span>
+                </button>
+              )}
+
+              {!isEditMode && (
+                <>
+                  {comboSteps &&
+                  comboSteps.has(hand.id) &&
+                  comboSteps.get(hand.id)!.length > 0 ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onShowCombo?.(hand.id);
+                      }}
+                      className={`mt-2 w-full py-1 border rounded flex items-center justify-center gap-1  group ${
+                        _selectedHandId === hand.id
+                          ? "bg-green-600/30 border-green-500/70"
+                          : "bg-blue-600/20 hover:bg-blue-600/30 border-blue-500/50"
+                      }`}
+                    >
+                      <span
+                        className={`text-xs font-medium ${
+                          _selectedHandId === hand.id
+                            ? "text-green-300"
+                            : "text-blue-400 group-hover:text-blue-300"
+                        }`}
+                      >
+                        Show Combo
+                      </span>
+                    </button>
+                  ) : (
+                    <div className="mt-2 w-full py-1 text-center">
+                      <span className="text-xs text-gray-500 italic">
+                        No combo created
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           ))}
         </div>

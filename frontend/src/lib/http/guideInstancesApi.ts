@@ -78,6 +78,25 @@ export interface GuideInstanceWithFullDetails {
       imageUrlCropped: string;
     }>;
     position: number;
+    comboSteps?: Array<{
+      id: number;
+      stepOrder: number;
+      description?: string | null;
+      mainCards: Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      }>;
+      subCards: Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      }>;
+    }>;
   }>;
 }
 

@@ -437,13 +437,13 @@ export const CardPairItem = ({
               <textarea
                 value={comment || ""}
                 onChange={(e) => onCommentChange(e.target.value)}
-                maxLength={2000}
-                placeholder="Add a comment (Max. 2000 characters)..."
+                maxLength={500}
+                placeholder="Add a comment (Max. 500 characters)..."
                 className="w-full px-2 py-1.5 bg-slate-700/50 text-white text-xs rounded border border-slate-600 focus:outline-none focus:border-blue-500 resize-y min-h-[60px]"
                 rows={3}
               />
               <div className="text-xs text-slate-400 mt-0.5 text-right">
-                {(comment || "").length}/2000
+                {(comment || "").length}/500
               </div>
             </div>
           ) : (

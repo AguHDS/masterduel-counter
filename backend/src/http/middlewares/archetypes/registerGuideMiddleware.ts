@@ -121,6 +121,112 @@ export const registerGuideMiddleware = (
         }
       }
     }
+
+    // Validate combo steps if provided (optional for DECK guides)
+    const { comboSteps } = req.body;
+    if (comboSteps !== undefined) {
+      if (!Array.isArray(comboSteps)) {
+        res.status(400).json({
+          success: false,
+          error: "comboSteps must be an array",
+        });
+        return;
+      }
+
+      for (let i = 0; i < comboSteps.length; i++) {
+        const handCombo = comboSteps[i];
+
+        // Validate initialHandId (index in initialHands array)
+        if (typeof handCombo.initialHandId !== "number" || handCombo.initialHandId < 0) {
+          res.status(400).json({
+            success: false,
+            error: `Invalid initialHandId at comboSteps index ${i}`,
+          });
+          return;
+        }
+
+        // Validate steps array
+        if (!handCombo.steps || !Array.isArray(handCombo.steps)) {
+          res.status(400).json({
+            success: false,
+            error: `comboSteps at index ${i} must have a steps array`,
+          });
+          return;
+        }
+
+        for (let j = 0; j < handCombo.steps.length; j++) {
+          const step = handCombo.steps[j];
+
+          // Validate mainCardIds (required, at least 1 card)
+          if (!step.mainCardIds || !Array.isArray(step.mainCardIds) || step.mainCardIds.length === 0) {
+            res.status(400).json({
+              success: false,
+              error: `Each combo step must have at least one main card (comboSteps[${i}].steps[${j}])`,
+            });
+            return;
+          }
+
+          // Validate each main card ID
+          for (const cardId of step.mainCardIds) {
+            if (typeof cardId !== "number" || cardId <= 0) {
+              res.status(400).json({
+                success: false,
+                error: `Invalid card ID in mainCardIds at comboSteps[${i}].steps[${j}]`,
+              });
+              return;
+            }
+          }
+
+          // Validate subCardIds (optional, max 5 cards)
+          if (step.subCardIds !== undefined) {
+            if (!Array.isArray(step.subCardIds)) {
+              res.status(400).json({
+                success: false,
+                error: `subCardIds must be an array at comboSteps[${i}].steps[${j}]`,
+              });
+              return;
+            }
+
+            if (step.subCardIds.length > 5) {
+              res.status(400).json({
+                success: false,
+                error: `Each combo step can have at most 5 sub cards (comboSteps[${i}].steps[${j}])`,
+              });
+              return;
+            }
+
+            // Validate each sub card ID
+            for (const cardId of step.subCardIds) {
+              if (typeof cardId !== "number" || cardId <= 0) {
+                res.status(400).json({
+                  success: false,
+                  error: `Invalid card ID in subCardIds at comboSteps[${i}].steps[${j}]`,
+                });
+                return;
+              }
+            }
+          }
+
+          // Validate stepOrder
+          if (typeof step.stepOrder !== "number" || step.stepOrder < 0) {
+            res.status(400).json({
+              success: false,
+              error: `Invalid stepOrder at comboSteps[${i}].steps[${j}]`,
+            });
+            return;
+          }
+
+          // Validate description (optional)
+          if (step.description !== undefined && typeof step.description !== "string") {
+            res.status(400).json({
+              success: false,
+              error: `description must be a string at comboSteps[${i}].steps[${j}]`,
+            });
+            return;
+          }
+        }
+      }
+    }
   }
 
   // Validate headerCardId if it is present
