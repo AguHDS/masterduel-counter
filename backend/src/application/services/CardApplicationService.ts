@@ -17,6 +17,7 @@ export class CardApplicationService implements CardApplicationPort {
       name: card.name,
       imageUrlExternal: card.card_images?.[0]?.image_url,
       imageUrlSmallExternal: card.card_images?.[0]?.image_url_small,
+      imageUrlCroppedExternal: card.card_images?.[0]?.image_url_cropped,
     }));
   }
 

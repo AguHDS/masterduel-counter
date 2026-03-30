@@ -13,7 +13,7 @@ export const FramedContainer = ({
   contentClassName,
   ...sectionProps
 }: PropsWithChildren<FramedContainerProps>) => {
-  const sectionClasses = ["w-full flex justify-center", className]
+  const sectionClasses = ["w-full flex justify-center"]
     .filter(Boolean)
     .join(" ");
 
@@ -24,6 +24,9 @@ export const FramedContainer = ({
     .filter(Boolean)
     .join(" ");
 
+  // Default border is blue, can be overridden by passing border class in className
+  const borderClass = className || "border-blue-700/90";
+
   return (
     <section {...sectionProps} className={sectionClasses}>
       <div
@@ -31,7 +34,7 @@ export const FramedContainer = ({
       >
         <div className="relative w-full overflow-hidden">
           {/* Background with gradient overlay */}
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-950/40 via-slate-950/40 to-slate-950/40 border-[1px] border-blue-700/90" />
+          <div className={`absolute inset-0 w-full h-full bg-gradient-to-br from-slate-950/40 via-slate-950/40 to-slate-950/40 border-[1px] ${borderClass}`} />
           <div className={contentClasses}>{children}</div>
         </div>
       </div>

@@ -226,8 +226,8 @@ export const ComboStepEditor = ({
                     </span>
                   </div>
 
-                  {/* Canceled Flow Button - Bottom Left (only for main flow steps with canceled flows) */}
-                  {isMainFlowStep && stepHasCanceledFlow(step.id) && (
+                  {/* Canceled Flow Button - Bottom Left (for main flow steps) */}
+                  {isMainFlowStep && (stepHasCanceledFlow(step.id) || activeCanceledStepId === step.id) && (
                     <button
                       onClick={() => toggleCanceledFlow(step.id)}
                       className={`absolute bottom-2 left-2 px-2 py-1 text-[11px] font-semibold rounded transition-colors ${

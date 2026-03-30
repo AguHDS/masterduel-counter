@@ -41,6 +41,7 @@ export const RecommendedDeckEditor = ({
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [draggedCard, setDraggedCard] = useState<{ zone: "main" | "extra"; index: number } | null>(null);
 
   // Close modal when forced from parent
   useEffect(() => {
@@ -82,14 +83,6 @@ export const RecommendedDeckEditor = ({
       setTitle(initialTitle);
     }
   }, [initialTitle, isEditMode]);
-
-  const getMainDeckColumns = () => {
-    if (mainDeck.length > 50) return 12;
-    return 10;
-  };
-
-  const mainDeckColumns = getMainDeckColumns();
-  const cardSize = mainDeckColumns === 12 ? "tiny" : "small";
 
   const handleAddCard = (zone: DeckZone, anchor: HTMLElement) => {
     setAnchorElement(anchor);
@@ -137,6 +130,58 @@ export const RecommendedDeckEditor = ({
     }
   };
 
+  // Drag and drop handlers
+  const handleDragStart = (zone: "main" | "extra", index: number) => {
+    setDraggedCard({ zone, index });
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (zone: "main" | "extra", dropIndex: number) => {
+    if (!draggedCard) return;
+
+    // Only allow reordering within the same zone
+    if (draggedCard.zone !== zone) return;
+
+    // Don't do anything if dropping in the same position
+    if (draggedCard.index === dropIndex) {
+      setDraggedCard(null);
+      return;
+    }
+
+    if (zone === "main") {
+      const newMainDeck = [...mainDeck];
+      // Swap the cards
+      const temp = newMainDeck[draggedCard.index];
+      newMainDeck[draggedCard.index] = newMainDeck[dropIndex];
+      newMainDeck[dropIndex] = temp;
+      
+      setMainDeck(newMainDeck);
+      if (onDeckChange) {
+        onDeckChange(title, newMainDeck, extraDeck);
+      }
+    } else {
+      const newExtraDeck = [...extraDeck];
+      // Swap the cards
+      const temp = newExtraDeck[draggedCard.index];
+      newExtraDeck[draggedCard.index] = newExtraDeck[dropIndex];
+      newExtraDeck[dropIndex] = temp;
+      
+      setExtraDeck(newExtraDeck);
+      if (onDeckChange) {
+        onDeckChange(title, mainDeck, newExtraDeck);
+      }
+    }
+
+    setDraggedCard(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCard(null);
+  };
+
   const handleDelete = async () => {
     if (!onDelete) return;
 
@@ -165,45 +210,34 @@ export const RecommendedDeckEditor = ({
 
   if (!isEditMode && hasDeck) {
     return (
-      <div className="flex justify-center mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-2xl shadow-2xl border-2 border-cyan-500/40 backdrop-blur-xl p-6 w-full max-w-5xl">
-          {/* Animated border glow */}
-          <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
-            <div
-              className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent animate-pulse"
-              style={{ animationDelay: "0.5s" }}
-            ></div>
-          </div>
-
+      <div className="flex justify-center mt-8">
+        <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 w-full" style={{ maxWidth: "56%" }}>
           <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <h4 className="text-lg font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                {title}
-              </h4>
-            </div>
+            <h4 className="text-lg font-semibold text-white">
+              {title}
+            </h4>
           </div>
 
           <div className="flex justify-center mb-6">
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+            <div className="w-full h-px bg-blue-500/30"></div>
           </div>
 
           <div className="space-y-6">
             <div className="space-y-3">
-              <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 px-4 py-3 rounded-lg border-l-4 border-cyan-400 backdrop-blur-sm">
+              <div className="bg-blue-900/30 px-3 py-2 rounded border-l-4 border-blue-500">
                 <div className="flex items-center gap-2">
-                  <span className="text-white font-bold text-base">
+                  <span className="text-white font-semibold text-base">
                     Main Deck
                   </span>
-                  <span className="text-cyan-300 text-sm font-medium">
+                  <span className="text-blue-300 text-sm">
                     ({mainDeck.length})
                   </span>
                 </div>
               </div>
               <div
-                className="grid gap-1 p-3 bg-gradient-to-t from-blue-700/20 via-slate-900 to-blue-700/20 rounded-lg min-h-[100px] border border-cyan-500/40"
+                className="grid gap-1 p-1.5 bg-blue-950/30 rounded border border-blue-500/30"
                 style={{
-                  gridTemplateColumns: `repeat(${mainDeckColumns}, minmax(0, 1fr))`,
+                  gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
                 }}
               >
                 {mainDeck.map((card, index) => (
@@ -212,13 +246,12 @@ export const RecommendedDeckEditor = ({
                     cardId={card.id}
                     imageUrl={card.imageUrl}
                     cardName={card.name}
+                    disabled={!!draggedCard}
                   >
                     <img
                       src={card.imageUrlSmall}
                       alt={card.name}
-                      className={`w-full h-auto border border-cyan-600/30 hover:border-cyan-400/50 transition-colors ${
-                        cardSize === "tiny" ? "max-h-[60px]" : "max-h-[80px]"
-                      } object-contain cursor-pointer`}
+                      className="w-full h-auto border border-slate-600 hover:border-blue-400 transition-colors object-contain cursor-pointer"
                     />
                   </CardTooltip>
                 ))}
@@ -227,28 +260,34 @@ export const RecommendedDeckEditor = ({
 
             {extraDeck.length > 0 && (
               <div className="space-y-3">
-                <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 px-4 py-3 rounded-lg border-l-4 border-purple-400 backdrop-blur-sm">
+                <div className="bg-purple-900/30 px-3 py-2 rounded border-l-4 border-purple-500">
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-bold text-base">
+                    <span className="text-white font-semibold text-base">
                       Extra Deck
                     </span>
-                    <span className="text-purple-300 text-sm font-medium">
+                    <span className="text-purple-300 text-sm">
                       ({extraDeck.length})
                     </span>
                   </div>
                 </div>
-                <div className="grid grid-cols-15 gap-1 p-3 bg-gradient-to-t from-purple-900/30 via-slate-900 to-purple-900/30 rounded-lg border border-blue-400/20">
+                <div 
+                  className="grid gap-1 p-1.5 bg-purple-950/30 rounded border border-purple-500/30"
+                  style={{
+                    gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
+                  }}
+                >
                   {extraDeck.map((card, index) => (
                     <CardTooltip
                       key={`extra-${index}`}
                       cardId={card.id}
                       imageUrl={card.imageUrl}
                       cardName={card.name}
+                      disabled={!!draggedCard}
                     >
                       <img
                         src={card.imageUrlSmall}
                         alt={card.name}
-                        className="w-full h-auto rounded border border-purple-500/30 hover:border-blue-400/60 transition-colors max-h-[80px] object-contain cursor-pointer"
+                        className="w-full h-auto border border-purple-600/30 hover:border-purple-400 transition-colors object-contain cursor-pointer"
                       />
                     </CardTooltip>
                   ))}
@@ -262,14 +301,14 @@ export const RecommendedDeckEditor = ({
   }
 
   return (
-    <div className="flex justify-center mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="w-full max-w-5xl">
+    <div className="flex justify-center mt-8">
+      <div className="w-full" style={{ maxWidth: "52%" }}>
         <div className="flex justify-end mb-4">
           {onDelete && (
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-all duration-300 font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
             >
               {isDeleting ? (
                 <>
@@ -283,18 +322,9 @@ export const RecommendedDeckEditor = ({
           )}
         </div>
 
-        <div className="relative bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-2xl shadow-2xl border-2 border-cyan-500/40 backdrop-blur-xl p-6">
-          {/* Animated border glow */}
-          <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
-            <div
-              className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent animate-pulse"
-              style={{ animationDelay: "0.5s" }}
-            ></div>
-          </div>
-
+        <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
           <div className="space-y-4 mb-6">
-            <label className="block text-sm font-bold text-cyan-300">
+            <label className="block text-sm font-semibold text-blue-400">
               Deck Title
             </label>
             <input
@@ -308,24 +338,24 @@ export const RecommendedDeckEditor = ({
                 }
               }}
               placeholder="Enter a title for your deck"
-              className="w-full px-4 py-3 bg-gradient-to-r from-slate-800/80 via-slate-900/80 to-slate-800/80 border-2 border-cyan-500/30 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-500/30 transition-all duration-300 backdrop-blur-sm font-medium"
+              className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               maxLength={100}
             />
           </div>
 
           <div className="flex justify-center mb-6">
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+            <div className="w-full h-px bg-blue-500/30"></div>
           </div>
 
           <div className="space-y-6">
             <div className="space-y-3">
-              <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 px-4 py-3 rounded-lg border-l-4 border-cyan-400 backdrop-blur-sm">
+              <div className="bg-blue-900/30 px-3 py-2 rounded border-l-4 border-blue-500">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-bold text-base">
+                    <span className="text-white font-semibold text-base">
                       Main Deck
                     </span>
-                    <span className="text-cyan-300 text-sm font-medium">
+                    <span className="text-blue-300 text-sm">
                       ({mainDeck.length}/60)
                     </span>
                   </div>
@@ -335,7 +365,7 @@ export const RecommendedDeckEditor = ({
                       handleAddCard("main", e.currentTarget);
                     }}
                     disabled={mainDeck.length >= 60}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs transition-all duration-300 font-bold disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
                   >
                     <Plus className="w-3 h-3" />
                     <span>Add</span>
@@ -343,29 +373,31 @@ export const RecommendedDeckEditor = ({
                 </div>
               </div>
               <div
-                className="grid gap-1 p-3 bg-gradient-to-br from-slate-900/60 via-slate-900/40 to-slate-900/60 rounded-lg min-h-[200px] border-2 border-dashed border-cyan-400/40 cursor-pointer hover:border-cyan-400/60 transition-colors"
+                className="grid gap-1 p-1.5 bg-blue-950/30 rounded border border-dashed border-blue-500/40"
                 style={{
-                  gridTemplateColumns: `repeat(${mainDeckColumns}, minmax(0, 1fr))`,
+                  gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
                 }}
-                onClick={(e) => mainDeck.length < 60 && handleAddCard("main", e.currentTarget)}
               >
                 {mainDeck.map((card, index) => (
                   <div
                     key={`main-${index}`}
-                    className="relative group animate-in fade-in duration-300"
-                    style={{ animationDelay: `${index * 30}ms` }}
+                    className="relative group"
+                    draggable={true}
+                    onDragStart={() => handleDragStart("main", index)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop("main", index)}
+                    onDragEnd={handleDragEnd}
                   >
                     <CardTooltip
                       cardId={card.id}
                       imageUrl={card.imageUrl}
                       cardName={card.name}
+                      disabled={!!draggedCard}
                     >
                       <img
                         src={card.imageUrlSmall}
                         alt={card.name}
-                        className={`w-full h-auto rounded border-2 border-slate-600 group-hover:border-cyan-400/80 transition-colors ${
-                          cardSize === "tiny" ? "max-h-[60px]" : "max-h-[80px]"
-                        } object-contain cursor-pointer`}
+                        className="w-full h-auto border border-slate-600 group-hover:border-blue-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
                       />
                     </CardTooltip>
                     <button
@@ -373,14 +405,17 @@ export const RecommendedDeckEditor = ({
                         e.stopPropagation();
                         handleRemoveCard("main", index);
                       }}
-                      className="absolute top-0 right-0 bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                      className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X className="w-3 h-3" />
                     </button>
                   </div>
                 ))}
                 {mainDeck.length === 0 && (
-                  <div className="col-span-full flex items-center justify-center text-slate-400 text-sm font-medium">
+                  <div 
+                    className="col-span-full flex items-center justify-center text-slate-400 text-sm cursor-pointer"
+                    onClick={(e) => handleAddCard("main", e.currentTarget)}
+                  >
                     Click to add cards to Main Deck
                   </div>
                 )}
@@ -388,13 +423,13 @@ export const RecommendedDeckEditor = ({
             </div>
 
             <div className="space-y-3">
-              <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 px-4 py-3 rounded-lg border-l-4 border-blue-400 backdrop-blur-sm">
+              <div className="bg-purple-900/30 px-3 py-2 rounded border-l-4 border-purple-500">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-bold text-base">
+                    <span className="text-white font-semibold text-base">
                       Extra Deck
                     </span>
-                    <span className="text-cyan-300 text-sm font-medium">
+                    <span className="text-purple-300 text-sm">
                       ({extraDeck.length}/15)
                     </span>
                   </div>
@@ -404,7 +439,7 @@ export const RecommendedDeckEditor = ({
                       handleAddCard("extra", e.currentTarget);
                     }}
                     disabled={extraDeck.length >= 15}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs transition-all duration-300 font-bold disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
                   >
                     <Plus className="w-3 h-3" />
                     <span>Add</span>
@@ -412,24 +447,31 @@ export const RecommendedDeckEditor = ({
                 </div>
               </div>
               <div
-                className="grid grid-cols-15 gap-1 p-3 bg-gradient-to-br from-slate-900/40 via-slate-900/20 to-slate-900/40 rounded-lg min-h-[100px] border-2 border-dashed border-blue-400/40 cursor-pointer hover:border-blue-400/60 transition-colors"
-                onClick={(e) => extraDeck.length < 15 && handleAddCard("extra", e.currentTarget)}
+                className="grid gap-1 p-1.5 bg-purple-950/30 rounded border border-dashed border-purple-500/40"
+                style={{
+                  gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
+                }}
               >
                 {extraDeck.map((card, index) => (
                   <div
                     key={`extra-${index}`}
-                    className="relative group animate-in fade-in duration-300"
-                    style={{ animationDelay: `${index * 30}ms` }}
+                    className="relative group"
+                    draggable={true}
+                    onDragStart={() => handleDragStart("extra", index)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop("extra", index)}
+                    onDragEnd={handleDragEnd}
                   >
                     <CardTooltip
                       cardId={card.id}
                       imageUrl={card.imageUrl}
                       cardName={card.name}
+                      disabled={!!draggedCard}
                     >
                       <img
                         src={card.imageUrlSmall}
                         alt={card.name}
-                        className="w-full h-auto rounded border-2 border-slate-600 group-hover:border-blue-400/80 transition-colors max-h-[80px] object-contain cursor-pointer"
+                        className="w-full h-auto border border-purple-600/30 group-hover:border-purple-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
                       />
                     </CardTooltip>
                     <button
@@ -437,14 +479,17 @@ export const RecommendedDeckEditor = ({
                         e.stopPropagation();
                         handleRemoveCard("extra", index);
                       }}
-                      className="absolute top-0 right-0 bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                      className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X className="w-3 h-3" />
                     </button>
                   </div>
                 ))}
                 {extraDeck.length === 0 && (
-                  <div className="col-span-full flex items-center justify-center text-slate-400 text-sm font-medium">
+                  <div 
+                    className="col-span-full flex items-center justify-center text-slate-400 text-sm cursor-pointer"
+                    onClick={(e) => handleAddCard("extra", e.currentTarget)}
+                  >
                     Click to add cards to Extra Deck
                   </div>
                 )}
@@ -452,7 +497,7 @@ export const RecommendedDeckEditor = ({
             </div>
 
             {!hasDeck && (
-              <div className="text-center text-slate-400 text-sm py-8 font-medium">
+              <div className="text-center text-slate-400 text-sm py-8">
                 Add cards to create a recommended deck for this guide
               </div>
             )}
@@ -470,7 +515,6 @@ export const RecommendedDeckEditor = ({
           }}
           onSelectCard={handleCardSelected}
           title={`Add Cards to ${targetZone === "main" ? "Main" : "Extra"} Deck`}
-          variant="sidebar"
           anchorElement={anchorElement}
           autoCloseAfterSelect={false}
         />

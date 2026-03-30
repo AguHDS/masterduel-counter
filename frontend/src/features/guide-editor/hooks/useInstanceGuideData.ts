@@ -5,6 +5,7 @@ interface HeaderCard {
   id: number;
   name: string;
   imageUrl: string;
+  imageUrlCropped: string;
 }
 
 interface GuideInstanceData {
@@ -38,6 +39,7 @@ interface GuideInstanceData {
     id: number;
     name: string;
     imageUrl: string;
+    imageUrlCropped: string;
   } | null;
   userName?: string;
 }
@@ -86,6 +88,7 @@ export const useInstanceGuideData = ({
             id: guideInstanceData.headerCard.id,
             name: guideInstanceData.headerCard.name,
             imageUrl: guideInstanceData.headerCard.imageUrl,
+            imageUrlCropped: guideInstanceData.headerCard.imageUrlCropped,
           }
         : null;
 

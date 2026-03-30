@@ -357,6 +357,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
               id: guideInstanceData.headerCard.id,
               name: guideInstanceData.headerCard.name,
               imageUrl: guideInstanceData.headerCard.imageUrl,
+              imageUrlCropped: guideInstanceData.headerCard.imageUrlCropped,
             }
           : null,
       });
@@ -600,7 +601,9 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
           </div>
 
           {/* Content container with gradient and transparency */}
-          <div className="relative flex flex-col w-full min-h-[600px] border-2 rounded-md border-amber-500/70 py-10 sm:py-12 px-4 sm:px-6 lg:px-10">
+          <div className={`relative flex flex-col w-full min-h-[600px] border-2 rounded-md py-10 sm:py-12 px-4 sm:px-6 lg:px-10 ${
+            guideType === "COUNTER" ? "border-amber-500/70" : "border-blue-500/70"
+          }`}>
             {/* Gradient overlay with transparency - this maintains the original effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#120b31]/85 to-[#060017]/85"></div>
 
@@ -608,9 +611,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
               <div className="absolute right-3 top-[-26px] flex items-center justify-between w-full px-4">
                 <button
                   onClick={handleBackClick}
-                  className={`flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors shadow-lg text-sm ${
-                    editor.isEditMode ? "invisible" : ""
-                  }`}
+                  className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors shadow-lg text-sm"
                   aria-label="Go back"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -646,13 +647,10 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                 isFavorited={favorites.favorited}
                 isLiked={likes.liked}
                 isAuthenticated={isAuthenticated}
+                guideType={guideType}
                 currentUserId={user?.id}
               />
 
-              {/* Invisible separator */}
-              <div className="flex justify-center">
-                <div className="w-4/5 h-px my-4"></div>
-              </div>
 
               {/* Conditional rendering based on guide type */}
               {guideType === "COUNTER" ? (

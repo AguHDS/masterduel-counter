@@ -164,13 +164,13 @@ export const FloatingCardSearchModal = ({
   }, [isOpen]);
 
   const handleSelectCard = useCallback(
-    (id: number, name: string, imageUrl: string, imageUrlSmall: string) => {
+    (id: number, name: string, imageUrl: string, imageUrlSmall: string, imageUrlCropped: string) => {
       const card: Card = {
         id,
         name,
         imageUrl,
         imageUrlSmall,
-        imageUrlCropped: imageUrlSmall,
+        imageUrlCropped,
       };
       onSelectCard(card);
       if (autoCloseAfterSelect) {
@@ -257,7 +257,7 @@ export const FloatingCardSearchModal = ({
       {/* Modal */}
       <div
         ref={containerRef}
-        className="fixed z-[100] bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl border-2 border-blue-500/40 backdrop-blur-md flex flex-col"
+        className="fixed z-[100] bg-slate-900 rounded-lg shadow-2xl border border-slate-700 flex flex-col overflow-hidden"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
@@ -267,51 +267,43 @@ export const FloatingCardSearchModal = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Animated gradient borders */}
-        <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500"></div>
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-400 to-blue-500"></div>
-        </div>
-
         {/* Header */}
-        <div className="relative flex items-center justify-between p-4 sm:p-5 border-b border-blue-500/30 bg-gradient-to-r from-blue-950/60 via-slate-900/60 to-blue-950/60 backdrop-blur-xl">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              {title}
-            </h3>
-          </div>
+        <div className="flex items-center justify-between p-4 border-b border-slate-700 bg-slate-800">
+          <h3 className="text-lg font-semibold text-white">
+            {title}
+          </h3>
           <button
             onClick={handleClose}
             type="button"
-            className="flex-shrink-0 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg p-2 transition-all duration-300 hover:rotate-90 hover:scale-110"
+            className="text-slate-400 hover:text-white hover:bg-slate-700 rounded p-1.5 transition-colors"
             aria-label="Close modal"
           >
-            <X className="w-5 h-5 sm:w-6 sm:h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Search Input */}
-        <div className="relative p-4 sm:p-5 border-b border-blue-500/20 bg-slate-900/40 backdrop-blur-sm">
+        <div className="p-4 border-b border-slate-700 bg-slate-800">
           <div className="relative flex items-center">
-            <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 transition-colors z-10" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-blue-400" />
             <input
               ref={inputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for a Yu-Gi-Oh! card..."
-              className="w-full pl-9 sm:pl-12 pr-8 sm:pr-10 py-2.5 sm:py-3 bg-gradient-to-r from-slate-800/80 via-slate-900/80 to-slate-800/80 border-2 border-blue-500/30 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-500/30 transition-all duration-300 backdrop-blur-sm font-medium text-sm sm:text-base"
+              className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
               autoFocus
             />
           </div>
         </div>
 
         {/* Search Results */}
-        <div className="relative flex-1 overflow-hidden bg-gradient-to-b from-slate-900/40 via-slate-900/20 to-slate-900/40">
+        <div className="relative flex-1 overflow-hidden bg-slate-900" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {isLoading && (
-            <div className="flex flex-col items-center justify-center h-full gap-3 sm:gap-4">
-              <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 text-cyan-400 animate-spin" />
-              <p className="text-cyan-300 text-sm font-medium">
+            <div className="flex flex-col items-center justify-center h-full gap-3">
+              <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
+              <p className="text-slate-300 text-sm">
                 Searching cards...
               </p>
             </div>
@@ -319,8 +311,8 @@ export const FloatingCardSearchModal = ({
 
           {error && (
             <div className="flex items-center justify-center h-full">
-              <div className="bg-red-950/40 border-2 border-red-500/40 rounded-xl p-4 sm:p-6 backdrop-blur-sm mx-4">
-                <p className="text-red-300 text-sm font-medium text-center">
+              <div className="bg-red-950/40 border border-red-500/50 rounded p-4 mx-4">
+                <p className="text-red-300 text-sm text-center">
                   {error.message}
                 </p>
               </div>
@@ -329,10 +321,10 @@ export const FloatingCardSearchModal = ({
 
           {showNoResults && (
             <div className="flex flex-col items-center justify-center h-full gap-3 px-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center border-2 border-slate-600">
-                <Search className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />
+              <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+                <Search className="w-8 h-8 text-slate-400" />
               </div>
-              <p className="text-slate-300 text-sm font-medium text-center">
+              <p className="text-slate-300 text-sm text-center">
                 No cards found
               </p>
               <p className="text-slate-500 text-xs text-center">
@@ -387,14 +379,15 @@ export const FloatingCardSearchModal = ({
                                   result.name,
                                   result.imageUrlExternal || "",
                                   result.imageUrlSmallExternal || "",
+                                  result.imageUrlCroppedExternal || "",
                                 )
                               }
-                              className="group relative bg-gradient-to-br from-slate-800/60 via-slate-900/60 to-slate-800/60 hover:from-blue-900/40 hover:via-slate-800/60 hover:to-purple-900/40 rounded-xl transition-all duration-300 border-2 border-slate-700/50 hover:border-cyan-400/60 overflow-hidden flex flex-col w-full h-full hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/20"
+                              className="group relative bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 hover:border-blue-500 transition-colors overflow-hidden flex flex-col w-full h-full"
                               title={result.name}
                             >
                               {/* Card Image */}
                               <div
-                                className="relative bg-gradient-to-br from-slate-900 to-slate-800 overflow-hidden"
+                                className="relative bg-slate-900 overflow-hidden"
                                 style={{ height: cardImageHeight }}
                               >
                                 {result.imageUrlSmallExternal ? (
@@ -411,22 +404,19 @@ export const FloatingCardSearchModal = ({
                                 )}
 
                                 {/* Hover overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                                  <div className="relative">
-                                    <span className="text-white text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg shadow-lg relative z-10">
-                                      Select Card
-                                    </span>
-                                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg blur-md"></div>
-                                  </div>
+                                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <span className="text-white text-xs font-semibold px-3 py-1.5 bg-blue-600 rounded">
+                                    Select
+                                  </span>
                                 </div>
                               </div>
 
                               {/* Card Name */}
                               <div
-                                className="px-1 py-1 text-center bg-gradient-to-b from-slate-800/80 to-slate-900/80"
+                                className="px-1 py-1 text-center bg-slate-800"
                                 style={{ height: CARD_TEXT_HEIGHT }}
                               >
-                                <p className="text-[10px] text-slate-300 font-medium truncate group-hover:text-cyan-300 transition-colors">
+                                <p className="text-[10px] text-slate-300 truncate group-hover:text-white transition-colors">
                                   {result.name}
                                 </p>
                               </div>
@@ -445,14 +435,11 @@ export const FloatingCardSearchModal = ({
           )}
 
           {showWelcome && (
-            <div className="flex flex-col items-center justify-center h-full gap-3 sm:gap-4 px-4">
-              <div className="relative">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center">
-                  <Search className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl blur-xl opacity-50"></div>
+            <div className="flex flex-col items-center justify-center h-full gap-3 px-4">
+              <div className="w-16 h-16 rounded-lg bg-blue-600 flex items-center justify-center">
+                <Search className="w-8 h-8 text-white" />
               </div>
-              <p className="text-slate-300 text-base sm:text-lg font-semibold text-center">
+              <p className="text-white text-base font-medium text-center">
                 Start Your Search
               </p>
               <p className="text-slate-400 text-sm text-center">

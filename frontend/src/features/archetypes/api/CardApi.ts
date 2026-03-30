@@ -5,6 +5,7 @@ export interface CardSearchResult {
   name: string;
   imageUrlExternal?: string;
   imageUrlSmallExternal?: string;
+  imageUrlCroppedExternal?: string;
 }
 
 // Search for cards by name query

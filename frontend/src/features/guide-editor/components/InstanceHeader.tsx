@@ -7,6 +7,7 @@ interface HeaderCard {
   id: number;
   name: string;
   imageUrl: string;
+  imageUrlCropped: string;
 }
 
 interface InstanceHeaderProps {
@@ -31,6 +32,7 @@ interface InstanceHeaderProps {
   isLiked?: boolean;
   isAuthenticated?: boolean;
   currentUserId?: number | string | null;
+  guideType?: "COUNTER" | "DECK";
 }
 
 export const InstanceHeader = ({
@@ -48,6 +50,7 @@ export const InstanceHeader = ({
   userName,
   userId,
   userProfilePictureUrl,
+  guideType = "COUNTER",
   isCreatingNew = false,
   onFavoriteToggle,
   onLikeToggle,
@@ -81,22 +84,22 @@ export const InstanceHeader = ({
     <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 mb-8 w-full">
       <div className="flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
         {headerCard ? (
-          <div className="relative top-0 lg:top-8 w-48 sm:w-56 lg:w-60 h-auto overflow-hidden">
+          <div className="relative lg:top-8 w-48 sm:w-56 lg:w-60 h-auto ">
             <CardTooltip
               imageUrl={headerCard.imageUrl}
               cardName={headerCard.name}
               cardId={headerCard.id}
             >
               <img
-                src={headerCard.imageUrl}
+                src={headerCard.imageUrlCropped}
                 alt={headerCard.name}
-                className="w-full h-auto object-cover cursor-pointer"
+                className="w-full bottom-7 relative h-auto object-contain cursor-pointer"
               />
             </CardTooltip>
             {isEditMode && (
               <button
                 onClick={(e) => onSelectHeaderCard(e)}
-                className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
                 title="Change Header Card"
               >
                 <Plus className="w-12 h-12 text-white" />
@@ -133,7 +136,9 @@ export const InstanceHeader = ({
               className="w-full h-[2px]"
               style={{
                 background:
-                  "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
+                  guideType === "COUNTER"
+                    ? "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)"
+                    : "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
               }}
             />
           </div>
@@ -184,7 +189,7 @@ export const InstanceHeader = ({
               onChange={(e) => onGeneralTipChange(e.target.value)}
               maxLength={3000}
               placeholder="Add optional description for this guide (Max. 3000 characters)"
-              className="w-full px-4 py-3 bg-slate-800/40 text-white text-base rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 resize-none shadow-sm min-h-[120px]"
+              className="w-full px-4 py-3 bg-slate-800/40 text-white text-base rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500 resize-none shadow-sm min-h-[120px] scrollbar-homeAllPages"
               rows={5}
               style={{
                 wordBreak: "break-word",
@@ -237,7 +242,7 @@ export const InstanceHeader = ({
         </div>
       </div>
 
-      {!isCreatingNew && !isEditMode && (
+      {!isCreatingNew && (
         <div className="flex-shrink-0 w-full lg:w-56 lg:relative lg:bottom-10">
           <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm p-4 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
             <div className="flex flex-col gap-2">
@@ -284,17 +289,19 @@ export const InstanceHeader = ({
               </div>
 
               <button
-                onClick={isAuthenticated ? onFavoriteToggle : undefined}
-                disabled={!isAuthenticated}
+                onClick={isAuthenticated && !isEditMode ? onFavoriteToggle : undefined}
+                disabled={!isAuthenticated || isEditMode}
                 className={`flex items-center justify-between px-2 py-1.5 rounded-lg w-full transition-colors ${
                   isFavorited
                     ? "bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30"
                     : "bg-slate-800/50 hover:bg-slate-700/50 text-white"
-                } ${!isAuthenticated ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
+                } ${!isAuthenticated || isEditMode ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
                 title={
                   !isAuthenticated
                     ? "Log in to favorite this guide"
-                    : isFavorited
+                    : isEditMode
+                      ? "Cannot favorite while editing"
+                      : isFavorited
                       ? "Remove from favorites"
                       : "Add to favorites"
                 }
@@ -315,19 +322,21 @@ export const InstanceHeader = ({
               </button>
 
               <button
-                onClick={!isOwner && isAuthenticated ? onLikeToggle : undefined}
-                disabled={!isAuthenticated || isOwner}
+                onClick={!isOwner && isAuthenticated && !isEditMode ? onLikeToggle : undefined}
+                disabled={!isAuthenticated || isOwner || isEditMode}
                 className={`flex items-center justify-between px-2 py-1.5 rounded-lg w-full transition-colors ${
                   isLiked
                     ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
                     : "bg-slate-800/50 hover:bg-slate-700/50 text-white"
-                } ${!isAuthenticated ? "cursor-not-allowed opacity-70" : isOwner ? "cursor-not-allowed" : "cursor-pointer"}`}
+                } ${!isAuthenticated || isOwner || isEditMode ? "cursor-not-allowed" : "cursor-pointer"}`}
                 title={
                   !isAuthenticated
                     ? "Log in to like this guide"
                     : isOwner
                       ? "You cannot like your own guide"
-                      : isLiked
+                      : isEditMode
+                        ? "Cannot like while editing"
+                        : isLiked
                         ? "Unlike this guide"
                         : "Like this guide"
                 }

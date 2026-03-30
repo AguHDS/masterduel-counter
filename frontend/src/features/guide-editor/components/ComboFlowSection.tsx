@@ -39,7 +39,7 @@ export const ComboFlowSection = ({
     <div className="mt-8" data-combo-flow-section>
       {/* Header */}
       <div className="mb-8">
-        <h3 className="text-xl font-bold text-blue-300 text-center">
+        <h3 className="text-xl font-bold text-blue-300">
           Combo for Hand #{selectedHandNumber}
         </h3>
         {isEditMode && (

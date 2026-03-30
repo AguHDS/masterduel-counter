@@ -5,6 +5,7 @@ interface HeaderCard {
   id: number;
   name: string;
   imageUrl: string;
+  imageUrlCropped: string;
 }
 
 export const useInstanceGuideEditor = (initialData?: {
@@ -43,6 +44,7 @@ export const useInstanceGuideEditor = (initialData?: {
       id: card.id,
       name: card.name,
       imageUrl: card.imageUrl,
+      imageUrlCropped: card.imageUrlCropped,
     });
     setIsSelectingHeader(false);
   };

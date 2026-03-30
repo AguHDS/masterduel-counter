@@ -170,52 +170,46 @@ export const ArchetypeGuideListPage = () => {
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />
         
-        <div className="flex justify-center">
-          <div className="scale-[0.92] origin-top">
-            <MainLogo />
-          </div>
-        </div>
+        <div className="flex-1 scale-[0.92] origin-top">
+          <MainLogo />
 
-        {/* Main Search Section */}
-        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 mb-9 mt-2 relative z-[100]">
-          <div className="max-w-4xl mx-auto">
-            <div className="relative mt-3">
-              <MainSearch
-                searchQuery={searchQuery}
-                onSearchChange={handleSearchChange}
-                isDropdownOpen={shouldShowDropdown}
-                onRequestClose={handleRequestClose}
-                onInputFocus={handleInputFocus}
-              >
-                <MainSearchResults
-                  isVisible={shouldShowDropdown}
-                  results={results}
-                  totalResults={totalResults}
-                  loading={loading}
-                  error={searchError ?? null}
-                  onSelectArchetype={handleSelectArchetypeFromSearch}
-                />
-              </MainSearch>
+          {/* Main Search Section */}
+          <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 mb-9 mt-2 relative z-[100]">
+            <div className="max-w-4xl mx-auto">
+              <div className="relative mt-3">
+                <MainSearch
+                  searchQuery={searchQuery}
+                  onSearchChange={handleSearchChange}
+                  isDropdownOpen={shouldShowDropdown}
+                  onRequestClose={handleRequestClose}
+                  onInputFocus={handleInputFocus}
+                >
+                  <MainSearchResults
+                    isVisible={shouldShowDropdown}
+                    results={results}
+                    totalResults={totalResults}
+                    loading={loading}
+                    error={searchError ?? null}
+                    onSelectArchetype={handleSelectArchetypeFromSearch}
+                  />
+                </MainSearch>
+              </div>
             </div>
           </div>
+
+          <main className="container mx-auto px-4" role="main" aria-label="Main content">
+            <FeatureErrorBoundary featureName="Archetype Instances">
+              <ArchetypeInstancesGuideList
+                archetypeId={parseInt(archetypeId!)}
+                archetypeName={archetype.name}
+                onSelectInstance={handleSelectInstance}
+                onCreateInstance={handleCreateInstance}
+                guideType={guideType}
+              />
+            </FeatureErrorBoundary>
+          </main>
         </div>
 
-        <main
-          className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8"
-          style={{ maxWidth: "87.5rem" }}
-          role="main"
-          aria-label="Main content"
-        >
-          <FeatureErrorBoundary featureName="Archetype Instances">
-            <ArchetypeInstancesGuideList
-              archetypeId={parseInt(archetypeId!)}
-              archetypeName={archetype.name}
-              onSelectInstance={handleSelectInstance}
-              onCreateInstance={handleCreateInstance}
-              guideType={guideType}
-            />
-          </FeatureErrorBoundary>
-        </main>
         <Footer />
       </div>
 

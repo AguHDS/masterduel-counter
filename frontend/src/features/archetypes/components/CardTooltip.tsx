@@ -8,6 +8,7 @@ interface CardTooltipProps {
   imageUrl: string;
   cardName: string;
   children: React.ReactNode;
+  disabled?: boolean;
 }
 
 export const CardTooltip = ({
@@ -15,6 +16,7 @@ export const CardTooltip = ({
   imageUrl,
   cardName,
   children,
+  disabled = false,
 }: CardTooltipProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<{ x: number; y: number }>({
@@ -32,7 +34,24 @@ export const CardTooltip = ({
     isVisible ? cardId : null,
   );
 
+  // Hide tooltip when disabled prop changes to true
+  useEffect(() => {
+    if (disabled) {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = null;
+      }
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      setIsVisible(false);
+    }
+  }, [disabled]);
+
   const handleMouseEnter = (e: React.MouseEvent) => {
+    if (disabled) return;
+    
     // Store initial mouse position and calculate position immediately
     initialMousePosRef.current = { x: e.clientX, y: e.clientY };
 

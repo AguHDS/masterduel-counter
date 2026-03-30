@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { X, Trash2, Lock, Globe, Edit2, Plus, Save } from "lucide-react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
@@ -10,6 +10,10 @@ interface Card {
   imageUrl: string;
   imageUrlSmall: string;
   imageUrlCropped: string;
+}
+
+interface DeckCard extends Card {
+  uniqueId: string;
 }
 
 type DeckZone = "main" | "extra" | null;
@@ -33,8 +37,15 @@ export const CustomDeckModal = ({
   isUpdating,
   isDeleting 
 }: CustomDeckModalProps) => {
-  const [mainDeck, setMainDeck] = useState(deck.mainDeck);
-  const [extraDeck, setExtraDeck] = useState(deck.extraDeck);
+  const uniqueIdCounter = useRef(0);
+  
+  // Initialize decks with uniqueIds
+  const initializeDeck = (cards: Card[]): DeckCard[] => {
+    return cards.map(card => ({ ...card, uniqueId: `card-${uniqueIdCounter.current++}` }));
+  };
+  
+  const [mainDeck, setMainDeck] = useState<DeckCard[]>(initializeDeck(deck.mainDeck));
+  const [extraDeck, setExtraDeck] = useState<DeckCard[]>(initializeDeck(deck.extraDeck));
   const [isPublic, setIsPublic] = useState(deck.isPublic);
   const [title, setTitle] = useState(deck.title);
   const [hasChanges, setHasChanges] = useState(false);
@@ -42,14 +53,17 @@ export const CustomDeckModal = ({
   const [isSelectingCard, setIsSelectingCard] = useState(false);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
-
-  const getMainDeckColumns = () => {
-    if (mainDeck.length > 50) return 12;
-    return 10;
-  };
-
-  const mainDeckColumns = getMainDeckColumns();
-  const cardSize = mainDeckColumns === 12 ? "tiny" : "small";
+  const [draggedCard, setDraggedCard] = useState<{ zone: "main" | "extra"; index: number } | null>(null);
+  
+  // Reset decks when deck prop changes
+  useEffect(() => {
+    setMainDeck(initializeDeck(deck.mainDeck));
+    setExtraDeck(initializeDeck(deck.extraDeck));
+    setTitle(deck.title);
+    setIsPublic(deck.isPublic);
+    setHasChanges(false);
+    setIsEditMode(false);
+  }, [deck.id]);
 
   const handleAddCard = (zone: DeckZone, anchor: HTMLElement) => {
     setAnchorElement(anchor);
@@ -63,14 +77,16 @@ export const CustomDeckModal = ({
         alert("Main deck cannot have more than 60 cards");
         return;
       }
-      setMainDeck([...mainDeck, card]);
+      const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
+      setMainDeck([...mainDeck, deckCard]);
       setHasChanges(true);
     } else if (targetZone === "extra") {
       if (extraDeck.length >= 15) {
         alert("Extra deck cannot have more than 15 cards");
         return;
       }
-      setExtraDeck([...extraDeck, card]);
+      const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
+      setExtraDeck([...extraDeck, deckCard]);
       setHasChanges(true);
     }
   };
@@ -87,6 +103,54 @@ export const CustomDeckModal = ({
       setExtraDeck(newExtraDeck);
       setHasChanges(true);
     }
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (zone: "main" | "extra", index: number) => {
+    setDraggedCard({ zone, index });
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (zone: "main" | "extra", dropIndex: number) => {
+    if (!draggedCard) return;
+
+    // Only allow reordering within the same zone
+    if (draggedCard.zone !== zone) return;
+
+    // Don't do anything if dropping in the same position
+    if (draggedCard.index === dropIndex) {
+      setDraggedCard(null);
+      return;
+    }
+
+    if (zone === "main") {
+      const newMainDeck = [...mainDeck];
+      // Swap the cards
+      const temp = newMainDeck[draggedCard.index];
+      newMainDeck[draggedCard.index] = newMainDeck[dropIndex];
+      newMainDeck[dropIndex] = temp;
+      
+      setMainDeck(newMainDeck);
+      setHasChanges(true);
+    } else {
+      const newExtraDeck = [...extraDeck];
+      // Swap the cards
+      const temp = newExtraDeck[draggedCard.index];
+      newExtraDeck[draggedCard.index] = newExtraDeck[dropIndex];
+      newExtraDeck[dropIndex] = temp;
+      
+      setExtraDeck(newExtraDeck);
+      setHasChanges(true);
+    }
+
+    setDraggedCard(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCard(null);
   };
 
   const handleTogglePublic = () => {
@@ -195,8 +259,9 @@ export const CustomDeckModal = ({
                 onClick={() => {
                   setIsEditMode(false);
                   if (hasChanges) {
-                    setMainDeck(deck.mainDeck);
-                    setExtraDeck(deck.extraDeck);
+                    setMainDeck(initializeDeck(deck.mainDeck));
+                    setExtraDeck(initializeDeck(deck.extraDeck));
+                    setTitle(deck.title);
                     setHasChanges(false);
                   }
                 }}
@@ -272,28 +337,35 @@ export const CustomDeckModal = ({
               <div
                 className="grid gap-1 p-3 bg-gradient-to-t from-blue-700/20 via-slate-900 to-blue-700/20 rounded-lg min-h-[100px] border border-cyan-500/40"
                 style={{
-                  gridTemplateColumns: `repeat(${mainDeckColumns}, minmax(0, 1fr))`,
+                  gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
                 }}
               >
                 {mainDeck.map((card, index) => (
-                  <div key={`main-${index}`} className="relative group">
+                  <div
+                    key={card.uniqueId}
+                    className="relative group"
+                    draggable={isOwner && isEditMode}
+                    onDragStart={() => handleDragStart("main", index)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop("main", index)}
+                    onDragEnd={handleDragEnd}
+                  >
                     <CardTooltip
                       cardId={card.id}
                       imageUrl={card.imageUrl}
                       cardName={card.name}
+                      disabled={!!draggedCard}
                     >
                       <img
                         src={card.imageUrlSmall}
                         alt={card.name}
-                        className={`w-full h-auto border border-cyan-600/30 hover:border-cyan-400/50 transition-colors ${
-                          cardSize === "tiny" ? "max-h-[60px]" : "max-h-[80px]"
-                        } object-contain cursor-pointer`}
+                        className="w-full h-auto border border-cyan-600/30 hover:border-cyan-400/50 transition-colors object-contain cursor-grab active:cursor-grabbing"
                       />
                     </CardTooltip>
                     {isOwner && isEditMode && (
                       <button
                         onClick={() => handleRemoveCard("main", index)}
-                        className="absolute top-0 right-0 bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                        className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -331,24 +403,38 @@ export const CustomDeckModal = ({
                     )}
                   </div>
                 </div>
-                <div className="grid grid-cols-15 gap-1 p-3 bg-gradient-to-t from-purple-900/30 via-slate-900 to-purple-900/30 rounded-lg border border-blue-400/20 min-h-[100px]">
+                <div 
+                  className="grid gap-1 p-3 bg-gradient-to-t from-purple-900/30 via-slate-900 to-purple-900/30 rounded-lg border border-blue-400/20 min-h-[100px]"
+                  style={{
+                    gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
+                  }}
+                >
                   {extraDeck.map((card, index) => (
-                    <div key={`extra-${index}`} className="relative group">
+                    <div
+                      key={card.uniqueId}
+                      className="relative group"
+                      draggable={isOwner && isEditMode}
+                      onDragStart={() => handleDragStart("extra", index)}
+                      onDragOver={handleDragOver}
+                      onDrop={() => handleDrop("extra", index)}
+                      onDragEnd={handleDragEnd}
+                    >
                       <CardTooltip
                         cardId={card.id}
                         imageUrl={card.imageUrl}
                         cardName={card.name}
+                        disabled={!!draggedCard}
                       >
                         <img
                           src={card.imageUrlSmall}
                           alt={card.name}
-                          className="w-full h-auto rounded border border-purple-500/30 hover:border-blue-400/60 transition-colors max-h-[80px] object-contain cursor-pointer"
+                          className={`w-full h-auto rounded border border-purple-500/30 hover:border-blue-400/60 transition-colors max-h-[80px] object-contain ${isOwner && isEditMode ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
                         />
                       </CardTooltip>
                       {isOwner && isEditMode && (
                         <button
                           onClick={() => handleRemoveCard("extra", index)}
-                          className="absolute top-0 right-0 bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                          className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>

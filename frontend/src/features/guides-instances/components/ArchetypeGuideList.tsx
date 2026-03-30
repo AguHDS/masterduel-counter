@@ -4,7 +4,8 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { guideInstancesApi } from "../api/guideInstancesApi";
 import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 import { useAuth } from "@/features/auth";
-import { GuidesTable } from "@/shared/components/archetypeLists/GuidesTable";
+import { GuidesGrid } from "@/shared/components/archetypeLists/GuidesGrid";
+import { SortDropdown } from "@/shared/components/SortDropdown";
 import { FramedContainer } from "@/layouts/FramedContainer";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
@@ -19,7 +20,7 @@ interface ArchetypeInstancesListProps {
   guideType?: GuideType;
 }
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 16;
 
 /** Main container for the list of guides of the selected archetype, with back button, search, etc...
  * Supports filtering by guide type (COUNTER or DECK) via the guideType prop
@@ -76,15 +77,29 @@ const ArchetypeGuideList = ({
   const hasInstances = data.length > 0;
   const canCreateInstance = isAuthenticated;
 
+  // Determine title based on guide type
+  const pageTitle = guideType === "COUNTER" ? "Counter Guides" : "Deck Guides";
+
+  // Determine border color based on guide type
+  const borderColorClass = guideType === "COUNTER" ? "border-orange-500/40" : "border-blue-500/40";
+
+  // Calculate pagination info
+  const startIndex = currentPage * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, data.length);
+  const showingCount = hasInstances ? endIndex - startIndex : 0;
+
   return (
     <div className="flex flex-col items-start w-full">
-      <FramedContainer contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4">
-        {/* Back button - Always visible */}
+      <FramedContainer 
+        contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[3%] pt-2 pb-6 gap-4"
+        className={borderColorClass}
+      >
+        {/* Back button */}
         <div className="flex items-center justify-between relative top-3">
           <button
             onClick={handleBackClick}
             className="flex items-center space-x-2 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors text-sm"
-            aria-label="Go back to home"
+            aria-label="Go back"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
@@ -104,51 +119,49 @@ const ArchetypeGuideList = ({
           )}
         </div>
 
-        <div className="flex items-center w-full justify-between gap-4">
-          <div className="flex mt-2 items-center gap-2 flex-1">
-            <h1 className="text-2xl font-bold font-sans flex items-center">
-              <span className="text-white max-[767px]:ml-2 mr-2">
-                {archetypeName}
-              </span>
-            </h1>
-            {!isLoading && !error && (
-              <>
-                <span className="text-base relative top-[4px] font-semibold text-white">
-                  -
-                </span>
-                <span className="text-base relative top-[4px] font-semibold text-blue-400">
-                  Guides ({data.length})
-                </span>
-              </>
-            )}
-          </div>
+        {/* Title section */}
+        <div className="flex flex-col gap-2 mt-2">
+          <h1 className="text-3xl font-bold text-white">
+            {pageTitle}
+          </h1>
+          {!isLoading && !error && hasInstances && (
+            <p className="text-sm text-blue-300">
+              Showing {showingCount} of {data.length} guides for {archetypeName}
+            </p>
+          )}
+        </div>
 
-          <div className="flex items-center gap-3 relative top-[7px]">
-            <div className="w-56">
+        {/* Search, Sort, and Create button row */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3 flex-1 min-w-[250px]">
+            <div className="flex-1 max-w-56">
               <GuideSearch
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
-                placeholder="Search guides"
+                placeholder="Search by title..."
               />
             </div>
-
-            {canCreateInstance && (
-              <button
-                onClick={onCreateInstance}
-                className="flex px-2 py-1 items-center bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded transition-colors shadow text-sm whitespace-nowrap"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Create</span>
-              </button>
-            )}
+            <SortDropdown value={sortBy} onChange={setSortBy} />
           </div>
+
+          {canCreateInstance && (
+            <button
+              onClick={onCreateInstance}
+              className="flex px-3 py-1.5 items-center gap-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors text-sm whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create</span>
+            </button>
+          )}
         </div>
 
         <div
           className="w-full h-[2px]"
           style={{
             background:
-              "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)",
+              guideType === "COUNTER"
+                ? "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)"
+                : "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
           }}
         />
 
@@ -175,14 +188,14 @@ const ArchetypeGuideList = ({
             {canCreateInstance && !debouncedSearchQuery.trim() && (
               <button
                 onClick={onCreateInstance}
-                className="flex items-center space-x-1 px-2 py-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors shadow-lg"
+                className="flex items-center space-x-1 px-4 py-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors shadow-lg mt-4"
               >
                 <Plus className="w-5 h-5" />
                 <span>Be the first to create a guide!</span>
               </button>
             )}
             {!canCreateInstance && !debouncedSearchQuery.trim() && (
-              <div className="text-blue-300 text-lg text-center">
+              <div className="text-blue-300 text-lg text-center mt-4">
                 <Link
                   to="/signin"
                   className="text-blue-400 hover:text-blue-300 underline"
@@ -196,15 +209,13 @@ const ArchetypeGuideList = ({
         )}
 
         {!isLoading && !error && hasInstances && (
-          <GuidesTable
+          <GuidesGrid
             instances={data}
             currentPage={currentPage}
             itemsPerPage={ITEMS_PER_PAGE}
             onSelectInstance={onSelectInstance}
             onPageChange={setCurrentPage}
             showArchetypeName={false}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
           />
         )}
       </FramedContainer>
