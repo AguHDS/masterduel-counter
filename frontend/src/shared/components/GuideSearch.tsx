@@ -7,6 +7,7 @@ interface GuideSearchProps {
   placeholder?: string;
 }
 
+/** Search input component for guides */
 export const GuideSearch = ({
   searchQuery,
   onSearchChange,
