@@ -147,10 +147,10 @@ export const ProfilePage = () => {
           ) as typeof favoriteDecks;
           setFavoriteDecks(decks);
         } catch {
-          setFavoriteDecks([]);
+          setFavoriteDecks([null, null, null]);
         }
       } else {
-        setFavoriteDecks([]);
+        setFavoriteDecks([null, null, null]);
       }
     }
   }, [cancelEdit, profile, setFavoriteCardId, setFavoriteDecks]);

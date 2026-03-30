@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { CardPairItem } from "./CardPairItem";
-import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
+import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
 import type { CardPair, Card } from "@/features/archetypes/types";
 
 interface CardPairEditorProps {
@@ -26,6 +26,7 @@ export const CardPairEditor = ({
 }: CardPairEditorProps) => {
   const [selectingPosition, setSelectingPosition] =
     useState<SelectingPosition>(null);
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
 
   // Close modal when forced from parent
   useEffect(() => {
@@ -70,7 +71,8 @@ export const CardPairEditor = ({
     );
   };
 
-  const openCardSelection = (pairId: string, position: "top" | "bottom") => {
+  const openCardSelection = (pairId: string, position: "top" | "bottom", anchor: HTMLElement) => {
+    setAnchorElement(anchor);
     setSelectingPosition({ pairId, position });
   };
 
@@ -147,8 +149,14 @@ export const CardPairEditor = ({
             bottomCards={pair.bottomCards}
             effectiveness={pair.effectiveness}
             comment={pair.comment}
-            onSelectTop={() => openCardSelection(pair.id, "top")}
-            onSelectBottom={() => openCardSelection(pair.id, "bottom")}
+            onSelectTop={(e?: React.MouseEvent<HTMLButtonElement>) => {
+              if (e?.currentTarget) setAnchorElement(e.currentTarget);
+              openCardSelection(pair.id, "top", e?.currentTarget || document.body);
+            }}
+            onSelectBottom={(e?: React.MouseEvent<HTMLButtonElement>) => {
+              if (e?.currentTarget) setAnchorElement(e.currentTarget);
+              openCardSelection(pair.id, "bottom", e?.currentTarget || document.body);
+            }}
             onRemoveTopCard={(cardIndex) =>
               removeCard(pair.id, "top", cardIndex)
             }
@@ -193,16 +201,19 @@ export const CardPairEditor = ({
       </div>
 
       {selectingPosition && (
-        <CardSearchModal
+        <FloatingCardSearchModal
           isOpen={!!selectingPosition}
-          onClose={() => setSelectingPosition(null)}
+          onClose={() => {
+            setSelectingPosition(null);
+            setAnchorElement(null);
+          }}
           onSelectCard={handleCardSelected}
           title={
             selectingPosition.position === "top"
               ? "Select Target Card"
               : "Select Counter Card"
           }
-          variant="sidebar"
+          anchorElement={anchorElement}
           autoCloseAfterSelect={false}
         />
       )}

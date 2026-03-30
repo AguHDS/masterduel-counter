@@ -53,6 +53,7 @@ export interface ComboStep {
   id: string;
   stepOrder: number;
   description?: string | null;
+  parentCanceledStepId?: string | null;
   mainCards: Card[];
   subCards: Card[];
   leftSubCards: Card[];

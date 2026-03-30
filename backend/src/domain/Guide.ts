@@ -53,6 +53,7 @@ export interface RegisterGuideDTO {
       subCardIds: number[];
       leftSubCardIds: number[];
       description?: string;
+      parentCanceledStepIndex?: number;
       stepOrder: number;
     }>;
   }>;

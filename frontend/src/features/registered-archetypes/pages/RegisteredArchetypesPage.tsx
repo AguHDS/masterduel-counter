@@ -18,7 +18,7 @@ import type { GuideType, Archetype } from "@/features/archetypes/types";
 export const RegisteredArchetypesPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -27,12 +27,14 @@ export const RegisteredArchetypesPage = () => {
     debounceDelay: 300,
     limit: 20,
   });
-  
+
   const typeParam = searchParams.get("type");
-  const guideType: GuideType | undefined = 
-    typeParam === "counter" ? "COUNTER" :
-    typeParam === "deck" ? "DECK" :
-    undefined;
+  const guideType: GuideType | undefined =
+    typeParam === "counter"
+      ? "COUNTER"
+      : typeParam === "deck"
+        ? "DECK"
+        : undefined;
 
   const handleSelectArchetype = (archetypeId: number) => {
     // Navigate to archetype guide list with the same type filter
@@ -49,13 +51,15 @@ export const RegisteredArchetypesPage = () => {
   }, []);
 
   const handleSelectArchetypeFromSearch = useCallback(
-    (archetype: Archetype, guideTypeFromSearch?: 'COUNTER' | 'DECK') => {
+    (archetype: Archetype, guideTypeFromSearch?: "COUNTER" | "DECK") => {
       setIsDropdownOpen(false);
       setSearchQuery("");
       
       // Navigate to archetype guides filtered by type
       if (guideTypeFromSearch) {
-        navigate(`/archetype/${archetype.id}?type=${guideTypeFromSearch.toLowerCase()}`);
+        navigate(
+          `/archetype/${archetype.id}?type=${guideTypeFromSearch.toLowerCase()}`,
+        );
       } else {
         navigate(`/archetype/${archetype.id}`);
       }
@@ -84,9 +88,9 @@ export const RegisteredArchetypesPage = () => {
   };
 
   const getPageDescription = () => {
-    if (guideType === "COUNTER") 
+    if (guideType === "COUNTER")
       return "Browse all Yu-Gi-Oh! Master Duel archetypes with counter guides. Learn how to counter popular decks with handtraps and board breakers.";
-    if (guideType === "DECK") 
+    if (guideType === "DECK")
       return "Browse all Yu-Gi-Oh! Master Duel archetypes with deck guides. Learn combo lines, deck builds, and strategies.";
     return "Browse all registered Yu-Gi-Oh! Master Duel archetypes with community guides.";
   };
@@ -110,8 +114,8 @@ export const RegisteredArchetypesPage = () => {
 
       <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
         <Navbar />
-        
-        <div className="scale-[0.92] origin-top">
+
+        <div className="flex-1 scale-[0.92] origin-top">
           <MainLogo />
 
           {/* Main Search Section */}
@@ -137,10 +141,10 @@ export const RegisteredArchetypesPage = () => {
               </div>
             </div>
           </div>
-        
-          <main className="flex-1 container mx-auto px-4">
+
+          <main className="container mx-auto px-4">
             <FeatureErrorBoundary featureName="RegisteredArchetypesList">
-              <RegisteredArchetypesList 
+              <RegisteredArchetypesList
                 onSelectArchetype={handleSelectArchetype}
                 guideType={guideType}
               />

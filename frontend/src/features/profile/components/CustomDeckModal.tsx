@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, Trash2, Lock, Globe, Edit2, Plus, Save } from "lucide-react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
-import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
+import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
 import type { CustomDeck } from "../api/customDeckApi";
 
 interface Card {
@@ -41,6 +41,7 @@ export const CustomDeckModal = ({
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSelectingCard, setIsSelectingCard] = useState(false);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
 
   const getMainDeckColumns = () => {
     if (mainDeck.length > 50) return 12;
@@ -50,7 +51,8 @@ export const CustomDeckModal = ({
   const mainDeckColumns = getMainDeckColumns();
   const cardSize = mainDeckColumns === 12 ? "tiny" : "small";
 
-  const handleAddCard = (zone: DeckZone) => {
+  const handleAddCard = (zone: DeckZone, anchor: HTMLElement) => {
+    setAnchorElement(anchor);
     setTargetZone(zone);
     setIsSelectingCard(true);
   };
@@ -254,7 +256,10 @@ export const CustomDeckModal = ({
                   </div>
                   {isOwner && isEditMode && (
                     <button
-                      onClick={() => handleAddCard("main")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddCard("main", e.currentTarget);
+                      }}
                       disabled={mainDeck.length >= 60}
                       className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs transition-all duration-300 font-bold disabled:cursor-not-allowed"
                     >
@@ -313,7 +318,10 @@ export const CustomDeckModal = ({
                     </div>
                     {isOwner && isEditMode && (
                       <button
-                        onClick={() => handleAddCard("extra")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddCard("extra", e.currentTarget);
+                        }}
                         disabled={extraDeck.length >= 15}
                         className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs transition-all duration-300 font-bold disabled:cursor-not-allowed"
                       >
@@ -356,15 +364,16 @@ export const CustomDeckModal = ({
 
       {/* Card Search Modal */}
       {isSelectingCard && (
-        <CardSearchModal
+        <FloatingCardSearchModal
           isOpen={true}
           title={`Add Card to ${targetZone === "main" ? "Main" : "Extra"} Deck`}
           onSelectCard={handleCardSelected}
           onClose={() => {
             setIsSelectingCard(false);
             setTargetZone(null);
+            setAnchorElement(null);
           }}
-          variant="sidebar"
+          anchorElement={anchorElement}
           autoCloseAfterSelect={false}
         />
       )}

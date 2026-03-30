@@ -17,7 +17,7 @@ interface InstanceHeaderProps {
   isEditMode: boolean;
   onTitleChange: (value: string) => void;
   onGeneralTipChange: (value: string) => void;
-  onSelectHeaderCard: () => void;
+  onSelectHeaderCard: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   views?: number;
   favorites?: number;
   likes?: number;
@@ -95,7 +95,7 @@ export const InstanceHeader = ({
             </CardTooltip>
             {isEditMode && (
               <button
-                onClick={onSelectHeaderCard}
+                onClick={(e) => onSelectHeaderCard(e)}
                 className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                 title="Change Header Card"
               >
@@ -105,7 +105,7 @@ export const InstanceHeader = ({
           </div>
         ) : (
           <button
-            onClick={() => isEditMode && onSelectHeaderCard()}
+            onClick={(e) => isEditMode && onSelectHeaderCard(e)}
             disabled={!isEditMode}
             className={`bg-gradient-to-br from-blue-800 to-slate-800 w-48 h-64 rounded-lg flex items-center justify-center border-2 border-blue-500 ${
               isEditMode

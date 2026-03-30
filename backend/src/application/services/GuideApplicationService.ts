@@ -218,27 +218,46 @@ export class GuideApplicationService implements GuideInstanceServicePort {
         // Get the created initial hands to map temporary IDs to real IDs
         const createdHands = await this.initialHandRepository.findInitialHandsByInstanceId(instance.id);
         
-        // Build all combo steps to create
-        const allSteps = comboSteps.flatMap((handCombo) => {
+        // Process each hand's combo steps
+        for (const handCombo of comboSteps) {
           // Find the real initial hand ID by position (matches array index)
           const realHandId = createdHands[handCombo.initialHandId]?.id;
           
           if (!realHandId) {
-            return [];
+            continue;
           }
           
-          return handCombo.steps.map((step) => ({
-            initialHandId: realHandId,
-            stepOrder: step.stepOrder,
-            description: step.description || null,
-            mainCardIds: step.mainCardIds,
-            subCardIds: step.subCardIds,
-            leftSubCardIds: step.leftSubCardIds,
-          }));
-        });
-        
-        if (allSteps.length > 0) {
-          await this.comboStepRepository.createManyComboSteps(allSteps);
+          // Create steps in order, tracking their real IDs
+          const createdStepsMap = new Map<number, number>(); // index -> real ID
+          
+          for (let i = 0; i < handCombo.steps.length; i++) {
+            const step = handCombo.steps[i];
+            
+            // Resolve parent canceled step ID from index
+            let parentCanceledStepId: number | null = null;
+            if (step.parentCanceledStepIndex !== undefined) {
+              const parentRealId = createdStepsMap.get(step.parentCanceledStepIndex);
+              if (parentRealId) {
+                parentCanceledStepId = parentRealId;
+              }
+            }
+            
+            // Create the step
+            const createdSteps = await this.comboStepRepository.createManyComboSteps([{
+              initialHandId: realHandId,
+              stepOrder: step.stepOrder,
+              description: step.description || null,
+              parentCanceledStepId,
+              mainCardIds: step.mainCardIds,
+              subCardIds: step.subCardIds,
+              leftSubCardIds: step.leftSubCardIds,
+            }]);
+            
+            // Store the mapping
+            if (createdSteps.length > 0) {
+              createdStepsMap.set(i, createdSteps[0].id);
+            }
+          }
         }
       }
     }

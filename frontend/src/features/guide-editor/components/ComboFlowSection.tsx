@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import type { ComboStep } from "@/features/archetypes/types";
 import { ComboFlowViewer } from "./ComboFlowViewer";
 import { ComboStepEditor } from "./ComboStepEditor";
@@ -10,6 +11,7 @@ interface ComboFlowSectionProps {
   initialHandId: string;
   onModalStateChange?: (isOpen: boolean) => void;
   forceCloseModal?: boolean;
+  onResetCanceledFlow?: () => void;
 }
 
 export const ComboFlowSection = ({
@@ -20,7 +22,15 @@ export const ComboFlowSection = ({
   initialHandId,
   onModalStateChange,
   forceCloseModal,
+  onResetCanceledFlow: _onResetCanceledFlow,
 }: ComboFlowSectionProps) => {
+  const prevInitialHandIdRef = useRef(initialHandId);
+
+  // Reset components when hand changes (via key prop)
+  useEffect(() => {
+    prevInitialHandIdRef.current = initialHandId;
+  }, [initialHandId]);
+
   if (selectedHandNumber === null) {
     return null;
   }
@@ -42,6 +52,7 @@ export const ComboFlowSection = ({
       {/* Content */}
       {isEditMode ? (
         <ComboStepEditor
+          key={initialHandId}
           comboSteps={comboSteps}
           setComboSteps={setComboSteps}
           initialHandId={initialHandId}
@@ -53,7 +64,7 @@ export const ComboFlowSection = ({
           <p className="text-gray-400">Loading hand...</p>
         </div>
       ) : (
-        <ComboFlowViewer comboSteps={comboSteps} isEditMode={isEditMode} />
+        <ComboFlowViewer key={initialHandId} comboSteps={comboSteps} isEditMode={isEditMode} />
       )}
     </div>
   );

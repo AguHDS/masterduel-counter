@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, X, Trash2 } from "lucide-react";
-import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
+import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { ComboStep, Card } from "@/features/archetypes/types";
 
@@ -25,6 +25,10 @@ export const ComboStepEditor = ({
   forceCloseModal = false,
 }: ComboStepEditorProps) => {
   const [selectingCards, setSelectingCards] = useState<CardSelectionMode>(null);
+  const [activeCanceledStepId, setActiveCanceledStepId] = useState<string | null>(null);
+  const [expandedLeftSteps, setExpandedLeftSteps] = useState<Set<string>>(new Set());
+  const [expandedRightSteps, setExpandedRightSteps] = useState<Set<string>>(new Set());
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     if (forceCloseModal && selectingCards) {
@@ -38,11 +42,50 @@ export const ComboStepEditor = ({
     }
   }, [selectingCards, onModalStateChange]);
 
+  // Get the steps to display based on active canceled flow
+  const getVisibleSteps = (): ComboStep[] => {
+    const mainFlowSteps = comboSteps.filter(s => !s.parentCanceledStepId);
+    
+    if (activeCanceledStepId) {
+      // Find the index of the canceled step in main flow
+      const canceledStepIndex = mainFlowSteps.findIndex(s => s.id === activeCanceledStepId);
+      
+      // Show main flow steps UP TO and INCLUDING the canceled step
+      const stepsBeforeCanceled = mainFlowSteps.slice(0, canceledStepIndex + 1);
+      
+      // Show the canceled alternative steps for this step
+      const canceledSteps = comboSteps.filter(s => s.parentCanceledStepId === activeCanceledStepId);
+      
+      return [...stepsBeforeCanceled, ...canceledSteps];
+    } else {
+      // Show all main flow steps (no parent)
+      return mainFlowSteps;
+    }
+  };
+
   const addStep = () => {
+    // Calculate the correct stepOrder based on context
+    let newStepOrder = 0;
+    
+    if (activeCanceledStepId) {
+      // Adding a canceled step: find max stepOrder of steps with same parentCanceledStepId
+      const canceledSteps = comboSteps.filter(s => s.parentCanceledStepId === activeCanceledStepId);
+      if (canceledSteps.length > 0) {
+        newStepOrder = Math.max(...canceledSteps.map(s => s.stepOrder)) + 1;
+      }
+    } else {
+      // Adding a main flow step: find max stepOrder of main flow steps (no parent)
+      const mainFlowSteps = comboSteps.filter(s => !s.parentCanceledStepId);
+      if (mainFlowSteps.length > 0) {
+        newStepOrder = Math.max(...mainFlowSteps.map(s => s.stepOrder)) + 1;
+      }
+    }
+    
     const newStep: ComboStep = {
       id: `step-${Date.now()}`,
-      stepOrder: comboSteps.length,
+      stepOrder: newStepOrder,
       description: "",
+      parentCanceledStepId: activeCanceledStepId || null,
       mainCards: [],
       subCards: [],
       leftSubCards: [],
@@ -120,10 +163,36 @@ export const ComboStepEditor = ({
     );
   };
 
-  const sortedSteps = [...comboSteps].sort((a, b) => a.stepOrder - b.stepOrder);
+  const toggleCanceledFlow = (stepId: string) => {
+    // If clicking the same step, toggle back to main flow
+    if (activeCanceledStepId === stepId) {
+      setActiveCanceledStepId(null);
+    } else {
+      // Switch to this step's canceled flow
+      setActiveCanceledStepId(stepId);
+    }
+  };
+
+  const stepHasCanceledFlow = (stepId: string): boolean => {
+    return comboSteps.some(s => s.parentCanceledStepId === stepId);
+  };
+
+  // Sort steps: main flow first (by stepOrder), then canceled flow (by stepOrder)
+  const sortedSteps = [...getVisibleSteps()].sort((a, b) => {
+    // If one has parent and the other doesn't, main flow comes first
+    const aIsMainFlow = !a.parentCanceledStepId;
+    const bIsMainFlow = !b.parentCanceledStepId;
+    
+    if (aIsMainFlow && !bIsMainFlow) return -1;
+    if (!aIsMainFlow && bIsMainFlow) return 1;
+    
+    // Both are same type (both main or both canceled), sort by stepOrder
+    return a.stepOrder - b.stepOrder;
+  });
 
   return (
     <div className="space-y-4">
+
       {sortedSteps.length === 0 ? (
         <button
           onClick={addStep}
@@ -131,41 +200,79 @@ export const ComboStepEditor = ({
         >
           <Plus className="w-8 h-8 text-blue-400 group-hover:text-blue-300 mb-2" />
           <span className="text-sm text-blue-400 group-hover:text-blue-300">
-            Add First Step
+            {activeCanceledStepId ? "Add First Canceled Step" : "Add First Step"}
           </span>
         </button>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
-            {sortedSteps.map((step, index) => (
-              <div
-                key={step.id}
-                className="relative bg-slate-800/50 border-2 border-blue-500/40 rounded-lg p-8"
-              >
-                {/* Step Number Badge - Top Left */}
-                <div className="absolute top-2 left-2">
-                  <span className="inline-block px-2 py-0.5 text-yellow-500 text-xs font-bold rounded-full">
-                    #{index + 1}
-                  </span>
-                </div>
-                <button
-                  onClick={() => removeStep(step.id)}
-                  className="absolute top-2 right-2 text-red-500 hover:text-red-400 transition-colors"
-                  title="Remove step"
+            {sortedSteps.map((step, index) => {
+              const isMainFlowStep = !step.parentCanceledStepId;
+              const isReadOnly = !!(activeCanceledStepId && isMainFlowStep);
+              
+              return (
+                <div
+                  key={step.id}
+                  className={`relative bg-slate-800/50 border-2 rounded-lg p-8 pb-12 ${
+                    isReadOnly 
+                      ? 'border-slate-600/40 opacity-70' 
+                      : 'border-blue-500/40'
+                  }`}
                 >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                  {/* Step Number Badge - Top Left */}
+                  <div className="absolute top-2 left-2">
+                    <span className="inline-block px-2 py-0.5 text-yellow-500 text-xs font-bold rounded-full">
+                      #{index + 1}
+                    </span>
+                  </div>
 
-                {/* Vertical Layout: Left Sub Cards + Main Cards + Right Sub Cards */}
-                <div className="mb-3">
-                  <div className="flex justify-center m-auto items-start gap-3 w-fit">
-                    {/* Left Sub Cards with placeholders (vertical stack) - Always show 5 slots */}
-                    {step.mainCards.length > 0 && (
-                      <div className="flex flex-col gap-1">
-                        {[...Array(5)].map((_, slotIndex) => {
-                          const card = step.leftSubCards[slotIndex];
-                          return (
-                            <div key={slotIndex}>
+                  {/* Canceled Flow Button - Bottom Left (only for main flow steps with canceled flows) */}
+                  {isMainFlowStep && stepHasCanceledFlow(step.id) && (
+                    <button
+                      onClick={() => toggleCanceledFlow(step.id)}
+                      className={`absolute bottom-2 left-2 px-2 py-1 text-[11px] font-semibold rounded transition-colors ${
+                        activeCanceledStepId === step.id
+                          ? "bg-slate-700 text-white hover:bg-slate-600"
+                          : "bg-red-600/80 text-white hover:bg-red-600"
+                      }`}
+                      title={activeCanceledStepId === step.id ? "Return to Main Flow" : "View/Edit Canceled Flow"}
+                    >
+                      {activeCanceledStepId === step.id ? "← Go Back" : "Negated?"}
+                    </button>
+                  )}
+
+                  {/* Add Canceled Flow Button - Only show when not in canceled view and step doesn't have canceled flow yet */}
+                  {!activeCanceledStepId && isMainFlowStep && !stepHasCanceledFlow(step.id) && (
+                    <button
+                      onClick={() => toggleCanceledFlow(step.id)}
+                      className="absolute bottom-2 left-2 px-2 py-1 text-[11px] font-semibold rounded transition-colors bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white"
+                      title="Add Canceled Flow"
+                    >
+                      Canceled?
+                    </button>
+                  )}
+
+                  {!isReadOnly && (
+                    <button
+                      onClick={() => removeStep(step.id)}
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-400 transition-colors"
+                      title="Remove step"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  {/* Vertical Layout: Left Sub Cards + Main Cards + Right Sub Cards */}
+                  <div className={`${expandedLeftSteps.has(step.id) || expandedRightSteps.has(step.id) ? 'mb-6' : 'mb-3'} ${isReadOnly ? 'pointer-events-none' : ''}`}>
+                    <div className="flex justify-center m-auto items-center gap-3 w-fit">
+                      {/* Left Sub Cards with placeholders - All 5 vertical */}
+                      {step.mainCards.length > 0 && (
+                        <div className="flex flex-col gap-1" style={{ minHeight: "232px" }}>
+                          {/* First 3 cards - always visible */}
+                          {[...Array(3)].map((_, slotIndex) => {
+                            const card = step.leftSubCards[slotIndex];
+                            return (
+                              <div key={slotIndex}>
                               {card ? (
                                 <div className="relative group">
                                   <CardTooltip
@@ -193,12 +300,13 @@ export const ComboStepEditor = ({
                                 </div>
                               ) : (
                                 <button
-                                  onClick={() =>
+                                  onClick={(e) => {
+                                    setAnchorElement(e.currentTarget);
                                     setSelectingCards({
                                       stepId: step.id,
                                       type: "leftSub",
-                                    })
-                                  }
+                                    });
+                                  }}
                                   className="w-10 h-14 border-2 border-dashed border-slate-600 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors opacity-50 hover:opacity-100"
                                   title="Add card"
                                 >
@@ -208,8 +316,75 @@ export const ComboStepEditor = ({
                             </div>
                           );
                         })}
-                      </div>
-                    )}
+                          
+                          {/* Extra 2 cards - only when expanded (slots 3 and 4) */}
+                          {expandedLeftSteps.has(step.id) && [3, 4].map((slotIndex) => {
+                            const card = step.leftSubCards[slotIndex];
+                            return (
+                              <div key={slotIndex}>
+                              {card ? (
+                                <div className="relative group">
+                                  <CardTooltip
+                                    cardId={card.id}
+                                    imageUrl={
+                                      card.imageUrl || card.imageUrlSmall
+                                    }
+                                    cardName={card.name}
+                                  >
+                                    <img
+                                      src={card.imageUrlSmall || card.imageUrl}
+                                      alt={card.name}
+                                      className="w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
+                                    />
+                                  </CardTooltip>
+                                  <button
+                                    onClick={() =>
+                                      removeCard(step.id, slotIndex, "leftSub")
+                                    }
+                                    className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                                    title="Remove card"
+                                  >
+                                    <X className="w-2 h-2 text-white" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    setAnchorElement(e.currentTarget);
+                                    setSelectingCards({
+                                      stepId: step.id,
+                                      type: "leftSub",
+                                    });
+                                  }}
+                                  className="w-10 h-14 border-2 border-dashed border-slate-600 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors opacity-50 hover:opacity-100"
+                                  title="Add card"
+                                >
+                                  <Plus className="w-3 h-3 text-slate-500 hover:text-blue-400" />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                        
+                        {/* Show All button - always visible, positioned after last visible placeholder */}
+                        <div className="h-6 flex items-center">
+                          <button
+                            onClick={() => {
+                              const newSet = new Set(expandedLeftSteps);
+                              if (newSet.has(step.id)) {
+                                newSet.delete(step.id);
+                              } else {
+                                newSet.add(step.id);
+                              }
+                              setExpandedLeftSteps(newSet);
+                            }}
+                            className="text-[10px] text-blue-400 hover:text-blue-300 py-0.5 px-1 bg-slate-700/50 rounded text-center w-full"
+                          >
+                            {expandedLeftSteps.has(step.id) ? "Less" : "Show All"}
+                          </button>
+                        </div>
+                        </div>
+                      )}
 
                     {/* Equals separator - Always visible when there's a main card (in edit mode) */}
                     {step.mainCards.length > 0 && (
@@ -246,9 +421,10 @@ export const ComboStepEditor = ({
                       ))}
                       {step.mainCards.length === 0 && (
                         <button
-                          onClick={() =>
-                            setSelectingCards({ stepId: step.id, type: "main" })
-                          }
+                          onClick={(e) => {
+                            setAnchorElement(e.currentTarget);
+                            setSelectingCards({ stepId: step.id, type: "main" });
+                          }}
                           className="w-20 h-28 border-2 border-dashed border-blue-500 rounded flex flex-col items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors"
                         >
                           <Plus className="w-5 h-5 text-blue-400 mb-1" />
@@ -266,10 +442,11 @@ export const ComboStepEditor = ({
                       </span>
                     )}
 
-                    {/* Sub Cards with placeholders (vertical stack) - Always show 5 slots */}
+                    {/* Right Sub Cards with placeholders - All 5 vertical */}
                     {step.mainCards.length > 0 && (
-                      <div className="flex flex-col gap-1">
-                        {[...Array(5)].map((_, slotIndex) => {
+                      <div className="flex flex-col gap-1" style={{ minHeight: "232px" }}>
+                        {/* First 3 cards - always visible */}
+                        {[...Array(3)].map((_, slotIndex) => {
                           const card = step.subCards[slotIndex];
                           return (
                             <div key={slotIndex}>
@@ -300,12 +477,13 @@ export const ComboStepEditor = ({
                                 </div>
                               ) : (
                                 <button
-                                  onClick={() =>
+                                  onClick={(e) => {
+                                    setAnchorElement(e.currentTarget);
                                     setSelectingCards({
                                       stepId: step.id,
                                       type: "sub",
-                                    })
-                                  }
+                                    });
+                                  }}
                                   className="w-10 h-14 border-2 border-dashed border-slate-600 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors opacity-50 hover:opacity-100"
                                   title="Add card"
                                 >
@@ -315,6 +493,73 @@ export const ComboStepEditor = ({
                             </div>
                           );
                         })}
+                        
+                        {/* Extra 2 cards - only when expanded (slots 3 and 4) */}
+                        {expandedRightSteps.has(step.id) && [3, 4].map((slotIndex) => {
+                          const card = step.subCards[slotIndex];
+                          return (
+                            <div key={slotIndex}>
+                              {card ? (
+                                <div className="relative group">
+                                  <CardTooltip
+                                    cardId={card.id}
+                                    imageUrl={
+                                      card.imageUrl || card.imageUrlSmall
+                                    }
+                                    cardName={card.name}
+                                  >
+                                    <img
+                                      src={card.imageUrlSmall || card.imageUrl}
+                                      alt={card.name}
+                                      className="w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
+                                    />
+                                  </CardTooltip>
+                                  <button
+                                    onClick={() =>
+                                      removeCard(step.id, slotIndex, "sub")
+                                    }
+                                    className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                                    title="Remove card"
+                                  >
+                                    <X className="w-2 h-2 text-white" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    setAnchorElement(e.currentTarget);
+                                    setSelectingCards({
+                                      stepId: step.id,
+                                      type: "sub",
+                                    });
+                                  }}
+                                  className="w-10 h-14 border-2 border-dashed border-slate-600 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors opacity-50 hover:opacity-100"
+                                  title="Add card"
+                                >
+                                  <Plus className="w-3 h-3 text-slate-500 hover:text-blue-400" />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                        
+                        {/* Show All button - always visible, positioned after last visible placeholder */}
+                        <div className="h-6 flex items-center">
+                          <button
+                            onClick={() => {
+                              const newSet = new Set(expandedRightSteps);
+                              if (newSet.has(step.id)) {
+                                newSet.delete(step.id);
+                              } else {
+                                newSet.add(step.id);
+                              }
+                              setExpandedRightSteps(newSet);
+                            }}
+                            className="text-[10px] text-blue-400 hover:text-blue-300 py-0.5 px-1 bg-slate-700/50 rounded text-center w-full"
+                          >
+                            {expandedRightSteps.has(step.id) ? "Less" : "Show All"}
+                          </button>
+                        </div>
                       </div>
                     )}
 
@@ -323,8 +568,8 @@ export const ComboStepEditor = ({
                 </div>
 
                 {/* Description */}
-                <div>
-                  <label className="text-blue-400 font-semibold text-xs mb-2 m-auto flex justify-center">
+                <div className="flex flex-col items-center">
+                  <label className="text-blue-400 font-semibold text-xs mb-2">
                     Description (Optional)
                   </label>
                   <textarea
@@ -333,18 +578,23 @@ export const ComboStepEditor = ({
                       handleDescriptionChange(step.id, e.target.value)
                     }
                     maxLength={500}
+                    disabled={isReadOnly}
                     placeholder="Describe this step (Max. 500 characters)..."
-                    className="w-full max-w-[280px] px-2 py-1.5 bg-slate-700/50 text-white text-xs rounded 
-                               border border-slate-600 focus:outline-none focus:border-blue-500 
-                               resize-y min-h-[60px] scrollbar-homeAllPages"
+                    className={`w-full max-w-[280px] px-2 py-1.5 text-white text-xs rounded 
+                               border focus:outline-none resize-y min-h-[60px] scrollbar-homeAllPages mx-auto ${
+                                 isReadOnly 
+                                   ? 'bg-slate-800/50 border-slate-700 cursor-not-allowed' 
+                                   : 'bg-slate-700/50 border-slate-600 focus:border-blue-500'
+                               }`}
                     rows={3}
                   />
-                  <div className="text-xs text-slate-400 mt-0.5 text-right max-w-[280px]">
+                  <div className="text-xs text-slate-400 mt-0.5 text-right w-full max-w-[280px]">
                     {(step.description || "").length}/500
                   </div>
                 </div>
               </div>
-            ))}
+            );
+            })}
             {/* Add Step Placeholder */}
             <button
               onClick={addStep}
@@ -361,9 +611,12 @@ export const ComboStepEditor = ({
         </>
       )}
 
-      <CardSearchModal
+      <FloatingCardSearchModal
         isOpen={!!selectingCards}
-        onClose={() => setSelectingCards(null)}
+        onClose={() => {
+          setSelectingCards(null);
+          setAnchorElement(null);
+        }}
         onSelectCard={handleCardSelected}
         title={
           selectingCards?.type === "main"
@@ -372,7 +625,7 @@ export const ComboStepEditor = ({
               ? "Select Left Sub Card"
               : "Select Right Sub Card"
         }
-        variant="sidebar"
+        anchorElement={anchorElement}
         autoCloseAfterSelect={false}
       />
     </div>

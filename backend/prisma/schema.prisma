@@ -255,18 +255,22 @@ model InitialHand {
 }
 
 model ComboStep {
-  id            Int       @id @default(autoincrement())
-  initialHandId Int       @map("initial_hand_id")
-  stepOrder     Int       @map("step_order")
-  description   String?
-  createdAt     DateTime  @default(now()) @map("created_at")
+  id                    Int       @id @default(autoincrement())
+  initialHandId         Int       @map("initial_hand_id")
+  stepOrder             Int       @map("step_order")
+  description           String?
+  parentCanceledStepId  Int?      @map("parent_canceled_step_id")
+  createdAt             DateTime  @default(now()) @map("created_at")
 
-  initialHand   InitialHand @relation(fields: [initialHandId], references: [id], onDelete: Cascade)
-  mainCards     ComboStepMainCard[]
-  subCards      ComboStepSubCard[]
-  leftSubCards  ComboStepLeftSubCard[]
+  initialHand           InitialHand @relation(fields: [initialHandId], references: [id], onDelete: Cascade)
+  parentCanceledStep    ComboStep?  @relation("CanceledFlow", fields: [parentCanceledStepId], references: [id], onDelete: Cascade)
+  canceledSteps         ComboStep[] @relation("CanceledFlow")
+  mainCards             ComboStepMainCard[]
+  subCards              ComboStepSubCard[]
+  leftSubCards          ComboStepLeftSubCard[]
 
   @@index([initialHandId])
+  @@index([parentCanceledStepId])
   @@map("combo_steps")
 }
 

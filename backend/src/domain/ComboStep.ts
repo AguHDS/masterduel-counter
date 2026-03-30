@@ -4,6 +4,7 @@ export interface ComboStep {
   initialHandId: number;
   stepOrder: number;
   description: string | null;
+  parentCanceledStepId: number | null;
   createdAt: string;
   mainCardIds: number[];
   subCardIds: number[];
@@ -14,6 +15,7 @@ export interface ComboStepCreateDTO {
   initialHandId: number;
   stepOrder: number;
   description?: string | null;
+  parentCanceledStepId?: number | null;
   mainCardIds: number[];
   subCardIds: number[];
   leftSubCardIds: number[];

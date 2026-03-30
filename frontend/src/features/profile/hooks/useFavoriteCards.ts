@@ -5,7 +5,7 @@ import type { FavoriteDeck } from '../types/profileTypes';
 
 export const useFavoriteCards = (
   favoriteCardId: number | null,
-  favoriteDecks: FavoriteDeck[]
+  favoriteDecks: (FavoriteDeck | null)[]
 ) => {
   // Extract all card IDs
   const cardIds: number[] = [];

@@ -25,6 +25,7 @@ Mejoras_antes_de_prod.md
 /backend/prisma/src/data/*.db-*
 *.sqlite
 *.sqlite3
+PASOS_MIGRACION.md
 
 # Editor directories and files
 .vscode/*

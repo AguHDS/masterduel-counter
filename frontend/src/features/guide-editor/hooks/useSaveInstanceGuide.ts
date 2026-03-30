@@ -188,18 +188,53 @@ export const useSaveInstanceGuide = () => {
               if (steps.length === 0) return null;
               
               // Validate each step has at least 1 main card
-              const validSteps = steps.filter(s => s.mainCards.length > 0);
-              if (validSteps.length === 0) return null;
+              const allValidSteps = steps.filter(s => s.mainCards.length > 0);
+              if (allValidSteps.length === 0) return null;
+              
+              // Separate main flow and canceled flow steps, then sort each group
+              const mainFlowSteps = allValidSteps
+                .filter(s => !s.parentCanceledStepId)
+                .sort((a, b) => a.stepOrder - b.stepOrder);
+              
+              const canceledFlowSteps = allValidSteps
+                .filter(s => s.parentCanceledStepId)
+                .sort((a, b) => {
+                  // First sort by parent step, then by stepOrder within each parent
+                  const parentComparison = (a.parentCanceledStepId || '').localeCompare(b.parentCanceledStepId || '');
+                  if (parentComparison !== 0) return parentComparison;
+                  return a.stepOrder - b.stepOrder;
+                });
+              
+              // Combine: main flow first, then canceled flows
+              const validSteps = [...mainFlowSteps, ...canceledFlowSteps];
+              
+              // Create a map of temporary step IDs to their indices
+              const stepIdToIndex = new Map<string, number>();
+              validSteps.forEach((step, idx) => {
+                stepIdToIndex.set(step.id, idx);
+              });
               
               return {
                 initialHandId: index, // Use index since backend maps by position
-                steps: validSteps.map((step, stepIndex) => ({
-                  mainCardIds: step.mainCards.map((c) => c.id),
-                  subCardIds: step.subCards.map((c) => c.id),
-                  leftSubCardIds: step.leftSubCards.map((c) => c.id),
-                  description: step.description || undefined,
-                  stepOrder: stepIndex,
-                })),
+                steps: validSteps.map((step, stepIndex) => {
+                  // Map parentCanceledStepId from temporary ID to index
+                  let parentIndex: number | undefined = undefined;
+                  if (step.parentCanceledStepId) {
+                    const parentStepIndex = stepIdToIndex.get(step.parentCanceledStepId);
+                    if (parentStepIndex !== undefined) {
+                      parentIndex = parentStepIndex;
+                    }
+                  }
+                  
+                  return {
+                    mainCardIds: step.mainCards.map((c) => c.id),
+                    subCardIds: step.subCards.map((c) => c.id),
+                    leftSubCardIds: step.leftSubCards.map((c) => c.id),
+                    description: step.description || undefined,
+                    parentCanceledStepIndex: parentIndex,
+                    stepOrder: stepIndex,
+                  };
+                }),
               };
             })
             .filter((item): item is NonNullable<typeof item> => item !== null)

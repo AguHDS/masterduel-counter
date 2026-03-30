@@ -17,9 +17,9 @@ export class SqliteComboStepRepository implements ComboStepRepository {
     steps: ComboStepCreateDTO[],
   ): Promise<ComboStep[]> {
     const stepStmt = this.db.prepare(`
-      INSERT INTO combo_steps (initial_hand_id, step_order, description)
-      VALUES (?, ?, ?)
-      RETURNING id, initial_hand_id, step_order, description, created_at
+      INSERT INTO combo_steps (initial_hand_id, step_order, description, parent_canceled_step_id)
+      VALUES (?, ?, ?, ?)
+      RETURNING id, initial_hand_id, step_order, description, parent_canceled_step_id, created_at
     `);
 
     const mainCardStmt = this.db.prepare(`
@@ -45,7 +45,8 @@ export class SqliteComboStepRepository implements ComboStepRepository {
         step.initialHandId,
         step.stepOrder,
         step.description || null,
-      ) as Omit<ComboStep, "mainCardIds" | "subCardIds">;
+        step.parentCanceledStepId || null,
+      ) as Omit<ComboStep, "mainCardIds" | "subCardIds" | "leftSubCardIds"> & { parent_canceled_step_id: number | null };
 
       // Insert main cards with position
       step.mainCardIds.forEach((cardId, index) => {
@@ -67,6 +68,7 @@ export class SqliteComboStepRepository implements ComboStepRepository {
         initialHandId: result.initialHandId,
         stepOrder: result.stepOrder,
         description: result.description,
+        parentCanceledStepId: result.parent_canceled_step_id,
         createdAt: result.createdAt,
         mainCardIds: step.mainCardIds,
         subCardIds: step.subCardIds,
@@ -81,7 +83,7 @@ export class SqliteComboStepRepository implements ComboStepRepository {
     initialHandId: number,
   ): Promise<ComboStepWithCards[]> {
     const stepStmt = this.db.prepare(`
-      SELECT id, initial_hand_id, step_order, description, created_at
+      SELECT id, initial_hand_id, step_order, description, parent_canceled_step_id, created_at
       FROM combo_steps
       WHERE initial_hand_id = ?
       ORDER BY step_order
@@ -116,6 +118,7 @@ export class SqliteComboStepRepository implements ComboStepRepository {
       initial_hand_id: number;
       step_order: number;
       description: string | null;
+      parent_canceled_step_id: number | null;
       created_at: string;
     }
 
@@ -126,6 +129,7 @@ export class SqliteComboStepRepository implements ComboStepRepository {
       initialHandId: step.initial_hand_id,
       stepOrder: step.step_order,
       description: step.description,
+      parentCanceledStepId: step.parent_canceled_step_id,
       createdAt: step.created_at,
       mainCards: mainCardStmt.all(step.id) as Array<{
         id: number;

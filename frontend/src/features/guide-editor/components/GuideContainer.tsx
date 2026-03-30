@@ -13,7 +13,7 @@ import { CardPairEditor } from "./CardPairEditor";
 import { InitialHandsEditor } from "./InitialHandsEditor";
 import type { InitialHand } from "./InitialHandsEditor";
 import { ComboFlowSection } from "./ComboFlowSection";
-import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
+import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
 import { InstanceHeader } from "./InstanceHeader";
 import { RecommendedDeckEditor } from "./RecommendedDeckEditor";
 import { useInstanceGuideEditor } from "../hooks/useInstanceGuideEditor";
@@ -46,6 +46,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
   const editor = useInstanceGuideEditor();
   const { saving, validationError, saveInstance, clearValidationError } =
     useSaveInstanceGuide();
+  const [headerAnchor, setHeaderAnchor] = useState<HTMLElement | null>(null);
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
 
@@ -242,6 +243,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
             id: number;
             stepOrder: number;
             description?: string | null;
+            parentCanceledStepId?: number | null;
             mainCards: Card[];
             subCards: Card[];
             leftSubCards?: Card[];
@@ -265,6 +267,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
               id: step.id.toString(),
               stepOrder: step.stepOrder,
               description: step.description,
+              parentCanceledStepId: step.parentCanceledStepId?.toString() || null,
               mainCards: step.mainCards,
               subCards: step.subCards,
               leftSubCards: step.leftSubCards || [],
@@ -378,6 +381,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
             id: number;
             stepOrder: number;
             description?: string | null;
+            parentCanceledStepId?: number | null;
             mainCards: Card[];
             subCards: Card[];
             leftSubCards?: Card[];
@@ -401,6 +405,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
               id: step.id.toString(),
               stepOrder: step.stepOrder,
               description: step.description,
+              parentCanceledStepId: step.parentCanceledStepId?.toString() || null,
               mainCards: step.mainCards,
               subCards: step.subCards,
               leftSubCards: step.leftSubCards || [],
@@ -623,7 +628,10 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                 isEditMode={editor.isEditMode && isOwner}
                 onTitleChange={editor.setTitle}
                 onGeneralTipChange={editor.setGeneralTip}
-                onSelectHeaderCard={() => editor.setIsSelectingHeader(true)}
+                onSelectHeaderCard={(e?: React.MouseEvent<HTMLButtonElement>) => {
+                  if (e?.currentTarget) setHeaderAnchor(e.currentTarget);
+                  editor.setIsSelectingHeader(true);
+                }}
                 views={guideInstanceData?.instance.views || 0}
                 favorites={favorites.favoriteCount}
                 likes={likes.likeCount}
@@ -716,6 +724,9 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                         initialHandId={selectedHandId}
                         onModalStateChange={(isOpen) => handleModalStateChange('combo-steps', isOpen)}
                         forceCloseModal={activeModalComponent !== null && activeModalComponent !== 'combo-steps'}
+                        onResetCanceledFlow={() => {
+                          // Callback to reset canceled flow - handled internally by ComboFlowSection
+                        }}
                       />
                     )
                   )}
@@ -841,11 +852,16 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       </section>
 
       {editor.isSelectingHeader && (
-        <CardSearchModal
+        <FloatingCardSearchModal
           isOpen={true}
-          onClose={() => editor.setIsSelectingHeader(false)}
+          onClose={() => {
+            editor.setIsSelectingHeader(false);
+            setHeaderAnchor(null);
+          }}
           onSelectCard={editor.handleHeaderCardSelected}
           title="Select Header Card"
+          anchorElement={headerAnchor}
+          autoCloseAfterSelect={true}
         />
       )}
 

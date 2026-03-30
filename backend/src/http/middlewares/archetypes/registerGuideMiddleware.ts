@@ -224,6 +224,15 @@ export const registerGuideMiddleware = (
             });
             return;
           }
+
+          // Validate parentCanceledStepIndex (optional)
+          if (step.parentCanceledStepIndex !== undefined && typeof step.parentCanceledStepIndex !== "number") {
+            res.status(400).json({
+              success: false,
+              error: `parentCanceledStepIndex must be a number at comboSteps[${i}].steps[${j}]`,
+            });
+            return;
+          }
         }
       }
     }

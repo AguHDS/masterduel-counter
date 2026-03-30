@@ -72,6 +72,7 @@ export const createGetGuideByIdController = (
                 id: step.id,
                 stepOrder: step.stepOrder,
                 description: step.description,
+                parentCanceledStepId: step.parentCanceledStepId,
                 mainCards: step.mainCards.map((card) => ({
                   id: card.id,
                   name: card.name,

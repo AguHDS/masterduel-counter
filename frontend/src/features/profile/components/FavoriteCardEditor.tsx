@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
+import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { useFavoriteCards } from "../hooks/useFavoriteCards";
 import border_profile from "@/assets/MDC-border.webp";
@@ -20,6 +20,7 @@ export const FavoriteCardEditor = ({
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [viewingCardUrl, setViewingCardUrl] = useState<string | null>(null);
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const { favoriteCard, isLoading } = useFavoriteCards(cardId, []);
 
   const handleCardSelect = (card: Card) => {
@@ -71,7 +72,10 @@ export const FavoriteCardEditor = ({
           </div>
           {isEditMode && (
             <button
-              onClick={() => setIsSearchModalOpen(true)}
+              onClick={(e) => {
+                setAnchorElement(e.currentTarget);
+                setIsSearchModalOpen(true);
+              }}
               className="absolute top-2 right-2 p-2 bg-blue-600/90 hover:bg-blue-700 rounded-full transition-colors z-10"
             >
               <Edit className="w-4 h-4 text-white" />
@@ -82,7 +86,10 @@ export const FavoriteCardEditor = ({
         <div className="mx-auto max-w-[160px]">
           {isEditMode ? (
             <button
-              onClick={() => setIsSearchModalOpen(true)}
+              onClick={(e) => {
+                setAnchorElement(e.currentTarget);
+                setIsSearchModalOpen(true);
+              }}
               className="w-full aspect-[10/14] bg-purple-950/40 border-2 border-dashed border-yellow-600/50 rounded-lg flex items-center justify-center hover:border-yellow-600 hover:bg-purple-950/60 transition-colors"
             >
               <div className="text-center">
@@ -124,13 +131,15 @@ export const FavoriteCardEditor = ({
         </div>
       )}
 
-      <CardSearchModal
+      <FloatingCardSearchModal
         isOpen={isSearchModalOpen}
-        onClose={() => setIsSearchModalOpen(false)}
+        onClose={() => {
+          setIsSearchModalOpen(false);
+          setAnchorElement(null);
+        }}
         onSelectCard={handleCardSelect}
         title="Select Your Favorite Card"
-        variant="center"
-        keepOpenAfterSelect={false}
+        anchorElement={anchorElement}
         autoCloseAfterSelect={true}
       />
     </div>

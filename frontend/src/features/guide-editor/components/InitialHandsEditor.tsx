@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, X, Trash2 } from "lucide-react";
-import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
+import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card, ComboStep } from "@/features/archetypes/types";
 
@@ -37,6 +37,7 @@ export const InitialHandsEditor = ({
   comboSteps,
 }: InitialHandsEditorProps) => {
   const [selectingHandId, setSelectingHandId] = useState<string | null>(null);
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
 
   // Close modal when forced from parent
   useEffect(() => {
@@ -272,7 +273,10 @@ export const InitialHandsEditor = ({
               {/* Always render placeholder, but make invisible/unclickable when hand has 5 cards */}
               {isEditMode && (
                 <button
-                  onClick={() => setSelectingHandId(hand.id)}
+                  onClick={(e) => {
+                    setAnchorElement(e.currentTarget);
+                    setSelectingHandId(hand.id);
+                  }}
                   disabled={hand.cards.length >= 5}
                   className={`mt-2 w-full py-1 border-2 border-dashed rounded flex items-center justify-center transition-colors ${
                     hand.cards.length >= 5
@@ -345,12 +349,16 @@ export const InitialHandsEditor = ({
         </div>
       )}
 
-      <CardSearchModal
+      <FloatingCardSearchModal
         isOpen={!!selectingHandId}
-        onClose={() => setSelectingHandId(null)}
+        onClose={() => {
+          setSelectingHandId(null);
+          setAnchorElement(null);
+        }}
         onSelectCard={handleCardSelected}
         title="Select Card for Initial Hand"
         variant="sidebar"
+        anchorElement={anchorElement}
         autoCloseAfterSelect={false}
       />
     </div>

@@ -16,7 +16,9 @@ export interface CardPairDTO {
 export interface ComboStepDTO {
   mainCardIds: number[];
   subCardIds: number[];
+  leftSubCardIds?: number[];
   description?: string;
+  parentCanceledStepIndex?: number;
   stepOrder: number;
 }
 

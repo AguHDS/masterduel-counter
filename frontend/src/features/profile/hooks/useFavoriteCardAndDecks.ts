@@ -6,7 +6,7 @@ import type { Profile } from '../api/profileApi';
 
 export const useFavoriteCardAndDecks = (userId: string, profile: Profile | undefined) => {
   const [favoriteCardId, setFavoriteCardId] = useState<number | null>(null);
-  const [favoriteDecks, setFavoriteDecks] = useState<FavoriteDeck[]>([]);
+  const [favoriteDecks, setFavoriteDecks] = useState<(FavoriteDeck | null)[]>([null, null, null]);
 
   const queryClient = useQueryClient();
 
@@ -17,14 +17,19 @@ export const useFavoriteCardAndDecks = (userId: string, profile: Profile | undef
       if (profile.favoriteDecks) {
         try {
           const decks = JSON.parse(profile.favoriteDecks) as (FavoriteDeck | null)[];
-          // Filter out null/undefined entries that may have been saved incorrectly
-          const validDecks = decks.filter((deck): deck is FavoriteDeck => deck !== null && deck !== undefined);
-          setFavoriteDecks(validDecks);
+          // Ensure we always have exactly 3 slots
+          const normalizedDecks: (FavoriteDeck | null)[] = [null, null, null];
+          decks.forEach((deck, index) => {
+            if (index < 3 && deck !== null && deck !== undefined) {
+              normalizedDecks[index] = deck;
+            }
+          });
+          setFavoriteDecks(normalizedDecks as any);
         } catch {
-          setFavoriteDecks([]);
+          setFavoriteDecks([null, null, null] as any);
         }
       } else {
-        setFavoriteDecks([]);
+        setFavoriteDecks([null, null, null] as any);
       }
     }
   }, [profile]);
@@ -39,9 +44,11 @@ export const useFavoriteCardAndDecks = (userId: string, profile: Profile | undef
 
   const saveFavoriteCardAndDecks = useCallback(async () => {
     try {
+      // Filter out null values before saving but keep the positions
+      const hasAnyDeck = favoriteDecks.some(deck => deck !== null);
       await updateFavoritesMutation.mutateAsync({
         favoriteCardId,
-        favoriteDecks: favoriteDecks.length > 0 ? JSON.stringify(favoriteDecks) : null,
+        favoriteDecks: hasAnyDeck ? JSON.stringify(favoriteDecks) : null,
       });
     } catch (error) {
       console.error('Error saving favorites:', error);

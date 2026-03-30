@@ -8,8 +8,8 @@ interface CardPairItemProps {
   bottomCards: Card[];
   effectiveness?: string;
   comment?: string;
-  onSelectTop: () => void;
-  onSelectBottom: () => void;
+  onSelectTop: (e?: React.MouseEvent<HTMLButtonElement>) => void;
+  onSelectBottom: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   onRemoveTopCard: (index: number) => void;
   onRemoveBottomCard: (index: number) => void;
   onEffectivenessChange: (value: string) => void;
@@ -364,7 +364,7 @@ export const CardPairItem = ({
                   <>
                     {(hasTopCards || (!hasTopCards && !hasBottomCards)) && (
                       <button
-                        onClick={onSelectTop}
+                        onClick={(e) => onSelectTop(e)}
                         className="rounded border border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
                         style={{
                           width: `${TOP_CARD_WIDTH}px`,
@@ -376,7 +376,7 @@ export const CardPairItem = ({
                     )}
                     {(hasBottomCards || (!hasTopCards && !hasBottomCards)) && (
                       <button
-                        onClick={onSelectBottom}
+                        onClick={(e) => onSelectBottom(e)}
                         className="w-24 h-32 rounded border border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
                       >
                         <Plus className="w-6 h-6 text-slate-400" />

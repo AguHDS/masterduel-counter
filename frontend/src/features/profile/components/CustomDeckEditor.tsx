@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus, X, Loader2, Save } from "lucide-react";
-import { CardSearchModal } from "@/features/archetypes/components/CardSearchModal";
+import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 
 interface Card {
@@ -29,6 +29,7 @@ export const CustomDeckEditor = ({
   const [extraDeck, setExtraDeck] = useState<Card[]>([]);
   const [isSelectingCard, setIsSelectingCard] = useState(false);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
 
   const hasDeck = mainDeck.length > 0 || extraDeck.length > 0;
 
@@ -40,7 +41,8 @@ export const CustomDeckEditor = ({
   const mainDeckColumns = getMainDeckColumns();
   const cardSize = mainDeckColumns === 12 ? "tiny" : "small";
 
-  const handleAddCard = (zone: DeckZone) => {
+  const handleAddCard = (zone: DeckZone, anchor: HTMLElement) => {
+    setAnchorElement(anchor);
     setTargetZone(zone);
     setIsSelectingCard(true);
   };
@@ -128,7 +130,10 @@ export const CustomDeckEditor = ({
                   </span>
                 </div>
                 <button
-                  onClick={() => handleAddCard("main")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddCard("main", e.currentTarget);
+                  }}
                   disabled={mainDeck.length >= 60}
                   className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs transition-all duration-300 font-bold disabled:cursor-not-allowed"
                 >
@@ -142,7 +147,7 @@ export const CustomDeckEditor = ({
               style={{
                 gridTemplateColumns: `repeat(${mainDeckColumns}, minmax(0, 1fr))`,
               }}
-              onClick={() => mainDeck.length < 60 && handleAddCard("main")}
+              onClick={(e) => mainDeck.length < 60 && handleAddCard("main", e.currentTarget)}
             >
               {mainDeck.map((card, index) => (
                 <div
@@ -194,7 +199,10 @@ export const CustomDeckEditor = ({
                   </span>
                 </div>
                 <button
-                  onClick={() => handleAddCard("extra")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddCard("extra", e.currentTarget);
+                  }}
                   disabled={extraDeck.length >= 15}
                   className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs transition-all duration-300 font-bold disabled:cursor-not-allowed"
                 >
@@ -205,7 +213,7 @@ export const CustomDeckEditor = ({
             </div>
             <div
               className="grid grid-cols-15 gap-1 p-3 bg-gradient-to-br from-slate-900/40 via-slate-900/20 to-slate-900/40 rounded-lg min-h-[100px] border-2 border-dashed border-blue-400/40 cursor-pointer hover:border-blue-400/60 transition-colors"
-              onClick={() => extraDeck.length < 15 && handleAddCard("extra")}
+              onClick={(e) => extraDeck.length < 15 && handleAddCard("extra", e.currentTarget)}
             >
               {extraDeck.map((card, index) => (
                 <div
@@ -280,15 +288,16 @@ export const CustomDeckEditor = ({
       </div>
 
       {isSelectingCard && (
-        <CardSearchModal
+        <FloatingCardSearchModal
           isOpen={true}
           onClose={() => {
             setIsSelectingCard(false);
             setTargetZone(null);
+            setAnchorElement(null);
           }}
           onSelectCard={handleCardSelected}
           title={`Add Cards to ${targetZone === "main" ? "Main" : "Extra"} Deck`}
-          variant="sidebar"
+          anchorElement={anchorElement}
           autoCloseAfterSelect={false}
         />
       )}
