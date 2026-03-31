@@ -10,7 +10,7 @@ export const validateCreateCustomDeck = async (
   try {
     const userId = (req as AuthenticatedRequest).user?.id;
     const userRole = (req as AuthenticatedRequest).user?.role;
-    const { title, mainDeckCards, extraDeckCards, isPublic } = req.body;
+    const { title, mainDeckCards, extraDeckCards, sideDeckCards, isPublic, headerCardId } = req.body;
 
     // Check authentication
     if (!userId) {
@@ -21,6 +21,18 @@ export const validateCreateCustomDeck = async (
     // Validate deck data
     if (!Array.isArray(mainDeckCards) || !Array.isArray(extraDeckCards)) {
       res.status(400).json({ success: false, error: "Invalid deck data" });
+      return;
+    }
+
+    // Validate side deck if provided
+    if (sideDeckCards !== undefined && !Array.isArray(sideDeckCards)) {
+      res.status(400).json({ success: false, error: "Invalid side deck data" });
+      return;
+    }
+
+    // Validate header card ID if provided
+    if (headerCardId !== undefined && (typeof headerCardId !== "number" || !Number.isInteger(headerCardId))) {
+      res.status(400).json({ success: false, error: "Invalid header card ID" });
       return;
     }
 
@@ -53,7 +65,9 @@ export const validateCreateCustomDeck = async (
       title: title.trim(),
       mainDeckCards,
       extraDeckCards,
+      sideDeckCards: sideDeckCards || [],
       isPublic: typeof isPublic === "boolean" ? isPublic : false,
+      headerCardId: headerCardId !== undefined && headerCardId !== null ? headerCardId : undefined,
     };
 
     next();

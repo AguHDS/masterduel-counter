@@ -1,17 +1,8 @@
 import { useState } from "react";
 import { Plus, Info } from "lucide-react";
 import { useCustomDecks } from "../hooks/useCustomDecks";
-import { CustomDeckEditor } from "./CustomDeckEditor";
 import { CustomDeckModal } from "./CustomDeckModal";
 import type { CustomDeck } from "../api/customDeckApi";
-
-interface Card {
-  id: number;
-  name: string;
-  imageUrl: string;
-  imageUrlSmall: string;
-  imageUrlCropped: string;
-}
 
 interface CustomDecksListProps {
   userId: string;
@@ -33,7 +24,6 @@ export const CustomDecksList = ({
     createDeck,
     updateDeck,
     deleteCustomDeck,
-    isCreating,
     isUpdating,
     isDeleting,
   } = useCustomDecks(userId);
@@ -50,15 +40,10 @@ export const CustomDecksList = ({
   const canCreateMore = sortedDecks.length < maxDecks;
 
   const handleCreateDeck = (
-    title: string,
-    mainDeck: Card[],
-    extraDeck: Card[],
+    data: { title: string; mainDeckCards: number[]; extraDeckCards: number[]; sideDeckCards: number[]; headerCardId?: number; isPublic: boolean }
   ) => {
-    const mainDeckCards = mainDeck.map((card) => card.id);
-    const extraDeckCards = extraDeck.map((card) => card.id);
-
     createDeck(
-      { title, mainDeckCards, extraDeckCards, isPublic: true },
+      data,
       {
         onSuccess: () => setIsCreatingNew(false),
         onError: (error) => {
@@ -93,6 +78,8 @@ export const CustomDecksList = ({
       title?: string;
       mainDeckCards?: number[];
       extraDeckCards?: number[];
+      sideDeckCards?: number[];
+      headerCardId?: number;
       isPublic?: boolean;
     },
   ) => {
@@ -118,10 +105,10 @@ export const CustomDecksList = ({
   return (
     <div className="space-y-4">
       {isCreatingNew && (
-        <CustomDeckEditor
+        <CustomDeckModal
+          isOwner={true}
+          onClose={() => setIsCreatingNew(false)}
           onSave={handleCreateDeck}
-          onCancel={() => setIsCreatingNew(false)}
-          isSaving={isCreating}
         />
       )}
 
@@ -129,8 +116,16 @@ export const CustomDecksList = ({
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           {sortedDecks.map((deck) => {
             const canView = isOwner || deck.isPublic;
-            const previewCards =
-              deck.extraDeck.length > 0 ? deck.extraDeck : deck.mainDeck;
+            
+            // Determine preview card - use headerCard directly if available
+            let previewCard = null;
+            if (deck.headerCard) {
+              previewCard = deck.headerCard;
+            } else {
+              // Fallback to default logic if no header card
+              const previewCards = deck.extraDeck.length > 0 ? deck.extraDeck : deck.mainDeck;
+              previewCard = previewCards[0];
+            }
 
             return (
               <div
@@ -139,10 +134,10 @@ export const CustomDecksList = ({
                 onClick={() => handleDeckClick(deck)}
               >
                 {canView && (
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0" />
                 )}
 
-                <div className="relative bg-gradient-to-b from-blue-900/90 via-slate-900 to-blue-900/90 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-cyan-400/80 transition-all duration-200 overflow-hidden">
+                <div className="relative bg-gradient-to-b from-blue-900/90 via-slate-900 to-blue-900/90 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-cyan-400/80 transition-all duration-100 overflow-hidden">
                   {/* Public/Private label */}
                   <div className="mb-1 flex justify-end">
                     {deck.isPublic ? (
@@ -159,10 +154,10 @@ export const CustomDecksList = ({
                   <div className="p-3 pt-0 relative">
                     {/* Preview Image */}
                     <div className="flex justify-center mb-3">
-                      {previewCards.length > 0 ? (
+                      {previewCard ? (
                         <img
-                          src={previewCards[0].imageUrlCropped}
-                          alt={previewCards[0].name}
+                          src={previewCard.imageUrlCropped}
+                          alt={previewCard.name}
                           className={`h-[80px] w-[80px] object-cover rounded border-2 border-[#4a5866] shadow-lg ${
                             !canView ? "opacity-60" : ""
                           }`}

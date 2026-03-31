@@ -16,7 +16,7 @@ export const createOrUpdateRecommendedDeckController = async (
       return;
     }
 
-    const { instanceId, userId, title, mainDeckCards, extraDeckCards } =
+    const { instanceId, userId, title, mainDeckCards, extraDeckCards, sideDeckCards } =
       validatedData;
 
     // Verify instance ownership
@@ -50,6 +50,7 @@ export const createOrUpdateRecommendedDeckController = async (
         title,
         mainDeckCards,
         extraDeckCards,
+        sideDeckCards,
       });
     } else {
       // Create new deck
@@ -58,6 +59,7 @@ export const createOrUpdateRecommendedDeckController = async (
         title,
         mainDeckCards,
         extraDeckCards,
+        sideDeckCards,
       });
     }
 

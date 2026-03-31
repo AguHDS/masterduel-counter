@@ -16,19 +16,21 @@ interface RecommendedDeckEditorProps {
   initialTitle?: string;
   initialMainDeck?: Card[];
   initialExtraDeck?: Card[];
-  onDeckChange?: (title: string, mainDeck: Card[], extraDeck: Card[]) => void;
+  initialSideDeck?: Card[];
+  onDeckChange?: (title: string, mainDeck: Card[], extraDeck: Card[], sideDeck: Card[]) => void;
   onDelete?: () => Promise<void>;
   onModalStateChange?: (isOpen: boolean) => void;
   forceCloseModal?: boolean;
 }
 
-type DeckZone = "main" | "extra" | null;
+type DeckZone = "main" | "extra" | "side" | null;
 
 export const RecommendedDeckEditor = ({
   isEditMode,
   initialTitle = "Recommended Deck",
   initialMainDeck = [],
   initialExtraDeck = [],
+  initialSideDeck = [],
   onDeckChange,
   onDelete,
   onModalStateChange,
@@ -37,11 +39,13 @@ export const RecommendedDeckEditor = ({
   const [title, setTitle] = useState<string>(initialTitle);
   const [mainDeck, setMainDeck] = useState<Card[]>(initialMainDeck);
   const [extraDeck, setExtraDeck] = useState<Card[]>(initialExtraDeck);
+  const [sideDeck, setSideDeck] = useState<Card[]>(initialSideDeck);
+  const [showSideDeck, setShowSideDeck] = useState<boolean>(initialSideDeck.length > 0);
   const [isSelectingCard, setIsSelectingCard] = useState(false);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [draggedCard, setDraggedCard] = useState<{ zone: "main" | "extra"; index: number } | null>(null);
+  const [draggedCard, setDraggedCard] = useState<{ zone: "main" | "extra" | "side"; index: number } | null>(null);
 
   // Close modal when forced from parent
   useEffect(() => {
@@ -58,7 +62,7 @@ export const RecommendedDeckEditor = ({
     }
   }, [isSelectingCard, onModalStateChange]);
 
-  const hasDeck = mainDeck.length > 0 || extraDeck.length > 0;
+  const hasDeck = mainDeck.length > 0 || extraDeck.length > 0 || sideDeck.length > 0;
 
   useEffect(() => {
     if (
@@ -77,6 +81,16 @@ export const RecommendedDeckEditor = ({
       setExtraDeck(initialExtraDeck);
     }
   }, [initialExtraDeck, isEditMode]);
+
+  useEffect(() => {
+    if (
+      !isEditMode ||
+      JSON.stringify(sideDeck) !== JSON.stringify(initialSideDeck)
+    ) {
+      setSideDeck(initialSideDeck);
+      setShowSideDeck(initialSideDeck.length > 0);
+    }
+  }, [initialSideDeck, isEditMode]);
 
   useEffect(() => {
     if (!isEditMode || title !== initialTitle) {
@@ -99,7 +113,7 @@ export const RecommendedDeckEditor = ({
       const newMainDeck = [...mainDeck, card];
       setMainDeck(newMainDeck);
       if (onDeckChange) {
-        onDeckChange(title, newMainDeck, extraDeck);
+        onDeckChange(title, newMainDeck, extraDeck, sideDeck);
       }
     } else if (targetZone === "extra") {
       if (extraDeck.length >= 15) {
@@ -109,29 +123,45 @@ export const RecommendedDeckEditor = ({
       const newExtraDeck = [...extraDeck, card];
       setExtraDeck(newExtraDeck);
       if (onDeckChange) {
-        onDeckChange(title, mainDeck, newExtraDeck);
+        onDeckChange(title, mainDeck, newExtraDeck, sideDeck);
+      }
+    } else if (targetZone === "side") {
+      if (sideDeck.length >= 20) {
+        alert("Side deck cannot have more than 20 cards");
+        return;
+      }
+      const newSideDeck = [...sideDeck, card];
+      setSideDeck(newSideDeck);
+      if (onDeckChange) {
+        onDeckChange(title, mainDeck, extraDeck, newSideDeck);
       }
     }
   };
 
-  const handleRemoveCard = (zone: "main" | "extra", index: number) => {
+  const handleRemoveCard = (zone: "main" | "extra" | "side", index: number) => {
     if (zone === "main") {
       const newMainDeck = mainDeck.filter((_, i) => i !== index);
       setMainDeck(newMainDeck);
       if (onDeckChange) {
-        onDeckChange(title, newMainDeck, extraDeck);
+        onDeckChange(title, newMainDeck, extraDeck, sideDeck);
       }
-    } else {
+    } else if (zone === "extra") {
       const newExtraDeck = extraDeck.filter((_, i) => i !== index);
       setExtraDeck(newExtraDeck);
       if (onDeckChange) {
-        onDeckChange(title, mainDeck, newExtraDeck);
+        onDeckChange(title, mainDeck, newExtraDeck, sideDeck);
+      }
+    } else if (zone === "side") {
+      const newSideDeck = sideDeck.filter((_, i) => i !== index);
+      setSideDeck(newSideDeck);
+      if (onDeckChange) {
+        onDeckChange(title, mainDeck, extraDeck, newSideDeck);
       }
     }
   };
 
   // Drag and drop handlers
-  const handleDragStart = (zone: "main" | "extra", index: number) => {
+  const handleDragStart = (zone: "main" | "extra" | "side", index: number) => {
     setDraggedCard({ zone, index });
   };
 
@@ -139,7 +169,7 @@ export const RecommendedDeckEditor = ({
     e.preventDefault();
   };
 
-  const handleDrop = (zone: "main" | "extra", dropIndex: number) => {
+  const handleDrop = (zone: "main" | "extra" | "side", dropIndex: number) => {
     if (!draggedCard) return;
 
     // Only allow reordering within the same zone
@@ -160,9 +190,9 @@ export const RecommendedDeckEditor = ({
       
       setMainDeck(newMainDeck);
       if (onDeckChange) {
-        onDeckChange(title, newMainDeck, extraDeck);
+        onDeckChange(title, newMainDeck, extraDeck, sideDeck);
       }
-    } else {
+    } else if (zone === "extra") {
       const newExtraDeck = [...extraDeck];
       // Swap the cards
       const temp = newExtraDeck[draggedCard.index];
@@ -171,7 +201,18 @@ export const RecommendedDeckEditor = ({
       
       setExtraDeck(newExtraDeck);
       if (onDeckChange) {
-        onDeckChange(title, mainDeck, newExtraDeck);
+        onDeckChange(title, mainDeck, newExtraDeck, sideDeck);
+      }
+    } else if (zone === "side") {
+      const newSideDeck = [...sideDeck];
+      // Swap the cards
+      const temp = newSideDeck[draggedCard.index];
+      newSideDeck[draggedCard.index] = newSideDeck[dropIndex];
+      newSideDeck[dropIndex] = temp;
+      
+      setSideDeck(newSideDeck);
+      if (onDeckChange) {
+        onDeckChange(title, mainDeck, extraDeck, newSideDeck);
       }
     }
 
@@ -180,6 +221,22 @@ export const RecommendedDeckEditor = ({
 
   const handleDragEnd = () => {
     setDraggedCard(null);
+  };
+
+  const handleAddSideDeck = () => {
+    setShowSideDeck(true);
+  };
+
+  const handleRemoveSideDeck = () => {
+    if (sideDeck.length > 0) {
+      const confirmed = confirm("Remove all cards from side deck?");
+      if (!confirmed) return;
+    }
+    setSideDeck([]);
+    setShowSideDeck(false);
+    if (onDeckChange) {
+      onDeckChange(title, mainDeck, extraDeck, []);
+    }
   };
 
   const handleDelete = async () => {
@@ -195,6 +252,7 @@ export const RecommendedDeckEditor = ({
       await onDelete();
       setMainDeck([]);
       setExtraDeck([]);
+      setSideDeck([]);
       setTitle("Recommended Deck");
     } catch (error) {
       console.error("Error deleting deck:", error);
@@ -294,6 +352,43 @@ export const RecommendedDeckEditor = ({
                 </div>
               </div>
             )}
+
+            {sideDeck.length > 0 && (
+              <div className="space-y-3">
+                <div className="bg-amber-900/30 px-3 py-2 rounded border-l-4 border-amber-500">
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-semibold text-base">
+                      Side Deck
+                    </span>
+                    <span className="text-amber-300 text-sm">
+                      ({sideDeck.length})
+                    </span>
+                  </div>
+                </div>
+                <div 
+                  className="grid gap-1 p-1.5 bg-amber-950/30 rounded border border-amber-500/30"
+                  style={{
+                    gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
+                  }}
+                >
+                  {sideDeck.map((card, index) => (
+                    <CardTooltip
+                      key={`side-${index}`}
+                      cardId={card.id}
+                      imageUrl={card.imageUrl}
+                      cardName={card.name}
+                      disabled={!!draggedCard}
+                    >
+                      <img
+                        src={card.imageUrlSmall}
+                        alt={card.name}
+                        className="w-full h-auto border border-amber-600/30 hover:border-amber-400 transition-colors object-contain cursor-pointer"
+                      />
+                    </CardTooltip>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -334,7 +429,7 @@ export const RecommendedDeckEditor = ({
                 const newTitle = e.target.value;
                 setTitle(newTitle);
                 if (onDeckChange) {
-                  onDeckChange(newTitle, mainDeck, extraDeck);
+                  onDeckChange(newTitle, mainDeck, extraDeck, sideDeck);
                 }
               }}
               placeholder="Enter a title for your deck"
@@ -496,6 +591,101 @@ export const RecommendedDeckEditor = ({
               </div>
             </div>
 
+            {showSideDeck ? (
+              <div className="space-y-3">
+                <div className="bg-amber-900/30 px-3 py-2 rounded border-l-4 border-amber-500">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-semibold text-base">
+                        Side Deck
+                      </span>
+                      <span className="text-amber-300 text-sm">
+                        ({sideDeck.length}/20)
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddCard("side", e.currentTarget);
+                        }}
+                        disabled={sideDeck.length >= 20}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>Add</span>
+                      </button>
+                      <button
+                        onClick={handleRemoveSideDeck}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors font-semibold"
+                      >
+                        <X className="w-3 h-3" />
+                        <span>Remove Side Deck</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="grid gap-1 p-1.5 bg-amber-950/30 rounded border border-dashed border-amber-500/40"
+                  style={{
+                    gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
+                  }}
+                >
+                  {sideDeck.map((card, index) => (
+                    <div
+                      key={`side-${index}`}
+                      className="relative group"
+                      draggable={true}
+                      onDragStart={() => handleDragStart("side", index)}
+                      onDragOver={handleDragOver}
+                      onDrop={() => handleDrop("side", index)}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <CardTooltip
+                        cardId={card.id}
+                        imageUrl={card.imageUrl}
+                        cardName={card.name}
+                        disabled={!!draggedCard}
+                      >
+                        <img
+                          src={card.imageUrlSmall}
+                          alt={card.name}
+                          className="w-full h-auto border border-amber-600/30 group-hover:border-amber-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
+                        />
+                      </CardTooltip>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveCard("side", index);
+                        }}
+                        className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  {sideDeck.length === 0 && (
+                    <div 
+                      className="col-span-full flex items-center justify-center text-slate-400 text-sm cursor-pointer"
+                      onClick={(e) => handleAddCard("side", e.currentTarget)}
+                    >
+                      Click to add cards to Side Deck
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center">
+                <button
+                  onClick={handleAddSideDeck}
+                  className="flex items-center gap-2 mx-auto px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded text-sm transition-colors font-semibold"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Side Deck</span>
+                </button>
+              </div>
+            )}
+
             {!hasDeck && (
               <div className="text-center text-slate-400 text-sm py-8">
                 Add cards to create a recommended deck for this guide
@@ -514,7 +704,7 @@ export const RecommendedDeckEditor = ({
             setAnchorElement(null);
           }}
           onSelectCard={handleCardSelected}
-          title={`Add Cards to ${targetZone === "main" ? "Main" : "Extra"} Deck`}
+          title={`Add Cards to ${targetZone === "main" ? "Main" : targetZone === "extra" ? "Extra" : "Side"} Deck`}
           anchorElement={anchorElement}
           autoCloseAfterSelect={false}
         />

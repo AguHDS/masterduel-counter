@@ -257,7 +257,7 @@ export const FloatingCardSearchModal = ({
       {/* Modal */}
       <div
         ref={containerRef}
-        className="fixed z-[100] bg-slate-900 rounded-lg shadow-2xl border border-slate-700 flex flex-col overflow-hidden"
+        className="fixed z-[350] bg-slate-900 rounded-lg shadow-2xl border border-slate-700 flex flex-col overflow-hidden"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,

@@ -35,6 +35,7 @@ declare module "express" {
       title?: string;
       mainDeckCards: number[];
       extraDeckCards: number[];
+      sideDeckCards: number[];
     };
     validatedDeleteData?: {
       instanceId: number;
@@ -59,7 +60,9 @@ declare module "express" {
       title: string;
       mainDeckCards: number[];
       extraDeckCards: number[];
+      sideDeckCards: number[];
       isPublic: boolean;
+      headerCardId?: number;
     };
 
     validatedCustomDeckUpdateData?: {
@@ -68,7 +71,9 @@ declare module "express" {
       title?: string;
       mainDeckCards?: number[];
       extraDeckCards?: number[];
+      sideDeckCards?: number[];
       isPublic?: boolean;
+      headerCardId?: number;
     };
   }
 }

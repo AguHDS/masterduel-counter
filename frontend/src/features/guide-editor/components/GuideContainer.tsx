@@ -99,6 +99,10 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
     () => recommendedDeck.deck?.extraDeck || [],
     [recommendedDeck.deck?.extraDeck],
   );
+  const memoizedSideDeck = useMemo(
+    () => recommendedDeck.deck?.sideDeck || [],
+    [recommendedDeck.deck?.sideDeck],
+  );
 
   const [deckTitle, setDeckTitle] = useState<string>(
     recommendedDeck.deck?.title || "Recommended Deck",
@@ -121,6 +125,15 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       imageUrlCropped: string;
     }>
   >(memoizedExtraDeck);
+  const [deckSideCards, setDeckSideCards] = useState<
+    Array<{
+      id: number;
+      name: string;
+      imageUrl: string;
+      imageUrlSmall: string;
+      imageUrlCropped: string;
+    }>
+  >(memoizedSideDeck);
 
   const [pairs, setPairs] = useState<CardPair[]>([]);
   const [initialHands, setInitialHands] = useState<InitialHand[]>([]);
@@ -149,10 +162,12 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
       setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
       setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
+      setDeckSideCards(recommendedDeck.deck?.sideDeck || []);
     } else if (recommendedDeck.deck === null) {
       setDeckTitle("Recommended Deck");
       setDeckMainCards([]);
       setDeckExtraCards([]);
+      setDeckSideCards([]);
     }
   }, [recommendedDeck.deck, editor.isEditMode, isOwner]);
 
@@ -187,10 +202,12 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
       title: string,
       mainDeck: typeof deckMainCards,
       extraDeck: typeof deckExtraCards,
+      sideDeck: typeof deckSideCards,
     ) => {
       setDeckTitle(title);
       setDeckMainCards(mainDeck);
       setDeckExtraCards(extraDeck);
+      setDeckSideCards(sideDeck);
     },
     [],
   );
@@ -510,7 +527,8 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
     try {
       const mainDeckIds = deckMainCards.map((c) => c.id);
       const extraDeckIds = deckExtraCards.map((c) => c.id);
-      const hasDeckContent = mainDeckIds.length > 0 || extraDeckIds.length > 0;
+      const sideDeckIds = deckSideCards.map((c) => c.id);
+      const hasDeckContent = mainDeckIds.length > 0 || extraDeckIds.length > 0 || sideDeckIds.length > 0;
 
       await saveInstance({
         pairs,
@@ -524,6 +542,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
         deckTitle,
         deckMainCards,
         deckExtraCards,
+        deckSideCards,
         hasDeckContent,
         existingDeck: !!recommendedDeck.deck,
         comboSteps,
@@ -587,6 +606,8 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
     editor.isEditMode && isOwner ? deckMainCards : memoizedMainDeck;
   const displayExtraDeck =
     editor.isEditMode && isOwner ? deckExtraCards : memoizedExtraDeck;
+  const displaySideDeck =
+    editor.isEditMode && isOwner ? deckSideCards : memoizedSideDeck;
   const displayTitle =
     editor.isEditMode && isOwner ? deckTitle : recommendedDeck.deck?.title;
 
@@ -758,6 +779,7 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
                       initialTitle={displayTitle}
                       initialMainDeck={displayMainDeck}
                       initialExtraDeck={displayExtraDeck}
+                      initialSideDeck={displaySideDeck}
                       onDeckChange={handleDeckChange}
                       onDelete={handleDeleteDeck}
                       onModalStateChange={(isOpen) => handleModalStateChange('recommended-deck', isOpen)}

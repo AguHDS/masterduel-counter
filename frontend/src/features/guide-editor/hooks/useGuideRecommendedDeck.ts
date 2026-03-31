@@ -36,6 +36,7 @@ export const useGuideRecommendedDeck = (instanceId: number | undefined) => {
     title: string | undefined,
     mainDeckIds: number[],
     extraDeckIds: number[],
+    sideDeckIds: number[] = [],
   ) => {
     if (!instanceId) return;
 
@@ -45,6 +46,7 @@ export const useGuideRecommendedDeck = (instanceId: number | undefined) => {
         title,
         mainDeckIds,
         extraDeckIds,
+        sideDeckIds,
       );
       setDeck(savedDeck);
       setIsEditingDeck(false);

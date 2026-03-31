@@ -31,6 +31,14 @@ export class RecommendedDeckApplicationService implements RecommendedDeckApplica
     if (data.extraDeckCards.length > 15) {
       throw new Error("Extra deck cannot have more than 15 cards");
     }
+    if (data.sideDeckCards && data.sideDeckCards.length > 0) {
+      if (data.sideDeckCards.length > 20) {
+        throw new Error("Side deck cannot have more than 20 cards");
+      }
+      if (data.sideDeckCards.length < 1) {
+        throw new Error("Side deck must have at least 1 card if present");
+      }
+    }
 
     return this.deckRepository.createDeck(data);
   }
@@ -75,9 +83,28 @@ export class RecommendedDeckApplicationService implements RecommendedDeckApplica
       },
     );
 
-    const [mainDeckResults, extraDeckResults] = await Promise.all([
+    // Fetch card details for side deck (filter out missing cards)
+    const sideDeckPromises = deck.sideDeckCards.map(
+      async (cardId: number) => {
+        const card = await this.cardRepository.finCardById(cardId);
+        if (!card) {
+          console.warn(`Card not found: ${cardId}, skipping...`);
+          return null;
+        }
+        return {
+          id: card.id,
+          name: card.name,
+          imageUrl: card.imageUrl,
+          imageUrlSmall: card.imageUrlSmall,
+          imageUrlCropped: card.imageUrlCropped,
+        };
+      },
+    );
+
+    const [mainDeckResults, extraDeckResults, sideDeckResults] = await Promise.all([
       Promise.all(mainDeckPromises),
       Promise.all(extraDeckPromises),
+      Promise.all(sideDeckPromises),
     ]);
 
     // Filter out null values (missing cards) with type guard
@@ -87,6 +114,9 @@ export class RecommendedDeckApplicationService implements RecommendedDeckApplica
     const extraDeck = extraDeckResults.filter(
       (card): card is CardInfo => card !== null,
     );
+    const sideDeck = sideDeckResults.filter(
+      (card): card is CardInfo => card !== null,
+    );
 
     return {
       id: deck.id,
@@ -94,6 +124,7 @@ export class RecommendedDeckApplicationService implements RecommendedDeckApplica
       title: deck.title,
       mainDeck,
       extraDeck,
+      sideDeck,
       createdAt: deck.createdAt,
       updatedAt: deck.updatedAt,
     };
@@ -109,6 +140,14 @@ export class RecommendedDeckApplicationService implements RecommendedDeckApplica
     }
     if (data.extraDeckCards && data.extraDeckCards.length > 15) {
       throw new Error("Extra deck cannot have more than 15 cards");
+    }
+    if (data.sideDeckCards !== undefined && data.sideDeckCards.length > 0) {
+      if (data.sideDeckCards.length > 20) {
+        throw new Error("Side deck cannot have more than 20 cards");
+      }
+      if (data.sideDeckCards.length < 1) {
+        throw new Error("Side deck must have at least 1 card if present");
+      }
     }
 
     return this.deckRepository.updateDeck(instanceId, data);

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { X, Trash2, Lock, Globe, Edit2, Plus, Save } from "lucide-react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
@@ -16,194 +16,263 @@ interface DeckCard extends Card {
   uniqueId: string;
 }
 
-type DeckZone = "main" | "extra" | null;
+type DeckZone = "main" | "extra" | "side" | "header" | null;
 
 interface CustomDeckModalProps {
-  deck: CustomDeck;
+  deck?: CustomDeck; // Optional for creation mode
   isOwner: boolean;
   onClose: () => void;
-  onUpdate: (deckId: number, updates: { title?: string; mainDeckCards?: number[]; extraDeckCards?: number[]; isPublic?: boolean }) => void;
-  onDelete: (deckId: number, deckTitle: string) => void;
-  isUpdating: boolean;
-  isDeleting: boolean;
+  onSave?: (data: { title: string; mainDeckCards: number[]; extraDeckCards: number[]; sideDeckCards: number[]; headerCardId?: number; isPublic: boolean }) => void; // For creation
+  onUpdate?: (deckId: number, updates: { title?: string; mainDeckCards?: number[]; extraDeckCards?: number[]; sideDeckCards?: number[]; headerCardId?: number; isPublic?: boolean }) => void; // For editing
+  onDelete?: (deckId: number, deckTitle: string) => void;
+  isUpdating?: boolean;
+  isDeleting?: boolean;
 }
 
 export const CustomDeckModal = ({ 
   deck, 
   isOwner, 
   onClose, 
+  onSave,
   onUpdate, 
   onDelete, 
-  isUpdating,
-  isDeleting 
+  isUpdating = false,
+  isDeleting = false
 }: CustomDeckModalProps) => {
   const uniqueIdCounter = useRef(0);
+  const isCreationMode = !deck;
   
-  // Initialize decks with uniqueIds
-  const initializeDeck = (cards: Card[]): DeckCard[] => {
+  // Initialize decks with uniqueIds (memoized for performance)
+  const initializeDeck = useCallback((cards: Card[]): DeckCard[] => {
     return cards.map(card => ({ ...card, uniqueId: `card-${uniqueIdCounter.current++}` }));
-  };
+  }, []);
   
-  const [mainDeck, setMainDeck] = useState<DeckCard[]>(initializeDeck(deck.mainDeck));
-  const [extraDeck, setExtraDeck] = useState<DeckCard[]>(initializeDeck(deck.extraDeck));
-  const [isPublic, setIsPublic] = useState(deck.isPublic);
-  const [title, setTitle] = useState(deck.title);
-  const [hasChanges, setHasChanges] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [mainDeck, setMainDeck] = useState<DeckCard[]>(() => initializeDeck(deck?.mainDeck || []));
+  const [extraDeck, setExtraDeck] = useState<DeckCard[]>(() => initializeDeck(deck?.extraDeck || []));
+  const [sideDeck, setSideDeck] = useState<DeckCard[]>(() => initializeDeck(deck?.sideDeck || []));
+  const [showSideDeck, setShowSideDeck] = useState<boolean>((deck?.sideDeck?.length || 0) > 0);
+  const [isPublic, setIsPublic] = useState(deck?.isPublic ?? true);
+  const [title, setTitle] = useState(deck?.title || "Custom Deck");
+  const [headerCard, setHeaderCard] = useState<Card | null>(null);
+  const [hasChanges, setHasChanges] = useState(isCreationMode);
+  const [isEditMode, setIsEditMode] = useState(isCreationMode);
   const [isSelectingCard, setIsSelectingCard] = useState(false);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
-  const [draggedCard, setDraggedCard] = useState<{ zone: "main" | "extra"; index: number } | null>(null);
+  const [draggedCard, setDraggedCard] = useState<{ zone: "main" | "extra" | "side"; index: number } | null>(null);
   
-  // Reset decks when deck prop changes
+  // Reset decks when deck prop changes (only in edit mode)
   useEffect(() => {
-    setMainDeck(initializeDeck(deck.mainDeck));
-    setExtraDeck(initializeDeck(deck.extraDeck));
-    setTitle(deck.title);
-    setIsPublic(deck.isPublic);
-    setHasChanges(false);
-    setIsEditMode(false);
-  }, [deck.id]);
+    if (deck) {
+      setMainDeck(initializeDeck(deck.mainDeck));
+      setExtraDeck(initializeDeck(deck.extraDeck));
+      setSideDeck(initializeDeck(deck.sideDeck || []));
+      setShowSideDeck((deck.sideDeck?.length || 0) > 0);
+      setTitle(deck.title);
+      setIsPublic(deck.isPublic);
+      
+      // Set header card directly from deck.headerCard
+      if (deck.headerCard) {
+        setHeaderCard(deck.headerCard);
+      } else {
+        setHeaderCard(null);
+      }
+      
+      setHasChanges(false);
+      setIsEditMode(false);
+    }
+  }, [deck?.id, deck?.mainDeck, deck?.extraDeck, deck?.sideDeck, deck?.title, deck?.isPublic, deck?.headerCard, initializeDeck, deck]);
 
-  const handleAddCard = (zone: DeckZone, anchor: HTMLElement) => {
+  const handleAddCard = useCallback((zone: DeckZone, anchor: HTMLElement) => {
     setAnchorElement(anchor);
     setTargetZone(zone);
     setIsSelectingCard(true);
-  };
+  }, []);
 
-  const handleCardSelected = (card: Card) => {
+  const handleCardSelected = useCallback((card: Card) => {
+    if (targetZone === "header") {
+      setHeaderCard(card);
+      setHasChanges(true);
+      setIsSelectingCard(false);
+      setTargetZone(null);
+      setAnchorElement(null);
+      return;
+    }
+    
+    const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
+    
     if (targetZone === "main") {
       if (mainDeck.length >= 60) {
         alert("Main deck cannot have more than 60 cards");
         return;
       }
-      const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
-      setMainDeck([...mainDeck, deckCard]);
+      setMainDeck(prev => [...prev, deckCard]);
       setHasChanges(true);
     } else if (targetZone === "extra") {
       if (extraDeck.length >= 15) {
         alert("Extra deck cannot have more than 15 cards");
         return;
       }
-      const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
-      setExtraDeck([...extraDeck, deckCard]);
+      setExtraDeck(prev => [...prev, deckCard]);
+      setHasChanges(true);
+    } else if (targetZone === "side") {
+      if (sideDeck.length >= 20) {
+        alert("Side deck cannot have more than 20 cards");
+        return;
+      }
+      setSideDeck(prev => [...prev, deckCard]);
       setHasChanges(true);
     }
-  };
+  }, [targetZone, mainDeck.length, extraDeck.length, sideDeck.length]);
 
-  const handleRemoveCard = (zone: "main" | "extra", index: number) => {
+  const handleRemoveCard = useCallback((zone: "main" | "extra" | "side", index: number) => {
     if (!isOwner || !isEditMode) return;
 
+    let removedCard: DeckCard | undefined;
+
     if (zone === "main") {
-      const newMainDeck = mainDeck.filter((_, i) => i !== index);
-      setMainDeck(newMainDeck);
+      setMainDeck(prev => {
+        removedCard = prev[index];
+        return prev.filter((_, i) => i !== index);
+      });
       setHasChanges(true);
-    } else {
-      const newExtraDeck = extraDeck.filter((_, i) => i !== index);
-      setExtraDeck(newExtraDeck);
+    } else if (zone === "extra") {
+      setExtraDeck(prev => {
+        removedCard = prev[index];
+        return prev.filter((_, i) => i !== index);
+      });
+      setHasChanges(true);
+    } else if (zone === "side") {
+      setSideDeck(prev => {
+        removedCard = prev[index];
+        return prev.filter((_, i) => i !== index);
+      });
       setHasChanges(true);
     }
-  };
 
-  // Drag and drop handlers
-  const handleDragStart = (zone: "main" | "extra", index: number) => {
+    // Clear header card if the removed card was the header card
+    if (removedCard && headerCard && removedCard.id === headerCard.id) {
+      setHeaderCard(null);
+    }
+  }, [isOwner, isEditMode, headerCard]);
+
+  // Drag and drop handlers (memoized for performance)
+  const handleDragStart = useCallback((zone: "main" | "extra" | "side", index: number) => {
     setDraggedCard({ zone, index });
-  };
+  }, []);
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-  };
+  }, []);
 
-  const handleDrop = (zone: "main" | "extra", dropIndex: number) => {
-    if (!draggedCard) return;
-
-    // Only allow reordering within the same zone
-    if (draggedCard.zone !== zone) return;
-
-    // Don't do anything if dropping in the same position
-    if (draggedCard.index === dropIndex) {
+  const handleDrop = useCallback((zone: "main" | "extra" | "side", dropIndex: number) => {
+    if (!draggedCard || draggedCard.zone !== zone || draggedCard.index === dropIndex) {
       setDraggedCard(null);
       return;
     }
 
+    const updateDeck = (deck: DeckCard[]) => {
+      const newDeck = [...deck];
+      const temp = newDeck[draggedCard.index];
+      newDeck[draggedCard.index] = newDeck[dropIndex];
+      newDeck[dropIndex] = temp;
+      return newDeck;
+    };
+
     if (zone === "main") {
-      const newMainDeck = [...mainDeck];
-      // Swap the cards
-      const temp = newMainDeck[draggedCard.index];
-      newMainDeck[draggedCard.index] = newMainDeck[dropIndex];
-      newMainDeck[dropIndex] = temp;
-      
-      setMainDeck(newMainDeck);
+      setMainDeck(updateDeck);
       setHasChanges(true);
-    } else {
-      const newExtraDeck = [...extraDeck];
-      // Swap the cards
-      const temp = newExtraDeck[draggedCard.index];
-      newExtraDeck[draggedCard.index] = newExtraDeck[dropIndex];
-      newExtraDeck[dropIndex] = temp;
-      
-      setExtraDeck(newExtraDeck);
+    } else if (zone === "extra") {
+      setExtraDeck(updateDeck);
+      setHasChanges(true);
+    } else if (zone === "side") {
+      setSideDeck(updateDeck);
       setHasChanges(true);
     }
 
     setDraggedCard(null);
-  };
+  }, [draggedCard]);
 
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     setDraggedCard(null);
-  };
+  }, []);
 
-  const handleTogglePublic = () => {
+  const handleTogglePublic = useCallback(() => {
     if (!isOwner) return;
     const newIsPublic = !isPublic;
     setIsPublic(newIsPublic);
-    // Actualizar inmediatamente el estado público
-    onUpdate(deck.id, { isPublic: newIsPublic });
-  };
+    if (!isCreationMode && deck && onUpdate) {
+      onUpdate(deck.id, { isPublic: newIsPublic });
+    } else {
+      setHasChanges(true);
+    }
+  }, [isOwner, isPublic, deck, onUpdate, isCreationMode]);
 
-  const handleSaveChanges = () => {
-    if (!hasChanges) return;
-    
-    if (!title.trim()) {
-      alert("Please enter a title for the deck");
+  const handleSaveChanges = useCallback(() => {
+    if (!hasChanges || !title.trim()) {
+      if (!title.trim()) {
+        alert("Please enter a title for the deck");
+      }
       return;
     }
     
     const mainDeckCards = mainDeck.map(card => card.id);
     const extraDeckCards = extraDeck.map(card => card.id);
+    const sideDeckCards = sideDeck.map(card => card.id);
+    const headerCardId = headerCard?.id;
     
-    onUpdate(deck.id, { title: title.trim(), mainDeckCards, extraDeckCards });
-    setHasChanges(false);
-    setIsEditMode(false);
-  };
+    if (isCreationMode && onSave) {
+      onSave({ title: title.trim(), mainDeckCards, extraDeckCards, sideDeckCards, headerCardId, isPublic });
+    } else if (!isCreationMode && deck && onUpdate) {
+      onUpdate(deck.id, { title: title.trim(), mainDeckCards, extraDeckCards, sideDeckCards, headerCardId });
+      setHasChanges(false);
+      setIsEditMode(false);
+    }
+  }, [hasChanges, title, mainDeck, extraDeck, sideDeck, headerCard, isPublic, deck, onUpdate, onSave, isCreationMode]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (hasChanges && isEditMode) {
       const confirmed = confirm("Close without saving?");
       if (!confirmed) return;
     }
     onClose();
-  };
+  }, [hasChanges, isEditMode, onClose]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
+    if (!deck || !onDelete) return;
     onDelete(deck.id, deck.title);
     onClose();
-  };
+  }, [deck, onDelete, onClose]);
+
+  const handleAddSideDeck = useCallback(() => {
+    setShowSideDeck(true);
+    setHasChanges(true);
+  }, []);
+
+  const handleRemoveSideDeck = useCallback(() => {
+    if (sideDeck.length > 0) {
+      const confirmed = confirm("Remove all cards from side deck?");
+      if (!confirmed) return;
+    }
+    setSideDeck([]);
+    setShowSideDeck(false);
+    setHasChanges(true);
+  }, [sideDeck.length]);
 
   // Validar si el deck puede ser visto
-  const canView = isOwner || isPublic;
+  const canView = useMemo(() => isOwner || isPublic, [isOwner, isPublic]);
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[300] flex items-center justify-center p-4 animate-in fade-in duration-200"
       onClick={handleClose}
     >
       <div
-        className="bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-2xl shadow-2xl border-2 border-cyan-500/40 backdrop-blur-xl max-w-4xl w-full max-h-[90vh] overflow-auto scrollbar-cardpair"
+        className="bg-slate-900 rounded-lg shadow-2xl border border-slate-700 max-w-2xl w-full max-h-[90vh] overflow-auto scrollbar-cardpair"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/30 px-6 py-4 flex items-center justify-between gap-4 z-10">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="sticky top-0 bg-slate-900 border-b border-slate-700 px-3 py-2 flex items-center justify-between gap-2 z-10">
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
             {isOwner && isEditMode ? (
               <input
                 type="text"
@@ -212,45 +281,45 @@ export const CustomDeckModal = ({
                   setTitle(e.target.value);
                   setHasChanges(true);
                 }}
-                className="text-xl font-bold bg-slate-800/50 border-2 border-cyan-500/30 focus:border-cyan-400/60 rounded-lg px-3 py-1 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/30 transition-all"
+                className="text-sm font-bold bg-slate-800 border border-slate-600 rounded px-2 py-1 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                 maxLength={100}
               />
             ) : (
-              <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent truncate">
+              <h2 className="text-sm font-bold text-white truncate">
                 {title}
               </h2>
             )}
             {isOwner && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={handleTogglePublic}
                   disabled={isUpdating}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all ${
                     isPublic
                       ? "bg-green-600/20 text-green-400 border border-green-500/30 hover:bg-green-600/30"
                       : "bg-slate-700/50 text-slate-400 border border-slate-600/30 hover:bg-slate-700/70"
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  {isPublic ? <Globe className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                  {isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
                   <span>{isPublic ? "Public" : "Private"}</span>
                 </button>
               </div>
             )}
             {!isOwner && !isPublic && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-700/50 text-slate-400 border border-slate-600/30 rounded-lg text-xs font-medium">
-                <Lock className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-1 px-2 py-1 bg-slate-700/50 text-slate-400 border border-slate-600/30 rounded text-xs font-medium">
+                <Lock className="w-3 h-3" />
                 <span>Private</span>
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {isOwner && !isEditMode && (
               <button
                 onClick={() => setIsEditMode(true)}
                 disabled={isUpdating}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors font-medium flex items-center gap-2"
+                className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-xs transition-colors font-medium flex items-center gap-1.5"
               >
-                <Edit2 className="w-4 h-4" />
+                <Edit2 className="w-3 h-3" />
                 Edit
               </button>
             )}
@@ -258,15 +327,17 @@ export const CustomDeckModal = ({
               <button
                 onClick={() => {
                   setIsEditMode(false);
-                  if (hasChanges) {
+                  if (hasChanges && deck) {
                     setMainDeck(initializeDeck(deck.mainDeck));
                     setExtraDeck(initializeDeck(deck.extraDeck));
+                    setSideDeck(initializeDeck(deck.sideDeck || []));
+                    setShowSideDeck((deck.sideDeck?.length || 0) > 0);
                     setTitle(deck.title);
                     setHasChanges(false);
                   }
                 }}
                 disabled={isUpdating}
-                className="px-4 py-2 bg-slate-600 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors font-medium"
+                className="px-2.5 py-1 bg-slate-600 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-xs transition-colors font-medium"
               >
                 Cancel Edit
               </button>
@@ -275,9 +346,9 @@ export const CustomDeckModal = ({
               <button
                 onClick={handleSaveChanges}
                 disabled={isUpdating}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors font-medium flex items-center gap-2"
+                className="px-2.5 py-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-xs transition-colors font-medium flex items-center gap-1.5"
               >
-                <Save className="w-4 h-4" />
+                <Save className="w-3 h-3" />
                 {isUpdating ? "Saving..." : "Save Changes"}
               </button>
             )}
@@ -285,16 +356,16 @@ export const CustomDeckModal = ({
               <button
                 onClick={handleDelete}
                 disabled={isDeleting || isUpdating}
-                className="p-2 bg-red-600/20 hover:bg-red-600/40 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                className="p-1.5 bg-red-600/20 hover:bg-red-600/40 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
               >
-                <Trash2 className="w-4 h-4 text-red-400" />
+                <Trash2 className="w-3.5 h-3.5 text-red-400" />
               </button>
             )}
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-slate-800/50 rounded-lg transition-colors"
+              className="p-1.5 hover:bg-slate-800/50 rounded transition-colors"
             >
-              <X className="w-5 h-5 text-cyan-400" />
+              <X className="w-4 h-4 text-cyan-400" />
             </button>
           </div>
         </div>
@@ -306,40 +377,78 @@ export const CustomDeckModal = ({
             <p className="text-slate-500 text-sm mt-2">Only the owner can view this deck</p>
           </div>
         ) : (
-          <div className="p-6 space-y-6">
-            {/* Main Deck */}
-            <div className="space-y-3">
-              <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 px-4 py-3 rounded-lg border-l-4 border-cyan-400 backdrop-blur-sm">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-bold text-base">
-                      Main Deck
-                    </span>
-                    <span className="text-cyan-300 text-sm font-medium">
-                      ({mainDeck.length})
-                    </span>
+          <div className="p-2.5 space-y-3">
+            {/* Header Card Selection */}
+            {isOwner && isEditMode && (
+              <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0">
+                    {headerCard ? (
+                      <div className="relative group">
+                        <img
+                          src={headerCard.imageUrlCropped}
+                          alt={headerCard.name}
+                          className="h-[60px] w-[60px] object-cover rounded border-2 border-cyan-500"
+                        />
+                        <button
+                          onClick={() => setHeaderCard(null)}
+                          className="absolute -top-1 -right-1 bg-red-600 hover:bg-red-700 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="h-[60px] w-[60px] bg-slate-700 rounded border-2 border-dashed border-slate-600 flex items-center justify-center">
+                        <Plus className="w-6 h-6 text-slate-500" />
+                      </div>
+                    )}
                   </div>
-                  {isOwner && isEditMode && (
+                  <div className="flex-1">
+                    <p className="text-xs text-slate-400 mb-1.5">Header Card (Preview)</p>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddCard("main", e.currentTarget);
-                      }}
-                      disabled={mainDeck.length >= 60}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs transition-all duration-300 font-bold disabled:cursor-not-allowed"
+                      onClick={(e) => handleAddCard("header", e.currentTarget)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded text-xs transition-colors font-semibold"
                     >
                       <Plus className="w-3 h-3" />
-                      <span>Add</span>
+                      <span>{headerCard ? "Change Header Card" : "Select Header Card"}</span>
                     </button>
-                  )}
+                    {headerCard && (
+                      <p className="text-xs text-slate-300 mt-1.5 truncate">{headerCard.name}</p>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div
-                className="grid gap-1 p-3 bg-gradient-to-t from-blue-700/20 via-slate-900 to-blue-700/20 rounded-lg min-h-[100px] border border-cyan-500/40"
-                style={{
-                  gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
-                }}
-              >
+            )}
+
+            {/* Main Deck Container */}
+            <div className="space-y-2">
+              {/* Main Deck */}
+              <div className="space-y-2">
+                <div className="bg-blue-900/30 px-2 py-1.5 rounded border-l-4 border-blue-500">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-white font-semibold text-sm">Main Deck</span>
+                      <span className="text-blue-300 text-xs">({mainDeck.length})</span>
+                    </div>
+                    {isOwner && isEditMode && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddCard("main", e.currentTarget);
+                        }}
+                        disabled={mainDeck.length >= 60}
+                        className="flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
+                      >
+                        <Plus className="w-2.5 h-2.5" />
+                        <span>Add</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div
+                  className="grid gap-0.5 p-1 bg-blue-950/30 rounded border border-dashed border-blue-500/40"
+                  style={{ gridTemplateColumns: "repeat(10, minmax(0, 1fr))" }}
+                >
                 {mainDeck.map((card, index) => (
                   <div
                     key={card.uniqueId}
@@ -350,99 +459,167 @@ export const CustomDeckModal = ({
                     onDrop={() => handleDrop("main", index)}
                     onDragEnd={handleDragEnd}
                   >
-                    <CardTooltip
-                      cardId={card.id}
-                      imageUrl={card.imageUrl}
-                      cardName={card.name}
-                      disabled={!!draggedCard}
-                    >
+                    <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name} disabled={!!draggedCard}>
                       <img
                         src={card.imageUrlSmall}
                         alt={card.name}
-                        className="w-full h-auto border border-cyan-600/30 hover:border-cyan-400/50 transition-colors object-contain cursor-grab active:cursor-grabbing"
+                        className="w-full h-auto border border-slate-600 hover:border-blue-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
                       />
                     </CardTooltip>
                     {isOwner && isEditMode && (
                       <button
                         onClick={() => handleRemoveCard("main", index)}
-                        className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-0.5 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-2 h-2" />
                       </button>
                     )}
                   </div>
                 ))}
+                </div>
               </div>
+
+              {/* Extra Deck */}
+              {(extraDeck.length > 0 || (isOwner && isEditMode)) && (
+                <div className="space-y-2">
+                  <div className="bg-purple-900/30 px-3 py-2 rounded border-l-4 border-purple-500">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-semibold text-base">Extra Deck</span>
+                        <span className="text-purple-300 text-sm">({extraDeck.length})</span>
+                      </div>
+                      {isOwner && isEditMode && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddCard("extra", e.currentTarget);
+                          }}
+                          disabled={extraDeck.length >= 15}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>Add</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div 
+                    className="grid gap-1 p-1.5 bg-purple-950/30 rounded border border-dashed border-purple-500/40"
+                    style={{ gridTemplateColumns: "repeat(10, minmax(0, 1fr))" }}
+                  >
+                    {extraDeck.map((card, index) => (
+                      <div
+                        key={card.uniqueId}
+                        className="relative group"
+                        draggable={isOwner && isEditMode}
+                        onDragStart={() => handleDragStart("extra", index)}
+                        onDragOver={handleDragOver}
+                        onDrop={() => handleDrop("extra", index)}
+                        onDragEnd={handleDragEnd}
+                      >
+                        <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name} disabled={!!draggedCard}>
+                          <img
+                            src={card.imageUrlSmall}
+                            alt={card.name}
+                            className="w-full h-auto rounded border border-purple-600/30 hover:border-purple-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
+                          />
+                        </CardTooltip>
+                        {isOwner && isEditMode && (
+                          <button
+                            onClick={() => handleRemoveCard("extra", index)}
+                            className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-0.5 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-2 h-2" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Extra Deck */}
-            {(extraDeck.length > 0 || (isOwner && isEditMode)) && (
-              <div className="space-y-3">
-                <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 px-4 py-3 rounded-lg border-l-4 border-purple-400 backdrop-blur-sm">
+            {/* Side Deck - FUERA del container del deck principal */}
+            {showSideDeck ? (
+              <div className="space-y-2">
+                <div className="bg-amber-900/30 px-2 py-1.5 rounded border-l-4 border-amber-500">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-bold text-base">
-                        Extra Deck
-                      </span>
-                      <span className="text-purple-300 text-sm font-medium">
-                        ({extraDeck.length})
-                      </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-white font-semibold text-sm">Side Deck</span>
+                      <span className="text-amber-300 text-xs">({sideDeck.length})</span>
                     </div>
-                    {isOwner && isEditMode && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddCard("extra", e.currentTarget);
-                        }}
-                        disabled={extraDeck.length >= 15}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs transition-all duration-300 font-bold disabled:cursor-not-allowed"
-                      >
-                        <Plus className="w-3 h-3" />
-                        <span>Add</span>
-                      </button>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {isOwner && isEditMode && (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddCard("side", e.currentTarget);
+                            }}
+                            disabled={sideDeck.length >= 20}
+                            className="flex items-center gap-1 px-2 py-1 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
+                          >
+                            <Plus className="w-2.5 h-2.5" />
+                            <span>Add</span>
+                          </button>
+                          <button
+                            onClick={handleRemoveSideDeck}
+                            className="flex items-center gap-1 px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors font-semibold"
+                            title="Remove Side Deck"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                            <span>Remove Side Deck</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div 
-                  className="grid gap-1 p-3 bg-gradient-to-t from-purple-900/30 via-slate-900 to-purple-900/30 rounded-lg border border-blue-400/20 min-h-[100px]"
-                  style={{
-                    gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
-                  }}
+                  className="grid gap-0.5 p-1 bg-amber-950/30 rounded border border-amber-500/40"
+                  style={{ gridTemplateColumns: "repeat(10, minmax(0, 1fr))" }}
                 >
-                  {extraDeck.map((card, index) => (
+                  {sideDeck.map((card, index) => (
                     <div
                       key={card.uniqueId}
                       className="relative group"
                       draggable={isOwner && isEditMode}
-                      onDragStart={() => handleDragStart("extra", index)}
+                      onDragStart={() => handleDragStart("side", index)}
                       onDragOver={handleDragOver}
-                      onDrop={() => handleDrop("extra", index)}
+                      onDrop={() => handleDrop("side", index)}
                       onDragEnd={handleDragEnd}
                     >
-                      <CardTooltip
-                        cardId={card.id}
-                        imageUrl={card.imageUrl}
-                        cardName={card.name}
-                        disabled={!!draggedCard}
-                      >
+                      <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name} disabled={!!draggedCard}>
                         <img
                           src={card.imageUrlSmall}
                           alt={card.name}
-                          className={`w-full h-auto rounded border border-purple-500/30 hover:border-blue-400/60 transition-colors max-h-[80px] object-contain ${isOwner && isEditMode ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
+                          className="w-full h-auto rounded border border-amber-600/30 hover:border-amber-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
                         />
                       </CardTooltip>
                       {isOwner && isEditMode && (
                         <button
-                          onClick={() => handleRemoveCard("extra", index)}
-                          className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveCard("side", index)}
+                          className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-0.5 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <X className="w-3 h-3" />
+                          <X className="w-2 h-2" />
                         </button>
                       )}
                     </div>
                   ))}
                 </div>
               </div>
+            ) : (
+              isOwner && isEditMode && (
+                <div className="text-center">
+                  <button
+                    onClick={handleAddSideDeck}
+                    className="flex items-center gap-1.5 mx-auto px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs transition-colors font-semibold"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>Add Side Deck</span>
+                  </button>
+                </div>
+              )
             )}
           </div>
         )}
@@ -452,7 +629,7 @@ export const CustomDeckModal = ({
       {isSelectingCard && (
         <FloatingCardSearchModal
           isOpen={true}
-          title={`Add Card to ${targetZone === "main" ? "Main" : "Extra"} Deck`}
+          title={`Add Card to ${targetZone === "main" ? "Main" : targetZone === "extra" ? "Extra" : "Side"} Deck`}
           onSelectCard={handleCardSelected}
           onClose={() => {
             setIsSelectingCard(false);

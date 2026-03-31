@@ -24,6 +24,7 @@ interface SaveInstanceParams {
   deckTitle: string;
   deckMainCards: Card[];
   deckExtraCards: Card[];
+  deckSideCards: Card[];
   hasDeckContent: boolean;
   existingDeck: boolean;
   comboSteps?: Map<string, ComboStep[]>;
@@ -89,6 +90,7 @@ export const useSaveInstanceGuide = () => {
       deckTitle,
       deckMainCards,
       deckExtraCards,
+      deckSideCards,
       hasDeckContent,
       existingDeck,
       comboSteps,
@@ -156,9 +158,10 @@ export const useSaveInstanceGuide = () => {
 
       const mainDeckIds = deckMainCards.map((c) => c.id);
       const extraDeckIds = deckExtraCards.map((c) => c.id);
+      const sideDeckIds = deckSideCards.map((c) => c.id);
 
       if (hasDeckContent) {
-        allCardIds.push(...mainDeckIds, ...extraDeckIds);
+        allCardIds.push(...mainDeckIds, ...extraDeckIds, ...sideDeckIds);
       }
 
       const uniqueCardIds = [...new Set(allCardIds)];
@@ -261,6 +264,7 @@ export const useSaveInstanceGuide = () => {
             deckTitle,
             mainDeckIds,
             extraDeckIds,
+            sideDeckIds,
           );
         } else if (existingDeck) {
           await deleteRecommendedDeck(savedInstanceId);

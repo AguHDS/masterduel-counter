@@ -21,22 +21,26 @@ export const useCustomDecks = (userId: string) => {
       title,
       mainDeckCards,
       extraDeckCards,
+      sideDeckCards,
       isPublic,
+      headerCardId,
     }: {
       title: string;
       mainDeckCards: number[];
       extraDeckCards: number[];
+      sideDeckCards?: number[];
       isPublic?: boolean;
+      headerCardId?: number;
     }) => {
       // Confirm all cards exist in database before creating deck
-      const allCardIds = [...mainDeckCards, ...extraDeckCards];
+      const allCardIds = [...mainDeckCards, ...extraDeckCards, ...(sideDeckCards || [])];
       const uniqueCardIds = [...new Set(allCardIds)];
       
       if (uniqueCardIds.length > 0) {
         await confirmCards(uniqueCardIds);
       }
       
-      return customDeckApi.createDeck(userId, title, mainDeckCards, extraDeckCards, isPublic);
+      return customDeckApi.createDeck(userId, title, mainDeckCards, extraDeckCards, sideDeckCards, isPublic, headerCardId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -51,25 +55,30 @@ export const useCustomDecks = (userId: string) => {
       title,
       mainDeckCards,
       extraDeckCards,
+      sideDeckCards,
       isPublic,
+      headerCardId,
     }: {
       deckId: number;
       title?: string;
       mainDeckCards?: number[];
       extraDeckCards?: number[];
+      sideDeckCards?: number[];
       isPublic?: boolean;
+      headerCardId?: number;
     }) => {
       // Confirm all cards exist in database before updating deck
       const allCardIds: number[] = [];
       if (mainDeckCards) allCardIds.push(...mainDeckCards);
       if (extraDeckCards) allCardIds.push(...extraDeckCards);
+      if (sideDeckCards) allCardIds.push(...sideDeckCards);
       const uniqueCardIds = [...new Set(allCardIds)];
       
       if (uniqueCardIds.length > 0) {
         await confirmCards(uniqueCardIds);
       }
       
-      return customDeckApi.updateDeck(userId, deckId, title, mainDeckCards, extraDeckCards, isPublic);
+      return customDeckApi.updateDeck(userId, deckId, title, mainDeckCards, extraDeckCards, sideDeckCards, isPublic, headerCardId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

@@ -451,7 +451,7 @@ export const ProfilePage = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex-1 p-4 sm:p-6 overflow-auto scrollbar-cardpair relative z-10">
+                    <div className="flex-1 p-4 sm:p-6 overflow-auto scrollbar-cardpair relative z-[300]">
                       {activeTab === "profile" && (
                         <div className="space-y-8 sm:space-y-12">
                           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">

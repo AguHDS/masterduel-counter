@@ -352,6 +352,7 @@ model RecommendedDeck {
   title           String?   @default("Recommended Deck")
   mainDeckCards   String    @map("main_deck_cards") // JSON array of card IDs in order
   extraDeckCards  String    @map("extra_deck_cards") // JSON array of card IDs in order
+  sideDeckCards   String    @default("[]") @map("side_deck_cards") // JSON array of card IDs in order (max 20)
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
@@ -366,6 +367,8 @@ model CustomDeck {
   title           String    @default("Custom Deck")
   mainDeckCards   String    @map("main_deck_cards") // JSON array of card IDs in order
   extraDeckCards  String    @map("extra_deck_cards") // JSON array of card IDs in order
+  sideDeckCards   String    @default("[]") @map("side_deck_cards") // JSON array of card IDs in order (max 20)
+  headerCardId    Int?      @map("header_card_id") // Optional card ID for custom preview image
   isPublic        Boolean   @default(false) @map("is_public")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")

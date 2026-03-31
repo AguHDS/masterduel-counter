@@ -41,6 +41,7 @@ export interface RecommendedDeck {
   title?: string;
   mainDeck: RecommendedDeckCard[];
   extraDeck: RecommendedDeckCard[];
+  sideDeck: RecommendedDeckCard[];
   createdAt: string;
   updatedAt: string;
 }
@@ -184,10 +185,11 @@ export const saveRecommendedDeck = async (
   title: string | undefined,
   mainDeckCards: number[],
   extraDeckCards: number[],
+  sideDeckCards: number[] = [],
 ): Promise<RecommendedDeck> => {
   const response = await axios.post(
     `${API_BASE_URL}/api/instances/${instanceId}/recommended-deck`,
-    { title, mainDeckCards, extraDeckCards },
+    { title, mainDeckCards, extraDeckCards, sideDeckCards },
     { withCredentials: true },
   );
   return response.data.deck;

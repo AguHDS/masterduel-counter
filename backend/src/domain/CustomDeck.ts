@@ -6,6 +6,8 @@ export interface CustomDeck {
   title: string;
   mainDeckCards: number[];
   extraDeckCards: number[];
+  sideDeckCards: number[]; // Array of card IDs (max 20)
+  headerCardId?: number; // Optional card ID for custom preview image
   isPublic: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +18,8 @@ export interface CustomDeckCreateDTO {
   title: string;
   mainDeckCards: number[];
   extraDeckCards: number[];
+  sideDeckCards?: number[]; // Optional, defaults to []
+  headerCardId?: number; // Optional card ID for custom preview image
   isPublic?: boolean;
 }
 
@@ -23,6 +27,8 @@ export interface CustomDeckUpdateDTO {
   title?: string;
   mainDeckCards?: number[];
   extraDeckCards?: number[];
+  sideDeckCards?: number[];
+  headerCardId?: number; // Optional card ID for custom preview image
   isPublic?: boolean;
 }
 
@@ -31,6 +37,14 @@ export interface CustomDeckWithCards {
   userId: string;
   title: string;
   isPublic: boolean;
+  headerCardId?: number; // Optional card ID for custom preview image
+  headerCard?: {
+    id: number;
+    name: string;
+    imageUrl: string;
+    imageUrlSmall: string;
+    imageUrlCropped: string;
+  };
   mainDeck: Array<{
     id: number;
     name: string;
@@ -39,6 +53,13 @@ export interface CustomDeckWithCards {
     imageUrlCropped: string;
   }>;
   extraDeck: Array<{
+    id: number;
+    name: string;
+    imageUrl: string;
+    imageUrlSmall: string;
+    imageUrlCropped: string;
+  }>;
+  sideDeck: Array<{
     id: number;
     name: string;
     imageUrl: string;
