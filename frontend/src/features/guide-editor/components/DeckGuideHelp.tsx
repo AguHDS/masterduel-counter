@@ -1,22 +1,23 @@
 import { InfoModal } from "@/shared/components/info/components/InfoModal";
 import {
-  guideHelp_CardPairs,
+  deckguide_comboflow,
   guideHelp_Header,
   guideHelp_Recommended,
   guideHelp_TitleAndDescr,
+  deckguide_initialhands,
 } from "../assets";
 
-interface GuideModalHelpProps {
+interface DeckGuideHelpProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
+export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
   return (
     <InfoModal
       isOpen={isOpen}
       onClose={onClose}
-      title="How to Create a Guide Correctly"
+      title="How to Correctly Create a Deck Guide"
     >
       <div className="space-y-6 text-gray-200">
         <section className="space-y-3">
@@ -36,18 +37,12 @@ export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
               <p className="text-sm">
                 <span className="text-blue-300 font-semibold">Title:</span> Give
                 your guide a clear title.
-                <br /> For a direct counter guide:{" "}
-                <b>“How to counter [deck]”</b>
-                <br />
-                For a counter guide using a specific deck:{" "}
-                <b>“How to counter [deck] using [deck]”</b>
                 <br />
                 <span className="text-blue-300 font-semibold">
                   Description:
                 </span>{" "}
                 Explain the main idea of your guide. You don't need to go into
-                detail about countering cards here, but rather in the Card Pairs
-                section.
+                detail about combo steps, but rather in the combo flow.
               </p>
             </div>
             <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
@@ -60,64 +55,77 @@ export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
                 <span className="text-blue-300 font-semibold">
                   Header Card:
                 </span>{" "}
-                Main card that represents the archetype you are discussing.
-                <br />
-                For a direct counter guide:{" "}
-                <b>
-                  Select a header card that represents the deck you are
-                  countering
-                </b>
-                <br />
-                For a counter guide using a specific deck:{" "}
-                <b>
-                  Select a header card that represents the deck you are using to
-                  counter the other one
-                </b>
-                <br />
+                Preview image for your guide. It will be used as a thumbnail
+                when listing.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Phase 2: Card Pairs */}
+        {/* Phase 2: Initial Hands */}
         <section className="space-y-3">
           <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
             <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
               2
             </span>
-            Card Pairs
+            Initial hands
           </h3>
           <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
             <img
-              src={guideHelp_CardPairs}
+              src={deckguide_initialhands}
               alt="Card pair example showing target cards and their counters"
               className="w-full rounded-lg mb-2 border border-slate-700/50"
             />
             <p className="text-sm mb-2">
               <span className="text-blue-300 font-semibold">
-                Creating Card Pairs:
+                Initial hands:
               </span>{" "}
-              The top cards are the <b>target</b> cards, and the bottom cards
-              represent their <b>counters.</b>
+              Represents the starting hand of the combo you are showcasing in
+              the combo flow.
+            </p>
+          </div>
+        </section>
+
+        {/* Phase 3: Combo FLOW*/}
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
+            <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
+              2
+            </span>
+            Combo Flow
+          </h3>
+          <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
+            <img
+              src={deckguide_comboflow}
+              alt="Card pair example showing target cards and their counters"
+              className="w-full rounded-lg mb-2 border border-slate-700/50"
+            />
+            <p className="text-sm mb-2">
+              <span className="text-blue-300 font-semibold">
+                Creating Combo flow:
+              </span>{" "}
+              Create a step by step combo guide for your selected initial hand.
             </p>
             <ul className="list-disc list-inside text-gray-300 space-y-1 text-xs">
               <li>
                 <span className="text-blue-300 font-medium">
-                  Top Cards (targets):
+                  Left mini cards:
                 </span>{" "}
-                Key cards that you want to counter.
+                Use these cards to show the material cards you use to summon the
+                main card.
               </li>
               <li>
                 <span className="text-blue-300 font-medium">
-                  Bottom Cards (counters):
+                  Right mini cards:
                 </span>{" "}
-                Cards that counter the top cards.
+                The result of the activation effect of the main card's sequence.
               </li>
               <li>
                 <span className="text-blue-300 font-medium">
-                  Effectiveness:
+                  <span className="text-red-500">Negated flow:</span>
                 </span>{" "}
-                Rate the impact (Low/Medium/High).
+                You can put a secondary combo route for each step you have by
+                clicking the "Negated?" label.
               </li>
               <li>
                 <span className="text-blue-300 font-medium">Comment:</span> Give
@@ -125,11 +133,6 @@ export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
                 should be aware of.
               </li>
             </ul>
-            <p className="text-xs mt-2">
-              Note: You can also select cards without pairing them, and they
-              will be treated as standalone counters or cards you want to
-              discuss.
-            </p>
           </div>
         </section>
 
@@ -142,12 +145,7 @@ export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
             Recommended Deck (Optional)
           </h3>
           <p className="text-sm">
-            If you are creating a counter guide using a specific deck (e.g.,{" "}
-            <b>“How to counter [deck] using [deck]”</b>), you could create a
-            recommended deck.
-            <br />
-            The recommended deck represents the deck you suggest playing against
-            the archetype you are trying to counter.
+            Deck builder to show the deck of this guide.
           </p>
           <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
             <img
@@ -163,6 +161,12 @@ export const GuideModalHelp = ({ isOpen, onClose }: GuideModalHelpProps) => {
               <p>
                 <span className="text-blue-300 font-semibold">Extra Deck:</span>{" "}
                 Cards from the extra deck (Max. 15).
+              </p>
+              <p>
+                <span className="text-blue-300 font-semibold">
+                  Side Deck (optional):
+                </span>{" "}
+                Alternative cards (Max. 20).
               </p>
             </div>
           </div>

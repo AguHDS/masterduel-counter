@@ -7,7 +7,9 @@ import { Footer } from "@/layouts/Footer";
 import { GuideContainer } from "../components/GuideContainer";
 import { useArchetypeWithHeader, useArchetypeSearch } from "@/features/archetypes/hooks/useArchetypes";
 import { FeatureErrorBoundary } from "@/shared/components";
-import { GuideModalHelp } from "../components/GuideModalHelp";
+import { CounterGuideHelp } from "../components/CounterGuideHelp";
+import { DeckGuideHelp } from "../components/DeckGuideHelp";
+import type { GuideType } from "@/features/archetypes/types";
 import { MainLogo } from "@/shared/components/MainLogo";
 import { MainSearch } from "@/shared/components/main-search/MainSearch";
 import { MainSearchResults } from "@/shared/components/main-search/MainSearchResults";
@@ -24,6 +26,7 @@ export const GuideContainerPage = () => {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isGuideHelpOpen, setIsGuideHelpOpen] = useState(false);
+  const [guideType, setGuideType] = useState<GuideType>("COUNTER");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -176,7 +179,9 @@ export const GuideContainerPage = () => {
                 >
                   <AlertCircle className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
                   <span className="text-sm">
-                    How to create a guide correctly?
+                    {guideType === "COUNTER" 
+                      ? "How to correctly create a counter guide"
+                      : "How to correctly create a deck guide"}
                   </span>
                 </button>
               </div>
@@ -190,7 +195,10 @@ export const GuideContainerPage = () => {
             aria-label="Main content"
           >
             <FeatureErrorBoundary featureName="Instance Editor">
-              <GuideContainer onEditModeChange={setIsEditMode} />
+              <GuideContainer 
+                onEditModeChange={setIsEditMode}
+                onGuideTypeChange={setGuideType}
+              />
             </FeatureErrorBoundary>
           </main>
 
@@ -207,10 +215,17 @@ export const GuideContainerPage = () => {
         <Footer />
       </div>
 
-      <GuideModalHelp
-        isOpen={isGuideHelpOpen}
-        onClose={() => setIsGuideHelpOpen(false)}
-      />
+      {guideType === "COUNTER" ? (
+        <CounterGuideHelp
+          isOpen={isGuideHelpOpen}
+          onClose={() => setIsGuideHelpOpen(false)}
+        />
+      ) : (
+        <DeckGuideHelp
+          isOpen={isGuideHelpOpen}
+          onClose={() => setIsGuideHelpOpen(false)}
+        />
+      )}
     </>
   );
 };

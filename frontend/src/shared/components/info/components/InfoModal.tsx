@@ -46,14 +46,14 @@ export const InfoModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
       <div
-        className="relative w-full max-w-6xl max-h-[90vh] bg-gradient-to-br from-slate-800 via-slate-900 to-blue-950 rounded-2xl shadow-2xl border-2 border-blue-500/60 overflow-hidden animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-6xl max-h-[90vh] bg-gradient-to-br from-slate-800 via-slate-900 to-blue-950 rounded-2xl shadow-2xl border-2 border-blue-500/60 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with gradient */}
@@ -66,7 +66,7 @@ export const InfoModal = ({
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg bg-slate-800/50 hover:bg-red-500/40 border border-blue-400/40 hover:border-red-400 text-blue-300 hover:text-red-200 transition-all duration-200"
+            className="p-2 rounded-lg bg-slate-800/50 hover:bg-red-500/40 border border-blue-400/40 hover:border-red-400 text-blue-300 hover:text-red-200"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" aria-hidden="true" />

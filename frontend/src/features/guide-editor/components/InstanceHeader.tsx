@@ -1,6 +1,7 @@
 import { Plus, Eye, Star, ThumbsUp, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
+import { Avatar } from "@/shared/components/DefaultAvatar";
 import { useState, useRef, useEffect } from "react";
 
 interface HeaderCard {
@@ -253,17 +254,12 @@ export const InstanceHeader = ({
                       to={`/profile/${userId}`}
                       className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                     >
-                      {userProfilePictureUrl ? (
-                        <img
-                          src={userProfilePictureUrl}
-                          alt={`${userName}'s profile`}
-                          className="w-16 h-16 object-cover border-2 border-blue-400/50"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-xl border-2 border-blue-400/50">
-                          {userName.charAt(0).toUpperCase()}
-                        </div>
-                      )}
+                      <Avatar
+                        username={userName}
+                        profilePictureUrl={userProfilePictureUrl}
+                        size="lg"
+                        className="w-16 h-16 border-blue-400/50"
+                      />
                       <div className="flex flex-col relative bottom-3">
                         <span className="text-slate-400 text-xs font-medium uppercase tracking-wide">
                           Made by

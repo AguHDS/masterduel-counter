@@ -32,9 +32,10 @@ import type { CardPair, Card, GuideType, ComboStep } from "@/features/archetypes
 
 interface GuideContainerProps {
   onEditModeChange?: (isEditMode: boolean) => void;
+  onGuideTypeChange?: (guideType: GuideType) => void;
 }
 
-export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
+export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideContainerProps) => {
   const { archetypeId, instanceId } = useParams<{
     archetypeId: string;
     instanceId: string;
@@ -58,6 +59,13 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
   const [guideType, setGuideType] = useState<GuideType>(
     (location.state as { guideType?: GuideType })?.guideType || "COUNTER",
   );
+
+  // Notify parent of guide type changes
+  useEffect(() => {
+    if (onGuideTypeChange) {
+      onGuideTypeChange(guideType);
+    }
+  }, [guideType, onGuideTypeChange]);
 
   const { data: archetypeWithHeaderData } =
     useArchetypeWithHeader(archetypeIdNum);

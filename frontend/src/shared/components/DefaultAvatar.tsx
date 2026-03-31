@@ -29,7 +29,7 @@ export const Avatar: React.FC<AvatarProps> = ({
       <img
         src={profilePictureUrl}
         alt={username}
-        className={`rounded-full border-2 border-[#c2901c]/30 object-cover ${sizeClasses[size]} ${className}`}
+        className={`rounded-sm border-2 border-[#c2901c]/30 object-cover ${sizeClasses[size]} ${className}`}
         loading="lazy"
       />
     );
@@ -37,7 +37,7 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   return (
     <div
-      className={`rounded-full border-2 border-[#c2901c]/30 flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold ${sizeClasses[size]} ${className}`}
+      className={`rounded-sm border-2 border-[#c2901c]/30 flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold ${sizeClasses[size]} ${className}`}
     >
       {getInitial(username)}
     </div>
