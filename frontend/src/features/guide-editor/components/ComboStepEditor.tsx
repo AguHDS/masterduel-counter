@@ -29,6 +29,8 @@ export const ComboStepEditor = ({
   const [expandedLeftSteps, setExpandedLeftSteps] = useState<Set<string>>(new Set());
   const [expandedRightSteps, setExpandedRightSteps] = useState<Set<string>>(new Set());
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
+  const [draggedStepId, setDraggedStepId] = useState<string | null>(null);
+  const [dragOverStepId, setDragOverStepId] = useState<string | null>(null);
 
   useEffect(() => {
     if (forceCloseModal && selectingCards) {
@@ -177,6 +179,81 @@ export const ComboStepEditor = ({
     return comboSteps.some(s => s.parentCanceledStepId === stepId);
   };
 
+  // Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, stepId: string) => {
+    setDraggedStepId(stepId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", stepId);
+    // Add a slight opacity to the dragged element
+    (e.target as HTMLElement).style.opacity = "0.5";
+  };
+
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    (e.target as HTMLElement).style.opacity = "1";
+    setDraggedStepId(null);
+    setDragOverStepId(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, stepId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    
+    if (draggedStepId && draggedStepId !== stepId) {
+      setDragOverStepId(stepId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverStepId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetStepId: string) => {
+    e.preventDefault();
+    setDragOverStepId(null);
+    
+    if (!draggedStepId || draggedStepId === targetStepId) {
+      return;
+    }
+
+    // Find the dragged and target steps
+    const draggedStep = comboSteps.find(s => s.id === draggedStepId);
+    const targetStep = comboSteps.find(s => s.id === targetStepId);
+
+    if (!draggedStep || !targetStep) {
+      return;
+    }
+
+    // Only allow reordering within the same flow (both main or both canceled)
+    const draggedIsMainFlow = !draggedStep.parentCanceledStepId;
+    const targetIsMainFlow = !targetStep.parentCanceledStepId;
+
+    if (draggedIsMainFlow !== targetIsMainFlow) {
+      // Don't allow moving between main flow and canceled flow
+      return;
+    }
+
+    // If in canceled flow, ensure they have the same parent
+    if (!draggedIsMainFlow && draggedStep.parentCanceledStepId !== targetStep.parentCanceledStepId) {
+      return;
+    }
+
+    // Swap stepOrder values
+    const draggedOrder = draggedStep.stepOrder;
+    const targetOrder = targetStep.stepOrder;
+
+    const updatedSteps = comboSteps.map(step => {
+      if (step.id === draggedStepId) {
+        return { ...step, stepOrder: targetOrder };
+      }
+      if (step.id === targetStepId) {
+        return { ...step, stepOrder: draggedOrder };
+      }
+      return step;
+    });
+
+    setComboSteps(updatedSteps);
+  };
+
   // Sort steps: main flow first (by stepOrder), then canceled flow (by stepOrder)
   const sortedSteps = [...getVisibleSteps()].sort((a, b) => {
     // If one has parent and the other doesn't, main flow comes first
@@ -210,13 +287,26 @@ export const ComboStepEditor = ({
               const isMainFlowStep = !step.parentCanceledStepId;
               const isReadOnly = !!(activeCanceledStepId && isMainFlowStep);
               
+              const isDragging = draggedStepId === step.id;
+              const isDragOver = dragOverStepId === step.id;
+              
               return (
                 <div
                   key={step.id}
-                  className={`relative bg-slate-800/50 border-2 rounded-lg p-8 pb-12 ${
+                  draggable={!isReadOnly}
+                  onDragStart={(e) => handleDragStart(e, step.id)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => handleDragOver(e, step.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, step.id)}
+                  className={`relative bg-slate-800/50 border-2 rounded-lg p-8 pb-12 transition-all ${
                     isReadOnly 
                       ? 'border-slate-600/40 opacity-70' 
-                      : 'border-blue-500/40'
+                      : 'border-blue-500/40 cursor-grab active:cursor-grabbing'
+                  } ${
+                    isDragging ? 'opacity-50 scale-95' : ''
+                  } ${
+                    isDragOver ? 'border-yellow-400 scale-105 shadow-lg shadow-yellow-400/20' : ''
                   }`}
                 >
                   {/* Step Number Badge - Top Left */}
