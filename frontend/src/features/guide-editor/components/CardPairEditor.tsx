@@ -86,11 +86,27 @@ export const CardPairEditor = ({
             selectingPosition.position === "top"
               ? pair.topCards
               : pair.bottomCards;
-          return {
-            ...pair,
-            [selectingPosition.position === "top" ? "topCards" : "bottomCards"]:
-              [...currentCards, card],
-          };
+          
+          // Check max cards limit
+          if (selectingPosition.position === "top" && currentCards.length >= 8) {
+            return pair;
+          }
+          if (selectingPosition.position === "bottom" && currentCards.length >= 8) {
+            return pair;
+          }
+
+          if (selectingPosition.position === "top") {
+            return {
+              ...pair,
+              topCards: [...currentCards, card],
+            };
+          } else {
+            // For bottom cards, add efficiency as undefined
+            return {
+              ...pair,
+              bottomCards: [...currentCards, { ...card, effectiveness: undefined }],
+            };
+          }
         }
         return pair;
       }),
@@ -99,11 +115,23 @@ export const CardPairEditor = ({
     setSelectingPosition(null);
   };
 
-  const handleEffectivenessChange = (pairId: string, effectiveness: string) => {
+  const handleBottomCardEffectivenessChange = (
+    pairId: string,
+    cardIndex: number,
+    effectiveness: string,
+  ) => {
     setPairs(
-      pairs.map((pair) =>
-        pair.id === pairId ? { ...pair, effectiveness } : pair,
-      ),
+      pairs.map((pair) => {
+        if (pair.id === pairId) {
+          const updatedBottomCards = pair.bottomCards.map((card, idx) =>
+            idx === cardIndex
+              ? { ...card, effectiveness: effectiveness || undefined }
+              : card,
+          );
+          return { ...pair, bottomCards: updatedBottomCards };
+        }
+        return pair;
+      }),
     );
   };
 
@@ -147,7 +175,6 @@ export const CardPairEditor = ({
           <CardPairItem
             topCards={pair.topCards}
             bottomCards={pair.bottomCards}
-            effectiveness={pair.effectiveness}
             comment={pair.comment}
             onSelectTop={(e?: React.MouseEvent<HTMLButtonElement>) => {
               if (e?.currentTarget) setAnchorElement(e.currentTarget);
@@ -163,8 +190,8 @@ export const CardPairEditor = ({
             onRemoveBottomCard={(cardIndex) =>
               removeCard(pair.id, "bottom", cardIndex)
             }
-            onEffectivenessChange={(value) =>
-              handleEffectivenessChange(pair.id, value)
+            onBottomCardEffectivenessChange={(cardIndex, value) =>
+              handleBottomCardEffectivenessChange(pair.id, cardIndex, value)
             }
             onCommentChange={(value) => handleCommentChange(pair.id, value)}
             onRemove={() => removePair(pair.id)}

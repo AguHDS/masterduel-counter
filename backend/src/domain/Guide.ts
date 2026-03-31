@@ -39,8 +39,7 @@ export interface RegisterGuideDTO {
   guideType: GuideType;
   cardPairs?: Array<{
     topCardIds: number[];
-    bottomCardIds: number[];
-    effectiveness?: string;
+    bottomCardIds: Array<{ cardId: number; effectiveness?: string | null }>;
     comment?: string;
   }>;
   initialHands?: Array<{

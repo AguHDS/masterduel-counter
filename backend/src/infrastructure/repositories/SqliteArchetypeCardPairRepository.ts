@@ -17,9 +17,9 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
     pairs: GuideCardPairCreateDTO[],
   ): Promise<CardPair[]> {
     const pairStmt = this.db.prepare(`
-      INSERT INTO archetype_card_pairs (instance_id, pair_order, effectiveness, comment)
-      VALUES (?, ?, ?, ?)
-      RETURNING id, instance_id, pair_order, effectiveness, comment, created_at
+      INSERT INTO archetype_card_pairs (instance_id, pair_order, comment)
+      VALUES (?, ?, ?)
+      RETURNING id, instance_id, pair_order, comment, created_at
     `);
 
     const topStmt = this.db.prepare(`
@@ -28,8 +28,8 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
     `);
 
     const bottomStmt = this.db.prepare(`
-      INSERT INTO card_pair_bottom (pair_id, card_id, position)
-      VALUES (?, ?, ?)
+      INSERT INTO card_pair_bottom (pair_id, card_id, position, effectiveness)
+      VALUES (?, ?, ?, ?)
     `);
 
     const results: CardPair[] = [];
@@ -39,7 +39,6 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
       const result = pairStmt.get(
         pair.instance_id,
         pair.pair_order,
-        pair.effectiveness || null,
         pair.comment || null,
       ) as Omit<CardPair, "top_card_ids" | "bottom_card_ids">;
 
@@ -47,8 +46,8 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
         topStmt.run(result.id, cardId, index);
       });
 
-      pair.bottom_card_ids.forEach((cardId, index) => {
-        bottomStmt.run(result.id, cardId, index);
+      pair.bottom_card_ids.forEach((bottomCard, index) => {
+        bottomStmt.run(result.id, bottomCard.cardId, index, bottomCard.effectiveness || null);
       });
 
       results.push({
@@ -65,7 +64,7 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
     instanceId: number,
   ): Promise<GuideCardPairWithDetails[]> {
     const pairStmt = this.db.prepare(`
-      SELECT id, instance_id, pair_order, effectiveness, comment, created_at
+      SELECT id, instance_id, pair_order, comment, created_at
       FROM archetype_card_pairs
       WHERE instance_id = ?
       ORDER BY pair_order
@@ -80,7 +79,7 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
     `);
 
     const bottomStmt = this.db.prepare(`
-      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped
+      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped, cpb.effectiveness
       FROM card_pair_bottom cpb
       INNER JOIN cards c ON cpb.card_id = c.id
       WHERE cpb.pair_id = ?
@@ -107,6 +106,7 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
         image_url: string;
         image_url_small: string;
         image_url_cropped: string;
+        effectiveness?: string | null;
       }>,
     }));
   }

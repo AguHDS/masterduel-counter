@@ -200,7 +200,6 @@ model ArchetypeCardPair {
   id            Int       @id @default(autoincrement())
   instanceId    Int       @map("instance_id")
   pairOrder     Int       @map("pair_order")
-  effectiveness String?
   comment       String?
   createdAt     DateTime  @default(now()) @map("created_at")
 
@@ -227,11 +226,12 @@ model CardPairTop {
 }
 
 model CardPairBottom {
-  id        Int       @id @default(autoincrement())
-  pairId    Int       @map("pair_id")
-  cardId    Int       @map("card_id")
-  position  Int       @default(0)
-  createdAt DateTime  @default(now()) @map("created_at")
+  id            Int       @id @default(autoincrement())
+  pairId        Int       @map("pair_id")
+  cardId        Int       @map("card_id")
+  position      Int       @default(0)
+  effectiveness String?
+  createdAt     DateTime  @default(now()) @map("created_at")
 
   pair      ArchetypeCardPair @relation(fields: [pairId], references: [id], onDelete: Cascade)
   card      Card      @relation("BottomCardPairs", fields: [cardId], references: [id], onDelete: Cascade)

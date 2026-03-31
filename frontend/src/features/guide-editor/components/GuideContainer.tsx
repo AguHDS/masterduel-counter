@@ -243,7 +243,6 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
         id: pair.id.toString(),
         topCards: pair.topCards,
         bottomCards: pair.bottomCards,
-        effectiveness: pair.effectiveness,
         comment: pair.comment,
       }));
       setPairs(transformedPairs);
@@ -356,7 +355,6 @@ export const GuideContainer = ({ onEditModeChange }: GuideContainerProps) => {
         id: pair.id.toString(),
         topCards: pair.topCards,
         bottomCards: pair.bottomCards,
-        effectiveness: pair.effectiveness,
         comment: pair.comment,
       }));
 

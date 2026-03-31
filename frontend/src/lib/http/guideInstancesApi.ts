@@ -64,8 +64,8 @@ export interface GuideInstanceWithFullDetails {
       imageUrl: string;
       imageUrlSmall: string;
       imageUrlCropped: string;
+      effectiveness?: string;
     }>;
-    effectiveness?: string;
     comment?: string;
   }>;
   initialHands?: Array<{

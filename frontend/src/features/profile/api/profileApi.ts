@@ -100,6 +100,25 @@ export const profileApi = {
     return response.data;
   },
 
+  /** Search users by username */
+  searchUsers: async (
+    query: string,
+    limit: number = 10
+  ): Promise<{
+    success: boolean;
+    users: Array<{
+      userId: string;
+      username: string;
+      profilePictureUrl: string | null;
+    }>;
+    total: number;
+  }> => {
+    const response = await axios.get(`${API_URL}/api/profile/search`, {
+      params: { q: query, limit },
+    });
+    return response.data;
+  },
+
   /** Search guide instances by user ID and title */
   searchGuidesByUserId: async (
     userId: string,

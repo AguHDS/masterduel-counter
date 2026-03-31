@@ -9,6 +9,7 @@ import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
 import { FavoritedGuidesList } from "../components/FavoritedGuidesList";
 import { CustomDecksList } from "../components/CustomDecksList";
 import { PersonalDecks } from "../components/PersonalDecks";
+import { UserSearchDropdown } from "../components/UserSearchDropdown";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
 import { useFavoriteCardAndDecks } from "../hooks/useFavoriteCardAndDecks";
@@ -364,10 +365,10 @@ export const ProfilePage = () => {
 
                 <div className="flex-1 min-w-0">
                   {/* Main Content Container */}
-                  <div className="bg-gradient-to-br relative bg-slate-900/95  rounded-lg border-2 border-yellow-600/50 overflow-hidden h-auto lg:h-[800px] flex flex-col">
+                  <div className="bg-gradient-to-br relative bg-slate-900/95  rounded-lg border-2 border-yellow-600/50 h-auto lg:h-[800px] flex flex-col">
                     {/* Tabs inside container */}
                     <div className="relative z-10 border-b border-yellow-600/30 bg-slate-900/40 backdrop-blur-sm">
-                      <div className="flex flex-col gap-2 sm:gap-3 p-3 lg:flex-row lg:items-center lg:justify-between">
+                      <div className="flex flex-col gap-2 sm:gap-3 p-3 lg:flex-row lg:items-center lg:justify-between overflow-visible">
                         <div className="flex flex-wrap gap-2">
                           {[
                             { id: "profile", label: "Profile", path: "" },
@@ -400,54 +401,57 @@ export const ProfilePage = () => {
                             </button>
                           ))}
                         </div>
-                        {/* Edit Profile / Report Buttons */}
-                        <div className="flex gap-2 items-center flex-wrap sm:flex-nowrap">
-                          {!isOwner && session && (
-                            <button
-                              onClick={() => setIsReportModalOpen(true)}
-                              className="hover:text-red-700/80 text-white transition-colors p-2"
-                            >
-                              <Flag className="w-5 h-5" />
-                            </button>
-                          )}
-                          {isOwner && (
-                            <div className="flex gap-2 flex-shrink-0 flex-wrap sm:flex-nowrap">
-                              {!isEditMode ? (
-                                <button
-                                  onClick={() =>
-                                    toggleEditMode(profile?.bio || "")
-                                  }
-                                  className="flex items-center gap-2 py-2 px-4 bg-yellow-600/80 hover:bg-yellow-600 text-white rounded transition-colors border border-yellow-500 text-sm"
-                                >
-                                  <Edit className="w-4 h-4" />
-                                  <span>Edit Profile</span>
-                                </button>
-                              ) : (
-                                <>
+                        {/* Edit Profile / Report Buttons + Search */}
+                        <div className="flex gap-2 items-center flex-wrap">
+                          <UserSearchDropdown />
+                          <div className="flex gap-2 items-center">
+                            {!isOwner && session && (
+                              <button
+                                onClick={() => setIsReportModalOpen(true)}
+                                className="hover:text-red-700/80 text-white transition-colors p-2"
+                              >
+                                <Flag className="w-5 h-5" />
+                              </button>
+                            )}
+                            {isOwner && (
+                              <div className="flex gap-2 flex-shrink-0">
+                                {!isEditMode ? (
                                   <button
-                                    onClick={handleSaveProfile}
-                                    disabled={
-                                      isSaving ||
-                                      isSavingFavorites ||
-                                      !!fileError
+                                    onClick={() =>
+                                      toggleEditMode(profile?.bio || "")
                                     }
-                                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-sm"
+                                    className="flex items-center gap-2 py-2 px-4 bg-yellow-600/80 hover:bg-yellow-600 text-white rounded transition-colors border border-yellow-500 text-sm"
                                   >
-                                    {isSaving || isSavingFavorites
-                                      ? "Saving..."
-                                      : "Save"}
+                                    <Edit className="w-4 h-4" />
+                                    <span>Edit Profile</span>
                                   </button>
-                                  <button
-                                    onClick={handleCancelEdit}
-                                    disabled={isSaving || isSavingFavorites}
-                                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-sm"
-                                  >
-                                    Cancel
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          )}
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={handleSaveProfile}
+                                      disabled={
+                                        isSaving ||
+                                        isSavingFavorites ||
+                                        !!fileError
+                                      }
+                                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-sm"
+                                    >
+                                      {isSaving || isSavingFavorites
+                                        ? "Saving..."
+                                        : "Save"}
+                                    </button>
+                                    <button
+                                      onClick={handleCancelEdit}
+                                      disabled={isSaving || isSavingFavorites}
+                                      className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-sm"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>

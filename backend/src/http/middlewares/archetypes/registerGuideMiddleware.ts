@@ -62,6 +62,23 @@ export const registerGuideMiddleware = (
         return;
       }
 
+      // Validate max cards
+      if (pair.topCardIds && pair.topCardIds.length > 8) {
+        res.status(400).json({
+          success: false,
+          error: `Maximum 8 top cards allowed per pair at index ${i}`,
+        });
+        return;
+      }
+
+      if (pair.bottomCardIds && pair.bottomCardIds.length > 8) {
+        res.status(400).json({
+          success: false,
+          error: `Maximum 8 bottom cards allowed per pair at index ${i}`,
+        });
+        return;
+      }
+
       // Validate each card ID is a valid number
       if (pair.topCardIds) {
         for (const cardId of pair.topCardIds) {
@@ -76,13 +93,34 @@ export const registerGuideMiddleware = (
       }
 
       if (pair.bottomCardIds) {
-        for (const cardId of pair.bottomCardIds) {
-          if (typeof cardId !== "number" || cardId <= 0) {
+        for (const bottomCard of pair.bottomCardIds) {
+          // Validate bottomCard is an object with cardId
+          if (typeof bottomCard !== "object" || !bottomCard.cardId) {
+            res.status(400).json({
+              success: false,
+              error: `Invalid bottom card format at pair index ${i}. Expected { cardId, effectiveness? }`,
+            });
+            return;
+          }
+
+          if (typeof bottomCard.cardId !== "number" || bottomCard.cardId <= 0) {
             res.status(400).json({
               success: false,
               error: `Invalid card ID in bottomCardIds at pair index ${i}`,
             });
             return;
+          }
+
+          // Validate effectiveness if provided
+          if (bottomCard.effectiveness !== undefined && bottomCard.effectiveness !== null) {
+            const validEffectiveness = ["BAD", "MEDIUM", "EFFECTIVE", "VERY_EFFECTIVE"];
+            if (typeof bottomCard.effectiveness !== "string" || !validEffectiveness.includes(bottomCard.effectiveness)) {
+              res.status(400).json({
+                success: false,
+                error: `Invalid effectiveness value at pair index ${i}. Must be one of: ${validEffectiveness.join(", ")}`,
+              });
+              return;
+            }
           }
         }
       }

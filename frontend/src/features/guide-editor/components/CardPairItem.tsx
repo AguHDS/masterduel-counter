@@ -3,16 +3,19 @@ import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
 import { useState, useRef, useEffect } from "react";
 
+interface BottomCard extends Card {
+  effectiveness?: string;
+}
+
 interface CardPairItemProps {
   topCards: Card[];
-  bottomCards: Card[];
-  effectiveness?: string;
+  bottomCards: BottomCard[];
   comment?: string;
   onSelectTop: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   onSelectBottom: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   onRemoveTopCard: (index: number) => void;
   onRemoveBottomCard: (index: number) => void;
-  onEffectivenessChange: (value: string) => void;
+  onBottomCardEffectivenessChange: (cardIndex: number, value: string) => void;
   onCommentChange: (value: string) => void;
   onRemove: () => void;
   onMoveLeft?: () => void;
@@ -23,6 +26,7 @@ interface CardPairItemProps {
 }
 
 const EFFECTIVENESS_OPTIONS = [
+  { value: "", label: "None", color: "text-slate-400" },
   { value: "BAD", label: "BAD", color: "text-red-500" },
   { value: "MEDIUM", label: "MEDIUM", color: "text-yellow-400" },
   { value: "EFFECTIVE", label: "GOOD", color: "text-[#80ff82]" },
@@ -35,20 +39,22 @@ const TOP_CARD_WIDTH = Math.round(BOTTOM_CARD_WIDTH * 0.7);
 const TOP_CARD_HEIGHT = Math.round(BOTTOM_CARD_HEIGHT * 0.75);
 const MAX_VISIBLE_TOP_CARDS = 3;
 const MAX_VISIBLE_BOTTOM_CARDS = 3;
+const MAX_TOP_CARDS = 8;
+const MAX_BOTTOM_CARDS = 8;
 const FIXED_CONTAINER_WIDTH = 360;
 const SHOW_MORE_BUTTON_HEIGHT = 40;
 const READ_MORE_BUTTON_HEIGHT = 32;
+const EFFICIENCY_SELECTOR_HEIGHT = 24;
 
 export const CardPairItem = ({
   topCards,
   bottomCards,
-  effectiveness,
   comment,
   onSelectTop,
   onSelectBottom,
   onRemoveTopCard,
   onRemoveBottomCard,
-  onEffectivenessChange,
+  onBottomCardEffectivenessChange,
   onCommentChange,
   onRemove,
   onMoveLeft,
@@ -64,10 +70,6 @@ export const CardPairItem = ({
   const topSectionRef = useRef<HTMLDivElement>(null);
   const bottomSectionRef = useRef<HTMLDivElement>(null);
   const commentRef = useRef<HTMLDivElement>(null);
-
-  const selectedOption = EFFECTIVENESS_OPTIONS.find(
-    (opt) => opt.value === effectiveness,
-  );
 
   const hasTopCards = topCards.length > 0;
   const hasBottomCards = bottomCards.length > 0;
@@ -117,41 +119,30 @@ export const CardPairItem = ({
     ));
   };
 
-  const renderCardSection = (
-    cards: Card[],
-    isTop: boolean,
-    onRemove: (index: number) => void,
-    onSelect: () => void,
-    isExpanded: boolean,
-    setExpanded: (value: boolean) => void,
-    sectionRef: React.RefObject<HTMLDivElement | null>,
-  ) => {
-    const maxVisible = isTop ? MAX_VISIBLE_TOP_CARDS : MAX_VISIBLE_BOTTOM_CARDS;
+  const renderTopCardSection = () => {
+    const maxVisible = MAX_VISIBLE_TOP_CARDS;
     const visibleCards =
-      isEditMode || isExpanded ? cards : cards.slice(0, maxVisible);
-    const hasMoreCards = !isEditMode && cards.length > maxVisible;
-    const cardWidth = isTop ? TOP_CARD_WIDTH : BOTTOM_CARD_WIDTH;
-    const cardHeight = isTop ? TOP_CARD_HEIGHT : BOTTOM_CARD_HEIGHT;
+      isEditMode || isTopExpanded ? topCards : topCards.slice(0, maxVisible);
+    const hasMoreCards = !isEditMode && topCards.length > maxVisible;
 
     const calculateHeight = () => {
-      const cardsPerRow = isTop ? 4 : 3;
-
+      const cardsPerRow = 4;
       let totalElements = visibleCards.length;
-      if (isEditMode) {
+      if (isEditMode && topCards.length < MAX_TOP_CARDS) {
         totalElements += 1;
       }
 
       const rows = Math.ceil(totalElements / cardsPerRow);
       const gapHeight = (rows - 1) * 6;
-      const cardsHeight = rows * cardHeight + gapHeight;
+      const cardsHeight = rows * TOP_CARD_HEIGHT + gapHeight;
 
       return cardsHeight + SHOW_MORE_BUTTON_HEIGHT;
     };
 
     return (
-      <div ref={sectionRef} className="flex flex-col items-center w-full">
+      <div ref={topSectionRef} className="flex flex-col items-center w-full">
         <div className="text-xs text-slate-400 mb-1 text-center font-medium">
-          {isTop ? "Target" : "Counter"}
+          Target
         </div>
         <div
           className="relative transition-all duration-300 ease-in-out overflow-hidden"
@@ -160,14 +151,14 @@ export const CardPairItem = ({
           }}
         >
           <div
-            className="flex flex-wrap gap-1.5 justify-start"
+            className="flex flex-wrap gap-1.5 justify-center"
             style={{ maxWidth: `${FIXED_CONTAINER_WIDTH - 32}px` }}
           >
             {visibleCards.map((card, index) => (
               <div key={index} className="relative group">
                 {isEditMode && (
                   <button
-                    onClick={() => onRemove(index)}
+                    onClick={() => onRemoveTopCard(index)}
                     className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
                     title="Remove card"
                   >
@@ -184,37 +175,38 @@ export const CardPairItem = ({
                     alt={card.name}
                     className="object-cover rounded border cursor-pointer shadow-sm"
                     style={{
-                      width: `${cardWidth}px`,
-                      height: `${cardHeight}px`,
-                      borderColor: isTop ? "transparent" : "transparent",
+                      width: `${TOP_CARD_WIDTH}px`,
+                      height: `${TOP_CARD_HEIGHT}px`,
+                      borderColor: "transparent",
                     }}
                   />
                 </CardTooltip>
               </div>
             ))}
-            {isEditMode && (
+            {isEditMode && topCards.length < MAX_TOP_CARDS && (
               <button
-                onClick={onSelect}
+                onClick={onSelectTop}
                 className="rounded border border-dashed hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
                 style={{
-                  width: `${cardWidth}px`,
-                  height: `${cardHeight}px`,
-                  borderColor: isTop ? "rgb(71 85 105)" : "rgb(71 85 105)",
+                  width: `${TOP_CARD_WIDTH}px`,
+                  height: `${TOP_CARD_HEIGHT}px`,
+                  borderColor: "rgb(71 85 105)",
                 }}
               >
-                <Plus
-                  className={`${isTop ? "w-5 h-5" : "w-6 h-6"} text-slate-400`}
-                />
+                <Plus className="w-5 h-5 text-slate-400" />
               </button>
             )}
           </div>
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center" style={{ height: `${SHOW_MORE_BUTTON_HEIGHT}px` }}>
+          <div
+            className="absolute bottom-0 left-0 right-0 flex justify-center"
+            style={{ height: `${SHOW_MORE_BUTTON_HEIGHT}px` }}
+          >
             {hasMoreCards && (
               <button
-                onClick={() => setExpanded(!isExpanded)}
+                onClick={() => setIsTopExpanded(!isTopExpanded)}
                 className="mt-2 mb-1 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1"
               >
-                {isExpanded ? (
+                {isTopExpanded ? (
                   <>
                     <Minus className="w-4 h-4" />
                     Show Less
@@ -222,7 +214,158 @@ export const CardPairItem = ({
                 ) : (
                   <>
                     <Plus className="w-4 h-4" />
-                    Show {cards.length - maxVisible} More
+                    Show {topCards.length - maxVisible} More
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderBottomCardSection = () => {
+    const maxVisible = MAX_VISIBLE_BOTTOM_CARDS;
+    const visibleCards =
+      isEditMode || isBottomExpanded
+        ? bottomCards
+        : bottomCards.slice(0, maxVisible);
+    const hasMoreCards = !isEditMode && bottomCards.length > maxVisible;
+
+    const calculateHeight = () => {
+      const cardsPerRow = 3;
+      let totalElements = visibleCards.length;
+      if (isEditMode && bottomCards.length < MAX_BOTTOM_CARDS) {
+        totalElements += 1;
+      }
+
+      const rows = Math.ceil(totalElements / cardsPerRow);
+      const gapHeight = (rows - 1) * 6;
+      const cardsHeight = rows * BOTTOM_CARD_HEIGHT + gapHeight;
+      
+      // Calculate efficiency height for both edit and view modes
+      // In edit mode, all cards have selectors. In view mode, only cards with effectiveness show labels
+      const hasEfficiencyLabels = isEditMode || visibleCards.some(c => c.effectiveness);
+      const efficiencyHeight = hasEfficiencyLabels ? EFFICIENCY_SELECTOR_HEIGHT + 4 : 0; // +4 for mt-1
+
+      return cardsHeight + efficiencyHeight + SHOW_MORE_BUTTON_HEIGHT + (isEditMode ? 10 : 0);
+    };
+
+    return (
+      <div ref={bottomSectionRef} className="flex flex-col items-center w-full">
+        <div className="text-xs text-slate-400 mb-1 text-center font-medium">
+          Counter
+        </div>
+        <div
+          className="relative transition-all duration-300 ease-in-out overflow-hidden"
+          style={{
+            height: `${calculateHeight()}px`,
+          }}
+        >
+          <div
+            className="flex flex-wrap gap-1.5 justify-center"
+            style={{ maxWidth: `${FIXED_CONTAINER_WIDTH - 32}px` }}
+          >
+            {visibleCards.map((card, index) => {
+              const selectedOption = EFFECTIVENESS_OPTIONS.find(
+                (opt) => opt.value === (card.effectiveness || "")
+              );
+
+              return (
+                <div key={index} className="flex flex-col items-center">
+                  <div className="relative group">
+                    {isEditMode && (
+                      <button
+                        onClick={() => onRemoveBottomCard(index)}
+                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
+                        title="Remove card"
+                      >
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    )}
+                    <CardTooltip
+                      imageUrl={card.imageUrl}
+                      cardName={card.name}
+                      cardId={card.id}
+                    >
+                      <img
+                        src={card.imageUrlSmall}
+                        alt={card.name}
+                        className="object-cover rounded border cursor-pointer shadow-sm"
+                        style={{
+                          width: `${BOTTOM_CARD_WIDTH}px`,
+                          height: `${BOTTOM_CARD_HEIGHT}px`,
+                          borderColor: "transparent",
+                        }}
+                      />
+                    </CardTooltip>
+                  </div>
+                  {/* Efficiency selector/display below each bottom card */}
+                  {isEditMode ? (
+                    <select
+                      value={card.effectiveness || ""}
+                      onChange={(e) =>
+                        onBottomCardEffectivenessChange(index, e.target.value)
+                      }
+                      className="mt-1 w-full px-1 py-0.5 bg-slate-800 text-white text-center font-bold text-[10px] rounded border border-slate-600 focus:outline-none focus:border-blue-500"
+                      style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                    >
+                      {EFFECTIVENESS_OPTIONS.map((opt) => (
+                        <option
+                          key={opt.value}
+                          value={opt.value}
+                          className="bg-slate-800"
+                        >
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    card.effectiveness && (
+                      <div
+                        className={`mt-1 text-center text-[10px] font-bold uppercase tracking-wide ${selectedOption?.color || "text-slate-400"}`}
+                        style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                      >
+                        {selectedOption?.label}
+                      </div>
+                    )
+                  )}
+                </div>
+              );
+            })}
+            {isEditMode && bottomCards.length < MAX_BOTTOM_CARDS && (
+              <button
+                onClick={onSelectBottom}
+                className="rounded border border-dashed hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                style={{
+                  width: `${BOTTOM_CARD_WIDTH}px`,
+                  height: `${BOTTOM_CARD_HEIGHT}px`,
+                  borderColor: "rgb(71 85 105)",
+                }}
+              >
+                <Plus className="w-6 h-6 text-slate-400" />
+              </button>
+            )}
+          </div>
+          <div
+            className="absolute bottom-0 left-0 right-0 flex justify-center"
+            style={{ height: `${SHOW_MORE_BUTTON_HEIGHT}px` }}
+          >
+            {hasMoreCards && (
+              <button
+                onClick={() => setIsBottomExpanded(!isBottomExpanded)}
+                className="mt-2 mb-1 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1"
+              >
+                {isBottomExpanded ? (
+                  <>
+                    <Minus className="w-4 h-4" />
+                    Show Less
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4" />
+                    Show {bottomCards.length - maxVisible} More
                   </>
                 )}
               </button>
@@ -248,32 +391,7 @@ export const CardPairItem = ({
             <ChevronLeft className="w-3.5 h-3.5" />
           </button>
         )}
-        {isEditMode ? (
-          <select
-            value={effectiveness || ""}
-            onChange={(e) => onEffectivenessChange(e.target.value)}
-            className="w-full min-w-0 px-2 py-1 bg-slate-800 text-white text-center font-bold text-xs rounded border border-slate-600 focus:outline-none focus:border-blue-500"
-          >
-            <option value="" className="bg-slate-800">
-              Select Effectiveness
-            </option>
-            {EFFECTIVENESS_OPTIONS.map((opt) => (
-              <option
-                key={opt.value}
-                value={opt.value}
-                className="bg-slate-800"
-              >
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        ) : effectiveness ? (
-          <div
-            className={`w-full text-center text-1xl mb-2 font-bold uppercase tracking-wide ${selectedOption?.color || "text-slate-400"}`}
-          >
-            {selectedOption?.label}
-          </div>
-        ) : null}
+        <div className="flex-1"></div>
         {isEditMode && onMoveRight && canMoveRight && (
           <button
             onClick={onMoveRight}
@@ -285,8 +403,7 @@ export const CardPairItem = ({
         )}
       </div>
 
-      <div className="relative bg-gradient-to-br  p-2  border border-blue-500/40">
-        {" "}
+      <div className="relative bg-gradient-to-br p-2 border border-blue-500/40">
         {isEditMode && (
           <button
             onClick={onRemove}
@@ -362,41 +479,35 @@ export const CardPairItem = ({
                   ))}
                 {isEditMode && (
                   <>
-                    {(hasTopCards || (!hasTopCards && !hasBottomCards)) && (
-                      <button
-                        onClick={(e) => onSelectTop(e)}
-                        className="rounded border border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
-                        style={{
-                          width: `${TOP_CARD_WIDTH}px`,
-                          height: `${TOP_CARD_HEIGHT}px`,
-                        }}
-                      >
-                        <Plus className="w-5 h-5 text-slate-400" />
-                      </button>
-                    )}
-                    {(hasBottomCards || (!hasTopCards && !hasBottomCards)) && (
-                      <button
-                        onClick={(e) => onSelectBottom(e)}
-                        className="w-24 h-32 rounded border border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
-                      >
-                        <Plus className="w-6 h-6 text-slate-400" />
-                      </button>
-                    )}
+                    {(hasTopCards || (!hasTopCards && !hasBottomCards)) &&
+                      topCards.length < MAX_TOP_CARDS && (
+                        <button
+                          onClick={(e) => onSelectTop(e)}
+                          className="rounded border border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                          style={{
+                            width: `${TOP_CARD_WIDTH}px`,
+                            height: `${TOP_CARD_HEIGHT}px`,
+                          }}
+                        >
+                          <Plus className="w-5 h-5 text-slate-400" />
+                        </button>
+                      )}
+                    {(hasBottomCards || (!hasTopCards && !hasBottomCards)) &&
+                      bottomCards.length < MAX_BOTTOM_CARDS && (
+                        <button
+                          onClick={(e) => onSelectBottom(e)}
+                          className="w-24 h-32 rounded border border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                        >
+                          <Plus className="w-6 h-6 text-slate-400" />
+                        </button>
+                      )}
                   </>
                 )}
               </div>
             </div>
           ) : (
             <>
-              {renderCardSection(
-                topCards,
-                true,
-                onRemoveTopCard,
-                onSelectTop,
-                isTopExpanded,
-                setIsTopExpanded,
-                topSectionRef,
-              )}
+              {renderTopCardSection()}
 
               <div className="flex items-center justify-center py-0.5">
                 <svg
@@ -416,15 +527,7 @@ export const CardPairItem = ({
                 </svg>
               </div>
 
-              {renderCardSection(
-                bottomCards,
-                false,
-                onRemoveBottomCard,
-                onSelectBottom,
-                isBottomExpanded,
-                setIsBottomExpanded,
-                bottomSectionRef,
-              )}
+              {renderBottomCardSection()}
             </>
           )}
         </div>
@@ -452,9 +555,7 @@ export const CardPairItem = ({
                 Comment
               </span>
               <div
-                className={`text-center mt-2 py-1 px-3 text-slate-300 text-[13px] w-full transition-all duration-300 overflow-hidden ${
-                  !isCommentExpanded ? "" : ""
-                }`}
+                className={`text-center mt-2 py-1 px-3 text-slate-300 text-[13px] w-full transition-all duration-300 overflow-hidden`}
                 style={{
                   overflowWrap: "break-word",
                   wordBreak: "break-word",
@@ -467,7 +568,10 @@ export const CardPairItem = ({
               >
                 {renderCommentWithLineBreaks(comment || "No comment")}
               </div>
-              <div style={{ height: `${READ_MORE_BUTTON_HEIGHT}px` }} className="flex items-center justify-center">
+              <div
+                style={{ height: `${READ_MORE_BUTTON_HEIGHT}px` }}
+                className="flex items-center justify-center"
+              >
                 {comment && comment.length > 150 && (
                   <button
                     onClick={() => setIsCommentExpanded(!isCommentExpanded)}

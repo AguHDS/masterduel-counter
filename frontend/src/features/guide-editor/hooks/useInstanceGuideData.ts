@@ -24,8 +24,8 @@ interface GuideInstanceData {
       imageUrl: string;
       imageUrlSmall: string;
       imageUrlCropped: string;
+      effectiveness?: string;
     }>;
-    effectiveness?: string;
     comment?: string;
   }>;
   instance: {
@@ -79,7 +79,6 @@ export const useInstanceGuideData = ({
         id: pair.id.toString(),
         topCards: pair.topCards,
         bottomCards: pair.bottomCards,
-        effectiveness: pair.effectiveness,
         comment: pair.comment,
       }));
 

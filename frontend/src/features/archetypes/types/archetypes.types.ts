@@ -38,8 +38,8 @@ export interface CardPair {
     imageUrl: string;
     imageUrlSmall: string;
     imageUrlCropped: string;
+    effectiveness?: string;
   }>;
-  effectiveness?: string;
   comment?: string;
 }
 

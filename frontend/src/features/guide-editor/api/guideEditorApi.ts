@@ -8,8 +8,7 @@ const API_BASE_URL = getBackendUrl();
 
 export interface CardPairDTO {
   topCardIds: number[];
-  bottomCardIds: number[];
-  effectiveness?: string;
+  bottomCardIds: Array<{ cardId: number; effectiveness?: string }>;
   comment?: string;
 }
 

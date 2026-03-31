@@ -3,19 +3,17 @@ export interface CardPair {
   id: number;
   instance_id: number;
   pair_order: number;
-  effectiveness: string | null;
   comment: string | null;
   created_at: string;
   top_card_ids: number[];
-  bottom_card_ids: number[];
+  bottom_card_ids: Array<{ cardId: number; effectiveness?: string | null }>;
 }
 
 export interface GuideCardPairCreateDTO {
   instance_id: number;
   top_card_ids: number[];
-  bottom_card_ids: number[];
+  bottom_card_ids: Array<{ cardId: number; effectiveness?: string | null }>;
   pair_order: number;
-  effectiveness?: string | null;
   comment?: string | null;
 }
 
@@ -33,5 +31,6 @@ export interface GuideCardPairWithDetails extends Omit<CardPair, 'top_card_ids' 
     image_url: string;
     image_url_small: string;
     image_url_cropped: string;
+    effectiveness?: string | null;
   }>;
 }

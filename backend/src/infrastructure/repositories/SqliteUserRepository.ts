@@ -91,4 +91,29 @@ export class SqliteUserRepository implements UserRepository {
       emailTaken,
     };
   }
+
+  async searchUsersByUsername(query: string, limit: number): Promise<User[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        name: {
+          contains: query,
+        },
+        banned: {
+          not: true,
+        },
+      },
+      take: limit,
+      orderBy: {
+        name: 'asc',
+      },
+    });
+
+    return users.map((user) => ({
+      id: user.id,
+      username: user.name,
+      email: user.email,
+      role: user.role,
+      created_at: user.createdAt.toISOString(),
+    }));
+  }
 }

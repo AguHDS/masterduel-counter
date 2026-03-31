@@ -164,8 +164,8 @@ export const createGetGuideByIdController = (
             imageUrl: card.image_url,
             imageUrlSmall: card.image_url_small,
             imageUrlCropped: card.image_url_cropped,
+            effectiveness: card.effectiveness,
           })),
-          effectiveness: pair.effectiveness,
           comment: pair.comment,
         })),
         initialHands: initialHands ? initialHands.map((hand) => ({

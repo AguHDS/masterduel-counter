@@ -200,7 +200,6 @@ export class GuideApplicationService implements GuideInstanceServicePort {
         top_card_ids: pair.topCardIds,
         bottom_card_ids: pair.bottomCardIds,
         pair_order: index + 1,
-        effectiveness: pair.effectiveness || null,
         comment: pair.comment || null,
       }));
 

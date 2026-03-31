@@ -131,7 +131,10 @@ export const useSaveInstanceGuide = () => {
       // Add card pair IDs for COUNTER guides
       if (guideType === "COUNTER") {
         cardPairs.forEach((pair) => {
-          allCardIds.push(...pair.topCardIds, ...pair.bottomCardIds);
+          allCardIds.push(
+            ...pair.topCardIds,
+            ...pair.bottomCardIds.map(bc => bc.cardId)
+          );
         });
       }
 

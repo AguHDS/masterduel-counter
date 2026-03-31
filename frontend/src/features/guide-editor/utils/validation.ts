@@ -38,6 +38,22 @@ export const validateInstanceData = (
             "Each card pair must have at least one card in Top or Bottom.",
         };
       }
+
+      // Validate max 8 cards in top
+      if (pair.topCards.length > 8) {
+        return {
+          isValid: false,
+          errorMessage: "Each card pair can have maximum 8 top cards.",
+        };
+      }
+
+      // Validate max 8 cards in bottom
+      if (pair.bottomCards.length > 8) {
+        return {
+          isValid: false,
+          errorMessage: "Each card pair can have maximum 8 bottom cards.",
+        };
+      }
     }
   }
 
@@ -68,8 +84,10 @@ export const validateInstanceData = (
 export const transformPairsForApi = (pairs: CardPair[]) => {
   return pairs.map((pair) => ({
     topCardIds: pair.topCards.map((card) => card.id),
-    bottomCardIds: pair.bottomCards.map((card) => card.id),
-    effectiveness: pair.effectiveness,
+    bottomCardIds: pair.bottomCards.map((card) => ({
+      cardId: card.id,
+      effectiveness: card.effectiveness,
+    })),
     comment: pair.comment,
   }));
 };

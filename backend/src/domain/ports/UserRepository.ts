@@ -14,5 +14,7 @@ export interface UserRepository {
     userTaken: boolean;
     emailTaken: boolean;
   }>;
+  /** Search users by username (partial match) */
+  searchUsersByUsername(query: string, limit: number): Promise<User[]>;
 }
 
