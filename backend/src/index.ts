@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import { getDependencies } from "./compositionRoot.js";
+import { startCleanupJob } from "./services/cleanupService.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT_BACKEND ?? 3001;
@@ -183,4 +184,6 @@ app.use("/api/reports", report);
 
 app.listen(PORT, () => {
   console.log(`Listening to: http://localhost:${PORT}`);
+  
+  startCleanupJob();
 });

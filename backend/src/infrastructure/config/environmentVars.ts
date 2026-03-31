@@ -19,6 +19,9 @@ interface EnvironmentVars {
   smtpFromEmail: string;
   discordClientId: string;
   discordClientSecret: string;
+  cleanupUnverifiedAccountsEnabled?: boolean;
+  unverifiedAccountTTLHours?: number;
+  cleanupCronSchedule?: string;
 }
 
 const config: EnvironmentVars = {
@@ -38,6 +41,11 @@ const config: EnvironmentVars = {
   smtpFromEmail: process.env.SMTP_FROM_EMAIL || "",
   discordClientId: process.env.DISCORD_CLIENT_ID || "",
   discordClientSecret: process.env.DISCORD_CLIENT_SECRET || "",
+  cleanupUnverifiedAccountsEnabled: process.env.CLEANUP_UNVERIFIED_ACCOUNTS_ENABLED === "true",
+  unverifiedAccountTTLHours: process.env.UNVERIFIED_ACCOUNT_TTL_HOURS 
+    ? parseInt(process.env.UNVERIFIED_ACCOUNT_TTL_HOURS, 10) 
+    : undefined,
+  cleanupCronSchedule: process.env.CLEANUP_CRON_SCHEDULE || undefined,
 };
 
 export default config;
