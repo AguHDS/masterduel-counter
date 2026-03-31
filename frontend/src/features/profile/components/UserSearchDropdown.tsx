@@ -29,7 +29,7 @@ export const UserSearchDropdown = () => {
     if (inputRef.current) {
       const rect = inputRef.current.getBoundingClientRect();
       setDropdownPosition({
-        top: rect.bottom + 8,
+        top: rect.bottom,
         left: rect.left,
         width: rect.width,
       });
@@ -94,12 +94,12 @@ export const UserSearchDropdown = () => {
     const dropdownContent = (
       <div
         ref={dropdownRef}
-        className="fixed bg-slate-900 border border-slate-700 rounded-lg shadow-2xl max-h-80 overflow-y-auto"
+        className="fixed bg-slate-900 border border-slate-700 max-h-80 overflow-y-auto"
         style={{
           top: `${dropdownPosition.top}px`,
           left: `${dropdownPosition.left}px`,
           width: `${dropdownPosition.width}px`,
-          zIndex: 99999,
+          zIndex: 300,
         }}
       >
         {results.length > 0 ? (
@@ -138,7 +138,7 @@ export const UserSearchDropdown = () => {
   };
 
   return (
-    <div className="relative w-56">
+    <div className="relative w-48">
       {/* Search Input */}
       <div className="relative">
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -151,7 +151,7 @@ export const UserSearchDropdown = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={updateDropdownPosition}
           placeholder="Search users..."
-          className="w-full pl-10 pr-10 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
+          className="w-full pl-10 pr-10 py-1.5 bg-slate-900 border border-slate-700 rounded-sm text-white placeholder-gray-400 focus:outline-none focus:border-slate-600 text-sm"
         />
         {isFetching ? (
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
