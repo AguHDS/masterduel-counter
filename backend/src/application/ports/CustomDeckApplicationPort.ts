@@ -3,6 +3,7 @@ import {
   CustomDeckCreateDTO,
   CustomDeckUpdateDTO,
   CustomDeckWithCards,
+  CustomDeckReorderDTO,
 } from "@/domain/CustomDeck.js";
 
 /** Personal deck port for user profile */
@@ -19,4 +20,6 @@ export interface CustomDeckApplicationPort {
   deleteDeck(deckId: number, userId: string): Promise<void>;
   /** Checks if a user can create a new custom deck */
   canUserCreateDeck(userId: string, userRole: string): Promise<boolean>;
+  /** Reorders multiple custom decks */
+  reorderDecks(userId: string, data: CustomDeckReorderDTO): Promise<void>;
 }

@@ -70,6 +70,11 @@ export const CardPairItem = ({
   const topSectionRef = useRef<HTMLDivElement>(null);
   const bottomSectionRef = useRef<HTMLDivElement>(null);
   const commentRef = useRef<HTMLDivElement>(null);
+  
+  // Track if it's the first render to prevent scrolling on mount
+  const isFirstRenderTop = useRef(true);
+  const isFirstRenderBottom = useRef(true);
+  const isFirstRenderComment = useRef(true);
 
   const hasTopCards = topCards.length > 0;
   const hasBottomCards = bottomCards.length > 0;
@@ -78,6 +83,10 @@ export const CardPairItem = ({
     ((hasTopCards && !hasBottomCards) || (!hasTopCards && hasBottomCards));
 
   useEffect(() => {
+    if (isFirstRenderTop.current) {
+      isFirstRenderTop.current = false;
+      return;
+    }
     if (topSectionRef.current) {
       topSectionRef.current.scrollIntoView({
         behavior: "smooth",
@@ -87,6 +96,10 @@ export const CardPairItem = ({
   }, [isTopExpanded]);
 
   useEffect(() => {
+    if (isFirstRenderBottom.current) {
+      isFirstRenderBottom.current = false;
+      return;
+    }
     if (bottomSectionRef.current) {
       bottomSectionRef.current.scrollIntoView({
         behavior: "smooth",
@@ -96,6 +109,10 @@ export const CardPairItem = ({
   }, [isBottomExpanded]);
 
   useEffect(() => {
+    if (isFirstRenderComment.current) {
+      isFirstRenderComment.current = false;
+      return;
+    }
     if (commentRef.current) {
       commentRef.current.scrollIntoView({
         behavior: "smooth",

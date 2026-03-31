@@ -3,6 +3,7 @@ import {
   CustomDeckCreateDTO,
   CustomDeckUpdateDTO,
   CustomDeckWithCards,
+  CustomDeckReorderDTO,
 } from "@/domain/CustomDeck.js";
 import { CustomDeckApplicationPort } from "../ports/CustomDeckApplicationPort.js";
 import { CustomDeckRepository } from "@/domain/ports/CustomDeckRepository.js";
@@ -194,6 +195,7 @@ export class CustomDeckApplicationService implements CustomDeckApplicationPort {
       title: deck.title,
       isPublic: deck.isPublic,
       headerCardId: deck.headerCardId,
+      displayOrder: deck.displayOrder,
       headerCard: headerCardResult || undefined,
       mainDeck,
       extraDeck,
@@ -201,5 +203,20 @@ export class CustomDeckApplicationService implements CustomDeckApplicationPort {
       createdAt: deck.createdAt,
       updatedAt: deck.updatedAt,
     };
+  }
+
+  async reorderDecks(userId: string, data: CustomDeckReorderDTO): Promise<void> {
+    // Validate that all deckIds belong to the user
+    const userDecks = await this.deckRepository.getDecksByUserId(userId);
+    const userDeckIds = new Set(userDecks.map(d => d.id));
+    
+    for (const order of data.deckOrders) {
+      if (!userDeckIds.has(order.deckId)) {
+        throw new Error(`Deck ${order.deckId} does not belong to user ${userId}`);
+      }
+    }
+
+    // Reorder the decks
+    await this.deckRepository.reorderDecks(userId, data.deckOrders);
   }
 }

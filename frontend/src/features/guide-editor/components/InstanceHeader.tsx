@@ -84,7 +84,7 @@ export const InstanceHeader = ({
     <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 mb-8 w-full">
       <div className="flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
         {headerCard ? (
-          <div className="relative lg:top-8 w-48 sm:w-56 lg:w-60 h-auto ">
+          <div className="relative lg:top-8 w-48 sm:w-56 lg:w-64 h-auto ">
             <CardTooltip
               imageUrl={headerCard.imageUrl}
               cardName={headerCard.name}
@@ -93,7 +93,7 @@ export const InstanceHeader = ({
               <img
                 src={headerCard.imageUrlCropped}
                 alt={headerCard.name}
-                className="w-full bottom-7 relative h-auto object-contain cursor-pointer"
+                className="w-full bottom-7 border-2 border-amber-500/90 rounded-[3px] relative h-auto object-contain cursor-pointer"
               />
             </CardTooltip>
             {isEditMode && (

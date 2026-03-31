@@ -75,5 +75,10 @@ declare module "express" {
       isPublic?: boolean;
       headerCardId?: number;
     };
+
+    validatedCustomDeckReorderData?: {
+      userId: string;
+      deckOrders: { deckId: number; displayOrder: number }[];
+    };
   }
 }

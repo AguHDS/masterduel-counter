@@ -9,6 +9,7 @@ export interface CustomDeck {
   title: string;
   isPublic: boolean;
   headerCardId?: number;
+  displayOrder: number;
   headerCard?: {
     id: number;
     name: string;
@@ -101,6 +102,18 @@ export const customDeckApi = {
   deleteCustomDeck: async (userId: string, deckId: number): Promise<void> => {
     await axios.delete(
       `${API_BASE_URL}/api/users/${userId}/custom-decks/${deckId}`,
+      { withCredentials: true }
+    );
+  },
+
+  // Reorder custom decks
+  reorderDecks: async (
+    userId: string,
+    deckOrders: { deckId: number; displayOrder: number }[]
+  ): Promise<void> => {
+    await axios.put(
+      `${API_BASE_URL}/api/users/${userId}/custom-decks-reorder`,
+      { deckOrders },
       { withCredentials: true }
     );
   },

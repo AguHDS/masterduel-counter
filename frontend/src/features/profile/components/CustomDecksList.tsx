@@ -24,16 +24,18 @@ export const CustomDecksList = ({
     createDeck,
     updateDeck,
     deleteCustomDeck,
+    reorderDecks,
     isUpdating,
     isDeleting,
   } = useCustomDecks(userId);
 
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [selectedDeck, setSelectedDeck] = useState<CustomDeck | null>(null);
+  const [draggedDeckId, setDraggedDeckId] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
-  const sortedDecks = [...decks].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
+  // Sort by displayOrder (ascending)
+  const sortedDecks = [...decks].sort((a, b) => a.displayOrder - b.displayOrder);
 
   const maxDecks =
     userRole === "supporter" ? MAX_DECKS_SUPPORTER : MAX_DECKS_USER;
@@ -94,6 +96,70 @@ export const CustomDecksList = ({
     );
   };
 
+  // Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent, deckId: number) => {
+    if (!isOwner) return;
+    setDraggedDeckId(deckId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", e.currentTarget.outerHTML);
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = "0.4";
+    }
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = "1";
+    }
+    setDraggedDeckId(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDragEnter = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    
+    if (!isOwner || draggedDeckId === null) return;
+
+    const draggedIndex = sortedDecks.findIndex(d => d.id === draggedDeckId);
+    if (draggedIndex === -1 || draggedIndex === dropIndex) {
+      setDraggedDeckId(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    // Create new order array
+    const reorderedDecks = [...sortedDecks];
+    const [draggedDeck] = reorderedDecks.splice(draggedIndex, 1);
+    reorderedDecks.splice(dropIndex, 0, draggedDeck);
+
+    // Create update array with new display orders
+    const deckOrders = reorderedDecks.map((deck, index) => ({
+      deckId: deck.id,
+      displayOrder: index,
+    }));
+
+    // Call API to persist the new order
+    reorderDecks(deckOrders, {
+      onError: (error) => {
+        console.error("Error reordering decks:", error);
+        alert("Failed to reorder decks. Please try again.");
+      },
+    });
+
+    setDraggedDeckId(null);
+    setDragOverIndex(null);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -114,7 +180,7 @@ export const CustomDecksList = ({
 
       {(sortedDecks.length > 0 || (isOwner && !isCreatingNew)) && (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-          {sortedDecks.map((deck) => {
+          {sortedDecks.map((deck, index) => {
             const canView = isOwner || deck.isPublic;
             
             // Determine preview card - use headerCard directly if available
@@ -127,17 +193,30 @@ export const CustomDecksList = ({
               previewCard = previewCards[0];
             }
 
+            const isDragging = draggedDeckId === deck.id;
+            const isDragOver = dragOverIndex === index;
+
             return (
               <div
                 key={deck.id}
-                className="relative group cursor-pointer"
-                onClick={() => handleDeckClick(deck)}
+                draggable={isOwner}
+                onDragStart={(e) => handleDragStart(e, deck.id)}
+                onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
+                onDragEnter={(e) => handleDragEnter(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
+                className={`relative group transition-all duration-200 ${
+                  isOwner ? 'cursor-move' : 'cursor-pointer'
+                } ${isDragOver ? 'scale-105' : ''} ${isDragging ? 'opacity-40' : ''}`}
+                onClick={() => !isDragging && handleDeckClick(deck)}
               >
                 {canView && (
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0" />
+                  <div className={`absolute -inset-0.5 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 ${isDragOver ? 'opacity-100' : ''}`} />
                 )}
 
-                <div className="relative bg-gradient-to-b from-blue-900/90 via-slate-900 to-blue-900/90 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-cyan-400/80 transition-all duration-100 overflow-hidden">
+                <div className={`relative bg-gradient-to-b from-blue-900/90 via-slate-900 to-blue-900/90 rounded-lg border-2 transition-all duration-100 overflow-hidden ${
+                  isDragOver ? 'border-cyan-400' : 'border-[#3d3470]/70 group-hover:border-cyan-400/80'
+                }`}>
                   {/* Public/Private label */}
                   <div className="mb-1 flex justify-end">
                     {deck.isPublic ? (

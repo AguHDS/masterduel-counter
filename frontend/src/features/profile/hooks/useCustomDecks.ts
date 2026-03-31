@@ -34,6 +34,9 @@ export const useCustomDecks = (userId: string) => {
     }) => {
       // Confirm all cards exist in database before creating deck
       const allCardIds = [...mainDeckCards, ...extraDeckCards, ...(sideDeckCards || [])];
+      if (headerCardId) {
+        allCardIds.push(headerCardId);
+      }
       const uniqueCardIds = [...new Set(allCardIds)];
       
       if (uniqueCardIds.length > 0) {
@@ -72,6 +75,7 @@ export const useCustomDecks = (userId: string) => {
       if (mainDeckCards) allCardIds.push(...mainDeckCards);
       if (extraDeckCards) allCardIds.push(...extraDeckCards);
       if (sideDeckCards) allCardIds.push(...sideDeckCards);
+      if (headerCardId) allCardIds.push(headerCardId);
       const uniqueCardIds = [...new Set(allCardIds)];
       
       if (uniqueCardIds.length > 0) {
@@ -96,6 +100,16 @@ export const useCustomDecks = (userId: string) => {
     },
   });
 
+  const reorderDecksMutation = useMutation({
+    mutationFn: (deckOrders: { deckId: number; displayOrder: number }[]) => 
+      customDeckApi.reorderDecks(userId, deckOrders),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.customDecks.byUser(userId),
+      });
+    },
+  });
+
   return {
     decks,
     isLoading,
@@ -103,8 +117,10 @@ export const useCustomDecks = (userId: string) => {
     createDeck: createDeckMutation.mutate,
     updateDeck: updateDeckMutation.mutate,
     deleteCustomDeck: deleteDeckMutation.mutate,
+    reorderDecks: reorderDecksMutation.mutate,
     isCreating: createDeckMutation.isPending,
     isUpdating: updateDeckMutation.isPending,
     isDeleting: deleteDeckMutation.isPending,
+    isReordering: reorderDecksMutation.isPending,
   };
 };

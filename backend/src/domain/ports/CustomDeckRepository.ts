@@ -2,6 +2,7 @@ import {
   CustomDeck,
   CustomDeckCreateDTO,
   CustomDeckUpdateDTO,
+  CustomDeckReorderDTO,
 } from "../CustomDeck.js";
 
 /** Used for managing custom decks in user profiles */
@@ -18,4 +19,6 @@ export interface CustomDeckRepository {
   deleteDeck(deckId: number, userId: string): Promise<void>;
   /** Counts the number of custom decks for a specific user */
   countDecksByUserId(userId: string): Promise<number>;
+  /** Reorders multiple custom decks */
+  reorderDecks(userId: string, deckOrders: { deckId: number; displayOrder: number }[]): Promise<void>;
 }

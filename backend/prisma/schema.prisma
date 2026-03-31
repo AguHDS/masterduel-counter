@@ -370,12 +370,14 @@ model CustomDeck {
   sideDeckCards   String    @default("[]") @map("side_deck_cards") // JSON array of card IDs in order (max 20)
   headerCardId    Int?      @map("header_card_id") // Optional card ID for custom preview image
   isPublic        Boolean   @default(false) @map("is_public")
+  displayOrder    Int       @default(0) @map("display_order") // User-defined order for display (lower = first)
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([userId, displayOrder])
   @@map("custom_decks")
 }
 

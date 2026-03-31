@@ -24,7 +24,15 @@ export const PersonalDecks = ({ decks, onViewAll, isOwner }: PersonalDecksProps)
           <div className="space-y-2 mb-4">
             {displayDecks.map((deck) => {
               const canView = isOwner || deck.isPublic;
-              const previewCard = deck.extraDeck[0] || deck.mainDeck[0];
+              
+              // Use headerCard if available, otherwise fallback to first card
+              let previewCard = null;
+              if (deck.headerCard) {
+                previewCard = deck.headerCard;
+              } else {
+                const previewCards = deck.extraDeck.length > 0 ? deck.extraDeck : deck.mainDeck;
+                previewCard = previewCards[0];
+              }
 
               return (
                 <div
