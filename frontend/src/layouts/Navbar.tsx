@@ -8,6 +8,7 @@ import {
   Menu,
   X,
   Crown,
+  Layers,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoImg from "../assets/NavbarLogo.webp";
@@ -169,6 +170,18 @@ export const Navbar = () => {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center flex-nowrap absolute right-8 top-1/2 -translate-y-1/2 divide-x divide-[#c2901c]/20">
               <div className="relative flex items-center px-4">
+                <Link
+                  to="/cards"
+                  className="flex items-center space-x-1 px-2 py-1.5 hover:bg-[#c2901c]/10 rounded-lg transition-colors group"
+                  aria-label="View cards"
+                >
+                  <span className="text-xs font-medium text-amber-500 group-hover:text-amber-400">
+                    CARDS
+                  </span>
+                </Link>
+              </div>
+              
+              <div className="relative flex items-center px-4">
                 <button
                   ref={rankingButtonRef}
                   onClick={handleToggleRanking}
@@ -277,6 +290,14 @@ export const Navbar = () => {
 
             {/* Tablet Navigation */}
             <div className="hidden sm:flex lg:hidden items-center gap-3 absolute right-8 top-1/2 -translate-y-1/2">
+              <Link
+                to="/cards"
+                className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"
+                aria-label="View cards"
+              >
+                <Layers className="w-5 h-5 text-cyan-500 group-hover:text-cyan-400 transition-colors" />
+              </Link>
+
               <button
                 ref={rankingButtonRef}
                 onClick={handleToggleRanking}
@@ -383,6 +404,15 @@ export const Navbar = () => {
             )}
 
             <div className="space-y-2">
+              <Link
+                to="/cards"
+                onClick={handleLinkClick}
+                className="flex items-center gap-2 text-cyan-500 text-sm font-medium hover:opacity-80 transition-opacity py-2 w-full text-left"
+              >
+                <Layers className="h-4 w-4" />
+                <span>CARDS</span>
+              </Link>
+
               <button
                 onClick={handleToggleMobileRanking}
                 className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 transition-opacity py-2 w-full text-left"

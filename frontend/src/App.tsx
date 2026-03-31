@@ -16,6 +16,7 @@ import NotFound from "./shared/components/NotFound";
 import { SupportPage } from "./pages/SupportPage";
 import { useAnalyticsPageTracking } from "./shared/hooks/useAnalyticsPageTracking";
 import { RegisteredArchetypesPage } from "./features/registered-archetypes/pages/RegisteredArchetypesPage";
+import { CardsPage } from "./features/cards";
 
 /**
  * Component that renders all routes and tracks automatically
@@ -29,6 +30,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/support" element={<SupportPage />} />
+      <Route path="/cards" element={<CardsPage />} />
       <Route path="/archetypes" element={<RegisteredArchetypesPage />} />
       {/** Guide list of selected archetype */}
       <Route

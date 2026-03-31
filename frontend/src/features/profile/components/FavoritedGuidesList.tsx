@@ -59,7 +59,11 @@ export const FavoritedGuidesList = ({
     }
   };
 
-  const handleGuideClick = (archetypeId: number, guideId: number, guideType: "COUNTER" | "DECK") => {
+  const handleGuideClick = (
+    archetypeId: number,
+    guideId: number,
+    guideType: "COUNTER" | "DECK",
+  ) => {
     const typeParam = guideType === "COUNTER" ? "counter" : "deck";
     navigate(`/archetype/${archetypeId}/instance/${guideId}?type=${typeParam}`);
   };
@@ -95,7 +99,8 @@ export const FavoritedGuidesList = ({
       <div className="flex justify-between">
         <div className="w-full sm:w-72">
           <h3 className="text-lg font-semibold text-amber-400">
-            {title}{userRole === "user" && showFavoriteButton ? " (Max. 20)" : ""}
+            {title}
+            {userRole === "user" && showFavoriteButton ? " (Max. 20)" : ""}
           </h3>
         </div>
         <div className="w-full sm:w-72">
@@ -128,7 +133,9 @@ export const FavoritedGuidesList = ({
               <div
                 key={guide.id}
                 className="relative group"
-                onClick={() => handleGuideClick(guide.archetypeId, guide.id, guide.guideType)}
+                onClick={() =>
+                  handleGuideClick(guide.archetypeId, guide.id, guide.guideType)
+                }
               >
                 {/* Glow border effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
@@ -224,7 +231,9 @@ export const FavoritedGuidesList = ({
                           />
                         ) : (
                           <div className="w-[55px] h-[55px] bg-[#2a2550] rounded border-2 border-[#4a4070] flex items-center justify-center">
-                            <span className="text-gray-500 text-xs">No Card</span>
+                            <span className="text-gray-500 text-xs">
+                              No Card
+                            </span>
                           </div>
                         )}
                       </div>
@@ -244,11 +253,14 @@ export const FavoritedGuidesList = ({
                         {/* Bottom Info */}
                         <div className="flex items-center justify-between gap-2 text-xs">
                           <span className="text-gray-400">
-                            {new Date(guide.createdAt).toLocaleDateString("en-US", {
-                              day: "numeric",
-                              month: "numeric",
-                              year: "2-digit",
-                            })}
+                            {new Date(guide.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                day: "numeric",
+                                month: "numeric",
+                                year: "2-digit",
+                              },
+                            )}
                           </span>
                           <div className="flex items-center gap-3">
                             <span className="inline-flex items-center gap-1 text-green-400 font-bold">
@@ -257,7 +269,11 @@ export const FavoritedGuidesList = ({
                             {showFavoriteButton && onRemoveFavorite && (
                               <button
                                 onClick={(e) =>
-                                  handleRemoveFavorite(e, guide.id, guide.archetypeId)
+                                  handleRemoveFavorite(
+                                    e,
+                                    guide.id,
+                                    guide.archetypeId,
+                                  )
                                 }
                                 disabled={removingId === guide.id}
                                 className="p-1 hover:bg-yellow-500/10 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

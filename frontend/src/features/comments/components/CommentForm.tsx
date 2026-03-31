@@ -115,7 +115,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
         {!user && (
           <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-[1px] rounded-lg flex items-center justify-center">
             <p className="text-blue-300/60 text-sm">
-              <a href="/login" className="text-blue-400 hover:underline">
+              <a href="/signin" className="text-blue-400 hover:underline">
                 Login
               </a>{" "}
               to comment
