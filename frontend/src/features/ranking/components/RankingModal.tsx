@@ -55,7 +55,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="relative w-full max-w-2xl max-h-[90vh] bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-2xl overflow-hidden">
         <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-[#c2901c]/30 bg-[#1f1a24]">
           <div className="flex items-center space-x-2">

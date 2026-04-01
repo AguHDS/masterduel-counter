@@ -31,7 +31,7 @@ export const RegisteredArchetypesList = ({
   };
 
   const getPageTitle = () => {
-    if (guideType === "COUNTER") return "All Counter Guides";
+    if (guideType === "COUNTER") return "Counter Guides";
     if (guideType === "DECK") return "Deck Guides";
     return "Latest Registered Archetypes";
   };
@@ -123,6 +123,7 @@ export const RegisteredArchetypesList = ({
   return (
     <div className="flex flex-col items-start w-full">
       <FramedContainer
+        className={getBorderColor()}
         aria-label="Latest registered archetypes"
         contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[5%] pt-2 pb-6 gap-4"
       >

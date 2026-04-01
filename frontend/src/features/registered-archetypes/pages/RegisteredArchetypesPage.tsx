@@ -112,7 +112,7 @@ export const RegisteredArchetypesPage = () => {
         <meta name="twitter:description" content={getPageDescription()} />
       </Helmet>
 
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+      <div className="min-h-screen flex flex-col">
         <Navbar />
 
         <div className="flex-1 scale-[0.92] origin-top">

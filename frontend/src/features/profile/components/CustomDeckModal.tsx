@@ -264,7 +264,7 @@ export const CustomDeckModal = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[300] flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[400] flex items-center justify-center p-4 animate-in fade-in duration-200"
       onClick={handleClose}
     >
       <div

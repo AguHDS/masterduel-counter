@@ -25,7 +25,7 @@ export const FramedContainer = ({
     .join(" ");
 
   // Default border is blue, can be overridden by passing border class in className
-  const borderClass = className || "border-blue-700/90";
+  const borderClass = className || "border-slate-500/20";
 
   return (
     <section {...sectionProps} className={sectionClasses}>
@@ -34,7 +34,7 @@ export const FramedContainer = ({
       >
         <div className="relative w-full overflow-hidden">
           {/* Background with gradient overlay */}
-          <div className={`absolute inset-0 w-full h-full bg-gradient-to-br from-slate-950/40 via-slate-950/40 to-slate-950/40 border-[1px] ${borderClass}`} />
+          <div className={`absolute inset-0 w-full h-full bg-indigo-950/30 border-[2px] ${borderClass}`} />
           <div className={contentClasses}>{children}</div>
         </div>
       </div>

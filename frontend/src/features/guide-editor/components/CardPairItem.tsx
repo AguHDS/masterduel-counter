@@ -548,7 +548,7 @@ export const CardPairItem = ({
             </>
           )}
         </div>
-        <div ref={commentRef} className="flex items-center justify-center mt-2">
+        <div ref={commentRef} className="flex items-center justify-center mt-2 scrollbar-homeAllPages">
           {isEditMode ? (
             <div className="w-full">
               <label className="text-blue-400 font-semibold text-xs mb-0.5 block">

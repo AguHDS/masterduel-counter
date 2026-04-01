@@ -28,13 +28,13 @@ export const CardsSearch = ({ value, onChange, onClear }: CardsSearchProps) => {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Search for Yu-Gi-Oh! cards..."
-          className="w-full pl-12 pr-12 py-4 text-lg bg-slate-800/50 border-2 border-slate-600/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500/50 transition-colors"
+          className="w-full pl-12 pr-12 py-4 text-lg bg-slate-900/50 border-2 border-slate-700/50 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-slate-600/50"
         />
 
         {value && (
           <button
             onClick={onClear}
-            className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white transition-colors"
+            className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white"
             aria-label="Clear search"
           >
             <X className="w-5 h-5" />

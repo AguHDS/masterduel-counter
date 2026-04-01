@@ -115,7 +115,7 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="relative top-0 z-[200] bg-[#18121a]/90 border-b-4 border-[#c2901c] shadow-[0_10px_50px_-5px_rgba(0,0,0,0.7)]">
+    <header className="relative top-0 z-[300] bg-[#18121a]/90 border-b-4 border-[#c2901c] shadow-[0_10px_50px_-5px_rgba(0,0,0,0.7)]">
       <nav
         className="px-4 sm:px-6 lg:px-8 py-4"
         aria-label="Main navigation"
@@ -172,10 +172,10 @@ export const Navbar = () => {
               <div className="relative flex items-center px-4">
                 <Link
                   to="/cards"
-                  className="flex items-center space-x-1 px-2 py-1.5 hover:bg-[#c2901c]/10 rounded-lg transition-colors group"
+                  className="flex items-center space-x-1 px-2 py-1.5  rounded-lg transition-colors group"
                   aria-label="View cards"
                 >
-                  <span className="text-xs font-medium text-amber-500 group-hover:text-amber-400">
+                  <span className="text-xs font-medium text-[#c2901c] group-hover:text-[#e9b53c]">
                     CARDS
                   </span>
                 </Link>
@@ -185,7 +185,7 @@ export const Navbar = () => {
                 <button
                   ref={rankingButtonRef}
                   onClick={handleToggleRanking}
-                  className="flex items-center space-x-1 px-2 py-1.5 hover:bg-[#c2901c]/10 rounded-lg transition-colors group"
+                  className="flex items-center space-x-1 px-2 py-1.5  rounded-lg transition-colors group"
                   aria-label="Open ranking"
                 >
                   <Crown className="w-5 h-5 text-[#c2901c] group-hover:text-[#e9b53c] transition-colors" />

@@ -46,7 +46,7 @@ export const InfoModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"

@@ -3,8 +3,7 @@
 @tailwind utilities;
 
 body {
-  background: url("./assets/Homebackground.webp") no-repeat center center
-    fixed;
+  background-color: #0d0410;
   background-size: cover;
 }
 

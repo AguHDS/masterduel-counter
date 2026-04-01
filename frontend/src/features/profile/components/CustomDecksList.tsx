@@ -334,7 +334,7 @@ export const CustomDecksList = ({
               </button>
 
               {!canCreateMore && (
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[10]">
                   <div className="bg-slate-900/95 border border-yellow-500/50 rounded-lg px-3 py-2 mx-2">
                     <div className="flex items-start gap-2">
                       <Info className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
