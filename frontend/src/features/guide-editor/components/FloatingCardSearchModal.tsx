@@ -21,7 +21,7 @@ const GAP = 8;
 const PADDING = 12;
 const CARD_ASPECT_RATIO = 86 / 59;
 const CARD_TEXT_HEIGHT = 30;
-const MODAL_WIDTH = 400;
+const MODAL_WIDTH = 470;
 const MODAL_HEIGHT = 600;
 
 export const FloatingCardSearchModal = ({
@@ -202,7 +202,7 @@ export const FloatingCardSearchModal = ({
   }, [onClose]);
 
   const getColumnCount = useCallback(() => {
-    if (containerSize.width >= 400) return 3;
+    if (containerSize.width >= 400) return 5;
     return 2;
   }, [containerSize.width]);
 
@@ -313,7 +313,7 @@ export const FloatingCardSearchModal = ({
         </div>
 
         {/* Search Results */}
-        <div className="relative flex-1 overflow-hidden bg-slate-900" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="relative flex-1 overflow-hidden bg-slate-900 scrollbar-homeAllPages" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {isLoading && (
             <div className="flex flex-col items-center justify-center h-full gap-3">
               <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
@@ -358,6 +358,7 @@ export const FloatingCardSearchModal = ({
                   <div
                     style={{
                       display: "flex",
+                      overflowX: 'hidden',
                       gap: `${GAP}px`,
                       padding:
                         rowIndex === 0

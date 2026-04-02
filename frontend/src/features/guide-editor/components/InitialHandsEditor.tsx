@@ -272,7 +272,7 @@ export const InitialHandsEditor = ({
                               className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-[9999] group-hover:-translate-y-6"
                               title="Remove card"
                             >
-                              <X className="w-2.5 h-2.5 text-white" />
+                              <X className="w-2.5 h-2.5 text-white " />
                             </button>
                           )}
                         </div>

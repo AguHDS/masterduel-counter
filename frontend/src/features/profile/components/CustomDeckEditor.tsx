@@ -46,6 +46,16 @@ export const CustomDeckEditor = ({
   };
 
   const handleCardSelected = (card: Card) => {
+    // Count how many copies of this card already exist across all decks
+    const existingCopies = 
+      mainDeck.filter(c => c.id === card.id).length +
+      extraDeck.filter(c => c.id === card.id).length;
+    
+    if (existingCopies >= 3) {
+      alert(`You can only have a maximum of 3 copies of "${card.name}" in your deck`);
+      return;
+    }
+    
     if (targetZone === "main") {
       if (mainDeck.length >= 60) {
         alert("Main deck cannot have more than 60 cards");

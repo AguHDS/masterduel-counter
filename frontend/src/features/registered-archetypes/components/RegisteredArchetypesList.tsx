@@ -1,8 +1,11 @@
 ﻿import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Search, ArrowLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Search, ArrowLeft, Plus } from "lucide-react";
 import { FramedContainer } from "@/layouts/FramedContainer";
 import { useRegisteredArchetypes } from "../hooks/useRegisteredArchetypes";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/features/auth";
+import { GuideTypeSelectionModal } from "@/shared/components/modals/GuideTypeSelectionModal";
+import { ArchetypeSearchModal } from "@/shared/components/modals/ArchetypeSearchModal";
 import type { GuideType } from "@/features/archetypes/types";
 
 interface RegisteredArchetypesListProps {
@@ -22,7 +25,15 @@ export const RegisteredArchetypesList = ({
   const [currentPage, setCurrentPage] = useState(0);
   const [sortBy, setSortBy] = useState<"recent" | "instances">("recent");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isArchetypeSearchOpen, setIsArchetypeSearchOpen] = useState(false);
+  const [isGuideTypeModalOpen, setIsGuideTypeModalOpen] = useState(false);
+  const [selectedArchetype, setSelectedArchetype] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data, isLoading, error } = useRegisteredArchetypes(sortBy, guideType);
 
   const toggleSortBy = () => {
@@ -56,6 +67,27 @@ export const RegisteredArchetypesList = ({
 
   const handleBackClick = () => {
     navigate("/");
+  };
+
+  const handleCreateClick = () => {
+    if (!user) return;
+    setIsArchetypeSearchOpen(true);
+  };
+
+  const handleArchetypeSelect = (archetypeId: number, archetypeName: string) => {
+    setSelectedArchetype({ id: archetypeId, name: archetypeName });
+    setIsArchetypeSearchOpen(false);
+    setIsGuideTypeModalOpen(true);
+  };
+
+  const handleSelectGuideType = (selectedGuideType: GuideType) => {
+    if (selectedArchetype) {
+      navigate(`/archetype/${selectedArchetype.id}/instance/new`, {
+        state: { guideType: selectedGuideType },
+      });
+      setIsGuideTypeModalOpen(false);
+      setSelectedArchetype(null);
+    }
   };
 
   // Get archetypes data safely
@@ -148,20 +180,37 @@ export const RegisteredArchetypesList = ({
             </span>
           </div>
 
-          <div className="relative w-56 mt-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-400" />
+          <div className="flex items-center gap-3">
+            {user ? (
+              <button
+                onClick={handleCreateClick}
+                className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition-colors"
+                aria-label="Create new guide"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="text-sm">Create</span>
+              </button>
+            ) : (
+              <div className="px-4 py-1.5 bg-slate-700/50 text-gray-400 text-sm font-medium rounded border border-slate-600">
+                Sign in to create
+              </div>
+            )}
+
+            <div className="relative w-56">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(0);
+                }}
+                placeholder="Search archetypes"
+                className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-900/80 border border-slate-700 rounded-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors"
+              />
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(0);
-              }}
-              placeholder="Search archetypes"
-              className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-900/80 border border-slate-700 rounded-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors"
-            />
           </div>
         </div>
 
@@ -290,6 +339,27 @@ export const RegisteredArchetypesList = ({
           </div>
         )}
       </FramedContainer>
+
+      {/* Archetype Search Modal */}
+      <ArchetypeSearchModal
+        isOpen={isArchetypeSearchOpen}
+        onClose={() => setIsArchetypeSearchOpen(false)}
+        onSelectArchetype={handleArchetypeSelect}
+        centered={true}
+      />
+
+      {/* Guide Type Selection Modal */}
+      {selectedArchetype && (
+        <GuideTypeSelectionModal
+          isOpen={isGuideTypeModalOpen}
+          onClose={() => {
+            setIsGuideTypeModalOpen(false);
+            setSelectedArchetype(null);
+          }}
+          onSelectType={handleSelectGuideType}
+          archetypeName={selectedArchetype.name}
+        />
+      )}
     </div>
   );
 };

@@ -121,7 +121,7 @@ export const ComboStepCard = ({
                     <img
                       src={card.imageUrlSmall || card.imageUrl}
                       alt={card.name}
-                      className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                      className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                     />
                   </CardTooltip>
                 ))}
