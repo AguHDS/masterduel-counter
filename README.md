@@ -13,19 +13,6 @@ This app is meant to help players so they when and why use each handtrap/card ag
 - Report system
 - Admin panel
 
-#### Preview
-
-Homepage
-![Homepage](./assets/showcase/MDC_Homepage.webp)
-
-Profile
-![Profile](./assets/showcase/MDC_Profile.webp)
-
-Guides
-![Edit-mode](./assets/showcase/MDC_Guides_02CardPairs.webp)
-
-You can check all preview images in the [assets/showcase](./assets/showcase) folder.
-
 ### Stack used
 
 - Node/Express
