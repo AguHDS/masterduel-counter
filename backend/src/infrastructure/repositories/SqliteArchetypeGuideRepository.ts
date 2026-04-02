@@ -711,7 +711,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       LEFT JOIN profiles p ON u.id = p.user_id
       LEFT JOIN cards c ON ai.header_card_id = c.id
       ${guideTypeFilter}
-      ORDER BY ai.created_at DESC
+      ORDER BY ai.updated_at DESC, ai.created_at DESC
       LIMIT ?
     `);
 

@@ -7,6 +7,7 @@ import type { Card, ComboStep } from "@/features/archetypes/types";
 export interface InitialHand {
   id: string;
   cards: Card[];
+  description?: string;
 }
 
 interface InitialHandsEditorProps {
@@ -63,6 +64,17 @@ export const InitialHandsEditor = ({
 
   const removeInitialHand = (handId: string) => {
     setInitialHands(initialHands.filter((h) => h.id !== handId));
+  };
+
+  const updateHandDescription = (handId: string, description: string) => {
+    const limitedDescription = description.slice(0, 50);
+    setInitialHands(
+      initialHands.map((hand) =>
+        hand.id === handId
+          ? { ...hand, description: limitedDescription }
+          : hand
+      )
+    );
   };
 
   const removeCardFromHand = (handId: string, cardIndex: number) => {
@@ -292,6 +304,23 @@ export const InitialHandsEditor = ({
                 {hand.cards.length}/5
               </div>
 
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={hand.description || ""}
+                  onChange={(e) => updateHandDescription(hand.id, e.target.value)}
+                  placeholder="Description (optional)"
+                  maxLength={50}
+                  className="mt-1 w-full px-2 py-1 text-xs text-gray-300 bg-gray-800/50 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-center placeholder-gray-500"
+                />
+              ) : (
+                hand.description && (
+                  <div className="mt-1 text-xs text-blue-300 text-center line-clamp-2">
+                    {hand.description}
+                  </div>
+                )
+              )}
+
               {isEditMode && onAddCombo && (
                 <button
                   onClick={(e) => {
@@ -357,7 +386,6 @@ export const InitialHandsEditor = ({
         }}
         onSelectCard={handleCardSelected}
         title="Select Card for Initial Hand"
-        variant="sidebar"
         anchorElement={anchorElement}
         autoCloseAfterSelect={false}
       />

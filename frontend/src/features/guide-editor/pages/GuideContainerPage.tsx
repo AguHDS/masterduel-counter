@@ -15,6 +15,7 @@ import { MainSearch } from "@/shared/components/main-search/MainSearch";
 import { MainSearchResults } from "@/shared/components/main-search/MainSearchResults";
 import { CommentSection } from "@/features/comments";
 import type { Archetype } from "@/features/archetypes/types";
+import { TooltipProvider } from "@/features/archetypes/contexts/TooltipContext";
 
 /** Container page for guides of a specific archetype */
 export const GuideContainerPage = () => {
@@ -195,10 +196,12 @@ export const GuideContainerPage = () => {
             aria-label="Main content"
           >
             <FeatureErrorBoundary featureName="Instance Editor">
-              <GuideContainer 
-                onEditModeChange={setIsEditMode}
-                onGuideTypeChange={setGuideType}
-              />
+              <TooltipProvider>
+                <GuideContainer 
+                  onEditModeChange={setIsEditMode}
+                  onGuideTypeChange={setGuideType}
+                />
+              </TooltipProvider>
             </FeatureErrorBoundary>
           </main>
 

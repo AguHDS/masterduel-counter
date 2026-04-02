@@ -244,6 +244,7 @@ model InitialHand {
   id          Int       @id @default(autoincrement())
   instanceId  Int       @map("instance_id")
   cardIds     String    @map("card_ids") // JSON array of card IDs (max 5)
+  description String?   // Optional description (max 50 characters)
   position    Int       @default(0) // Order of the initial hand
   createdAt   DateTime  @default(now()) @map("created_at")
 

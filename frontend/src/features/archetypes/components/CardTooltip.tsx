@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useCardDetails } from "../hooks/useCardDetails";
 import { Star, Swords, Shield, Zap } from "lucide-react";
+import { useTooltipContext } from "../contexts/TooltipContext";
 
 interface CardTooltipProps {
   cardId: number;
@@ -29,14 +30,25 @@ export const CardTooltip = ({
   const rafRef = useRef<number | null>(null);
   const initialMousePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
+  // Get tooltip context (use try-catch for graceful fallback if not in provider)
+  let tooltipContext: ReturnType<typeof useTooltipContext> | null = null;
+  try {
+    tooltipContext = useTooltipContext();
+  } catch {
+    // Not in a provider, that's ok
+  }
+
+  // Generate unique ID for this tooltip
+  const tooltipId = useMemo(() => `tooltip-${cardId}-${Math.random()}`, [cardId]);
+
   // Fetch card details when tooltip is visible
   const { data: cardDetails, isLoading } = useCardDetails(
     isVisible ? cardId : null,
   );
 
-  // Hide tooltip when disabled prop changes to true
+  // Hide tooltip when disabled prop changes to true or another tooltip becomes active
   useEffect(() => {
-    if (disabled) {
+    if (disabled || (tooltipContext?.activeTooltipId && tooltipContext.activeTooltipId !== tooltipId)) {
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
         hoverTimeoutRef.current = null;
@@ -47,7 +59,7 @@ export const CardTooltip = ({
       }
       setIsVisible(false);
     }
-  }, [disabled]);
+  }, [disabled, tooltipContext?.activeTooltipId, tooltipId]);
 
   const handleMouseEnter = (e: React.MouseEvent) => {
     if (disabled) return;
@@ -61,6 +73,8 @@ export const CardTooltip = ({
     // Delay showing tooltip slightly to avoid flickering on quick hover
     hoverTimeoutRef.current = setTimeout(() => {
       setIsVisible(true);
+      // Set this tooltip as the active one
+      tooltipContext?.setActiveTooltip(tooltipId);
     }, 120);
   };
 
@@ -74,6 +88,10 @@ export const CardTooltip = ({
       rafRef.current = null;
     }
     setIsVisible(false);
+    // Clear active tooltip if this was the active one
+    if (tooltipContext?.activeTooltipId === tooltipId) {
+      tooltipContext?.setActiveTooltip(null);
+    }
   };
 
   const calculatePosition = (mouseX: number, mouseY: number) => {

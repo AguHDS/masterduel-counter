@@ -177,6 +177,7 @@ export const createGetGuideByIdController = (
             imageUrlSmall: card.imageUrlSmall,
             imageUrlCropped: card.imageUrlCropped,
           })),
+          description: hand.description,
           position: hand.position,
           comboSteps: hand.comboSteps,
         })) : undefined,

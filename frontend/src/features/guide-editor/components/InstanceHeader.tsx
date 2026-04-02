@@ -1,4 +1,4 @@
-import { Plus, Eye, Star, ThumbsUp, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Eye, Star, ThumbsUp, ChevronDown, ChevronUp, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { Avatar } from "@/shared/components/DefaultAvatar";
@@ -34,6 +34,7 @@ interface InstanceHeaderProps {
   isAuthenticated?: boolean;
   currentUserId?: number | string | null;
   guideType?: "COUNTER" | "DECK";
+  hasRecommendedDeck?: boolean;
 }
 
 export const InstanceHeader = ({
@@ -59,6 +60,7 @@ export const InstanceHeader = ({
   isLiked = false,
   isAuthenticated = false,
   currentUserId,
+  hasRecommendedDeck = false,
 }: InstanceHeaderProps) => {
   const isOwner = !!(
     currentUserId &&
@@ -81,9 +83,16 @@ export const InstanceHeader = ({
     }
   }, [generalTip, isEditMode]);
 
+  const scrollToRecommendedDeck = () => {
+    const deckSection = document.getElementById('recommended-deck-section');
+    if (deckSection) {
+      deckSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 mb-8 w-full">
-      <div className="flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
+      <div className="flex-shrink-0 w-full lg:w-auto flex flex-col items-center lg:items-start gap-4">
         {headerCard ? (
           <div className="relative lg:top-8 w-48 sm:w-56 lg:w-64 h-auto ">
             <CardTooltip
@@ -94,13 +103,13 @@ export const InstanceHeader = ({
               <img
                 src={headerCard.imageUrlCropped}
                 alt={headerCard.name}
-                className="w-full bottom-7 border-2 border-amber-500/90 rounded-[3px] relative h-auto object-contain cursor-pointer"
+                className="w-full border-2 relative bottom-7 border-amber-500/90 rounded-[3px] h-auto object-contain cursor-pointer"
               />
             </CardTooltip>
             {isEditMode && (
               <button
                 onClick={(e) => onSelectHeaderCard(e)}
-                className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+                className="absolute m-auto inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
                 title="Change Header Card"
               >
                 <Plus className="w-12 h-12 text-white" />
@@ -123,6 +132,16 @@ export const InstanceHeader = ({
                 isEditMode ? "text-purple-400" : "text-blue-300"
               }`}
             />
+          </button>
+        )}
+        
+        {!isEditMode && guideType === "DECK" && hasRecommendedDeck && (
+          <button
+            onClick={scrollToRecommendedDeck}
+            className="z-50 flex justify-center m-auto items-center gap-2 px-3 py-1.5 text-amber-500/90 font-medium"
+          >
+            <Package className="w-5 h-5" />
+            <span>Show Deck</span>
           </button>
         )}
       </div>

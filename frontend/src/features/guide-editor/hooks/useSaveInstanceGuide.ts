@@ -182,6 +182,7 @@ export const useSaveInstanceGuide = () => {
             .filter((hand) => hand.cards.length > 0)
             .map((hand) => ({
               cardIds: hand.cards.map((c) => c.id),
+              description: hand.description || undefined,
             }))
         : undefined;
 

@@ -266,10 +266,16 @@ export const ComboStepEditor = ({
   };
 
   // Drag and Drop handlers
+  const [isDragEnabled, setIsDragEnabled] = useState(true);
+
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
     stepId: string,
   ) => {
+    if (!isDragEnabled) {
+      e.preventDefault();
+      return;
+    }
     setDraggedStepId(stepId);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/html", stepId);
@@ -377,7 +383,7 @@ export const ComboStepEditor = ({
               return (
                 <div
                   key={step.id}
-                  draggable={!isReadOnly}
+                  draggable={!isReadOnly && isDragEnabled}
                   onDragStart={(e) => handleDragStart(e, step.id)}
                   onDragEnd={handleDragEnd}
                   onDragOver={(e) => handleDragOver(e, step.id)}
@@ -386,13 +392,32 @@ export const ComboStepEditor = ({
                   className={`relative bg-slate-800/50 border-2 rounded-lg p-8 pb-12 transition-all ${
                     isReadOnly
                       ? "border-slate-600/40 opacity-70"
-                      : "border-blue-500/40 cursor-grab active:cursor-grabbing"
+                      : "border-blue-500/40"
                   } ${isDragging ? "opacity-50 scale-95" : ""} ${
                     isDragOver
                       ? "border-yellow-400 scale-105 shadow-lg shadow-yellow-400/20"
                       : ""
                   }`}
                 >
+                  {/* Drag Handle - Top Center (only in edit mode) */}
+                  {!isReadOnly && (
+                    <div
+                      className="absolute top-1 left-1/2 transform -translate-x-1/2 cursor-grab active:cursor-grabbing py-1 px-3 rounded hover:bg-slate-700/30 transition-colors"
+                      onMouseEnter={() => setIsDragEnabled(true)}
+                      onMouseLeave={() => setIsDragEnabled(false)}
+                      title="Drag to reorder"
+                    >
+                      <div className="grid grid-cols-3 gap-[3px]">
+                        <div className="w-1 h-1 bg-slate-500 rounded-full"></div>
+                        <div className="w-1 h-1 bg-slate-500 rounded-full"></div>
+                        <div className="w-1 h-1 bg-slate-500 rounded-full"></div>
+                        <div className="w-1 h-1 bg-slate-500 rounded-full"></div>
+                        <div className="w-1 h-1 bg-slate-500 rounded-full"></div>
+                        <div className="w-1 h-1 bg-slate-500 rounded-full"></div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Step Number Badge - Top Left */}
                   <div className="absolute top-2 left-2">
                     <span className="inline-block px-2 py-0.5 text-yellow-500 text-xs font-bold rounded-full">

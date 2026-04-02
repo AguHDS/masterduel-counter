@@ -19,6 +19,8 @@ interface EnvironmentVars {
   smtpFromEmail: string;
   discordClientId: string;
   discordClientSecret: string;
+  googleClientId: string;
+  googleClientSecret: string;
   cleanupUnverifiedAccountsEnabled?: boolean;
   unverifiedAccountTTLHours?: number;
   cleanupCronSchedule?: string;
@@ -41,6 +43,8 @@ const config: EnvironmentVars = {
   smtpFromEmail: process.env.SMTP_FROM_EMAIL || "",
   discordClientId: process.env.DISCORD_CLIENT_ID || "",
   discordClientSecret: process.env.DISCORD_CLIENT_SECRET || "",
+  googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
   cleanupUnverifiedAccountsEnabled: process.env.CLEANUP_UNVERIFIED_ACCOUNTS_ENABLED === "true",
   unverifiedAccountTTLHours: process.env.UNVERIFIED_ACCOUNT_TTL_HOURS 
     ? parseInt(process.env.UNVERIFIED_ACCOUNT_TTL_HOURS, 10) 

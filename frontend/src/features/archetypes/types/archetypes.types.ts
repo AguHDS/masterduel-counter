@@ -46,6 +46,7 @@ export interface CardPair {
 export interface InitialHand {
   id: string;
   cards: Card[];
+  description?: string;
   comboSteps?: ComboStep[];
 }
 

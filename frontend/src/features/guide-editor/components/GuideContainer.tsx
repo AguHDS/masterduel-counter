@@ -151,6 +151,13 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [showRecommendedDeck, setShowRecommendedDeck] = useState(false);
   const [activeModalComponent, setActiveModalComponent] = useState<'recommended-deck' | 'initial-hands' | 'card-pairs' | 'combo-steps' | null>(null);
+  const [originalDeckState, setOriginalDeckState] = useState<{
+    exists: boolean;
+    title: string;
+    mainCards: any[];
+    extraCards: any[];
+    sideCards: any[];
+  } | null>(null);
 
   // Handle modal state changes from child components
   const handleModalStateChange = useCallback((component: 'recommended-deck' | 'initial-hands' | 'card-pairs' | 'combo-steps', isOpen: boolean) => {
@@ -163,7 +170,23 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
 
   useEffect(() => {
     onEditModeChange?.(editor.isEditMode && isOwner);
-  }, [editor.isEditMode, isOwner, onEditModeChange]);
+    
+    // Save original deck state when entering edit mode
+    if (editor.isEditMode && isOwner && !originalDeckState) {
+      setOriginalDeckState({
+        exists: !!recommendedDeck.deck,
+        title: deckTitle,
+        mainCards: [...deckMainCards],
+        extraCards: [...deckExtraCards],
+        sideCards: [...deckSideCards],
+      });
+    }
+    
+    // Clear original deck state when exiting edit mode (after save)
+    if (!editor.isEditMode && originalDeckState) {
+      setOriginalDeckState(null);
+    }
+  }, [editor.isEditMode, isOwner, onEditModeChange, originalDeckState, recommendedDeck.deck, deckTitle, deckMainCards, deckExtraCards, deckSideCards]);
 
   useEffect(() => {
     if (!editor.isEditMode || !isOwner) {
@@ -221,9 +244,19 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
   );
 
   const handleDeleteDeck = useCallback(async () => {
-    await recommendedDeck.deleteRecommendedDeck();
-    setShowRecommendedDeck(false);
-  }, [recommendedDeck]);
+    // In edit mode, only hide the deck locally - don't delete from server until save
+    if (editor.isEditMode && isOwner) {
+      setShowRecommendedDeck(false);
+      setDeckTitle("Recommended Deck");
+      setDeckMainCards([]);
+      setDeckExtraCards([]);
+      setDeckSideCards([]);
+    } else {
+      // In view mode, actually delete from server
+      await recommendedDeck.deleteRecommendedDeck();
+      setShowRecommendedDeck(false);
+    }
+  }, [recommendedDeck, editor.isEditMode, isOwner]);
 
   useInstanceGuideData({
     isCreatingNew,
@@ -263,6 +296,7 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
         type BackendInitialHand = {
           id: number;
           cards: Card[];
+          description?: string;
           comboSteps?: Array<{
             id: number;
             stepOrder: number;
@@ -279,6 +313,7 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
             (hand: BackendInitialHand) => ({
               id: hand.id.toString(),
               cards: hand.cards,
+              description: hand.description,
             }),
           );
         setInitialHands(transformedHands);
@@ -371,6 +406,23 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
         "Title";
       const generalTip = guideInstanceData.instance.generalTip || "";
 
+      // Restore original deck state if it was saved
+      if (originalDeckState) {
+        setDeckTitle(originalDeckState.title);
+        setDeckMainCards(originalDeckState.mainCards);
+        setDeckExtraCards(originalDeckState.extraCards);
+        setDeckSideCards(originalDeckState.sideCards);
+        setShowRecommendedDeck(originalDeckState.exists);
+        setOriginalDeckState(null);
+      } else {
+        // Fallback to current deck state
+        setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
+        setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
+        setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
+        setDeckSideCards(recommendedDeck.deck?.sideDeck || []);
+        setShowRecommendedDeck(recommendedDeck.deck ? true : false);
+      }
+
       editor.resetToInitialData({
         pairs,
         title: sanitizedTitle,
@@ -386,12 +438,6 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
       });
 
       setPairs(pairs);
-      setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
-      setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
-      setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
-      
-      // Reset showRecommendedDeck based on whether deck exists
-      setShowRecommendedDeck(recommendedDeck.deck ? true : false);
       
       // Restore initial hands if this is a DECK guide
       if (
@@ -401,6 +447,7 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
         type BackendInitialHand = {
           id: number;
           cards: Card[];
+          description?: string;
           comboSteps?: Array<{
             id: number;
             stepOrder: number;
@@ -417,6 +464,7 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
             (hand: BackendInitialHand) => ({
               id: hand.id.toString(),
               cards: hand.cards,
+              description: hand.description,
             }),
           );
         setInitialHands(transformedHands);
@@ -675,6 +723,7 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
                 isAuthenticated={isAuthenticated}
                 guideType={guideType}
                 currentUserId={user?.id}
+                hasRecommendedDeck={showRecommendedDeck || !!recommendedDeck.deck}
               />
 
 
@@ -779,17 +828,19 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
                   )}
 
                   {showRecommendedDeck && (
-                    <RecommendedDeckEditor
-                      isEditMode={editor.isEditMode && isOwner}
-                      initialTitle={displayTitle}
-                      initialMainDeck={displayMainDeck}
-                      initialExtraDeck={displayExtraDeck}
-                      initialSideDeck={displaySideDeck}
-                      onDeckChange={handleDeckChange}
-                      onDelete={handleDeleteDeck}
-                      onModalStateChange={(isOpen) => handleModalStateChange('recommended-deck', isOpen)}
-                      forceCloseModal={activeModalComponent !== null && activeModalComponent !== 'recommended-deck'}
-                    />
+                    <div id="recommended-deck-section">
+                      <RecommendedDeckEditor
+                        isEditMode={editor.isEditMode && isOwner}
+                        initialTitle={displayTitle}
+                        initialMainDeck={displayMainDeck}
+                        initialExtraDeck={displayExtraDeck}
+                        initialSideDeck={displaySideDeck}
+                        onDeckChange={handleDeckChange}
+                        onDelete={handleDeleteDeck}
+                        onModalStateChange={(isOpen) => handleModalStateChange('recommended-deck', isOpen)}
+                        forceCloseModal={activeModalComponent !== null && activeModalComponent !== 'recommended-deck'}
+                      />
+                    </div>
                   )}
                 </>
               )}

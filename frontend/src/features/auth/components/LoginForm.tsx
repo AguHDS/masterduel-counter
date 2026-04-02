@@ -5,6 +5,7 @@ import { useLogin } from "../hooks/useAuthQueries";
 import { Lock, User, CheckCircle } from "lucide-react";
 import { ForgotPasswordModal } from "./ForgotPasswordModal";
 import { DiscordButton } from "./DiscordButton";
+import { GoogleButton } from "./GoogleButton";
 import {
   createUsernameChangeHandler,
   getUsernameForSubmission,
@@ -173,7 +174,8 @@ export const LoginForm = () => {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-3">
+            <GoogleButton mode="signin" />
             <DiscordButton mode="signin" />
           </div>
 

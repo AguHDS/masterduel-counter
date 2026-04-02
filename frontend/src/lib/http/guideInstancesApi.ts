@@ -77,6 +77,7 @@ export interface GuideInstanceWithFullDetails {
       imageUrlSmall: string;
       imageUrlCropped: string;
     }>;
+    description?: string;
     position: number;
     comboSteps?: Array<{
       id: number;

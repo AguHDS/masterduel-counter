@@ -46,17 +46,18 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
 
   async createManyInitialHands(
     instanceId: number,
-    initialHands: Array<{ cardIds: number[] }>,
+    initialHands: Array<{ cardIds: number[]; description?: string }>,
   ): Promise<void> {
     const stmt = this.db.prepare(`
-      INSERT INTO initial_hands (instance_id, card_ids, position)
-      VALUES (?, ?, ?)
+      INSERT INTO initial_hands (instance_id, card_ids, description, position)
+      VALUES (?, ?, ?, ?)
     `);
 
     initialHands.forEach((hand, index) => {
       stmt.run(
         instanceId,
         JSON.stringify(hand.cardIds),
+        hand.description || null,
         index,
       );
     });
@@ -70,6 +71,7 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
         ih.id,
         ih.instance_id,
         ih.card_ids,
+        ih.description,
         ih.position,
         ih.created_at
       FROM initial_hands ih
@@ -81,6 +83,7 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
       id: number;
       instance_id: number;
       card_ids: string;
+      description: string | null;
       position: number;
       created_at: string;
     }
@@ -98,6 +101,7 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
           id: row.id,
           instanceId: row.instance_id,
           cards: [],
+          description: row.description || undefined,
           position: row.position,
           createdAt: new Date(row.created_at),
         });
@@ -138,6 +142,7 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
         id: row.id,
         instanceId: row.instance_id,
         cards: orderedCards,
+        description: row.description || undefined,
         position: row.position,
         createdAt: new Date(row.created_at),
       });

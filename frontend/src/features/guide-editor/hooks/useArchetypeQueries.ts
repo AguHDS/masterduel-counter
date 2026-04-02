@@ -38,7 +38,7 @@ export const useSaveGuide = () => {
       archetypeId: number;
       guideType: GuideType;
       cardPairs?: CardPairDTO[];
-      initialHands?: Array<{ cardIds: number[] }>;
+      initialHands?: Array<{ cardIds: number[]; description?: string }>;
       title: string;
       headerCardId?: number;
       generalTip?: string;

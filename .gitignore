@@ -26,6 +26,7 @@ Mejoras_antes_de_prod.md
 *.sqlite
 *.sqlite3
 PASOS_VPS_PRODUCCION.md
+GOOGLE_OAUTH_SETUP.md
 
 # Editor directories and files
 .vscode/*

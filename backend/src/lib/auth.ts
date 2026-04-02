@@ -47,6 +47,12 @@ export const auth = betterAuth({
       redirectURI: `${getBackendUrl()}/api/auth/callback/discord`,
       callbackURL: getFrontendUrl(),
     },
+    google: {
+      clientId: config.googleClientId,
+      clientSecret: config.googleClientSecret,
+      redirectURI: `${getBackendUrl()}/api/auth/callback/google`,
+      callbackURL: getFrontendUrl(),
+    },
   },
 
   emailAndPassword: {

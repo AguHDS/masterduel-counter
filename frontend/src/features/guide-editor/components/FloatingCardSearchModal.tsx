@@ -4,6 +4,7 @@ import { X, Search, Loader2 } from "lucide-react";
 import { Virtuoso } from "react-virtuoso";
 import { useSearchCards } from "@/features/archetypes/hooks/useCardQueries";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
+import { useTooltipContext } from "@/features/archetypes/contexts/TooltipContext";
 import type { Card } from "@/features/archetypes/types";
 
 interface FloatingCardSearchModalProps {
@@ -38,6 +39,19 @@ export const FloatingCardSearchModal = ({
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [hasSearched, setHasSearched] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
+
+  // Get tooltip context (use try-catch for graceful fallback if not in provider)
+  let tooltipContext: ReturnType<typeof useTooltipContext> | null = null;
+  try {
+    tooltipContext = useTooltipContext();
+  } catch {
+    // Not in a provider, that's ok
+  }
+
+  // Notify context when modal opens/closes
+  useEffect(() => {
+    tooltipContext?.setModalOpen(isOpen);
+  }, [isOpen, tooltipContext]);
 
   // Auto-focus input when modal opens
   useEffect(() => {
