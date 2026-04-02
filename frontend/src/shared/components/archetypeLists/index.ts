@@ -1,1 +1,2 @@
-export { InstancesTable } from "./InstancesTable";
+export { GuidesTable } from "./GuidesTable";
+export { GuidesGrid } from "./GuidesGrid";

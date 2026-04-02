@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import { getDependencies } from "./compositionRoot.js";
+import { startCleanupJob } from "./services/cleanupService.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT_BACKEND ?? 3001;
@@ -15,13 +16,15 @@ import {
   searchCards,
   selectCard,
   confirmCards,
-  registerArchetype,
+  archetypeGuide,
   registeredArchetypes,
   deleteGuide,
   guideLikes,
   guideFavorites,
   guideViews,
   recommendedDeck,
+  initialHands,
+  comboSteps,
   getCardDetails,
   createGetArchetypeGuidesRoute,
   createGetUserGuidesRoute,
@@ -38,7 +41,7 @@ import {
   createNotificationsRoute,
 } from "./routes/index.js";
 import auth from "./routes/auth/auth.js";
-import getInstanceCardPairs from "./routes/guides/getInstanceCardPairs.js";
+import getGuideCardPairs from "./routes/guides/getGuideCardPairs.js";
 import profile from "./routes/profile/profile.js";
 import customDecks from "./routes/customDecks.js";
 
@@ -140,13 +143,15 @@ app.use("/api/profile", profile);
 app.use("/api", customDecks);
 
 // Archetypes & Instances
-app.use("/api/archetypes", registerArchetype);
+app.use("/api/archetypes", archetypeGuide);
 app.use("/api/archetypes", registeredArchetypes);
 app.use("/api", deleteGuide);
 app.use("/api", guideLikes);
 app.use("/api", guideFavorites);
 app.use("/api", guideViews);
 app.use("/api", recommendedDeck);
+app.use("/api/instances", initialHands);
+app.use("/api/initial-hands", comboSteps);
 app.use("/api", createGetArchetypeGuidesRoute(getDependencies()));
 app.use("/api", createGetUserGuidesRoute(getDependencies()));
 app.use("/api", createSearchArchetypeGuidesRoute(getDependencies()));
@@ -155,7 +160,7 @@ app.use("/api", createOrUpdateGuideRoute(getDependencies()));
 app.use("/api", createGetGuideByIdRoute(getDependencies()));
 app.use("/api", createGetLatestGuidesRoute(getDependencies()));
 app.use("/api", createGetGeneralStatsRoute());
-app.use("/api", getInstanceCardPairs);
+app.use("/api", getGuideCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 app.use("/api/comments", comments);
 
@@ -179,4 +184,6 @@ app.use("/api/reports", report);
 
 app.listen(PORT, () => {
   console.log(`Listening to: http://localhost:${PORT}`);
+  
+  startCleanupJob();
 });

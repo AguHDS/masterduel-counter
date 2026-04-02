@@ -6,6 +6,7 @@ import { uploadProfilePictureController } from "@/http/controllers/profile/uploa
 import { deleteProfilePictureController } from "@/http/controllers/profile/deleteProfilePictureController.js";
 import { updateFavoriteCardAndDecksController } from "@/http/controllers/profile/updateFavoriteCardAndDecksController.js";
 import { getFavoritedGuidesController } from "@/http/controllers/profile/getFavoritedGuidesController.js";
+import { searchUsersController } from "@/http/controllers/profile/searchUsersController.js";
 import { validateBioMiddleware } from "@/http/middlewares/profile/validateBioMiddleware.js";
 import { validateFavoriteCardAndDecksMiddleware } from "@/http/middlewares/profile/validateFavoriteCardAndDecksMiddleware.js";
 import { validateUserIdMiddleware } from "@/http/middlewares/validateUserIdMiddleware.js";
@@ -19,6 +20,9 @@ const upload = multer({
     fileSize: 3 * 1024 * 1024, // 3MB
   },
 });
+
+// Search users (public endpoint)
+router.get("/search", searchUsersController);
 
 // Get user profile
 router.get("/:userId", validateUserIdMiddleware, getProfileController);

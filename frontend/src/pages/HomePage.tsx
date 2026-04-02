@@ -1,106 +1,140 @@
-import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
+import { useState, useCallback, useMemo } from "react";
+
 import { Navbar } from "../layouts/Navbar";
 import { Footer } from "../layouts/Footer";
-import { RegisteredArchetypesList } from "../features/archetypesList";
-import { SearchInput } from "../shared/components/Search/Search";
-import { SearchResults } from "../shared/components/Search/SearchResults";
-import { useArchetypeSearch } from "../features/ArchetypeAnalyzer/hooks/useArchetypeSearch";
-import { FeatureErrorBoundary } from "../shared/components";
+
 import { MainLogo } from "../shared/components/MainLogo";
-import { HomeStatsSection } from "../features/home";
-import type { Archetype } from "../features/ArchetypeAnalyzer/api/archetypeApi";
+import { HomeAllComponents } from "../features/home";
+
+import { MainSearch } from "../shared/components/main-search/MainSearch";
+import { MainSearchResults } from "../shared/components/main-search/MainSearchResults";
+
+import { useArchetypeSearch } from "../features/archetypes/hooks/useArchetypes";
+import type { Archetype } from "../features/archetypes/types";
 
 export const HomePage = () => {
   const navigate = useNavigate();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { results, loading, error } = useArchetypeSearch({
+
+  const { results, totalResults, loading, error } = useArchetypeSearch({
     searchQuery,
     debounceDelay: 300,
     limit: 20,
   });
 
-  const handleSearchChange = (value: string) => {
+  const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
     setIsDropdownOpen(value.trim().length > 0);
-  };
+  }, []);
 
-  const handleSelectArchetype = (archetype: Archetype) => {
-    setIsDropdownOpen(false);
-    setSearchQuery("");
-    navigate(`/archetype/${archetype.id}`);
-  };
-
-  const handleSelectRegisteredArchetype = (archetypeId: number) => {
-    navigate(`/archetype/${archetypeId}`);
-  };
-
-  useEffect(() => {
-    if (!searchQuery.trim()) {
+  const handleSelectArchetype = useCallback(
+    (archetype: Archetype, guideType?: 'COUNTER' | 'DECK') => {
       setIsDropdownOpen(false);
+      setSearchQuery("");
+      
+      // Navigate to archetype guides filtered by type
+      if (guideType) {
+        navigate(`/archetype/${archetype.id}?type=${guideType.toLowerCase()}`);
+      } else {
+        navigate(`/archetype/${archetype.id}`);
+      }
+    },
+    [navigate],
+  );
+
+  const handleInputFocus = useCallback(() => {
+    if (searchQuery.trim()) {
+      setIsDropdownOpen(true);
     }
   }, [searchQuery]);
+
+  const handleRequestClose = useCallback(() => {
+    setIsDropdownOpen(false);
+  }, []);
+
+  // Memoize the condition for showing dropdown to avoid unnecessary re-renders
+  const shouldShowDropdown = useMemo(() => {
+    return isDropdownOpen;
+  }, [isDropdownOpen]);
 
   return (
     <>
       <Helmet>
-        <title>
-          Masterduel Counter - Yu-Gi-Oh! Master Duel Archetype Counter Guides
-        </title>
+        <title>Masterduel Counter - Yu-Gi-Oh! Counters and Deck Guides</title>
+
         <meta
           name="description"
-          content="Find the best counter strategies for Yu-Gi-Oh! Master Duel archetypes and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
+          content="Find the best counter strategies and deck guides for Yu-Gi-Oh! Master Duel, and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
         />
+        <meta
+          name="keywords"
+          content="Yu-Gi-Oh, Master Duel, archetypes, counters, deck guides, strategy, card game"
+        />
+
+        <meta
+          property="og:title"
+          content="Masterduel Counter - Yu-Gi-Oh! Master Duel Counters and Deck Guides"
+        />
+        <meta
+          property="og:description"
+          content="Find the best counter strategies and deck guides for Yu-Gi-Oh! Master Duel, and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
+        />
+        <meta property="og:type" content="website" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content="Masterduel Counter - Yu-Gi-Oh! Master Duel Counters and Deck Guides"
+        />
+        <meta
+          name="twitter:description"
+          content="Find the best counter strategies and deck guides for Yu-Gi-Oh! Master Duel, and learn how to win against them."
+        />
+
+        <link rel="canonical" href="https://masterduelcounter.com" />
       </Helmet>
-      <div className="min-h-screen bg-gradient-to-b flex flex-col">
+
+      <div className="min-h-screen flex flex-col">
         <Navbar />
 
-        <MainLogo />
+        <div className="scale-[0.92] origin-top">
+          <MainLogo />
 
-        <SearchInput
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          isDropdownOpen={
-            isDropdownOpen && (loading || error !== null || results.length > 0)
-          }
-          onRequestClose={() => setIsDropdownOpen(false)}
-          onInputFocus={() => {
-            if (searchQuery.trim()) {
-              setIsDropdownOpen(true);
-            }
-          }}
-        >
-          {isDropdownOpen && (
-            <SearchResults
-              results={results}
-              loading={loading}
-              error={error ?? null}
-              onSelectArchetype={handleSelectArchetype}
-            />
-          )}
-        </SearchInput>
+          {/* Main Search Section - Prominent entry point */}
+          <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 mb-9 mt-2 relative z-[100]">
+            <div className="max-w-4xl mx-auto">
+              <div className="relative mt-3">
+                <MainSearch
+                  searchQuery={searchQuery}
+                  onSearchChange={handleSearchChange}
+                  isDropdownOpen={shouldShowDropdown}
+                  onRequestClose={handleRequestClose}
+                  onInputFocus={handleInputFocus}
+                >
+                  <MainSearchResults
+                    isVisible={shouldShowDropdown}
+                    results={results}
+                    totalResults={totalResults}
+                    loading={loading}
+                    error={error ?? null}
+                    onSelectArchetype={handleSelectArchetype}
+                  />
+                </MainSearch>
+              </div>
+            </div>
+          </div>
 
-        <div
-          className="w-full mx-auto px-4 sm:px-6 lg:px-8"
-          style={{ maxWidth: "87.5rem" }}
-        >
-          <HomeStatsSection />
+          <div
+            className="w-full mx-auto px-4 sm:px-6 lg:px-8"
+            style={{ maxWidth: "96rem" }}
+          >
+            <HomeAllComponents isSearchActive={shouldShowDropdown} />
+          </div>
         </div>
-
-        <main
-          className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-3"
-          style={{ maxWidth: "87.5rem" }}
-          role="main"
-          aria-label="Main content"
-        >
-          <FeatureErrorBoundary featureName="Archetypes List">
-            <RegisteredArchetypesList
-              onSelectArchetype={handleSelectRegisteredArchetype}
-            />
-          </FeatureErrorBoundary>
-        </main>
         <Footer />
       </div>
     </>

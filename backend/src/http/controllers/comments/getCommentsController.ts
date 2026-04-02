@@ -14,7 +14,7 @@ export const getCommentsController = async (req: Request, res: Response) => {
     const dependencies = getDependencies();
     const commentService = dependencies.getCommentService();
 
-    const result = await commentService.getCommentsByInstanceId(
+    const result = await commentService.getCommentByGuideId(
       instanceId,
       page,
       limit,

@@ -1,21 +1,25 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository.js";
-import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository.js";
+import { GuideRepository } from "@/domain/ports/GuideRepository.js";
+import { GuideCardPairRepository } from "@/domain/ports/GuideCardPairRepository.js";
 import { CardRepository } from "@/domain/ports/CardRepository.js";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
 import { UserRepository } from "@/domain/ports/UserRepository.js";
+import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
+import { ComboStepRepository } from "@/domain/ports/ComboStepRepository.js";
 import { getDependencies } from "@/compositionRoot.js";
 
 /**
  * Get full guide created by an user by ID to view.
- * Includes archetype name, username, user profile picture, header card details, and card pairs with details.
+ * Includes archetype name, username, user profile picture, header card details, card pairs, and initial hands with details.
  */
 export const createGetGuideByIdController = (
-  instanceRepository: ArchetypeInstanceRepository,
-  cardPairRepository: ArchetypeCardPairRepository,
+  instanceRepository: GuideRepository,
+  cardPairRepository: GuideCardPairRepository,
   cardRepository: CardRepository,
   archetypeRepository: ArchetypeRepository,
   userRepository: UserRepository,
+  initialHandRepository: InitialHandRepository,
+  comboStepRepository: ComboStepRepository,
 ) => {
   return async (req: Request, res: Response) => {
     try {
@@ -35,20 +39,68 @@ export const createGetGuideByIdController = (
         });
       }
 
-      // Search instance by ID
+      // Search Guide by ID
       const instance =
         await instanceRepository.findArchetypeInstanceById(instanceId);
 
       if (!instance) {
         return res.status(404).json({
-          error: "Instance not found",
+          error: "Guide not found",
         });
       }
 
-      // Get card pairs with details
-      const cardPairs = await cardPairRepository.findByInstanceIdWithDetails(
+      // Get card pairs with details (for COUNTER guides)
+      const cardPairs = await cardPairRepository.findCardPairsByGuideId(
         instance.id,
       );
+
+      // Get initial hands with details (for DECK guides)
+      let initialHands = null;
+      if (instance.guideType === "DECK") {
+        const hands = await initialHandRepository.findInitialHandsByInstanceId(
+          instance.id,
+        );
+        
+        // Get combo steps for each initial hand
+        const handsWithComboSteps = await Promise.all(
+          hands.map(async (hand) => {
+            const comboSteps = await comboStepRepository.findComboStepsByInitialHandId(hand.id);
+            
+            return {
+              ...hand,
+              comboSteps: comboSteps.map((step) => ({
+                id: step.id,
+                stepOrder: step.stepOrder,
+                description: step.description,
+                parentCanceledStepId: step.parentCanceledStepId,
+                mainCards: step.mainCards.map((card) => ({
+                  id: card.id,
+                  name: card.name,
+                  imageUrl: card.image_url,
+                  imageUrlSmall: card.image_url_small,
+                  imageUrlCropped: card.image_url_cropped,
+                })),
+                subCards: step.subCards.map((card) => ({
+                  id: card.id,
+                  name: card.name,
+                  imageUrl: card.image_url,
+                  imageUrlSmall: card.image_url_small,
+                  imageUrlCropped: card.image_url_cropped,
+                })),
+                leftSubCards: step.leftSubCards.map((card) => ({
+                  id: card.id,
+                  name: card.name,
+                  imageUrl: card.image_url,
+                  imageUrlSmall: card.image_url_small,
+                  imageUrlCropped: card.image_url_cropped,
+                })),
+              })),
+            };
+          })
+        );
+        
+        initialHands = handsWithComboSteps;
+      }
 
       // Get the header card if exists
       let headerCard = null;
@@ -86,6 +138,7 @@ export const createGetGuideByIdController = (
           title: instance.title,
           headerCardId: instance.headerCardId,
           generalTip: instance.generalTip,
+          guideType: instance.guideType,
           likes: instance.likes,
           favorites: instance.favorites,
           views: instance.views,
@@ -111,10 +164,23 @@ export const createGetGuideByIdController = (
             imageUrl: card.image_url,
             imageUrlSmall: card.image_url_small,
             imageUrlCropped: card.image_url_cropped,
+            effectiveness: card.effectiveness,
           })),
-          effectiveness: pair.effectiveness,
           comment: pair.comment,
         })),
+        initialHands: initialHands ? initialHands.map((hand) => ({
+          id: hand.id,
+          cards: hand.cards.map((card) => ({
+            id: card.id,
+            name: card.name,
+            imageUrl: card.imageUrl,
+            imageUrlSmall: card.imageUrlSmall,
+            imageUrlCropped: card.imageUrlCropped,
+          })),
+          description: hand.description,
+          position: hand.position,
+          comboSteps: hand.comboSteps,
+        })) : undefined,
       });
     } catch (error) {
       console.error("Error fetching instance by ID:", error);

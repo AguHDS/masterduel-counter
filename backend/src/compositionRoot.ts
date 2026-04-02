@@ -3,56 +3,64 @@ import { SqliteArchetypeRepository } from "@/infrastructure/repositories/SqliteA
 import { SqliteUserRepository } from "@/infrastructure/repositories/SqliteUserRepository.js";
 import { SqliteCardRepository } from "@/infrastructure/repositories/SqliteCardRepository.js";
 import { SqliteArchetypeCardPairRepository } from "@/infrastructure/repositories/SqliteArchetypeCardPairRepository.js";
-import { SqliteArchetypeInstanceRepository } from "@/infrastructure/repositories/SqliteArchetypeInstanceRepository.js";
+import { SqliteArchetypeGuideRepository } from "@/infrastructure/repositories/SqliteArchetypeGuideRepository.js";
 import { SqliteProfileRepository } from "@/infrastructure/repositories/SqliteProfileRepository.js";
-import { ArchetypeService } from "@/application/services/ArchetypeService.js";
-import { ArchetypeInstanceService } from "@/application/services/ArchetypeInstanceService.js";
-import { AuthServiceImpl } from "@/application/services/AuthService.js";
-import { CardServiceImpl } from "@/application/services/CardService.js";
-import { ProfileServiceImpl } from "@/application/services/ProfileService.js";
+import { ArchetypeApplicationService } from "@/application/services/ArchetypeApplicationService.js";
+import { GuideApplicationService } from "@/application/services/GuideApplicationService.js";
+import { GuideInstanceServicePort } from "@/application/ports/GuideApplicationPort.js";
+import { AuthApplicationService } from "@/application/services/AuthApplicationService.js";
+import { CardApplicationService } from "@/application/services/CardApplicationService.js";
+import { ProfileApplicationService } from "@/application/services/ProfileApplicationService.js";
 import { ArchetypeRepository } from "@/domain/ports/ArchetypeRepository.js";
 import { UserRepository } from "@/domain/ports/UserRepository.js";
 import { CardRepository } from "@/domain/ports/CardRepository.js";
-import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository.js";
-import { ArchetypeInstanceRepository } from "@/domain/ports/ArchetypeInstanceRepository.js";
+import { GuideCardPairRepository } from "@/domain/ports/GuideCardPairRepository.js";
+import { GuideRepository } from "@/domain/ports/GuideRepository.js";
 import { ProfileRepository } from "@/domain/ports/ProfileRepository.js";
-import { AuthService } from "@/application/ports/AuthService.js";
-import { CardService } from "@/application/ports/CardService.js";
-import { ProfileService } from "@/application/ports/ProfileService.js";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
+import { AuthApplicationPort } from "@/application/ports/AuthApplicationPort.js";
+import { CardApplicationPort } from "@/application/ports/CardApplicationPort.js";
+import { ProfileApplicationPort } from "@/application/ports/ProfileApplicationPort.js";
 import { CardApiService } from "@/domain/ports/externalServices/CardApiService.js";
 import { CardDetailsApiService } from "@/domain/ports/externalServices/CardDetailsApiService.js";
 import { ImageStorageService } from "@/domain/ports/externalServices/ImageStorageService.js";
 import { YgoProDeckCardPreviewAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckCardPreviewAdapter.js";
 import { YgoProDeckCardDetailsAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckCardDetailsAdapter.js";
 import { CloudinaryAdapter } from "@/infrastructure/adapters/externalServices/CloudinaryAdapter.js";
-import { GetCardDetailsService } from "@/application/services/GetCardDetailsService.js";
-import { GetCardDetailsPort } from "@/application/ports/GetCardDetailsPort.js";
+import { GetCardDetailsApplicationService } from "@/application/services/GetCardDetailsApplicationService.js";
+import { getCardDetailsApplicationPort } from "@/application/ports/GetCardDetailsApplicationPort.js";
 import { PrismaClient } from "@prisma/client";
 import { PrismaRecommendedDeckRepository } from "@/infrastructure/repositories/PrismaRecommendedDeckRepository.js";
 import { RecommendedDeckRepository } from "@/domain/ports/RecommendedDeckRepository.js";
-import { RecommendedDeckService } from "@/application/services/RecommendedDeckService.js";
-import { RecommendedDeckServicePort } from "@/application/ports/RecommendedDeckService.js";
-import { AdminServiceImpl } from "@/application/services/AdminService.js";
-import { AdminService as AdminServicePort } from "@/application/ports/AdminService.js";
+import { RecommendedDeckApplicationService } from "@/application/services/RecommendedDeckApplicationService.js";
+import { RecommendedDeckApplicationPort } from "@/application/ports/RecommendedDeckApplicationPort.js";
+import { AdminApplicationService } from "@/application/services/AdminApplicationService.js";
+import { AdminApplicationPort } from "@/application/ports/AdminApplicationPort.js";
 import { AdminRepository } from "@/domain/ports/AdminRepository.js";
 import { SqliteAdminRepository } from "@/infrastructure/repositories/SqliteAdminRepository.js";
-import { ReportServiceImpl } from "@/application/services/ReportService.js";
-import { ReportService as ReportServicePort } from "@/application/ports/ReportService.js";
+import { ReportApplicationPort } from "@/application/ports/ReportApplicationPort.js";
+import { ReportApplicationService } from "@/application/services/ReportApplicationService.js";
 import { ReportRepository } from "@/domain/ports/ReportRepository.js";
 import { SqliteReportRepository } from "@/infrastructure/repositories/SqliteReportRepository.js";
 import { CommentRepository } from "@/domain/ports/CommentRepository.js";
-import { CommentServicePort } from "@/application/ports/CommentService.js";
+import { CommentApplicationPort } from "@/application/ports/CommentApplicationPort.js";
 import { SqliteCommentRepository } from "@/infrastructure/repositories/SqliteCommentRepository.js";
-import { CommentServiceImpl } from "@/application/services/CommentService.js";
+import { CommentApplicationService } from "@/application/services/CommentApplicationService.js";
 import { NotificationRepository } from "@/domain/ports/NotificationRepository.js";
-import { NotificationServicePort } from "@/application/ports/NotificationService.js";
+import { NotificationApplicationPort } from "@/application/ports/NotificationApplicationPort.js";
 import { SqliteNotificationRepository } from "@/infrastructure/repositories/SqliteNotificationRepository.js";
-import { NotificationService } from "@/application/services/NotificationService.js";
+import { NotificationApplicationService } from "@/application/services/NotificationApplicationService.js";
 import { CustomDeckRepository } from "@/domain/ports/CustomDeckRepository.js";
-import { CustomDeckServicePort } from "@/application/ports/CustomDeckService.js";
+import { CustomDeckApplicationPort } from "@/application/ports/CustomDeckApplicationPort.js";
 import { PrismaCustomDeckRepository } from "@/infrastructure/repositories/PrismaCustomDeckRepository.js";
-import { CustomDeckService } from "@/application/services/CustomDeckService.js";
+import { CustomDeckApplicationService } from "@/application/services/CustomDeckApplicationService.js";
+import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
+import { InitialHandApplicationPort } from "@/application/ports/InitialHandApplicationPort.js";
+import { SqliteInitialHandRepository } from "@/infrastructure/repositories/SqliteInitialHandRepository.js";
+import { InitialHandApplicationService } from "@/application/services/InitialHandApplicationService.js";
+import { ComboStepRepository } from "@/domain/ports/ComboStepRepository.js";
+import { ComboStepApplicationPort } from "@/application/ports/ComboStepApplicationPort.js";
+import { SqliteComboStepRepository } from "@/infrastructure/repositories/SqliteComboStepRepository.js";
+import { ComboStepApplicationService } from "@/application/services/ComboStepApplicationService.js";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -60,30 +68,34 @@ export class Dependencies {
   private archetypeRepository: ArchetypeRepository | null = null;
   private userRepository: UserRepository | null = null;
   private cardRepository: CardRepository | null = null;
-  private cardPairRepository: ArchetypeCardPairRepository | null = null;
-  private instanceRepository: ArchetypeInstanceRepository | null = null;
+  private cardPairRepository: GuideCardPairRepository | null = null;
+  private instanceRepository: GuideRepository | null = null;
   private profileRepository: ProfileRepository | null = null;
   private recommendedDeckRepository: RecommendedDeckRepository | null = null;
-  private archetypeService: ArchetypeService | null = null;
-  private instanceService: ArchetypeInstanceServicePort | null = null;
-  private authService: AuthService | null = null;
-  private cardService: CardService | null = null;
-  private profileService: ProfileService | null = null;
-  private recommendedDeckService: RecommendedDeckServicePort | null = null;
+  private archetypeService: ArchetypeApplicationService | null = null;
+  private instanceService: GuideInstanceServicePort | null = null;
+  private authService: AuthApplicationPort | null = null;
+  private cardService: CardApplicationPort | null = null;
+  private profileService: ProfileApplicationPort | null = null;
+  private recommendedDeckService: RecommendedDeckApplicationPort | null = null;
   private cardApiService: CardApiService | null = null;
   private cardDetailsApiService: CardDetailsApiService | null = null;
-  private getCardDetailsService: GetCardDetailsPort | null = null;
+  private getCardDetailsService: getCardDetailsApplicationPort | null = null;
   private imageStorageService: ImageStorageService | null = null;
-  private adminService: AdminServicePort | null = null;
+  private adminService: AdminApplicationPort | null = null;
   private adminRepository: AdminRepository | null = null;
-  private reportService: ReportServicePort | null = null;
+  private reportService: ReportApplicationPort | null = null;
   private reportRepository: ReportRepository | null = null;
   private commentRepository: CommentRepository | null = null;
-  private commentService: CommentServicePort | null = null;
+  private commentService: CommentApplicationPort | null = null;
   private notificationRepository: NotificationRepository | null = null;
-  private notificationService: NotificationServicePort | null = null;
+  private notificationService: NotificationApplicationPort | null = null;
   private customDeckRepository: CustomDeckRepository | null = null;
-  private customDeckService: CustomDeckServicePort | null = null;
+  private customDeckService: CustomDeckApplicationPort | null = null;
+  private initialHandRepository: InitialHandRepository | null = null;
+  private initialHandService: InitialHandApplicationPort | null = null;
+  private comboStepRepository: ComboStepRepository | null = null;
+  private comboStepService: ComboStepApplicationPort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -122,7 +134,7 @@ export class Dependencies {
     return this.cardRepository;
   }
 
-  getCardPairRepository(): ArchetypeCardPairRepository {
+  getCardPairRepository(): GuideCardPairRepository {
     if (!this.cardPairRepository) {
       this.cardPairRepository = new SqliteArchetypeCardPairRepository(
         this.database.getConnection(),
@@ -131,9 +143,9 @@ export class Dependencies {
     return this.cardPairRepository;
   }
 
-  getInstanceRepository(): ArchetypeInstanceRepository {
+  getInstanceRepository(): GuideRepository {
     if (!this.instanceRepository) {
-      this.instanceRepository = new SqliteArchetypeInstanceRepository(
+      this.instanceRepository = new SqliteArchetypeGuideRepository(
         this.database.getConnection(),
         this.prisma,
       );
@@ -169,47 +181,49 @@ export class Dependencies {
     return this.cardDetailsApiService;
   }
 
-  getGetCardDetailsService(): GetCardDetailsPort {
+  getGetCardDetailsService(): getCardDetailsApplicationPort {
     if (!this.getCardDetailsService) {
-      this.getCardDetailsService = new GetCardDetailsService(
+      this.getCardDetailsService = new GetCardDetailsApplicationService(
         this.getCardDetailsApiService(),
       );
     }
     return this.getCardDetailsService;
   }
 
-  getArchetypeService(): ArchetypeService {
+  getArchetypeService(): ArchetypeApplicationService {
     if (!this.archetypeService) {
-      this.archetypeService = new ArchetypeService(
+      this.archetypeService = new ArchetypeApplicationService(
         this.getArchetypeRepository(),
       );
     }
     return this.archetypeService;
   }
 
-  getInstanceService(): ArchetypeInstanceServicePort {
+  getInstanceService(): GuideInstanceServicePort {
     if (!this.instanceService) {
-      this.instanceService = new ArchetypeInstanceService(
+      this.instanceService = new GuideApplicationService(
         this.getInstanceRepository(),
         this.getCardPairRepository(),
         this.getArchetypeRepository(),
         this.getNotificationService(),
         this.getUserRepository(),
+        this.getInitialHandRepository(),
+        this.getComboStepRepository(),
       );
     }
     return this.instanceService;
   }
 
-  getAuthService(): AuthService {
+  getAuthService(): AuthApplicationPort {
     if (!this.authService) {
-      this.authService = new AuthServiceImpl(this.getUserRepository());
+      this.authService = new AuthApplicationService(this.getUserRepository());
     }
     return this.authService;
   }
 
-  getCardService(): CardService {
+  getCardService(): CardApplicationPort {
     if (!this.cardService) {
-      this.cardService = new CardServiceImpl(
+      this.cardService = new CardApplicationService(
         this.getCardRepository(),
         this.getCardApiService(),
       );
@@ -217,9 +231,9 @@ export class Dependencies {
     return this.cardService;
   }
 
-  getProfileService(): ProfileService {
+  getProfileService(): ProfileApplicationPort {
     if (!this.profileService) {
-      this.profileService = new ProfileServiceImpl(
+      this.profileService = new ProfileApplicationService(
         this.getProfileRepository(),
         this.getImageStorageService(),
       );
@@ -236,9 +250,9 @@ export class Dependencies {
     return this.recommendedDeckRepository;
   }
 
-  getRecommendedDeckService(): RecommendedDeckServicePort {
+  getRecommendedDeckService(): RecommendedDeckApplicationPort {
     if (!this.recommendedDeckService) {
-      this.recommendedDeckService = new RecommendedDeckService(
+      this.recommendedDeckService = new RecommendedDeckApplicationService(
         this.getRecommendedDeckRepository(),
         this.getCardRepository(),
       );
@@ -246,9 +260,9 @@ export class Dependencies {
     return this.recommendedDeckService;
   }
 
-  getAdminService(): AdminServicePort {
+  getAdminService(): AdminApplicationPort {
     if (!this.adminService) {
-      this.adminService = new AdminServiceImpl(this.getAdminRepository());
+      this.adminService = new AdminApplicationService(this.getAdminRepository());
     }
     return this.adminService;
   }
@@ -260,9 +274,9 @@ export class Dependencies {
     return this.reportRepository;
   }
 
-  getReportService(): ReportServicePort {
+  getReportService(): ReportApplicationPort {
     if (!this.reportService) {
-      this.reportService = new ReportServiceImpl(
+      this.reportService = new ReportApplicationService(
         this.getReportRepository(),
         this.prisma
       );
@@ -277,9 +291,9 @@ export class Dependencies {
     return this.commentRepository;
   }
 
-  getCommentService(): CommentServicePort {
+  getCommentService(): CommentApplicationPort {
     if (!this.commentService) {
-      this.commentService = new CommentServiceImpl(
+      this.commentService = new CommentApplicationService(
         this.getCommentRepository(),
         this.getNotificationService(),
         this.getInstanceRepository(),
@@ -298,9 +312,9 @@ export class Dependencies {
     return this.notificationRepository;
   }
 
-  getNotificationService(): NotificationServicePort {
+  getNotificationService(): NotificationApplicationPort {
     if (!this.notificationService) {
-      this.notificationService = new NotificationService(
+      this.notificationService = new NotificationApplicationService(
         this.getNotificationRepository(),
       );
     }
@@ -314,14 +328,50 @@ export class Dependencies {
     return this.customDeckRepository;
   }
 
-  getCustomDeckService(): CustomDeckServicePort {
+  getCustomDeckService(): CustomDeckApplicationPort {
     if (!this.customDeckService) {
-      this.customDeckService = new CustomDeckService(
+      this.customDeckService = new CustomDeckApplicationService(
         this.getCustomDeckRepository(),
         this.getCardRepository(),
       );
     }
     return this.customDeckService;
+  }
+
+  getInitialHandRepository(): InitialHandRepository {
+    if (!this.initialHandRepository) {
+      this.initialHandRepository = new SqliteInitialHandRepository(
+        this.database.getConnection(),
+      );
+    }
+    return this.initialHandRepository;
+  }
+
+  getInitialHandService(): InitialHandApplicationPort {
+    if (!this.initialHandService) {
+      this.initialHandService = new InitialHandApplicationService(
+        this.getInitialHandRepository(),
+      );
+    }
+    return this.initialHandService;
+  }
+
+  getComboStepRepository(): ComboStepRepository {
+    if (!this.comboStepRepository) {
+      this.comboStepRepository = new SqliteComboStepRepository(
+        this.database.getConnection(),
+      );
+    }
+    return this.comboStepRepository;
+  }
+
+  getComboStepService(): ComboStepApplicationPort {
+    if (!this.comboStepService) {
+      this.comboStepService = new ComboStepApplicationService(
+        this.getComboStepRepository(),
+      );
+    }
+    return this.comboStepService;
   }
 
   getDatabase(): DatabasePort {

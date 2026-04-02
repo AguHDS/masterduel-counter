@@ -24,7 +24,7 @@ export interface NotificationContextType {
   markAsRead: (id: number) => void;
   markAllAsRead: () => void;
   notificationRef: React.RefObject<HTMLDivElement | null>;
-  buttonRef: React.RefObject<HTMLDivElement | null>;
+  buttonRef: React.RefObject<HTMLDivElement | HTMLButtonElement | null>;
 }
 
 export interface FormattedNotificationMessage {

@@ -1,17 +1,8 @@
 import { useState } from "react";
 import { Plus, Info } from "lucide-react";
 import { useCustomDecks } from "../hooks/useCustomDecks";
-import { CustomDeckEditor } from "./CustomDeckEditor";
 import { CustomDeckModal } from "./CustomDeckModal";
 import type { CustomDeck } from "../api/customDeckApi";
-
-interface Card {
-  id: number;
-  name: string;
-  imageUrl: string;
-  imageUrlSmall: string;
-  imageUrlCropped: string;
-}
 
 interface CustomDecksListProps {
   userId: string;
@@ -32,33 +23,29 @@ export const CustomDecksList = ({
     isLoading,
     createDeck,
     updateDeck,
-    deleteDeck,
-    isCreating,
+    deleteCustomDeck,
+    reorderDecks,
     isUpdating,
     isDeleting,
   } = useCustomDecks(userId);
 
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [selectedDeck, setSelectedDeck] = useState<CustomDeck | null>(null);
+  const [draggedDeckId, setDraggedDeckId] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
-  const sortedDecks = [...decks].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
+  // Sort by displayOrder (ascending)
+  const sortedDecks = [...decks].sort((a, b) => a.displayOrder - b.displayOrder);
 
   const maxDecks =
     userRole === "supporter" ? MAX_DECKS_SUPPORTER : MAX_DECKS_USER;
   const canCreateMore = sortedDecks.length < maxDecks;
 
   const handleCreateDeck = (
-    title: string,
-    mainDeck: Card[],
-    extraDeck: Card[],
+    data: { title: string; mainDeckCards: number[]; extraDeckCards: number[]; sideDeckCards: number[]; headerCardId?: number; isPublic: boolean }
   ) => {
-    const mainDeckCards = mainDeck.map((card) => card.id);
-    const extraDeckCards = extraDeck.map((card) => card.id);
-
     createDeck(
-      { title, mainDeckCards, extraDeckCards, isPublic: true },
+      data,
       {
         onSuccess: () => setIsCreatingNew(false),
         onError: (error) => {
@@ -75,7 +62,7 @@ export const CustomDecksList = ({
     );
     if (!confirmed) return;
 
-    deleteDeck(deckId, {
+    deleteCustomDeck(deckId, {
       onError: (error) => {
         console.error("Error deleting deck:", error);
         alert("Failed to delete deck. Please try again.");
@@ -93,6 +80,8 @@ export const CustomDecksList = ({
       title?: string;
       mainDeckCards?: number[];
       extraDeckCards?: number[];
+      sideDeckCards?: number[];
+      headerCardId?: number;
       isPublic?: boolean;
     },
   ) => {
@@ -107,6 +96,70 @@ export const CustomDecksList = ({
     );
   };
 
+  // Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent, deckId: number) => {
+    if (!isOwner) return;
+    setDraggedDeckId(deckId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", e.currentTarget.outerHTML);
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = "0.4";
+    }
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = "1";
+    }
+    setDraggedDeckId(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDragEnter = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    
+    if (!isOwner || draggedDeckId === null) return;
+
+    const draggedIndex = sortedDecks.findIndex(d => d.id === draggedDeckId);
+    if (draggedIndex === -1 || draggedIndex === dropIndex) {
+      setDraggedDeckId(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    // Create new order array
+    const reorderedDecks = [...sortedDecks];
+    const [draggedDeck] = reorderedDecks.splice(draggedIndex, 1);
+    reorderedDecks.splice(dropIndex, 0, draggedDeck);
+
+    // Create update array with new display orders
+    const deckOrders = reorderedDecks.map((deck, index) => ({
+      deckId: deck.id,
+      displayOrder: index,
+    }));
+
+    // Call API to persist the new order
+    reorderDecks(deckOrders, {
+      onError: (error) => {
+        console.error("Error reordering decks:", error);
+        alert("Failed to reorder decks. Please try again.");
+      },
+    });
+
+    setDraggedDeckId(null);
+    setDragOverIndex(null);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -118,31 +171,52 @@ export const CustomDecksList = ({
   return (
     <div className="space-y-4">
       {isCreatingNew && (
-        <CustomDeckEditor
+        <CustomDeckModal
+          isOwner={true}
+          onClose={() => setIsCreatingNew(false)}
           onSave={handleCreateDeck}
-          onCancel={() => setIsCreatingNew(false)}
-          isSaving={isCreating}
         />
       )}
 
       {(sortedDecks.length > 0 || (isOwner && !isCreatingNew)) && (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-          {sortedDecks.map((deck) => {
+          {sortedDecks.map((deck, index) => {
             const canView = isOwner || deck.isPublic;
-            const previewCards =
-              deck.extraDeck.length > 0 ? deck.extraDeck : deck.mainDeck;
+            
+            // Determine preview card - use headerCard directly if available
+            let previewCard = null;
+            if (deck.headerCard) {
+              previewCard = deck.headerCard;
+            } else {
+              // Fallback to default logic if no header card
+              const previewCards = deck.extraDeck.length > 0 ? deck.extraDeck : deck.mainDeck;
+              previewCard = previewCards[0];
+            }
+
+            const isDragging = draggedDeckId === deck.id;
+            const isDragOver = dragOverIndex === index;
 
             return (
               <div
                 key={deck.id}
-                className="relative group cursor-pointer"
-                onClick={() => handleDeckClick(deck)}
+                draggable={isOwner}
+                onDragStart={(e) => handleDragStart(e, deck.id)}
+                onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
+                onDragEnter={(e) => handleDragEnter(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
+                className={`relative group transition-all duration-200 ${
+                  isOwner ? 'cursor-move' : 'cursor-pointer'
+                } ${isDragOver ? 'scale-105' : ''} ${isDragging ? 'opacity-40' : ''}`}
+                onClick={() => !isDragging && handleDeckClick(deck)}
               >
                 {canView && (
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
+                  <div className={`absolute -inset-0.5 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 ${isDragOver ? 'opacity-100' : ''}`} />
                 )}
 
-                <div className="relative bg-gradient-to-b from-blue-900/90 via-slate-900 to-blue-900/90 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-cyan-400/80 transition-all duration-200 overflow-hidden">
+                <div className={`relative bg-gradient-to-b from-blue-900/90 via-slate-900 to-blue-900/90 rounded-lg border-2 transition-all duration-100 overflow-hidden ${
+                  isDragOver ? 'border-cyan-400' : 'border-[#3d3470]/70 group-hover:border-cyan-400/80'
+                }`}>
                   {/* Public/Private label */}
                   <div className="mb-1 flex justify-end">
                     {deck.isPublic ? (
@@ -159,10 +233,10 @@ export const CustomDecksList = ({
                   <div className="p-3 pt-0 relative">
                     {/* Preview Image */}
                     <div className="flex justify-center mb-3">
-                      {previewCards.length > 0 ? (
+                      {previewCard ? (
                         <img
-                          src={previewCards[0].imageUrlCropped}
-                          alt={previewCards[0].name}
+                          src={previewCard.imageUrlCropped}
+                          alt={previewCard.name}
                           className={`h-[80px] w-[80px] object-cover rounded border-2 border-[#4a5866] shadow-lg ${
                             !canView ? "opacity-60" : ""
                           }`}
@@ -260,7 +334,7 @@ export const CustomDecksList = ({
               </button>
 
               {!canCreateMore && (
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[10]">
                   <div className="bg-slate-900/95 border border-yellow-500/50 rounded-lg px-3 py-2 mx-2">
                     <div className="flex items-start gap-2">
                       <Info className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />

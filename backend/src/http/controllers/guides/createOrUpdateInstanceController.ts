@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
+import { GuideInstanceServicePort } from "@/application/ports/GuideApplicationPort.js";
 
 /** Create or update a guide of an archetype for the authenticated user */
 export const createCreateOrUpdateInstanceController =
-  (instanceService: ArchetypeInstanceServicePort) =>
+  (instanceService: GuideInstanceServicePort) =>
   async (req: Request, res: Response) => {
     try {
       const id = req.params.id;
@@ -20,14 +20,21 @@ export const createCreateOrUpdateInstanceController =
         return;
       }
 
-      const { title, headerCardId, generalTip } = req.body;
+      const { title, headerCardId, generalTip, guideType } = req.body;
 
-      const instance = await instanceService.createOrUpdateInstance({
+      // Validate guideType
+      if (guideType && guideType !== "COUNTER" && guideType !== "DECK") {
+        res.status(400).json({ error: "Invalid guide type. Must be COUNTER or DECK" });
+        return;
+      }
+
+      const instance = await instanceService.createOrUpdateGuide({
         archetypeId,
         userId,
         title: title || "Title",
         headerCardId: headerCardId || null,
         generalTip: generalTip || null,
+        guideType: guideType || "COUNTER", // Default to COUNTER for backwards compatibility
       });
 
       res.status(200).json(instance);

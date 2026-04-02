@@ -10,7 +10,7 @@ export const validateUpdateCustomDeck = async (
   try {
     const deckIdParam = req.params.deckId;
     const userId = (req as AuthenticatedRequest).user?.id;
-    const { title, mainDeckCards, extraDeckCards, isPublic } = req.body;
+    const { title, mainDeckCards, extraDeckCards, sideDeckCards, isPublic, headerCardId } = req.body;
 
     // Check authentication
     if (!userId) {
@@ -41,6 +41,17 @@ export const validateUpdateCustomDeck = async (
       return;
     }
 
+    if (sideDeckCards !== undefined && !Array.isArray(sideDeckCards)) {
+      res.status(400).json({ success: false, error: "Invalid side deck data" });
+      return;
+    }
+
+    // Validate header card ID if provided
+    if (headerCardId !== undefined && headerCardId !== null && (typeof headerCardId !== "number" || !Number.isInteger(headerCardId))) {
+      res.status(400).json({ success: false, error: "Invalid header card ID" });
+      return;
+    }
+
     // Validate title if provided
     if (title !== undefined) {
       if (typeof title !== "string" || title.trim().length === 0) {
@@ -55,7 +66,7 @@ export const validateUpdateCustomDeck = async (
     }
 
     // Check if at least one field is being updated
-    if (title === undefined && mainDeckCards === undefined && extraDeckCards === undefined && isPublic === undefined) {
+    if (title === undefined && mainDeckCards === undefined && extraDeckCards === undefined && sideDeckCards === undefined && isPublic === undefined && headerCardId === undefined) {
       res.status(400).json({
         success: false,
         error: "No fields to update",
@@ -70,7 +81,9 @@ export const validateUpdateCustomDeck = async (
       title: title ? title.trim() : undefined,
       mainDeckCards,
       extraDeckCards,
+      sideDeckCards,
       isPublic: typeof isPublic === "boolean" ? isPublic : undefined,
+      headerCardId: headerCardId === null ? undefined : headerCardId,
     };
 
     next();

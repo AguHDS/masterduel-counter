@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { customDeckApi } from "../api/customDeckApi";
 import { queryKeys } from "@/lib/query/queryKeys";
-import { confirmCards } from "@/features/ArchetypeAnalyzer/api/cardApi";
+import { confirmCards } from "@/features/archetypes/api/archetypesApi";
 
 export const useCustomDecks = (userId: string) => {
   const queryClient = useQueryClient();
@@ -21,22 +21,29 @@ export const useCustomDecks = (userId: string) => {
       title,
       mainDeckCards,
       extraDeckCards,
+      sideDeckCards,
       isPublic,
+      headerCardId,
     }: {
       title: string;
       mainDeckCards: number[];
       extraDeckCards: number[];
+      sideDeckCards?: number[];
       isPublic?: boolean;
+      headerCardId?: number;
     }) => {
       // Confirm all cards exist in database before creating deck
-      const allCardIds = [...mainDeckCards, ...extraDeckCards];
+      const allCardIds = [...mainDeckCards, ...extraDeckCards, ...(sideDeckCards || [])];
+      if (headerCardId) {
+        allCardIds.push(headerCardId);
+      }
       const uniqueCardIds = [...new Set(allCardIds)];
       
       if (uniqueCardIds.length > 0) {
         await confirmCards(uniqueCardIds);
       }
       
-      return customDeckApi.createDeck(userId, title, mainDeckCards, extraDeckCards, isPublic);
+      return customDeckApi.createDeck(userId, title, mainDeckCards, extraDeckCards, sideDeckCards, isPublic, headerCardId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -51,25 +58,31 @@ export const useCustomDecks = (userId: string) => {
       title,
       mainDeckCards,
       extraDeckCards,
+      sideDeckCards,
       isPublic,
+      headerCardId,
     }: {
       deckId: number;
       title?: string;
       mainDeckCards?: number[];
       extraDeckCards?: number[];
+      sideDeckCards?: number[];
       isPublic?: boolean;
+      headerCardId?: number;
     }) => {
       // Confirm all cards exist in database before updating deck
       const allCardIds: number[] = [];
       if (mainDeckCards) allCardIds.push(...mainDeckCards);
       if (extraDeckCards) allCardIds.push(...extraDeckCards);
+      if (sideDeckCards) allCardIds.push(...sideDeckCards);
+      if (headerCardId) allCardIds.push(headerCardId);
       const uniqueCardIds = [...new Set(allCardIds)];
       
       if (uniqueCardIds.length > 0) {
         await confirmCards(uniqueCardIds);
       }
       
-      return customDeckApi.updateDeck(userId, deckId, title, mainDeckCards, extraDeckCards, isPublic);
+      return customDeckApi.updateDeck(userId, deckId, title, mainDeckCards, extraDeckCards, sideDeckCards, isPublic, headerCardId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -79,7 +92,17 @@ export const useCustomDecks = (userId: string) => {
   });
 
   const deleteDeckMutation = useMutation({
-    mutationFn: (deckId: number) => customDeckApi.deleteDeck(userId, deckId),
+    mutationFn: (deckId: number) => customDeckApi.deleteCustomDeck(userId, deckId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.customDecks.byUser(userId),
+      });
+    },
+  });
+
+  const reorderDecksMutation = useMutation({
+    mutationFn: (deckOrders: { deckId: number; displayOrder: number }[]) => 
+      customDeckApi.reorderDecks(userId, deckOrders),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.customDecks.byUser(userId),
@@ -93,9 +116,11 @@ export const useCustomDecks = (userId: string) => {
     error,
     createDeck: createDeckMutation.mutate,
     updateDeck: updateDeckMutation.mutate,
-    deleteDeck: deleteDeckMutation.mutate,
+    deleteCustomDeck: deleteDeckMutation.mutate,
+    reorderDecks: reorderDecksMutation.mutate,
     isCreating: createDeckMutation.isPending,
     isUpdating: updateDeckMutation.isPending,
     isDeleting: deleteDeckMutation.isPending,
+    isReordering: reorderDecksMutation.isPending,
   };
 };

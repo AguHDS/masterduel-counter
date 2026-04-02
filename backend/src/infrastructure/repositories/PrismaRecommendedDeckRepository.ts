@@ -16,6 +16,7 @@ export class PrismaRecommendedDeckRepository implements RecommendedDeckRepositor
         title: data.title,
         mainDeckCards: JSON.stringify(data.mainDeckCards),
         extraDeckCards: JSON.stringify(data.extraDeckCards),
+        sideDeckCards: JSON.stringify(data.sideDeckCards || []),
       },
     });
 
@@ -36,7 +37,7 @@ export class PrismaRecommendedDeckRepository implements RecommendedDeckRepositor
     instanceId: number,
     data: RecommendedDeckUpdateDTO
   ): Promise<RecommendedDeck> {
-    const updateData: { title?: string; mainDeckCards?: string; extraDeckCards?: string } = {};
+    const updateData: { title?: string; mainDeckCards?: string; extraDeckCards?: string; sideDeckCards?: string } = {};
 
     if (data.title !== undefined) {
       updateData.title = data.title;
@@ -46,6 +47,9 @@ export class PrismaRecommendedDeckRepository implements RecommendedDeckRepositor
     }
     if (data.extraDeckCards !== undefined) {
       updateData.extraDeckCards = JSON.stringify(data.extraDeckCards);
+    }
+    if (data.sideDeckCards !== undefined) {
+      updateData.sideDeckCards = JSON.stringify(data.sideDeckCards);
     }
 
     const deck = await this.prisma.recommendedDeck.update({
@@ -57,9 +61,16 @@ export class PrismaRecommendedDeckRepository implements RecommendedDeckRepositor
   }
 
   async deleteDeck(instanceId: number): Promise<void> {
-    await this.prisma.recommendedDeck.delete({
-      where: { instanceId },
-    });
+    try {
+      await this.prisma.recommendedDeck.delete({
+        where: { instanceId },
+      });
+    } catch (error: unknown) {
+      // If record doesn't exist (P2025), ignore the error since desired state is achieved
+      if (error && typeof error === 'object' && 'code' in error && error.code !== 'P2025') {
+        throw error;
+      }
+    }
   }
 
   private mapToRecommendedDeck(deck: {
@@ -68,6 +79,7 @@ export class PrismaRecommendedDeckRepository implements RecommendedDeckRepositor
     title: string | null;
     mainDeckCards: string;
     extraDeckCards: string;
+    sideDeckCards: string;
     createdAt: Date;
     updatedAt: Date;
   }): RecommendedDeck {
@@ -77,6 +89,7 @@ export class PrismaRecommendedDeckRepository implements RecommendedDeckRepositor
       title: deck.title || undefined,
       mainDeckCards: JSON.parse(deck.mainDeckCards),
       extraDeckCards: JSON.parse(deck.extraDeckCards),
+      sideDeckCards: JSON.parse(deck.sideDeckCards),
       createdAt: deck.createdAt,
       updatedAt: deck.updatedAt,
     };

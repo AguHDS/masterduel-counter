@@ -14,8 +14,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLDivElement>(null);
-  
+  const buttonRef = useRef<HTMLDivElement | HTMLButtonElement>(null);
+
   const { isAuthenticated } = useAuth();
 
   // Only fetch notifications if authenticated
@@ -33,7 +33,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   const notifications: Notification[] = notificationsData?.notifications || [];
   const unreadCount = unreadCountData || 0;
 
-  // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (

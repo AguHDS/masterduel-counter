@@ -91,7 +91,7 @@ export const TrackingTab = () => {
             Total Registered Users
           </h3>
           <p className="text-4xl font-bold text-white">
-            {totalUsers?.total.toLocaleString() || 0}
+            {totalUsers?.toLocaleString() || 0}
           </p>
         </div>
       </div>
@@ -100,7 +100,7 @@ export const TrackingTab = () => {
         <div className="mt-8">
           <UsersList
             users={users}
-            totalCount={totalUsers?.total || 0}
+            totalCount={totalUsers || 0}
             loadMore={fetchNextPage}
             hasMore={!!hasNextPage}
             isLoading={usersLoading}

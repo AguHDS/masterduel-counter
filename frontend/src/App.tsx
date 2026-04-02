@@ -5,8 +5,8 @@ import { HomePage } from "./pages/HomePage";
 import { SignInPage } from "./pages/SignInPage";
 import { SignUpPage } from "./pages/SignUpPage";
 import { ProfilePage } from "./features/profile/pages/ProfilePage";
-import { ArchetypeInstancesPage } from "./features/archetypeInstances";
-import { InstanceEditorPage } from "./features/ArchetypeAnalyzer";
+import { ArchetypeGuideListPage } from "./features/guides-instances";
+import { GuideContainerPage } from "./features/guide-editor";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { AdminPanelPage } from "./features/admin-panel/pages/AdminPanelPage";
@@ -15,26 +15,32 @@ import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 import NotFound from "./shared/components/NotFound";
 import { SupportPage } from "./pages/SupportPage";
 import { useAnalyticsPageTracking } from "./shared/hooks/useAnalyticsPageTracking";
+import { RegisteredArchetypesPage } from "./features/registered-archetypes/pages/RegisteredArchetypesPage";
+import { CardsPage } from "./features/cards";
 
 /**
- * Componente que renderiza todas las rutas y trackea automaticamente
- * los page views cuando cambia la ruta (solo produccion)
+ * Component that renders all routes and tracks automatically
+ * page views when the route changes (production only)
  */
 function AppRoutes() {
-  // Hook que trackea automáticamente cada cambio de ruta
+  // Hook that automatically tracks every route change
   useAnalyticsPageTracking();
 
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/support" element={<SupportPage />} />
+      <Route path="/cards" element={<CardsPage />} />
+      <Route path="/archetypes" element={<RegisteredArchetypesPage />} />
+      {/** Guide list of selected archetype */}
       <Route
         path="/archetype/:archetypeId"
-        element={<ArchetypeInstancesPage />}
+        element={<ArchetypeGuideListPage />}
       />
+      {/** Guide creation instance page */}
       <Route
         path="/archetype/:archetypeId/instance/:instanceId"
-        element={<InstanceEditorPage />}
+        element={<GuideContainerPage />}
       />
       <Route path="/profile/:userId" element={<ProfilePage />} />
       <Route path="/profile/:userId/:tab" element={<ProfilePage />} />

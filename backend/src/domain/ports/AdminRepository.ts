@@ -1,7 +1,7 @@
 import type { UserSearchResult } from "@/shared/dtos/userDto.js";
 import type { ReportWithDetails } from "@/domain/Report.js";
 
-export interface AdminInstanceResult {
+export interface InstanceGuideResultAdminPanel {
   id: number;
   title: string;
   archetypeId: number;
@@ -22,10 +22,10 @@ export interface AdminRepository {
   getUserByIdAdminPanel(userId: string): Promise<UserSearchResult | null>;
   /** Delete user by ID */
   deleteUser(userId: string): Promise<void>;
-  /** Get user instances for admin panel */
-  getUserInstancesAdminPanel(userId: string): Promise<AdminInstanceResult[]>;
-  /** Delete user instance by ID */
-  deleteUserInstance(userId: string, instanceId: number): Promise<void>;
+  /** Get user guides for admin panel */
+  getUserGuidesAdminPanel(userId: string): Promise<InstanceGuideResultAdminPanel[]>;
+  /** Delete user guide by ID */
+  deleteUserGuide(userId: string, guideId: number): Promise<void>;
   /** Change user credentials */
   changeUserCredentials(userId: string, credentials: { username?: string; email?: string; password?: string }): Promise<void>;
   /** Change user role */

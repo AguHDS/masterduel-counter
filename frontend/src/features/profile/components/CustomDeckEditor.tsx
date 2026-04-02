@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Plus, X, Loader2, Save } from "lucide-react";
-import { CardSearchModal } from "@/features/ArchetypeAnalyzer/components/CardSearchModal";
-import { CardTooltip } from "@/features/ArchetypeAnalyzer/components/CardTooltip";
+import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
+import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 
 interface Card {
   id: number;
@@ -9,6 +9,10 @@ interface Card {
   imageUrl: string;
   imageUrlSmall: string;
   imageUrlCropped: string;
+}
+
+interface DeckCard extends Card {
+  uniqueId: string;
 }
 
 interface CustomDeckEditorProps {
@@ -25,22 +29,18 @@ export const CustomDeckEditor = ({
   isSaving,
 }: CustomDeckEditorProps) => {
   const [title, setTitle] = useState<string>("Custom Deck");
-  const [mainDeck, setMainDeck] = useState<Card[]>([]);
-  const [extraDeck, setExtraDeck] = useState<Card[]>([]);
+  const [mainDeck, setMainDeck] = useState<DeckCard[]>([]);
+  const [extraDeck, setExtraDeck] = useState<DeckCard[]>([]);
   const [isSelectingCard, setIsSelectingCard] = useState(false);
+  const uniqueIdCounter = useRef(0);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
+  const [draggedCard, setDraggedCard] = useState<{ zone: "main" | "extra"; index: number } | null>(null);
 
   const hasDeck = mainDeck.length > 0 || extraDeck.length > 0;
 
-  const getMainDeckColumns = () => {
-    if (mainDeck.length > 50) return 12;
-    return 10;
-  };
-
-  const mainDeckColumns = getMainDeckColumns();
-  const cardSize = mainDeckColumns === 12 ? "tiny" : "small";
-
-  const handleAddCard = (zone: DeckZone) => {
+  const handleAddCard = (zone: DeckZone, anchor: HTMLElement) => {
+    setAnchorElement(anchor);
     setTargetZone(zone);
     setIsSelectingCard(true);
   };
@@ -51,14 +51,16 @@ export const CustomDeckEditor = ({
         alert("Main deck cannot have more than 60 cards");
         return;
       }
-      const newMainDeck = [...mainDeck, card];
+      const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
+      const newMainDeck = [...mainDeck, deckCard];
       setMainDeck(newMainDeck);
     } else if (targetZone === "extra") {
       if (extraDeck.length >= 15) {
         alert("Extra deck cannot have more than 15 cards");
         return;
       }
-      const newExtraDeck = [...extraDeck, card];
+      const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
+      const newExtraDeck = [...extraDeck, deckCard];
       setExtraDeck(newExtraDeck);
     }
   };
@@ -73,6 +75,52 @@ export const CustomDeckEditor = ({
     }
   };
 
+  // Drag and drop handlers
+  const handleDragStart = (zone: "main" | "extra", index: number) => {
+    setDraggedCard({ zone, index });
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (zone: "main" | "extra", dropIndex: number) => {
+    if (!draggedCard) return;
+
+    // Only allow reordering within the same zone
+    if (draggedCard.zone !== zone) return;
+
+    // Don't do anything if dropping in the same position
+    if (draggedCard.index === dropIndex) {
+      setDraggedCard(null);
+      return;
+    }
+
+    if (zone === "main") {
+      const newMainDeck = [...mainDeck];
+      // Swap the cards
+      const temp = newMainDeck[draggedCard.index];
+      newMainDeck[draggedCard.index] = newMainDeck[dropIndex];
+      newMainDeck[dropIndex] = temp;
+      
+      setMainDeck(newMainDeck);
+    } else {
+      const newExtraDeck = [...extraDeck];
+      // Swap the cards
+      const temp = newExtraDeck[draggedCard.index];
+      newExtraDeck[draggedCard.index] = newExtraDeck[dropIndex];
+      newExtraDeck[dropIndex] = temp;
+      
+      setExtraDeck(newExtraDeck);
+    }
+
+    setDraggedCard(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCard(null);
+  };
+
   const handleSave = () => {
     if (!hasDeck) {
       alert("Please add at least one card to save the deck");
@@ -82,7 +130,12 @@ export const CustomDeckEditor = ({
       alert("Please enter a title for the deck");
       return;
     }
-    onSave(title.trim(), mainDeck, extraDeck);
+    
+    // Remove uniqueId before saving
+    const mainDeckToSave = mainDeck.map(({ uniqueId, ...card }) => card);
+    const extraDeckToSave = extraDeck.map(({ uniqueId, ...card }) => card);
+    
+    onSave(title.trim(), mainDeckToSave, extraDeckToSave);
   };
 
   return (
@@ -128,7 +181,10 @@ export const CustomDeckEditor = ({
                   </span>
                 </div>
                 <button
-                  onClick={() => handleAddCard("main")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddCard("main", e.currentTarget);
+                  }}
                   disabled={mainDeck.length >= 60}
                   className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs transition-all duration-300 font-bold disabled:cursor-not-allowed"
                 >
@@ -140,27 +196,31 @@ export const CustomDeckEditor = ({
             <div
               className="grid gap-1 p-3 bg-gradient-to-br from-slate-900/60 via-slate-900/40 to-slate-900/60 rounded-lg min-h-[200px] border-2 border-dashed border-cyan-400/40 cursor-pointer hover:border-cyan-400/60 transition-colors"
               style={{
-                gridTemplateColumns: `repeat(${mainDeckColumns}, minmax(0, 1fr))`,
+                gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
               }}
-              onClick={() => mainDeck.length < 60 && handleAddCard("main")}
+              onClick={(e) => mainDeck.length < 60 && handleAddCard("main", e.currentTarget)}
             >
               {mainDeck.map((card, index) => (
                 <div
-                  key={`main-${index}`}
+                  key={card.uniqueId}
                   className="relative group animate-in fade-in duration-300"
                   style={{ animationDelay: `${index * 30}ms` }}
+                  draggable={true}
+                  onDragStart={() => handleDragStart("main", index)}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop("main", index)}
+                  onDragEnd={handleDragEnd}
                 >
                   <CardTooltip
                     cardId={card.id}
                     imageUrl={card.imageUrl}
                     cardName={card.name}
+                    disabled={!!draggedCard}
                   >
                     <img
                       src={card.imageUrlSmall}
                       alt={card.name}
-                      className={`w-full h-auto rounded border-2 border-slate-600 group-hover:border-cyan-400/80 transition-colors ${
-                        cardSize === "tiny" ? "max-h-[60px]" : "max-h-[80px]"
-                      } object-contain cursor-pointer`}
+                      className="w-full h-auto rounded border-2 border-slate-600 group-hover:border-cyan-400/80 transition-colors object-contain cursor-grab active:cursor-grabbing"
                     />
                   </CardTooltip>
                   <button
@@ -168,7 +228,7 @@ export const CustomDeckEditor = ({
                       e.stopPropagation();
                       handleRemoveCard("main", index);
                     }}
-                    className="absolute top-0 right-0 bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                    className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -194,7 +254,10 @@ export const CustomDeckEditor = ({
                   </span>
                 </div>
                 <button
-                  onClick={() => handleAddCard("extra")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddCard("extra", e.currentTarget);
+                  }}
                   disabled={extraDeck.length >= 15}
                   className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs transition-all duration-300 font-bold disabled:cursor-not-allowed"
                 >
@@ -204,24 +267,33 @@ export const CustomDeckEditor = ({
               </div>
             </div>
             <div
-              className="grid grid-cols-15 gap-1 p-3 bg-gradient-to-br from-slate-900/40 via-slate-900/20 to-slate-900/40 rounded-lg min-h-[100px] border-2 border-dashed border-blue-400/40 cursor-pointer hover:border-blue-400/60 transition-colors"
-              onClick={() => extraDeck.length < 15 && handleAddCard("extra")}
+              className="grid gap-1 p-3 bg-gradient-to-br from-slate-900/40 via-slate-900/20 to-slate-900/40 rounded-lg min-h-[100px] border-2 border-dashed border-blue-400/40 cursor-pointer hover:border-blue-400/60 transition-colors"
+              style={{
+                gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
+              }}
+              onClick={(e) => extraDeck.length < 15 && handleAddCard("extra", e.currentTarget)}
             >
               {extraDeck.map((card, index) => (
                 <div
-                  key={`extra-${index}`}
+                  key={card.uniqueId}
                   className="relative group animate-in fade-in duration-300"
                   style={{ animationDelay: `${index * 30}ms` }}
+                  draggable={true}
+                  onDragStart={() => handleDragStart("extra", index)}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop("extra", index)}
+                  onDragEnd={handleDragEnd}
                 >
                   <CardTooltip
                     cardId={card.id}
                     imageUrl={card.imageUrl}
                     cardName={card.name}
+                    disabled={!!draggedCard}
                   >
                     <img
                       src={card.imageUrlSmall}
                       alt={card.name}
-                      className="w-full h-auto rounded border-2 border-slate-600 group-hover:border-blue-400/80 transition-colors max-h-[80px] object-contain cursor-pointer"
+                      className="w-full h-auto rounded border-2 border-slate-600 group-hover:border-blue-400/80 transition-colors max-h-[80px] object-contain cursor-grab active:cursor-grabbing"
                     />
                   </CardTooltip>
                   <button
@@ -229,7 +301,7 @@ export const CustomDeckEditor = ({
                       e.stopPropagation();
                       handleRemoveCard("extra", index);
                     }}
-                    className="absolute top-0 right-0 bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                    className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -280,15 +352,16 @@ export const CustomDeckEditor = ({
       </div>
 
       {isSelectingCard && (
-        <CardSearchModal
+        <FloatingCardSearchModal
           isOpen={true}
           onClose={() => {
             setIsSelectingCard(false);
             setTargetZone(null);
+            setAnchorElement(null);
           }}
           onSelectCard={handleCardSelected}
           title={`Add Cards to ${targetZone === "main" ? "Main" : "Extra"} Deck`}
-          variant="sidebar"
+          anchorElement={anchorElement}
           autoCloseAfterSelect={false}
         />
       )}

@@ -11,6 +11,8 @@ export interface GeneralStats {
 }
 
 export interface ArchetypeRepository {
+  /** Get total count of archetypes matching search term */
+  getTotalSearchCount(searchTerm: string): Promise<number>;
   /** Search archetype by name
    * @searchTerm - Term to search for in archetype names
    * @limit - Maximum number of results to return (default = 50)
@@ -28,12 +30,12 @@ export interface ArchetypeRepository {
   /** Find Archetype by name */
   findArchetypeByName(name: string): Promise<Archetype | null>;
   /** Find all registered archetypes */
-  findAllRegisteredArchetypes(sortBy?: "recent" | "instances"): Promise<Archetype[]>;
+  findAllRegisteredArchetypes(sortBy?: "recent" | "instances", guideType?: 'COUNTER' | 'DECK'): Promise<Archetype[]>;
   /** Update existing archetype. */
   updateExistingArchetype(
     id: number,
     archetypeData: ArchetypeUpdateDTO,
   ): Promise<Archetype | null>;
   /** Get general statistics */
-  getGeneralStats(limit?: number): Promise<GeneralStats>;
+  getGuidesGeneralStats(limit?: number, guideType?: 'COUNTER' | 'DECK'): Promise<GeneralStats>;
 }

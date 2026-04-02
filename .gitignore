@@ -16,6 +16,7 @@ TODO.md
 /frontend/.env
 backend/memory.md
 Mejoras_antes_de_prod.md
+.docs/memory.md
 
 # Database files
 /backend/src/data/*.db
@@ -24,6 +25,8 @@ Mejoras_antes_de_prod.md
 /backend/prisma/src/data/*.db-*
 *.sqlite
 *.sqlite3
+PASOS_VPS_PRODUCCION.md
+GOOGLE_OAUTH_SETUP.md
 
 # Editor directories and files
 .vscode/*

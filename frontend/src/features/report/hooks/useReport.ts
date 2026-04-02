@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { reportApi } from "@/lib/http/reportApi";
+import { reportApi } from "../api/reportApi";
 
 interface CreateReportParams {
   reportedUserId?: string;

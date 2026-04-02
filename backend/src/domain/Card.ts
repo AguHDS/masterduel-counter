@@ -21,6 +21,7 @@ export interface CardSearchResult {
   name: string;
   imageUrlExternal?: string;
   imageUrlSmallExternal?: string;
+  imageUrlCroppedExternal?: string;
 }
 
 export interface CardPreviewDTO {

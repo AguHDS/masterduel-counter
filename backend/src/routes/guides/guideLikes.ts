@@ -1,22 +1,22 @@
 import { Router } from "express";
-import { toggleInstanceLikeController } from "@/http/controllers/guides/toggleInstanceLikeController.js";
-import { getInstanceLikeStatusController } from "@/http/controllers/guides/getInstanceLikeStatusController.js";
+import { toggleGuideLikeController } from "@/http/controllers/guides/toggleGuideLikeController.js";
+import { checkGuideLikeStatusController } from "@/http/controllers/guides/checkGuideLikeStatusController.js";
 import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 
 const router = Router();
 
-// Toggle like on an instance
+// Toggle like on a guide
 router.post(
   "/archetypes/:archetypeId/instances/:instanceId/like",
   requireAuth,
-  toggleInstanceLikeController
+  toggleGuideLikeController
 );
 
-// Get like status for an instance
+// Get like status for a guide
 router.get(
   "/archetypes/:archetypeId/instances/:instanceId/like/status",
   requireAuth,
-  getInstanceLikeStatusController
+  checkGuideLikeStatusController
 );
 
 export default router;

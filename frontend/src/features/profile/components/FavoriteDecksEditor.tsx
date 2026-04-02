@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { CardSearchModal } from "@/features/ArchetypeAnalyzer/components/CardSearchModal";
-import { type Card } from "@/features/ArchetypeAnalyzer/api/cardApi";
-import { useSearchArchetypes } from "@/features/ArchetypeAnalyzer/hooks/useArchetypeQueries";
+import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
+import { useSearchArchetypes } from "@/features/archetypes/hooks/useArchetypes";
 import { useDebounce } from "@/shared/hooks/useDebounce";
-import type { FavoriteDeck } from "../types/profileTypes";
 import border_profile from "@/assets/MDC-border.webp";
 import { CreditCard as Edit, X, Search } from "lucide-react";
 import { useFavoriteCards } from "../hooks/useFavoriteCards";
+import type { FavoriteDeck } from "../types/profileTypes";
+import type { Card } from "@/features/archetypes/types";
 
 interface FavoriteDecksEditorProps {
-  favoriteDecks: FavoriteDeck[];
+  favoriteDecks: (FavoriteDeck | null)[];
   isEditMode: boolean;
-  onDecksUpdate: (decks: FavoriteDeck[]) => void;
+  onDecksUpdate: (decks: (FavoriteDeck | null)[]) => void;
 }
 
 export const FavoriteDecksEditor = ({
@@ -27,7 +27,9 @@ export const FavoriteDecksEditor = ({
     id: number;
     name: string;
   } | null>(null);
-  
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
+  const [archetypeModalPosition, setArchetypeModalPosition] = useState({ top: 0, left: 0 });
+
   // Estado para el visualizador de cartas (ahora guarda la URL)
   const [viewingCardUrl, setViewingCardUrl] = useState<string | null>(null);
 
@@ -42,7 +44,31 @@ export const FavoriteDecksEditor = ({
     favoriteDecks,
   );
 
-  const handleStartEdit = (slotIndex: number) => {
+  const handleStartEdit = (slotIndex: number, anchor?: HTMLElement) => {
+    if (anchor) {
+      setAnchorElement(anchor);
+      // Calculate floating position for archetype modal
+      const rect = anchor.getBoundingClientRect();
+      const modalWidth = 450;
+      const modalHeight = 500;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      let left = rect.right + 10;
+      if (left + modalWidth > viewportWidth - 20) {
+        left = rect.left - modalWidth - 10;
+      }
+      if (left < 20) {
+        left = viewportWidth - modalWidth - 20;
+      }
+      
+      let top = rect.top;
+      if (top + modalHeight > viewportHeight - 20) {
+        top = Math.max(20, viewportHeight - modalHeight - 20);
+      }
+      
+      setArchetypeModalPosition({ top, left });
+    }
     setEditingSlot(slotIndex);
     setIsArchetypeSearchOpen(true);
     setArchetypeSearchQuery("");
@@ -66,16 +92,13 @@ export const FavoriteDecksEditor = ({
         cardId: card.id,
       };
 
-      let newDecks: FavoriteDeck[];
-      
-      // If editing an existing deck (within current array bounds)
-      if (editingSlot < favoriteDecks.length) {
-        newDecks = [...favoriteDecks];
-        newDecks[editingSlot] = newDeck;
-      } else {
-        // Adding a new deck - just append it to avoid sparse arrays
-        newDecks = [...favoriteDecks, newDeck];
+      // Ensure we have exactly 3 slots with nulls for empty positions
+      const newDecks: (FavoriteDeck | null)[] = [...favoriteDecks];
+      // Pad with nulls if needed
+      while (newDecks.length < 3) {
+        newDecks.push(null);
       }
+      newDecks[editingSlot] = newDeck;
 
       onDecksUpdate(newDecks);
       setIsCardModalOpen(false);
@@ -85,7 +108,9 @@ export const FavoriteDecksEditor = ({
   };
 
   const handleRemoveDeck = (slotIndex: number) => {
-    const newDecks = favoriteDecks.filter((_, idx) => idx !== slotIndex);
+    // Create a copy and set the slot to null instead of removing it
+    const newDecks: (FavoriteDeck | null)[] = [...favoriteDecks];
+    newDecks[slotIndex] = null;
     onDecksUpdate(newDecks);
   };
 
@@ -111,7 +136,10 @@ export const FavoriteDecksEditor = ({
           const deck = favoriteDecks[slotIndex];
 
           return (
-            <div key={slotIndex} className="relative w-[180px] min-w-[140px] flex-shrink max-sm:flex-shrink-0 lg:max-xl:flex-shrink-0">
+            <div
+              key={slotIndex}
+              className="relative w-[180px] min-w-[140px] flex-shrink max-sm:flex-shrink-0 lg:max-xl:flex-shrink-0"
+            >
               {deck ? (
                 <div className="relative h-[220px] group">
                   <div className="absolute -inset-1 bg-gradient-to-br from-yellow-600 to-amber-600 rounded blur opacity-30 group-hover:opacity-60 transition-opacity"></div>
@@ -152,7 +180,7 @@ export const FavoriteDecksEditor = ({
                   {isEditMode && (
                     <div className="absolute top-2 right-2 flex gap-2 z-10">
                       <button
-                        onClick={() => handleStartEdit(slotIndex)}
+                        onClick={(e) => handleStartEdit(slotIndex, e.currentTarget)}
                         className="p-2 bg-blue-600/90 hover:bg-blue-700 rounded-full transition-colors"
                       >
                         <Edit className="w-3 h-3 text-white" />
@@ -170,7 +198,7 @@ export const FavoriteDecksEditor = ({
                 <div className="w-full aspect-[168/280]">
                   {isEditMode ? (
                     <button
-                      onClick={() => handleStartEdit(slotIndex)}
+                      onClick={(e) => handleStartEdit(slotIndex, e.currentTarget)}
                       className="w-full h-[220px] bg-purple-950/40 border-2 border-dashed border-yellow-600/50 rounded-lg flex items-center justify-center hover:border-yellow-600 hover:bg-purple-950/60 transition-colors"
                     >
                       <div className="text-center">
@@ -196,7 +224,7 @@ export const FavoriteDecksEditor = ({
 
       {/* Modal para visualizar carta (usando URL) */}
       {viewingCardUrl && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
           onClick={() => setViewingCardUrl(null)}
         >
@@ -204,8 +232,7 @@ export const FavoriteDecksEditor = ({
             <button
               onClick={() => setViewingCardUrl(null)}
               className="absolute -top-12 right-0 text-white/80 hover:text-white transition-colors"
-            >
-            </button>
+            ></button>
             <img
               src={viewingCardUrl}
               alt="Card view"
@@ -217,8 +244,27 @@ export const FavoriteDecksEditor = ({
       )}
 
       {isArchetypeSearchOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl border-2 border-blue-500/40 w-full max-w-md max-h-[70vh] flex flex-col">
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 z-50 bg-black/50"
+            onClick={() => {
+              setIsArchetypeSearchOpen(false);
+              setEditingSlot(null);
+            }}
+          />
+          
+          {/* Floating Modal */}
+          <div 
+            className="fixed z-[60] bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl border-2 border-blue-500/40 flex flex-col"
+            style={{
+              top: `${archetypeModalPosition.top}px`,
+              left: `${archetypeModalPosition.left}px`,
+              width: '450px',
+              maxHeight: '500px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between p-5 border-b border-blue-500/30">
               <h3 className="text-xl font-bold text-cyan-400">
                 Select Archetype
@@ -275,20 +321,20 @@ export const FavoriteDecksEditor = ({
               )}
             </div>
           </div>
-        </div>
+        </>
       )}
 
-      <CardSearchModal
+      <FloatingCardSearchModal
         isOpen={isCardModalOpen}
         onClose={() => {
           setIsCardModalOpen(false);
           setEditingSlot(null);
           setSelectedArchetype(null);
+          setAnchorElement(null);
         }}
         onSelectCard={handleCardSelect}
         title={`Select Card for ${selectedArchetype?.name || "Deck"}`}
-        variant="center"
-        keepOpenAfterSelect={false}
+        anchorElement={anchorElement}
         autoCloseAfterSelect={true}
       />
     </div>

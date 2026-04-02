@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, Crown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRanking } from "../hooks/useRanking";
+import { Avatar } from "@/shared/components/DefaultAvatar";
 
 interface RankingModalProps {
   isOpen: boolean;
@@ -54,9 +55,8 @@ export const RankingModal: React.FC<RankingModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="relative w-full max-w-2xl max-h-[90vh] bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-2xl overflow-hidden">
-        {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-[#c2901c]/30 bg-[#1f1a24]">
           <div className="flex items-center space-x-2">
             <Crown className="w-6 h-6 text-[#c2901c]" />
@@ -71,7 +71,6 @@ export const RankingModal: React.FC<RankingModalProps> = ({
           </button>
         </div>
 
-        {/* Content */}
         <div className="overflow-y-auto max-h-[calc(90vh-140px)] scrollbar-cardpair">
           {isLoading && (
             <div className="flex items-center justify-center p-8">
@@ -105,20 +104,18 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                     className={`p-4 hover:bg-[#2a2430] transition-colors cursor-pointer ${styles.bg}`}
                   >
                     <div className="flex items-center space-x-4">
-                      {/* Rank */}
-                      <div className={`w-12 text-center font-bold ${styles.text}`}>
+                      <div
+                        className={`w-12 text-center font-bold ${styles.text}`}
+                      >
                         #{user.rank}
                       </div>
 
-                      {/* Avatar */}
-                      <img
-                        src={user.profilePictureUrl}
-                        alt={user.username}
-                        className="w-12 h-12 rounded-full border-2 border-[#c2901c]/30 object-cover"
-                        loading="lazy"
+                      <Avatar
+                        username={user.username}
+                        profilePictureUrl={user.profilePictureUrl}
+                        size="lg"
                       />
 
-                      {/* User Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2">
                           <span className="font-medium text-white hover:text-[#c2901c] transition-colors truncate">
@@ -135,7 +132,6 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                         </div>
                       </div>
 
-                      {/* Top Badge */}
                       {user.rank <= 3 && (
                         <div
                           className={`text-xs font-bold px-3 py-1 rounded-full ${styles.bg} ${styles.border} border ${styles.text} flex-shrink-0`}
@@ -151,7 +147,6 @@ export const RankingModal: React.FC<RankingModalProps> = ({
           )}
         </div>
 
-        {/* Pagination Footer */}
         {data && data.pagination.totalPages > 1 && (
           <div className="sticky bottom-0 flex items-center justify-between p-4 border-t border-[#c2901c]/30 bg-[#1f1a24]">
             <button
@@ -164,7 +159,8 @@ export const RankingModal: React.FC<RankingModalProps> = ({
             </button>
 
             <div className="text-white text-sm">
-              Page {data.pagination.page} of {data.pagination.totalPages} ({data.pagination.total} users)
+              Page {data.pagination.page} of {data.pagination.totalPages} (
+              {data.pagination.total} users)
             </div>
 
             <button

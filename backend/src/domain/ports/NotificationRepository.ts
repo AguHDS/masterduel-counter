@@ -24,7 +24,7 @@ export interface NotificationRepository {
   getUnreadCount(userId: string): Promise<number>;
 
   /** Mark notification as read */
-  markAsRead(id: number): Promise<Notification>;
+  markNotificationAsRead(id: number): Promise<Notification>;
 
   /** Mark all notifications as read for a user */
   markAllAsRead(userId: string): Promise<void>;

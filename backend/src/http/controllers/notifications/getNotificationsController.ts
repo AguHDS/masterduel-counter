@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { NotificationServicePort } from "@/application/ports/NotificationService.js";
+import { NotificationApplicationPort } from "@/application/ports/NotificationApplicationPort.js";
 import { AuthenticatedRequest } from "@/http/middlewares/auth/authMiddleware.js";
 
 /** Get user's notifications with pagination */
 export const createGetNotificationsController =
-  (notificationService: NotificationServicePort) =>
+  (notificationService: NotificationApplicationPort) =>
   async (req: Request, res: Response) => {
     try {
       const userId = (req as AuthenticatedRequest).user?.id;

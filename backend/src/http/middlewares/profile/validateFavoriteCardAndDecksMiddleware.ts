@@ -37,16 +37,13 @@ export const validateFavoriteCardAndDecksMiddleware = (
           });
         }
 
-        // Validate that array doesn't contain null/undefined entries
-        if (parsed.some((item) => item === null || item === undefined)) {
-          return res.status(400).json({
-            success: false,
-            message: "favoriteDecks array cannot contain null or undefined entries",
-          });
-        }
-
-        // Validate structure of each deck entry
+        // Validate structure of each non-null deck entry
         for (const deck of parsed) {
+          // Skip null entries (they represent empty slots)
+          if (deck === null || deck === undefined) {
+            continue;
+          }
+          
           if (
             typeof deck !== "object" ||
             typeof deck.archetypeId !== "number" ||

@@ -7,17 +7,18 @@ interface GuideSearchProps {
   placeholder?: string;
 }
 
+/** Search input component for guides */
 export const GuideSearch = ({
   searchQuery,
   onSearchChange,
-  placeholder = "Search guides...",
+  placeholder = "Search guides",
 }: GuideSearchProps) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <div className="relative">
       <div
-        className={`flex items-center gap-2 px-2 py-1 bg-gray-900/70 border rounded transition-all ${
+        className={`flex items-center gap-2 px-2 py-1 bg-gray-900/70 border rounded-sm transition-all ${
           isFocused
             ? "border-blue-400/50 shadow-md shadow-blue-500/10"
             : "border-gray-700/50"

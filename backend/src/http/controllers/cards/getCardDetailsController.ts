@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { GetCardDetailsPort } from "@/application/ports/GetCardDetailsPort.js";
+import { getCardDetailsApplicationPort } from "@/application/ports/GetCardDetailsApplicationPort.js";
 
 /** Generally used for tooltip purposes */
 export const createGetCardDetailsController = (
-  getCardDetails: GetCardDetailsPort,
+  getCardDetails: getCardDetailsApplicationPort,
 ) => {
   return async (req: Request, res: Response): Promise<void> => {
     try {
@@ -21,7 +21,7 @@ export const createGetCardDetailsController = (
         return;
       }
 
-      const cardDetails = await getCardDetails.execute(cardId);
+      const cardDetails = await getCardDetails.getCardDetails(cardId);
 
       if (!cardDetails) {
         res.status(404).json({ message: "Card not found" });

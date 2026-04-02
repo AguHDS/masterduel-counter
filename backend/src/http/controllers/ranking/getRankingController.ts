@@ -23,6 +23,7 @@ export const getRankingController = async (req: Request, res: Response) => {
       select: {
         id: true,
         name: true,
+        createdAt: true,
         profile: {
           select: {
             profilePictureUrl: true,
@@ -36,7 +37,7 @@ export const getRankingController = async (req: Request, res: Response) => {
       },
     });
 
-    // Calculate total likes for each user and filter out users with 0 likes
+    // Calculate total likes for each user (include all users, even with 0 likes)
     const ranking = usersWithLikes
       .map((user) => {
         const totalLikes = user.archetypeInstances.reduce(
@@ -47,22 +48,24 @@ export const getRankingController = async (req: Request, res: Response) => {
         return {
           userId: user.id,
           username: user.name,
-          profilePictureUrl:
-            user.profile?.profilePictureUrl ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`,
+          profilePictureUrl: user.profile?.profilePictureUrl,
           totalLikes,
+          createdAt: user.createdAt,
         };
       })
-      .filter((user) => user.totalLikes > 0) // Only include users with at least 1 like
       .sort((a, b) => {
-        // Sort by total likes descending, then by userId ascending for deterministic order
+        // Sort by total likes descending first
         if (b.totalLikes !== a.totalLikes) {
           return b.totalLikes - a.totalLikes;
         }
-        return a.userId.localeCompare(b.userId);
+        // If likes are equal, sort by registration date ascending (earlier = better rank)
+        return a.createdAt.getTime() - b.createdAt.getTime();
       })
       .map((user, index) => ({
-        ...user,
+        userId: user.userId,
+        username: user.username,
+        profilePictureUrl: user.profilePictureUrl,
+        totalLikes: user.totalLikes,
         rank: index + 1, // Assign rank based on position in sorted array
       }));
 
@@ -87,8 +90,7 @@ export const getRankingController = async (req: Request, res: Response) => {
     console.error("Error getting ranking:", error);
     return res.status(500).json({
       success: false,
-      message:
-        error instanceof Error ? error.message : "Failed to get ranking",
+      message: error instanceof Error ? error.message : "Failed to get ranking",
     });
   }
 };

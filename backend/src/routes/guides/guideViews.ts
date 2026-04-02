@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { registerInstanceViewController } from "@/http/controllers/guides/registerInstanceViewController.js";
+import { registerGuideViewController } from "@/http/controllers/guides/registerGuideViewController.js";
 
 const router = Router();
 
 // Register a view for an instance (no auth required)
 router.post(
   "/instances/:instanceId/view",
-  registerInstanceViewController
+  registerGuideViewController
 );
 
 export default router;

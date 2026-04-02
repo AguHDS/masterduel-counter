@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot.js";
 
+/** Creates or updates a recommended deck for a guide */
 export const createOrUpdateRecommendedDeckController = async (
   req: Request,
   res: Response,
@@ -15,15 +16,15 @@ export const createOrUpdateRecommendedDeckController = async (
       return;
     }
 
-    const { instanceId, userId, title, mainDeckCards, extraDeckCards } =
+    const { instanceId, userId, title, mainDeckCards, extraDeckCards, sideDeckCards } =
       validatedData;
 
     // Verify instance ownership
     const instanceService = getDependencies().getInstanceService();
-    const instance = await instanceService.getInstanceById(instanceId);
+    const instance = await instanceService.getGuideById(instanceId);
 
     if (!instance) {
-      res.status(404).json({ success: false, error: "Instance not found" });
+      res.status(404).json({ success: false, error: "Guide not found" });
       return;
     }
 
@@ -32,7 +33,7 @@ export const createOrUpdateRecommendedDeckController = async (
         .status(403)
         .json({
           success: false,
-          error: "You can only edit your own instances",
+          error: "You can only edit your own guides",
         });
       return;
     }
@@ -49,6 +50,7 @@ export const createOrUpdateRecommendedDeckController = async (
         title,
         mainDeckCards,
         extraDeckCards,
+        sideDeckCards,
       });
     } else {
       // Create new deck
@@ -57,6 +59,7 @@ export const createOrUpdateRecommendedDeckController = async (
         title,
         mainDeckCards,
         extraDeckCards,
+        sideDeckCards,
       });
     }
 

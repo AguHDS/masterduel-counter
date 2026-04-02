@@ -1,12 +1,17 @@
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
-import { adminHttpApi } from "@/lib/http/adminApi";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
+import { adminApi } from "../api/adminApi";
 import { queryKeys } from "@/lib/query/queryKeys";
 
 /** Search users */
 export const useSearchUsers = (query: string, enabled: boolean = false) => {
   return useQuery({
     queryKey: [...queryKeys.admin.users.all, "search", query],
-    queryFn: () => adminHttpApi.searchUsers(query),
+    queryFn: () => adminApi.searchUsers(query),
     enabled: enabled && !!query.trim(),
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
@@ -17,7 +22,7 @@ export const useSearchUsers = (query: string, enabled: boolean = false) => {
 export const useAdminUser = (userId: string) => {
   return useQuery({
     queryKey: queryKeys.admin.users.detail(userId),
-    queryFn: () => adminHttpApi.getUser(userId),
+    queryFn: () => adminApi.getUser(userId),
     enabled: !!userId,
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
@@ -28,7 +33,7 @@ export const useAdminUser = (userId: string) => {
 export const useTotalUsers = () => {
   return useQuery({
     queryKey: ["admin", "totalUsers"],
-    queryFn: () => adminHttpApi.getTotalUsers(),
+    queryFn: () => adminApi.getTotalUsers(),
     staleTime: 1000 * 60 * 5,
     retry: 2,
   });
@@ -42,9 +47,15 @@ export const useAllUsers = (
   search?: string,
 ) => {
   return useInfiniteQuery({
-    queryKey: [...queryKeys.admin.users.all, "paginated", sortBy, sortOrder, search],
-    queryFn: ({ pageParam = 1 }) => 
-      adminHttpApi.getAllUsers(pageParam, limit, sortBy, sortOrder, search),
+    queryKey: [
+      ...queryKeys.admin.users.all,
+      "paginated",
+      sortBy,
+      sortOrder,
+      search,
+    ],
+    queryFn: ({ pageParam = 1 }) =>
+      adminApi.getAllUsers(pageParam, limit, sortBy, sortOrder, search),
     getNextPageParam: (lastPage) => {
       if (lastPage.page < lastPage.totalPages) {
         return lastPage.page + 1;
@@ -61,7 +72,7 @@ export const useAllUsers = (
 export const useAdminReports = () => {
   return useQuery({
     queryKey: queryKeys.admin.reports.list(),
-    queryFn: adminHttpApi.getReports,
+    queryFn: adminApi.getReports,
     staleTime: 1 * 60 * 1000,
     gcTime: 3 * 60 * 1000,
   });
@@ -72,7 +83,7 @@ export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userId: string) => adminHttpApi.deleteUser(userId),
+    mutationFn: (userId: string) => adminApi.deleteUser(userId),
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.detail(userId),
@@ -98,23 +109,18 @@ export const useDeleteUser = () => {
 export const useUserInstances = (userId: string) => {
   return useQuery({
     queryKey: queryKeys.admin.users.instances(userId),
-    queryFn: () => adminHttpApi.getUserInstances(userId),
+    queryFn: () => adminApi.getUserInstances(userId),
     enabled: !!userId,
     staleTime: 2 * 60 * 1000,
   });
 };
 
-/** Delete user instance */
-export const useDeleteUserInstance = () => {
+/** Delete user guide */
+export const useDeleteUserGuide = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      userId,
-      instanceId,
-    }: {
-      userId: string;
-      instanceId: string;
-    }) => adminHttpApi.deleteUserInstance(userId, instanceId),
+    mutationFn: ({ userId, guideId }: { userId: string; guideId: string }) =>
+      adminApi.deleteUserGuide(userId, guideId),
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.instances(userId),
@@ -133,7 +139,7 @@ export const useChangeUserCredentials = () => {
     }: {
       userId: string;
       credentials: { email?: string; username?: string; password?: string };
-    }) => adminHttpApi.changeUserCredentials(userId, credentials),
+    }) => adminApi.changeUserCredentials(userId, credentials),
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.detail(userId),
@@ -150,7 +156,7 @@ export const useChangeUserRole = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ userId, role }: { userId: string; role: string }) =>
-      adminHttpApi.changeUserRole(userId, role),
+      adminApi.changeUserRole(userId, role),
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.detail(userId),
@@ -174,7 +180,7 @@ export const useBanUser = () => {
       userId: string;
       reason: string;
       expiresAt?: string | null;
-    }) => adminHttpApi.banUser(userId, reason, expiresAt),
+    }) => adminApi.banUser(userId, reason, expiresAt),
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.detail(userId),
@@ -190,7 +196,7 @@ export const useBanUser = () => {
 export const useUnbanUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (userId: string) => adminHttpApi.unbanUser(userId),
+    mutationFn: (userId: string) => adminApi.unbanUser(userId),
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.users.detail(userId),
@@ -206,7 +212,7 @@ export const useUnbanUser = () => {
 export const useDeleteReport = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (reportId: string) => adminHttpApi.deleteReport(reportId),
+    mutationFn: (reportId: string) => adminApi.deleteReport(reportId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.reports.list(),

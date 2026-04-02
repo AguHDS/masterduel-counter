@@ -26,7 +26,7 @@ export const useProfileEditor = (userId: string) => {
       setSelectedFile(null);
       setPreviewUrl(null);
     },
-    onError: (error: any) => {
+    onError: (error: { code: string; message: string }) => {
       if (error.code === "FILE_TOO_LARGE") {
         setFileError(error.message);
       } else {

@@ -1,15 +1,16 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
+import { GuideInstanceServicePort } from "@/application/ports/GuideApplicationPort.js";
 import { validateStringParam } from "@/shared/utils/paramValidation.js";
 
 /** Search guide instances for a user by title */
 export const createSearchUserGuidesController =
-  (instanceService: ArchetypeInstanceServicePort) =>
+  (instanceService: GuideInstanceServicePort) =>
   async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;
       const title = req.query.title as string | undefined;
       const sortBy = req.query.sortBy as "likes" | "updated" | undefined;
+      const type = req.query.type as string | undefined;
 
       const userIdString = validateStringParam(userId);
 
@@ -30,10 +31,19 @@ export const createSearchUserGuidesController =
         return;
       }
 
-      const instances = await instanceService.searchInstancesByUserIdAndTitle(
+      // Validate type parameter if provided
+      if (type && type !== 'counter' && type !== 'deck') {
+        res.status(400).json({ error: "Invalid type parameter. Must be 'counter' or 'deck'" });
+        return;
+      }
+
+      const guideType = type ? (type === 'counter' ? 'COUNTER' : 'DECK') : undefined;
+
+      const instances = await instanceService.searchGuideItemListProfile(
         userIdString,
         title,
         sortBy || "updated",
+        guideType,
       );
 
       res.status(200).json(instances);

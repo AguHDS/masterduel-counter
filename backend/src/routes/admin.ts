@@ -9,10 +9,10 @@ import {
   changeUserRoleController,
   deleteReportController,
   deleteUserController,
-  deleteUserInstanceController,
+  deleteUserGuideController,
   getReportsController,
   getUserController,
-  getUserInstancesController,
+  getUserGuidesController,
   searchUsersController,
   unbanUserController,
   getTotalUsersController,
@@ -20,7 +20,7 @@ import {
 } from "@/http/controllers/admin/index.js";
 import {
   deleteUserMiddleware,
-  getUserInstancesMiddleware,
+  getUserGuidesMiddleware,
   verifyAdminMiddleware,
 } from "@/http/middlewares/admin/index.js";
 
@@ -48,13 +48,13 @@ router.delete(
 router.get(
   "/users/:userId/instances",
   verifyAdminMiddleware,
-  getUserInstancesMiddleware,
-  getUserInstancesController,
+  getUserGuidesMiddleware,
+  getUserGuidesController,
 );
 router.delete(
   "/users/:userId/instances/:instanceId",
   verifyAdminMiddleware,
-  deleteUserInstanceController,
+  deleteUserGuideController,
 );
 router.put(
   "/users/:userId/credentials",

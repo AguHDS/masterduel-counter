@@ -4,16 +4,7 @@ import { User, Settings, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { useQuery } from "@tanstack/react-query";
 import { profileApi } from "@/features/profile/api/profileApi";
-
-const getDefaultAvatar = (userName: string) => {
-  const initial = userName.charAt(0).toUpperCase();
-
-  return (
-    <div className="w-7 h-7 rounded-md flex items-center justify-center text-white font-semibold text-sm bg-gradient-to-br from-blue-500 to-purple-600 border-2 border-[#c2901c]/40 group-hover:border-[#c2901c]/60 transition-colors">
-      {initial}
-    </div>
-  );
-};
+import { Avatar } from "@/shared/components/DefaultAvatar";
 
 export const UserDropdown = () => {
   const { user, logout } = useAuth();
@@ -25,7 +16,7 @@ export const UserDropdown = () => {
     queryKey: ["profile", user?.id],
     queryFn: () => profileApi.getProfile(user!.id),
     enabled: !!user?.id,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
   useEffect(() => {
@@ -58,27 +49,12 @@ export const UserDropdown = () => {
         className="flex items-center gap-3 hover:bg-[#c2901c]/10 rounded-lg transition-all group"
         aria-label="User menu"
       >
-        {profilePictureUrl ? (
-          <img
-            src={profilePictureUrl}
-            alt={user.name}
-            className="w-7 h-7 rounded-md border-2 border-[#c2901c]/40 group-hover:border-[#c2901c]/60 transition-colors object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              const parent = e.currentTarget.parentElement;
-              if (parent) {
-                const fallback = document.createElement("div");
-                fallback.innerHTML = getDefaultAvatar(user.name).props.children;
-                fallback.className =
-                  "w-7 h-7 rounded-md flex items-center justify-center text-white font-semibold text-sm bg-gradient-to-br from-blue-500 to-purple-600 border-2 border-[#c2901c]/40 group-hover:border-[#c2901c]/60 transition-colors";
-                fallback.textContent = user.name.charAt(0).toUpperCase();
-                parent.insertBefore(fallback, e.currentTarget);
-              }
-            }}
-          />
-        ) : (
-          getDefaultAvatar(user.name)
-        )}
+        <Avatar
+          username={user.name}
+          profilePictureUrl={profilePictureUrl}
+          size="sm"
+          className="rounded-md border-[#c2901c]/40 group-hover:border-[#c2901c]/60"
+        />
         <span className="hidden xl:inline text-sm font-medium text-white group-hover:text-[#c2901c] transition-colors max-w-[120px] truncate">
           {user.name}
         </span>
@@ -91,7 +67,6 @@ export const UserDropdown = () => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-[#1f1a24] border-2 border-[#c2901c]/40 rounded-lg shadow-2xl overflow-hidden z-50">
-          {/* User Info Header */}
           <div className="px-4 py-3 border-b border-[#c2901c]/20 bg-gradient-to-r from-[#1f1a24] to-[#2a2430]">
             <p className="text-sm font-medium text-white truncate">
               {user.name}
@@ -99,7 +74,6 @@ export const UserDropdown = () => {
             <p className="text-xs text-gray-400 truncate">{user.email}</p>
           </div>
 
-          {/* Menu Items */}
           <div className="py-2">
             <Link
               to={`/profile/${user.id}`}

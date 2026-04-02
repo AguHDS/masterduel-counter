@@ -90,13 +90,12 @@ export const ReportsTab = ({ reports, onRefetchReports }: ReportsTabProps) => {
                 </div>
               </div>
 
-              {/* MOSTRAR AUTOR DE LA INSTANCIA SI ES UN REPORTE DE INSTANCIA */}
               {report.reportedInstanceId &&
                 report.reportedInstanceAuthorName && (
                   <div className="text-sm bg-blue-900/20 border border-blue-800/30 rounded p-2 mt-1">
                     <div className="flex items-center gap-2 mb-2">
                       <User size={14} className="text-blue-400" />
-                      <span className="text-blue-400">Instance Author:</span>
+                      <span className="text-blue-400">Guide Author:</span>
                       <span className="text-white font-medium">
                         {report.reportedInstanceAuthorName}
                       </span>
@@ -105,11 +104,10 @@ export const ReportsTab = ({ reports, onRefetchReports }: ReportsTabProps) => {
                       </span>
                     </div>
 
-                    {/* LINK A LA INSTANCIA REPORTADA - CORREGIDO */}
                     {report.reportedInstanceArchetypeId && (
                       <div className="flex items-center gap-2 pt-1 border-t border-blue-800/30">
                         <ExternalLink size={14} className="text-blue-400" />
-                        <span className="text-blue-400">Instance URL:</span>
+                        <span className="text-blue-400">Guide URL:</span>
                         <a
                           href={getInstanceUrl(
                             report.reportedInstanceArchetypeId,
@@ -119,7 +117,7 @@ export const ReportsTab = ({ reports, onRefetchReports }: ReportsTabProps) => {
                           rel="noopener noreferrer"
                           className="text-white hover:text-blue-300 transition-colors underline underline-offset-2"
                         >
-                          View Reported Instance
+                          View Reported Guide
                         </a>
                         <span className="text-xs text-blue-400/70">
                           (archetype: {report.reportedInstanceArchetypeId},

@@ -4,7 +4,7 @@ import { useAdminUser, useSearchUsers } from "../hooks/useAdminData";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { SearchBar } from "./SearchBar";
 import { UserDetailsCard } from "./UserDetailsCard";
-import { UserInstancesSection } from "./UserInstancesSection";
+import { UserGuidesSection } from "./UserGuidesSection";
 import type { SearchUserResult } from "../types/adminPanelTypes";
 
 export const ManageAccountsTab = () => {
@@ -135,9 +135,9 @@ export const ManageAccountsTab = () => {
             onUserDeleted={handleUserDeleted}
           />
 
-          {/* Instances Section */}
+          {/* Guides Section */}
           {selectedUserIdForInstances === user.id && (
-            <UserInstancesSection userId={user.id} />
+            <UserGuidesSection userId={user.id} />
           )}
         </div>
       )}

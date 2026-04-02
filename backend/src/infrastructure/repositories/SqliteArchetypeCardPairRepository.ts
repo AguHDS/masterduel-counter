@@ -1,12 +1,12 @@
-import { ArchetypeCardPairRepository } from "@/domain/ports/ArchetypeCardPairRepository.js";
+import { GuideCardPairRepository } from "@/domain/ports/GuideCardPairRepository.js";
 import {
-  ArchetypeCardPair,
-  ArchetypeCardPairCreateDTO,
-  ArchetypeCardPairWithDetails,
-} from "@/domain/ArchetypeCardPair.js";
+  CardPair,
+  GuideCardPairCreateDTO,
+  GuideCardPairWithDetails,
+} from "@/domain/CardPair.js";
 import Database from "better-sqlite3";
 
-export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepository {
+export class SqliteArchetypeCardPairRepository implements GuideCardPairRepository {
   private db: Database.Database;
 
   constructor(db: Database.Database) {
@@ -14,12 +14,12 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
   }
 
   async CreateManyPairCards(
-    pairs: ArchetypeCardPairCreateDTO[],
-  ): Promise<ArchetypeCardPair[]> {
+    pairs: GuideCardPairCreateDTO[],
+  ): Promise<CardPair[]> {
     const pairStmt = this.db.prepare(`
-      INSERT INTO archetype_card_pairs (instance_id, pair_order, effectiveness, comment)
-      VALUES (?, ?, ?, ?)
-      RETURNING id, instance_id, pair_order, effectiveness, comment, created_at
+      INSERT INTO archetype_card_pairs (instance_id, pair_order, comment)
+      VALUES (?, ?, ?)
+      RETURNING id, instance_id, pair_order, comment, created_at
     `);
 
     const topStmt = this.db.prepare(`
@@ -28,27 +28,26 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
     `);
 
     const bottomStmt = this.db.prepare(`
-      INSERT INTO card_pair_bottom (pair_id, card_id, position)
-      VALUES (?, ?, ?)
+      INSERT INTO card_pair_bottom (pair_id, card_id, position, effectiveness)
+      VALUES (?, ?, ?, ?)
     `);
 
-    const results: ArchetypeCardPair[] = [];
+    const results: CardPair[] = [];
 
     for (const pair of pairs) {
       // Create the pair
       const result = pairStmt.get(
         pair.instance_id,
         pair.pair_order,
-        pair.effectiveness || null,
         pair.comment || null,
-      ) as Omit<ArchetypeCardPair, "top_card_ids" | "bottom_card_ids">;
+      ) as Omit<CardPair, "top_card_ids" | "bottom_card_ids">;
 
       pair.top_card_ids.forEach((cardId, index) => {
         topStmt.run(result.id, cardId, index);
       });
 
-      pair.bottom_card_ids.forEach((cardId, index) => {
-        bottomStmt.run(result.id, cardId, index);
+      pair.bottom_card_ids.forEach((bottomCard, index) => {
+        bottomStmt.run(result.id, bottomCard.cardId, index, bottomCard.effectiveness || null);
       });
 
       results.push({
@@ -61,11 +60,11 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
     return results;
   }
 
-  async findByInstanceIdWithDetails(
+  async findCardPairsByGuideId(
     instanceId: number,
-  ): Promise<ArchetypeCardPairWithDetails[]> {
+  ): Promise<GuideCardPairWithDetails[]> {
     const pairStmt = this.db.prepare(`
-      SELECT id, instance_id, pair_order, effectiveness, comment, created_at
+      SELECT id, instance_id, pair_order, comment, created_at
       FROM archetype_card_pairs
       WHERE instance_id = ?
       ORDER BY pair_order
@@ -80,7 +79,7 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
     `);
 
     const bottomStmt = this.db.prepare(`
-      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped
+      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped, cpb.effectiveness
       FROM card_pair_bottom cpb
       INNER JOIN cards c ON cpb.card_id = c.id
       WHERE cpb.pair_id = ?
@@ -88,7 +87,7 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
     `);
 
     const pairs = pairStmt.all(instanceId) as Omit<
-      ArchetypeCardPairWithDetails,
+      GuideCardPairWithDetails,
       "top_cards" | "bottom_cards"
     >[];
 
@@ -107,11 +106,12 @@ export class SqliteArchetypeCardPairRepository implements ArchetypeCardPairRepos
         image_url: string;
         image_url_small: string;
         image_url_cropped: string;
+        effectiveness?: string | null;
       }>,
     }));
   }
 
-  async deleteByInstanceId(instanceId: number): Promise<void> {
+  async deleteCardPairsByGuideId(instanceId: number): Promise<void> {
     const stmt = this.db.prepare(`
       DELETE FROM archetype_card_pairs
       WHERE instance_id = ?

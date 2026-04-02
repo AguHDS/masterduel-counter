@@ -1,1 +1,2 @@
-export { HomeStatsSection } from "./components/HomeStatsSection";
+export { HomeAllComponents } from "./components/HomeAllComponents";
+export { CounterGuides } from "./components/CounterGuides";

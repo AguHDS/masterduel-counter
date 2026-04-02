@@ -5,6 +5,7 @@ import { useRegister } from "../hooks/useAuthQueries";
 import { Lock, User, Mail, X } from "lucide-react";
 import { Turnstile, type TurnstileRef } from "@/shared/components/Turnstile";
 import { DiscordButton } from "./DiscordButton";
+import { GoogleButton } from "./GoogleButton";
 import {
   validateUsername,
   createUsernameChangeHandler,
@@ -271,7 +272,8 @@ export const RegisterForm = () => {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-3">
+            <GoogleButton mode="signup" />
             <DiscordButton mode="signup" />
           </div>
 

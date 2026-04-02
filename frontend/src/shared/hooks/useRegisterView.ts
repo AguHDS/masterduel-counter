@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { instanceApi } from "@/lib/http/instanceApi";
+import { guideInstancesApi } from "@/lib/http/guideInstancesApi";
 
 const VIEW_EXPIRATION_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
 
@@ -36,7 +36,7 @@ export const useRegisterView = (instanceId: number | undefined, archetypeId: num
         }
 
         // Register the view
-        await instanceApi.registerView(instanceId);
+        await guideInstancesApi.registerView(instanceId);
 
         // Store the timestamp in sessionStorage
         sessionStorage.setItem(storageKey, Date.now().toString());

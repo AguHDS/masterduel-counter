@@ -9,7 +9,7 @@ export const validateCreateOrUpdateRecommendedDeck = async (
   try {
     const instanceIdParam = req.params.instanceId;
     const userId = (req as AuthenticatedRequest).user?.id;
-    const { title, mainDeckCards, extraDeckCards } = req.body;
+    const { title, mainDeckCards, extraDeckCards, sideDeckCards } = req.body;
 
     // Check authentication
     if (!userId) {
@@ -35,6 +35,12 @@ export const validateCreateOrUpdateRecommendedDeck = async (
       return;
     }
 
+    // Validate side deck if provided
+    if (sideDeckCards !== undefined && !Array.isArray(sideDeckCards)) {
+      res.status(400).json({ success: false, error: "Invalid side deck data" });
+      return;
+    }
+
     // Check if deck has content
     const hasContent = mainDeckCards.length > 0 || extraDeckCards.length > 0;
 
@@ -54,6 +60,7 @@ export const validateCreateOrUpdateRecommendedDeck = async (
       title,
       mainDeckCards,
       extraDeckCards,
+      sideDeckCards: sideDeckCards || [],
     };
 
     next();

@@ -11,7 +11,7 @@ export const getRecommendedDeckController = async (
     if (!instanceId) {
       res
         .status(400)
-        .json({ success: false, error: "Instance ID not validated" });
+        .json({ success: false, error: "Guide ID not validated" });
       return;
     }
 

@@ -3,14 +3,23 @@
 @tailwind utilities;
 
 body {
-  background: url("./assets/MDC_newbackground.webp") no-repeat center
-    center fixed;
+  background-color: #0d0410fa;
   background-size: cover;
 }
 
 .scrollbar-comments {
   scrollbar-width: thin;
   scrollbar-color: #4a3694 #0b0227;
+}
+
+.scrollbar-mainsearch {
+  scrollbar-width: thin;
+  scrollbar-color: #7c5423 #0b0227;
+}
+
+.scrollbar-homeAllPages {
+  scrollbar-width: thin;
+  scrollbar-color: #4b4b69 #0b0227;
 }
 
 .scrollbar-cardpair {

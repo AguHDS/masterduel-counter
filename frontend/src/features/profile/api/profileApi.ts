@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getBackendUrl } from "@/lib/config/urlHelpers";
+import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 
 const API_URL = getBackendUrl();
 
@@ -81,24 +82,53 @@ export const profileApi = {
 
   async getFavoritedGuides(userId: string): Promise<{
     success: boolean;
-    guides: Array<{
-      id: number;
-      userId: string;
-      userName: string;
-      archetypeId: number;
-      archetypeName: string;
-      title: string;
-      headerCardId: number | null;
-      headerCardName: string | null;
-      headerCardImageUrl: string | null;
-      headerCardImageUrlSmall: string | null;
-      headerCardImageUrlCropped: string | null;
-      likes: number;
-      createdAt: string;
-      updatedAt: string;
-    }>;
+    guides: GuideListItem[];
   }> {
     const response = await axios.get(`${API_URL}/api/profile/${userId}/favoritedGuides`);
+    return response.data;
+  },
+
+  /** Get all archetype guides created by a specific user */
+  getGuidesByUserId: async (
+    userId: string,
+    sortBy: "likes" | "updated" = "updated",
+  ): Promise<GuideListItem[]> => {
+    const response = await axios.get(
+      `${API_URL}/api/users/${userId}/instances`,
+      { params: { sortBy } },
+    );
+    return response.data;
+  },
+
+  /** Search users by username */
+  searchUsers: async (
+    query: string,
+    limit: number = 10
+  ): Promise<{
+    success: boolean;
+    users: Array<{
+      userId: string;
+      username: string;
+      profilePictureUrl: string | null;
+    }>;
+    total: number;
+  }> => {
+    const response = await axios.get(`${API_URL}/api/profile/search`, {
+      params: { q: query, limit },
+    });
+    return response.data;
+  },
+
+  /** Search guide instances by user ID and title */
+  searchGuidesByUserId: async (
+    userId: string,
+    title: string,
+    sortBy: "likes" | "updated" = "updated",
+  ): Promise<GuideListItem[]> => {
+    const response = await axios.get(
+      `${API_URL}/api/users/${userId}/instances/search`,
+      { params: { title, sortBy } },
+    );
     return response.data;
   },
 };

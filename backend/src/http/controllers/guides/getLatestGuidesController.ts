@@ -1,20 +1,37 @@
 import { Request, Response } from "express";
-import { ArchetypeInstanceServicePort } from "@/application/ports/ArchetypeInstanceService.js";
+import { GuideInstanceServicePort } from "@/application/ports/GuideApplicationPort.js";
 
 /** Get the latest created guide instances across all archetypes */
+/** TODO:
+ * En la ruta, no se esta implementando este controller como se hace convencionalmente con otros controllers
+ * Chequea como se trabaja con controllers en otros archivos bien implementados (ej: backend\src\routes\guides\guideLikes.ts & backend\src\http\controllers\guides\toggleGuideLikeController.ts)
+ * y si es necesario hacer X cosa en el compositionRoot para que funcione correctamente, hacerlo, pero siempre
+ * siguiendo la forma de trabajo que se hace en los flujos que funcionan bien.
+ * El archivo de ruta deberia conectar la ruta con el controller.
+ * Cambiar tambien el nombre del controller a getLastestGuidesController.ts
+ */
 export const createGetLatestGuidesController =
-  (instanceService: ArchetypeInstanceServicePort) =>
+  (instanceService: GuideInstanceServicePort) =>
   async (req: Request, res: Response) => {
     try {
       const limitParam = req.query.limit as string | undefined;
       const limit = limitParam ? parseInt(limitParam) : 5;
+      const type = req.query.type as string | undefined;
 
       if (isNaN(limit) || limit < 1 || limit > 50) {
         res.status(400).json({ error: "Invalid limit parameter. Must be between 1 and 50" });
         return;
       }
 
-      const instances = await instanceService.getLatestCreatedInstances(limit);
+      // Validate type parameter if provided
+      if (type && type !== 'counter' && type !== 'deck') {
+        res.status(400).json({ error: "Invalid type parameter. Must be 'counter' or 'deck'" });
+        return;
+      }
+
+      const guideType = type ? (type === 'counter' ? 'COUNTER' : 'DECK') : undefined;
+
+      const instances = await instanceService.getLastedCreatedGuides(limit, guideType);
 
       res.status(200).json(instances);
     } catch (error) {

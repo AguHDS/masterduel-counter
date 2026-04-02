@@ -2,13 +2,8 @@ import React, { useState } from "react";
 import { Edit2, Trash2, Loader2, MessageSquareReply, ChevronDown, ChevronUp } from "lucide-react";
 import { useCommentMutations } from "../hooks/useCommentsQueries";
 import { CommentForm } from "./CommentForm";
+import { Avatar } from "@/shared/components/DefaultAvatar";
 import type { CommentItemProps } from "../types/commentsTypes";
-
-const AvatarPlaceholder = ({ name }: { name: string }) => (
-  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
-    {name.charAt(0).toUpperCase()}
-  </div>
-);
 
 const getOptimizedImageUrl = (url: string | null | undefined): string | null => {
   if (!url) return null;
@@ -131,15 +126,12 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               onMouseDown={handleMouseDown}
               onAuxClick={handleAuxClick}
             >
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={comment.author.name}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/30 hover:ring-blue-500/60 transition-all"
-                />
-              ) : (
-                <AvatarPlaceholder name={comment.author.name} />
-              )}
+              <Avatar
+                username={comment.author.name}
+                profilePictureUrl={avatarUrl}
+                size="sm"
+                className="!border-0 ring-2 ring-blue-500/30 hover:ring-blue-500/60 transition-all"
+              />
             </a>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
@@ -219,15 +211,12 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               onMouseDown={handleMouseDown}
               onAuxClick={handleAuxClick}
             >
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={comment.author.name}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/50 hover:ring-blue-500/80 transition-all"
-                />
-              ) : (
-                <AvatarPlaceholder name={comment.author.name} />
-              )}
+              <Avatar
+                username={comment.author.name}
+                profilePictureUrl={avatarUrl}
+                size="sm"
+                className="!border-0 ring-2 ring-blue-500/50 hover:ring-blue-500/80 transition-all"
+              />
             </a>
 
             <div className="flex-1 min-w-0">

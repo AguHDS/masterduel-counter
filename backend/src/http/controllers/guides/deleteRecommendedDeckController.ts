@@ -17,12 +17,12 @@ export const deleteRecommendedDeckController = async (
 
     const { instanceId, userId } = validatedData;
 
-    // Verify instance ownership
+    // Verify guide ownership
     const instanceService = getDependencies().getInstanceService();
-    const instance = await instanceService.getInstanceById(instanceId);
+    const instance = await instanceService.getGuideById(instanceId);
 
     if (!instance) {
-      res.status(404).json({ success: false, error: "Instance not found" });
+      res.status(404).json({ success: false, error: "Guide not found" });
       return;
     }
 
