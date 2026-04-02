@@ -184,7 +184,7 @@ export const RegisteredArchetypesList = ({
             {user ? (
               <button
                 onClick={handleCreateClick}
-                className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded transition-colors"
                 aria-label="Create new guide"
               >
                 <Plus className="w-4 h-4" />
@@ -192,7 +192,7 @@ export const RegisteredArchetypesList = ({
               </button>
             ) : (
               <div className="px-4 py-1.5 bg-slate-700/50 text-gray-400 text-sm font-medium rounded border border-slate-600">
-                Sign in to create
+                Sign in to create a guide
               </div>
             )}
 

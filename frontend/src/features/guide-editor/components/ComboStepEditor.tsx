@@ -266,25 +266,29 @@ export const ComboStepEditor = ({
   };
 
   // Drag and Drop handlers
-  const [isDragEnabled, setIsDragEnabled] = useState(true);
-
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
     stepId: string,
   ) => {
-    if (!isDragEnabled) {
-      e.preventDefault();
-      return;
-    }
     setDraggedStepId(stepId);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/html", stepId);
-    // Add a slight opacity to the dragged element
-    (e.target as HTMLElement).style.opacity = "0.5";
+    
+    // Find the step container to apply opacity
+    const target = e.currentTarget;
+    const stepContainer = target.closest('[data-step-container]') as HTMLElement;
+    if (stepContainer) {
+      stepContainer.style.opacity = "0.5";
+    }
   };
 
   const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
-    (e.target as HTMLElement).style.opacity = "1";
+    // Find the step container to restore opacity
+    const target = e.currentTarget;
+    const stepContainer = target.closest('[data-step-container]') as HTMLElement;
+    if (stepContainer) {
+      stepContainer.style.opacity = "1";
+    }
     setDraggedStepId(null);
     setDragOverStepId(null);
   };
@@ -383,9 +387,7 @@ export const ComboStepEditor = ({
               return (
                 <div
                   key={step.id}
-                  draggable={!isReadOnly && isDragEnabled}
-                  onDragStart={(e) => handleDragStart(e, step.id)}
-                  onDragEnd={handleDragEnd}
+                  data-step-container
                   onDragOver={(e) => handleDragOver(e, step.id)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, step.id)}
@@ -402,9 +404,10 @@ export const ComboStepEditor = ({
                   {/* Drag Handle - Top Center (only in edit mode) */}
                   {!isReadOnly && (
                     <div
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, step.id)}
+                      onDragEnd={handleDragEnd}
                       className="absolute top-1 left-1/2 transform -translate-x-1/2 cursor-grab active:cursor-grabbing py-1 px-3 rounded hover:bg-slate-700/30 transition-colors"
-                      onMouseEnter={() => setIsDragEnabled(true)}
-                      onMouseLeave={() => setIsDragEnabled(false)}
                       title="Drag to reorder"
                     >
                       <div className="grid grid-cols-3 gap-[3px]">

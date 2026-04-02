@@ -48,18 +48,17 @@ export const ComboStepCard = ({
 
   return (
     <div
-      className={`relative border-b-2  border-blue-800/15 flex flex-col ${_isEditMode ? 'p-4 pt-8' : 'p-3 pt-8'} overflow-hidden ${
+      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : 'p-3 pt-8'} overflow-hidden ${
         isContext ? 'opacity-70' : ''
       }`}
       style={{
         width: _isEditMode ? "370px" : "240px",
         minWidth: _isEditMode ? "370px" : "240px",
-        minHeight: _isEditMode ? "320px" : "280px",
-        maxHeight: "520px",
+        minHeight: _isEditMode ? "520px" : "320px",
       }}
     >
       {/* Step Number Badge - Top Left */}
-      <div className="absolute top-0 left-2 flex flex-col gap-1">
+      <div className="absolute top-0 left-0 flex flex-col gap-1">
         <span className={`inline-block text-yellow-500 ${_isEditMode ? 'text-xs' : 'text-[11px]'} font-bold rounded-full`}>
           #{stepNumber}
         </span>
@@ -265,13 +264,14 @@ export const ComboStepCard = ({
           Description
         </span>
         <div
-          className={`text-center py-1 px-2 text-slate-300 ${_isEditMode ? 'text-[13px]' : 'text-[11px]'} overflow-hidden scrollbar-homeAllPages mx-auto`}
+          className={`text-center py-1 px-2 text-slate-300 ${_isEditMode ? 'text-[13px]' : 'text-[11px]'} mx-auto`}
           style={{
             overflowWrap: "break-word",
             wordBreak: "break-word",
             whiteSpace: "pre-wrap",
             lineHeight: "1.3em",
-            maxHeight: !isDescriptionExpanded ? "4rem" : "200px",
+            maxHeight: !isDescriptionExpanded ? "4rem" : "none",
+            overflow: "hidden",
             transition: "max-height 0.3s ease-in-out",
             width: "100%",
             maxWidth: _isEditMode ? "340px" : "220px",
@@ -282,7 +282,7 @@ export const ComboStepCard = ({
         {(step.description || "").length > 100 && (
           <button
             onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-            className={`${_isEditMode ? 'text-xs' : 'text-[10px]'} text-blue-400 hover:text-blue-300 px-2 py-1 mt-1`}
+            className={`${_isEditMode ? 'text-xs' : 'text-[10px]'} text-blue-400 hover:text-blue-300 px-2 py-1 mt-1 flex-shrink-0`}
           >
             {isDescriptionExpanded ? "Read Less" : "Read More"}
           </button>
