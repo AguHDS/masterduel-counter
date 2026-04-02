@@ -260,7 +260,7 @@ export const ComboStepCard = ({
       </div>
 
       {/* Description - Always centered regardless of card layout */}
-      <div className="w-full flex flex-col items-center mt-2 flex-1 min-h-0">
+      <div className="w-full flex flex-col items-center flex-1 min-h-0">
         <span className={`${_isEditMode ? 'text-xs' : 'text-[10px]'} font-semibold text-blue-400 uppercase tracking-wide mb-1`}>
           Description
         </span>
