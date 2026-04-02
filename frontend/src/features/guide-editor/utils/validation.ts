@@ -5,7 +5,7 @@ interface HeaderCard {
   id: number;
   name: string;
   imageUrl: string;
-  imageUrlCropped: string;
+  imageUrlCropped?: string;
 }
 
 interface ValidationResult {
