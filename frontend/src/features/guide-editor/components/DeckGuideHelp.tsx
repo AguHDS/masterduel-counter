@@ -41,8 +41,15 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
                 <span className="text-blue-300 font-semibold">
                   Description:
                 </span>{" "}
-                Explain the main idea of your guide. You don't need to go into
-                detail about combo steps, but rather in the combo flow.
+                Explain general things about combos. <br /> <br />
+                <b>
+                  Example: <br />
+                  Combo #1 (7 disruptions): You need Dark Beckoning OR Spirit
+                  Gates <br />
+                  Combo #2 (10 disruptions): You need Throne + Spirit gates OR
+                  beckoning <br />
+                  Combo #3: (8 disruptions): Can be done with Throne OR Lotus
+                </b>
               </p>
             </div>
             <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">

@@ -48,7 +48,7 @@ export const ComboStepCard = ({
 
   return (
     <div
-      className={`relative flex flex-col ${_isEditMode ? 'p-4 pt-10 pb-12' : 'p-3 pt-8 pb-10'} overflow-hidden ${
+      className={`relative border-b-2  border-blue-800/15 flex flex-col ${_isEditMode ? 'p-4 pt-10 pb-12' : 'p-3 pt-8 pb-10'} overflow-hidden ${
         isContext ? 'opacity-70' : ''
       }`}
       style={{
@@ -59,8 +59,8 @@ export const ComboStepCard = ({
       }}
     >
       {/* Step Number Badge - Top Left */}
-      <div className="absolute top-2 left-2 flex flex-col gap-1">
-        <span className={`inline-block px-2 py-0.5 text-yellow-500 ${_isEditMode ? 'text-xs' : 'text-[10px]'} font-bold rounded-full`}>
+      <div className="absolute top-0 left-2 flex flex-col gap-1">
+        <span className={`inline-block px-2 py-0.5 text-yellow-500 ${_isEditMode ? 'text-xs' : 'text-[11px]'} font-bold rounded-full`}>
           #{stepNumber}
         </span>
       </div>

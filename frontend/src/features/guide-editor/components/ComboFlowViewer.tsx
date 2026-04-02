@@ -65,7 +65,7 @@ export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps
 
   return (
     <div className="border-y-2 border-blue-500/30 p-4 bg-slate-900/40">
-      <div className="flex flex-wrap items-start gap-0">
+      <div className="flex flex-wrap items-start gap-5 ml-6">
         {sortedSteps.map((step, index) => {
           const isMainFlowStep = !step.parentCanceledStepId;
           const isContext = !!(activeCanceledStepId && isMainFlowStep);

@@ -463,7 +463,6 @@ export const GuideContainer = ({ onEditModeChange, onGuideTypeChange }: GuideCon
       id: `pair-${Date.now()}`,
       topCards: [],
       bottomCards: [],
-      effectiveness: undefined,
       comment: undefined,
     };
     setPairs([...pairs, newPair]);

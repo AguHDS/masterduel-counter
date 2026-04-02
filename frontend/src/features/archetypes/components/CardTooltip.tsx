@@ -209,7 +209,7 @@ export const CardTooltip = ({
             role="tooltip"
             aria-label={`Card preview: ${cardName}`}
           >
-            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-blue-950 rounded-xl shadow-2xl border-2 border-blue-500/50 overflow-hidden flex max-w-[640px]">
+            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-blue-950 rounded-sm shadow-2xl border-2 border-blue-500/50 overflow-hidden flex max-w-[640px]">
               {/* Left side: Card Image */}
               <div className="flex-shrink-0 bg-slate-900/50 p-3">
                 <img

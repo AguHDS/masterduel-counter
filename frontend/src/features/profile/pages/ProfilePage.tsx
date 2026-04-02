@@ -402,7 +402,7 @@ export const ProfilePage = () => {
                           ))}
                         </div>
                         {/* Edit Profile / Report Buttons + Search */}
-                        <div className="flex gap-2 items-center flex-wrap">
+                        <div className="flex gap-2 items-center flex-wrap justify-end">
                           <UserSearchDropdown />
                           <div className="flex gap-2 items-center">
                             {!isOwner && session && (
