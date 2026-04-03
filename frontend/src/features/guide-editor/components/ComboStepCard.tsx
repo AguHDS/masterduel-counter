@@ -35,6 +35,8 @@ export const ComboStepCard = ({
     : step.leftSubCards.slice(0, 3);
   const hasMoreLeftSubCards = step.leftSubCards.length > 3;
 
+  const hasSideCards = step.leftSubCards.length > 0 || step.subCards.length > 0;
+
   const renderDescriptionWithLineBreaks = (text: string) => {
     if (!text) return "No description";
 
@@ -48,13 +50,14 @@ export const ComboStepCard = ({
 
   return (
     <div
-      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : 'p-3 pt-8'} overflow-hidden ${
+      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : 'p-3 pt-8'} ${
         isContext ? 'opacity-70' : ''
       }`}
       style={{
         width: _isEditMode ? "370px" : "240px",
         minWidth: _isEditMode ? "370px" : "240px",
-        minHeight: _isEditMode ? "520px" : "320px",
+        minHeight: _isEditMode ? (isDescriptionExpanded ? "auto" : "520px") : (isDescriptionExpanded ? "auto" : "320px"),
+        height: isDescriptionExpanded ? "auto" : undefined,
       }}
     >
       {/* Step Number Badge - Top Left */}
@@ -259,8 +262,8 @@ export const ComboStepCard = ({
       </div>
 
       {/* Description - Always centered regardless of card layout */}
-      <div className="w-full flex flex-col items-center flex-1 min-h-0">
-        <span className={`${_isEditMode ? 'text-xs' : 'text-[10px]'} font-semibold text-blue-400 uppercase tracking-wide mb-1`}>
+      <div className={`w-full flex flex-col items-center flex-1 ${!hasSideCards ? 'relative top-12' : ''}`}>
+        <span className={`${_isEditMode ? 'text-xs' : 'text-[10px]'} font-semibold text-blue-400 uppercase tracking-wide`}>
           Description
         </span>
         <div

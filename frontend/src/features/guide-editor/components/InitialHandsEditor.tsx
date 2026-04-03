@@ -304,22 +304,23 @@ export const InitialHandsEditor = ({
                 {hand.cards.length}/5
               </div>
 
-              {isEditMode ? (
-                <input
-                  type="text"
-                  value={hand.description || ""}
-                  onChange={(e) => updateHandDescription(hand.id, e.target.value)}
-                  placeholder="Description (optional)"
-                  maxLength={50}
-                  className="mt-1 w-full px-2 py-1 text-xs text-gray-300 bg-gray-800/50 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-center placeholder-gray-500"
-                />
-              ) : (
-                hand.description && (
-                  <div className="mt-1 text-xs text-blue-300 text-center line-clamp-2">
-                    {hand.description}
+              {/* Description section - always has content */}
+              <div className="min-h-[2.5rem] mt-1">
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={hand.description || ""}
+                    onChange={(e) => updateHandDescription(hand.id, e.target.value)}
+                    placeholder="Description (optional)"
+                    maxLength={50}
+                    className="w-full px-2 py-1 text-xs text-gray-300 bg-gray-800/50 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-center placeholder-gray-500"
+                  />
+                ) : (
+                  <div className="text-xs text-blue-300 text-center line-clamp-2">
+                    {hand.description || "No description"}
                   </div>
-                )
-              )}
+                )}
+              </div>
 
               {isEditMode && onAddCombo && (
                 <button
@@ -348,7 +349,7 @@ export const InitialHandsEditor = ({
                         e.stopPropagation();
                         onShowCombo?.(hand.id);
                       }}
-                      className={`mt-2 w-full py-1 border rounded flex items-center justify-center gap-1  group ${
+                      className={`mt-2 w-full py-1 border rounded flex items-center justify-center gap-1 group ${
                         _selectedHandId === hand.id
                           ? "bg-green-600/30 border-green-500/70"
                           : "bg-blue-600/20 hover:bg-blue-600/30 border-blue-500/50"
@@ -365,8 +366,8 @@ export const InitialHandsEditor = ({
                       </span>
                     </button>
                   ) : (
-                    <div className="mt-2 w-full py-1 text-center">
-                      <span className="text-xs text-gray-500 italic">
+                    <div className="mt-2 w-full py-1 flex items-center justify-center">
+                      <span className="text-xs text-gray-500">
                         No combo created
                       </span>
                     </div>
