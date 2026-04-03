@@ -79,7 +79,7 @@ export const UserSearchDropdown = () => {
   }, []);
 
   const handleUserClick = (userId: string) => {
-    window.location.href = `/profile/${userId}`;
+    window.location.assign(`/profile/${userId}`);
   };
 
   const handleClearSearch = () => {

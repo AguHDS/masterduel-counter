@@ -65,4 +65,5 @@ export interface GuideListItem extends Guide {
   userProfilePictureUrl?: string | null;
   headerCardName?: string;
   headerCardImageUrl?: string;
+  minutesAgo?: number;
 }

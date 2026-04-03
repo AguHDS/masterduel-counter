@@ -2,24 +2,24 @@ import { BookOpen, Eye, ThumbsUp, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
 
-const getTimeAgo = (dateString: string): string => {
-  const now = new Date();
-  const past = new Date(dateString);
-  const diffMs = now.getTime() - past.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-  const diffWeeks = Math.floor(diffDays / 7);
-  const diffMonths = Math.floor(diffDays / 30);
-  const diffYears = Math.floor(diffDays / 365);
-
-  if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  if (diffWeeks < 4) return `${diffWeeks}w ago`;
-  if (diffMonths < 12) return `${diffMonths}mo ago`;
-  return `${diffYears}y ago`;
+const getTimeAgo = (minutesAgo: number): string => {
+  if (minutesAgo < 1) return "just now";
+  if (minutesAgo < 60) return `${minutesAgo}m ago`;
+  
+  const hoursAgo = Math.floor(minutesAgo / 60);
+  if (hoursAgo < 24) return `${hoursAgo}h ago`;
+  
+  const daysAgo = Math.floor(hoursAgo / 24);
+  if (daysAgo < 7) return `${daysAgo}d ago`;
+  
+  const weeksAgo = Math.floor(daysAgo / 7);
+  if (weeksAgo < 4) return `${weeksAgo}w ago`;
+  
+  const monthsAgo = Math.floor(daysAgo / 30);
+  if (monthsAgo < 12) return `${monthsAgo}mo ago`;
+  
+  const yearsAgo = Math.floor(daysAgo / 365);
+  return `${yearsAgo}y ago`;
 };
 
 export const DeckGuides = () => {
@@ -75,7 +75,7 @@ export const DeckGuides = () => {
             </div>
           ) : (
             guides.map((guide) => {
-              const timeAgo = getTimeAgo(guide.createdAt);
+              const timeAgo = getTimeAgo(guide.minutesAgo ?? 0);
 
               return (
                 <Link

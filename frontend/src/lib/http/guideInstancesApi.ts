@@ -22,6 +22,7 @@ export interface GuideListItem {
   userProfilePictureUrl?: string | null;
   headerCardName?: string;
   headerCardImageUrl?: string;
+  minutesAgo?: number;
 }
 
 export interface GuideInstanceWithFullDetails {

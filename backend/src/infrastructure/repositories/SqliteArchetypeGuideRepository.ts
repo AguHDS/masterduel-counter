@@ -690,71 +690,74 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     return result._sum.views ?? 0;
   }
 
-  async findLatestCreatedInstances(
-    limit: number,
-    guideType?: GuideType,
-  ): Promise<GuideListItem[]> {
-    const guideTypeFilter = guideType ? "WHERE ai.guide_type = ?" : "";
-    const params = guideType ? [guideType, limit] : [limit];
+async findLatestCreatedInstances(
+  limit: number,
+  guideType?: GuideType,
+): Promise<GuideListItem[]> {
+  const guideTypeFilter = guideType ? "WHERE ai.guide_type = ?" : "";
+  const params = guideType ? [guideType, limit] : [limit];
 
-    const stmt = this.db.prepare(`
-      SELECT 
-        ai.*,
-        a.name as archetype_name,
-        u.namedb as user_name,
-        p.profile_picture_url as user_profile_picture_url,
-        c.name as header_card_name,
-        c.image_url_cropped as header_card_image_url
-      FROM archetype_instances ai
-      JOIN archetypes a ON ai.archetype_id = a.id
-      JOIN users u ON ai.user_id = u.id
-      LEFT JOIN profiles p ON u.id = p.user_id
-      LEFT JOIN cards c ON ai.header_card_id = c.id
-      ${guideTypeFilter}
-      ORDER BY ai.updated_at DESC, ai.created_at DESC
-      LIMIT ?
-    `);
+  const stmt = this.db.prepare(`
+    SELECT 
+      ai.*,
+      a.name as archetype_name,
+      u.namedb as user_name,
+      p.profile_picture_url as user_profile_picture_url,
+      c.name as header_card_name,
+      c.image_url_cropped as header_card_image_url,
+      CAST((strftime('%s', 'now') - strftime('%s', ai.updated_at)) / 60 AS INTEGER) as minutes_ago
+    FROM archetype_instances ai
+    JOIN archetypes a ON ai.archetype_id = a.id
+    JOIN users u ON ai.user_id = u.id
+    LEFT JOIN profiles p ON u.id = p.user_id
+    LEFT JOIN cards c ON ai.header_card_id = c.id
+    ${guideTypeFilter}
+    ORDER BY ai.updated_at DESC, ai.created_at DESC
+    LIMIT ?
+  `);
 
-    interface InstanceRow {
-      id: number;
-      archetype_id: number;
-      user_id: string;
-      title: string;
-      header_card_id: number | null;
-      general_tip: string | null;
-      guide_type: string;
-      likes: number;
-      favorites: number;
-      views: number;
-      created_at: string;
-      updated_at: string;
-      archetype_name: string;
-      user_name: string;
-      user_profile_picture_url: string | null;
-      header_card_name: string | null;
-      header_card_image_url: string | null;
-    }
-
-    const rows = stmt.all(...params) as InstanceRow[];
-
-    return rows.map((row) => ({
-      id: row.id,
-      archetypeId: row.archetype_id,
-      userId: row.user_id,
-      title: row.title,
-      headerCardId: row.header_card_id,
-      generalTip: row.general_tip,
-      guideType: row.guide_type as GuideType,
-      likes: row.likes,
-      favorites: row.favorites,
-      views: row.views,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
-      archetypeName: row.archetype_name,
-      userName: row.user_name,
-      userProfilePictureUrl: row.user_profile_picture_url,
-      headerCardName: row.header_card_name ?? undefined,
-      headerCardImageUrl: row.header_card_image_url ?? undefined,
-    }));
+  interface InstanceRow {
+    id: number;
+    archetype_id: number;
+    user_id: string;
+    title: string;
+    header_card_id: number | null;
+    general_tip: string | null;
+    guide_type: string;
+    likes: number;
+    favorites: number;
+    views: number;
+    created_at: string;
+    updated_at: string;
+    archetype_name: string;
+    user_name: string;
+    user_profile_picture_url: string | null;
+    header_card_name: string | null;
+    header_card_image_url: string | null;
+    minutes_ago: number;
   }
+
+  const rows = stmt.all(...params) as InstanceRow[];
+
+  return rows.map((row) => ({
+    id: row.id,
+    archetypeId: row.archetype_id,
+    userId: row.user_id,
+    title: row.title,
+    headerCardId: row.header_card_id,
+    generalTip: row.general_tip,
+    guideType: row.guide_type as GuideType,
+    likes: row.likes,
+    favorites: row.favorites,
+    views: row.views,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
+    minutesAgo: row.minutes_ago,
+    archetypeName: row.archetype_name,
+    userName: row.user_name,
+    userProfilePictureUrl: row.user_profile_picture_url,
+    headerCardName: row.header_card_name ?? undefined,
+    headerCardImageUrl: row.header_card_image_url ?? undefined,
+  }));
+}
 }
