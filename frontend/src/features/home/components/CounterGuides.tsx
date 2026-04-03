@@ -2,11 +2,20 @@ import { Shield, Eye, ThumbsUp, Star } from "lucide-react";
 import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
 import { Link } from "react-router-dom";
 
-const getTimeAgo = (minutesAgo: number): string => {
-  if (minutesAgo < 1) return "just now";
-  if (minutesAgo < 60) return `${minutesAgo}m ago`;
+const getTimeAgo = (createdAt: string | Date): string => {
+  const now = new Date();
+  const created = new Date(createdAt);
 
-  const hoursAgo = Math.floor(minutesAgo / 60);
+  if (isNaN(created.getTime())) {
+    return "recently";
+  }
+
+  const diffInMinutes = Math.floor((now.getTime() - created.getTime()) / 60000);
+
+  if (diffInMinutes < 1) return "just now";
+  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+
+  const hoursAgo = Math.floor(diffInMinutes / 60);
   if (hoursAgo < 24) return `${hoursAgo}h ago`;
 
   const daysAgo = Math.floor(hoursAgo / 24);
@@ -15,7 +24,7 @@ const getTimeAgo = (minutesAgo: number): string => {
   const weeksAgo = Math.floor(daysAgo / 7);
   if (weeksAgo < 4) return `${weeksAgo}w ago`;
 
-  const monthsAgo = Math.floor(daysAgo / 30);
+  const monthsAgo = Math.floor(daysAgo / 30.44);
   if (monthsAgo < 12) return `${monthsAgo}mo ago`;
 
   const yearsAgo = Math.floor(daysAgo / 365);
@@ -79,7 +88,9 @@ export const CounterGuides = () => {
             </div>
           ) : (
             guides.slice(0, 10).map((guide) => {
-              const timeAgo = getTimeAgo(guide.minutesAgo ?? 0);
+              const timeAgo = guide.createdAt
+                ? getTimeAgo(guide.createdAt)
+                : "recently";
 
               return (
                 <Link
