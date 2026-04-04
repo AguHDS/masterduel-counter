@@ -70,7 +70,7 @@ export const CardPairItem = ({
   const topSectionRef = useRef<HTMLDivElement>(null);
   const bottomSectionRef = useRef<HTMLDivElement>(null);
   const commentRef = useRef<HTMLDivElement>(null);
-  
+
   // Track if it's the first render to prevent scrolling on mount
   const isFirstRenderTop = useRef(true);
   const isFirstRenderBottom = useRef(true);
@@ -260,13 +260,21 @@ export const CardPairItem = ({
       const rows = Math.ceil(totalElements / cardsPerRow);
       const gapHeight = (rows - 1) * 6;
       const cardsHeight = rows * BOTTOM_CARD_HEIGHT + gapHeight;
-      
+
       // Calculate efficiency height for both edit and view modes
       // In edit mode, all cards have selectors. In view mode, only cards with effectiveness show labels
-      const hasEfficiencyLabels = isEditMode || visibleCards.some(c => c.effectiveness);
-      const efficiencyHeight = hasEfficiencyLabels ? EFFICIENCY_SELECTOR_HEIGHT + 4 : 0; // +4 for mt-1
+      const hasEfficiencyLabels =
+        isEditMode || visibleCards.some((c) => c.effectiveness);
+      const efficiencyHeight = hasEfficiencyLabels
+        ? EFFICIENCY_SELECTOR_HEIGHT + 4
+        : 0; // +4 for mt-1
 
-      return cardsHeight + efficiencyHeight + SHOW_MORE_BUTTON_HEIGHT + (isEditMode ? 10 : 0);
+      return (
+        cardsHeight +
+        efficiencyHeight +
+        SHOW_MORE_BUTTON_HEIGHT +
+        (isEditMode ? 10 : 0)
+      );
     };
 
     return (
@@ -286,7 +294,7 @@ export const CardPairItem = ({
           >
             {visibleCards.map((card, index) => {
               const selectedOption = EFFECTIVENESS_OPTIONS.find(
-                (opt) => opt.value === (card.effectiveness || "")
+                (opt) => opt.value === (card.effectiveness || ""),
               );
 
               return (
@@ -470,30 +478,69 @@ export const CardPairItem = ({
                     </div>
                   ))}
                 {hasBottomCards &&
-                  bottomCards.map((card, index) => (
-                    <div key={index} className="relative group">
-                      {isEditMode && (
-                        <button
-                          onClick={() => onRemoveBottomCard(index)}
-                          className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
-                          title="Remove card"
-                        >
-                          <X className="w-2.5 h-2.5" />
-                        </button>
-                      )}
-                      <CardTooltip
-                        imageUrl={card.imageUrl}
-                        cardName={card.name}
-                        cardId={card.id}
-                      >
-                        <img
-                          src={card.imageUrlSmall}
-                          alt={card.name}
-                          className="w-24 h-32 object-cover rounded border border-none cursor-pointer shadow-sm"
-                        />
-                      </CardTooltip>
-                    </div>
-                  ))}
+                  bottomCards.map((card, index) => {
+                    const selectedOption = EFFECTIVENESS_OPTIONS.find(
+                      (opt) => opt.value === (card.effectiveness || ""),
+                    );
+                    return (
+                      <div key={index} className="flex flex-col items-center">
+                        <div className="relative group">
+                          {isEditMode && (
+                            <button
+                              onClick={() => onRemoveBottomCard(index)}
+                              className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
+                              title="Remove card"
+                            >
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          )}
+                          <CardTooltip
+                            imageUrl={card.imageUrl}
+                            cardName={card.name}
+                            cardId={card.id}
+                          >
+                            <img
+                              src={card.imageUrlSmall}
+                              alt={card.name}
+                              className="w-24 h-32 object-cover rounded border border-none cursor-pointer shadow-sm"
+                            />
+                          </CardTooltip>
+                        </div>
+                        {isEditMode ? (
+                          <select
+                            value={card.effectiveness || ""}
+                            onChange={(e) =>
+                              onBottomCardEffectivenessChange(
+                                index,
+                                e.target.value,
+                              )
+                            }
+                            className="mt-1 w-full px-1 py-0.5 bg-slate-800 text-white text-center font-bold text-[10px] rounded border border-slate-600 focus:outline-none focus:border-blue-500"
+                            style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                          >
+                            {EFFECTIVENESS_OPTIONS.map((opt) => (
+                              <option
+                                key={opt.value}
+                                value={opt.value}
+                                className="bg-slate-800"
+                              >
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          card.effectiveness && (
+                            <div
+                              className={`mt-1 text-center text-[10px] font-bold uppercase tracking-wide ${selectedOption?.color || "text-slate-400"}`}
+                              style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                            >
+                              {selectedOption?.label}
+                            </div>
+                          )
+                        )}
+                      </div>
+                    );
+                  })}
                 {isEditMode && (
                   <>
                     {(hasTopCards || (!hasTopCards && !hasBottomCards)) &&
@@ -548,7 +595,10 @@ export const CardPairItem = ({
             </>
           )}
         </div>
-        <div ref={commentRef} className="flex items-center justify-center mt-2 scrollbar-homeAllPages">
+        <div
+          ref={commentRef}
+          className="flex items-center justify-center mt-2 scrollbar-homeAllPages"
+        >
           {isEditMode ? (
             <div className="w-full">
               <label className="text-blue-400 font-semibold text-xs mb-0.5 block">
