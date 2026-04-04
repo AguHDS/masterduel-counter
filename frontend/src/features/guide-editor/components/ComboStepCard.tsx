@@ -87,13 +87,39 @@ export const ComboStepCard = ({
         {/* Left Sub Cards OR Invisible Placeholder for balance */}
         {step.leftSubCards.length > 0 ? (
           <>
-            <div className="flex gap-1">
-              {/* Hidden cards column (shown on left when expanded) */}
-              {showAllLeftSubCards && step.leftSubCards.length > 3 && (
-                <div className="flex flex-col gap-1">
-                  {step.leftSubCards.slice(3, 5).map((card, index) => (
+            <div className="flex flex-col items-center gap-1">
+              <span className={`${_isEditMode ? 'text-[10px]' : 'text-[8px]'} font-bold text-gray-500 uppercase tracking-wide`}>
+                MATERIAL
+              </span>
+              <div className="flex gap-1">
+                {/* Hidden cards column (shown on left when expanded) */}
+                {showAllLeftSubCards && step.leftSubCards.length > 3 && (
+                  <div className="flex flex-col gap-1">
+                    {step.leftSubCards.slice(3, 5).map((card, index) => (
+                      <CardTooltip
+                        key={`${card.id}-${index + 3}`}
+                        cardId={card.id}
+                        imageUrl={card.imageUrl || card.imageUrlSmall}
+                        cardName={card.name}
+                      >
+                        <img
+                          src={card.imageUrlSmall || card.imageUrl}
+                          alt={card.name}
+                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                        />
+                      </CardTooltip>
+                    ))}
+                  </div>
+                )}
+
+                {/* First 3 cards column (always visible) */}
+                <div
+                  className="flex flex-col gap-1 z-50 items-center"
+                  style={{ minHeight: _isEditMode ? "232px" : "186px" }}
+                >
+                  {visibleLeftSubCards.slice(0, 3).map((card, index) => (
                     <CardTooltip
-                      key={`${card.id}-${index + 3}`}
+                      key={`${card.id}-${index}`}
                       cardId={card.id}
                       imageUrl={card.imageUrl || card.imageUrlSmall}
                       cardName={card.name}
@@ -101,49 +127,28 @@ export const ComboStepCard = ({
                       <img
                         src={card.imageUrlSmall || card.imageUrl}
                         alt={card.name}
-                        className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                        className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                       />
                     </CardTooltip>
                   ))}
-                </div>
-              )}
-
-              {/* First 3 cards column (always visible) */}
-              <div
-                className="flex flex-col gap-1"
-                style={{ minHeight: _isEditMode ? "232px" : "186px" }}
-              >
-                {visibleLeftSubCards.slice(0, 3).map((card, index) => (
-                  <CardTooltip
-                    key={`${card.id}-${index}`}
-                    cardId={card.id}
-                    imageUrl={card.imageUrl || card.imageUrlSmall}
-                    cardName={card.name}
+                  <div
+                    style={{
+                      height: _isEditMode ? "24px" : "20px",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
                   >
-                    <img
-                      src={card.imageUrlSmall || card.imageUrl}
-                      alt={card.name}
-                      className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
-                    />
-                  </CardTooltip>
-                ))}
-                <div
-                  style={{
-                    height: _isEditMode ? "24px" : "20px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {hasMoreLeftSubCards && (
-                    <button
-                      onClick={() =>
-                        setShowAllLeftSubCards(!showAllLeftSubCards)
-                      }
-                      className={`${_isEditMode ? 'text-[10px]' : 'text-[8px]'} text-blue-400 hover:text-blue-300 py-0.5 px-1 bg-slate-700/50 rounded text-center w-full`}
-                    >
-                      {showAllLeftSubCards ? "Less" : "Show All"}
-                    </button>
-                  )}
+                    {hasMoreLeftSubCards && (
+                      <button
+                        onClick={() =>
+                          setShowAllLeftSubCards(!showAllLeftSubCards)
+                        }
+                        className={`${_isEditMode ? 'text-[10px]' : 'text-[8px]'} text-blue-400 hover:text-blue-300 py-0.5 px-1 bg-slate-700/50 rounded text-center w-full`}
+                      >
+                        {showAllLeftSubCards ? "Less" : "Show All"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -190,50 +195,19 @@ export const ComboStepCard = ({
               +
             </span>
 
-            <div className="flex gap-1">
-              {/* First 3 cards column (always visible) */}
-              <div
-                className="flex flex-col gap-1"
-                style={{ minHeight: _isEditMode ? "232px" : "186px" }}
-              >
-                {visibleSubCards.slice(0, 3).map((card, index) => (
-                  <CardTooltip
-                    key={`${card.id}-${index}`}
-                    cardId={card.id}
-                    imageUrl={card.imageUrl || card.imageUrlSmall}
-                    cardName={card.name}
-                  >
-                    <img
-                      src={card.imageUrlSmall || card.imageUrl}
-                      alt={card.name}
-                      className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
-                    />
-                  </CardTooltip>
-                ))}
+            <div className="flex flex-col items-center gap-1">
+              <span className={`${_isEditMode ? 'text-[10px]' : 'text-[8px]'} font-bold text-gray-500 uppercase tracking-wide`}>
+                EFFECT
+              </span>
+              <div className="flex gap-1 z-50">
+                {/* First 3 cards column (always visible) */}
                 <div
-                  style={{
-                    height: _isEditMode ? "24px" : "20px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
+                  className="flex flex-col gap-1 items-center"
+                  style={{ minHeight: _isEditMode ? "232px" : "186px" }}
                 >
-                  {hasMoreSubCards && (
-                    <button
-                      onClick={() => setShowAllSubCards(!showAllSubCards)}
-                      className={`${_isEditMode ? 'text-[10px]' : 'text-[8px]'} text-blue-400 hover:text-blue-300 py-0.5 px-1 bg-slate-700/50 rounded text-center w-full`}
-                    >
-                      {showAllSubCards ? "Less" : "Show All"}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Hidden cards column (shown on right when expanded) */}
-              {showAllSubCards && step.subCards.length > 3 && (
-                <div className="flex flex-col gap-1">
-                  {step.subCards.slice(3, 5).map((card, index) => (
+                  {visibleSubCards.slice(0, 3).map((card, index) => (
                     <CardTooltip
-                      key={`${card.id}-${index + 3}`}
+                      key={`${card.id}-${index}`}
                       cardId={card.id}
                       imageUrl={card.imageUrl || card.imageUrlSmall}
                       cardName={card.name}
@@ -241,12 +215,48 @@ export const ComboStepCard = ({
                       <img
                         src={card.imageUrlSmall || card.imageUrl}
                         alt={card.name}
-                        className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                        className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                       />
                     </CardTooltip>
                   ))}
+                  <div
+                    style={{
+                      height: _isEditMode ? "24px" : "20px",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {hasMoreSubCards && (
+                      <button
+                        onClick={() => setShowAllSubCards(!showAllSubCards)}
+                        className={`${_isEditMode ? 'text-[10px]' : 'text-[8px]'} text-blue-400 hover:text-blue-300 py-0.5 px-1 bg-slate-700/50 rounded text-center w-full`}
+                      >
+                        {showAllSubCards ? "Less" : "Show All"}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              )}
+
+                {/* Hidden cards column (shown on right when expanded) */}
+                {showAllSubCards && step.subCards.length > 3 && (
+                  <div className="flex flex-col gap-1">
+                    {step.subCards.slice(3, 5).map((card, index) => (
+                      <CardTooltip
+                        key={`${card.id}-${index + 3}`}
+                        cardId={card.id}
+                        imageUrl={card.imageUrl || card.imageUrlSmall}
+                        cardName={card.name}
+                      >
+                        <img
+                          src={card.imageUrlSmall || card.imageUrl}
+                          alt={card.name}
+                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                        />
+                      </CardTooltip>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </>
         ) : step.leftSubCards.length > 0 ? (

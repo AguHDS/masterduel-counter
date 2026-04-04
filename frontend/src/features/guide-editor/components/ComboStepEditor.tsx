@@ -481,68 +481,13 @@ export const ComboStepEditor = ({
                     <div className="flex justify-center m-auto items-center gap-3 w-fit">
                       {/* Left Sub Cards with placeholders - All 5 vertical */}
                       {step.mainCards.length > 0 && (
-                        <div
-                          className="flex flex-col gap-1"
-                          style={{ minHeight: "232px" }}
-                        >
-                          {/* First 3 cards - always visible */}
-                          {[...Array(3)].map((_, slotIndex) => {
-                            const card = step.leftSubCards[slotIndex];
-                            return (
-                              <div key={slotIndex}>
-                                {card ? (
-                                  <div className="relative group">
-                                    <CardTooltip
-                                      cardId={card.id}
-                                      imageUrl={
-                                        card.imageUrl || card.imageUrlSmall
-                                      }
-                                      cardName={card.name}
-                                    >
-                                      <img
-                                        src={
-                                          card.imageUrlSmall || card.imageUrl
-                                        }
-                                        alt={card.name}
-                                        className="w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
-                                      />
-                                    </CardTooltip>
-                                    <button
-                                      onClick={() =>
-                                        removeCard(
-                                          step.id,
-                                          slotIndex,
-                                          "leftSub",
-                                        )
-                                      }
-                                      className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
-                                      title="Remove card"
-                                    >
-                                      <X className="w-2 h-2 text-white" />
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={(e) => {
-                                      setAnchorElement(e.currentTarget);
-                                      setSelectingCards({
-                                        stepId: step.id,
-                                        type: "leftSub",
-                                      });
-                                    }}
-                                    className="w-10 h-14 border-2 border-dashed border-slate-600 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors opacity-50 hover:opacity-100"
-                                    title="Add card"
-                                  >
-                                    <Plus className="w-3 h-3 text-slate-500 hover:text-blue-400" />
-                                  </button>
-                                )}
-                              </div>
-                            );
-                          })}
-
-                          {/* Extra 2 cards - only when expanded (slots 3 and 4) */}
-                          {expandedLeftSteps.has(step.id) &&
-                            [3, 4].map((slotIndex) => {
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                            MATERIAL
+                          </span>
+                          <div className="flex flex-col gap-1 items-center" style={{ minHeight: "232px" }}>
+                            {/* First 3 cards - always visible */}
+                            {[...Array(3)].map((_, slotIndex) => {
                               const card = step.leftSubCards[slotIndex];
                               return (
                                 <div key={slotIndex}>
@@ -596,24 +541,81 @@ export const ComboStepEditor = ({
                               );
                             })}
 
-                          {/* Show All button - always visible, positioned after last visible placeholder */}
-                          <div className="h-6 flex items-center">
-                            <button
-                              onClick={() => {
-                                const newSet = new Set(expandedLeftSteps);
-                                if (newSet.has(step.id)) {
-                                  newSet.delete(step.id);
-                                } else {
-                                  newSet.add(step.id);
-                                }
-                                setExpandedLeftSteps(newSet);
-                              }}
-                              className="text-[10px] text-blue-400 hover:text-blue-300 py-0.5 px-1 bg-slate-700/50 rounded text-center w-full"
-                            >
-                              {expandedLeftSteps.has(step.id)
-                                ? "Less"
-                                : "Show All"}
-                            </button>
+                            {/* Extra 2 cards - only when expanded (slots 3 and 4) */}
+                            {expandedLeftSteps.has(step.id) &&
+                              [3, 4].map((slotIndex) => {
+                                const card = step.leftSubCards[slotIndex];
+                                return (
+                                  <div key={slotIndex}>
+                                    {card ? (
+                                      <div className="relative group">
+                                        <CardTooltip
+                                          cardId={card.id}
+                                          imageUrl={
+                                            card.imageUrl || card.imageUrlSmall
+                                          }
+                                          cardName={card.name}
+                                        >
+                                          <img
+                                            src={
+                                              card.imageUrlSmall || card.imageUrl
+                                            }
+                                            alt={card.name}
+                                            className="w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
+                                          />
+                                        </CardTooltip>
+                                        <button
+                                          onClick={() =>
+                                            removeCard(
+                                              step.id,
+                                              slotIndex,
+                                              "leftSub",
+                                            )
+                                          }
+                                          className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                                          title="Remove card"
+                                        >
+                                          <X className="w-2 h-2 text-white" />
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        onClick={(e) => {
+                                          setAnchorElement(e.currentTarget);
+                                          setSelectingCards({
+                                            stepId: step.id,
+                                            type: "leftSub",
+                                          });
+                                        }}
+                                        className="w-10 h-14 border-2 border-dashed border-slate-600 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors opacity-50 hover:opacity-100"
+                                        title="Add card"
+                                      >
+                                        <Plus className="w-3 h-3 text-slate-500 hover:text-blue-400" />
+                                      </button>
+                                    )}
+                                  </div>
+                                );
+                              })}
+
+                            {/* Show All button - always visible, positioned after last visible placeholder */}
+                            <div className="h-6 flex items-center">
+                              <button
+                                onClick={() => {
+                                  const newSet = new Set(expandedLeftSteps);
+                                  if (newSet.has(step.id)) {
+                                    newSet.delete(step.id);
+                                  } else {
+                                    newSet.add(step.id);
+                                  }
+                                  setExpandedLeftSteps(newSet);
+                                }}
+                                className="text-[10px] text-blue-400 hover:text-blue-300 py-0.5 px-1 bg-slate-700/50 rounded text-center w-full"
+                              >
+                                {expandedLeftSteps.has(step.id)
+                                  ? "Less"
+                                  : "Show All"}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -679,64 +681,13 @@ export const ComboStepEditor = ({
 
                       {/* Right Sub Cards with placeholders - All 5 vertical */}
                       {step.mainCards.length > 0 && (
-                        <div
-                          className="flex flex-col gap-1"
-                          style={{ minHeight: "232px" }}
-                        >
-                          {/* First 3 cards - always visible */}
-                          {[...Array(3)].map((_, slotIndex) => {
-                            const card = step.subCards[slotIndex];
-                            return (
-                              <div key={slotIndex}>
-                                {card ? (
-                                  <div className="relative group">
-                                    <CardTooltip
-                                      cardId={card.id}
-                                      imageUrl={
-                                        card.imageUrl || card.imageUrlSmall
-                                      }
-                                      cardName={card.name}
-                                    >
-                                      <img
-                                        src={
-                                          card.imageUrlSmall || card.imageUrl
-                                        }
-                                        alt={card.name}
-                                        className="w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
-                                      />
-                                    </CardTooltip>
-                                    <button
-                                      onClick={() =>
-                                        removeCard(step.id, slotIndex, "sub")
-                                      }
-                                      className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
-                                      title="Remove card"
-                                    >
-                                      <X className="w-2 h-2 text-white" />
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={(e) => {
-                                      setAnchorElement(e.currentTarget);
-                                      setSelectingCards({
-                                        stepId: step.id,
-                                        type: "sub",
-                                      });
-                                    }}
-                                    className="w-10 h-14 border-2 border-dashed border-slate-600 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors opacity-50 hover:opacity-100"
-                                    title="Add card"
-                                  >
-                                    <Plus className="w-3 h-3 text-slate-500 hover:text-blue-400" />
-                                  </button>
-                                )}
-                              </div>
-                            );
-                          })}
-
-                          {/* Extra 2 cards - only when expanded (slots 3 and 4) */}
-                          {expandedRightSteps.has(step.id) &&
-                            [3, 4].map((slotIndex) => {
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                            EFFECT
+                          </span>
+                          <div className="flex flex-col gap-1 items-center" style={{ minHeight: "232px" }}>
+                            {/* First 3 cards - always visible */}
+                            {[...Array(3)].map((_, slotIndex) => {
                               const card = step.subCards[slotIndex];
                               return (
                                 <div key={slotIndex}>
@@ -786,24 +737,77 @@ export const ComboStepEditor = ({
                               );
                             })}
 
-                          {/* Show All button - always visible, positioned after last visible placeholder */}
-                          <div className="h-6 flex items-center">
-                            <button
-                              onClick={() => {
-                                const newSet = new Set(expandedRightSteps);
-                                if (newSet.has(step.id)) {
-                                  newSet.delete(step.id);
-                                } else {
-                                  newSet.add(step.id);
-                                }
-                                setExpandedRightSteps(newSet);
-                              }}
-                              className="text-[10px] text-blue-400 hover:text-blue-300 py-0.5 px-1 bg-slate-700/50 rounded text-center w-full"
-                            >
-                              {expandedRightSteps.has(step.id)
-                                ? "Less"
-                                : "Show All"}
-                            </button>
+                            {/* Extra 2 cards - only when expanded (slots 3 and 4) */}
+                            {expandedRightSteps.has(step.id) &&
+                              [3, 4].map((slotIndex) => {
+                                const card = step.subCards[slotIndex];
+                                return (
+                                  <div key={slotIndex}>
+                                    {card ? (
+                                      <div className="relative group">
+                                        <CardTooltip
+                                          cardId={card.id}
+                                          imageUrl={
+                                            card.imageUrl || card.imageUrlSmall
+                                          }
+                                          cardName={card.name}
+                                        >
+                                          <img
+                                            src={
+                                              card.imageUrlSmall || card.imageUrl
+                                            }
+                                            alt={card.name}
+                                            className="w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
+                                          />
+                                        </CardTooltip>
+                                        <button
+                                          onClick={() =>
+                                            removeCard(step.id, slotIndex, "sub")
+                                          }
+                                          className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                                          title="Remove card"
+                                        >
+                                          <X className="w-2 h-2 text-white" />
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        onClick={(e) => {
+                                          setAnchorElement(e.currentTarget);
+                                          setSelectingCards({
+                                            stepId: step.id,
+                                            type: "sub",
+                                          });
+                                        }}
+                                        className="w-10 h-14 border-2 border-dashed border-slate-600 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors opacity-50 hover:opacity-100"
+                                        title="Add card"
+                                      >
+                                        <Plus className="w-3 h-3 text-slate-500 hover:text-blue-400" />
+                                      </button>
+                                    )}
+                                  </div>
+                                );
+                              })}
+
+                            {/* Show All button - always visible, positioned after last visible placeholder */}
+                            <div className="h-6 flex items-center">
+                              <button
+                                onClick={() => {
+                                  const newSet = new Set(expandedRightSteps);
+                                  if (newSet.has(step.id)) {
+                                    newSet.delete(step.id);
+                                  } else {
+                                    newSet.add(step.id);
+                                  }
+                                  setExpandedRightSteps(newSet);
+                                }}
+                                className="text-[10px] text-blue-400 hover:text-blue-300 py-0.5 px-1 bg-slate-700/50 rounded text-center w-full"
+                              >
+                                {expandedRightSteps.has(step.id)
+                                  ? "Less"
+                                  : "Show All"}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
