@@ -45,7 +45,7 @@ export const GeneralStats = () => {
     <div className="relative flex flex-col h-full overflow-hidden">
       <div className="absolute inset-0 bg-cover bg-center opacity-30" />
 
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900/70" />
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/50 via-indigo-950/40 to-indigo-950/50" />
 
       <div className="relative z-10 flex flex-col h-full p-8 min-h-0 ">
         <div className="flex items-center gap-3 mb-4">
@@ -83,7 +83,7 @@ export const GeneralStats = () => {
                       className={`flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold ${
                         index < 3
                           ? "bg-orange-500/20 text-yellow-300"
-                          : "bg-red-500/20 text-orange-300"
+                          : "bg-purple-500/20 text-blue-300"
                       }`}
                     >
                       {index + 1}
@@ -130,7 +130,7 @@ export const GeneralStats = () => {
                     <span
                       className={`flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold ${
                         index < 3
-                          ? "bg-blue-500/20 text-sky-200"
+                          ? "bg-orange-500/20 text-yellow-300"
                           : "bg-purple-500/20 text-blue-300"
                       }`}
                     >

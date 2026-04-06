@@ -9,9 +9,13 @@ interface HomeAllComponentsProps {
   isSearchActive?: boolean;
 }
 
-export const HomeAllComponents = ({ isSearchActive = false }: HomeAllComponentsProps) => {
+export const HomeAllComponents = ({
+  isSearchActive = false,
+}: HomeAllComponentsProps) => {
   return (
-    <div className={`w-full mt-12 transition-opacity duration-300 ${isSearchActive ? 'opacity-70' : 'opacity-85'}`}>
+    <div
+      className={`w-full mt-12 transition-opacity duration-300 ${isSearchActive ? "opacity-70" : "opacity-85"}`}
+    >
       <div className="bg-black/40 ">
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">
@@ -43,7 +47,14 @@ export const HomeAllComponents = ({ isSearchActive = false }: HomeAllComponentsP
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 mt-2">
+        <div
+          className="lg:col-span-2 h-[550px] mt-1.5"
+          aria-label="General statistics section"
+        >
+          <GeneralStats />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div className="lg:col-span-2" aria-hidden="true" />
 
           <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-3">
@@ -59,14 +70,6 @@ export const HomeAllComponents = ({ isSearchActive = false }: HomeAllComponentsP
             </div>
           </div>
 
-          <div className="lg:col-span-2" aria-hidden="true" />
-
-          <div
-            className="lg:col-span-2 h-[550px]"
-            aria-label="General statistics section"
-          >
-            <GeneralStats />
-          </div>
         </div>
       </div>
     </div>
