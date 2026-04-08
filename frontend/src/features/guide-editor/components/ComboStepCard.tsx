@@ -99,11 +99,11 @@ export const ComboStepCard = ({
                       <CardTooltip
                         key={`${card.id}-${index + 3}`}
                         cardId={card.id}
-                        imageUrl={card.imageUrl || card.imageUrlSmall}
+                        imageUrl={card.imageUrl}
                         cardName={card.name}
                       >
                         <img
-                          src={card.imageUrlSmall || card.imageUrl}
+                          src={card.imageUrlSmall}
                           alt={card.name}
                           className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                         />
@@ -121,11 +121,11 @@ export const ComboStepCard = ({
                     <CardTooltip
                       key={`${card.id}-${index}`}
                       cardId={card.id}
-                      imageUrl={card.imageUrl || card.imageUrlSmall}
+                      imageUrl={card.imageUrl}
                       cardName={card.name}
                     >
                       <img
-                        src={card.imageUrlSmall || card.imageUrl}
+                        src={card.imageUrlSmall}
                         alt={card.name}
                         className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                       />
@@ -175,11 +175,11 @@ export const ComboStepCard = ({
             <CardTooltip
               key={`${card.id}-${index}`}
               cardId={card.id}
-              imageUrl={card.imageUrl || card.imageUrlSmall}
+              imageUrl={card.imageUrl}
               cardName={card.name}
             >
               <img
-                src={card.imageUrl || card.imageUrlSmall}
+                src={card.imageUrlSmall}
                 alt={card.name}
                 className={`${_isEditMode ? 'w-32 h-44' : 'w-20 h-28'} object-cover hover:scale-105 transition-transform cursor-pointer`}
               />
@@ -209,11 +209,11 @@ export const ComboStepCard = ({
                     <CardTooltip
                       key={`${card.id}-${index}`}
                       cardId={card.id}
-                      imageUrl={card.imageUrl || card.imageUrlSmall}
+                      imageUrl={card.imageUrl}
                       cardName={card.name}
                     >
                       <img
-                        src={card.imageUrlSmall || card.imageUrl}
+                        src={card.imageUrlSmall}
                         alt={card.name}
                         className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                       />
@@ -244,11 +244,11 @@ export const ComboStepCard = ({
                       <CardTooltip
                         key={`${card.id}-${index + 3}`}
                         cardId={card.id}
-                        imageUrl={card.imageUrl || card.imageUrlSmall}
+                        imageUrl={card.imageUrl}
                         cardName={card.name}
                       >
                         <img
-                          src={card.imageUrlSmall || card.imageUrl}
+                          src={card.imageUrlSmall}
                           alt={card.name}
                           className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                         />
