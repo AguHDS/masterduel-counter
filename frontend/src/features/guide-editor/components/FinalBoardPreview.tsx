@@ -1,0 +1,746 @@
+import { useState, useEffect } from "react";
+import { X, Plus } from "lucide-react";
+import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
+import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
+import type { Card } from "@/features/archetypes/types";
+
+export interface FieldBoard {
+  id: string;
+  fieldSpell: Card | null;
+  extraMonsters: (Card | null)[];
+  monsters: (Card | null)[];
+  spellTraps: (Card | null)[];
+  hand: (Card | null)[];
+  graveyard: Card[];
+  banished: Card[];
+  description?: string;
+}
+
+interface FinalBoardPreviewProps {
+  isEditMode: boolean;
+  fieldBoard: FieldBoard | null;
+  onFieldBoardChange: (board: FieldBoard) => void;
+  onDelete: () => void;
+  onModalStateChange?: (isOpen: boolean) => void;
+  forceCloseModal?: boolean;
+  selectedHandTitle?: string;
+}
+
+type ZoneType =
+  | "field"
+  | "extraMonster"
+  | "monster"
+  | "spellTrap"
+  | "graveyard"
+  | "banished"
+  | "hand";
+
+export const FinalBoardPreview = ({
+  isEditMode,
+  fieldBoard,
+  onFieldBoardChange,
+  onDelete,
+  onModalStateChange,
+  forceCloseModal = false,
+  selectedHandTitle,
+}: FinalBoardPreviewProps) => {
+  const [selectingZone, setSelectingZone] = useState<{
+    type: ZoneType;
+    index: number;
+  } | null>(null);
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
+  const [hoveringZone, setHoveringZone] = useState<
+    "graveyard" | "banished" | null
+  >(null);
+  const [isResponsive, setIsResponsive] = useState(false);
+
+  // Detectar el ancho de pantalla para el modo responsive
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsResponsive(window.innerWidth <= 1694);
+    };
+
+    // Verificar inicialmente
+    checkScreenSize();
+
+    // Agregar listener para cambios de tamaño
+    window.addEventListener("resize", checkScreenSize);
+
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  useEffect(() => {
+    if (forceCloseModal && selectingZone) {
+      setSelectingZone(null);
+    }
+  }, [forceCloseModal]);
+
+  useEffect(() => {
+    if (onModalStateChange) {
+      onModalStateChange(!!selectingZone);
+    }
+  }, [selectingZone, onModalStateChange]);
+
+  const handleCardSelected = (card: Card) => {
+    if (!selectingZone || !fieldBoard) return;
+
+    const updatedBoard = { ...fieldBoard };
+
+    switch (selectingZone.type) {
+      case "field":
+        updatedBoard.fieldSpell = card;
+        break;
+      case "extraMonster":
+        updatedBoard.extraMonsters[selectingZone.index] = card;
+        break;
+      case "monster":
+        updatedBoard.monsters[selectingZone.index] = card;
+        break;
+      case "spellTrap":
+        updatedBoard.spellTraps[selectingZone.index] = card;
+        break;
+      case "hand":
+        updatedBoard.hand[selectingZone.index] = card;
+        break;
+      case "graveyard":
+        updatedBoard.graveyard = [...updatedBoard.graveyard, card];
+        break;
+      case "banished":
+        updatedBoard.banished = [...updatedBoard.banished, card];
+        break;
+    }
+
+    onFieldBoardChange(updatedBoard);
+    setSelectingZone(null);
+  };
+
+  const handleRemoveCard = (type: ZoneType, index: number) => {
+    if (!fieldBoard) return;
+
+    const updatedBoard = { ...fieldBoard };
+
+    switch (type) {
+      case "field":
+        updatedBoard.fieldSpell = null;
+        break;
+      case "extraMonster":
+        updatedBoard.extraMonsters[index] = null;
+        break;
+      case "monster":
+        updatedBoard.monsters[index] = null;
+        break;
+      case "spellTrap":
+        updatedBoard.spellTraps[index] = null;
+        break;
+      case "hand":
+        updatedBoard.hand[index] = null;
+        break;
+      case "graveyard":
+        updatedBoard.graveyard = updatedBoard.graveyard.filter(
+          (_, i) => i !== index,
+        );
+        break;
+      case "banished":
+        updatedBoard.banished = updatedBoard.banished.filter(
+          (_, i) => i !== index,
+        );
+        break;
+    }
+
+    onFieldBoardChange(updatedBoard);
+  };
+
+  const handleAddDescription = () => {
+    if (fieldBoard) {
+      const updatedBoard = { ...fieldBoard, description: "" };
+      onFieldBoardChange(updatedBoard);
+    }
+  };
+
+  const handleRemoveDescription = () => {
+    if (fieldBoard) {
+      const { description, ...boardWithoutDescription } = fieldBoard;
+      onFieldBoardChange(boardWithoutDescription as FieldBoard);
+    }
+  };
+
+  const handleDescriptionChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const newText = e.target.value;
+    if (newText.length <= 500 && fieldBoard) {
+      const updatedBoard = { ...fieldBoard, description: newText };
+      onFieldBoardChange(updatedBoard);
+    }
+  };
+
+  const getZoneBorderColor = (type: ZoneType) => {
+    switch (type) {
+      case "field":
+        return "border-cyan-400/70";
+      case "extraMonster":
+        return "border-blue-400/70";
+      case "monster":
+        return "border-amber-500/70";
+      case "spellTrap":
+        return "border-green-400/70";
+      case "banished":
+        return "border-purple-500/70";
+      case "graveyard":
+        return "border-blue-700/70";
+      case "hand":
+        return "border-pink-400/70";
+      default:
+        return "border-slate-600";
+    }
+  };
+
+  const getZoneLabel = (type: ZoneType) => {
+    switch (type) {
+      case "field":
+        return "FIELD";
+      case "extraMonster":
+        return "EXTRA";
+      case "monster":
+        return "MONSTER";
+      case "spellTrap":
+        return "SPELL/TRAP";
+      case "graveyard":
+        return "GRAVEYARD";
+      case "banished":
+        return "BANISHED";
+      case "hand":
+        return "HAND";
+      default:
+        return "";
+    }
+  };
+
+  const renderZone = (
+    card: Card | null,
+    type: ZoneType,
+    index: number,
+    label?: string,
+  ) => {
+    const borderColor = getZoneBorderColor(type);
+    const zoneLabel = label || getZoneLabel(type);
+
+    return (
+      <div className="relative group w-full h-full">
+        {card ? (
+          <div
+            className={`relative w-full h-full bg-slate-900/80 border-2 ${borderColor} rounded flex items-center justify-center overflow-hidden`}
+          >
+            <CardTooltip
+              cardId={card.id}
+              imageUrl={card.imageUrl || card.imageUrlSmall}
+              cardName={card.name}
+            >
+              <img
+                src={card.imageUrlSmall}
+                alt={card.name}
+                className="w-full h-full object-cover"
+              />
+            </CardTooltip>
+            {isEditMode && (
+              <button
+                onClick={() => handleRemoveCard(type, index)}
+                className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                title="Remove card"
+              >
+                <X className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
+              </button>
+            )}
+          </div>
+        ) : (
+          <button
+            onClick={(e) => {
+              if (!isEditMode) return;
+              setAnchorElement(e.currentTarget);
+              setSelectingZone({ type, index });
+            }}
+            disabled={!isEditMode}
+            className={`w-full h-full border-2 ${
+              isEditMode ? borderColor : "border-slate-700/50"
+            } rounded flex flex-col items-center justify-center transition-all ${
+              isEditMode
+                ? "hover:bg-slate-800/50 cursor-pointer"
+                : "bg-slate-900/30 cursor-default"
+            }`}
+          >
+            {isEditMode && (
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 group-hover:text-blue-400 mb-0.5 sm:mb-1" />
+            )}
+            <span className="text-[8px] sm:text-[10px] text-slate-500 font-semibold tracking-wider">
+              {zoneLabel}
+            </span>
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const renderCountZone = (
+    cards: Card[],
+    type: "graveyard" | "banished",
+    label: string,
+  ) => {
+    const borderColor = getZoneBorderColor(type);
+    const count = cards.length;
+    const firstCard = cards[0];
+
+    return (
+      <div className="relative flex flex-col items-center">
+        <div
+          className="relative group"
+          onMouseEnter={() => setHoveringZone(type)}
+          onMouseLeave={() => setHoveringZone(null)}
+        >
+          <div
+            className={`relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-slate-900/80 border-2 sm:border-4 ${borderColor} rounded-full flex items-center justify-center overflow-hidden cursor-pointer transition-transform hover:scale-105`}
+            style={{
+              clipPath:
+                "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
+            }}
+            onClick={(e) => {
+              if (!isEditMode) return;
+              setAnchorElement(e.currentTarget);
+              setSelectingZone({ type, index: 0 });
+            }}
+          >
+            {count > 0 && firstCard ? (
+              <div className="relative w-full h-full group/card-image">
+                <img
+                  src={firstCard.imageUrlCropped}
+                  alt={firstCard.name}
+                  className="w-full h-full object-cover transition-all duration-200 group-hover/card-image:brightness-50"
+                />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/card-image:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  <Plus className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white drop-shadow-lg" />
+                </div>
+                {count > 1 && (
+                  <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 bg-black/80 text-white text-[10px] sm:text-xs font-bold px-1 sm:px-1.5 py-0.5 rounded">
+                    +{count - 1}
+                  </div>
+                )}
+                {isEditMode && count > 0 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveCard(type, 0);
+                    }}
+                    className="absolute top-2 right-3 w-5 h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                    title="Remove card"
+                  >
+                    <X className="w-3 h-3 text-white" />
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                {isEditMode && (
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-slate-400 group-hover:text-blue-400 mb-0.5 sm:mb-1" />
+                )}
+              </div>
+            )}
+          </div>
+
+          {hoveringZone === type && count > 0 && (
+            <div className="absolute left-full ml-2 top-0 z-50 bg-slate-800 border-2 border-slate-600 rounded-lg p-3 shadow-xl min-w-[200px]">
+              <div className="text-xs font-bold text-slate-300 mb-2">
+                {label}
+              </div>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                {cards.map((card, index) => (
+                  <div
+                    key={`${type}-hover-${index}`}
+                    className="relative group/card"
+                  >
+                    <div className="flex items-center gap-2 bg-slate-700/50 p-2 rounded">
+                      <img
+                        src={card.imageUrlSmall}
+                        alt={card.name}
+                        className="w-12 h-16 object-cover rounded"
+                      />
+                      <span className="text-xs text-slate-200 flex-1">
+                        {card.name}
+                      </span>
+                      {isEditMode && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveCard(type, index);
+                          }}
+                          className="w-5 h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity"
+                          title="Remove card"
+                        >
+                          <X className="w-3 h-3 text-white" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <span className="text-[7px] sm:text-[8px] md:text-[9px] text-slate-500 font-bold tracking-wider text-center mt-1">
+          {label}
+        </span>
+      </div>
+    );
+  };
+
+  const getCardRotation = (index: number, totalCards: number) => {
+    if (totalCards === 1) return 0;
+    const maxRotation =
+      totalCards === 5
+        ? 60
+        : totalCards === 4
+          ? 50
+          : totalCards === 3
+            ? 45
+            : totalCards === 2
+              ? 25
+              : 0;
+    const step = (maxRotation * 2) / (totalCards - 1);
+    return -maxRotation + step * index;
+  };
+
+  const getCardTranslateY = (index: number, totalCards: number) => {
+    if (totalCards === 1) return 14;
+    const center = (totalCards - 1) / 2;
+    const distanceFromCenter = Math.abs(index - center);
+
+    const maxElevation =
+      totalCards === 5
+        ? 22
+        : totalCards === 4
+          ? 20
+          : totalCards === 3
+            ? 22
+            : totalCards === 2
+              ? 15
+              : 0;
+    const dropFactor =
+      totalCards === 5
+        ? 3.5
+        : totalCards === 4
+          ? 3.8
+          : totalCards === 3
+            ? 4
+            : 3;
+
+    return maxElevation - distanceFromCenter * distanceFromCenter * dropFactor;
+  };
+
+  if (!fieldBoard) return null;
+
+  const handCards = fieldBoard.hand.filter(
+    (card): card is Card => card !== null,
+  );
+  const hasDescription = fieldBoard.description !== undefined;
+  const hasHandCards = handCards.length > 0;
+
+  return (
+    <div className="w-full mt-8">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg sm:text-xl font-bold text-blue-300">
+            Final Board Preview
+          </h3>
+          {selectedHandTitle && (
+            <span className="text-xs sm:text-sm text-green-400/70">
+              for {selectedHandTitle}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex justify-center">
+        <div className="w-full max-w-[98%] sm:max-w-[90%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[65%] min-w-[280px] bg-gradient-to-br from-slate-900 via-indigo-950/80 to-slate-900 border-2 sm:border-4 border-blue-500/60 shadow-[0_0_20px_rgba(59,130,246,0.2)] rounded-md p-3 md:pt-4 relative">
+          {isEditMode && (
+            <div className="relative mb-4 sm:mb-6 md:mb-8">
+              <button
+                onClick={onDelete}
+                className="absolute top-0 right-0 flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm z-10"
+                title="Delete field preview"
+              >
+                <span className="text-red-400 hover:text-red-400/80 active:text-red-500/80">
+                  Delete Field
+                </span>
+              </button>
+
+              {!hasDescription && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={handleAddDescription}
+                    className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 hover:bg-blue-600/30 border border-blue-500/50 rounded transition-colors text-xs sm:text-sm"
+                  >
+                    <span className="text-blue-400">Add Description</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {isEditMode && hasDescription && (
+            <div className="flex justify-center">
+              <div className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs sm:text-sm text-blue-400 font-medium">
+                      Description
+                    </span>
+                    <button
+                      onClick={handleRemoveDescription}
+                      className="inline-flex text-xs"
+                    >
+                      <span className="text-red-400 hover:text-red-400/80 active:text-red-500/80">
+                        Remove
+                      </span>
+                    </button>
+                  </div>
+                  <textarea
+                    value={fieldBoard.description || ""}
+                    onChange={handleDescriptionChange}
+                    placeholder="Add a description for your endboard..."
+                    className="scrollbar-homeAllPages w-full px-2 sm:px-3 py-2 sm:py-4 bg-slate-800/80 border border-slate-600 text-white text-xs sm:text-sm focus:outline-none focus:border-blue-400 resize-y"
+                    rows={3}
+                    maxLength={500}
+                  />
+                  <div className="text-right text-xs text-slate-400 !mt-0">
+                    {fieldBoard.description?.length || 0}/500
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isEditMode && fieldBoard.description && (
+            <div className="flex justify-center mb-4">
+              <div className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 p-2 sm:p-3 bg-slate-800/50 border border-slate-600 rounded">
+                <p className="text-xs sm:text-sm text-slate-300 whitespace-pre-wrap">
+                  {fieldBoard.description}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Horizontal separator */}
+          {(hasDescription || (!isEditMode && fieldBoard.description)) && (
+            <div className="my-5 border-t border-slate-600/50"></div>
+          )}
+
+          <div className="relative">
+            {/* Layout principal - Cambia según el modo responsive */}
+            <div
+              className={`flex ${isResponsive ? "flex-col" : "flex-col lg:flex-row"} gap-4 sm:gap-6 lg:gap-8 justify-center items-center`}
+            >
+              {/* Field Spell Zone */}
+              <div
+                className={`flex-shrink-0 w-14 sm:w-16 md:w-20 lg:w-24 self-center ${isResponsive ? "order-1" : "order-1 lg:order-1"}`}
+              >
+                <div className="w-full aspect-[5/7]">
+                  {renderZone(fieldBoard.fieldSpell, "field", 0)}
+                </div>
+              </div>
+
+              {/* Main Board Zones (Extra, Monsters, Spell/Trap) */}
+              <div
+                className={`space-y-4 sm:space-y-6 md:space-y-8 ${isResponsive ? "order-2 w-full" : "order-3 lg:order-2"}`}
+              >
+                {/* Extra Monster Zone */}
+                <div className="flex justify-center gap-8 sm:gap-12 md:gap-16 lg:gap-24">
+                  <div className="w-12 sm:w-14 md:w-16 lg:w-20 opacity-0 invisible"></div>
+                  {fieldBoard.extraMonsters.slice(0, 2).map((card, index) => (
+                    <div
+                      key={`extra-${index}`}
+                      className="w-12 sm:w-14 md:w-16 lg:w-20 aspect-[5/7]"
+                    >
+                      {renderZone(card, "extraMonster", index)}
+                    </div>
+                  ))}
+                  <div className="w-12 sm:w-14 md:w-16 lg:w-20 opacity-0 invisible"></div>
+                </div>
+
+                {/* Monster Zones */}
+                <div className="flex justify-center gap-1.5 sm:gap-2 md:gap-3">
+                  {fieldBoard.monsters.map((card, index) => (
+                    <div
+                      key={`monster-${index}`}
+                      className="w-12 sm:w-14 md:w-16 lg:w-20 aspect-[5/7]"
+                    >
+                      {renderZone(card, "monster", index)}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Spell/Trap Zones */}
+                <div className="flex justify-center gap-1.5 sm:gap-2 md:gap-3">
+                  {fieldBoard.spellTraps.map((card, index) => (
+                    <div
+                      key={`spell-${index}`}
+                      className="w-12 sm:w-14 md:w-16 lg:w-20 aspect-[5/7]"
+                    >
+                      {renderZone(card, "spellTrap", index)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Graveyard and Banished Zones - Responsive positioning */}
+              <div
+                className={`
+                ${
+                  isResponsive
+                    ? "flex flex-row justify-center items-center gap-6 w-full order-3 mt-4"
+                    : "flex flex-row lg:flex-col gap-4 sm:gap-6 items-center justify-center self-center order-2 lg:order-3"
+                }
+              `}
+              >
+                {renderCountZone(fieldBoard.banished, "banished", "BANISHED")}
+                {renderCountZone(
+                  fieldBoard.graveyard,
+                  "graveyard",
+                  "GRAVEYARD",
+                )}
+              </div>
+            </div>
+
+            {/* Hand Zone */}
+            <div className={hasHandCards ? "mt-8 sm:mt-10 md:mt-12" : "mt-8"}>
+              <div className="flex justify-center">
+                <div
+                  className={`relative flex justify-center items-end w-full ${hasHandCards ? "h-24 sm:h-28 md:h-32" : "h-12 sm:h-14 md:h-16"}`}
+                >
+                  {handCards.length === 0 && !isEditMode ? (
+                    <div className="text-gray-500 text-xs sm:text-sm">
+                      No cards in hand
+                    </div>
+                  ) : handCards.length === 0 && isEditMode ? (
+                    <div className="text-gray-500 text-xs sm:text-sm">
+                      No cards in hand
+                    </div>
+                  ) : (
+                    <>
+                      {handCards.map((card, cardIndex) => {
+                        const rotation = getCardRotation(
+                          cardIndex,
+                          handCards.length,
+                        );
+                        const translateY = getCardTranslateY(
+                          cardIndex,
+                          handCards.length,
+                        );
+                        const zIndex = cardIndex;
+                        const spacingScale =
+                          handCards.length === 5
+                            ? 22
+                            : handCards.length === 4
+                              ? 21
+                              : handCards.length === 3
+                                ? 24
+                                : handCards.length === 2
+                                  ? 18
+                                  : 0;
+                        const horizontalOffset =
+                          (cardIndex - (handCards.length - 1) / 2) *
+                          spacingScale;
+
+                        return (
+                          <div
+                            key={`hand-${card.id}-${cardIndex}`}
+                            className="absolute group"
+                            style={{
+                              transform: `translateX(${horizontalOffset}px) translateY(-${translateY}px) rotate(${rotation}deg)`,
+                              transformOrigin: "center bottom",
+                              zIndex: zIndex,
+                              transition: "transform 0.3s ease",
+                              bottom: "0",
+                            }}
+                          >
+                            <CardTooltip
+                              cardId={card.id}
+                              imageUrl={card.imageUrl || card.imageUrlSmall}
+                              cardName={card.name}
+                            >
+                              <img
+                                src={card.imageUrl || card.imageUrlSmall}
+                                alt={card.name}
+                                className="w-14 h-20 sm:w-16 sm:h-24 md:w-20 md:h-28 object-cover hover:scale-110 hover:-translate-y-4 sm:hover:-translate-y-6 transition-all"
+                              />
+                            </CardTooltip>
+
+                            {isEditMode && (
+                              <button
+                                onClick={() => {
+                                  const actualIndex = fieldBoard.hand.findIndex(
+                                    (c) => c === card,
+                                  );
+                                  if (actualIndex !== -1) {
+                                    handleRemoveCard("hand", actualIndex);
+                                  }
+                                }}
+                                className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-[9999] group-hover:-translate-y-4 sm:group-hover:-translate-y-6"
+                                title="Remove card"
+                              >
+                                <X className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-white" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {isEditMode && handCards.length < 5 && (
+                <div className="flex justify-center mt-4 sm:mt-6">
+                  <button
+                    onClick={(e) => {
+                      const firstEmptyIndex = fieldBoard.hand.findIndex(
+                        (c) => c === null,
+                      );
+                      if (firstEmptyIndex !== -1) {
+                        setAnchorElement(e.currentTarget);
+                        setSelectingZone({
+                          type: "hand",
+                          index: firstEmptyIndex,
+                        });
+                      }
+                    }}
+                    disabled={handCards.length >= 5}
+                    className={`px-3 py-1.5 sm:px-4 sm:py-2 border-2 rounded flex items-center justify-center gap-1.5 sm:gap-2 transition-colors ${
+                      handCards.length >= 5
+                        ? "opacity-50 cursor-not-allowed border-slate-600"
+                        : "border-pink-400/60 hover:border-pink-400 hover:bg-pink-400/10"
+                    }`}
+                  >
+                    <Plus className="w-3 h-3 sm:w-4 sm:h-4 text-pink-400" />
+                    <span className="text-pink-400 text-xs sm:text-sm">
+                      Add Card to Hand ({handCards.length}/5)
+                    </span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <FloatingCardSearchModal
+        isOpen={!!selectingZone}
+        onClose={() => {
+          setSelectingZone(null);
+          setAnchorElement(null);
+        }}
+        onSelectCard={handleCardSelected}
+        title="Select Card for Field"
+        anchorElement={anchorElement}
+        autoCloseAfterSelect={true}
+      />
+    </div>
+  );
+};
