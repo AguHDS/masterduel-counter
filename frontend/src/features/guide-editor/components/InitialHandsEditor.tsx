@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, X, Trash2 } from "lucide-react";
+import { Plus, X, Trash2, Edit2 } from "lucide-react";
 import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card, ComboStep } from "@/features/archetypes/types";
@@ -50,10 +50,12 @@ export const InitialHandsEditor = ({
   const [selectedPreviewHandId, setSelectedPreviewHandId] = useState<
     string | null
   >(null);
-  // Estado local para manejar el highlight verde en modo no-edición
+  // handle green highlight in non-editing mode
   const [selectedShowHandId, setSelectedShowHandId] = useState<string | null>(
     null,
   );
+  // state to manage which hand is being edited
+  const [editingHandId, setEditingHandId] = useState<string | null>(null);
 
   useEffect(() => {
     if (forceCloseModal && selectingHandId) {
@@ -68,12 +70,25 @@ export const InitialHandsEditor = ({
   }, [activeModalComponent, onModalStateChange]);
 
   useEffect(() => {
-  // Reset selection state when editing mode changes
-  if (!isEditMode) {
-    setSelectedShowHandId(null);
-    setSelectedPreviewHandId(null);
-  }
-}, [isEditMode]);
+    // Reset selection state when editing mode changes
+    if (!isEditMode) {
+      setSelectedShowHandId(null);
+      setSelectedPreviewHandId(null);
+      setEditingHandId(null);
+    }
+  }, [isEditMode]);
+
+  useEffect(() => {
+    if (!isEditMode && initialHands.length > 0 && !selectedShowHandId) {
+      const firstHand = initialHands[0];
+      if (
+        comboSteps?.has(firstHand.id) &&
+        comboSteps.get(firstHand.id)!.length > 0
+      ) {
+        setSelectedShowHandId(firstHand.id);
+      }
+    }
+  }, [isEditMode, initialHands, comboSteps, selectedShowHandId]);
 
   const addInitialHand = () => {
     const newHand: InitialHand = {
@@ -81,6 +96,10 @@ export const InitialHandsEditor = ({
       cards: [],
     };
     setInitialHands([...initialHands, newHand]);
+    // Auto-select the new hand for editing
+    setEditingHandId(newHand.id);
+    // Limpiar preview al crear nueva mano
+    setSelectedPreviewHandId(null);
   };
 
   const removeInitialHand = (handId: string) => {
@@ -90,6 +109,9 @@ export const InitialHandsEditor = ({
     }
     if (selectedPreviewHandId === handId) {
       setSelectedPreviewHandId(null);
+    }
+    if (editingHandId === handId) {
+      setEditingHandId(null);
     }
   };
 
@@ -169,6 +191,16 @@ export const InitialHandsEditor = ({
     if (selectedPreviewHandId === handId) {
       setSelectedPreviewHandId(null);
     }
+  };
+
+  const handleEditHand = (handId: string) => {
+    // if we are changing to a different hand, we clear the preview
+    if (editingHandId !== handId) {
+      setSelectedPreviewHandId(null);
+      // notify parent that hand selection changed
+      _onSelectHand?.(handId);
+    }
+    setEditingHandId(handId);
   };
 
   const getCardRotation = (index: number, totalCards: number) => {
@@ -261,9 +293,11 @@ export const InitialHandsEditor = ({
             {initialHands.map((hand, index) => {
               const hasFieldBoard = fieldBoards?.has(hand.id);
               const isPreviewSelected = selectedPreviewHandId === hand.id;
-              // Determinar si esta mano está seleccionada en modo no-edición
               const isShowSelected =
                 !isEditMode && selectedShowHandId === hand.id;
+              const isEditing = isEditMode && editingHandId === hand.id;
+              const isNewEmptyHand =
+                hand.cards.length === 0 && !hand.description;
 
               return (
                 <div key={hand.id} className="space-y-3">
@@ -274,6 +308,10 @@ export const InitialHandsEditor = ({
                       isShowSelected
                         ? "ring-2 ring-green-500/70 bg-green-900/30"
                         : ""
+                    } ${
+                      isEditing
+                        ? "ring-2 ring-yellow-500/90 bg-yellow-500/5"
+                        : ""
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
@@ -281,16 +319,51 @@ export const InitialHandsEditor = ({
                         Hand #{index + 1}
                       </h4>
 
-                      {isEditMode && (
-                        <button
-                          onClick={() => removeInitialHand(hand.id)}
-                          className="flex items-center gap-1 px-1.5 py-0.5 text-red-500"
-                          title="Remove this hand"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {isEditMode && (
+                          <>
+                            <button
+                              onClick={() => {
+                                if (isEditing) {
+                                  setEditingHandId(null);
+                                  setSelectedPreviewHandId(null);
+                                } else {
+                                  handleEditHand(hand.id);
+                                }
+                              }}
+                              className="flex items-center gap-1 px-1.5 py-0.5 text-blue-400 hover:text-blue-300 transition-colors"
+                              title={
+                                isEditing ? "Cancel editing" : "Edit this hand"
+                              }
+                            >
+                              {isEditing ? (
+                                <X className="w-4 h-4" />
+                              ) : (
+                                <Edit2 className="w-4 h-4" />
+                              )}
+                            </button>
+                            <button
+                              onClick={() => removeInitialHand(hand.id)}
+                              className="flex items-center gap-1 px-1.5 py-0.5 text-red-500 hover:text-red-400 transition-colors"
+                              title="Remove this hand"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
+
+                    {isEditMode && !isEditing && isNewEmptyHand && (
+                      <div className="relative top-10 text-md text-gray-400 text-center leading-tight h-0 pointer-events-auto z-10">
+                        <button
+                          onClick={() => handleEditHand(hand.id)}
+                          className="text-blue-400 hover:text-blue-300 font-bold underline transition-colors inline"
+                        >
+                          Edit Hand #{index + 1}
+                        </button>
+                      </div>
+                    )}
 
                     <div className="flex items-end justify-center h-24 relative px-2">
                       {hand.cards.length === 0 ? (
@@ -345,7 +418,7 @@ export const InitialHandsEditor = ({
                                   />
                                 </CardTooltip>
 
-                                {isEditMode && (
+                                {isEditMode && isEditing && (
                                   <button
                                     onClick={() =>
                                       removeCardFromHand(hand.id, cardIndex)
@@ -363,7 +436,7 @@ export const InitialHandsEditor = ({
                       )}
                     </div>
 
-                    {isEditMode && (
+                    {isEditMode && isEditing && (
                       <button
                         onClick={(e) => {
                           setAnchorElement(e.currentTarget);
@@ -386,7 +459,7 @@ export const InitialHandsEditor = ({
                     </div>
 
                     <div className="min-h-[2.5rem] mt-1">
-                      {isEditMode ? (
+                      {isEditMode && isEditing ? (
                         <input
                           type="text"
                           value={hand.description || ""}
@@ -404,11 +477,10 @@ export const InitialHandsEditor = ({
                       )}
                     </div>
 
-                    {isEditMode && onAddCombo && (
+                    {isEditMode && isEditing && onAddCombo && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedPreviewHandId(hand.id);
                           onAddCombo(hand.id);
                         }}
                         className="mt-2 w-full py-1 bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/50 rounded flex items-center justify-center gap-1 transition-colors group"
@@ -424,7 +496,7 @@ export const InitialHandsEditor = ({
                       </button>
                     )}
 
-                    {isEditMode && onFieldBoardChange && (
+                    {isEditMode && isEditing && onFieldBoardChange && (
                       <button
                         onClick={() => handleAddFieldPreview(hand.id)}
                         className={`mt-2 w-full py-1 rounded flex items-center justify-center gap-1 transition-colors group ${
