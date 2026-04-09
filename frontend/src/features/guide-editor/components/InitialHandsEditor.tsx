@@ -358,7 +358,7 @@ export const InitialHandsEditor = ({
                       <div className="relative top-10 text-md text-gray-400 text-center leading-tight h-0 pointer-events-auto z-10">
                         <button
                           onClick={() => handleEditHand(hand.id)}
-                          className="text-blue-400 hover:text-blue-300 font-bold underline transition-colors inline"
+                          className="text-blue-400 hover:text-blue-300  underline transition-colors inline"
                         >
                           Edit Hand #{index + 1}
                         </button>
@@ -408,11 +408,11 @@ export const InitialHandsEditor = ({
                               >
                                 <CardTooltip
                                   cardId={card.id}
-                                  imageUrl={card.imageUrl || card.imageUrlSmall}
+                                  imageUrl={card.imageUrl}
                                   cardName={card.name}
                                 >
                                   <img
-                                    src={card.imageUrl || card.imageUrlSmall}
+                                    src={card.imageUrlSmall}
                                     alt={card.name}
                                     className="w-14 h-20 object-cover hover:scale-110 hover:-translate-y-6 transition-all"
                                   />
@@ -557,6 +557,27 @@ export const InitialHandsEditor = ({
                 </div>
               );
             })}
+
+            {isEditMode && (
+              <div className="space-y-3">
+                <button
+                  onClick={addInitialHand}
+                  className="w-full relative bg-gray-900/30 border-2 border-dashed border-blue-500/40 hover:border-blue-500/60 hover:bg-gray-900/50 cursor-pointer rounded-sm p-3 flex flex-col items-center justify-center transition-all group min-h-[210px]"
+                >
+                  <div className="flex flex-col items-center justify-center space-y-2">
+                    <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                      <Plus className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <span className="text-sm font-medium text-blue-400 group-hover:text-blue-300 transition-colors">
+                      Add Hand
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      Click to create new hand
+                    </span>
+                  </div>
+                </button>
+              </div>
+            )}
           </div>
 
           {selectedPreviewHandId && fieldBoards?.has(selectedPreviewHandId) && (

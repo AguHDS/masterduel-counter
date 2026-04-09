@@ -233,7 +233,7 @@ export const FinalBoardPreview = ({
           >
             <CardTooltip
               cardId={card.id}
-              imageUrl={card.imageUrl || card.imageUrlSmall}
+              imageUrl={card.imageUrl}
               cardName={card.name}
             >
               <img
@@ -662,11 +662,11 @@ export const FinalBoardPreview = ({
                           >
                             <CardTooltip
                               cardId={card.id}
-                              imageUrl={card.imageUrl || card.imageUrlSmall}
+                              imageUrl={card.imageUrl}
                               cardName={card.name}
                             >
                               <img
-                                src={card.imageUrl || card.imageUrlSmall}
+                                src={card.imageUrlSmall}
                                 alt={card.name}
                                 className="w-14 h-20 sm:w-16 sm:h-24 md:w-20 md:h-28 object-cover hover:scale-110 hover:-translate-y-4 sm:hover:-translate-y-6 transition-all"
                               />
