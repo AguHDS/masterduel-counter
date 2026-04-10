@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Plus, X, Trash2, Edit2 } from "lucide-react";
+import { Plus, X, Trash2, Edit2, GripVertical } from "lucide-react";
 import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
-import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card, ComboStep } from "@/features/archetypes/types";
 import { FinalBoardPreview, type FieldBoard } from "./FinalBoardPreview";
+import { HandFanDisplay } from "./HandFanDisplay";
 
 export interface InitialHand {
   id: string;
@@ -56,6 +56,10 @@ export const InitialHandsEditor = ({
   const currentPreviewHandId = isEditMode
     ? selectedPreviewHandId
     : selectedShowHandId;
+
+  // Drag-and-drop state for reordering hands
+  const [draggedHandIndex, setDraggedHandIndex] = useState<number | null>(null);
+  const [dragOverHandIndex, setDragOverHandIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (forceCloseModal && selectingHandId) {
@@ -219,47 +223,36 @@ export const InitialHandsEditor = ({
     setEditingHandId(handId);
   };
 
-  const getCardRotation = (index: number, totalCards: number) => {
-    if (totalCards === 1) return 0;
-    const maxRotation =
-      totalCards === 5
-        ? 60
-        : totalCards === 4
-          ? 50
-          : totalCards === 3
-            ? 45
-            : totalCards === 2
-              ? 25
-              : 0;
-    const step = (maxRotation * 2) / (totalCards - 1);
-    return -maxRotation + step * index;
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedHandIndex(index);
+    e.dataTransfer.effectAllowed = "move";
   };
 
-  const getCardTranslateY = (index: number, totalCards: number) => {
-    if (totalCards === 1) return 14;
-    const center = (totalCards - 1) / 2;
-    const distanceFromCenter = Math.abs(index - center);
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverHandIndex(index);
+  };
 
-    const maxElevation =
-      totalCards === 5
-        ? 22
-        : totalCards === 4
-          ? 20
-          : totalCards === 3
-            ? 22
-            : totalCards === 2
-              ? 15
-              : 0;
-    const dropFactor =
-      totalCards === 5
-        ? 3.5
-        : totalCards === 4
-          ? 3.8
-          : totalCards === 3
-            ? 4
-            : 3;
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedHandIndex === null || draggedHandIndex === dropIndex) {
+      setDraggedHandIndex(null);
+      setDragOverHandIndex(null);
+      return;
+    }
+    // Reorder the hands array
+    const reordered = [...initialHands];
+    const [moved] = reordered.splice(draggedHandIndex, 1);
+    reordered.splice(dropIndex, 0, moved);
+    setInitialHands(reordered);
+    setDraggedHandIndex(null);
+    setDragOverHandIndex(null);
+  };
 
-    return maxElevation - distanceFromCenter * distanceFromCenter * dropFactor;
+  const handleDragEnd = () => {
+    setDraggedHandIndex(null);
+    setDragOverHandIndex(null);
   };
 
   const getSelectedHandTitle = () => {
@@ -315,9 +308,19 @@ export const InitialHandsEditor = ({
               const isEditing = isEditMode && editingHandId === hand.id;
               const isNewEmptyHand =
                 hand.cards.length === 0 && !hand.description;
+              const isDragging = draggedHandIndex === index;
+              const isDragOver = dragOverHandIndex === index && draggedHandIndex !== index;
 
               return (
-                <div key={hand.id} className="space-y-3">
+                <div
+                  key={hand.id}
+                  className={`space-y-3 transition-all ${isDragging ? "opacity-40 scale-95" : ""} ${isDragOver ? "ring-2 ring-blue-400/70 rounded-sm" : ""}`}
+                  draggable={isEditMode}
+                  onDragStart={(e) => isEditMode && handleDragStart(e, index)}
+                  onDragOver={(e) => isEditMode && handleDragOver(e, index)}
+                  onDrop={(e) => isEditMode && handleDrop(e, index)}
+                  onDragEnd={() => isEditMode && handleDragEnd()}
+                >
                   <div
                     className={`relative bg-gray-900/50 border-blue-500/40 cursor-default border rounded-sm p-3 flex flex-col overflow-hidden transition-all ${
                       isPreviewSelected ? "ring-2 ring-green-500/50" : ""
@@ -332,9 +335,16 @@ export const InitialHandsEditor = ({
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <h4 className="text-xs font-semibold text-yellow-200">
-                        Hand #{index + 1}
-                      </h4>
+                      <div className="flex items-center gap-1">
+                        {isEditMode && (
+                          <span title="Drag to reorder">
+                            <GripVertical className="w-3.5 h-3.5 text-gray-500 cursor-grab active:cursor-grabbing flex-shrink-0" />
+                          </span>
+                        )}
+                        <h4 className="text-xs font-semibold text-yellow-200">
+                          Hand #{index + 1}
+                        </h4>
+                      </div>
 
                       <div className="flex items-center gap-1">
                         {isEditMode && (
@@ -383,74 +393,11 @@ export const InitialHandsEditor = ({
                     )}
 
                     <div className="flex items-end justify-center h-24 relative px-2">
-                      {hand.cards.length === 0 ? (
-                        <div className="text-gray-500 text-xs">Empty</div>
-                      ) : (
-                        <div className="relative flex justify-center items-end h-full w-full scale-[0.85] sm:scale-90 md:scale-95 lg:scale-100">
-                          {hand.cards.map((card, cardIndex) => {
-                            const rotation = getCardRotation(
-                              cardIndex,
-                              hand.cards.length,
-                            );
-                            const translateY = getCardTranslateY(
-                              cardIndex,
-                              hand.cards.length,
-                            );
-                            const zIndex = cardIndex;
-                            const spacingScale =
-                              hand.cards.length === 5
-                                ? 15
-                                : hand.cards.length === 4
-                                  ? 14
-                                  : hand.cards.length === 3
-                                    ? 16
-                                    : hand.cards.length === 2
-                                      ? 12
-                                      : 0;
-                            const horizontalOffset =
-                              (cardIndex - (hand.cards.length - 1) / 2) *
-                              spacingScale;
-
-                            return (
-                              <div
-                                key={`${hand.id}-${card.id}-${cardIndex}`}
-                                className="absolute group"
-                                style={{
-                                  transform: `translateX(${horizontalOffset}px) translateY(-${translateY}px) rotate(${rotation}deg)`,
-                                  transformOrigin: "center bottom",
-                                  zIndex: zIndex,
-                                  transition: "transform 0.3s ease",
-                                  bottom: "0",
-                                }}
-                              >
-                                <CardTooltip
-                                  cardId={card.id}
-                                  imageUrl={card.imageUrl}
-                                  cardName={card.name}
-                                >
-                                  <img
-                                    src={card.imageUrlSmall}
-                                    alt={card.name}
-                                    className="w-14 h-20 object-cover hover:scale-110 hover:-translate-y-6 transition-all"
-                                  />
-                                </CardTooltip>
-
-                                {isEditMode && isEditing && (
-                                  <button
-                                    onClick={() =>
-                                      removeCardFromHand(hand.id, cardIndex)
-                                    }
-                                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-[9999] group-hover:-translate-y-6"
-                                    title="Remove card"
-                                  >
-                                    <X className="w-2.5 h-2.5 text-white " />
-                                  </button>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                      <HandFanDisplay
+                        cards={hand.cards}
+                        isEditing={isEditMode && isEditing}
+                        onRemoveCard={(cardIndex) => removeCardFromHand(hand.id, cardIndex)}
+                      />
                     </div>
 
                     {isEditMode && isEditing && (

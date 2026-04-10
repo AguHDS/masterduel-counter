@@ -190,8 +190,8 @@ export const registerGuideMiddleware = (
       }
     }
   } else if (guideType === "DECK") {
-    // For Deck Guides, initialHands must be present and is an array
-    if (!initialHands || !Array.isArray(initialHands)) {
+    // For Deck Guides, initialHands must be an array (can be empty if guide has only a recommended deck)
+    if (!Array.isArray(req.body.initialHands)) {
       res.status(400).json({
         success: false,
         error: "initialHands must be an array for Deck Guides",

@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import {
   CreditCard as Edit3,
   Trash2,
@@ -57,6 +57,26 @@ export const GuideContainer = ({
   const { saving, validationError, saveInstance, clearValidationError } =
     useSaveInstanceGuide();
   const [headerAnchor, setHeaderAnchor] = useState<HTMLElement | null>(null);
+  // Ref to suppress beforeunload guard during intentional navigation (save/delete)
+  const allowNavigationRef = useRef(false);
+  // Snapshot of state at the moment edit mode was entered
+  const editStartSnapshotRef = useRef<string | null>(null);
+  // Always holds the latest serialised edit state (updated every render)
+  const latestEditStateRef = useRef<string>("");
+
+  // Warn on browser tab close / refresh when editing AND dirty
+  useEffect(() => {
+    if (!editor.isEditMode) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (allowNavigationRef.current) return;
+      if (!editStartSnapshotRef.current) return;
+      if (latestEditStateRef.current === editStartSnapshotRef.current) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [editor.isEditMode]);
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
 
@@ -437,7 +457,61 @@ export const GuideContainer = ({
     },
   });
 
+  // Snapshot capture: grab state the moment edit mode starts
+  useEffect(() => {
+    if (editor.isEditMode && isOwner && !editStartSnapshotRef.current) {
+      editStartSnapshotRef.current = latestEditStateRef.current;
+    }
+    if (!editor.isEditMode) {
+      editStartSnapshotRef.current = null;
+    }
+  }, [editor.isEditMode, isOwner]);
+
+  // Update latestEditStateRef on every render so refs always read current state
+  latestEditStateRef.current = JSON.stringify({
+    title: editor.title,
+    generalTip: editor.generalTip,
+    headerCardId: editor.headerCard?.id ?? null,
+    pairs: pairs.map((p) => ({
+      topCardIds: p.topCards.map((c) => c.id),
+      bottomCardIds: p.bottomCards.map((c) => c.id),
+      comment: p.comment ?? null,
+    })),
+    initialHands: initialHands.map((h) => ({
+      id: h.id,
+      cardIds: h.cards.map((c) => c.id),
+      description: h.description ?? null,
+      finalBoard: h.finalBoard ?? null,
+    })),
+    comboSteps: [...comboSteps.entries()].map(([handId, steps]) => ({
+      handId,
+      steps: steps.map((s) => ({
+        stepOrder: s.stepOrder,
+        description: s.description ?? null,
+        parentCanceledStepId: s.parentCanceledStepId ?? null,
+        mainCardIds: s.mainCards.map((c) => c.id),
+        subCardIds: s.subCards.map((c) => c.id),
+        leftSubCardIds: (s.leftSubCards ?? []).map((c) => c.id),
+      })),
+    })),
+    deckTitle,
+    deckMainCardIds: deckMainCards.map((c) => c.id),
+    deckExtraCardIds: deckExtraCards.map((c) => c.id),
+    deckSideCardIds: deckSideCards.map((c) => c.id),
+    showRecommendedDeck,
+  });
+
+  const hasDirtyEdits = () =>
+    !!editStartSnapshotRef.current &&
+    latestEditStateRef.current !== editStartSnapshotRef.current;
+
   const handleCancel = () => {
+    if (
+      hasDirtyEdits() &&
+      !window.confirm("You have unsaved changes. Are you sure you want to cancel?")
+    )
+      return;
+
     editor.setIsEditMode(false);
     clearValidationError();
 
@@ -637,6 +711,7 @@ export const GuideContainer = ({
         extraDeckIds.length > 0 ||
         sideDeckIds.length > 0;
 
+      allowNavigationRef.current = true;
       await saveInstance({
         pairs,
         initialHands,
@@ -655,6 +730,7 @@ export const GuideContainer = ({
         comboSteps,
       });
     } catch (error) {
+      allowNavigationRef.current = false;
       alert(
         error instanceof Error
           ? error.message
@@ -674,6 +750,7 @@ export const GuideContainer = ({
     if (!confirmed) return;
 
     try {
+      allowNavigationRef.current = true;
       await deleteArchetypeGuide(guideInstanceData.instance.id);
       window.location.href = "/";
     } catch (error) {
@@ -693,6 +770,10 @@ export const GuideContainer = ({
   };
 
   const handleBackClick = () => {
+    if (editor.isEditMode && isOwner && hasDirtyEdits()) {
+      if (!window.confirm("You have unsaved changes. Are you sure you want to go back?"))
+        return;
+    }
     if (archetypeId) {
       const typeParam = guideType.toLowerCase();
       navigate(`/archetype/${archetypeId}?type=${typeParam}`);

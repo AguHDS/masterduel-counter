@@ -101,14 +101,14 @@ export const useSaveInstanceGuide = () => {
     return true;
   };
 
-  const validateInitialHands = (initialHands: InitialHand[], guideType: GuideType): boolean => {
-    // DECK guides require at least one initial hand
+  const validateInitialHands = (initialHands: InitialHand[], guideType: GuideType, hasDeckContent: boolean): boolean => {
+    // DECK guides need at least one initial hand OR a recommended deck.
     if (guideType === "DECK") {
       const validHands = initialHands.filter((h) => h.cards.length > 0);
 
-      if (validHands.length === 0) {
+      if (validHands.length === 0 && !hasDeckContent) {
         setValidationError(
-          "Deck Guides require at least one initial hand. Please add at least one card in at least one initial hand before saving.",
+          "Deck Guides require at least one initial hand or a recommended deck. Please add cards to a hand or add a recommended deck before saving.",
         );
         return false;
       }
@@ -146,7 +146,7 @@ export const useSaveInstanceGuide = () => {
         return;
       }
     } else if (guideType === "DECK") {
-      if (!validateInitialHands(initialHands, guideType)) {
+      if (!validateInitialHands(initialHands, guideType, hasDeckContent)) {
         return;
       }
     }

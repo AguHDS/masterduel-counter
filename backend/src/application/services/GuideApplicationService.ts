@@ -148,19 +148,16 @@ export class GuideApplicationService implements GuideInstanceServicePort {
         );
       }
     } else if (guideType === "DECK") {
-      // DECK guides require initial hands
-      if (!initialHands || initialHands.length === 0) {
-        throw new Error(
-          "At least one initial hand is required for Deck Guides",
-        );
-      }
-      // Validate each initial hand has at least one card and max 5 cards per hand
-      for (let i = 0; i < initialHands.length; i++) {
-        if (!initialHands[i].cardIds || initialHands[i].cardIds.length === 0) {
-          throw new Error(`Initial hand ${i + 1} must have at least one card`);
-        }
-        if (initialHands[i].cardIds.length > 5) {
-          throw new Error(`Initial hand ${i + 1} cannot have more than 5 cards`);
+      // DECK guides allow having no initial hands if a recommended deck is provided separately
+      // Validate each initial hand structure if any are present
+      if (initialHands) {
+        for (let i = 0; i < initialHands.length; i++) {
+          if (!initialHands[i].cardIds || initialHands[i].cardIds.length === 0) {
+            throw new Error(`Initial hand ${i + 1} must have at least one card`);
+          }
+          if (initialHands[i].cardIds.length > 5) {
+            throw new Error(`Initial hand ${i + 1} cannot have more than 5 cards`);
+          }
         }
       }
     }
