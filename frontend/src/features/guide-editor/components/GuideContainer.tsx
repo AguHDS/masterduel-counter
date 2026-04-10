@@ -167,31 +167,10 @@ export const GuideContainer = ({
   const [originalDeckState, setOriginalDeckState] = useState<{
     exists: boolean;
     title: string;
-    mainCards: any[];
-    extraCards: any[];
-    sideCards: any[];
+    mainCards: Card[];
+    extraCards: Card[];
+    sideCards: Card[];
   } | null>(null);
-
-  // State for field boards
-  const [fieldBoards, setFieldBoards] = useState<Map<string, FieldBoard>>(
-    new Map(),
-  );
-
-  // Handle field board changes
-  const handleFieldBoardChange = useCallback(
-    (handId: string, board: FieldBoard | null) => {
-      setFieldBoards((prev) => {
-        const newMap = new Map(prev);
-        if (board === null) {
-          newMap.delete(handId);
-        } else {
-          newMap.set(handId, board);
-        }
-        return newMap;
-      });
-    },
-    [],
-  );
 
   // Handle modal state changes from child components
   const handleModalStateChange = useCallback(
@@ -359,6 +338,7 @@ export const GuideContainer = ({
           id: number;
           cards: Card[];
           description?: string;
+          finalBoard?: Omit<FieldBoard, "id">;
           comboSteps?: Array<{
             id: number;
             stepOrder: number;
@@ -375,6 +355,9 @@ export const GuideContainer = ({
             id: hand.id.toString(),
             cards: hand.cards,
             description: hand.description,
+            finalBoard: hand.finalBoard
+              ? { id: `field-${hand.id}`, ...hand.finalBoard }
+              : undefined,
           }));
         setInitialHands(transformedHands);
 
@@ -439,7 +422,6 @@ export const GuideContainer = ({
       favorites.setFavorited(false);
       setPairs([]);
       setInitialHands([]);
-      setFieldBoards(new Map());
     },
     onReset: () => {
       editor.setLoadedPairs([]);
@@ -452,7 +434,6 @@ export const GuideContainer = ({
       setPairs([]);
       setInitialHands([]);
       setShowRecommendedDeck(false);
-      setFieldBoards(new Map());
     },
   });
 
@@ -515,6 +496,7 @@ export const GuideContainer = ({
           id: number;
           cards: Card[];
           description?: string;
+          finalBoard?: Omit<FieldBoard, "id">;
           comboSteps?: Array<{
             id: number;
             stepOrder: number;
@@ -531,6 +513,9 @@ export const GuideContainer = ({
             id: hand.id.toString(),
             cards: hand.cards,
             description: hand.description,
+            finalBoard: hand.finalBoard
+              ? { id: `field-${hand.id}`, ...hand.finalBoard }
+              : undefined,
           }));
         setInitialHands(transformedHands);
 
@@ -572,8 +557,6 @@ export const GuideContainer = ({
         setSelectedHandId(null);
       }
 
-      // Reset field boards on cancel
-      setFieldBoards(new Map());
     } else {
       navigate(-1);
     }
@@ -869,8 +852,6 @@ export const GuideContainer = ({
                         !editor.isEditMode ? handleShowCombo : undefined
                       }
                       comboSteps={comboSteps}
-                      fieldBoards={fieldBoards}
-                      onFieldBoardChange={handleFieldBoardChange}
                     />
                   </div>
 

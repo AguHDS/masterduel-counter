@@ -458,7 +458,7 @@ export const FinalBoardPreview = ({
       </div>
 
       <div className="flex justify-center">
-        <div className="w-full max-w-[98%] sm:max-w-[90%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[65%] min-w-[280px] bg-gradient-to-br from-slate-900 via-indigo-950/80 to-slate-900 border-2 sm:border-4 border-blue-500/60 shadow-[0_0_20px_rgba(59,130,246,0.2)] rounded-md p-3 md:pt-4 relative">
+        <div className="w-full max-w-[98%] sm:max-w-[90%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[65%] min-w-[280px] bg-gradient-to-br from-slate-900 via-indigo-950/80 to-slate-900 border-2 sm:border-4 border-blue-500/60 shadow-[0_0_20px_rgba(59,130,246,0.2)] rounded-md p-3 md:pt-4 md:pb-9 relative">
           {isEditMode && (
             <div className="relative mb-4 sm:mb-6 md:mb-8">
               <button

@@ -26,6 +26,17 @@ export interface ComboStepsDTO {
   steps: ComboStepDTO[];
 }
 
+export interface FinalBoardDTO {
+  fieldSpellCardId: number | null;
+  extraMonsterCardIds: Array<number | null>;
+  monsterCardIds: Array<number | null>;
+  spellTrapCardIds: Array<number | null>;
+  handCardIds: Array<number | null>;
+  graveyardCardIds: number[];
+  banishedCardIds: number[];
+  description?: string;
+}
+
 export interface RecommendedDeckCard {
   id: number;
   name: string;
@@ -69,7 +80,11 @@ export const saveArchetypeGuide = async (
   archetypeId: number,
   guideType: GuideType,
   cardPairs?: CardPairDTO[],
-  initialHands?: Array<{ cardIds: number[]; description?: string }>,
+  initialHands?: Array<{
+    cardIds: number[];
+    description?: string;
+    finalBoard?: FinalBoardDTO;
+  }>,
   title?: string,
   headerCardId?: number,
   generalTip?: string,

@@ -1,5 +1,69 @@
 import { Request, Response, NextFunction } from "express";
 
+const isPositiveInteger = (value: unknown): value is number =>
+  typeof value === "number" && Number.isInteger(value) && value > 0;
+
+const validateNullableCardIdArray = (
+  value: unknown,
+  expectedLength: number,
+): boolean =>
+  Array.isArray(value) &&
+  value.length === expectedLength &&
+  value.every((entry) => entry === null || isPositiveInteger(entry));
+
+const validateCardIdArray = (value: unknown): boolean =>
+  Array.isArray(value) && value.every((entry) => isPositiveInteger(entry));
+
+const validateFinalBoard = (finalBoard: unknown, index: number): string | null => {
+  // Validate the persisted board shape early so registerGuide only receives normalized data.
+  if (typeof finalBoard !== "object" || finalBoard === null) {
+    return `Invalid finalBoard at initialHands index ${index}`;
+  }
+
+  const board = finalBoard as Record<string, unknown>;
+
+  if (
+    board.fieldSpellCardId !== null &&
+    board.fieldSpellCardId !== undefined &&
+    !isPositiveInteger(board.fieldSpellCardId)
+  ) {
+    return `Invalid fieldSpellCardId at initialHands index ${index}`;
+  }
+
+  if (!validateNullableCardIdArray(board.extraMonsterCardIds, 2)) {
+    return `extraMonsterCardIds must contain exactly 2 nullable card IDs at initialHands index ${index}`;
+  }
+
+  if (!validateNullableCardIdArray(board.monsterCardIds, 5)) {
+    return `monsterCardIds must contain exactly 5 nullable card IDs at initialHands index ${index}`;
+  }
+
+  if (!validateNullableCardIdArray(board.spellTrapCardIds, 5)) {
+    return `spellTrapCardIds must contain exactly 5 nullable card IDs at initialHands index ${index}`;
+  }
+
+  if (!validateNullableCardIdArray(board.handCardIds, 5)) {
+    return `handCardIds must contain exactly 5 nullable card IDs at initialHands index ${index}`;
+  }
+
+  if (!validateCardIdArray(board.graveyardCardIds)) {
+    return `graveyardCardIds must contain valid card IDs at initialHands index ${index}`;
+  }
+
+  if (!validateCardIdArray(board.banishedCardIds)) {
+    return `banishedCardIds must contain valid card IDs at initialHands index ${index}`;
+  }
+
+  if (
+    board.description !== undefined &&
+    (typeof board.description !== "string" || board.description.length > 500)
+  ) {
+    return `finalBoard description must be a string with at most 500 characters at initialHands index ${index}`;
+  }
+
+  return null;
+};
+
 export const registerGuideMiddleware = (
   req: Request,
   res: Response,
@@ -154,6 +218,28 @@ export const registerGuideMiddleware = (
           res.status(400).json({
             success: false,
             error: `Invalid card ID in initialHands at index ${i}`,
+          });
+          return;
+        }
+      }
+
+      if (
+        hand.description !== undefined &&
+        (typeof hand.description !== "string" || hand.description.length > 50)
+      ) {
+        res.status(400).json({
+          success: false,
+          error: `Description must be a string with at most 50 characters in initialHands at index ${i}`,
+        });
+        return;
+      }
+
+      if (hand.finalBoard !== undefined) {
+        const finalBoardError = validateFinalBoard(hand.finalBoard, i);
+        if (finalBoardError) {
+          res.status(400).json({
+            success: false,
+            error: finalBoardError,
           });
           return;
         }

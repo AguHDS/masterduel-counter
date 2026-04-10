@@ -47,6 +47,16 @@ export interface InitialHand {
   id: string;
   cards: Card[];
   description?: string;
+  finalBoard?: {
+    fieldSpell: Card | null;
+    extraMonsters: Array<Card | null>;
+    monsters: Array<Card | null>;
+    spellTraps: Array<Card | null>;
+    hand: Array<Card | null>;
+    graveyard: Card[];
+    banished: Card[];
+    description?: string;
+  };
   comboSteps?: ComboStep[];
 }
 

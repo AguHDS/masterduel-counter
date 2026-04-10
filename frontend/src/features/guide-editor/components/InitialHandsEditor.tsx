@@ -9,6 +9,7 @@ export interface InitialHand {
   id: string;
   cards: Card[];
   description?: string;
+  finalBoard?: FieldBoard | null;
 }
 
 interface InitialHandsEditorProps {
@@ -23,8 +24,6 @@ interface InitialHandsEditorProps {
   onAddCombo?: (handId: string) => void;
   onShowCombo?: (handId: string) => void;
   comboSteps?: Map<string, ComboStep[]>;
-  fieldBoards?: Map<string, FieldBoard>;
-  onFieldBoardChange?: (handId: string, board: FieldBoard | null) => void;
 }
 
 export const InitialHandsEditor = ({
@@ -39,8 +38,6 @@ export const InitialHandsEditor = ({
   onAddCombo,
   onShowCombo,
   comboSteps,
-  fieldBoards,
-  onFieldBoardChange,
 }: InitialHandsEditorProps) => {
   const [selectingHandId, setSelectingHandId] = useState<string | null>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
@@ -56,12 +53,15 @@ export const InitialHandsEditor = ({
   );
   // state to manage which hand is being edited
   const [editingHandId, setEditingHandId] = useState<string | null>(null);
+  const currentPreviewHandId = isEditMode
+    ? selectedPreviewHandId
+    : selectedShowHandId;
 
   useEffect(() => {
     if (forceCloseModal && selectingHandId) {
       setSelectingHandId(null);
     }
-  }, [forceCloseModal]);
+  }, [forceCloseModal, selectingHandId]);
 
   useEffect(() => {
     if (onModalStateChange) {
@@ -79,11 +79,12 @@ export const InitialHandsEditor = ({
   }, [isEditMode]);
 
   useEffect(() => {
+    // In view mode, auto-select the first hand that has something meaningful to show.
     if (!isEditMode && initialHands.length > 0 && !selectedShowHandId) {
       const firstHand = initialHands[0];
       if (
-        comboSteps?.has(firstHand.id) &&
-        comboSteps.get(firstHand.id)!.length > 0
+        firstHand.finalBoard ||
+        (comboSteps?.has(firstHand.id) && comboSteps.get(firstHand.id)!.length > 0)
       ) {
         setSelectedShowHandId(firstHand.id);
       }
@@ -104,9 +105,6 @@ export const InitialHandsEditor = ({
 
   const removeInitialHand = (handId: string) => {
     setInitialHands(initialHands.filter((h) => h.id !== handId));
-    if (fieldBoards && onFieldBoardChange) {
-      onFieldBoardChange(handId, null);
-    }
     if (selectedPreviewHandId === handId) {
       setSelectedPreviewHandId(null);
     }
@@ -139,6 +137,27 @@ export const InitialHandsEditor = ({
     );
   };
 
+  const updateHandFinalBoard = (handId: string, board: FieldBoard | null) => {
+    // Keep the final board inside the hand state so load/save/cancel use one source of truth.
+    setInitialHands(
+      initialHands.map((hand) => {
+        if (hand.id !== handId) {
+          return hand;
+        }
+
+        if (board === null) {
+          const { finalBoard: _finalBoard, ...rest } = hand;
+          return rest;
+        }
+
+        return {
+          ...hand,
+          finalBoard: board,
+        };
+      }),
+    );
+  };
+
   const handleCardSelected = (card: Card) => {
     if (!selectingHandId) return;
 
@@ -163,16 +182,14 @@ export const InitialHandsEditor = ({
   };
 
   const handleAddFieldPreview = (handId: string) => {
-    if (!onFieldBoardChange) return;
-
     setSelectedPreviewHandId(handId);
 
-    if (fieldBoards?.has(handId)) {
+    if (initialHands.find((hand) => hand.id === handId)?.finalBoard) {
       return;
     }
 
     const newBoard: FieldBoard = {
-      id: `field-${Date.now()}`,
+      id: `field-${handId}`,
       fieldSpell: null,
       extraMonsters: [null, null],
       monsters: [null, null, null, null, null],
@@ -182,12 +199,11 @@ export const InitialHandsEditor = ({
       banished: [],
     };
 
-    onFieldBoardChange(handId, newBoard);
+    updateHandFinalBoard(handId, newBoard);
   };
 
   const handleDeleteFieldPreview = (handId: string) => {
-    if (!onFieldBoardChange) return;
-    onFieldBoardChange(handId, null);
+    updateHandFinalBoard(handId, null);
     if (selectedPreviewHandId === handId) {
       setSelectedPreviewHandId(null);
     }
@@ -247,13 +263,14 @@ export const InitialHandsEditor = ({
   };
 
   const getSelectedHandTitle = () => {
-    if (!selectedPreviewHandId) return undefined;
-    const index = initialHands.findIndex((h) => h.id === selectedPreviewHandId);
+    if (!currentPreviewHandId) return undefined;
+    const index = initialHands.findIndex((h) => h.id === currentPreviewHandId);
     return index !== -1 ? `Hand #${index + 1}` : undefined;
   };
 
   // Función para manejar el clic en "Show" en modo no-edición
   const handleShowHandContent = (handId: string) => {
+    // In view mode, the selected hand drives both combo flow and final board preview.
     setSelectedShowHandId(handId);
     // Llamar a la función original si existe para mantener compatibilidad
     onShowCombo?.(handId);
@@ -291,7 +308,7 @@ export const InitialHandsEditor = ({
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
             {initialHands.map((hand, index) => {
-              const hasFieldBoard = fieldBoards?.has(hand.id);
+              const hasFieldBoard = !!hand.finalBoard;
               const isPreviewSelected = selectedPreviewHandId === hand.id;
               const isShowSelected =
                 !isEditMode && selectedShowHandId === hand.id;
@@ -496,7 +513,7 @@ export const InitialHandsEditor = ({
                       </button>
                     )}
 
-                    {isEditMode && isEditing && onFieldBoardChange && (
+                    {isEditMode && isEditing && (
                       <button
                         onClick={() => handleAddFieldPreview(hand.id)}
                         className={`mt-2 w-full py-1 rounded flex items-center justify-center gap-1 transition-colors group ${
@@ -520,9 +537,10 @@ export const InitialHandsEditor = ({
 
                     {!isEditMode && (
                       <>
-                        {comboSteps &&
-                        comboSteps.has(hand.id) &&
-                        comboSteps.get(hand.id)!.length > 0 ? (
+                        {(hand.finalBoard ||
+                          (comboSteps &&
+                            comboSteps.has(hand.id) &&
+                            comboSteps.get(hand.id)!.length > 0)) ? (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -580,15 +598,20 @@ export const InitialHandsEditor = ({
             )}
           </div>
 
-          {selectedPreviewHandId && fieldBoards?.has(selectedPreviewHandId) && (
+          {currentPreviewHandId &&
+            initialHands.find((hand) => hand.id === currentPreviewHandId)
+              ?.finalBoard && (
             <div className="mt-8 pt-4">
               <FinalBoardPreview
                 isEditMode={isEditMode}
-                fieldBoard={fieldBoards.get(selectedPreviewHandId) || null}
-                onFieldBoardChange={(board) =>
-                  onFieldBoardChange?.(selectedPreviewHandId, board)
+                fieldBoard={
+                  initialHands.find((hand) => hand.id === currentPreviewHandId)
+                    ?.finalBoard || null
                 }
-                onDelete={() => handleDeleteFieldPreview(selectedPreviewHandId)}
+                onFieldBoardChange={(board) =>
+                  updateHandFinalBoard(currentPreviewHandId, board)
+                }
+                onDelete={() => handleDeleteFieldPreview(currentPreviewHandId)}
                 onModalStateChange={(isOpen) => {
                   setActiveModalComponent(isOpen ? "field-board" : null);
                 }}

@@ -1,3 +1,5 @@
+import type { FinalBoardPreview } from "@/domain/InitialHand.js";
+
 export type GuideType = "COUNTER" | "DECK";
 
 export interface Guide {
@@ -44,6 +46,8 @@ export interface RegisterGuideDTO {
   }>;
   initialHands?: Array<{
     cardIds: number[];
+    description?: string;
+    finalBoard?: FinalBoardPreview;
   }>;
   comboSteps?: Array<{
     initialHandId: number;
