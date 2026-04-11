@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
-import { Plus, X, Loader2 } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
-import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
+import { DeckZoneSection } from "@/features/archetypes/components/DeckZoneSection";
 import { validateDeckCardAddition } from "@/features/archetypes/utils/deckValidation";
+import {
+  getDeckZoneLabel,
+  type DeckDisplayZone,
+} from "@/features/archetypes/utils/deckZonePresentation";
 import { sortDeckCards } from "@/shared/utils/sortDeckCards";
 import type { Card } from "@/features/archetypes/types";
 
@@ -12,7 +16,12 @@ interface RecommendedDeckEditorProps {
   initialMainDeck?: Card[];
   initialExtraDeck?: Card[];
   initialSideDeck?: Card[];
-  onDeckChange?: (title: string, mainDeck: Card[], extraDeck: Card[], sideDeck: Card[]) => void;
+  onDeckChange?: (
+    title: string,
+    mainDeck: Card[],
+    extraDeck: Card[],
+    sideDeck: Card[],
+  ) => void;
   onDelete?: () => Promise<void>;
   onModalStateChange?: (isOpen: boolean) => void;
   forceCloseModal?: boolean;
@@ -35,29 +44,31 @@ export const RecommendedDeckEditor = ({
   const [mainDeck, setMainDeck] = useState<Card[]>(initialMainDeck);
   const [extraDeck, setExtraDeck] = useState<Card[]>(initialExtraDeck);
   const [sideDeck, setSideDeck] = useState<Card[]>(initialSideDeck);
-  const [showSideDeck, setShowSideDeck] = useState<boolean>(initialSideDeck.length > 0);
+  const [showSideDeck, setShowSideDeck] = useState<boolean>(
+    initialSideDeck.length > 0,
+  );
   const [isSelectingCard, setIsSelectingCard] = useState(false);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [draggedCard, setDraggedCard] = useState<{ zone: "main" | "extra" | "side"; index: number } | null>(null);
+  const [draggedCard, setDraggedCard] = useState<{
+    zone: DeckDisplayZone;
+    index: number;
+  } | null>(null);
 
-  // Close modal when forced from parent
   useEffect(() => {
     if (forceCloseModal && isSelectingCard) {
       setIsSelectingCard(false);
       setTargetZone(null);
     }
-  }, [forceCloseModal]);
+  }, [forceCloseModal, isSelectingCard]);
 
-  // Notify parent when modal state changes
   useEffect(() => {
-    if (onModalStateChange) {
-      onModalStateChange(isSelectingCard);
-    }
+    onModalStateChange?.(isSelectingCard);
   }, [isSelectingCard, onModalStateChange]);
 
-  const hasDeck = mainDeck.length > 0 || extraDeck.length > 0 || sideDeck.length > 0;
+  const hasDeck =
+    mainDeck.length > 0 || extraDeck.length > 0 || sideDeck.length > 0;
 
   useEffect(() => {
     if (
@@ -66,7 +77,7 @@ export const RecommendedDeckEditor = ({
     ) {
       setMainDeck(initialMainDeck);
     }
-  }, [initialMainDeck, isEditMode]);
+  }, [initialMainDeck, isEditMode, mainDeck]);
 
   useEffect(() => {
     if (
@@ -75,7 +86,7 @@ export const RecommendedDeckEditor = ({
     ) {
       setExtraDeck(initialExtraDeck);
     }
-  }, [initialExtraDeck, isEditMode]);
+  }, [initialExtraDeck, isEditMode, extraDeck]);
 
   useEffect(() => {
     if (
@@ -85,13 +96,13 @@ export const RecommendedDeckEditor = ({
       setSideDeck(initialSideDeck);
       setShowSideDeck(initialSideDeck.length > 0);
     }
-  }, [initialSideDeck, isEditMode]);
+  }, [initialSideDeck, isEditMode, sideDeck]);
 
   useEffect(() => {
     if (!isEditMode || title !== initialTitle) {
       setTitle(initialTitle);
     }
-  }, [initialTitle, isEditMode]);
+  }, [initialTitle, isEditMode, title]);
 
   const handleAddCard = (zone: DeckZone, anchor: HTMLElement) => {
     setAnchorElement(anchor);
@@ -113,55 +124,52 @@ export const RecommendedDeckEditor = ({
     });
 
     if (validationError) {
-      alert(validationError);
+      if (validationError.code !== "MAX_COPIES") {
+        alert(validationError.message);
+      }
       return;
     }
 
     if (targetZone === "main") {
       const newMainDeck = sortDeckCards([...mainDeck, card]);
       setMainDeck(newMainDeck);
-      if (onDeckChange) {
-        onDeckChange(title, newMainDeck, extraDeck, sideDeck);
-      }
-    } else if (targetZone === "extra") {
+      onDeckChange?.(title, newMainDeck, extraDeck, sideDeck);
+      return;
+    }
+
+    if (targetZone === "extra") {
       const newExtraDeck = sortDeckCards([...extraDeck, card]);
       setExtraDeck(newExtraDeck);
-      if (onDeckChange) {
-        onDeckChange(title, mainDeck, newExtraDeck, sideDeck);
-      }
-    } else if (targetZone === "side") {
-      const newSideDeck = sortDeckCards([...sideDeck, card]);
-      setSideDeck(newSideDeck);
-      if (onDeckChange) {
-        onDeckChange(title, mainDeck, extraDeck, newSideDeck);
-      }
+      onDeckChange?.(title, mainDeck, newExtraDeck, sideDeck);
+      return;
     }
+
+    const newSideDeck = sortDeckCards([...sideDeck, card]);
+    setSideDeck(newSideDeck);
+    onDeckChange?.(title, mainDeck, extraDeck, newSideDeck);
   };
 
-  const handleRemoveCard = (zone: "main" | "extra" | "side", index: number) => {
+  const handleRemoveCard = (zone: DeckDisplayZone, index: number) => {
     if (zone === "main") {
       const newMainDeck = mainDeck.filter((_, i) => i !== index);
       setMainDeck(newMainDeck);
-      if (onDeckChange) {
-        onDeckChange(title, newMainDeck, extraDeck, sideDeck);
-      }
-    } else if (zone === "extra") {
+      onDeckChange?.(title, newMainDeck, extraDeck, sideDeck);
+      return;
+    }
+
+    if (zone === "extra") {
       const newExtraDeck = extraDeck.filter((_, i) => i !== index);
       setExtraDeck(newExtraDeck);
-      if (onDeckChange) {
-        onDeckChange(title, mainDeck, newExtraDeck, sideDeck);
-      }
-    } else if (zone === "side") {
-      const newSideDeck = sideDeck.filter((_, i) => i !== index);
-      setSideDeck(newSideDeck);
-      if (onDeckChange) {
-        onDeckChange(title, mainDeck, extraDeck, newSideDeck);
-      }
+      onDeckChange?.(title, mainDeck, newExtraDeck, sideDeck);
+      return;
     }
+
+    const newSideDeck = sideDeck.filter((_, i) => i !== index);
+    setSideDeck(newSideDeck);
+    onDeckChange?.(title, mainDeck, extraDeck, newSideDeck);
   };
 
-  // Drag and drop handlers
-  const handleDragStart = (zone: "main" | "extra" | "side", index: number) => {
+  const handleDragStart = (zone: DeckDisplayZone, index: number) => {
     setDraggedCard({ zone, index });
   };
 
@@ -169,13 +177,11 @@ export const RecommendedDeckEditor = ({
     e.preventDefault();
   };
 
-  const handleDrop = (zone: "main" | "extra" | "side", dropIndex: number) => {
-    if (!draggedCard) return;
+  const handleDrop = (zone: DeckDisplayZone, dropIndex: number) => {
+    if (!draggedCard || draggedCard.zone !== zone) {
+      return;
+    }
 
-    // Only allow reordering within the same zone
-    if (draggedCard.zone !== zone) return;
-
-    // Don't do anything if dropping in the same position
     if (draggedCard.index === dropIndex) {
       setDraggedCard(null);
       return;
@@ -183,37 +189,25 @@ export const RecommendedDeckEditor = ({
 
     if (zone === "main") {
       const newMainDeck = [...mainDeck];
-      // Swap the cards
       const temp = newMainDeck[draggedCard.index];
       newMainDeck[draggedCard.index] = newMainDeck[dropIndex];
       newMainDeck[dropIndex] = temp;
-      
       setMainDeck(newMainDeck);
-      if (onDeckChange) {
-        onDeckChange(title, newMainDeck, extraDeck, sideDeck);
-      }
+      onDeckChange?.(title, newMainDeck, extraDeck, sideDeck);
     } else if (zone === "extra") {
       const newExtraDeck = [...extraDeck];
-      // Swap the cards
       const temp = newExtraDeck[draggedCard.index];
       newExtraDeck[draggedCard.index] = newExtraDeck[dropIndex];
       newExtraDeck[dropIndex] = temp;
-      
       setExtraDeck(newExtraDeck);
-      if (onDeckChange) {
-        onDeckChange(title, mainDeck, newExtraDeck, sideDeck);
-      }
-    } else if (zone === "side") {
+      onDeckChange?.(title, mainDeck, newExtraDeck, sideDeck);
+    } else {
       const newSideDeck = [...sideDeck];
-      // Swap the cards
       const temp = newSideDeck[draggedCard.index];
       newSideDeck[draggedCard.index] = newSideDeck[dropIndex];
       newSideDeck[dropIndex] = temp;
-      
       setSideDeck(newSideDeck);
-      if (onDeckChange) {
-        onDeckChange(title, mainDeck, extraDeck, newSideDeck);
-      }
+      onDeckChange?.(title, mainDeck, extraDeck, newSideDeck);
     }
 
     setDraggedCard(null);
@@ -234,9 +228,7 @@ export const RecommendedDeckEditor = ({
     }
     setSideDeck([]);
     setShowSideDeck(false);
-    if (onDeckChange) {
-      onDeckChange(title, mainDeck, extraDeck, []);
-    }
+    onDeckChange?.(title, mainDeck, extraDeck, []);
   };
 
   const handleDelete = async () => {
@@ -266,429 +258,157 @@ export const RecommendedDeckEditor = ({
     return null;
   }
 
-  if (!isEditMode && hasDeck) {
-    return (
-      <div className="flex justify-center mt-8">
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 w-full" style={{ maxWidth: "56%" }}>
-          <div className="text-center mb-6">
-            <h4 className="text-lg font-semibold text-white">
-              {title}
-            </h4>
-          </div>
-
-          <div className="flex justify-center mb-6">
-            <div className="w-full h-px bg-blue-500/30"></div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <div className="bg-blue-900/30 px-3 py-2 rounded border-l-4 border-blue-500">
-                <div className="flex items-center gap-2">
-                  <span className="text-white font-semibold text-base">
-                    Main Deck
-                  </span>
-                  <span className="text-blue-300 text-sm">
-                    ({mainDeck.length})
-                  </span>
-                </div>
-              </div>
-              <div
-                className="grid gap-1 p-1.5 bg-blue-950/30 rounded border border-blue-500/30"
-                style={{
-                  gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
-                }}
-              >
-                {mainDeck.map((card, index) => (
-                  <CardTooltip
-                    key={`main-${index}`}
-                    cardId={card.id}
-                    imageUrl={card.imageUrl}
-                    cardName={card.name}
-                    disabled={!!draggedCard}
-                  >
-                    <img
-                      src={card.imageUrlSmall}
-                      alt={card.name}
-                      className="w-full h-auto border border-slate-600 hover:border-blue-400 transition-colors object-contain cursor-pointer"
-                    />
-                  </CardTooltip>
-                ))}
-              </div>
-            </div>
-
-            {extraDeck.length > 0 && (
-              <div className="space-y-3">
-                <div className="bg-purple-900/30 px-3 py-2 rounded border-l-4 border-purple-500">
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-semibold text-base">
-                      Extra Deck
-                    </span>
-                    <span className="text-purple-300 text-sm">
-                      ({extraDeck.length})
-                    </span>
-                  </div>
-                </div>
-                <div 
-                  className="grid gap-1 p-1.5 bg-purple-950/30 rounded border border-purple-500/30"
-                  style={{
-                    gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
-                  }}
-                >
-                  {extraDeck.map((card, index) => (
-                    <CardTooltip
-                      key={`extra-${index}`}
-                      cardId={card.id}
-                      imageUrl={card.imageUrl}
-                      cardName={card.name}
-                      disabled={!!draggedCard}
-                    >
-                      <img
-                        src={card.imageUrlSmall}
-                        alt={card.name}
-                        className="w-full h-auto border border-purple-600/30 hover:border-purple-400 transition-colors object-contain cursor-pointer"
-                      />
-                    </CardTooltip>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {sideDeck.length > 0 && (
-              <div className="space-y-3">
-                <div className="bg-amber-900/30 px-3 py-2 rounded border-l-4 border-amber-500">
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-semibold text-base">
-                      Side Deck
-                    </span>
-                    <span className="text-amber-300 text-sm">
-                      ({sideDeck.length})
-                    </span>
-                  </div>
-                </div>
-                <div 
-                  className="grid gap-1 p-1.5 bg-amber-950/30 rounded border border-amber-500/30"
-                  style={{
-                    gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
-                  }}
-                >
-                  {sideDeck.map((card, index) => (
-                    <CardTooltip
-                      key={`side-${index}`}
-                      cardId={card.id}
-                      imageUrl={card.imageUrl}
-                      cardName={card.name}
-                      disabled={!!draggedCard}
-                    >
-                      <img
-                        src={card.imageUrlSmall}
-                        alt={card.name}
-                        className="w-full h-auto border border-amber-600/30 hover:border-amber-400 transition-colors object-contain cursor-pointer"
-                      />
-                    </CardTooltip>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex justify-center mt-8">
-      <div className="w-full" style={{ maxWidth: "52%" }}>
-        <div className="flex justify-end mb-4">
-          {onDelete && (
-            <button
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
-            >
-              {isDeleting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Deleting...</span>
-                </>
-              ) : (
-                <span>Delete Deck</span>
+    <div className="mt-8 flex justify-center">
+      <div className="relative w-[60%]  rounded-[26px] border border-blue-500/45 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-4 shadow-[0_0_44px_rgba(37,99,235,0.16)] sm:p-5 lg:max-w-[68%]">
+        <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_38%)]" />
+        <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
+
+        <div className="relative z-10">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <h4 className="text-xl font-bold text-blue-200">{title}</h4>
+                <span className="rounded-full border border-sky-400/20 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-200/90">
+                  {mainDeck.length} main
+                </span>
+                <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-violet-200/90">
+                  {extraDeck.length} extra
+                </span>
+                {showSideDeck && (
+                  <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
+                    {sideDeck.length} side
+                  </span>
+                )}
+              </div>
+
+              {isEditMode && (
+                <div className="w-full rounded-[18px] border border-sky-400/15 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-indigo-950/80 p-4 shadow-[0_16px_34px_rgba(2,6,23,0.4)] sm:w-[420px]">
+                  <label className="mb-2 block w-fit rounded-full border border-sky-400/20 bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200">
+                    Deck Title
+                  </label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => {
+                      const newTitle = e.target.value;
+                      setTitle(newTitle);
+                      onDeckChange?.(newTitle, mainDeck, extraDeck, sideDeck);
+                    }}
+                    placeholder="Enter a title for your deck"
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-[inset_0_1px_0_rgba(148,163,184,0.08)] placeholder:text-slate-500 focus:border-blue-400 focus:outline-none"
+                    maxLength={100}
+                  />
+                </div>
               )}
-            </button>
-          )}
-        </div>
-
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
-          <div className="space-y-4 mb-6">
-            <label className="block text-sm font-semibold text-blue-400">
-              Deck Title
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => {
-                const newTitle = e.target.value;
-                setTitle(newTitle);
-                if (onDeckChange) {
-                  onDeckChange(newTitle, mainDeck, extraDeck, sideDeck);
-                }
-              }}
-              placeholder="Enter a title for your deck"
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              maxLength={100}
-            />
-          </div>
-
-          <div className="flex justify-center mb-6">
-            <div className="w-full h-px bg-blue-500/30"></div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <div className="bg-blue-900/30 px-3 py-2 rounded border-l-4 border-blue-500">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-semibold text-base">
-                      Main Deck
-                    </span>
-                    <span className="text-blue-300 text-sm">
-                      ({mainDeck.length}/60)
-                    </span>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddCard("main", e.currentTarget);
-                    }}
-                    disabled={mainDeck.length >= 60}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
-                  >
-                    <Plus className="w-3 h-3" />
-                    <span>Add</span>
-                  </button>
-                </div>
-              </div>
-              <div
-                className="grid gap-1 p-1.5 bg-blue-950/30 rounded border border-dashed border-blue-500/40"
-                style={{
-                  gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
-                }}
-              >
-                {mainDeck.map((card, index) => (
-                  <div
-                    key={`main-${index}`}
-                    className="relative group"
-                    draggable={true}
-                    onDragStart={() => handleDragStart("main", index)}
-                    onDragOver={handleDragOver}
-                    onDrop={() => handleDrop("main", index)}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <CardTooltip
-                      cardId={card.id}
-                      imageUrl={card.imageUrl}
-                      cardName={card.name}
-                      disabled={!!draggedCard}
-                    >
-                      <img
-                        src={card.imageUrlSmall}
-                        alt={card.name}
-                        className="w-full h-auto border border-slate-600 group-hover:border-blue-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
-                      />
-                    </CardTooltip>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveCard("main", index);
-                      }}
-                      className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-                {mainDeck.length === 0 && (
-                  <div 
-                    className="col-span-full flex items-center justify-center text-slate-400 text-sm cursor-pointer"
-                    onClick={(e) => handleAddCard("main", e.currentTarget)}
-                  >
-                    Click to add cards to Main Deck
-                  </div>
-                )}
-              </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="bg-purple-900/30 px-3 py-2 rounded border-l-4 border-purple-500">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-semibold text-base">
-                      Extra Deck
-                    </span>
-                    <span className="text-purple-300 text-sm">
-                      ({extraDeck.length}/15)
-                    </span>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddCard("extra", e.currentTarget);
-                    }}
-                    disabled={extraDeck.length >= 15}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
-                  >
-                    <Plus className="w-3 h-3" />
-                    <span>Add</span>
-                  </button>
-                </div>
-              </div>
-              <div
-                className="grid gap-1 p-1.5 bg-purple-950/30 rounded border border-dashed border-purple-500/40"
-                style={{
-                  gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
-                }}
+            {isEditMode && onDelete && (
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex items-center gap-2 self-start rounded-full border border-red-500/25 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/18 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {extraDeck.map((card, index) => (
-                  <div
-                    key={`extra-${index}`}
-                    className="relative group"
-                    draggable={true}
-                    onDragStart={() => handleDragStart("extra", index)}
-                    onDragOver={handleDragOver}
-                    onDrop={() => handleDrop("extra", index)}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <CardTooltip
-                      cardId={card.id}
-                      imageUrl={card.imageUrl}
-                      cardName={card.name}
-                      disabled={!!draggedCard}
-                    >
-                      <img
-                        src={card.imageUrlSmall}
-                        alt={card.name}
-                        className="w-full h-auto border border-purple-600/30 group-hover:border-purple-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
-                      />
-                    </CardTooltip>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveCard("extra", index);
-                      }}
-                      className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-                {extraDeck.length === 0 && (
-                  <div 
-                    className="col-span-full flex items-center justify-center text-slate-400 text-sm cursor-pointer"
-                    onClick={(e) => handleAddCard("extra", e.currentTarget)}
-                  >
-                    Click to add cards to Extra Deck
-                  </div>
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <span>Delete Deck</span>
                 )}
-              </div>
-            </div>
-
-            {showSideDeck ? (
-              <div className="space-y-3">
-                <div className="bg-amber-900/30 px-3 py-2 rounded border-l-4 border-amber-500">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-semibold text-base">
-                        Side Deck
-                      </span>
-                      <span className="text-amber-300 text-sm">
-                        ({sideDeck.length}/20)
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddCard("side", e.currentTarget);
-                        }}
-                        disabled={sideDeck.length >= 20}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
-                      >
-                        <Plus className="w-3 h-3" />
-                        <span>Add</span>
-                      </button>
-                      <button
-                        onClick={handleRemoveSideDeck}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors font-semibold"
-                      >
-                        <X className="w-3 h-3" />
-                        <span>Remove Side Deck</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="grid gap-1 p-1.5 bg-amber-950/30 rounded border border-dashed border-amber-500/40"
-                  style={{
-                    gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
-                  }}
-                >
-                  {sideDeck.map((card, index) => (
-                    <div
-                      key={`side-${index}`}
-                      className="relative group"
-                      draggable={true}
-                      onDragStart={() => handleDragStart("side", index)}
-                      onDragOver={handleDragOver}
-                      onDrop={() => handleDrop("side", index)}
-                      onDragEnd={handleDragEnd}
-                    >
-                      <CardTooltip
-                        cardId={card.id}
-                        imageUrl={card.imageUrl}
-                        cardName={card.name}
-                        disabled={!!draggedCard}
-                      >
-                        <img
-                          src={card.imageUrlSmall}
-                          alt={card.name}
-                          className="w-full h-auto border border-amber-600/30 group-hover:border-amber-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
-                        />
-                      </CardTooltip>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveCard("side", index);
-                        }}
-                        className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-1 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                  {sideDeck.length === 0 && (
-                    <div 
-                      className="col-span-full flex items-center justify-center text-slate-400 text-sm cursor-pointer"
-                      onClick={(e) => handleAddCard("side", e.currentTarget)}
-                    >
-                      Click to add cards to Side Deck
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center">
-                <button
-                  onClick={handleAddSideDeck}
-                  className="flex items-center gap-2 mx-auto px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded text-sm transition-colors font-semibold"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Side Deck</span>
-                </button>
-              </div>
+              </button>
             )}
+          </div>
 
-            {!hasDeck && (
-              <div className="text-center text-slate-400 text-sm py-8">
-                Add cards to create a recommended deck for this guide
+          <div className="mb-5 h-px bg-gradient-to-r from-transparent via-sky-400/60 to-transparent" />
+
+          <div className="space-y-5">
+            <DeckZoneSection
+              zone="main"
+              cards={mainDeck}
+              isEditMode={isEditMode}
+              canEdit={isEditMode}
+              emptyMessage={
+                isEditMode
+                  ? `Click here to add cards to ${getDeckZoneLabel("main")}`
+                  : `No cards in ${getDeckZoneLabel("main")}`
+              }
+              cardKey={(card, index) => `main-${card.id}-${index}`}
+              onAddCard={handleAddCard}
+              onRemoveCard={handleRemoveCard}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onDragEnd={handleDragEnd}
+              draggedCardActive={!!draggedCard}
+            />
+            {(extraDeck.length > 0 || isEditMode) && (
+              <DeckZoneSection
+                zone="extra"
+                cards={extraDeck}
+                isEditMode={isEditMode}
+                canEdit={isEditMode}
+                emptyMessage={
+                  isEditMode
+                    ? `Click here to add cards to ${getDeckZoneLabel("extra")}`
+                    : `No cards in ${getDeckZoneLabel("extra")}`
+                }
+                cardKey={(card, index) => `extra-${card.id}-${index}`}
+                onAddCard={handleAddCard}
+                onRemoveCard={handleRemoveCard}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onDragEnd={handleDragEnd}
+                draggedCardActive={!!draggedCard}
+              />
+            )}
+            {showSideDeck ? (
+              <DeckZoneSection
+                zone="side"
+                cards={sideDeck}
+                isEditMode={isEditMode}
+                canEdit={isEditMode}
+                emptyMessage={
+                  isEditMode
+                    ? `Click here to add cards to ${getDeckZoneLabel("side")}`
+                    : `No cards in ${getDeckZoneLabel("side")}`
+                }
+                cardKey={(card, index) => `side-${card.id}-${index}`}
+                onAddCard={handleAddCard}
+                onRemoveCard={handleRemoveCard}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onDragEnd={handleDragEnd}
+                draggedCardActive={!!draggedCard}
+                extraActions={
+                  <button
+                    onClick={handleRemoveSideDeck}
+                    className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition-colors hover:bg-red-500/18"
+                  >
+                    Remove Side Deck
+                  </button>
+                }
+              />
+            ) : (
+              isEditMode && (
+                  <div className="text-center">
+                    <button
+                      onClick={handleAddSideDeck}
+                      className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition-colors hover:bg-cyan-500/16"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Add Side Deck</span>
+                    </button>
+                  </div>
+                )
+              )}
+
+            {!hasDeck && isEditMode && (
+              <div className="rounded-[18px] border border-dashed border-slate-700/70 bg-slate-950/25 px-5 py-10 text-center text-sm text-slate-400">
+                Add cards to create a recommended deck for this guide.
               </div>
             )}
           </div>
