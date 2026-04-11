@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { ComboStep } from "@/features/archetypes/types";
+import ChainImg from "@/assets/Chain.webp";
 
 interface ComboStepCardProps {
   step: ComboStep;
@@ -96,18 +97,27 @@ export const ComboStepCard = ({
                 {showAllLeftSubCards && step.leftSubCards.length > 3 && (
                   <div className="flex flex-col gap-1">
                     {step.leftSubCards.slice(3, 5).map((card, index) => (
-                      <CardTooltip
-                        key={`${card.id}-${index + 3}`}
-                        cardId={card.id}
-                        imageUrl={card.imageUrl}
-                        cardName={card.name}
-                      >
-                        <img
-                          src={card.imageUrlSmall}
-                          alt={card.name}
-                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
-                        />
-                      </CardTooltip>
+                      <div key={`${card.id}-${index + 3}`} className="relative inline-block">
+                        <CardTooltip
+                          cardId={card.id}
+                          imageUrl={card.imageUrl}
+                          cardName={card.name}
+                        >
+                          <img
+                            src={card.imageUrlSmall}
+                            alt={card.name}
+                            className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                          />
+                        </CardTooltip>
+                        {card.chainNumber != null && (
+                          <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                        )}
+                        {card.chainNumber != null && (
+                          <span className="absolute bottom-0 left-0 z-[2] min-w-[14px] h-[14px] rounded-full border border-blue-400 bg-blue-900/90 text-blue-200 text-[7px] font-bold flex items-center justify-center px-0.5">
+                            {card.chainNumber}
+                          </span>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
@@ -118,18 +128,27 @@ export const ComboStepCard = ({
                   style={{ minHeight: _isEditMode ? "232px" : "186px" }}
                 >
                   {visibleLeftSubCards.slice(0, 3).map((card, index) => (
-                    <CardTooltip
-                      key={`${card.id}-${index}`}
-                      cardId={card.id}
-                      imageUrl={card.imageUrl}
-                      cardName={card.name}
-                    >
-                      <img
-                        src={card.imageUrlSmall}
-                        alt={card.name}
-                        className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
-                      />
-                    </CardTooltip>
+                    <div key={`${card.id}-${index}`} className="relative inline-block">
+                      <CardTooltip
+                        cardId={card.id}
+                        imageUrl={card.imageUrl}
+                        cardName={card.name}
+                      >
+                        <img
+                          src={card.imageUrlSmall}
+                          alt={card.name}
+                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                        />
+                      </CardTooltip>
+                      {card.chainNumber != null && (
+                        <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                      )}
+                      {card.chainNumber != null && (
+                        <span className="absolute bottom-0 left-0 z-[2] min-w-[14px] h-[14px] rounded-full border border-blue-400 bg-blue-900/90 text-blue-200 text-[7px] font-bold flex items-center justify-center px-0.5">
+                          {card.chainNumber}
+                        </span>
+                      )}
+                    </div>
                   ))}
                   <div
                     style={{
@@ -172,18 +191,27 @@ export const ComboStepCard = ({
         {/* Main Card(s) - Always centered */}
         <div className="flex gap-2 relative top-4">
           {step.mainCards.map((card, index) => (
-            <CardTooltip
-              key={`${card.id}-${index}`}
-              cardId={card.id}
-              imageUrl={card.imageUrl}
-              cardName={card.name}
-            >
-              <img
-                src={card.imageUrlSmall}
-                alt={card.name}
-                className={`${_isEditMode ? 'w-32 h-44' : 'w-20 h-28'} object-cover hover:scale-105 transition-transform cursor-pointer`}
-              />
-            </CardTooltip>
+            <div key={`${card.id}-${index}`} className="relative inline-block">
+              <CardTooltip
+                cardId={card.id}
+                imageUrl={card.imageUrl}
+                cardName={card.name}
+              >
+                <img
+                  src={card.imageUrlSmall}
+                  alt={card.name}
+                  className={`${_isEditMode ? 'w-32 h-44' : 'w-20 h-28'} object-cover hover:scale-105 transition-transform cursor-pointer`}
+                />
+              </CardTooltip>
+              {card.chainNumber != null && (
+                <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+              )}
+              {card.chainNumber != null && (
+                <span className={`absolute bottom-0 left-0 z-[2] min-w-[18px] h-[18px] rounded-full border-2 border-blue-400 bg-blue-900/90 text-blue-200 ${_isEditMode ? 'text-[10px]' : 'text-[9px]'} font-bold flex items-center justify-center px-0.5`}>
+                  {card.chainNumber}
+                </span>
+              )}
+            </div>
           ))}
         </div>
 
@@ -206,18 +234,27 @@ export const ComboStepCard = ({
                   style={{ minHeight: _isEditMode ? "232px" : "186px" }}
                 >
                   {visibleSubCards.slice(0, 3).map((card, index) => (
-                    <CardTooltip
-                      key={`${card.id}-${index}`}
-                      cardId={card.id}
-                      imageUrl={card.imageUrl}
-                      cardName={card.name}
-                    >
-                      <img
-                        src={card.imageUrlSmall}
-                        alt={card.name}
-                        className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
-                      />
-                    </CardTooltip>
+                    <div key={`${card.id}-${index}`} className="relative inline-block">
+                      <CardTooltip
+                        cardId={card.id}
+                        imageUrl={card.imageUrl}
+                        cardName={card.name}
+                      >
+                        <img
+                          src={card.imageUrlSmall}
+                          alt={card.name}
+                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                        />
+                      </CardTooltip>
+                      {card.chainNumber != null && (
+                        <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                      )}
+                      {card.chainNumber != null && (
+                        <span className="absolute bottom-0 left-0 z-[2] min-w-[14px] h-[14px] rounded-full border border-blue-400 bg-blue-900/90 text-blue-200 text-[7px] font-bold flex items-center justify-center px-0.5">
+                          {card.chainNumber}
+                        </span>
+                      )}
+                    </div>
                   ))}
                   <div
                     style={{
@@ -241,18 +278,27 @@ export const ComboStepCard = ({
                 {showAllSubCards && step.subCards.length > 3 && (
                   <div className="flex flex-col gap-1">
                     {step.subCards.slice(3, 5).map((card, index) => (
-                      <CardTooltip
-                        key={`${card.id}-${index + 3}`}
-                        cardId={card.id}
-                        imageUrl={card.imageUrl}
-                        cardName={card.name}
-                      >
-                        <img
-                          src={card.imageUrlSmall}
-                          alt={card.name}
-                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
-                        />
-                      </CardTooltip>
+                      <div key={`${card.id}-${index + 3}`} className="relative inline-block">
+                        <CardTooltip
+                          cardId={card.id}
+                          imageUrl={card.imageUrl}
+                          cardName={card.name}
+                        >
+                          <img
+                            src={card.imageUrlSmall}
+                            alt={card.name}
+                            className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                          />
+                        </CardTooltip>
+                        {card.chainNumber != null && (
+                          <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                        )}
+                        {card.chainNumber != null && (
+                          <span className="absolute bottom-0 left-0 z-[2] min-w-[14px] h-[14px] rounded-full border border-blue-400 bg-blue-900/90 text-blue-200 text-[7px] font-bold flex items-center justify-center px-0.5">
+                            {card.chainNumber}
+                          </span>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}

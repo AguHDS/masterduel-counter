@@ -2,6 +2,8 @@ export interface Archetype {
   id: number;
   name: string;
   registered: boolean;
+  has_counter_guide?: boolean;
+  has_deck_guide?: boolean;
   instance_count?: number;
 }
 
@@ -21,6 +23,9 @@ export interface Card {
   imageUrl: string;
   imageUrlSmall: string;
   imageUrlCropped: string;
+  chainNumber?: number | null;
+  frameType?: string;
+  level?: number;
 }
 
 export interface CardPair {

@@ -7,6 +7,18 @@ interface AvatarProps {
   className?: string;
 }
 
+const SIZE_PX: Record<string, number> = {
+  sm: 64,
+  md: 80,
+  lg: 128,
+};
+
+function getOptimizedCloudinaryUrl(url: string, sizePx: number): string {
+  if (!url.includes("res.cloudinary.com")) return url;
+  const transform = `w_${sizePx},h_${sizePx},c_fill,q_auto,f_auto`;
+  return url.replace("/upload/", `/upload/${transform}/`);
+}
+
 /** Default profile picture when user has not set one */
 export const Avatar: React.FC<AvatarProps> = ({
   username,
@@ -25,9 +37,13 @@ export const Avatar: React.FC<AvatarProps> = ({
   };
 
   if (profilePictureUrl) {
+    const optimizedUrl = getOptimizedCloudinaryUrl(
+      profilePictureUrl,
+      SIZE_PX[size] ?? 80
+    );
     return (
       <img
-        src={profilePictureUrl}
+        src={optimizedUrl}
         alt={username}
         className={`rounded-sm border-2 border-[#c2901c]/30 object-cover ${sizeClasses[size]} ${className}`}
         loading="lazy"

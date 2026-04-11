@@ -6,6 +6,8 @@ export interface CardSearchResult {
   imageUrlExternal?: string;
   imageUrlSmallExternal?: string;
   imageUrlCroppedExternal?: string;
+  frameType?: string;
+  level?: number;
 }
 
 // Search for cards by name query

@@ -245,8 +245,11 @@ export class GuideApplicationService implements GuideInstanceServicePort {
               description: step.description || null,
               parentCanceledStepId,
               mainCardIds: step.mainCardIds,
+              mainCardChains: step.mainCardChains,
               subCardIds: step.subCardIds,
+              subCardChains: step.subCardChains,
               leftSubCardIds: step.leftSubCardIds,
+              leftSubCardChains: step.leftSubCardChains,
             }]);
             
             // Store the mapping

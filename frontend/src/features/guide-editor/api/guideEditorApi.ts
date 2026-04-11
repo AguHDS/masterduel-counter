@@ -14,8 +14,11 @@ export interface CardPairDTO {
 
 export interface ComboStepDTO {
   mainCardIds: number[];
+  mainCardChains?: (number | null)[];
   subCardIds: number[];
+  subCardChains?: (number | null)[];
   leftSubCardIds?: number[];
+  leftSubCardChains?: (number | null)[];
   description?: string;
   parentCanceledStepIndex?: number;
   stepOrder: number;
@@ -43,6 +46,8 @@ export interface RecommendedDeckCard {
   imageUrl: string;
   imageUrlSmall: string;
   imageUrlCropped: string;
+  frameType?: string;
+  level?: number;
 }
 
 export interface RecommendedDeck {

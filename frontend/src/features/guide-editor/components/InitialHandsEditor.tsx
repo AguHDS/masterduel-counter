@@ -283,7 +283,7 @@ export const InitialHandsEditor = ({
       </div>
 
       {initialHands.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-600 rounded-lg">
+        <div className="flex flex-col items-center justify-center p-12">
           <p className="text-gray-400 text-center mb-4">
             No initial hands added yet
           </p>
@@ -560,7 +560,16 @@ export const InitialHandsEditor = ({
                 }
                 onDelete={() => handleDeleteFieldPreview(currentPreviewHandId)}
                 onModalStateChange={(isOpen) => {
-                  setActiveModalComponent(isOpen ? "field-board" : null);
+                  if (isOpen) {
+                    setActiveModalComponent("field-board");
+                  } else {
+                    // Only reset if field-board was the active modal — avoid
+                    // overwriting "card-search" when this callback fires
+                    // spuriously due to re-renders.
+                    setActiveModalComponent((prev) =>
+                      prev === "field-board" ? null : prev,
+                    );
+                  }
                 }}
                 forceCloseModal={
                   activeModalComponent !== null &&

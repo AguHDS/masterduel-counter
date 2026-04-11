@@ -44,4 +44,7 @@ export interface NotificationRepository {
 
   /** Delete notification */
   deleteNotification(id: number): Promise<void>;
+
+  /** Delete notifications that are read and older than the given date */
+  deleteOldReadNotifications(olderThanDate: Date): Promise<number>;
 }

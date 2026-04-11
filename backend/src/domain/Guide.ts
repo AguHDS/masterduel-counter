@@ -53,8 +53,11 @@ export interface RegisterGuideDTO {
     initialHandId: number;
     steps: Array<{
       mainCardIds: number[];
+      mainCardChains?: (number | null)[];
       subCardIds: number[];
+      subCardChains?: (number | null)[];
       leftSubCardIds: number[];
+      leftSubCardChains?: (number | null)[];
       description?: string;
       parentCanceledStepIndex?: number;
       stepOrder: number;

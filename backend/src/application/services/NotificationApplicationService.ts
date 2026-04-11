@@ -122,11 +122,11 @@ export class NotificationApplicationService implements NotificationApplicationPo
   async getUserNotifications(
     userId: string,
     page: number = 1,
-    limit: number = 20,
+    limit: number = 15,
   ): Promise<{ notifications: NotificationWithDetails[]; total: number }> {
     if (page < 1) page = 1;
-    if (limit < 1) limit = 20;
-    if (limit > 100) limit = 100;
+    if (limit < 1) limit = 15;
+    if (limit > 15) limit = 15;
 
     return this.notificationRepository.findNotificationsByUserId(
       userId,

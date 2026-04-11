@@ -281,8 +281,11 @@ export const useSaveInstanceGuide = () => {
                   
                   return {
                     mainCardIds: step.mainCards.map((c) => c.id),
+                    mainCardChains: step.mainCards.map((c) => c.chainNumber ?? null),
                     subCardIds: step.subCards.map((c) => c.id),
+                    subCardChains: step.subCards.map((c) => c.chainNumber ?? null),
                     leftSubCardIds: step.leftSubCards.map((c) => c.id),
+                    leftSubCardChains: step.leftSubCards.map((c) => c.chainNumber ?? null),
                     description: step.description || undefined,
                     parentCanceledStepIndex: parentIndex,
                     stepOrder: stepIndex,

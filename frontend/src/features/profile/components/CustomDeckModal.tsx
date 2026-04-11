@@ -3,14 +3,8 @@ import { X, Trash2, Lock, Globe, Edit2, Plus, Save } from "lucide-react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
 import type { CustomDeck } from "../api/customDeckApi";
-
-interface Card {
-  id: number;
-  name: string;
-  imageUrl: string;
-  imageUrlSmall: string;
-  imageUrlCropped: string;
-}
+import { sortDeckCards } from "@/shared/utils/sortDeckCards";
+import type { Card } from "@/features/archetypes/types";
 
 interface DeckCard extends Card {
   uniqueId: string;
@@ -106,21 +100,21 @@ export const CustomDeckModal = ({
         alert("Main deck cannot have more than 60 cards");
         return;
       }
-      setMainDeck(prev => [...prev, deckCard]);
+      setMainDeck(prev => sortDeckCards([...prev, deckCard]));
       setHasChanges(true);
     } else if (targetZone === "extra") {
       if (extraDeck.length >= 15) {
         alert("Extra deck cannot have more than 15 cards");
         return;
       }
-      setExtraDeck(prev => [...prev, deckCard]);
+      setExtraDeck(prev => sortDeckCards([...prev, deckCard]));
       setHasChanges(true);
     } else if (targetZone === "side") {
       if (sideDeck.length >= 20) {
         alert("Side deck cannot have more than 20 cards");
         return;
       }
-      setSideDeck(prev => [...prev, deckCard]);
+      setSideDeck(prev => sortDeckCards([...prev, deckCard]));
       setHasChanges(true);
     }
   }, [targetZone, mainDeck.length, extraDeck.length, sideDeck.length]);

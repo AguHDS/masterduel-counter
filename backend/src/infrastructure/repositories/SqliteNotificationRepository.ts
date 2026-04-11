@@ -32,6 +32,16 @@ export class SqliteNotificationRepository implements NotificationRepository {
     return this.mapToNotification(notification);
   }
 
+  async deleteOldReadNotifications(olderThanDate: Date): Promise<number> {
+    const result = await this.prisma.notification.deleteMany({
+      where: {
+        read: true,
+        updatedAt: { lt: olderThanDate },
+      },
+    });
+    return result.count;
+  }
+
   async findNotificationById(id: number): Promise<Notification | null> {
     const notification = await this.prisma.notification.findUnique({
       where: { id },
@@ -51,7 +61,7 @@ export class SqliteNotificationRepository implements NotificationRepository {
 
     const [notifications, total] = await Promise.all([
       this.prisma.notification.findMany({
-        where: { userId, read: false },
+        where: { userId },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
@@ -66,7 +76,7 @@ export class SqliteNotificationRepository implements NotificationRepository {
         },
       }),
       this.prisma.notification.count({
-        where: { userId, read: false },
+        where: { userId },
       }),
     ]);
 
@@ -97,26 +107,18 @@ export class SqliteNotificationRepository implements NotificationRepository {
   }
 
   async markNotificationAsRead(id: number): Promise<Notification> {
-    // Get the notification before deleting it
-    const notification = await this.prisma.notification.findUnique({
+    const notification = await this.prisma.notification.update({
       where: { id },
-    });
-
-    if (!notification) {
-      throw new Error("Notification not found");
-    }
-
-    // Delete the notification
-    await this.prisma.notification.delete({
-      where: { id },
+      data: { read: true },
     });
 
     return this.mapToNotification(notification);
   }
 
   async markAllAsRead(userId: string): Promise<void> {
-    await this.prisma.notification.deleteMany({
+    await this.prisma.notification.updateMany({
       where: { userId, read: false },
+      data: { read: true },
     });
   }
 

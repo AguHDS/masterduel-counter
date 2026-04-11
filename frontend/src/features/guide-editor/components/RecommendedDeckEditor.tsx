@@ -2,14 +2,8 @@ import { useState, useEffect } from "react";
 import { Plus, X, Loader2 } from "lucide-react";
 import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
-
-interface Card {
-  id: number;
-  name: string;
-  imageUrl: string;
-  imageUrlSmall: string;
-  imageUrlCropped: string;
-}
+import { sortDeckCards } from "@/shared/utils/sortDeckCards";
+import type { Card } from "@/features/archetypes/types";
 
 interface RecommendedDeckEditorProps {
   isEditMode: boolean;
@@ -121,7 +115,7 @@ export const RecommendedDeckEditor = ({
         alert("Main deck cannot have more than 60 cards");
         return;
       }
-      const newMainDeck = [...mainDeck, card];
+      const newMainDeck = sortDeckCards([...mainDeck, card]);
       setMainDeck(newMainDeck);
       if (onDeckChange) {
         onDeckChange(title, newMainDeck, extraDeck, sideDeck);
@@ -131,7 +125,7 @@ export const RecommendedDeckEditor = ({
         alert("Extra deck cannot have more than 15 cards");
         return;
       }
-      const newExtraDeck = [...extraDeck, card];
+      const newExtraDeck = sortDeckCards([...extraDeck, card]);
       setExtraDeck(newExtraDeck);
       if (onDeckChange) {
         onDeckChange(title, mainDeck, newExtraDeck, sideDeck);
@@ -141,7 +135,7 @@ export const RecommendedDeckEditor = ({
         alert("Side deck cannot have more than 20 cards");
         return;
       }
-      const newSideDeck = [...sideDeck, card];
+      const newSideDeck = sortDeckCards([...sideDeck, card]);
       setSideDeck(newSideDeck);
       if (onDeckChange) {
         onDeckChange(title, mainDeck, extraDeck, newSideDeck);

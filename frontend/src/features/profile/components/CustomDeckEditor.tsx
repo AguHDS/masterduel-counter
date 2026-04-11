@@ -2,14 +2,8 @@ import { useState, useRef } from "react";
 import { Plus, X, Loader2, Save } from "lucide-react";
 import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
-
-interface Card {
-  id: number;
-  name: string;
-  imageUrl: string;
-  imageUrlSmall: string;
-  imageUrlCropped: string;
-}
+import { sortDeckCards } from "@/shared/utils/sortDeckCards";
+import type { Card } from "@/features/archetypes/types";
 
 interface DeckCard extends Card {
   uniqueId: string;
@@ -62,7 +56,7 @@ export const CustomDeckEditor = ({
         return;
       }
       const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
-      const newMainDeck = [...mainDeck, deckCard];
+      const newMainDeck = sortDeckCards([...mainDeck, deckCard]);
       setMainDeck(newMainDeck);
     } else if (targetZone === "extra") {
       if (extraDeck.length >= 15) {
@@ -70,7 +64,7 @@ export const CustomDeckEditor = ({
         return;
       }
       const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
-      const newExtraDeck = [...extraDeck, deckCard];
+      const newExtraDeck = sortDeckCards([...extraDeck, deckCard]);
       setExtraDeck(newExtraDeck);
     }
   };

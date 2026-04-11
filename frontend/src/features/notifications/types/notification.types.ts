@@ -25,6 +25,9 @@ export interface NotificationContextType {
   markAllAsRead: () => void;
   notificationRef: React.RefObject<HTMLDivElement | null>;
   buttonRef: React.RefObject<HTMLDivElement | HTMLButtonElement | null>;
+  currentPage: number;
+  totalPages: number;
+  setCurrentPage: (page: number) => void;
 }
 
 export interface FormattedNotificationMessage {

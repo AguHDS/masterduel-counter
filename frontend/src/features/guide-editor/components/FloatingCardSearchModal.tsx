@@ -178,13 +178,15 @@ export const FloatingCardSearchModal = ({
   }, [isOpen]);
 
   const handleSelectCard = useCallback(
-    (id: number, name: string, imageUrl: string, imageUrlSmall: string, imageUrlCropped: string) => {
+    (id: number, name: string, imageUrl: string, imageUrlSmall: string, imageUrlCropped: string, frameType?: string, level?: number) => {
       const card: Card = {
         id,
         name,
         imageUrl,
         imageUrlSmall,
         imageUrlCropped,
+        frameType,
+        level,
       };
       onSelectCard(card);
       if (autoCloseAfterSelect) {
@@ -264,14 +266,14 @@ export const FloatingCardSearchModal = ({
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/50 z-[90]"
+        className="fixed inset-0 bg-black/50 z-[460]"
         onClick={handleClose}
       />
 
       {/* Modal */}
       <div
         ref={containerRef}
-        className="fixed z-[350] bg-slate-900 rounded-lg shadow-2xl border border-slate-700 flex flex-col overflow-hidden"
+        className="fixed z-[470] bg-slate-900 rounded-lg shadow-2xl border border-slate-700 flex flex-col overflow-hidden"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
@@ -395,6 +397,8 @@ export const FloatingCardSearchModal = ({
                                   result.imageUrlExternal || "",
                                   result.imageUrlSmallExternal || "",
                                   result.imageUrlCroppedExternal || "",
+                                  result.frameType,
+                                  result.level,
                                 )
                               }
                               className="group relative bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 hover:border-blue-500 transition-colors overflow-hidden flex flex-col w-full h-full"

@@ -79,6 +79,7 @@ export const createGetGuideByIdController = (
                   imageUrl: card.image_url,
                   imageUrlSmall: card.image_url_small,
                   imageUrlCropped: card.image_url_cropped,
+                  chain_number: card.chain_number,
                 })),
                 subCards: step.subCards.map((card) => ({
                   id: card.id,
@@ -86,6 +87,7 @@ export const createGetGuideByIdController = (
                   imageUrl: card.image_url,
                   imageUrlSmall: card.image_url_small,
                   imageUrlCropped: card.image_url_cropped,
+                  chain_number: card.chain_number,
                 })),
                 leftSubCards: step.leftSubCards.map((card) => ({
                   id: card.id,
@@ -93,6 +95,7 @@ export const createGetGuideByIdController = (
                   imageUrl: card.image_url,
                   imageUrlSmall: card.image_url_small,
                   imageUrlCropped: card.image_url_cropped,
+                  chain_number: card.chain_number,
                 })),
               })),
             };

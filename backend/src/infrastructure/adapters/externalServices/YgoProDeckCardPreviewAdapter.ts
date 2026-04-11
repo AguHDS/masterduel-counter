@@ -40,9 +40,11 @@ export class YgoProDeckCardPreviewAdapter implements CardApiService {
 
       const data = await response.json();
       
-      return data.data.map((card: { id: number; name: string; card_images: unknown[] }) => ({
+      return data.data.map((card: { id: number; name: string; frameType?: string; level?: number; card_images: unknown[] }) => ({
         id: card.id,
         name: card.name,
+        frameType: card.frameType,
+        level: card.level,
         card_images: card.card_images,
       }));
     } catch (error) {
@@ -75,6 +77,8 @@ export class YgoProDeckCardPreviewAdapter implements CardApiService {
       return {
         id: card.id,
         name: card.name,
+        frameType: card.frameType,
+        level: card.level,
         card_images: card.card_images,
       };
     } catch (error) {

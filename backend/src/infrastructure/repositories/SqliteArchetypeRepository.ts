@@ -26,7 +26,15 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
   ): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered,
-             created_at, updated_at
+             created_at, updated_at,
+             CASE WHEN EXISTS (
+               SELECT 1 FROM archetype_instances
+               WHERE archetype_id = archetypes.id AND guide_type = 'COUNTER'
+             ) THEN 1 ELSE 0 END as has_counter_guide,
+             CASE WHEN EXISTS (
+               SELECT 1 FROM archetype_instances
+               WHERE archetype_id = archetypes.id AND guide_type = 'DECK'
+             ) THEN 1 ELSE 0 END as has_deck_guide
       FROM archetypes 
       WHERE LOWER(name) LIKE LOWER(?) 
       ORDER BY name 
@@ -42,7 +50,15 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
   ): Promise<Archetype[]> {
     const stmt = this.db.prepare(`
       SELECT id, name, registered,
-             created_at, updated_at
+             created_at, updated_at,
+             CASE WHEN EXISTS (
+               SELECT 1 FROM archetype_instances
+               WHERE archetype_id = archetypes.id AND guide_type = 'COUNTER'
+             ) THEN 1 ELSE 0 END as has_counter_guide,
+             CASE WHEN EXISTS (
+               SELECT 1 FROM archetype_instances
+               WHERE archetype_id = archetypes.id AND guide_type = 'DECK'
+             ) THEN 1 ELSE 0 END as has_deck_guide
       FROM archetypes 
       WHERE LOWER(name) LIKE LOWER(?) 
       ORDER BY name 

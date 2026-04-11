@@ -705,14 +705,14 @@ async findLatestCreatedInstances(
       p.profile_picture_url as user_profile_picture_url,
       c.name as header_card_name,
       c.image_url_cropped as header_card_image_url,
-      CAST((strftime('%s', 'now') - strftime('%s', ai.updated_at)) / 60 AS INTEGER) as minutes_ago
+      CAST((strftime('%s', 'now') - strftime('%s', ai.created_at)) / 60 AS INTEGER) as minutes_ago
     FROM archetype_instances ai
     JOIN archetypes a ON ai.archetype_id = a.id
     JOIN users u ON ai.user_id = u.id
     LEFT JOIN profiles p ON u.id = p.user_id
     LEFT JOIN cards c ON ai.header_card_id = c.id
     ${guideTypeFilter}
-    ORDER BY ai.updated_at DESC, ai.created_at DESC
+    ORDER BY ai.updated_at DESC
     LIMIT ?
   `);
 

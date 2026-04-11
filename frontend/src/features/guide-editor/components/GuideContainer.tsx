@@ -392,9 +392,9 @@ export const GuideContainer = ({
                 description: step.description,
                 parentCanceledStepId:
                   step.parentCanceledStepId?.toString() || null,
-                mainCards: step.mainCards,
-                subCards: step.subCards,
-                leftSubCards: step.leftSubCards || [],
+                mainCards: (step.mainCards as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
+                subCards: (step.subCards as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
+                leftSubCards: ((step.leftSubCards || []) as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
               }),
             );
             comboStepsMap.set(hand.id.toString(), transformedSteps);
@@ -490,8 +490,11 @@ export const GuideContainer = ({
         description: s.description ?? null,
         parentCanceledStepId: s.parentCanceledStepId ?? null,
         mainCardIds: s.mainCards.map((c) => c.id),
+        mainCardChains: s.mainCards.map((c) => c.chainNumber ?? null),
         subCardIds: s.subCards.map((c) => c.id),
+        subCardChains: s.subCards.map((c) => c.chainNumber ?? null),
         leftSubCardIds: (s.leftSubCards ?? []).map((c) => c.id),
+        leftSubCardChains: (s.leftSubCards ?? []).map((c) => c.chainNumber ?? null),
       })),
     })),
     deckTitle,
@@ -604,9 +607,9 @@ export const GuideContainer = ({
                 description: step.description,
                 parentCanceledStepId:
                   step.parentCanceledStepId?.toString() || null,
-                mainCards: step.mainCards,
-                subCards: step.subCards,
-                leftSubCards: step.leftSubCards || [],
+                mainCards: (step.mainCards as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
+                subCards: (step.subCards as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
+                leftSubCards: ((step.leftSubCards || []) as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
               }),
             );
             comboStepsMap.set(hand.id.toString(), transformedSteps);

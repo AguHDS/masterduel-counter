@@ -1,6 +1,8 @@
 export interface RawCardData {
   id: number;
   name: string;
+  frameType?: string;
+  level?: number;
   card_images: Array<{
     image_url: string;
     image_url_small: string;

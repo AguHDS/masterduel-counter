@@ -23,6 +23,8 @@ export interface CustomDeck {
     imageUrl: string;
     imageUrlSmall: string;
     imageUrlCropped: string;
+    frameType?: string;
+    level?: number;
   }>;
   extraDeck: Array<{
     id: number;
@@ -30,6 +32,8 @@ export interface CustomDeck {
     imageUrl: string;
     imageUrlSmall: string;
     imageUrlCropped: string;
+    frameType?: string;
+    level?: number;
   }>;
   sideDeck: Array<{
     id: number;
@@ -37,6 +41,8 @@ export interface CustomDeck {
     imageUrl: string;
     imageUrlSmall: string;
     imageUrlCropped: string;
+    frameType?: string;
+    level?: number;
   }>;
   createdAt: string;
   updatedAt: string;
