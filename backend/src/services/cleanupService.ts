@@ -1,9 +1,10 @@
 import cron from "node-cron";
 import { PrismaClient } from "@prisma/client";
 import config from "@/infrastructure/config/environmentVars.js";
+import { getDependencies } from "@/compositionRoot.js";
 
 const prisma = new PrismaClient();
-
+const GUIDE_VIEW_TRACKING_RETENTION_DAYS = 30;
 /**
  * Service to clean up unverified user accounts
  * 
@@ -27,6 +28,58 @@ const DEFAULT_CONFIG: CleanupConfig = {
   cronSchedule: "0 3 * * *", // Every day at 3 AM
   enabled: true,
 };
+
+/**
+ * Deletes notifications that are marked as read and older than 1 month.
+ * @returns Number of deleted notifications
+ */
+export async function cleanupOldReadNotifications(): Promise<number> {
+  const cutoffDate = new Date();
+  cutoffDate.setMonth(cutoffDate.getMonth() - 1);
+
+  try {
+    const result = await prisma.notification.deleteMany({
+      where: {
+        read: true,
+        updatedAt: { lt: cutoffDate },
+      },
+    });
+
+    if (result.count > 0) {
+      console.log(`[Cleanup Service] Deleted ${result.count} old read notification(s).`);
+    }
+    return result.count;
+  } catch (error) {
+    console.error(`[Cleanup Service] Error during notification cleanup:`, error);
+    return 0;
+  }
+}
+
+/**
+ * Deletes anonymous guide view tracking rows older than the retention window.
+ * @returns Number of deleted tracking rows
+ */
+export async function cleanupOldGuideViewTracking(): Promise<number> {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - GUIDE_VIEW_TRACKING_RETENTION_DAYS);
+
+  try {
+    const deletedCount = await getDependencies()
+      .getInstanceRepository()
+      .cleanupOldViewTracking(cutoffDate);
+
+    if (deletedCount > 0) {
+      console.log(
+        `[Cleanup Service] Deleted ${deletedCount} old guide view tracking row(s) older than ${GUIDE_VIEW_TRACKING_RETENTION_DAYS} days.`,
+      );
+    }
+
+    return deletedCount;
+  } catch (error) {
+    console.error(`[Cleanup Service] Error during guide view tracking cleanup:`, error);
+    return 0;
+  }
+}
 
 /**
  * Deletes unverified user accounts older than the TTL
@@ -121,6 +174,8 @@ export function startCleanupJob(): void {
   cron.schedule(cleanupConfig.cronSchedule, async () => {
     console.log(`\n[Cleanup Service] Cron job triggered at ${new Date().toISOString()}`);
     await cleanupUnverifiedAccounts();
+    await cleanupOldReadNotifications();
+    await cleanupOldGuideViewTracking();
   });
 
   console.log(`[Cleanup Service] Cleanup job scheduled successfully.`);
@@ -130,6 +185,8 @@ export function startCleanupJob(): void {
     console.log(`[Cleanup Service] Running initial cleanup (development mode)...`);
     setTimeout(() => {
       cleanupUnverifiedAccounts();
+      cleanupOldReadNotifications();
+      cleanupOldGuideViewTracking();
     }, 5000); // Wait 5 seconds after startup
   }
 }

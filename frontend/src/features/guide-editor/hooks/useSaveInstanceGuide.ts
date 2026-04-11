@@ -4,6 +4,7 @@ import { useSaveGuide } from "./useArchetypeQueries";
 import {
   saveRecommendedDeck,
   deleteRecommendedDeck,
+  type FinalBoardDTO,
 } from "../api/guideEditorApi";
 import {
   validateInstanceData,
@@ -35,6 +36,49 @@ export const useSaveInstanceGuide = () => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const saveGuideMutation = useSaveGuide();
 
+  const getFinalBoardCardIds = (hand: InitialHand): number[] => {
+    // Include every card referenced by the final board so confirmCards persists them too.
+    if (!hand.finalBoard) {
+      return [];
+    }
+
+    return [
+      ...(hand.finalBoard.fieldSpell ? [hand.finalBoard.fieldSpell.id] : []),
+      ...hand.finalBoard.extraMonsters
+        .filter((card): card is Card => card !== null)
+        .map((card) => card.id),
+      ...hand.finalBoard.monsters
+        .filter((card): card is Card => card !== null)
+        .map((card) => card.id),
+      ...hand.finalBoard.spellTraps
+        .filter((card): card is Card => card !== null)
+        .map((card) => card.id),
+      ...hand.finalBoard.hand
+        .filter((card): card is Card => card !== null)
+        .map((card) => card.id),
+      ...hand.finalBoard.graveyard.map((card) => card.id),
+      ...hand.finalBoard.banished.map((card) => card.id),
+    ];
+  };
+
+  const serializeFinalBoard = (hand: InitialHand): FinalBoardDTO | undefined => {
+    // Convert the editor state into the compact DTO expected by the backend.
+    if (!hand.finalBoard) {
+      return undefined;
+    }
+
+    return {
+      fieldSpellCardId: hand.finalBoard.fieldSpell?.id || null,
+      extraMonsterCardIds: hand.finalBoard.extraMonsters.map((card) => card?.id || null),
+      monsterCardIds: hand.finalBoard.monsters.map((card) => card?.id || null),
+      spellTrapCardIds: hand.finalBoard.spellTraps.map((card) => card?.id || null),
+      handCardIds: hand.finalBoard.hand.map((card) => card?.id || null),
+      graveyardCardIds: hand.finalBoard.graveyard.map((card) => card.id),
+      banishedCardIds: hand.finalBoard.banished.map((card) => card.id),
+      description: hand.finalBoard.description || undefined,
+    };
+  };
+
   const validatePairs = (pairs: CardPair[], guideType: GuideType): boolean => {
     // COUNTER guides require at least one card pair
     if (guideType === "COUNTER") {
@@ -57,14 +101,14 @@ export const useSaveInstanceGuide = () => {
     return true;
   };
 
-  const validateInitialHands = (initialHands: InitialHand[], guideType: GuideType): boolean => {
-    // DECK guides require at least one initial hand
+  const validateInitialHands = (initialHands: InitialHand[], guideType: GuideType, hasDeckContent: boolean): boolean => {
+    // DECK guides need at least one initial hand OR a recommended deck.
     if (guideType === "DECK") {
       const validHands = initialHands.filter((h) => h.cards.length > 0);
 
-      if (validHands.length === 0) {
+      if (validHands.length === 0 && !hasDeckContent) {
         setValidationError(
-          "Deck Guides require at least one initial hand. Please add at least one card in at least one initial hand before saving.",
+          "Deck Guides require at least one initial hand or a recommended deck. Please add cards to a hand or add a recommended deck before saving.",
         );
         return false;
       }
@@ -102,7 +146,7 @@ export const useSaveInstanceGuide = () => {
         return;
       }
     } else if (guideType === "DECK") {
-      if (!validateInitialHands(initialHands, guideType)) {
+      if (!validateInitialHands(initialHands, guideType, hasDeckContent)) {
         return;
       }
     }
@@ -138,11 +182,12 @@ export const useSaveInstanceGuide = () => {
         });
       }
 
-      // Add initial hand card IDs for DECK guides (only non-empty hands)
+      // Collect all DECK guide card IDs upfront so the backend can confirm every referenced card.
       if (guideType === "DECK") {
         const validHands = initialHands.filter((h) => h.cards.length > 0);
         validHands.forEach((hand) => {
           allCardIds.push(...hand.cards.map((c) => c.id));
+          allCardIds.push(...getFinalBoardCardIds(hand));
         });
         
         // Add combo step card IDs
@@ -176,13 +221,14 @@ export const useSaveInstanceGuide = () => {
       // Optional Comment preserves formatting (only trim edges)
       const processedGeneralTip = generalTip.trim();
 
-      // Transform initial hands for API (only non-empty hands)
+      // Send final board state together with each non-empty hand in the same save payload.
       const initialHandsForApi = guideType === "DECK" 
         ? initialHands
             .filter((hand) => hand.cards.length > 0)
             .map((hand) => ({
               cardIds: hand.cards.map((c) => c.id),
               description: hand.description || undefined,
+              finalBoard: serializeFinalBoard(hand),
             }))
         : undefined;
 
@@ -235,8 +281,11 @@ export const useSaveInstanceGuide = () => {
                   
                   return {
                     mainCardIds: step.mainCards.map((c) => c.id),
+                    mainCardChains: step.mainCards.map((c) => c.chainNumber ?? null),
                     subCardIds: step.subCards.map((c) => c.id),
+                    subCardChains: step.subCards.map((c) => c.chainNumber ?? null),
                     leftSubCardIds: step.leftSubCards.map((c) => c.id),
+                    leftSubCardChains: step.leftSubCards.map((c) => c.chainNumber ?? null),
                     description: step.description || undefined,
                     parentCanceledStepIndex: parentIndex,
                     stepOrder: stepIndex,

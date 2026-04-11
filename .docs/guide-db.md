@@ -34,3 +34,11 @@ Nota:
 
 VPS:
 sqlite3 prisma/src/data/database.db
+
+-----------
+
+Cuando modificamos la DB:
+npx prisma db push
+npx prisma generate solo si querés forzarlo manualmente; normalmente db push ya ejecuta generators salvo que uses --skip-generate
+reiniciar backend
+La diferencia práctica es esta: schema.prisma es la fuente de verdad, y db push simplemente sincroniza la base con ese schema. migrate dev en cambio intenta crear y administrar historial de migraciones, que es justo lo que decís que no usás.

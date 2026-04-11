@@ -18,7 +18,7 @@ export const notificationKeys = {
 /** Hook to get user notifications with pagination */
 export const useNotificationsQuery = (
   page: number = 1, 
-  limit: number = 20,
+  limit: number = 15,
   options?: Omit<UseQueryOptions<NotificationsResponse>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
@@ -50,7 +50,7 @@ export const useMarkAsRead = () => {
     mutationFn: (notificationId: number) =>
       notificationsApi.markAsRead(notificationId),
     onSuccess: (updatedNotification) => {
-      // Optimistically remove the notification from lists (since backend only returns unread)
+      // Optimistically mark the notification as read in the list (keep it visible)
       queryClient.setQueriesData(
         { queryKey: notificationKeys.lists() },
         (oldData: NotificationsResponse | undefined) => {
@@ -58,19 +58,20 @@ export const useMarkAsRead = () => {
 
           return {
             ...oldData,
-            notifications: oldData.notifications.filter(
-              (n: Notification) => n.id !== updatedNotification.id
+            notifications: oldData.notifications.map((n: Notification) =>
+              n.id === updatedNotification.id ? { ...n, read: true } : n
             ),
-            total: Math.max(0, (oldData.total || 1) - 1),
           };
         }
       );
 
-      // Update unread count
-      queryClient.setQueryData(
-        notificationKeys.unreadCount(),
-        (oldCount: number = 0) => Math.max(0, oldCount - 1)
-      );
+      // Update unread count only if the notification was unread before
+      if (!updatedNotification.read) {
+        queryClient.setQueryData(
+          notificationKeys.unreadCount(),
+          (oldCount: number = 0) => Math.max(0, oldCount - 1)
+        );
+      }
     },
     onSettled: () => {
       // Refetch to ensure data consistency
@@ -86,7 +87,7 @@ export const useMarkAllAsRead = () => {
   return useMutation({
     mutationFn: () => notificationsApi.markAllAsRead(),
     onSuccess: () => {
-      // Optimistically clear all notifications (since backend only returns unread)
+      // Optimistically mark all notifications as read (keep them visible)
       queryClient.setQueriesData(
         { queryKey: notificationKeys.lists() },
         (oldData: NotificationsResponse | undefined) => {
@@ -94,8 +95,10 @@ export const useMarkAllAsRead = () => {
 
           return {
             ...oldData,
-            notifications: [],
-            total: 0,
+            notifications: oldData.notifications.map((n: Notification) => ({
+              ...n,
+              read: true,
+            })),
           };
         }
       );

@@ -60,7 +60,7 @@ export const auth = betterAuth({
     requireEmailVerification: process.env.REQUIRE_EMAIL_VERIFICATION === "true",
     autoSignIn: false,
     minPasswordLength: 5,
-    sendResetPassword: async ({ user, url, token }: any) => {
+    sendResetPassword: async ({ user, token }: { user: { email: string; name: string }; url: string; token: string }) => {
       const frontendUrl = `${getFrontendUrl()}/reset-password?token=${token}`;
 
       if (config.nodeEnv === "development") {
@@ -85,7 +85,7 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: false,
-    sendVerificationEmail: async ({ user, url, token }: any) => {
+    sendVerificationEmail: async ({ user, token }: { user: { email: string; name: string }; url: string; token: string }) => {
       const frontendUrl = `${getFrontendUrl()}/verify-email?token=${token}`;
 
       if (config.nodeEnv === "development") {
@@ -140,7 +140,7 @@ export const auth = betterAuth({
     },
   },
 
-  onAfterSignUp: async ({ user, account }: any) => {
+  onAfterSignUp: async ({ user, account }: { user: { id: string; name: string }; account: { providerId: string } | null }) => {
     // Handle username collisions for OAuth users
     if (account && account.providerId !== "credential") {
       const userName = user.name;

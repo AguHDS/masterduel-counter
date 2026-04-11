@@ -2,7 +2,6 @@ import {
   CustomDeck,
   CustomDeckCreateDTO,
   CustomDeckUpdateDTO,
-  CustomDeckReorderDTO,
 } from "../CustomDeck.js";
 
 /** Used for managing custom decks in user profiles */

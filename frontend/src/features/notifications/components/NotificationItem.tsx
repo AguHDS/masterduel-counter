@@ -20,9 +20,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   const { markAsRead, setShowNotifications } = useNotifications();
 
   const handleClick = () => {
-    if (!notification.read) {
-      markAsRead(notification.id);
-    }
+    markAsRead(notification.id);
 
     const link = getNotificationLink(notification);
     if (link) {

@@ -59,8 +59,8 @@ export interface GuideInstanceServicePort {
   /** Gets all favorited guides by a user */
   getFavoritedGuidesByUserId(userId: string): Promise<GuideListItem[]>;
 
-  /** Registers a view for a instance guide. */
-  registerView(instanceId: number): Promise<void>;
+  /** Registers a view for an instance guide if the anonymous viewer is outside cooldown. */
+  registerView(instanceId: number, viewerFingerprints: string[]): Promise<boolean>;
 
   /** Gets the total view count across all instance guides for a user */
   getTotalViewsByUserId(userId: string): Promise<number>;

@@ -116,6 +116,8 @@ export class CustomDeckApplicationService implements CustomDeckApplicationPort {
         imageUrl: card.imageUrl,
         imageUrlSmall: card.imageUrlSmall,
         imageUrlCropped: card.imageUrlCropped,
+        frameType: card.frameType,
+        level: card.level,
       };
     });
 
@@ -132,6 +134,8 @@ export class CustomDeckApplicationService implements CustomDeckApplicationPort {
         imageUrl: card.imageUrl,
         imageUrlSmall: card.imageUrlSmall,
         imageUrlCropped: card.imageUrlCropped,
+        frameType: card.frameType,
+        level: card.level,
       };
     });
 
@@ -148,6 +152,8 @@ export class CustomDeckApplicationService implements CustomDeckApplicationPort {
         imageUrl: card.imageUrl,
         imageUrlSmall: card.imageUrlSmall,
         imageUrlCropped: card.imageUrlCropped,
+        frameType: card.frameType,
+        level: card.level,
       };
     });
 

@@ -13,13 +13,21 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const notificationRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement | HTMLButtonElement>(null);
 
   const { isAuthenticated } = useAuth();
 
+  // Reset to first page when popup is closed
+  useEffect(() => {
+    if (!showNotifications) {
+      setCurrentPage(1);
+    }
+  }, [showNotifications]);
+
   // Only fetch notifications if authenticated
-  const { data: notificationsData } = useNotificationsQuery(1, 20, {
+  const { data: notificationsData } = useNotificationsQuery(currentPage, 15, {
     enabled: isAuthenticated,
   });
 
@@ -32,6 +40,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const notifications: Notification[] = notificationsData?.notifications || [];
   const unreadCount = unreadCountData || 0;
+  const totalPages = Math.max(1, Math.ceil((notificationsData?.total ?? 0) / 15));
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,6 +81,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         markAllAsRead,
         notificationRef,
         buttonRef,
+        currentPage,
+        totalPages,
+        setCurrentPage,
       }}
     >
       {children}

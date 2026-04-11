@@ -9,6 +9,8 @@ export interface Card {
   imageUrl: string; // Direct URL from YGOProdeck API
   imageUrlSmall: string; // Direct URL from YGOProdeck API
   imageUrlCropped: string; // Direct URL from YGOProdeck API
+  frameType?: string;
+  level?: number;
   createdAt: string;
 }
 
@@ -22,6 +24,8 @@ export interface CardSearchResult {
   imageUrlExternal?: string;
   imageUrlSmallExternal?: string;
   imageUrlCroppedExternal?: string;
+  frameType?: string;
+  level?: number;
 }
 
 export interface CardPreviewDTO {
@@ -30,4 +34,6 @@ export interface CardPreviewDTO {
   imageUrl: string;
   imageUrlSmall: string;
   imageUrlCropped: string;
+  frameType?: string;
+  level?: number;
 }

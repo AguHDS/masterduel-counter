@@ -14,6 +14,8 @@ type CardInfo = {
   imageUrl: string;
   imageUrlSmall: string;
   imageUrlCropped: string;
+  frameType: string | undefined;
+  level: number | undefined;
 };
 
 export class RecommendedDeckApplicationService implements RecommendedDeckApplicationPort {
@@ -62,6 +64,8 @@ export class RecommendedDeckApplicationService implements RecommendedDeckApplica
         imageUrl: card.imageUrl,
         imageUrlSmall: card.imageUrlSmall,
         imageUrlCropped: card.imageUrlCropped,
+        frameType: card.frameType,
+        level: card.level,
       };
     });
 
@@ -79,6 +83,8 @@ export class RecommendedDeckApplicationService implements RecommendedDeckApplica
           imageUrl: card.imageUrl,
           imageUrlSmall: card.imageUrlSmall,
           imageUrlCropped: card.imageUrlCropped,
+          frameType: card.frameType,
+          level: card.level,
         };
       },
     );
@@ -97,6 +103,8 @@ export class RecommendedDeckApplicationService implements RecommendedDeckApplica
           imageUrl: card.imageUrl,
           imageUrlSmall: card.imageUrlSmall,
           imageUrlCropped: card.imageUrlCropped,
+          frameType: card.frameType,
+          level: card.level,
         };
       },
     );

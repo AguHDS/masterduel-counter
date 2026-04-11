@@ -36,6 +36,8 @@ export interface RecommendedDeckWithCards {
     imageUrl: string;
     imageUrlSmall: string;
     imageUrlCropped: string;
+    frameType?: string;
+    level?: number;
   }>;
   extraDeck: Array<{
     id: number;
@@ -43,6 +45,8 @@ export interface RecommendedDeckWithCards {
     imageUrl: string;
     imageUrlSmall: string;
     imageUrlCropped: string;
+    frameType?: string;
+    level?: number;
   }>;
   sideDeck: Array<{
     id: number;
@@ -50,6 +54,8 @@ export interface RecommendedDeckWithCards {
     imageUrl: string;
     imageUrlSmall: string;
     imageUrlCropped: string;
+    frameType?: string;
+    level?: number;
   }>;
   createdAt: Date;
   updatedAt: Date;

@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, X, Trash2 } from "lucide-react";
 import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { ComboStep, Card } from "@/features/archetypes/types";
+import ChainImg from "@/assets/ChainCyan.webp";
 
 interface ComboStepEditorProps {
   comboSteps: ComboStep[];
@@ -37,6 +38,49 @@ export const ComboStepEditor = ({
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [draggedStepId, setDraggedStepId] = useState<string | null>(null);
   const [dragOverStepId, setDragOverStepId] = useState<string | null>(null);
+  const [chainPickerOpen, setChainPickerOpen] = useState<{
+    stepId: string;
+    cardType: "main" | "sub" | "leftSub";
+    cardIndex: number;
+  } | null>(null);
+  const chainPickerRef = useRef<HTMLDivElement>(null);
+
+  // Close chain picker on outside click
+  useEffect(() => {
+    if (!chainPickerOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (chainPickerRef.current && !chainPickerRef.current.contains(e.target as Node)) {
+        setChainPickerOpen(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [chainPickerOpen]);
+
+  const updateChainNumber = (
+    stepId: string,
+    cardType: "main" | "sub" | "leftSub",
+    cardIndex: number,
+    chainNumber: number | null,
+  ) => {
+    setComboSteps((prev) =>
+      prev.map((step) => {
+        if (step.id !== stepId) return step;
+        const updateCards = (cards: Card[]) => {
+          const updated = [...cards];
+          if (updated[cardIndex]) {
+            updated[cardIndex] = { ...updated[cardIndex], chainNumber };
+          }
+          return updated;
+        };
+        if (cardType === "main") return { ...step, mainCards: updateCards(step.mainCards) };
+        if (cardType === "sub") return { ...step, subCards: updateCards(step.subCards) };
+        if (cardType === "leftSub") return { ...step, leftSubCards: updateCards(step.leftSubCards) };
+        return step;
+      }),
+    );
+    setChainPickerOpen(null);
+  };
 
   useEffect(() => {
     if (forceCloseModal && selectingCards) {
@@ -508,6 +552,30 @@ export const ComboStepEditor = ({
                                           className="w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
                                         />
                                       </CardTooltip>
+                                      {card.chainNumber != null && (
+                                        <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                                      )}
+                                      {!isReadOnly && (
+                                        <div className="absolute bottom-0 left-0 z-[2]">
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); setChainPickerOpen(chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "leftSub" && chainPickerOpen?.cardIndex === slotIndex ? null : { stepId: step.id, cardType: "leftSub", cardIndex: slotIndex }); }}
+                                            className={card.chainNumber != null ? "w-[15px] h-[15px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5" : "px-0.5 py-0.5 text-[7px] font-bold rounded-tr bg-black/70 text-blue-300 hover:bg-blue-700/80 hover:text-white"}
+                                            title="Set chain number"
+                                          >
+                                            {card.chainNumber != null ? card.chainNumber : "⛓"}
+                                          </button>
+                                          {chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "leftSub" && chainPickerOpen?.cardIndex === slotIndex && (
+                                            <div ref={chainPickerRef} className="absolute bottom-full left-0 mb-1 bg-slate-900 border border-blue-500/50 rounded shadow-xl z-50 p-2" style={{ minWidth: "130px" }}>
+                                              <div className="grid grid-cols-5 gap-1 max-h-40 overflow-y-auto">
+                                                <button onClick={() => updateChainNumber(step.id, "leftSub", slotIndex, null)} className="col-span-5 text-xs text-red-400 hover:bg-slate-700 rounded px-1.5 py-1">✕ Clear</button>
+                                                {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
+                                                  <button key={n} onClick={() => updateChainNumber(step.id, "leftSub", slotIndex, n)} className={`text-xs rounded px-1.5 py-1 ${card.chainNumber === n ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-700"}`}>{n}</button>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
                                       <button
                                         onClick={() =>
                                           removeCard(
@@ -564,6 +632,30 @@ export const ComboStepEditor = ({
                                             className="w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
                                           />
                                         </CardTooltip>
+                                        {card.chainNumber != null && (
+                                          <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                                        )}
+                                        {!isReadOnly && (
+                                          <div className="absolute bottom-0 left-0 z-[2]">
+                                            <button
+                                              onClick={(e) => { e.stopPropagation(); setChainPickerOpen(chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "leftSub" && chainPickerOpen?.cardIndex === slotIndex ? null : { stepId: step.id, cardType: "leftSub", cardIndex: slotIndex }); }}
+                                              className={card.chainNumber != null ? "w-[24px] h-[24.5px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[7px] font-bold flex items-center justify-center px-0.5" : "px-0.5 py-0.5 text-[7px] font-bold rounded-tr bg-black/70 text-blue-300 hover:bg-blue-700/80 hover:text-white"}
+                                              title="Set chain number"
+                                            >
+                                              {card.chainNumber != null ? card.chainNumber : "⛓"}
+                                            </button>
+                                            {chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "leftSub" && chainPickerOpen?.cardIndex === slotIndex && (
+                                              <div ref={chainPickerRef} className="absolute bottom-full left-0 mb-1 bg-slate-900 border border-blue-500/50 rounded shadow-xl z-50 p-2" style={{ minWidth: "130px" }}>
+                                                <div className="grid grid-cols-5 gap-1 max-h-40 overflow-y-auto">
+                                                  <button onClick={() => updateChainNumber(step.id, "leftSub", slotIndex, null)} className="col-span-5 text-xs text-red-400 hover:bg-slate-700 rounded px-1.5 py-1">✕ Clear</button>
+                                                  {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
+                                                    <button key={n} onClick={() => updateChainNumber(step.id, "leftSub", slotIndex, n)} className={`text-xs rounded px-1.5 py-1 ${card.chainNumber === n ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-700"}`}>{n}</button>
+                                                  ))}
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
                                         <button
                                           onClick={() =>
                                             removeCard(
@@ -642,6 +734,67 @@ export const ComboStepEditor = ({
                                 className="w-20 h-28 object-cover hover:scale-105 transition-transform"
                               />
                             </CardTooltip>
+                            {/* Chain overlay */}
+                            {card.chainNumber != null && (
+                              <img
+                                src={ChainImg}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]"
+                              />
+                            )}
+                            {/* Chain label / number badge */}
+                            {!isReadOnly && (
+                              <div className="absolute bottom-0 left-0 z-[2]">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setChainPickerOpen(
+                                      chainPickerOpen?.stepId === step.id &&
+                                      chainPickerOpen?.cardType === "main" &&
+                                      chainPickerOpen?.cardIndex === cardIndex
+                                        ? null
+                                        : { stepId: step.id, cardType: "main", cardIndex },
+                                    );
+                                  }}
+                                  className={card.chainNumber != null ? "w-[24px] h-[24.5px] pb-0.5 rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[19px] font-bold flex items-center justify-center px-0.5" : "px-1 py-0.5 text-[11px] font-bold bg-black/70 text-blue-400 hover:text-blue-300"}
+                                  title="Set chain number"
+                                >
+                                  {card.chainNumber != null ? card.chainNumber : "chain?"}
+                                </button>
+                                {/* Chain picker popup */}
+                                {chainPickerOpen?.stepId === step.id &&
+                                  chainPickerOpen?.cardType === "main" &&
+                                  chainPickerOpen?.cardIndex === cardIndex && (
+                                    <div
+                                      ref={chainPickerRef}
+                                      className="absolute bottom-full left-0 mb-1 bg-slate-900 border border-blue-500/50 rounded shadow-xl z-50 p-2"
+                                      style={{ minWidth: "130px" }}
+                                    >
+                                      <div className="grid grid-cols-5 gap-1 max-h-40 overflow-y-auto">
+                                        <button
+                                          onClick={() => updateChainNumber(step.id, "main", cardIndex, null)}
+                                          className="col-span-5 text-xs text-red-400 hover:bg-slate-700 rounded px-1.5 py-1"
+                                        >
+                                          ✕ Clear
+                                        </button>
+                                        {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
+                                          <button
+                                            key={n}
+                                            onClick={() => updateChainNumber(step.id, "main", cardIndex, n)}
+                                            className={`text-xs rounded px-1.5 py-1 ${
+                                              card.chainNumber === n
+                                                ? "bg-blue-600 text-white"
+                                                : "text-slate-300 hover:bg-slate-700"
+                                            }`}
+                                          >
+                                            {n}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                              </div>
+                            )}
                             <button
                               onClick={() =>
                                 removeCard(step.id, cardIndex, "main")
@@ -708,6 +861,30 @@ export const ComboStepEditor = ({
                                           className="w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
                                         />
                                       </CardTooltip>
+                                      {card.chainNumber != null && (
+                                        <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                                      )}
+                                      {!isReadOnly && (
+                                        <div className="absolute bottom-0 left-0 z-[2]">
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); setChainPickerOpen(chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "sub" && chainPickerOpen?.cardIndex === slotIndex ? null : { stepId: step.id, cardType: "sub", cardIndex: slotIndex }); }}
+                                            className={card.chainNumber != null ? "w-[15px] h-[15px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5" : "rounded-full border border-blue-400 bg-black/70 text-blue-300 text-[8px] w-4 h-3.5 hover:bg-blue-700/80 hover:text-white"}
+                                            title="Set chain number"
+                                          >
+                                            {card.chainNumber != null ? card.chainNumber : "⛓"}
+                                          </button>
+                                          {chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "sub" && chainPickerOpen?.cardIndex === slotIndex && (
+                                            <div ref={chainPickerRef} className="absolute bottom-full left-0 mb-1 bg-slate-900 border border-blue-500/50 rounded shadow-xl z-50 p-2" style={{ minWidth: "130px" }}>
+                                              <div className="grid grid-cols-5 gap-1 max-h-40 overflow-y-auto">
+                                                <button onClick={() => updateChainNumber(step.id, "sub", slotIndex, null)} className="col-span-5 text-xs text-red-400 hover:bg-slate-700 rounded px-1.5 py-1">✕ Clear</button>
+                                                {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
+                                                  <button key={n} onClick={() => updateChainNumber(step.id, "sub", slotIndex, n)} className={`text-xs rounded px-1.5 py-1 ${card.chainNumber === n ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-700"}`}>{n}</button>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
                                       <button
                                         onClick={() =>
                                           removeCard(step.id, slotIndex, "sub")
@@ -760,6 +937,30 @@ export const ComboStepEditor = ({
                                             className="w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
                                           />
                                         </CardTooltip>
+                                        {card.chainNumber != null && (
+                                          <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                                        )}
+                                        {!isReadOnly && (
+                                          <div className="absolute bottom-0 left-0 z-[2]">
+                                            <button
+                                              onClick={(e) => { e.stopPropagation(); setChainPickerOpen(chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "sub" && chainPickerOpen?.cardIndex === slotIndex ? null : { stepId: step.id, cardType: "sub", cardIndex: slotIndex }); }}
+                                              className={card.chainNumber != null ? "w-[14] h-[14.5px] rounded-full border-2 border-blue-400 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5" : "px-0.5 py-0.5 text-[7px] font-bold rounded-tr bg-black/70 text-blue-300 hover:bg-blue-700/80 hover:text-white"}
+                                              title="Set chain number"
+                                            >
+                                              {card.chainNumber != null ? card.chainNumber : "⛓"}
+                                            </button>
+                                            {chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "sub" && chainPickerOpen?.cardIndex === slotIndex && (
+                                              <div ref={chainPickerRef} className="absolute bottom-full left-0 mb-1 bg-slate-900 border border-blue-500/50 rounded shadow-xl z-50 p-2" style={{ minWidth: "130px" }}>
+                                                <div className="grid grid-cols-5 gap-1 max-h-40 overflow-y-auto">
+                                                  <button onClick={() => updateChainNumber(step.id, "sub", slotIndex, null)} className="col-span-5 text-xs text-red-400 hover:bg-slate-700 rounded px-1.5 py-1">✕ Clear</button>
+                                                  {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
+                                                    <button key={n} onClick={() => updateChainNumber(step.id, "sub", slotIndex, n)} className={`text-xs rounded px-1.5 py-1 ${card.chainNumber === n ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-700"}`}>{n}</button>
+                                                  ))}
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
                                         <button
                                           onClick={() =>
                                             removeCard(step.id, slotIndex, "sub")

@@ -20,13 +20,15 @@ export class SqliteCardRepository implements CardRepository {
   async saveOrUpdateCard(card: Card): Promise<void> {
     const stmt = this.db.prepare(`
       INSERT INTO cards (
-        id, name, image_url, image_url_small, image_url_cropped, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?)
+        id, name, image_url, image_url_small, image_url_cropped, frame_type, level, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
         image_url = excluded.image_url,
         image_url_small = excluded.image_url_small,
-        image_url_cropped = excluded.image_url_cropped
+        image_url_cropped = excluded.image_url_cropped,
+        frame_type = excluded.frame_type,
+        level = excluded.level
     `);
 
     stmt.run(
@@ -35,6 +37,8 @@ export class SqliteCardRepository implements CardRepository {
       card.imageUrl,
       card.imageUrlSmall,
       card.imageUrlCropped,
+      card.frameType ?? null,
+      card.level ?? null,
       card.createdAt
     );
   }
@@ -59,6 +63,8 @@ export class SqliteCardRepository implements CardRepository {
       image_url: string;
       image_url_small: string;
       image_url_cropped: string;
+      frame_type: string | null;
+      level: number | null;
       created_at: string;
     };
     return {
@@ -67,6 +73,8 @@ export class SqliteCardRepository implements CardRepository {
       imageUrl: r.image_url,
       imageUrlSmall: r.image_url_small,
       imageUrlCropped: r.image_url_cropped,
+      frameType: r.frame_type ?? undefined,
+      level: r.level ?? undefined,
       createdAt: r.created_at,
     };
   }

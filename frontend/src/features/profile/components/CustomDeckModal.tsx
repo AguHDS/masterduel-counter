@@ -1,16 +1,11 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { X, Trash2, Lock, Globe, Edit2, Plus, Save } from "lucide-react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
+import { validateDeckCardAddition } from "@/features/archetypes/utils/deckValidation";
 import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
 import type { CustomDeck } from "../api/customDeckApi";
-
-interface Card {
-  id: number;
-  name: string;
-  imageUrl: string;
-  imageUrlSmall: string;
-  imageUrlCropped: string;
-}
+import { sortDeckCards } from "@/shared/utils/sortDeckCards";
+import type { Card } from "@/features/archetypes/types";
 
 interface DeckCard extends Card {
   uniqueId: string;
@@ -39,12 +34,11 @@ export const CustomDeckModal = ({
   isUpdating = false,
   isDeleting = false
 }: CustomDeckModalProps) => {
-  const uniqueIdCounter = useRef(0);
   const isCreationMode = !deck;
   
   // Initialize decks with uniqueIds (memoized for performance)
   const initializeDeck = useCallback((cards: Card[]): DeckCard[] => {
-    return cards.map(card => ({ ...card, uniqueId: `card-${uniqueIdCounter.current++}` }));
+    return cards.map(card => ({ ...card, uniqueId: crypto.randomUUID() }));
   }, []);
   
   const [mainDeck, setMainDeck] = useState<DeckCard[]>(() => initializeDeck(deck?.mainDeck || []));
@@ -89,7 +83,7 @@ export const CustomDeckModal = ({
     setIsSelectingCard(true);
   }, []);
 
-  const handleCardSelected = useCallback((card: Card) => {
+  const handleCardSelected = (card: Card) => {
     if (targetZone === "header") {
       setHeaderCard(card);
       setHasChanges(true);
@@ -98,32 +92,37 @@ export const CustomDeckModal = ({
       setAnchorElement(null);
       return;
     }
+
+    if (!targetZone) {
+      return;
+    }
+
+    const validationError = validateDeckCardAddition({
+      card,
+      targetZone,
+      mainDeck,
+      extraDeck,
+      sideDeck,
+    });
+
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
     
-    const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
+    const deckCard: DeckCard = { ...card, uniqueId: crypto.randomUUID() };
     
     if (targetZone === "main") {
-      if (mainDeck.length >= 60) {
-        alert("Main deck cannot have more than 60 cards");
-        return;
-      }
-      setMainDeck(prev => [...prev, deckCard]);
+      setMainDeck(prev => sortDeckCards([...prev, deckCard]));
       setHasChanges(true);
     } else if (targetZone === "extra") {
-      if (extraDeck.length >= 15) {
-        alert("Extra deck cannot have more than 15 cards");
-        return;
-      }
-      setExtraDeck(prev => [...prev, deckCard]);
+      setExtraDeck(prev => sortDeckCards([...prev, deckCard]));
       setHasChanges(true);
     } else if (targetZone === "side") {
-      if (sideDeck.length >= 20) {
-        alert("Side deck cannot have more than 20 cards");
-        return;
-      }
-      setSideDeck(prev => [...prev, deckCard]);
+      setSideDeck(prev => sortDeckCards([...prev, deckCard]));
       setHasChanges(true);
     }
-  }, [targetZone, mainDeck.length, extraDeck.length, sideDeck.length]);
+  };
 
   const handleRemoveCard = useCallback((zone: "main" | "extra" | "side", index: number) => {
     if (!isOwner || !isEditMode) return;

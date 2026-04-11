@@ -183,6 +183,8 @@ model Card {
   imageUrl                String    @map("image_url")
   imageUrlSmall           String    @map("image_url_small")
   imageUrlCropped         String    @map("image_url_cropped")
+  frameType               String?   @map("frame_type")
+  level                   Int?
   createdAt               DateTime  @default(now()) @map("created_at")
 
   instanceHeaders        ArchetypeInstance[] @relation("InstanceHeaderCard")
@@ -245,6 +247,7 @@ model InitialHand {
   instanceId  Int       @map("instance_id")
   cardIds     String    @map("card_ids") // JSON array of card IDs (max 5)
   description String?   // Optional description (max 50 characters)
+  finalBoardState String? @map("final_board_state")
   position    Int       @default(0) // Order of the initial hand
   createdAt   DateTime  @default(now()) @map("created_at")
 
@@ -276,11 +279,12 @@ model ComboStep {
 }
 
 model ComboStepMainCard {
-  id        Int       @id @default(autoincrement())
-  stepId    Int       @map("step_id")
-  cardId    Int       @map("card_id")
-  position  Int       @default(0)
-  createdAt DateTime  @default(now()) @map("created_at")
+  id          Int       @id @default(autoincrement())
+  stepId      Int       @map("step_id")
+  cardId      Int       @map("card_id")
+  position    Int       @default(0)
+  chainNumber Int?      @map("chain_number")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   step      ComboStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
   card      Card      @relation("ComboStepMainCards", fields: [cardId], references: [id], onDelete: Cascade)
@@ -290,11 +294,12 @@ model ComboStepMainCard {
 }
 
 model ComboStepSubCard {
-  id        Int       @id @default(autoincrement())
-  stepId    Int       @map("step_id")
-  cardId    Int       @map("card_id")
-  position  Int       @default(0)
-  createdAt DateTime  @default(now()) @map("created_at")
+  id          Int       @id @default(autoincrement())
+  stepId      Int       @map("step_id")
+  cardId      Int       @map("card_id")
+  position    Int       @default(0)
+  chainNumber Int?      @map("chain_number")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   step      ComboStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
   card      Card      @relation("ComboStepSubCards", fields: [cardId], references: [id], onDelete: Cascade)
@@ -304,11 +309,12 @@ model ComboStepSubCard {
 }
 
 model ComboStepLeftSubCard {
-  id        Int       @id @default(autoincrement())
-  stepId    Int       @map("step_id")
-  cardId    Int       @map("card_id")
-  position  Int       @default(0)
-  createdAt DateTime  @default(now()) @map("created_at")
+  id          Int       @id @default(autoincrement())
+  stepId      Int       @map("step_id")
+  cardId      Int       @map("card_id")
+  position    Int       @default(0)
+  chainNumber Int?      @map("chain_number")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   step      ComboStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
   card      Card      @relation("ComboStepLeftSubCards", fields: [cardId], references: [id], onDelete: Cascade)

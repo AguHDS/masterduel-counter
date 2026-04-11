@@ -76,6 +76,10 @@ export const MainSearchResults = memo(
       (archetype: Archetype, index: number, type: "counter" | "deck") => {
         const delay = index * 40;
         const guideType = type === "counter" ? "COUNTER" : "DECK";
+        const hasGuide =
+          type === "counter"
+            ? archetype.has_counter_guide ?? archetype.registered
+            : archetype.has_deck_guide ?? archetype.registered;
 
         return (
           <button
@@ -105,7 +109,7 @@ export const MainSearchResults = memo(
                 {archetype.name}
               </div>
               <div className="flex items-center gap-1">
-                {archetype.registered ? (
+                {hasGuide ? (
                   <>
                     <CheckCircle className="w-3 h-3 text-green-400" />
                     <span className="text-green-400/90 text-xs">

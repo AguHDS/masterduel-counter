@@ -79,6 +79,7 @@ export const createGetGuideByIdController = (
                   imageUrl: card.image_url,
                   imageUrlSmall: card.image_url_small,
                   imageUrlCropped: card.image_url_cropped,
+                  chain_number: card.chain_number,
                 })),
                 subCards: step.subCards.map((card) => ({
                   id: card.id,
@@ -86,6 +87,7 @@ export const createGetGuideByIdController = (
                   imageUrl: card.image_url,
                   imageUrlSmall: card.image_url_small,
                   imageUrlCropped: card.image_url_cropped,
+                  chain_number: card.chain_number,
                 })),
                 leftSubCards: step.leftSubCards.map((card) => ({
                   id: card.id,
@@ -93,6 +95,7 @@ export const createGetGuideByIdController = (
                   imageUrl: card.image_url,
                   imageUrlSmall: card.image_url_small,
                   imageUrlCropped: card.image_url_cropped,
+                  chain_number: card.chain_number,
                 })),
               })),
             };
@@ -178,6 +181,16 @@ export const createGetGuideByIdController = (
             imageUrlCropped: card.imageUrlCropped,
           })),
           description: hand.description,
+          finalBoard: hand.finalBoard ? {
+            fieldSpell: hand.finalBoard.fieldSpell,
+            extraMonsters: hand.finalBoard.extraMonsters,
+            monsters: hand.finalBoard.monsters,
+            spellTraps: hand.finalBoard.spellTraps,
+            hand: hand.finalBoard.hand,
+            graveyard: hand.finalBoard.graveyard,
+            banished: hand.finalBoard.banished,
+            description: hand.finalBoard.description,
+          } : undefined,
           position: hand.position,
           comboSteps: hand.comboSteps,
         })) : undefined,

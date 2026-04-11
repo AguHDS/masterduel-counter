@@ -23,18 +23,18 @@ export class SqliteComboStepRepository implements ComboStepRepository {
     `);
 
     const mainCardStmt = this.db.prepare(`
-      INSERT INTO combo_step_main_cards (step_id, card_id, position)
-      VALUES (?, ?, ?)
+      INSERT INTO combo_step_main_cards (step_id, card_id, position, chain_number)
+      VALUES (?, ?, ?, ?)
     `);
 
     const subCardStmt = this.db.prepare(`
-      INSERT INTO combo_step_sub_cards (step_id, card_id, position)
-      VALUES (?, ?, ?)
+      INSERT INTO combo_step_sub_cards (step_id, card_id, position, chain_number)
+      VALUES (?, ?, ?, ?)
     `);
 
     const leftSubCardStmt = this.db.prepare(`
-      INSERT INTO combo_step_left_sub_cards (step_id, card_id, position)
-      VALUES (?, ?, ?)
+      INSERT INTO combo_step_left_sub_cards (step_id, card_id, position, chain_number)
+      VALUES (?, ?, ?, ?)
     `);
 
     const results: ComboStep[] = [];
@@ -48,19 +48,19 @@ export class SqliteComboStepRepository implements ComboStepRepository {
         step.parentCanceledStepId || null,
       ) as Omit<ComboStep, "mainCardIds" | "subCardIds" | "leftSubCardIds"> & { parent_canceled_step_id: number | null };
 
-      // Insert main cards with position
+      // Insert main cards with position and chain number
       step.mainCardIds.forEach((cardId, index) => {
-        mainCardStmt.run(result.id, cardId, index);
+        mainCardStmt.run(result.id, cardId, index, step.mainCardChains?.[index] ?? null);
       });
 
-      // Insert sub cards with position
+      // Insert sub cards with position and chain number
       step.subCardIds.forEach((cardId, index) => {
-        subCardStmt.run(result.id, cardId, index);
+        subCardStmt.run(result.id, cardId, index, step.subCardChains?.[index] ?? null);
       });
 
-      // Insert left sub cards with position
+      // Insert left sub cards with position and chain number
       step.leftSubCardIds.forEach((cardId, index) => {
-        leftSubCardStmt.run(result.id, cardId, index);
+        leftSubCardStmt.run(result.id, cardId, index, step.leftSubCardChains?.[index] ?? null);
       });
 
       results.push({
@@ -90,7 +90,8 @@ export class SqliteComboStepRepository implements ComboStepRepository {
     `);
 
     const mainCardStmt = this.db.prepare(`
-      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped
+      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped,
+             csmc.chain_number
       FROM combo_step_main_cards csmc
       INNER JOIN cards c ON csmc.card_id = c.id
       WHERE csmc.step_id = ?
@@ -98,7 +99,8 @@ export class SqliteComboStepRepository implements ComboStepRepository {
     `);
 
     const subCardStmt = this.db.prepare(`
-      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped
+      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped,
+             cssc.chain_number
       FROM combo_step_sub_cards cssc
       INNER JOIN cards c ON cssc.card_id = c.id
       WHERE cssc.step_id = ?
@@ -106,7 +108,8 @@ export class SqliteComboStepRepository implements ComboStepRepository {
     `);
 
     const leftSubCardStmt = this.db.prepare(`
-      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped
+      SELECT c.id, c.name, c.image_url, c.image_url_small, c.image_url_cropped,
+             cslsc.chain_number
       FROM combo_step_left_sub_cards cslsc
       INNER JOIN cards c ON cslsc.card_id = c.id
       WHERE cslsc.step_id = ?
@@ -137,6 +140,7 @@ export class SqliteComboStepRepository implements ComboStepRepository {
         image_url: string;
         image_url_small: string;
         image_url_cropped: string;
+        chain_number: number | null;
       }>,
       subCards: subCardStmt.all(step.id) as Array<{
         id: number;
@@ -144,6 +148,7 @@ export class SqliteComboStepRepository implements ComboStepRepository {
         image_url: string;
         image_url_small: string;
         image_url_cropped: string;
+        chain_number: number | null;
       }>,
       leftSubCards: leftSubCardStmt.all(step.id) as Array<{
         id: number;
@@ -151,6 +156,7 @@ export class SqliteComboStepRepository implements ComboStepRepository {
         image_url: string;
         image_url_small: string;
         image_url_cropped: string;
+        chain_number: number | null;
       }>,
     }));
   }

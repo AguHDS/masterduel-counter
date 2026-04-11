@@ -17,8 +17,11 @@ export interface ComboStepCreateDTO {
   description?: string | null;
   parentCanceledStepId?: number | null;
   mainCardIds: number[];
+  mainCardChains?: (number | null)[];
   subCardIds: number[];
+  subCardChains?: (number | null)[];
   leftSubCardIds: number[];
+  leftSubCardChains?: (number | null)[];
 }
 
 export interface ComboStepWithCards extends Omit<ComboStep, 'mainCardIds' | 'subCardIds' | 'leftSubCardIds'> {
@@ -28,6 +31,7 @@ export interface ComboStepWithCards extends Omit<ComboStep, 'mainCardIds' | 'sub
     image_url: string;
     image_url_small: string;
     image_url_cropped: string;
+    chain_number: number | null;
   }>;
   subCards: Array<{
     id: number;
@@ -35,6 +39,7 @@ export interface ComboStepWithCards extends Omit<ComboStep, 'mainCardIds' | 'sub
     image_url: string;
     image_url_small: string;
     image_url_cropped: string;
+    chain_number: number | null;
   }>;
   leftSubCards: Array<{
     id: number;
@@ -42,5 +47,6 @@ export interface ComboStepWithCards extends Omit<ComboStep, 'mainCardIds' | 'sub
     image_url: string;
     image_url_small: string;
     image_url_cropped: string;
+    chain_number: number | null;
   }>;
 }

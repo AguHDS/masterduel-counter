@@ -79,17 +79,71 @@ export interface GuideInstanceWithFullDetails {
       imageUrlCropped: string;
     }>;
     description?: string;
+    finalBoard?: {
+      fieldSpell: {
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      } | null;
+      extraMonsters: Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      } | null>;
+      monsters: Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      } | null>;
+      spellTraps: Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      } | null>;
+      hand: Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      } | null>;
+      graveyard: Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      }>;
+      banished: Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      }>;
+      description?: string;
+    };
     position: number;
     comboSteps?: Array<{
       id: number;
       stepOrder: number;
       description?: string | null;
+      parentCanceledStepId?: number | null;
       mainCards: Array<{
         id: number;
         name: string;
         imageUrl: string;
         imageUrlSmall: string;
         imageUrlCropped: string;
+        chain_number: number | null;
       }>;
       subCards: Array<{
         id: number;
@@ -97,6 +151,15 @@ export interface GuideInstanceWithFullDetails {
         imageUrl: string;
         imageUrlSmall: string;
         imageUrlCropped: string;
+        chain_number: number | null;
+      }>;
+      leftSubCards: Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+        chain_number: number | null;
       }>;
     }>;
   }>;

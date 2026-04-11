@@ -30,7 +30,9 @@ export const searchArchetypeController = async (
         archetypes: archetypes.map((archetype) => ({
           id: archetype.id,
           name: archetype.name,
-          registered: archetype.registered,
+          registered: !!archetype.registered,
+          has_counter_guide: !!archetype.has_counter_guide,
+          has_deck_guide: !!archetype.has_deck_guide,
         })),
         total,
       },

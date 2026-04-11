@@ -17,6 +17,7 @@ import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
 import { ComboStepRepository } from "@/domain/ports/ComboStepRepository.js";
 
 const MAX_FAVORITES_USER = 20;
+const VIEW_COOLDOWN_MS = 12 * 60 * 60 * 1000;
 
 export class GuideApplicationService implements GuideInstanceServicePort {
   private viewCountCache: ViewCountCache;
@@ -148,19 +149,16 @@ export class GuideApplicationService implements GuideInstanceServicePort {
         );
       }
     } else if (guideType === "DECK") {
-      // DECK guides require initial hands
-      if (!initialHands || initialHands.length === 0) {
-        throw new Error(
-          "At least one initial hand is required for Deck Guides",
-        );
-      }
-      // Validate each initial hand has at least one card and max 5 cards per hand
-      for (let i = 0; i < initialHands.length; i++) {
-        if (!initialHands[i].cardIds || initialHands[i].cardIds.length === 0) {
-          throw new Error(`Initial hand ${i + 1} must have at least one card`);
-        }
-        if (initialHands[i].cardIds.length > 5) {
-          throw new Error(`Initial hand ${i + 1} cannot have more than 5 cards`);
+      // DECK guides allow having no initial hands if a recommended deck is provided separately
+      // Validate each initial hand structure if any are present
+      if (initialHands) {
+        for (let i = 0; i < initialHands.length; i++) {
+          if (!initialHands[i].cardIds || initialHands[i].cardIds.length === 0) {
+            throw new Error(`Initial hand ${i + 1} must have at least one card`);
+          }
+          if (initialHands[i].cardIds.length > 5) {
+            throw new Error(`Initial hand ${i + 1} cannot have more than 5 cards`);
+          }
         }
       }
     }
@@ -248,8 +246,11 @@ export class GuideApplicationService implements GuideInstanceServicePort {
               description: step.description || null,
               parentCanceledStepId,
               mainCardIds: step.mainCardIds,
+              mainCardChains: step.mainCardChains,
               subCardIds: step.subCardIds,
+              subCardChains: step.subCardChains,
               leftSubCardIds: step.leftSubCardIds,
+              leftSubCardChains: step.leftSubCardChains,
             }]);
             
             // Store the mapping
@@ -394,15 +395,32 @@ export class GuideApplicationService implements GuideInstanceServicePort {
   }
 
   /** Register a view for a guide */
-  async registerView(instanceId: number): Promise<void> {
+  async registerView(instanceId: number, viewerFingerprints: string[]): Promise<boolean> {
     // Verify Guide exists
     const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
     if (!instance) {
       throw new Error("Guide not found");
     }
 
+    if (viewerFingerprints.length === 0) {
+      return false;
+    }
+
+    const shouldCountView = await this.instanceRepository.tryRegisterView(
+      instanceId,
+      viewerFingerprints,
+      new Date(),
+      VIEW_COOLDOWN_MS,
+    );
+
+    if (!shouldCountView) {
+      return false;
+    }
+
     // Increment in cache (will be flushed periodically)
     this.viewCountCache.increment(instanceId);
+
+    return true;
   }
 
   /** Get the total views that a user's guides have received (for user profile) */

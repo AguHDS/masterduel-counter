@@ -3,13 +3,23 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import helmet from "helmet";
+import { existsSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import { getDependencies } from "./compositionRoot.js";
 import { startCleanupJob } from "./services/cleanupService.js";
+import { createGuideOgPreviewMiddleware } from "./http/middlewares/guideOgPreviewMiddleware.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT_BACKEND ?? 3001;
 const NODE_ENV = process.env.NODE_ENV ?? "development";
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? "*";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+// Frontend dist is located at project-root/frontend/dist
+// When compiled, this file is at project-root/backend/dist/index.js
+const FRONTEND_DIST = join(__dirname, "../../frontend/dist");
 import {
   searchArchetype,
   logout,
@@ -182,8 +192,21 @@ app.use("/api/admin", admin);
 // Reports
 app.use("/api/reports", report);
 
+// Serve the React frontend (only if the build exists — production)
+if (existsSync(FRONTEND_DIST)) {
+  // OG tag injection for guide pages (must come before static middleware)
+  app.use(createGuideOgPreviewMiddleware(getDependencies()));
+
+  // Serve static assets (JS, CSS, images, etc.)
+  app.use(express.static(FRONTEND_DIST));
+
+  // Catch-all: serve index.html for all non-API client-side routes
+  app.get("/{*path}", (_req, res) => {
+    res.sendFile(join(FRONTEND_DIST, "index.html"));
+  });
+}
+
 app.listen(PORT, () => {
-  console.log(`Listening to: http://localhost:${PORT}`);
   
   startCleanupJob();
 });

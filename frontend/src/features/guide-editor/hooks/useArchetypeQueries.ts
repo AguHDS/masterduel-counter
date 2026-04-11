@@ -5,6 +5,7 @@ import {
   getInstanceGuideById,
   type SaveArchetypeGuideResponse,
   type CardPairDTO,
+  type FinalBoardDTO,
 } from "../api/guideEditorApi";
 import type { GuideInstanceWithFullDetails } from "@/lib/http/guideInstancesApi";
 import type { GuideType } from "@/features/archetypes/types";
@@ -38,7 +39,11 @@ export const useSaveGuide = () => {
       archetypeId: number;
       guideType: GuideType;
       cardPairs?: CardPairDTO[];
-      initialHands?: Array<{ cardIds: number[]; description?: string }>;
+      initialHands?: Array<{
+        cardIds: number[];
+        description?: string;
+        finalBoard?: FinalBoardDTO;
+      }>;
       title: string;
       headerCardId?: number;
       generalTip?: string;

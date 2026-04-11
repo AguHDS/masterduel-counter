@@ -6,11 +6,57 @@ interface NotificationPopupProps {
   isMobile?: boolean;
 }
 
+const PaginationControls: React.FC<{
+  currentPage: number;
+  totalPages: number;
+  setCurrentPage: (page: number) => void;
+}> = ({ currentPage, totalPages, setCurrentPage }) => {
+  if (totalPages <= 1) return null;
+  return (
+    <div className="flex items-center justify-center gap-1 py-2 border-t border-[#c2901c]/20">
+      <button
+        disabled={currentPage === 1}
+        onClick={() => setCurrentPage(currentPage - 1)}
+        className="px-2 py-1 text-xs text-[#c2901c] disabled:opacity-30 hover:text-[#d4a534] transition-colors"
+      >
+        ‹
+      </button>
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        <button
+          key={page}
+          onClick={() => setCurrentPage(page)}
+          className={`w-6 h-6 text-xs rounded transition-colors ${
+            page === currentPage
+              ? "bg-[#c2901c] text-black font-bold"
+              : "text-[#c2901c] hover:text-[#d4a534]"
+          }`}
+        >
+          {page}
+        </button>
+      ))}
+      <button
+        disabled={currentPage === totalPages}
+        onClick={() => setCurrentPage(currentPage + 1)}
+        className="px-2 py-1 text-xs text-[#c2901c] disabled:opacity-30 hover:text-[#d4a534] transition-colors"
+      >
+        ›
+      </button>
+    </div>
+  );
+};
+
 export const NotificationPopup: React.FC<NotificationPopupProps> = ({
   isMobile = false,
 }) => {
-  const { notifications, showNotifications, markAllAsRead, notificationRef } =
-    useNotifications();
+  const {
+    notifications,
+    showNotifications,
+    markAllAsRead,
+    notificationRef,
+    currentPage,
+    totalPages,
+    setCurrentPage,
+  } = useNotifications();
 
   if (!showNotifications) return null;
 
@@ -39,6 +85,12 @@ export const NotificationPopup: React.FC<NotificationPopupProps> = ({
             </div>
           )}
         </div>
+
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+        />
 
         <div className="p-2 border-t border-[#c2901c]/30 bg-[#151017]">
           <button
@@ -75,6 +127,12 @@ export const NotificationPopup: React.FC<NotificationPopupProps> = ({
           <div className="p-4 text-center text-gray-400">No notifications</div>
         )}
       </div>
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        setCurrentPage={setCurrentPage}
+      />
 
       <div className="p-2 border-t border-[#c2901c]/30 bg-[#151017]">
         <button
