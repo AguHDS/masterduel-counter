@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { guideInstancesApi } from "@/lib/http/guideInstancesApi";
 
-const VIEW_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const VIEW_EXPIRATION_TIME = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 
 /**
  * Hook to register a view for an instance
