@@ -17,6 +17,7 @@ import { InitialHandRepository } from "@/domain/ports/InitialHandRepository.js";
 import { ComboStepRepository } from "@/domain/ports/ComboStepRepository.js";
 
 const MAX_FAVORITES_USER = 20;
+const VIEW_COOLDOWN_MS = 12 * 60 * 60 * 1000;
 
 export class GuideApplicationService implements GuideInstanceServicePort {
   private viewCountCache: ViewCountCache;
@@ -394,15 +395,32 @@ export class GuideApplicationService implements GuideInstanceServicePort {
   }
 
   /** Register a view for a guide */
-  async registerView(instanceId: number): Promise<void> {
+  async registerView(instanceId: number, viewerFingerprints: string[]): Promise<boolean> {
     // Verify Guide exists
     const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
     if (!instance) {
       throw new Error("Guide not found");
     }
 
+    if (viewerFingerprints.length === 0) {
+      return false;
+    }
+
+    const shouldCountView = await this.instanceRepository.tryRegisterView(
+      instanceId,
+      viewerFingerprints,
+      new Date(),
+      VIEW_COOLDOWN_MS,
+    );
+
+    if (!shouldCountView) {
+      return false;
+    }
+
     // Increment in cache (will be flushed periodically)
     this.viewCountCache.increment(instanceId);
+
+    return true;
   }
 
   /** Get the total views that a user's guides have received (for user profile) */

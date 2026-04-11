@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot.js";
+import { getAnonymousViewerContext, VIEW_TRACKING_COOKIE_NAME } from "@/shared/utils/viewTracking.js";
 
 /**
  * Registers a view for a guide
@@ -25,11 +26,23 @@ export const registerGuideViewController = async (
     }
 
     const instanceService = getDependencies().getInstanceService();
-    await instanceService.registerView(instanceIdNum);
+    const viewerContext = getAnonymousViewerContext(req);
+    const counted = await instanceService.registerView(instanceIdNum, viewerContext.fingerprints);
+
+    if (viewerContext.shouldSetCookie) {
+      res.cookie(VIEW_TRACKING_COOKIE_NAME, viewerContext.cookieValue, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+      });
+    }
 
     res.status(200).json({ 
       success: true,
-      message: "View registered successfully" 
+      counted,
+      message: counted ? "View registered successfully" : "View cooldown active",
     });
   } catch (error) {
     if (error instanceof Error && error.message === "Guide not found") {

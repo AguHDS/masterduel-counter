@@ -6,7 +6,8 @@ const VIEW_EXPIRATION_TIME = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 
 /**
  * Hook to register a view for an instance
- * Uses sessionStorage to prevent counting multiple views in a short period
+ * Uses localStorage to avoid duplicate requests from the same browser.
+ * The real 12h cooldown is enforced by the backend.
  * 
  * @param instanceId - The ID of the instance to track views for
  * @param archetypeId - The ID of the archetype (needed to invalidate the query)

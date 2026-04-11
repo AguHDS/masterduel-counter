@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { ComboStep } from "@/features/archetypes/types";
-import ChainImg from "@/assets/Chain.webp";
+import ChainImg from "@/assets/ChainCyan.webp";
 
 interface ComboStepCardProps {
   step: ComboStep;
@@ -113,7 +113,7 @@ export const ComboStepCard = ({
                           <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                         )}
                         {card.chainNumber != null && (
-                          <span className="absolute bottom-0 left-0 z-[2] min-w-[14px] h-[14px] rounded-full border border-blue-400 bg-blue-900/90 text-blue-200 text-[7px] font-bold flex items-center justify-center px-0.5">
+                          <span className="absolute bottom-0 top-[54px] left-0 z-[2] w-[15px] h-[15px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5">
                             {card.chainNumber}
                           </span>
                         )}
@@ -144,7 +144,7 @@ export const ComboStepCard = ({
                         <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                       )}
                       {card.chainNumber != null && (
-                        <span className="absolute bottom-0 left-0 z-[2] min-w-[14px] h-[14px] rounded-full border border-blue-400 bg-blue-900/90 text-blue-200 text-[7px] font-bold flex items-center justify-center px-0.5">
+                        <span className="absolute bottom-0 left-0 z-[2] w-[15px] h-[15px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5">
                           {card.chainNumber}
                         </span>
                       )}
@@ -207,7 +207,7 @@ export const ComboStepCard = ({
                 <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
               )}
               {card.chainNumber != null && (
-                <span className={`absolute bottom-0 left-0 z-[2] min-w-[18px] h-[18px] rounded-full border-2 border-blue-400 bg-blue-900/90 text-blue-200 ${_isEditMode ? 'text-[10px]' : 'text-[9px]'} font-bold flex items-center justify-center px-0.5`}>
+                <span className={`absolute bottom-0 left-0 z-[2] w-[24px] h-[24.5px] pb-1 rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 ${_isEditMode ? 'text-[10px]' : 'text-[19px]'} font-bold flex items-center justify-center px-0.5`}>
                   {card.chainNumber}
                 </span>
               )}
@@ -250,7 +250,7 @@ export const ComboStepCard = ({
                         <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                       )}
                       {card.chainNumber != null && (
-                        <span className="absolute bottom-0 left-0 z-[2] min-w-[14px] h-[14px] rounded-full border border-blue-400 bg-blue-900/90 text-blue-200 text-[7px] font-bold flex items-center justify-center px-0.5">
+                        <span className="absolute bottom-0 left-0 z-[2]  w-[15px] h-[15px] rounded-full border-2 border-blue-400 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5">
                           {card.chainNumber}
                         </span>
                       )}
@@ -294,7 +294,7 @@ export const ComboStepCard = ({
                           <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                         )}
                         {card.chainNumber != null && (
-                          <span className="absolute bottom-0 left-0 z-[2] min-w-[14px] h-[14px] rounded-full border border-blue-400 bg-blue-900/90 text-blue-200 text-[7px] font-bold flex items-center justify-center px-0.5">
+                          <span className="absolute bottom-0 top-[54px] left-0 z-[2] w-[15px] h-[15px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5">
                             {card.chainNumber}
                           </span>
                         )}

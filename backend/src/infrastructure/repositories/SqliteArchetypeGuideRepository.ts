@@ -16,7 +16,24 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
   constructor(
     private db: Database.Database,
     private prisma: PrismaClient,
-  ) {}
+  ) {
+    this.initializeAnonymousViewTrackingTable();
+  }
+
+  private initializeAnonymousViewTrackingTable(): void {
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS guide_view_tracking (
+        instance_id INTEGER NOT NULL,
+        viewer_fingerprint TEXT NOT NULL,
+        last_viewed_at TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (instance_id, viewer_fingerprint)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_guide_view_tracking_last_viewed_at
+      ON guide_view_tracking(last_viewed_at);
+    `);
+  }
 
   async createArchetypeInstance(
     data: GuideCreateDTO,
@@ -677,6 +694,67 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       SET views = views + ${incrementBy}
       WHERE id = ${instanceId}
     `;
+  }
+
+  async tryRegisterView(
+    instanceId: number,
+    viewerFingerprints: string[],
+    viewedAt: Date,
+    cooldownMs: number,
+  ): Promise<boolean> {
+    const uniqueFingerprints = [...new Set(viewerFingerprints.filter(Boolean))];
+
+    if (uniqueFingerprints.length === 0) {
+      return false;
+    }
+
+    const transaction = this.db.transaction(
+      (trackedInstanceId: number, fingerprints: string[], viewedAtIso: string, cooldownWindowMs: number) => {
+        const existingViewStmt = this.db.prepare(`
+          SELECT last_viewed_at
+          FROM guide_view_tracking
+          WHERE instance_id = ? AND viewer_fingerprint = ?
+        `);
+
+        for (const fingerprint of fingerprints) {
+          const existingView = existingViewStmt.get(trackedInstanceId, fingerprint) as { last_viewed_at: string } | undefined;
+
+          if (!existingView) {
+            continue;
+          }
+
+          const elapsedMs = viewedAt.getTime() - new Date(existingView.last_viewed_at).getTime();
+          if (elapsedMs < cooldownWindowMs) {
+            return false;
+          }
+        }
+
+        const upsertStmt = this.db.prepare(`
+          INSERT INTO guide_view_tracking (instance_id, viewer_fingerprint, last_viewed_at)
+          VALUES (?, ?, ?)
+          ON CONFLICT(instance_id, viewer_fingerprint)
+          DO UPDATE SET last_viewed_at = excluded.last_viewed_at
+        `);
+
+        for (const fingerprint of fingerprints) {
+          upsertStmt.run(trackedInstanceId, fingerprint, viewedAtIso);
+        }
+
+        return true;
+      },
+    );
+
+    return transaction(instanceId, uniqueFingerprints, viewedAt.toISOString(), cooldownMs);
+  }
+
+  async cleanupOldViewTracking(cutoffDate: Date): Promise<number> {
+    const stmt = this.db.prepare(`
+      DELETE FROM guide_view_tracking
+      WHERE last_viewed_at < ?
+    `);
+
+    const result = stmt.run(cutoffDate.toISOString());
+    return result.changes;
   }
 
   async getTotalViewsByUserId(userId: string): Promise<number> {

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, X, Loader2 } from "lucide-react";
 import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
+import { validateDeckCardAddition } from "@/features/archetypes/utils/deckValidation";
 import { sortDeckCards } from "@/shared/utils/sortDeckCards";
 import type { Card } from "@/features/archetypes/types";
 
@@ -99,42 +100,36 @@ export const RecommendedDeckEditor = ({
   };
 
   const handleCardSelected = (card: Card) => {
-    // Count how many copies of this card already exist across all decks
-    const existingCopies = 
-      mainDeck.filter(c => c.id === card.id).length +
-      extraDeck.filter(c => c.id === card.id).length +
-      sideDeck.filter(c => c.id === card.id).length;
-    
-    if (existingCopies >= 3) {
-      alert(`You can only have a maximum of 3 copies of "${card.name}" in your deck`);
+    if (!targetZone) {
       return;
     }
-    
+
+    const validationError = validateDeckCardAddition({
+      card,
+      targetZone,
+      mainDeck,
+      extraDeck,
+      sideDeck,
+    });
+
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
+
     if (targetZone === "main") {
-      if (mainDeck.length >= 60) {
-        alert("Main deck cannot have more than 60 cards");
-        return;
-      }
       const newMainDeck = sortDeckCards([...mainDeck, card]);
       setMainDeck(newMainDeck);
       if (onDeckChange) {
         onDeckChange(title, newMainDeck, extraDeck, sideDeck);
       }
     } else if (targetZone === "extra") {
-      if (extraDeck.length >= 15) {
-        alert("Extra deck cannot have more than 15 cards");
-        return;
-      }
       const newExtraDeck = sortDeckCards([...extraDeck, card]);
       setExtraDeck(newExtraDeck);
       if (onDeckChange) {
         onDeckChange(title, mainDeck, newExtraDeck, sideDeck);
       }
     } else if (targetZone === "side") {
-      if (sideDeck.length >= 20) {
-        alert("Side deck cannot have more than 20 cards");
-        return;
-      }
       const newSideDeck = sortDeckCards([...sideDeck, card]);
       setSideDeck(newSideDeck);
       if (onDeckChange) {

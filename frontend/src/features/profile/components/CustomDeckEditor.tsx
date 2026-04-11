@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Plus, X, Loader2, Save } from "lucide-react";
 import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
+import { validateDeckCardAddition } from "@/features/archetypes/utils/deckValidation";
 import { sortDeckCards } from "@/shared/utils/sortDeckCards";
 import type { Card } from "@/features/archetypes/types";
 
@@ -26,7 +27,6 @@ export const CustomDeckEditor = ({
   const [mainDeck, setMainDeck] = useState<DeckCard[]>([]);
   const [extraDeck, setExtraDeck] = useState<DeckCard[]>([]);
   const [isSelectingCard, setIsSelectingCard] = useState(false);
-  const uniqueIdCounter = useRef(0);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [draggedCard, setDraggedCard] = useState<{ zone: "main" | "extra"; index: number } | null>(null);
@@ -40,30 +40,28 @@ export const CustomDeckEditor = ({
   };
 
   const handleCardSelected = (card: Card) => {
-    // Count how many copies of this card already exist across all decks
-    const existingCopies = 
-      mainDeck.filter(c => c.id === card.id).length +
-      extraDeck.filter(c => c.id === card.id).length;
-    
-    if (existingCopies >= 3) {
-      alert(`You can only have a maximum of 3 copies of "${card.name}" in your deck`);
+    if (!targetZone) {
       return;
     }
-    
+
+    const validationError = validateDeckCardAddition({
+      card,
+      targetZone,
+      mainDeck,
+      extraDeck,
+    });
+
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
+
     if (targetZone === "main") {
-      if (mainDeck.length >= 60) {
-        alert("Main deck cannot have more than 60 cards");
-        return;
-      }
-      const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
+      const deckCard: DeckCard = { ...card, uniqueId: crypto.randomUUID() };
       const newMainDeck = sortDeckCards([...mainDeck, deckCard]);
       setMainDeck(newMainDeck);
     } else if (targetZone === "extra") {
-      if (extraDeck.length >= 15) {
-        alert("Extra deck cannot have more than 15 cards");
-        return;
-      }
-      const deckCard: DeckCard = { ...card, uniqueId: `card-${uniqueIdCounter.current++}` };
+      const deckCard: DeckCard = { ...card, uniqueId: crypto.randomUUID() };
       const newExtraDeck = sortDeckCards([...extraDeck, deckCard]);
       setExtraDeck(newExtraDeck);
     }
@@ -136,8 +134,8 @@ export const CustomDeckEditor = ({
     }
     
     // Remove uniqueId before saving
-    const mainDeckToSave = mainDeck.map(({ uniqueId, ...card }) => card);
-    const extraDeckToSave = extraDeck.map(({ uniqueId, ...card }) => card);
+    const mainDeckToSave = mainDeck.map(({ uniqueId: _uniqueId, ...card }) => card);
+    const extraDeckToSave = extraDeck.map(({ uniqueId: _uniqueId, ...card }) => card);
     
     onSave(title.trim(), mainDeckToSave, extraDeckToSave);
   };

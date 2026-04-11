@@ -54,6 +54,11 @@ export interface GuideRepository {
   findFavoritedInstancesByUserId(userId: string): Promise<GuideListItem[]>;
   /** Increments the view count for an instance by a specified amount */
   incrementViewCount(instanceId: number, incrementBy: number): Promise<void>;
+  /** Attempts to register an anonymous viewer for an instance, respecting a cooldown */
+  tryRegisterView(instanceId: number, viewerFingerprints: string[], viewedAt: Date, cooldownMs: number): Promise<boolean>;
+    /** Deletes anonymous view tracking records older than the provided cutoff */
+    cleanupOldViewTracking(cutoffDate: Date): Promise<number>;
+  
   /** Gets the total view count across all instances for a user */
   getTotalViewsByUserId(userId: string): Promise<number>;
   /** Gets the latest created instances across all archetypes with user profile data
