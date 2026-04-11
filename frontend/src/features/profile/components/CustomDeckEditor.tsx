@@ -52,7 +52,9 @@ export const CustomDeckEditor = ({
     });
 
     if (validationError) {
-      alert(validationError);
+      if (validationError.code !== "MAX_COPIES") {
+        alert(validationError.message);
+      }
       return;
     }
 

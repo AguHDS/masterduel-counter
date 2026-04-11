@@ -4,7 +4,7 @@ import { X, Search, Loader2 } from "lucide-react";
 import { Virtuoso } from "react-virtuoso";
 import { useSearchCards } from "@/features/archetypes/hooks/useCardQueries";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
-import { useTooltipContext } from "@/features/archetypes/contexts/TooltipContext";
+import { useOptionalTooltipContext } from "@/features/archetypes/hooks/useTooltipContext";
 import type { Card } from "@/features/archetypes/types";
 
 interface FloatingCardSearchModalProps {
@@ -21,8 +21,8 @@ const GAP = 8;
 const PADDING = 12;
 const CARD_ASPECT_RATIO = 86 / 59;
 const CARD_TEXT_HEIGHT = 30;
-const MODAL_WIDTH = 470;
-const MODAL_HEIGHT = 600;
+const MODAL_WIDTH = 520;
+const MODAL_HEIGHT = 640;
 
 export const FloatingCardSearchModal = ({
   isOpen,
@@ -40,13 +40,7 @@ export const FloatingCardSearchModal = ({
   const [hasSearched, setHasSearched] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
-  // Get tooltip context (use try-catch for graceful fallback if not in provider)
-  let tooltipContext: ReturnType<typeof useTooltipContext> | null = null;
-  try {
-    tooltipContext = useTooltipContext();
-  } catch {
-    // Not in a provider, that's ok
-  }
+  const tooltipContext = useOptionalTooltipContext();
 
   // Notify context when modal opens/closes
   useEffect(() => {
@@ -94,12 +88,12 @@ export const FloatingCardSearchModal = ({
 
     // Recalculate on scroll or resize
     const handleUpdate = () => calculatePosition();
-    window.addEventListener('scroll', handleUpdate, true);
-    window.addEventListener('resize', handleUpdate);
+    window.addEventListener("scroll", handleUpdate, true);
+    window.addEventListener("resize", handleUpdate);
 
     return () => {
-      window.removeEventListener('scroll', handleUpdate, true);
-      window.removeEventListener('resize', handleUpdate);
+      window.removeEventListener("scroll", handleUpdate, true);
+      window.removeEventListener("resize", handleUpdate);
     };
   }, [isOpen, anchorElement]);
 
@@ -178,7 +172,15 @@ export const FloatingCardSearchModal = ({
   }, [isOpen]);
 
   const handleSelectCard = useCallback(
-    (id: number, name: string, imageUrl: string, imageUrlSmall: string, imageUrlCropped: string, frameType?: string, level?: number) => {
+    (
+      id: number,
+      name: string,
+      imageUrl: string,
+      imageUrlSmall: string,
+      imageUrlCropped: string,
+      frameType?: string,
+      level?: number,
+    ) => {
       const card: Card = {
         id,
         name,
@@ -209,30 +211,33 @@ export const FloatingCardSearchModal = ({
   }, [containerSize.width]);
 
   // Calculate card dimensions
-  const { columnCount, cardWidth, cardImageHeight, cardHeight } = useMemo(() => {
-    if (containerSize.width === 0) {
+  const { columnCount, cardWidth, cardImageHeight, cardHeight } =
+    useMemo(() => {
+      if (containerSize.width === 0) {
+        return {
+          columnCount: 2,
+          cardWidth: 0,
+          cardImageHeight: 0,
+          cardHeight: 0,
+        };
+      }
+
+      const cols = getColumnCount();
+      const gap = GAP;
+      const padding = PADDING * 2;
+      const totalGap = gap * (cols - 1);
+      const width = Math.floor(
+        (containerSize.width - padding - totalGap) / cols,
+      );
+      const imageHeight = Math.floor(width * CARD_ASPECT_RATIO);
+
       return {
-        columnCount: 2,
-        cardWidth: 0,
-        cardImageHeight: 0,
-        cardHeight: 0,
+        columnCount: cols,
+        cardWidth: width,
+        cardImageHeight: imageHeight,
+        cardHeight: imageHeight + CARD_TEXT_HEIGHT,
       };
-    }
-
-    const cols = getColumnCount();
-    const gap = GAP;
-    const padding = PADDING * 2;
-    const totalGap = gap * (cols - 1);
-    const width = Math.floor((containerSize.width - padding - totalGap) / cols);
-    const imageHeight = Math.floor(width * CARD_ASPECT_RATIO);
-
-    return {
-      columnCount: cols,
-      cardWidth: width,
-      cardImageHeight: imageHeight,
-      cardHeight: imageHeight + CARD_TEXT_HEIGHT,
-    };
-  }, [containerSize.width, getColumnCount]);
+    }, [containerSize.width, getColumnCount]);
 
   // Create rows for virtualization
   const cardRows = useMemo(() => {
@@ -265,15 +270,15 @@ export const FloatingCardSearchModal = ({
   const modalContent = (
     <>
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/50 z-[460]"
+      <div
+        className="fixed inset-0 z-[460] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.12),transparent_32%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.08),transparent_28%),rgba(2,6,23,0.72)] backdrop-blur-[2px]"
         onClick={handleClose}
       />
 
       {/* Modal */}
       <div
         ref={containerRef}
-        className="fixed z-[470] bg-slate-900 rounded-lg shadow-2xl border border-slate-700 flex flex-col overflow-hidden"
+        className="fixed z-[470] flex flex-col overflow-hidden rounded-[24px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.18)]"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
@@ -283,15 +288,19 @@ export const FloatingCardSearchModal = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="pointer-events-none absolute inset-0 rounded-[24px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_36%)]" />
+        <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:28px_28px] opacity-40" />
+
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700 bg-slate-800">
-          <h3 className="text-lg font-semibold text-white">
-            {title}
-          </h3>
+        <div className="relative z-10 flex items-center justify-between border-b border-slate-700/70 bg-slate-950/70 px-5 py-4 backdrop-blur-xl">
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold text-white">{title}</h3>
+          </div>
           <button
             onClick={handleClose}
             type="button"
-            className="text-slate-400 hover:text-white hover:bg-slate-700 rounded p-1.5 transition-colors"
+            className="rounded-full p-2 text-slate-400 hover:bg-slate-800/70 hover:text-white"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -299,35 +308,48 @@ export const FloatingCardSearchModal = ({
         </div>
 
         {/* Search Input */}
-        <div className="p-4 border-b border-slate-700 bg-slate-800">
-          <div className="relative flex items-center">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-blue-400" />
+        <div className="relative z-10 border-b border-slate-700/70 bg-slate-950/55 px-5 py-4 backdrop-blur-xl">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <span className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+              Search
+            </span>
+          </div>
+          <div className="relative flex items-center rounded-[18px] border border-sky-400/25 bg-slate-950/60 px-1 shadow-[inset_0_1px_0_rgba(148,163,184,0.08)]">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-300" />
             <input
               ref={inputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for a Yu-Gi-Oh! card..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+              className="w-full rounded-[16px] bg-transparent py-3 pl-11 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none"
               autoFocus
             />
           </div>
         </div>
 
         {/* Search Results */}
-        <div className="relative flex-1 overflow-hidden bg-slate-900 scrollbar-homeAllPages" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div
+          className="relative z-10 flex-1 overflow-hidden bg-slate-950/25 scrollbar-homeAllPages"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
           {isLoading && (
-            <div className="flex flex-col items-center justify-center h-full gap-3">
-              <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
-              <p className="text-slate-300 text-sm">
+            <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-[22px] border border-sky-400/20 bg-sky-500/10 shadow-[0_10px_30px_rgba(59,130,246,0.16)]">
+                <Loader2 className="h-10 w-10 animate-spin text-sky-300" />
+              </div>
+              <p className="text-base font-medium text-slate-100">
                 Searching cards...
+              </p>
+              <p className="max-w-xs text-sm text-slate-400">
+                Looking through the Yu-Gi-Oh! card pool for matching names.
               </p>
             </div>
           )}
 
           {error && (
-            <div className="flex items-center justify-center h-full">
-              <div className="bg-red-950/40 border border-red-500/50 rounded p-4 mx-4">
+            <div className="flex h-full items-center justify-center px-6">
+              <div className="mx-4 rounded-[20px] border border-red-500/40 bg-red-950/25 p-5 shadow-[0_10px_24px_rgba(127,29,29,0.18)]">
                 <p className="text-red-300 text-sm text-center">
                   {error.message}
                 </p>
@@ -336,14 +358,14 @@ export const FloatingCardSearchModal = ({
           )}
 
           {showNoResults && (
-            <div className="flex flex-col items-center justify-center h-full gap-3 px-4">
-              <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
-                <Search className="w-8 h-8 text-slate-400" />
+            <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-[22px] border border-slate-700/80 bg-slate-900/70 shadow-[0_10px_30px_rgba(2,6,23,0.3)]">
+                <Search className="h-9 w-9 text-slate-400" />
               </div>
-              <p className="text-slate-300 text-sm text-center">
+              <p className="text-base font-medium text-slate-100">
                 No cards found
               </p>
-              <p className="text-slate-500 text-xs text-center">
+              <p className="max-w-xs text-sm text-slate-400">
                 Try a different search term
               </p>
             </div>
@@ -360,7 +382,7 @@ export const FloatingCardSearchModal = ({
                   <div
                     style={{
                       display: "flex",
-                      overflowX: 'hidden',
+                      overflowX: "hidden",
                       gap: `${GAP}px`,
                       padding:
                         rowIndex === 0
@@ -401,30 +423,32 @@ export const FloatingCardSearchModal = ({
                                   result.level,
                                 )
                               }
-                              className="group relative bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 hover:border-blue-500 transition-colors overflow-hidden flex flex-col w-full h-full"
+                              className="group relative flex h-full w-full flex-col overflow-hidden rounded-[16px] border border-slate-700/90 bg-gradient-to-b from-slate-950/95 via-slate-900/92 to-[#130f25]  hover:border-sky-400/60 shadow-[0_10px_22px_rgba(2,6,23,0.35)]"
                               title={result.name}
                             >
                               {/* Card Image */}
                               <div
-                                className="relative bg-slate-900 overflow-hidden"
+                                className="relative overflow-hidden bg-slate-950"
                                 style={{ height: cardImageHeight }}
                               >
                                 {result.imageUrlSmallExternal ? (
                                   <img
                                     src={result.imageUrlSmallExternal}
                                     alt={result.name}
-                                    className="w-full h-full object-contain relative z-10"
+                                    className="relative z-10 h-full w-full object-contain"
                                     loading="lazy"
                                   />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-slate-500">
+                                  <div className="flex h-full w-full items-center justify-center text-slate-500">
                                     <span className="text-xs">No image</span>
                                   </div>
                                 )}
 
+                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/65 via-transparent to-transparent" />
+
                                 {/* Hover overlay */}
-                                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                  <span className="text-white text-xs font-semibold px-3 py-1.5 bg-blue-600 rounded">
+                                <div className="absolute inset-0 flex items-center justify-center bg-slate-950/75 opacity-0  group-hover:opacity-100">
+                                  <span className="rounded-full border border-sky-400/25 bg-sky-500/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-sky-100 shadow-[0_8px_18px_rgba(59,130,246,0.2)]">
                                     Select
                                   </span>
                                 </div>
@@ -432,10 +456,10 @@ export const FloatingCardSearchModal = ({
 
                               {/* Card Name */}
                               <div
-                                className="px-1 py-1 text-center bg-slate-800"
+                                className="bg-slate-950/50 px-1 py-1 text-center"
                                 style={{ height: CARD_TEXT_HEIGHT }}
                               >
-                                <p className="text-[10px] text-slate-300 truncate group-hover:text-white transition-colors">
+                                <p className="truncate text-[10px] text-slate-300  group-hover:text-white">
                                   {result.name}
                                 </p>
                               </div>
@@ -454,15 +478,15 @@ export const FloatingCardSearchModal = ({
           )}
 
           {showWelcome && (
-            <div className="flex flex-col items-center justify-center h-full gap-3 px-4">
-              <div className="w-16 h-16 rounded-lg bg-blue-600 flex items-center justify-center">
-                <Search className="w-8 h-8 text-white" />
+            <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-[22px] border border-sky-400/20 bg-sky-500/12 shadow-[0_12px_30px_rgba(59,130,246,0.18)]">
+                <Search className="h-9 w-9 text-sky-200" />
               </div>
-              <p className="text-white text-base font-medium text-center">
+              <span className="rounded-full border border-sky-400/20 bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200">
+                Ready
+              </span>
+              <p className="text-lg font-semibold text-white">
                 Start Your Search
-              </p>
-              <p className="text-slate-400 text-sm text-center">
-                Type to find a card
               </p>
             </div>
           )}

@@ -1,7 +1,11 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { X, Trash2, Lock, Globe, Edit2, Plus, Save } from "lucide-react";
-import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
+import { DeckZoneSection } from "@/features/archetypes/components/DeckZoneSection";
 import { validateDeckCardAddition } from "@/features/archetypes/utils/deckValidation";
+import {
+  getDeckZoneLabel,
+  type DeckDisplayZone,
+} from "@/features/archetypes/utils/deckZonePresentation";
 import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
 import type { CustomDeck } from "../api/customDeckApi";
 import { sortDeckCards } from "@/shared/utils/sortDeckCards";
@@ -53,7 +57,7 @@ export const CustomDeckModal = ({
   const [isSelectingCard, setIsSelectingCard] = useState(false);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
-  const [draggedCard, setDraggedCard] = useState<{ zone: "main" | "extra" | "side"; index: number } | null>(null);
+  const [draggedCard, setDraggedCard] = useState<{ zone: DeckDisplayZone; index: number } | null>(null);
   
   // Reset decks when deck prop changes (only in edit mode)
   useEffect(() => {
@@ -106,7 +110,9 @@ export const CustomDeckModal = ({
     });
 
     if (validationError) {
-      alert(validationError);
+      if (validationError.code !== "MAX_COPIES") {
+        alert(validationError.message);
+      }
       return;
     }
     
@@ -124,7 +130,7 @@ export const CustomDeckModal = ({
     }
   };
 
-  const handleRemoveCard = useCallback((zone: "main" | "extra" | "side", index: number) => {
+  const handleRemoveCard = useCallback((zone: DeckDisplayZone, index: number) => {
     if (!isOwner || !isEditMode) return;
 
     let removedCard: DeckCard | undefined;
@@ -156,7 +162,7 @@ export const CustomDeckModal = ({
   }, [isOwner, isEditMode, headerCard]);
 
   // Drag and drop handlers (memoized for performance)
-  const handleDragStart = useCallback((zone: "main" | "extra" | "side", index: number) => {
+  const handleDragStart = useCallback((zone: DeckDisplayZone, index: number) => {
     setDraggedCard({ zone, index });
   }, []);
 
@@ -164,7 +170,7 @@ export const CustomDeckModal = ({
     e.preventDefault();
   }, []);
 
-  const handleDrop = useCallback((zone: "main" | "extra" | "side", dropIndex: number) => {
+  const handleDrop = useCallback((zone: DeckDisplayZone, dropIndex: number) => {
     if (!draggedCard || draggedCard.zone !== zone || draggedCard.index === dropIndex) {
       setDraggedCard(null);
       return;
@@ -267,10 +273,13 @@ export const CustomDeckModal = ({
       onClick={handleClose}
     >
       <div
-        className="bg-slate-900 rounded-lg shadow-2xl border border-slate-700 max-w-2xl w-full max-h-[90vh] overflow-auto scrollbar-cardpair"
+        className="relative max-h-[90vh] max-w-3xl overflow-auto rounded-[26px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.16)] scrollbar-cardpair"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-slate-900 border-b border-slate-700 px-3 py-2 flex items-center justify-between gap-2 z-10">
+        <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_38%)]" />
+        <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
+
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-slate-700/70 bg-slate-950/85 px-4 py-3 backdrop-blur-xl">
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
             {isOwner && isEditMode ? (
               <input
@@ -280,11 +289,11 @@ export const CustomDeckModal = ({
                   setTitle(e.target.value);
                   setHasChanges(true);
                 }}
-                className="text-sm font-bold bg-slate-800 border border-slate-600 rounded px-2 py-1 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                className="rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm font-bold text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                 maxLength={100}
               />
             ) : (
-              <h2 className="text-sm font-bold text-white truncate">
+              <h2 className="text-base font-bold text-blue-100 truncate">
                 {title}
               </h2>
             )}
@@ -295,8 +304,8 @@ export const CustomDeckModal = ({
                   disabled={isUpdating}
                   className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all ${
                     isPublic
-                      ? "bg-green-600/20 text-green-400 border border-green-500/30 hover:bg-green-600/30"
-                      : "bg-slate-700/50 text-slate-400 border border-slate-600/30 hover:bg-slate-700/70"
+                      ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/18"
+                      : "bg-slate-800/70 text-slate-300 border border-slate-600/40 hover:bg-slate-700/80"
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
@@ -305,7 +314,7 @@ export const CustomDeckModal = ({
               </div>
             )}
             {!isOwner && !isPublic && (
-              <div className="flex items-center gap-1 px-2 py-1 bg-slate-700/50 text-slate-400 border border-slate-600/30 rounded text-xs font-medium">
+              <div className="flex items-center gap-1 rounded-full border border-slate-600/40 bg-slate-800/70 px-2.5 py-1 text-xs font-medium text-slate-300">
                 <Lock className="w-3 h-3" />
                 <span>Private</span>
               </div>
@@ -316,7 +325,7 @@ export const CustomDeckModal = ({
               <button
                 onClick={() => setIsEditMode(true)}
                 disabled={isUpdating}
-                className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-xs transition-colors font-medium flex items-center gap-1.5"
+                className="flex items-center gap-1.5 rounded-full border border-sky-400/25 bg-sky-500/15 px-3 py-1.5 text-xs font-semibold text-sky-200 transition-colors hover:bg-sky-500/22 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Edit2 className="w-3 h-3" />
                 Edit
@@ -336,7 +345,7 @@ export const CustomDeckModal = ({
                   }
                 }}
                 disabled={isUpdating}
-                className="px-2.5 py-1 bg-slate-600 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-xs transition-colors font-medium"
+                className="rounded-full border border-slate-600/40 bg-slate-800/80 px-3 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-700/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Cancel Edit
               </button>
@@ -345,7 +354,7 @@ export const CustomDeckModal = ({
               <button
                 onClick={handleSaveChanges}
                 disabled={isUpdating}
-                className="px-2.5 py-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-xs transition-colors font-medium flex items-center gap-1.5"
+                className="flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-200 transition-colors hover:bg-emerald-500/22 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Save className="w-3 h-3" />
                 {isUpdating ? "Saving..." : "Save Changes"}
@@ -355,14 +364,14 @@ export const CustomDeckModal = ({
               <button
                 onClick={handleDelete}
                 disabled={isDeleting || isUpdating}
-                className="p-1.5 bg-red-600/20 hover:bg-red-600/40 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+                className="rounded-full border border-red-500/25 bg-red-500/10 p-1.5 transition-colors hover:bg-red-500/18 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Trash2 className="w-3.5 h-3.5 text-red-400" />
               </button>
             )}
             <button
               onClick={handleClose}
-              className="p-1.5 hover:bg-slate-800/50 rounded transition-colors"
+              className="rounded-full p-1.5 transition-colors hover:bg-slate-800/60"
             >
               <X className="w-4 h-4 text-cyan-400" />
             </button>
@@ -370,16 +379,30 @@ export const CustomDeckModal = ({
         </div>
 
         {!canView ? (
-          <div className="p-20 text-center">
+          <div className="relative z-10 p-20 text-center">
             <Lock className="w-16 h-16 text-slate-600 mx-auto mb-4" />
             <p className="text-slate-400 text-lg">This deck is private</p>
             <p className="text-slate-500 text-sm mt-2">Only the owner can view this deck</p>
           </div>
         ) : (
-          <div className="p-2.5 space-y-3">
+          <div className="relative z-10 space-y-5 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-sky-400/20 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-200/90">
+                {mainDeck.length} main
+              </span>
+              <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-violet-200/90">
+                {extraDeck.length} extra
+              </span>
+              {showSideDeck && (
+                <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
+                  {sideDeck.length} side
+                </span>
+              )}
+            </div>
+
             {/* Header Card Selection */}
             {isOwner && isEditMode && (
-              <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+              <div className="rounded-[20px] border border-sky-400/15 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-indigo-950/80 p-4 shadow-[0_16px_34px_rgba(2,6,23,0.4)]">
                 <div className="flex items-center gap-3">
                   <div className="flex-shrink-0">
                     {headerCard ? (
@@ -387,234 +410,113 @@ export const CustomDeckModal = ({
                         <img
                           src={headerCard.imageUrlCropped}
                           alt={headerCard.name}
-                          className="h-[60px] w-[60px] object-cover rounded border-2 border-cyan-500"
+                          className="h-[72px] w-[72px] rounded-2xl border-2 border-cyan-500/70 object-cover shadow-[0_10px_24px_rgba(8,145,178,0.28)]"
                         />
                         <button
                           onClick={() => setHeaderCard(null)}
-                          className="absolute -top-1 -right-1 bg-red-600 hover:bg-red-700 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute -right-1 -top-1 rounded-full bg-red-600 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
                         >
                           <X className="w-3 h-3" />
                         </button>
                       </div>
                     ) : (
-                      <div className="h-[60px] w-[60px] bg-slate-700 rounded border-2 border-dashed border-slate-600 flex items-center justify-center">
+                      <div className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl border-2 border-dashed border-slate-600 bg-slate-950/50">
                         <Plus className="w-6 h-6 text-slate-500" />
                       </div>
                     )}
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs text-slate-400 mb-1.5">Header Card (Preview)</p>
                     <button
                       onClick={(e) => handleAddCard("header", e.currentTarget)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded text-xs transition-colors font-semibold"
+                      className="flex items-center gap-1.5 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-colors hover:bg-cyan-500/16"
                     >
                       <Plus className="w-3 h-3" />
                       <span>{headerCard ? "Change Header Card" : "Select Header Card"}</span>
                     </button>
                     {headerCard && (
-                      <p className="text-xs text-slate-300 mt-1.5 truncate">{headerCard.name}</p>
+                      <p className="mt-2 truncate text-sm text-slate-300">{headerCard.name}</p>
                     )}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Main Deck Container */}
-            <div className="space-y-2">
-              {/* Main Deck */}
-              <div className="space-y-2">
-                <div className="bg-blue-900/30 px-2 py-1.5 rounded border-l-4 border-blue-500">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-white font-semibold text-sm">Main Deck</span>
-                      <span className="text-blue-300 text-xs">({mainDeck.length})</span>
-                    </div>
-                    {isOwner && isEditMode && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddCard("main", e.currentTarget);
-                        }}
-                        disabled={mainDeck.length >= 60}
-                        className="flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
-                      >
-                        <Plus className="w-2.5 h-2.5" />
-                        <span>Add</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <div
-                  className="grid gap-0.5 p-1 bg-blue-950/30 rounded border border-dashed border-blue-500/40"
-                  style={{ gridTemplateColumns: "repeat(10, minmax(0, 1fr))" }}
-                >
-                {mainDeck.map((card, index) => (
-                  <div
-                    key={card.uniqueId}
-                    className="relative group"
-                    draggable={isOwner && isEditMode}
-                    onDragStart={() => handleDragStart("main", index)}
-                    onDragOver={handleDragOver}
-                    onDrop={() => handleDrop("main", index)}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name} disabled={!!draggedCard}>
-                      <img
-                        src={card.imageUrlSmall}
-                        alt={card.name}
-                        className="w-full h-auto border border-slate-600 hover:border-blue-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
-                      />
-                    </CardTooltip>
-                    {isOwner && isEditMode && (
-                      <button
-                        onClick={() => handleRemoveCard("main", index)}
-                        className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-0.5 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-2 h-2" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-                </div>
-              </div>
-
-              {/* Extra Deck */}
-              {(extraDeck.length > 0 || (isOwner && isEditMode)) && (
-                <div className="space-y-2">
-                  <div className="bg-purple-900/30 px-3 py-2 rounded border-l-4 border-purple-500">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-semibold text-base">Extra Deck</span>
-                        <span className="text-purple-300 text-sm">({extraDeck.length})</span>
-                      </div>
-                      {isOwner && isEditMode && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddCard("extra", e.currentTarget);
-                          }}
-                          disabled={extraDeck.length >= 15}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
-                        >
-                          <Plus className="w-3 h-3" />
-                          <span>Add</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <div 
-                    className="grid gap-1 p-1.5 bg-purple-950/30 rounded border border-dashed border-purple-500/40"
-                    style={{ gridTemplateColumns: "repeat(10, minmax(0, 1fr))" }}
-                  >
-                    {extraDeck.map((card, index) => (
-                      <div
-                        key={card.uniqueId}
-                        className="relative group"
-                        draggable={isOwner && isEditMode}
-                        onDragStart={() => handleDragStart("extra", index)}
-                        onDragOver={handleDragOver}
-                        onDrop={() => handleDrop("extra", index)}
-                        onDragEnd={handleDragEnd}
-                      >
-                        <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name} disabled={!!draggedCard}>
-                          <img
-                            src={card.imageUrlSmall}
-                            alt={card.name}
-                            className="w-full h-auto rounded border border-purple-600/30 hover:border-purple-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
-                          />
-                        </CardTooltip>
-                        {isOwner && isEditMode && (
-                          <button
-                            onClick={() => handleRemoveCard("extra", index)}
-                            className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-0.5 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="w-2 h-2" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Side Deck - FUERA del container del deck principal */}
+            <DeckZoneSection
+              zone="main"
+              cards={mainDeck}
+              isEditMode={isEditMode}
+              canEdit={isOwner && isEditMode}
+              emptyMessage={
+                isOwner && isEditMode
+                  ? `Click here to add cards to ${getDeckZoneLabel("main")}`
+                  : `No cards in ${getDeckZoneLabel("main")}`
+              }
+              cardKey={(card) => card.uniqueId}
+              onAddCard={handleAddCard}
+              onRemoveCard={handleRemoveCard}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onDragEnd={handleDragEnd}
+              draggedCardActive={!!draggedCard}
+            />
+            {(extraDeck.length > 0 || (isOwner && isEditMode)) && (
+              <DeckZoneSection
+                zone="extra"
+                cards={extraDeck}
+                isEditMode={isEditMode}
+                canEdit={isOwner && isEditMode}
+                emptyMessage={
+                  isOwner && isEditMode
+                    ? `Click here to add cards to ${getDeckZoneLabel("extra")}`
+                    : `No cards in ${getDeckZoneLabel("extra")}`
+                }
+                cardKey={(card) => card.uniqueId}
+                onAddCard={handleAddCard}
+                onRemoveCard={handleRemoveCard}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onDragEnd={handleDragEnd}
+                draggedCardActive={!!draggedCard}
+              />
+            )}
             {showSideDeck ? (
-              <div className="space-y-2">
-                <div className="bg-amber-900/30 px-2 py-1.5 rounded border-l-4 border-amber-500">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-white font-semibold text-sm">Side Deck</span>
-                      <span className="text-amber-300 text-xs">({sideDeck.length})</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      {isOwner && isEditMode && (
-                        <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddCard("side", e.currentTarget);
-                            }}
-                            disabled={sideDeck.length >= 20}
-                            className="flex items-center gap-1 px-2 py-1 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-600 text-white rounded text-xs transition-colors font-semibold disabled:cursor-not-allowed"
-                          >
-                            <Plus className="w-2.5 h-2.5" />
-                            <span>Add</span>
-                          </button>
-                          <button
-                            onClick={handleRemoveSideDeck}
-                            className="flex items-center gap-1 px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors font-semibold"
-                            title="Remove Side Deck"
-                          >
-                            <X className="w-2.5 h-2.5" />
-                            <span>Remove Side Deck</span>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div 
-                  className="grid gap-0.5 p-1 bg-amber-950/30 rounded border border-amber-500/40"
-                  style={{ gridTemplateColumns: "repeat(10, minmax(0, 1fr))" }}
-                >
-                  {sideDeck.map((card, index) => (
-                    <div
-                      key={card.uniqueId}
-                      className="relative group"
-                      draggable={isOwner && isEditMode}
-                      onDragStart={() => handleDragStart("side", index)}
-                      onDragOver={handleDragOver}
-                      onDrop={() => handleDrop("side", index)}
-                      onDragEnd={handleDragEnd}
-                    >
-                      <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name} disabled={!!draggedCard}>
-                        <img
-                          src={card.imageUrlSmall}
-                          alt={card.name}
-                          className="w-full h-auto rounded border border-amber-600/30 hover:border-amber-400 transition-colors object-contain cursor-grab active:cursor-grabbing"
-                        />
-                      </CardTooltip>
-                      {isOwner && isEditMode && (
-                        <button
-                          onClick={() => handleRemoveCard("side", index)}
-                          className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white p-0.5 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-2 h-2" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <DeckZoneSection
+                zone="side"
+                cards={sideDeck}
+                isEditMode={isEditMode}
+                canEdit={isOwner && isEditMode}
+                emptyMessage={
+                  isOwner && isEditMode
+                    ? `Click here to add cards to ${getDeckZoneLabel("side")}`
+                    : `No cards in ${getDeckZoneLabel("side")}`
+                }
+                cardKey={(card) => card.uniqueId}
+                onAddCard={handleAddCard}
+                onRemoveCard={handleRemoveCard}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onDragEnd={handleDragEnd}
+                draggedCardActive={!!draggedCard}
+                extraActions={
+                  <button
+                    onClick={handleRemoveSideDeck}
+                    className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition-colors hover:bg-red-500/18"
+                  >
+                    Remove Side Deck
+                  </button>
+                }
+              />
             ) : (
               isOwner && isEditMode && (
                 <div className="text-center">
                   <button
                     onClick={handleAddSideDeck}
-                    className="flex items-center gap-1.5 mx-auto px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs transition-colors font-semibold"
+                    className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition-colors hover:bg-cyan-500/16"
                   >
-                    <Plus className="w-3 h-3" />
+                    <Plus className="h-4 w-4" />
                     <span>Add Side Deck</span>
                   </button>
                 </div>

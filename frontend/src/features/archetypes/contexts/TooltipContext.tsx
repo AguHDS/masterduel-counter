@@ -1,13 +1,5 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-
-interface TooltipContextValue {
-  activeTooltipId: string | null;
-  setActiveTooltip: (id: string | null) => void;
-  isModalOpen: boolean;
-  setModalOpen: (open: boolean) => void;
-}
-
-const TooltipContext = createContext<TooltipContextValue | undefined>(undefined);
+import { useState, useCallback, type ReactNode } from 'react';
+import { TooltipContext } from './TooltipContextBase';
 
 export const TooltipProvider = ({ children }: { children: ReactNode }) => {
   const [activeTooltipId, setActiveTooltipId] = useState<string | null>(null);
@@ -34,10 +26,3 @@ export const TooltipProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useTooltipContext = () => {
-  const context = useContext(TooltipContext);
-  if (!context) {
-    throw new Error('useTooltipContext must be used within TooltipProvider');
-  }
-  return context;
-};

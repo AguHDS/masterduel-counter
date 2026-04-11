@@ -141,6 +141,17 @@ export const InitialHandsEditor = ({
     );
   };
 
+  const createEmptyFieldBoard = (handId: string): FieldBoard => ({
+    id: `field-${handId}`,
+    fieldSpell: null,
+    extraMonsters: [null, null],
+    monsters: [null, null, null, null, null],
+    spellTraps: [null, null, null, null, null],
+    hand: [null, null, null, null, null],
+    graveyard: [],
+    banished: [],
+  });
+
   const updateHandFinalBoard = (handId: string, board: FieldBoard | null) => {
     // Keep the final board inside the hand state so load/save/cancel use one source of truth.
     setInitialHands(
@@ -192,18 +203,7 @@ export const InitialHandsEditor = ({
       return;
     }
 
-    const newBoard: FieldBoard = {
-      id: `field-${handId}`,
-      fieldSpell: null,
-      extraMonsters: [null, null],
-      monsters: [null, null, null, null, null],
-      spellTraps: [null, null, null, null, null],
-      hand: [null, null, null, null, null],
-      graveyard: [],
-      banished: [],
-    };
-
-    updateHandFinalBoard(handId, newBoard);
+    updateHandFinalBoard(handId, createEmptyFieldBoard(handId));
   };
 
   const handleDeleteFieldPreview = (handId: string) => {
@@ -214,12 +214,17 @@ export const InitialHandsEditor = ({
   };
 
   const handleEditHand = (handId: string) => {
-    // if we are changing to a different hand, we clear the preview
+    const handToEdit = initialHands.find((hand) => hand.id === handId);
+
     if (editingHandId !== handId) {
-      setSelectedPreviewHandId(null);
-      // notify parent that hand selection changed
       _onSelectHand?.(handId);
     }
+
+    if (!handToEdit?.finalBoard) {
+      updateHandFinalBoard(handId, createEmptyFieldBoard(handId));
+    }
+
+    setSelectedPreviewHandId(handId);
     setEditingHandId(handId);
   };
 
@@ -476,7 +481,7 @@ export const InitialHandsEditor = ({
                           {hasFieldBoard && isPreviewSelected
                             ? "Viewing Field Preview"
                             : hasFieldBoard
-                              ? "View Field Preview"
+                              ? "Edit Field Preview"
                               : "Add Field Preview"}
                         </span>
                       </button>

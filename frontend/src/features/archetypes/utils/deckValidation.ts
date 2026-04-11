@@ -4,6 +4,12 @@ type CardWithIdentity = {
 };
 
 export type DeckZone = "main" | "extra" | "side";
+export type DeckCardAdditionErrorCode = "MAX_COPIES" | "ZONE_LIMIT";
+
+export interface DeckCardAdditionError {
+  code: DeckCardAdditionErrorCode;
+  message: string;
+}
 
 const MAX_COPIES_PER_CARD = 3;
 
@@ -33,13 +39,16 @@ export const validateDeckCardAddition = <TCard extends CardWithIdentity>({
   mainDeck,
   extraDeck,
   sideDeck = [],
-}: ValidateDeckCardAdditionParams<TCard>): string | null => {
+}: ValidateDeckCardAdditionParams<TCard>): DeckCardAdditionError | null => {
   const existingCopies = [mainDeck, extraDeck, sideDeck]
     .flat()
     .filter((deckCard) => deckCard.id === card.id).length;
 
   if (existingCopies >= MAX_COPIES_PER_CARD) {
-    return `You can only have a maximum of 3 copies of "${card.name}" in your deck`;
+    return {
+      code: "MAX_COPIES",
+      message: `You can only have a maximum of 3 copies of "${card.name}" in your deck`,
+    };
   }
 
   const zoneCards = targetZone === "main"
@@ -49,7 +58,10 @@ export const validateDeckCardAddition = <TCard extends CardWithIdentity>({
       : sideDeck;
 
   if (zoneCards.length >= DECK_ZONE_LIMITS[targetZone]) {
-    return DECK_ZONE_LIMIT_MESSAGES[targetZone];
+    return {
+      code: "ZONE_LIMIT",
+      message: DECK_ZONE_LIMIT_MESSAGES[targetZone],
+    };
   }
 
   return null;
