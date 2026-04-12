@@ -19,7 +19,7 @@ export const DECK_ZONE_LIMITS: Record<DeckDisplayZone, number> = {
 export const DECK_ZONE_STYLES: Record<DeckDisplayZone, DeckZoneStyleConfig> = {
   main: {
     header:
-      "border-sky-400/18 bg-gradient-to-r from-blue-800/25 via-blue-900/60 to-transparent",
+      "bg-gradient-to-r via-blue-900/60",
     badge: "border-sky-400/20 bg-sky-500/10 text-sky-200",
     panel:
       "border-sky-400/12 bg-gradient-to-br from-[#08111f] via-[#111a2f] to-[#120f23]",
@@ -31,7 +31,7 @@ export const DECK_ZONE_STYLES: Record<DeckDisplayZone, DeckZoneStyleConfig> = {
   },
   extra: {
     header:
-      "border-violet-400/18 bg-gradient-to-r from-violet-500/10 via-fuchsia-500/25 to-transparent",
+      "bg-gradient-to-r via-fuchsia-600/25",
     badge: "border-violet-400/20 bg-violet-500/10 text-violet-200",
     panel:
       "border-violet-400/12 bg-gradient-to-br from-[#0a1020] via-[#171331] to-[#180d27]",
@@ -43,7 +43,7 @@ export const DECK_ZONE_STYLES: Record<DeckDisplayZone, DeckZoneStyleConfig> = {
   },
   side: {
     header:
-      "border-cyan-400/18 bg-gradient-to-r from-yellow-500/10 via-yellow-800/25 to-transparent",
+      "bg-gradient-to-r from-transparent via-yellow-600/25 to-transparent",
     badge: "border-cyan-400/20 bg-cyan-500/10 text-cyan-200",
     panel:
       "border-cyan-400/12 bg-gradient-to-br from-yellow-800/20 via-yellow-950/40 to-yellow-800/20",

@@ -3,7 +3,8 @@ import { Plus, X, Trash2 } from "lucide-react";
 import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { ComboStep, Card } from "@/features/archetypes/types";
-import ChainImg from "@/assets/ChainCyan.webp";
+import ChainOverlayImg from "@/assets/chain_new_card.webp";
+import ChainBadgeImg from "@/assets/chaincircle.webp";
 
 interface ComboStepEditorProps {
   comboSteps: ComboStep[];
@@ -553,13 +554,14 @@ export const ComboStepEditor = ({
                                         />
                                       </CardTooltip>
                                       {card.chainNumber != null && (
-                                        <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                                        <img src={ChainOverlayImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                                       )}
                                       {!isReadOnly && (
                                         <div className="absolute bottom-0 left-0 z-[2]">
                                           <button
                                             onClick={(e) => { e.stopPropagation(); setChainPickerOpen(chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "leftSub" && chainPickerOpen?.cardIndex === slotIndex ? null : { stepId: step.id, cardType: "leftSub", cardIndex: slotIndex }); }}
-                                            className={card.chainNumber != null ? "w-[15px] h-[15px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5" : "px-0.5 py-0.5 text-[7px] font-bold rounded-tr bg-black/70 text-blue-300 hover:bg-blue-700/80 hover:text-white"}
+                                            className={card.chainNumber != null ? "w-[15px] h-[15px] bg-center bg-cover bg-no-repeat text-cyan-100 text-[8px] font-bold flex items-center justify-center" : "px-0.5 py-0.5 text-[7px] font-bold rounded-tr bg-black/70 text-blue-300 hover:bg-blue-700/80 hover:text-white"}
+                                            style={card.chainNumber != null ? { backgroundImage: `url(${ChainBadgeImg})` } : undefined}
                                             title="Set chain number"
                                           >
                                             {card.chainNumber != null ? card.chainNumber : "⛓"}
@@ -633,13 +635,14 @@ export const ComboStepEditor = ({
                                           />
                                         </CardTooltip>
                                         {card.chainNumber != null && (
-                                          <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                                          <img src={ChainOverlayImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                                         )}
                                         {!isReadOnly && (
                                           <div className="absolute bottom-0 left-0 z-[2]">
                                             <button
                                               onClick={(e) => { e.stopPropagation(); setChainPickerOpen(chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "leftSub" && chainPickerOpen?.cardIndex === slotIndex ? null : { stepId: step.id, cardType: "leftSub", cardIndex: slotIndex }); }}
-                                              className={card.chainNumber != null ? "w-[24px] h-[24.5px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[7px] font-bold flex items-center justify-center px-0.5" : "px-0.5 py-0.5 text-[7px] font-bold rounded-tr bg-black/70 text-blue-300 hover:bg-blue-700/80 hover:text-white"}
+                                              className={card.chainNumber != null ? "w-[24px] h-[24.5px] bg-center bg-cover bg-no-repeat text-cyan-100 text-[10px] font-bold flex items-center justify-center" : "px-0.5 py-0.5 text-[7px] font-bold rounded-tr bg-black/70 text-blue-300 hover:bg-blue-700/80 hover:text-white"}
+                                              style={card.chainNumber != null ? { backgroundImage: `url(${ChainBadgeImg})` } : undefined}
                                               title="Set chain number"
                                             >
                                               {card.chainNumber != null ? card.chainNumber : "⛓"}
@@ -737,7 +740,7 @@ export const ComboStepEditor = ({
                             {/* Chain overlay */}
                             {card.chainNumber != null && (
                               <img
-                                src={ChainImg}
+                                src={ChainOverlayImg}
                                 alt=""
                                 className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]"
                               />
@@ -756,7 +759,8 @@ export const ComboStepEditor = ({
                                         : { stepId: step.id, cardType: "main", cardIndex },
                                     );
                                   }}
-                                  className={card.chainNumber != null ? "w-[24px] h-[24.5px] pb-0.5 rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[19px] font-bold flex items-center justify-center px-0.5" : "px-1 py-0.5 text-[11px] font-bold bg-black/70 text-blue-400 hover:text-blue-300"}
+                                  className={card.chainNumber != null ? "w-[24px] h-[24.5px] bg-center bg-cover bg-no-repeat text-cyan-100 text-[19px] font-bold flex items-center justify-center" : "px-1 py-0.5 text-[11px] font-bold bg-black/70 text-blue-400 hover:text-blue-300"}
+                                  style={card.chainNumber != null ? { backgroundImage: `url(${ChainBadgeImg})` } : undefined}
                                   title="Set chain number"
                                 >
                                   {card.chainNumber != null ? card.chainNumber : "chain?"}
@@ -862,13 +866,14 @@ export const ComboStepEditor = ({
                                         />
                                       </CardTooltip>
                                       {card.chainNumber != null && (
-                                        <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                                        <img src={ChainOverlayImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                                       )}
                                       {!isReadOnly && (
                                         <div className="absolute bottom-0 left-0 z-[2]">
                                           <button
                                             onClick={(e) => { e.stopPropagation(); setChainPickerOpen(chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "sub" && chainPickerOpen?.cardIndex === slotIndex ? null : { stepId: step.id, cardType: "sub", cardIndex: slotIndex }); }}
-                                            className={card.chainNumber != null ? "w-[15px] h-[15px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5" : "rounded-full border border-blue-400 bg-black/70 text-blue-300 text-[8px] w-4 h-3.5 hover:bg-blue-700/80 hover:text-white"}
+                                            className={card.chainNumber != null ? "w-[15px] h-[15px] bg-center bg-cover bg-no-repeat text-cyan-100 text-[8px] font-bold flex items-center justify-center" : "rounded-full border border-blue-400 bg-black/70 text-blue-300 text-[8px] w-4 h-3.5 hover:bg-blue-700/80 hover:text-white"}
+                                            style={card.chainNumber != null ? { backgroundImage: `url(${ChainBadgeImg})` } : undefined}
                                             title="Set chain number"
                                           >
                                             {card.chainNumber != null ? card.chainNumber : "⛓"}
@@ -938,13 +943,14 @@ export const ComboStepEditor = ({
                                           />
                                         </CardTooltip>
                                         {card.chainNumber != null && (
-                                          <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                                          <img src={ChainOverlayImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                                         )}
                                         {!isReadOnly && (
                                           <div className="absolute bottom-0 left-0 z-[2]">
                                             <button
                                               onClick={(e) => { e.stopPropagation(); setChainPickerOpen(chainPickerOpen?.stepId === step.id && chainPickerOpen?.cardType === "sub" && chainPickerOpen?.cardIndex === slotIndex ? null : { stepId: step.id, cardType: "sub", cardIndex: slotIndex }); }}
-                                              className={card.chainNumber != null ? "w-[14] h-[14.5px] rounded-full border-2 border-blue-400 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5" : "px-0.5 py-0.5 text-[7px] font-bold rounded-tr bg-black/70 text-blue-300 hover:bg-blue-700/80 hover:text-white"}
+                                              className={card.chainNumber != null ? "w-[14px] h-[14.5px] bg-center bg-cover bg-no-repeat text-cyan-100 text-[8px] font-bold flex items-center justify-center" : "px-0.5 py-0.5 text-[7px] font-bold rounded-tr bg-black/70 text-blue-300 hover:bg-blue-700/80 hover:text-white"}
+                                              style={card.chainNumber != null ? { backgroundImage: `url(${ChainBadgeImg})` } : undefined}
                                               title="Set chain number"
                                             >
                                               {card.chainNumber != null ? card.chainNumber : "⛓"}
