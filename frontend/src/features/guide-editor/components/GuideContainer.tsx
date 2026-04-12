@@ -1,26 +1,23 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   CreditCard as Edit3,
   Trash2,
-  Plus,
   Save,
   X,
   Flag,
   ArrowLeft,
 } from "lucide-react";
-import { CardPairEditor } from "./CardPairEditor";
-import { InitialHandsEditor } from "./InitialHandsEditor";
 import type { InitialHand } from "./InitialHandsEditor";
-import { ComboFlowSection } from "./ComboFlowSection";
 import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
 import { InstanceHeader } from "./InstanceHeader";
-import { RecommendedDeckEditor } from "./RecommendedDeckEditor";
+import { GuideTypeContentSection } from "./GuideTypeContentSection";
 import { useInstanceGuideEditor } from "../hooks/useInstanceGuideEditor";
 import { useInstanceGuideLikes } from "../hooks/useInstanceGuideLikes";
 import { useInstanceGuideFavorites } from "../hooks/useInstanceGuideFavorites";
 import { useInstanceGuideData } from "../hooks/useInstanceGuideData";
 import { useGuideRecommendedDeck } from "../hooks/useGuideRecommendedDeck";
+import { useGuideEditorDraftState } from "../hooks/useGuideEditorDraftState";
 import { useSaveInstanceGuide } from "../hooks/useSaveInstanceGuide";
 import { useAuth } from "@/features/auth";
 import { deleteArchetypeGuide } from "../api/guideEditorApi";
@@ -34,7 +31,11 @@ import type {
   GuideType,
   ComboStep,
 } from "@/features/archetypes/types";
-import { type FieldBoard } from "./FinalBoardPreview";
+import {
+  buildGuideEditSnapshot,
+  mapGuideCardPairsToEditorPairs,
+  mapInitialHandsAndComboStepsFromInstance,
+} from "../utils/guideContainerTransforms";
 
 interface GuideContainerProps {
   onEditModeChange?: (isEditMode: boolean) => void;
@@ -45,6 +46,7 @@ export const GuideContainer = ({
   onEditModeChange,
   onGuideTypeChange,
 }: GuideContainerProps) => {
+  // Orchestra upload, edit and save an individual guide
   const { archetypeId, instanceId } = useParams<{
     archetypeId: string;
     instanceId: string;
@@ -57,37 +59,12 @@ export const GuideContainer = ({
   const { saving, validationError, saveInstance, clearValidationError } =
     useSaveInstanceGuide();
   const [headerAnchor, setHeaderAnchor] = useState<HTMLElement | null>(null);
-  // Ref to suppress beforeunload guard during intentional navigation (save/delete)
-  const allowNavigationRef = useRef(false);
-  // Snapshot of state at the moment edit mode was entered
-  const editStartSnapshotRef = useRef<string | null>(null);
-  // Always holds the latest serialised edit state (updated every render)
-  const latestEditStateRef = useRef<string>("");
-
-  // Warn on browser tab close / refresh when editing AND dirty
-  useEffect(() => {
-    if (!editor.isEditMode) return;
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (allowNavigationRef.current) return;
-      if (!editStartSnapshotRef.current) return;
-      if (latestEditStateRef.current === editStartSnapshotRef.current) return;
-      e.preventDefault();
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [editor.isEditMode]);
 
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
 
   const isCreatingNew = instanceId === "new";
-  const instanceIdNum =
-    !isCreatingNew && instanceId ? parseInt(instanceId) : undefined;
-
-  // Get guide type from location state (when creating) or default to COUNTER
-  const [guideType, setGuideType] = useState<GuideType>(
-    (location.state as { guideType?: GuideType })?.guideType || "COUNTER",
-  );
+  const instanceIdNum = !isCreatingNew && instanceId ? parseInt(instanceId) : undefined;
+  const [guideType, setGuideType] = useState<GuideType>((location.state as { guideType?: GuideType })?.guideType || "COUNTER");
 
   // Notify parent of guide type changes
   useEffect(() => {
@@ -202,6 +179,7 @@ export const GuideContainer = ({
         | "combo-steps",
       isOpen: boolean,
     ) => {
+      // Maintains a single active modal to avoid overlap between editors.
       if (isOpen) {
         setActiveModalComponent(component);
       } else {
@@ -296,6 +274,7 @@ export const GuideContainer = ({
       extraDeck: typeof deckExtraCards,
       sideDeck: typeof deckSideCards,
     ) => {
+      // Synchronizes recommended deck changes in the container state.
       setDeckTitle(title);
       setDeckMainCards(mainDeck);
       setDeckExtraCards(extraDeck);
@@ -305,6 +284,7 @@ export const GuideContainer = ({
   );
 
   const handleDeleteDeck = useCallback(async () => {
+    // Deletes/hides deck based on edit or view mode.
     // In edit mode, only hide the deck locally - don't delete from server until save
     if (editor.isEditMode && isOwner) {
       setShowRecommendedDeck(false);
@@ -341,12 +321,9 @@ export const GuideContainer = ({
       favorites.setFavoriteCount(data.favorites);
       editor.setIsEditMode(false);
 
-      const transformedPairs: CardPair[] = data.pairs.map((pair) => ({
-        id: pair.id.toString(),
-        topCards: pair.topCards,
-        bottomCards: pair.bottomCards,
-        comment: pair.comment,
-      }));
+      const transformedPairs: CardPair[] = mapGuideCardPairsToEditorPairs(
+        data.pairs,
+      );
       setPairs(transformedPairs);
 
       // Load initial hands if this is a DECK guide
@@ -354,52 +331,10 @@ export const GuideContainer = ({
         guideInstanceData?.instance.guideType === "DECK" &&
         guideInstanceData.initialHands
       ) {
-        type BackendInitialHand = {
-          id: number;
-          cards: Card[];
-          description?: string;
-          finalBoard?: Omit<FieldBoard, "id">;
-          comboSteps?: Array<{
-            id: number;
-            stepOrder: number;
-            description?: string | null;
-            parentCanceledStepId?: number | null;
-            mainCards: Card[];
-            subCards: Card[];
-            leftSubCards?: Card[];
-          }>;
-        };
+        const { initialHands: transformedHands, comboSteps: comboStepsMap } =
+          mapInitialHandsAndComboStepsFromInstance(guideInstanceData.initialHands);
 
-        const transformedHands: InitialHand[] =
-          guideInstanceData.initialHands.map((hand: BackendInitialHand) => ({
-            id: hand.id.toString(),
-            cards: hand.cards,
-            description: hand.description,
-            finalBoard: hand.finalBoard
-              ? { id: `field-${hand.id}`, ...hand.finalBoard }
-              : undefined,
-          }));
         setInitialHands(transformedHands);
-
-        // Load combo steps for each hand
-        const comboStepsMap = new Map<string, ComboStep[]>();
-        guideInstanceData.initialHands.forEach((hand: BackendInitialHand) => {
-          if (hand.comboSteps && hand.comboSteps.length > 0) {
-            const transformedSteps: ComboStep[] = hand.comboSteps.map(
-              (step) => ({
-                id: step.id.toString(),
-                stepOrder: step.stepOrder,
-                description: step.description,
-                parentCanceledStepId:
-                  step.parentCanceledStepId?.toString() || null,
-                mainCards: (step.mainCards as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
-                subCards: (step.subCards as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
-                leftSubCards: ((step.leftSubCards || []) as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
-              }),
-            );
-            comboStepsMap.set(hand.id.toString(), transformedSteps);
-          }
-        });
         setComboSteps(comboStepsMap);
 
         // Select first hand by default and show combo flow if it has steps
@@ -457,61 +392,49 @@ export const GuideContainer = ({
     },
   });
 
-  // Snapshot capture: grab state the moment edit mode starts
-  useEffect(() => {
-    if (editor.isEditMode && isOwner && !editStartSnapshotRef.current) {
-      editStartSnapshotRef.current = latestEditStateRef.current;
-    }
-    if (!editor.isEditMode) {
-      editStartSnapshotRef.current = null;
-    }
-  }, [editor.isEditMode, isOwner]);
+  const latestEditSnapshot = useMemo(
+    () =>
+      buildGuideEditSnapshot({
+        title: editor.title,
+        generalTip: editor.generalTip,
+        headerCard: editor.headerCard,
+        pairs,
+        initialHands,
+        comboSteps,
+        deckTitle,
+        deckMainCards,
+        deckExtraCards,
+        deckSideCards,
+        showRecommendedDeck,
+      }),
+    [
+      editor.title,
+      editor.generalTip,
+      editor.headerCard,
+      pairs,
+      initialHands,
+      comboSteps,
+      deckTitle,
+      deckMainCards,
+      deckExtraCards,
+      deckSideCards,
+      showRecommendedDeck,
+    ],
+  );
 
-  // Update latestEditStateRef on every render so refs always read current state
-  latestEditStateRef.current = JSON.stringify({
-    title: editor.title,
-    generalTip: editor.generalTip,
-    headerCardId: editor.headerCard?.id ?? null,
-    pairs: pairs.map((p) => ({
-      topCardIds: p.topCards.map((c) => c.id),
-      bottomCardIds: p.bottomCards.map((c) => c.id),
-      comment: p.comment ?? null,
-    })),
-    initialHands: initialHands.map((h) => ({
-      id: h.id,
-      cardIds: h.cards.map((c) => c.id),
-      description: h.description ?? null,
-      finalBoard: h.finalBoard ?? null,
-    })),
-    comboSteps: [...comboSteps.entries()].map(([handId, steps]) => ({
-      handId,
-      steps: steps.map((s) => ({
-        stepOrder: s.stepOrder,
-        description: s.description ?? null,
-        parentCanceledStepId: s.parentCanceledStepId ?? null,
-        mainCardIds: s.mainCards.map((c) => c.id),
-        mainCardChains: s.mainCards.map((c) => c.chainNumber ?? null),
-        subCardIds: s.subCards.map((c) => c.id),
-        subCardChains: s.subCards.map((c) => c.chainNumber ?? null),
-        leftSubCardIds: (s.leftSubCards ?? []).map((c) => c.id),
-        leftSubCardChains: (s.leftSubCards ?? []).map((c) => c.chainNumber ?? null),
-      })),
-    })),
-    deckTitle,
-    deckMainCardIds: deckMainCards.map((c) => c.id),
-    deckExtraCardIds: deckExtraCards.map((c) => c.id),
-    deckSideCardIds: deckSideCards.map((c) => c.id),
-    showRecommendedDeck,
-  });
-
-  const hasDirtyEdits = () =>
-    !!editStartSnapshotRef.current &&
-    latestEditStateRef.current !== editStartSnapshotRef.current;
+  const { allowNavigation, blockNavigation, confirmDiscardIfDirty } =
+    useGuideEditorDraftState({
+      isEditMode: editor.isEditMode,
+      isOwner,
+      snapshot: latestEditSnapshot,
+    });
 
   const handleCancel = () => {
+    // Cancels editing and restores persisted data in the guide
     if (
-      hasDirtyEdits() &&
-      !window.confirm("You have unsaved changes. Are you sure you want to cancel?")
+      !confirmDiscardIfDirty(
+        "You have unsaved changes. Are you sure you want to cancel?",
+      )
     )
       return;
 
@@ -519,12 +442,9 @@ export const GuideContainer = ({
     clearValidationError();
 
     if (!isCreatingNew && guideInstanceData) {
-      const pairs: CardPair[] = guideInstanceData.cardPairs.map((pair) => ({
-        id: pair.id.toString(),
-        topCards: pair.topCards,
-        bottomCards: pair.bottomCards,
-        comment: pair.comment,
-      }));
+      const pairs: CardPair[] = mapGuideCardPairsToEditorPairs(
+        guideInstanceData.cardPairs,
+      );
 
       const sanitizedTitle =
         guideInstanceData.instance.title?.replace(/\s+/g, " ").trim() ||
@@ -569,52 +489,10 @@ export const GuideContainer = ({
         guideInstanceData.instance.guideType === "DECK" &&
         guideInstanceData.initialHands
       ) {
-        type BackendInitialHand = {
-          id: number;
-          cards: Card[];
-          description?: string;
-          finalBoard?: Omit<FieldBoard, "id">;
-          comboSteps?: Array<{
-            id: number;
-            stepOrder: number;
-            description?: string | null;
-            parentCanceledStepId?: number | null;
-            mainCards: Card[];
-            subCards: Card[];
-            leftSubCards?: Card[];
-          }>;
-        };
+        const { initialHands: transformedHands, comboSteps: comboStepsMap } =
+          mapInitialHandsAndComboStepsFromInstance(guideInstanceData.initialHands);
 
-        const transformedHands: InitialHand[] =
-          guideInstanceData.initialHands.map((hand: BackendInitialHand) => ({
-            id: hand.id.toString(),
-            cards: hand.cards,
-            description: hand.description,
-            finalBoard: hand.finalBoard
-              ? { id: `field-${hand.id}`, ...hand.finalBoard }
-              : undefined,
-          }));
         setInitialHands(transformedHands);
-
-        // Restore combo steps
-        const comboStepsMap = new Map<string, ComboStep[]>();
-        guideInstanceData.initialHands.forEach((hand: BackendInitialHand) => {
-          if (hand.comboSteps && hand.comboSteps.length > 0) {
-            const transformedSteps: ComboStep[] = hand.comboSteps.map(
-              (step) => ({
-                id: step.id.toString(),
-                stepOrder: step.stepOrder,
-                description: step.description,
-                parentCanceledStepId:
-                  step.parentCanceledStepId?.toString() || null,
-                mainCards: (step.mainCards as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
-                subCards: (step.subCards as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
-                leftSubCards: ((step.leftSubCards || []) as Array<Card & { chain_number: number | null }>).map((c) => ({ ...c, chainNumber: c.chain_number })),
-              }),
-            );
-            comboStepsMap.set(hand.id.toString(), transformedSteps);
-          }
-        });
         setComboSteps(comboStepsMap);
 
         // Restore selected hand and show combo flow if it has steps
@@ -714,7 +592,7 @@ export const GuideContainer = ({
         extraDeckIds.length > 0 ||
         sideDeckIds.length > 0;
 
-      allowNavigationRef.current = true;
+      allowNavigation();
       await saveInstance({
         pairs,
         initialHands,
@@ -733,7 +611,7 @@ export const GuideContainer = ({
         comboSteps,
       });
     } catch (error) {
-      allowNavigationRef.current = false;
+      blockNavigation();
       alert(
         error instanceof Error
           ? error.message
@@ -753,7 +631,7 @@ export const GuideContainer = ({
     if (!confirmed) return;
 
     try {
-      allowNavigationRef.current = true;
+      allowNavigation();
       await deleteArchetypeGuide(guideInstanceData.instance.id);
       window.location.href = "/";
     } catch (error) {
@@ -773,8 +651,12 @@ export const GuideContainer = ({
   };
 
   const handleBackClick = () => {
-    if (editor.isEditMode && isOwner && hasDirtyEdits()) {
-      if (!window.confirm("You have unsaved changes. Are you sure you want to go back?"))
+    if (editor.isEditMode && isOwner) {
+      if (
+        !confirmDiscardIfDirty(
+          "You have unsaved changes. Are you sure you want to go back?",
+        )
+      )
         return;
     }
     if (archetypeId) {
@@ -872,150 +754,37 @@ export const GuideContainer = ({
                 }
               />
 
-              {/* Conditional rendering based on guide type */}
-              {guideType === "COUNTER" ? (
-                <>
-                  <div className="mt-8">
-                    <CardPairEditor
-                      isEditMode={editor.isEditMode && isOwner}
-                      initialPairs={editor.loadedPairs}
-                      pairs={pairs}
-                      setPairs={setPairs}
-                      onAddPair={
-                        editor.isEditMode && isOwner ? addPair : undefined
-                      }
-                      onModalStateChange={(isOpen) =>
-                        handleModalStateChange("card-pairs", isOpen)
-                      }
-                      forceCloseModal={
-                        activeModalComponent !== null &&
-                        activeModalComponent !== "card-pairs"
-                      }
-                    />
-                  </div>
-
-                  {editor.isEditMode && isOwner && (
-                    <div className="flex justify-center">
-                      <button
-                        onClick={addPair}
-                        className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Add Card Pair</span>
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  <div className="mt-8">
-                    <InitialHandsEditor
-                      isEditMode={editor.isEditMode && isOwner}
-                      initialHands={initialHands}
-                      setInitialHands={setInitialHands}
-                      onAddHand={
-                        editor.isEditMode && isOwner
-                          ? addInitialHand
-                          : undefined
-                      }
-                      onModalStateChange={(isOpen) =>
-                        handleModalStateChange("initial-hands", isOpen)
-                      }
-                      forceCloseModal={
-                        activeModalComponent !== null &&
-                        activeModalComponent !== "initial-hands"
-                      }
-                      selectedHandId={selectedHandId}
-                      onSelectHand={handleSelectHand}
-                      onAddCombo={
-                        editor.isEditMode && isOwner
-                          ? handleAddCombo
-                          : undefined
-                      }
-                      onShowCombo={
-                        !editor.isEditMode ? handleShowCombo : undefined
-                      }
-                      comboSteps={comboSteps}
-                    />
-                  </div>
-
-                  {/* Combo Flow Section - Only show if there are combo steps or user clicked Add Combo */}
-                  {selectedHandId &&
-                    initialHands.length > 0 &&
-                    showComboFlow &&
-                    (getComboStepsForSelectedHand().length > 0 ||
-                      (editor.isEditMode && isOwner)) && (
-                      <ComboFlowSection
-                        selectedHandNumber={
-                          initialHands.findIndex(
-                            (h) => h.id === selectedHandId,
-                          ) + 1
-                        }
-                        comboSteps={getComboStepsForSelectedHand()}
-                        setComboSteps={setComboStepsForSelectedHand}
-                        isEditMode={editor.isEditMode && isOwner}
-                        initialHandId={selectedHandId}
-                        onModalStateChange={(isOpen) =>
-                          handleModalStateChange("combo-steps", isOpen)
-                        }
-                        forceCloseModal={
-                          activeModalComponent !== null &&
-                          activeModalComponent !== "combo-steps"
-                        }
-                        onResetCanceledFlow={() => {
-                          // Callback to reset canceled flow - handled internally by ComboFlowSection
-                        }}
-                      />
-                    )}
-                </>
-              )}
-
-              {/* Show separator and recommended deck section for DECK guides */}
-              {guideType === "DECK" && (
-                <>
-                  {(showRecommendedDeck || recommendedDeck.deck) && (
-                    <div className="flex justify-center my-8">
-                      <div className="w-4/5 h-px bg-gradient-to-r my-4 from-transparent via-slate-600 to-transparent"></div>
-                    </div>
-                  )}
-
-                  {editor.isEditMode &&
-                    isOwner &&
-                    !showRecommendedDeck &&
-                    !recommendedDeck.deck && (
-                      <div className="flex justify-center my-8">
-                        <button
-                          onClick={() => setShowRecommendedDeck(true)}
-                          className="flex items-center space-x-2 px-4 mt-8 py-2 bg-green-600 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Add Deck</span>
-                        </button>
-                      </div>
-                    )}
-
-                  {showRecommendedDeck && (
-                    <div id="recommended-deck-section">
-                      <RecommendedDeckEditor
-                        isEditMode={editor.isEditMode && isOwner}
-                        initialTitle={displayTitle}
-                        initialMainDeck={displayMainDeck}
-                        initialExtraDeck={displayExtraDeck}
-                        initialSideDeck={displaySideDeck}
-                        onDeckChange={handleDeckChange}
-                        onDelete={handleDeleteDeck}
-                        onModalStateChange={(isOpen) =>
-                          handleModalStateChange("recommended-deck", isOpen)
-                        }
-                        forceCloseModal={
-                          activeModalComponent !== null &&
-                          activeModalComponent !== "recommended-deck"
-                        }
-                      />
-                    </div>
-                  )}
-                </>
-              )}
+              <GuideTypeContentSection
+                guideType={guideType}
+                isEditMode={editor.isEditMode}
+                isOwner={isOwner}
+                activeModalComponent={activeModalComponent}
+                onModalStateChange={handleModalStateChange}
+                pairs={pairs}
+                setPairs={setPairs}
+                loadedPairs={editor.loadedPairs}
+                onAddPair={addPair}
+                initialHands={initialHands}
+                setInitialHands={setInitialHands}
+                selectedHandId={selectedHandId}
+                onSelectHand={handleSelectHand}
+                onAddInitialHand={addInitialHand}
+                onAddCombo={handleAddCombo}
+                onShowCombo={handleShowCombo}
+                comboSteps={comboSteps}
+                showComboFlow={showComboFlow}
+                selectedHandComboSteps={getComboStepsForSelectedHand()}
+                setSelectedHandComboSteps={setComboStepsForSelectedHand}
+                showRecommendedDeck={showRecommendedDeck}
+                hasRecommendedDeckFromServer={!!recommendedDeck.deck}
+                onShowRecommendedDeck={() => setShowRecommendedDeck(true)}
+                displayTitle={displayTitle}
+                displayMainDeck={displayMainDeck}
+                displayExtraDeck={displayExtraDeck}
+                displaySideDeck={displaySideDeck}
+                onDeckChange={handleDeckChange}
+                onDeleteDeck={handleDeleteDeck}
+              />
 
               {editor.isEditMode && isOwner && (
                 <div className="flex flex-col items-center gap-4 relative top-10">
