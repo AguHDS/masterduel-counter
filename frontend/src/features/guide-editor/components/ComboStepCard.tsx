@@ -73,7 +73,7 @@ export const ComboStepCard = ({
       {hasCanceledFlow && onToggleCanceledFlow && (
         <button
           onClick={onToggleCanceledFlow}
-          className={`absolute bottom-2 left-2 ${_isEditMode ? 'px-2 py-1' : 'px-1.5 py-0.5'} ${_isEditMode ? 'text-[11px]' : 'text-[9px]'} rounded-xl transition-colors ${
+          className={`absolute bottom-2 left-2 z-20 ${_isEditMode ? 'px-2 py-1' : 'px-1.5 py-0.5'} ${_isEditMode ? 'text-[11px]' : 'text-[9px]'} rounded-xl transition-colors ${
             isViewingCanceledFlow
               ? 'bg-slate-700 text-white hover:bg-slate-600'
               : 'bg-red-600/80 text-white hover:bg-red-600'

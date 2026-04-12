@@ -186,9 +186,9 @@ export const FinalBoardPreview = ({
       case "spellTrap":
         return "border-cyan-400/70";
       case "banished":
-        return "border-fuchsia-500/70";
+        return "border-fuchsia-600/70";
       case "graveyard":
-        return "border-blue-500/70";
+        return "border-blue-600/70";
       case "hand":
         return "border-violet-400/70";
       default:
@@ -287,7 +287,7 @@ export const FinalBoardPreview = ({
               {isEditMode && (
                 <Plus className="mb-0.5 h-3 w-3 text-slate-400 group-hover:text-blue-400 sm:mb-1 sm:h-4 sm:w-4" />
               )}
-              <span className="text-center text-[8px] font-semibold tracking-[0.24em] text-slate-400 sm:text-[10px]">
+              <span className="text-center tracking-[0.24em] text-slate-400/60 text-[8px]">
                 {zoneLabel}
               </span>
             </div>
@@ -360,7 +360,7 @@ export const FinalBoardPreview = ({
                 {isEditMode && (
                   <Plus className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-slate-400 group-hover:text-blue-400 mb-0.5 sm:mb-1" />
                 )}
-                <span className="text-[7px] font-semibold tracking-[0.24em] text-slate-400">
+                <span className="text-[8px] tracking-[0.24em] text-slate-400/60">
                   {label}
                 </span>
               </div>
@@ -647,7 +647,7 @@ export const FinalBoardPreview = ({
                 }
               `}
                 >
-                  {renderCountZone(fieldBoard.banished, "banished", "BANISHED")}
+                  {renderCountZone(fieldBoard.banished, "banished", "BANISH")}
                   {renderCountZone(
                     fieldBoard.graveyard,
                     "graveyard",

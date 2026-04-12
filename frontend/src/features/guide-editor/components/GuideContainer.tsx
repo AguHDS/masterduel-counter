@@ -42,26 +42,19 @@ interface GuideContainerProps {
   onGuideTypeChange?: (guideType: GuideType) => void;
 }
 
+// Orchestrates guide loading, edit state, and type-specific sections for the guide editor page
 export const GuideContainer = ({
   onEditModeChange,
   onGuideTypeChange,
 }: GuideContainerProps) => {
-  // Orchestra upload, edit and save an individual guide
-  const { archetypeId, instanceId } = useParams<{
-    archetypeId: string;
-    instanceId: string;
-  }>();
+  const { archetypeId, instanceId } = useParams<{archetypeId: string; instanceId: string;}>();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
-
   const editor = useInstanceGuideEditor();
-  const { saving, validationError, saveInstance, clearValidationError } =
-    useSaveInstanceGuide();
+  const { saving, validationError, saveInstance, clearValidationError } = useSaveInstanceGuide();
   const [headerAnchor, setHeaderAnchor] = useState<HTMLElement | null>(null);
-
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
-
   const isCreatingNew = instanceId === "new";
   const instanceIdNum = !isCreatingNew && instanceId ? parseInt(instanceId) : undefined;
   const [guideType, setGuideType] = useState<GuideType>((location.state as { guideType?: GuideType })?.guideType || "COUNTER");
@@ -283,9 +276,9 @@ export const GuideContainer = ({
     [],
   );
 
+  // Deletes/hides deck based on edit or view mode.
   const handleDeleteDeck = useCallback(async () => {
-    // Deletes/hides deck based on edit or view mode.
-    // In edit mode, only hide the deck locally - don't delete from server until save
+    // In edit mode, only hide the deck locally
     if (editor.isEditMode && isOwner) {
       setShowRecommendedDeck(false);
       setDeckTitle("Recommended Deck");
@@ -332,7 +325,9 @@ export const GuideContainer = ({
         guideInstanceData.initialHands
       ) {
         const { initialHands: transformedHands, comboSteps: comboStepsMap } =
-          mapInitialHandsAndComboStepsFromInstance(guideInstanceData.initialHands);
+          mapInitialHandsAndComboStepsFromInstance(
+            guideInstanceData.initialHands,
+          );
 
         setInitialHands(transformedHands);
         setComboSteps(comboStepsMap);
@@ -490,7 +485,9 @@ export const GuideContainer = ({
         guideInstanceData.initialHands
       ) {
         const { initialHands: transformedHands, comboSteps: comboStepsMap } =
-          mapInitialHandsAndComboStepsFromInstance(guideInstanceData.initialHands);
+          mapInitialHandsAndComboStepsFromInstance(
+            guideInstanceData.initialHands,
+          );
 
         setInitialHands(transformedHands);
         setComboSteps(comboStepsMap);
@@ -511,7 +508,6 @@ export const GuideContainer = ({
         setComboSteps(new Map());
         setSelectedHandId(null);
       }
-
     } else {
       navigate(-1);
     }
