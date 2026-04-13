@@ -19,7 +19,6 @@ import comments from "./comments/comments.js";
 import ranking from "./ranking.js";
 import getArchetypeGuides from "./guides/getArchetypeGuides.js";
 import getUserGuides from "./profile/getUserGuides.js";
-import createOrUpdateGuide from "./guides/createOrUpdateGuide.js";
 import getGuideById from "./guides/getGuideById.js";
 import searchArchetypeGuides from "./guides/searchArchetypeGuides.js";
 import searchUserGuides from "./profile/searchUserGuides.js";
@@ -49,7 +48,6 @@ export {
   ranking,
   getArchetypeGuides,
   getUserGuides,
-  createOrUpdateGuide,
   getGuideById,
   searchArchetypeGuides,
   searchUserGuides,

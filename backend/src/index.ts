@@ -38,7 +38,6 @@ import {
   getCardDetails,
   getArchetypeGuides,
   getUserGuides,
-  createOrUpdateGuide,
   getGuideById,
   searchArchetypeGuides,
   searchUserGuides,
@@ -166,7 +165,6 @@ app.use("/api", getArchetypeGuides);
 app.use("/api", getUserGuides);
 app.use("/api", searchArchetypeGuides);
 app.use("/api", searchUserGuides);
-app.use("/api", createOrUpdateGuide);
 app.use("/api", getGuideById);
 app.use("/api", getLatestGuides);
 app.use("/api", getGuidesGeneralStats);
