@@ -1,12 +1,10 @@
 import { Router } from "express";
 import { createGetCardDetailsController } from "@/http/controllers/cards/getCardDetailsController.js";
-import { compositionRoot } from "@/compositionRoot.js";
+import { getDependencies } from "@/compositionRoot.js";
 
 const router = Router();
-
-const getCardDetailsController = createGetCardDetailsController(
-  compositionRoot.getCardDetailsService
-);
+const getCardDetailsService = getDependencies().getGetCardDetailsService();
+const getCardDetailsController = createGetCardDetailsController(getCardDetailsService);
 
 router.get("/:cardId", getCardDetailsController);
 

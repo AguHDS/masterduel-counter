@@ -1,15 +1,14 @@
 import { Router } from "express";
-import { Dependencies } from "@/compositionRoot.js";
+import { getDependencies } from "@/compositionRoot.js";
 import { createSearchUserGuidesController } from "@/http/controllers/guides/searchUserGuidesController.js";
 
+const router = Router();
+const instanceService = getDependencies().getInstanceService();
+const searchUserGuidesController = createSearchUserGuidesController(
+  instanceService,
+);
+
 /** Search guide instances for a user by title */
-export function createSearchUserGuidesRoute(dependencies: Dependencies) {
-  const router = Router();
-  const controller = createSearchUserGuidesController(
-    dependencies.getInstanceService(),
-  );
+router.get("/users/:userId/instances/search", searchUserGuidesController);
 
-  router.get("/users/:userId/instances/search", controller);
-
-  return router;
-}
+export default router;

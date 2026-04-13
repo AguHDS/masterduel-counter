@@ -1,42 +1,35 @@
 import { Router } from "express";
-import { Dependencies } from "@/compositionRoot.js";
+import { getDependencies } from "@/compositionRoot.js";
 import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 import { createGetNotificationsController } from "@/http/controllers/notifications/getNotificationsController.js";
 import { createGetUnreadCountController } from "@/http/controllers/notifications/getUnreadCountController.js";
 import { createMarkAsReadController } from "@/http/controllers/notifications/markAsReadController.js";
 import { createMarkAllAsReadController } from "@/http/controllers/notifications/markAllAsReadController.js";
 
-export function createNotificationsRoute(dependencies: Dependencies) {
-  const router = Router();
-  const notificationService = dependencies.getNotificationService();
+const router = Router();
+const notificationService = getDependencies().getNotificationService();
 
-  // Get user's notifications (with pagination)
-  router.get(
-    "/",
-    requireAuth,
-    createGetNotificationsController(notificationService),
-  );
+const getNotificationsController = createGetNotificationsController(
+  notificationService,
+);
+const getUnreadCountController = createGetUnreadCountController(
+  notificationService,
+);
+const markAsReadController = createMarkAsReadController(notificationService);
+const markAllAsReadController = createMarkAllAsReadController(
+  notificationService,
+);
 
-  // Get unread notification count
-  router.get(
-    "/unread-count",
-    requireAuth,
-    createGetUnreadCountController(notificationService),
-  );
+// Get user's notifications (with pagination)
+router.get("/", requireAuth, getNotificationsController);
 
-  // Mark specific notification as read
-  router.patch(
-    "/:id/read",
-    requireAuth,
-    createMarkAsReadController(notificationService),
-  );
+// Get unread notification count
+router.get("/unread-count", requireAuth, getUnreadCountController);
 
-  // Mark all notifications as read
-  router.patch(
-    "/read-all",
-    requireAuth,
-    createMarkAllAsReadController(notificationService),
-  );
+// Mark specific notification as read
+router.patch("/:id/read", requireAuth, markAsReadController);
 
-  return router;
-}
+// Mark all notifications as read
+router.patch("/read-all", requireAuth, markAllAsReadController);
+
+export default router;

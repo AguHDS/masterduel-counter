@@ -3,13 +3,14 @@ import { getDependencies } from "@/compositionRoot.js";
 import { createGetInitialHandsController } from "@/http/controllers/guides/getInitialHandsController.js";
 
 const router = express.Router();
-
-const deps = getDependencies();
-const initialHandService = deps.getInitialHandService();
+const initialHandService = getDependencies().getInitialHandService();
+const getInitialHandsController = createGetInitialHandsController(
+  initialHandService,
+);
 
 router.get(
   "/:instanceId/initial-hands",
-  createGetInitialHandsController(initialHandService),
+  getInitialHandsController,
 );
 
 export default router;

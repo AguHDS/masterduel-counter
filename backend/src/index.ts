@@ -36,19 +36,19 @@ import {
   initialHands,
   comboSteps,
   getCardDetails,
-  createGetArchetypeGuidesRoute,
-  createGetUserGuidesRoute,
-  createOrUpdateGuideRoute,
-  createGetGuideByIdRoute,
-  createSearchArchetypeGuidesRoute,
-  createSearchUserGuidesRoute,
-  createGetLatestGuidesRoute,
-  createGetGeneralStatsRoute,
+  getArchetypeGuides,
+  getUserGuides,
+  createOrUpdateGuide,
+  getGuideById,
+  searchArchetypeGuides,
+  searchUserGuides,
+  getLatestGuides,
+  getGuidesGeneralStats,
   admin,
   report,
   comments,
   ranking,
-  createNotificationsRoute,
+  notifications,
 } from "./routes/index.js";
 import auth from "./routes/auth/auth.js";
 import getGuideCardPairs from "./routes/guides/getGuideCardPairs.js";
@@ -162,20 +162,20 @@ app.use("/api", guideViews);
 app.use("/api", recommendedDeck);
 app.use("/api/instances", initialHands);
 app.use("/api/initial-hands", comboSteps);
-app.use("/api", createGetArchetypeGuidesRoute(getDependencies()));
-app.use("/api", createGetUserGuidesRoute(getDependencies()));
-app.use("/api", createSearchArchetypeGuidesRoute(getDependencies()));
-app.use("/api", createSearchUserGuidesRoute(getDependencies()));
-app.use("/api", createOrUpdateGuideRoute(getDependencies()));
-app.use("/api", createGetGuideByIdRoute(getDependencies()));
-app.use("/api", createGetLatestGuidesRoute(getDependencies()));
-app.use("/api", createGetGeneralStatsRoute());
+app.use("/api", getArchetypeGuides);
+app.use("/api", getUserGuides);
+app.use("/api", searchArchetypeGuides);
+app.use("/api", searchUserGuides);
+app.use("/api", createOrUpdateGuide);
+app.use("/api", getGuideById);
+app.use("/api", getLatestGuides);
+app.use("/api", getGuidesGeneralStats);
 app.use("/api", getGuideCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 app.use("/api/comments", comments);
 
 // Notifications
-app.use("/api/notifications", createNotificationsRoute(getDependencies()));
+app.use("/api/notifications", notifications);
 
 // Ranking
 app.use("/api/ranking", ranking);

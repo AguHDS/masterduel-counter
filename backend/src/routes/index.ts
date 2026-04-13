@@ -17,15 +17,15 @@ import admin from "./admin.js";
 import report from "./report.js";
 import comments from "./comments/comments.js";
 import ranking from "./ranking.js";
-import { createGetArchetypeGuidesRoute } from "./guides/getArchetypeGuides.js";
-import { createGetUserGuidesRoute } from "./profile/getUserGuides.js";
-import { createOrUpdateGuideRoute } from "./guides/createOrUpdateGuide.js";
-import { createGetGuideByIdRoute } from "./guides/getGuideById.js";
-import { createSearchArchetypeGuidesRoute } from "./guides/searchArchetypeGuides.js";
-import { createSearchUserGuidesRoute } from "./profile/searchUserGuides.js";
-import { createNotificationsRoute } from "./notifications/notifications.js";
-import { createGetLatestGuidesRoute } from "./guides/getLatestGuides.js";
-import { createGetGeneralStatsRoute } from "./archetypes/getGuidesGeneralStats.js";
+import getArchetypeGuides from "./guides/getArchetypeGuides.js";
+import getUserGuides from "./profile/getUserGuides.js";
+import createOrUpdateGuide from "./guides/createOrUpdateGuide.js";
+import getGuideById from "./guides/getGuideById.js";
+import searchArchetypeGuides from "./guides/searchArchetypeGuides.js";
+import searchUserGuides from "./profile/searchUserGuides.js";
+import notifications from "./notifications/notifications.js";
+import getLatestGuides from "./guides/getLatestGuides.js";
+import getGuidesGeneralStats from "./archetypes/getGuidesGeneralStats.js";
 
 export {
   searchArchetype,
@@ -47,13 +47,13 @@ export {
   report,
   comments,
   ranking,
-  createGetArchetypeGuidesRoute,
-  createGetUserGuidesRoute,
-  createOrUpdateGuideRoute,
-  createGetGuideByIdRoute,
-  createSearchArchetypeGuidesRoute,
-  createSearchUserGuidesRoute,
-  createNotificationsRoute,
-  createGetLatestGuidesRoute,
-  createGetGeneralStatsRoute,
+  getArchetypeGuides,
+  getUserGuides,
+  createOrUpdateGuide,
+  getGuideById,
+  searchArchetypeGuides,
+  searchUserGuides,
+  notifications,
+  getLatestGuides,
+  getGuidesGeneralStats,
 };

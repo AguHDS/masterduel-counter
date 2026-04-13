@@ -1,15 +1,14 @@
 import { Router } from "express";
-import { Dependencies } from "@/compositionRoot.js";
+import { getDependencies } from "@/compositionRoot.js";
 import { createGetArchetypeGuidesController } from "@/http/controllers/guides/getArchetypeGuidesController.js";
 
+const router = Router();
+const instanceService = getDependencies().getInstanceService();
+const getArchetypeGuidesController = createGetArchetypeGuidesController(
+  instanceService,
+);
+
 /** Get all guide instances for an archetype created by all users */
-export function createGetArchetypeGuidesRoute(dependencies: Dependencies) {
-  const router = Router();
-  const controller = createGetArchetypeGuidesController(
-    dependencies.getInstanceService(),
-  );
+router.get("/archetypes/:id/instances", getArchetypeGuidesController);
 
-  router.get("/archetypes/:id/instances", controller);
-
-  return router;
-}
+export default router;
