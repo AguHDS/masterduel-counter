@@ -40,6 +40,7 @@ function buildOgTags(params: {
     <meta property="og:title" content="${safeTitle} - ${typeLabel}" />
     <meta property="og:description" content="${safeDesc}" />
     <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:image:secure_url" content="${imageUrl}" />
     <meta property="og:image:width" content="421" />
     <meta property="og:image:height" content="614" />
     <meta property="og:url" content="${pageUrl}" />
@@ -57,9 +58,7 @@ function buildOgTags(params: {
 export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
   return async (req: Request, res: Response, next: NextFunction) => {
     // Only handle guide URL patterns
-    const match = req.path.match(
-      /^\/archetype\/(\d+)\/instance\/(\d+)$/,
-    );
+    const match = req.path.match(/^\/archetype\/(\d+)\/instance\/(\d+)\/?$/);
     if (!match) return next();
 
     // Skip if frontend dist doesn't exist
@@ -97,7 +96,15 @@ export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
       const description =
         instance.generalTip ||
         `${instance.guideType === "DECK" ? "Deck" : "Counter"} guide for ${archetype.name} in Yu-Gi-Oh! Master Duel.`;
-      const pageUrl = `${SITE_URL}/archetype/${archetypeId}/instance/${instanceId}`;
+      const forwardedProto = req.headers["x-forwarded-proto"];
+      const protocol =
+        typeof forwardedProto === "string"
+          ? forwardedProto.split(",")[0]
+          : req.protocol;
+      const host = req.get("host");
+      const runtimeBaseUrl =
+        protocol && host ? `${protocol}://${host}` : SITE_URL;
+      const pageUrl = `${runtimeBaseUrl}${req.originalUrl}`;
 
       const ogTags = buildOgTags({
         title,
@@ -115,16 +122,26 @@ export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
         `<title>${escapeHtml(title)} - Masterduel Counter</title>`,
       );
       html = html.replace(
-        /<meta\s+name="description"\s+content="[^"]*"\s*\/>/,
+        /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/,
         `<meta name="description" content="${escapeHtml(description.slice(0, 300))}" />`,
       );
+
+      // Remove any previously injected OG/Twitter tags to avoid duplicates
+      html = html.replace(/\s*<meta\s+property="og:[^"]+"\s+content="[^"]*"\s*\/?>/g, "");
+      html = html.replace(/\s*<meta\s+name="twitter:[^"]+"\s+content="[^"]*"\s*\/?>/g, "");
 
       // Inject OG tags before </head>
       html = html.replace("</head>", `${ogTags}\n  </head>`);
 
       res.setHeader("Content-Type", "text/html");
+      res.setHeader("X-Guide-OG-Preview", "hit");
+      res.setHeader("Cache-Control", "no-store, max-age=0");
       res.send(html);
-    } catch {
+    } catch (error) {
+      console.error("[guideOgPreviewMiddleware] Failed to inject OG tags", {
+        path: req.originalUrl,
+        error,
+      });
       // On any error, fall through to serve the normal index.html
       next();
     }
