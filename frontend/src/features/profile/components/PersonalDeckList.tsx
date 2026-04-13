@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Plus, Info } from "lucide-react";
 import { useCustomDecks } from "../hooks/useCustomDecks";
-import { CustomDeckModal } from "./CustomDeckModal";
+import { PersonalDeckModal } from "./PersonalDeckModal";
 import type { CustomDeck } from "../api/customDeckApi";
 
-interface CustomDecksListProps {
+interface PersonalDeckListProps {
   userId: string;
   isOwner: boolean;
   userRole?: string;
@@ -13,11 +13,11 @@ interface CustomDecksListProps {
 const MAX_DECKS_USER = 10;
 const MAX_DECKS_SUPPORTER = 30;
 
-export const CustomDecksList = ({
+export const PersonalDeckList = ({
   userId,
   isOwner,
   userRole,
-}: CustomDecksListProps) => {
+}: PersonalDeckListProps) => {
   const {
     decks,
     isLoading,
@@ -171,7 +171,7 @@ export const CustomDecksList = ({
   return (
     <div className="space-y-4">
       {isCreatingNew && (
-        <CustomDeckModal
+        <PersonalDeckModal
           isOwner={true}
           onClose={() => setIsCreatingNew(false)}
           onSave={handleCreateDeck}
@@ -378,7 +378,7 @@ export const CustomDecksList = ({
       )}
 
       {selectedDeck && (
-        <CustomDeckModal
+        <PersonalDeckModal
           deck={selectedDeck}
           isOwner={isOwner}
           onClose={() => setSelectedDeck(null)}

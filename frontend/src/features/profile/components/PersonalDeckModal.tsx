@@ -17,7 +17,7 @@ interface DeckCard extends Card {
 
 type DeckZone = "main" | "extra" | "side" | "header" | null;
 
-interface CustomDeckModalProps {
+interface PersonalDeckModalProps {
   deck?: CustomDeck; // Optional for creation mode
   isOwner: boolean;
   onClose: () => void;
@@ -28,7 +28,7 @@ interface CustomDeckModalProps {
   isDeleting?: boolean;
 }
 
-export const CustomDeckModal = ({ 
+export const PersonalDeckModal = ({ 
   deck, 
   isOwner, 
   onClose, 
@@ -37,7 +37,7 @@ export const CustomDeckModal = ({
   onDelete, 
   isUpdating = false,
   isDeleting = false
-}: CustomDeckModalProps) => {
+}: PersonalDeckModalProps) => {
   const isCreationMode = !deck;
   
   // Initialize decks with uniqueIds (memoized for performance)

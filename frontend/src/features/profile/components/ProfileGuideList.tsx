@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 
@@ -10,28 +10,42 @@ interface FavoritedGuidesListProps {
   userRole?: string;
   showFavoriteButton?: boolean;
   title?: string;
+  searchPlaceholder?: string;
 }
 
 const ITEMS_PER_PAGE = 10;
 
-export const FavoritedGuidesList = ({
+/** Guide list for Guides and Favorites tabs in user profile */
+export const ProfileGuideList = ({
   guides,
   onRemoveFavorite,
   userRole,
   showFavoriteButton = true,
   title = "Favorite Guides",
+  searchPlaceholder = "Search favorites...",
 }: FavoritedGuidesListProps) => {
   const navigate = useNavigate();
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [guideTypeFilter, setGuideTypeFilter] = useState<
+    "all" | "counter" | "deck"
+  >("all");
+
+  const typeFilteredGuides =
+    guideTypeFilter === "all"
+      ? guides
+      : guides.filter(
+          (guide) =>
+            guide.guideType === (guideTypeFilter === "counter" ? "COUNTER" : "DECK"),
+        );
 
   // Filter guides by search query (title only)
   const filteredGuides = searchQuery.trim()
-    ? guides.filter((guide) =>
+    ? typeFilteredGuides.filter((guide) =>
         guide.title.toLowerCase().includes(searchQuery.toLowerCase()),
       )
-    : guides;
+    : typeFilteredGuides;
 
   const totalPages = Math.ceil(filteredGuides.length / ITEMS_PER_PAGE);
   const startIndex = currentPage * ITEMS_PER_PAGE;
@@ -41,6 +55,11 @@ export const FavoritedGuidesList = ({
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
     setCurrentPage(0); // Reset to page 0 when searching
+  };
+
+  const handleGuideTypeChange = (value: "all" | "counter" | "deck") => {
+    setGuideTypeFilter(value);
+    setCurrentPage(0);
   };
 
   const handleRemoveFavorite = async (
@@ -96,19 +115,37 @@ export const FavoritedGuidesList = ({
   return (
     <div className="space-y-4">
       {/* Search Bar */}
-      <div className="flex justify-between">
+      <div className="flex justify-between gap-3">
         <div className="w-full sm:w-72">
           <h3 className="text-lg font-semibold text-amber-400">
             {title}
             {userRole === "user" && showFavoriteButton ? " (Max. 20)" : ""}
           </h3>
         </div>
-        <div className="w-full sm:w-72">
-          <GuideSearch
-            searchQuery={searchQuery}
-            onSearchChange={handleSearchChange}
-            placeholder="Search favorites..."
-          />
+        <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
+          <div className="w-full sm:w-auto">
+            <select
+              value={guideTypeFilter}
+              onChange={(event) =>
+                handleGuideTypeChange(
+                  event.target.value as "all" | "counter" | "deck",
+                )
+              }
+              className="h-[32px] w-full sm:w-auto sm:min-w-[102px] rounded-md border border-[#4a4070]/70 bg-[#1a1545]/90 px-3 text-sm font-semibold text-blue-200 outline-none transition-colors focus:border-cyan-400"
+              aria-label="Filter guides by type"
+            >
+              <option value="all">All</option>
+              <option value="counter">Counter</option>
+              <option value="deck">Deck</option>
+            </select>
+          </div>
+          <div className="w-full sm:w-72">
+            <GuideSearch
+              searchQuery={searchQuery}
+              onSearchChange={handleSearchChange}
+              placeholder={searchPlaceholder}
+            />
+          </div>
         </div>
       </div>
 
@@ -192,10 +229,18 @@ export const FavoritedGuidesList = ({
                     </div>
 
                     {/* Likes */}
-                    <div className="flex-shrink-0 w-16 text-center">
-                      <span className="inline-flex items-center gap-1 text-green-400 font-bold text-sm">
-                        <span className="text-lg">↑</span> {guide.likes}
-                      </span>
+                    <div className="flex-shrink-0 w-[180px] text-right">
+                      <div className="inline-flex items-center gap-3 text-sm font-bold">
+                        <span className="inline-flex items-center gap-1 text-green-400">
+                          <span className="text-lg">↑</span> {guide.likes}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-yellow-400">
+                          <Star className="h-4 w-4" /> {guide.favorites}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-violet-300">
+                          <Eye className="h-4 w-4" /> {guide.views}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Remove Favorite Button */}
@@ -265,6 +310,12 @@ export const FavoritedGuidesList = ({
                           <div className="flex items-center gap-3">
                             <span className="inline-flex items-center gap-1 text-green-400 font-bold">
                               <span className="text-base">↑</span> {guide.likes}
+                            </span>
+                            <span className="inline-flex items-center gap-1 text-yellow-400 font-bold">
+                              <Star className="h-3.5 w-3.5" /> {guide.favorites}
+                            </span>
+                            <span className="inline-flex items-center gap-1 text-violet-300 font-bold">
+                              <Eye className="h-3.5 w-3.5" /> {guide.views}
                             </span>
                             {showFavoriteButton && onRemoveFavorite && (
                               <button

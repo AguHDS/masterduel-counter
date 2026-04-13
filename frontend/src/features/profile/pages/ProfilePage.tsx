@@ -6,8 +6,8 @@ import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { FavoriteCardEditor } from "../components/FavoriteCardEditor";
 import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
-import { FavoritedGuidesList } from "../components/FavoritedGuidesList";
-import { CustomDecksList } from "../components/CustomDecksList";
+import { ProfileGuideList } from "../components/ProfileGuideList";
+import { PersonalDeckList } from "../components/PersonalDeckList";
 import { PersonalDecks } from "../components/PersonalDecks";
 import { UserSearchDropdown } from "../components/UserSearchDropdown";
 import { profileApi } from "../api/profileApi";
@@ -46,13 +46,11 @@ export const ProfilePage = () => {
     queryFn: () => profileApi.getProfile(userId!),
     enabled: !!userId,
   });
-
   const { data: userGuides } = useQuery({
     queryKey: ["userInstances", userId],
     queryFn: () => profileApi.getGuidesByUserId(userId!, "likes"),
     enabled: !!userId,
   });
-
   const { data: favoritedGuidesData, refetch: refetchFavoritedGuides } =
     useQuery({
       queryKey: ["favoritedGuides", userId],
@@ -61,7 +59,6 @@ export const ProfilePage = () => {
     });
 
   const { decks: customDecks } = useCustomDecks(userId!);
-
   const {
     isEditMode,
     bioValue,
@@ -94,10 +91,16 @@ export const ProfilePage = () => {
   } = useFavoriteCardAndDecks(userId!, profile);
 
   const handleSelectArchetype = useCallback(
-    (archetypeId: number, instanceId: number, guideType?: "COUNTER" | "DECK") => {
+    (
+      archetypeId: number,
+      instanceId: number,
+      guideType?: "COUNTER" | "DECK",
+    ) => {
       if (guideType) {
         const typeParam = guideType === "COUNTER" ? "counter" : "deck";
-        navigate(`/archetype/${archetypeId}/instance/${instanceId}?type=${typeParam}`);
+        navigate(
+          `/archetype/${archetypeId}/instance/${instanceId}?type=${typeParam}`,
+        );
       } else {
         navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
       }
@@ -193,6 +196,8 @@ export const ProfilePage = () => {
   }
 
   const displayPhotoUrl = previewUrl || profile?.profilePictureUrl;
+  const totalCreatedGuides = userGuides?.length ?? 0;
+  const totalFavoritedGuides = favoritedGuidesData?.guides.length ?? 0;
 
   return (
     <>
@@ -377,10 +382,14 @@ export const ProfilePage = () => {
                               label: "My Decks",
                               path: "my-decks",
                             },
-                            { id: "guides", label: "Guides", path: "guides" },
+                            {
+                              id: "guides",
+                              label: `Guides (${totalCreatedGuides})`,
+                              path: "guides",
+                            },
                             {
                               id: "favorites",
-                              label: "Favorites",
+                              label: `Favorites (${totalFavoritedGuides})`,
                               path: "favorites",
                             },
                           ].map((tab) => (
@@ -514,7 +523,7 @@ export const ProfilePage = () => {
                       )}
 
                       {activeTab === "decks" && (
-                        <CustomDecksList
+                        <PersonalDeckList
                           userId={userId}
                           isOwner={isOwner}
                           userRole={profile?.role}
@@ -522,15 +531,16 @@ export const ProfilePage = () => {
                       )}
 
                       {activeTab === "guides" && (
-                        <FavoritedGuidesList
+                        <ProfileGuideList
                           guides={userGuides || []}
                           showFavoriteButton={false}
-                          title={`${profile?.userName || "User"}'s Guides`}
+                          title={`${profile?.userName || "User"}'s Guides (${totalCreatedGuides})`}
+                          searchPlaceholder="Search guides..."
                         />
                       )}
 
                       {activeTab === "favorites" && (
-                        <FavoritedGuidesList
+                        <ProfileGuideList
                           guides={favoritedGuidesData?.guides || []}
                           onRemoveFavorite={
                             session?.user?.id === userId
@@ -538,6 +548,7 @@ export const ProfilePage = () => {
                               : undefined
                           }
                           userRole={profile?.role}
+                          title={`Favorite Guides (${totalFavoritedGuides})`}
                         />
                       )}
                     </div>
