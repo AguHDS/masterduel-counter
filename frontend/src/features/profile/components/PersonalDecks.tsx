@@ -44,7 +44,7 @@ export const PersonalDecks = ({ decks, onViewAll, isOwner }: PersonalDecksProps)
                     <img
                       src={previewCard.imageUrlSmall}
                       alt={previewCard.name}
-                      className="h-[50px] w-[35px] border-2 border-cyan-500/80 shadow-sm object-cover flex-shrink-0"
+                      className="h-[50px] w-[35px] border border-yellow-400/60 shadow-sm object-cover flex-shrink-0"
                     />
                   ) : (
                     <div className="w-[35px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">

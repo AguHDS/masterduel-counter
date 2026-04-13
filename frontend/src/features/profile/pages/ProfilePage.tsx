@@ -464,7 +464,7 @@ export const ProfilePage = () => {
                               <h2 className="text-yellow-400 font-semibold text-xl mb-3">
                                 Bio
                               </h2>
-                              <div className="relative min-h-fit bg-gradient-to-br from-slate-900/40 to-purple-900/40 overflow-hidden rounded-lg border-2 border-yellow-500/60 shadow-lg shadow-yellow-500/20">
+                              <div className="relative min-h-[248px] bg-gradient-to-br from-slate-900/40 to-purple-900/40 overflow-hidden rounded-lg border-2 border-yellow-500/60 shadow-lg shadow-yellow-500/20">
                                 <div className="relative z-10 p-4 sm:p-6">
                                   {isEditMode && isOwner ? (
                                     <div className="space-y-2">
