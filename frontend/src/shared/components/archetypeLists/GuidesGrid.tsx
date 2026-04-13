@@ -88,7 +88,7 @@ export const GuidesGrid = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
         {currentInstances.map((instance) => {
           const isCurrentUser = user?.id === instance.userId;
-          const formattedDate = new Date(instance.createdAt).toLocaleDateString();
+          const formattedDate = new Date(instance.updatedAt).toLocaleDateString();
 
           return (
             <button
