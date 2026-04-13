@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Loader2 } from "lucide-react";
-import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
+import { DeckBuilderCardSearchModal } from "@/features/archetypes/components/DeckBuilderCardSearchModal";
 import { DeckZoneSection } from "@/features/archetypes/components/DeckZoneSection";
 import { validateDeckCardAddition } from "@/features/archetypes/utils/deckValidation";
 import {
@@ -49,8 +49,8 @@ export const RecommendedDeckEditor = ({
   );
   const [isSelectingCard, setIsSelectingCard] = useState(false);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
-  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(() => window.innerWidth);
   const [draggedCard, setDraggedCard] = useState<{
     zone: DeckDisplayZone;
     index: number;
@@ -62,6 +62,14 @@ export const RecommendedDeckEditor = ({
       setTargetZone(null);
     }
   }, [forceCloseModal, isSelectingCard]);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isFloating = windowWidth <= 1245;
 
   useEffect(() => {
     onModalStateChange?.(isSelectingCard);
@@ -104,8 +112,7 @@ export const RecommendedDeckEditor = ({
     }
   }, [initialTitle, isEditMode, title]);
 
-  const handleAddCard = (zone: DeckZone, anchor: HTMLElement) => {
-    setAnchorElement(anchor);
+  const handleAddCard = (zone: DeckZone, _anchor: HTMLElement) => {
     setTargetZone(zone);
     setIsSelectingCard(true);
   };
@@ -259,13 +266,13 @@ export const RecommendedDeckEditor = ({
   }
 
   return (
-    <div className="mt-8 flex justify-center">
+    <div className="mt-8 flex flex-wrap items-stretch justify-center gap-4">
       <div className="relative w-[60%]  rounded-[26px] border border-blue-500/45 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-4 shadow-[0_0_44px_rgba(37,99,235,0.16)] sm:p-5 lg:max-w-[68%]">
         <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_38%)]" />
         <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
 
         <div className="relative z-10">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 <h4 className="text-xl font-bold text-blue-200">{title}</h4>
@@ -283,7 +290,7 @@ export const RecommendedDeckEditor = ({
               </div>
 
               {isEditMode && (
-                <div className="w-full rounded-[18px] border border-sky-400/15 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-indigo-950/80 p-4 shadow-[0_16px_34px_rgba(2,6,23,0.4)] sm:w-[420px]">
+                <div className="w-full rounded-[18px] border border-sky-400/15 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-indigo-950/80 p-4 shadow-[0_16px_34px_rgba(2,6,23,0.4)]">
                   <label className="mb-2 block w-fit rounded-full border border-sky-400/20 bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200">
                     Deck Title
                   </label>
@@ -415,18 +422,20 @@ export const RecommendedDeckEditor = ({
         </div>
       </div>
 
+      {/* Inline card search panel — sits flush to the right of the deck builder */}
       {isSelectingCard && (
-        <FloatingCardSearchModal
+        <DeckBuilderCardSearchModal
           isOpen={true}
           onClose={() => {
             setIsSelectingCard(false);
             setTargetZone(null);
-            setAnchorElement(null);
           }}
           onSelectCard={handleCardSelected}
           title={`Add Cards to ${targetZone === "main" ? "Main" : targetZone === "extra" ? "Extra" : "Side"} Deck`}
-          anchorElement={anchorElement}
+          floating={isFloating}
+          panelClassName={!isFloating ? "!w-[464px]" : undefined}
           autoCloseAfterSelect={false}
+          maxHeight="80vh"
         />
       )}
     </div>

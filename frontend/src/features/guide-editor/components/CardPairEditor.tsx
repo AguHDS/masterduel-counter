@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { CardPairItem } from "./CardPairItem";
-import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
 import type { CardPair, Card } from "@/features/archetypes/types";
 
 interface CardPairEditorProps {

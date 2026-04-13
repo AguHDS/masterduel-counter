@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus, X, Loader2, Save } from "lucide-react";
-import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "@/features/archetypes/components/FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { validateDeckCardAddition } from "@/features/archetypes/utils/deckValidation";
 import { sortDeckCards } from "@/shared/utils/sortDeckCards";

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import type { Card, ComboStep } from "@/features/archetypes/types";
-import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
 import { ComboStepItemEditor } from "./combo-step-editor/ComboStepItemEditor";
 import { useComboStepDragDrop } from "../hooks/useComboStepDragDrop";
 import {

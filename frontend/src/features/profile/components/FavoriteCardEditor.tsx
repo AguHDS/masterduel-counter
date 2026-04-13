@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "@/features/archetypes/components/FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { useFavoriteCards } from "../hooks/useFavoriteCards";
 import border_profile from "@/assets/MDC-border.webp";

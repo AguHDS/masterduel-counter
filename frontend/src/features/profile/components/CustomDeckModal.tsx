@@ -6,7 +6,7 @@ import {
   getDeckZoneLabel,
   type DeckDisplayZone,
 } from "@/features/archetypes/utils/deckZonePresentation";
-import { FloatingCardSearchModal } from "@/features/guide-editor/components/FloatingCardSearchModal";
+import { DeckBuilderCardSearchModal } from "@/features/archetypes/components/DeckBuilderCardSearchModal";
 import type { CustomDeck } from "../api/customDeckApi";
 import { sortDeckCards } from "@/shared/utils/sortDeckCards";
 import type { Card } from "@/features/archetypes/types";
@@ -56,8 +56,16 @@ export const CustomDeckModal = ({
   const [isEditMode, setIsEditMode] = useState(isCreationMode);
   const [isSelectingCard, setIsSelectingCard] = useState(false);
   const [targetZone, setTargetZone] = useState<DeckZone>(null);
-  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [draggedCard, setDraggedCard] = useState<{ zone: DeckDisplayZone; index: number } | null>(null);
+  const [windowWidth, setWindowWidth] = useState(() => window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isFloating = windowWidth <= 1175;
   
   // Reset decks when deck prop changes (only in edit mode)
   useEffect(() => {
@@ -81,8 +89,7 @@ export const CustomDeckModal = ({
     }
   }, [deck?.id, deck?.mainDeck, deck?.extraDeck, deck?.sideDeck, deck?.title, deck?.isPublic, deck?.headerCard, initializeDeck, deck]);
 
-  const handleAddCard = useCallback((zone: DeckZone, anchor: HTMLElement) => {
-    setAnchorElement(anchor);
+  const handleAddCard = useCallback((zone: DeckZone, _anchor: HTMLElement) => {
     setTargetZone(zone);
     setIsSelectingCard(true);
   }, []);
@@ -93,7 +100,6 @@ export const CustomDeckModal = ({
       setHasChanges(true);
       setIsSelectingCard(false);
       setTargetZone(null);
-      setAnchorElement(null);
       return;
     }
 
@@ -272,9 +278,13 @@ export const CustomDeckModal = ({
       className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[400] flex items-center justify-center p-4 animate-in fade-in duration-200"
       onClick={handleClose}
     >
+      {/* Flex row: deck builder on the left, search panel on the right */}
+      <div
+        className="flex items-stretch gap-4 flex-wrap justify-center"
+        onClick={(e) => e.stopPropagation()}
+      >
       <div
         className="relative max-h-[90vh] max-w-3xl overflow-auto rounded-[26px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.16)] scrollbar-cardpair"
-        onClick={(e) => e.stopPropagation()}
       >
         <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_38%)]" />
         <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
@@ -526,21 +536,22 @@ export const CustomDeckModal = ({
         )}
       </div>
 
-      {/* Card Search Modal */}
+      {/* Inline card search panel — sits flush to the right of the deck builder */}
       {isSelectingCard && (
-        <FloatingCardSearchModal
+        <DeckBuilderCardSearchModal
           isOpen={true}
-          title={`Add Card to ${targetZone === "main" ? "Main" : targetZone === "extra" ? "Extra" : "Side"} Deck`}
+          title={`Add Card to ${targetZone === "main" ? "Main" : targetZone === "extra" ? "Extra" : targetZone === "side" ? "Side" : "Header"} Deck`}
           onSelectCard={handleCardSelected}
           onClose={() => {
             setIsSelectingCard(false);
             setTargetZone(null);
-            setAnchorElement(null);
           }}
-          anchorElement={anchorElement}
+          floating={isFloating}
           autoCloseAfterSelect={false}
+          maxHeight="90vh"
         />
       )}
+      </div>
     </div>
   );
 };

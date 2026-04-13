@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Plus } from "lucide-react";
-import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
 

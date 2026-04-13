@@ -14,7 +14,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import type { InitialHand } from "./InitialHandsEditor";
-import { FloatingCardSearchModal } from "./FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
 import { InstanceHeader } from "./InstanceHeader";
 import { GuideTypeContentSection } from "./GuideTypeContentSection";
 import { useInstanceGuideEditor } from "../hooks/useInstanceGuideEditor";
