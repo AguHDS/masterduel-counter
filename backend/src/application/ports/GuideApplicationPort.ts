@@ -20,20 +20,10 @@ export interface GuideInstanceServicePort {
    */
   getGuidesByArchetypeId(archetypeId: number, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
   
-  /** Get all archetype instances created by a specific user (for user profile)
-   * @param guideType - Optional filter by guide type (COUNTER or DECK)
-   */
-  getGuideListByUserId(userId: string, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
-  
   /** Search guides instances by archetype ID and title (for search functionality)
    * @param guideType - Optional filter by guide type (COUNTER or DECK)
    */
   searchGuideItemList(archetypeId: number, title: string, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
-  
-  /** Search instances by user ID and title (for search in user profile)
-   * @param guideType - Optional filter by guide type (COUNTER or DECK)
-   */
-  searchGuideItemListProfile(userId: string, title: string, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
   
   /** Updates an existing guide */
   updateGuide(id: number, userId: string, data: GuideUpdateDTO): Promise<Guide>;
@@ -69,6 +59,9 @@ export interface GuideInstanceServicePort {
    * @param guideType - Optional filter by guide type (COUNTER or DECK)
    */
   getLastedCreatedGuides(limit: number, guideType?: GuideType): Promise<GuideListItem[]>;
+
+  /** Gets all guides across all archetypes, optionally filtered by type and searched by title or archetype name */
+  getAllGuides(sortBy?: 'likes' | 'updated', guideType?: GuideType, search?: string): Promise<GuideListItem[]>;
 
   /** Cleanup method for shutting down the service */
   shutdown(): Promise<void>;

@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { GuideInstanceServicePort } from "@/application/ports/GuideApplicationPort.js";
+import { ProfileApplicationPort } from "@/application/ports/ProfileApplicationPort.js";
 import { validateStringParam } from "@/shared/utils/paramValidation.js";
 
 /** Search guide instances for a user by title */
 export const createSearchUserGuidesController =
-  (instanceService: GuideInstanceServicePort) =>
+  (profileService: ProfileApplicationPort) =>
   async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;
@@ -39,7 +39,7 @@ export const createSearchUserGuidesController =
 
       const guideType = type ? (type === 'counter' ? 'COUNTER' : 'DECK') : undefined;
 
-      const instances = await instanceService.searchGuideItemListProfile(
+      const instances = await profileService.searchGuideItemListProfile(
         userIdString,
         title,
         sortBy || "updated",

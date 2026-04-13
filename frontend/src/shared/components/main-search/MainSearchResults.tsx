@@ -65,11 +65,11 @@ export const MainSearchResults = memo(
     }, []);
 
     const handleViewAllCounterGuides = useCallback(() => {
-      navigate("/archetypes?type=counter");
+      navigate("/guides?type=counter");
     }, [navigate]);
 
     const handleViewAllDeckGuides = useCallback(() => {
-      navigate("/archetypes?type=deck");
+      navigate("/guides?type=deck");
     }, [navigate]);
 
     const renderGuideItem = useCallback(

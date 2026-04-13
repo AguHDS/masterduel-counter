@@ -9,4 +9,15 @@ export interface ChangePasswordResponse {
   message: string;
 }
 
-export type ConfigurationTab = "account";
+export interface ChangeUsernameRequest {
+  username: string;
+}
+
+export interface ChangeUsernameResponse {
+  success: boolean;
+  message: string;
+  username: string;
+  nextAllowedChangeAt?: string;
+}
+
+export type ConfigurationTab = "account" | "username";

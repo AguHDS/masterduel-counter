@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { ComboStep } from "@/features/archetypes/types";
-import ChainImg from "@/assets/ChainCyan.webp";
+import ChainOverlayImg from "@/assets/chain_new_card.webp";
+import ChainBadgeImg from "@/assets/chaincircle.webp";
 
 interface ComboStepCardProps {
   step: ComboStep;
@@ -72,7 +73,7 @@ export const ComboStepCard = ({
       {hasCanceledFlow && onToggleCanceledFlow && (
         <button
           onClick={onToggleCanceledFlow}
-          className={`absolute bottom-2 left-2 ${_isEditMode ? 'px-2 py-1' : 'px-1.5 py-0.5'} ${_isEditMode ? 'text-[11px]' : 'text-[9px]'} rounded-xl transition-colors ${
+          className={`absolute bottom-2 left-2 z-20 ${_isEditMode ? 'px-2 py-1' : 'px-1.5 py-0.5'} ${_isEditMode ? 'text-[11px]' : 'text-[9px]'} rounded-xl transition-colors ${
             isViewingCanceledFlow
               ? 'bg-slate-700 text-white hover:bg-slate-600'
               : 'bg-red-600/80 text-white hover:bg-red-600'
@@ -110,10 +111,13 @@ export const ComboStepCard = ({
                           />
                         </CardTooltip>
                         {card.chainNumber != null && (
-                          <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                          <img src={ChainOverlayImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                         )}
                         {card.chainNumber != null && (
-                          <span className="absolute bottom-0 top-[54px] left-0 z-[2] w-[15px] h-[15px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5">
+                          <span
+                            className="absolute bottom-0 top-[54px] left-0 z-[2] w-[15px] h-[15px] bg-center bg-cover bg-no-repeat text-cyan-100 text-[8px] font-bold flex items-center justify-center"
+                            style={{ backgroundImage: `url(${ChainBadgeImg})` }}
+                          >
                             {card.chainNumber}
                           </span>
                         )}
@@ -141,10 +145,13 @@ export const ComboStepCard = ({
                         />
                       </CardTooltip>
                       {card.chainNumber != null && (
-                        <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                        <img src={ChainOverlayImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                       )}
                       {card.chainNumber != null && (
-                        <span className="absolute bottom-0 left-0 z-[2] w-[15px] h-[15px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5">
+                        <span
+                          className="absolute bottom-0 left-0 z-[2] w-[15px] h-[15px] bg-center bg-cover bg-no-repeat text-cyan-100 text-[8px] font-bold flex items-center justify-center"
+                          style={{ backgroundImage: `url(${ChainBadgeImg})` }}
+                        >
                           {card.chainNumber}
                         </span>
                       )}
@@ -204,10 +211,13 @@ export const ComboStepCard = ({
                 />
               </CardTooltip>
               {card.chainNumber != null && (
-                <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                <img src={ChainOverlayImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
               )}
               {card.chainNumber != null && (
-                <span className={`absolute bottom-0 left-0 z-[2] w-[24px] h-[24.5px] pb-1 rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 ${_isEditMode ? 'text-[10px]' : 'text-[19px]'} font-bold flex items-center justify-center px-0.5`}>
+                <span
+                  className={`absolute bottom-0 left-0 z-[2] w-[24px] h-[24.5px] bg-center bg-cover bg-no-repeat text-cyan-100 ${_isEditMode ? 'text-[10px]' : 'text-[18px]'} font-bold flex items-center justify-center`}
+                  style={{ backgroundImage: `url(${ChainBadgeImg})` }}
+                >
                   {card.chainNumber}
                 </span>
               )}
@@ -247,10 +257,13 @@ export const ComboStepCard = ({
                         />
                       </CardTooltip>
                       {card.chainNumber != null && (
-                        <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                        <img src={ChainOverlayImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                       )}
                       {card.chainNumber != null && (
-                        <span className="absolute bottom-0 left-0 z-[2]  w-[15px] h-[15px] rounded-full border-2 border-blue-400 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5">
+                        <span
+                          className="absolute bottom-0 left-0 z-[2] w-[15px] h-[15px] bg-center bg-cover bg-no-repeat text-cyan-100 text-[8px] font-bold flex items-center justify-center"
+                          style={{ backgroundImage: `url(${ChainBadgeImg})` }}
+                        >
                           {card.chainNumber}
                         </span>
                       )}
@@ -291,10 +304,13 @@ export const ComboStepCard = ({
                           />
                         </CardTooltip>
                         {card.chainNumber != null && (
-                          <img src={ChainImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
+                          <img src={ChainOverlayImg} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-[1]" />
                         )}
                         {card.chainNumber != null && (
-                          <span className="absolute bottom-0 top-[54px] left-0 z-[2] w-[15px] h-[15px] rounded-full border-2 border-cyan-500 bg-blue-900/90 text-cyan-200 text-[9px] font-bold flex items-center justify-center px-0.5">
+                          <span
+                            className="absolute bottom-0 top-[54px] left-0 z-[2] w-[15px] h-[15px] bg-center bg-cover bg-no-repeat text-cyan-100 text-[8px] font-bold flex items-center justify-center"
+                            style={{ backgroundImage: `url(${ChainBadgeImg})` }}
+                          >
                             {card.chainNumber}
                           </span>
                         )}

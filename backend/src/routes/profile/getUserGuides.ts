@@ -1,15 +1,12 @@
 import { Router } from "express";
-import { Dependencies } from "@/compositionRoot.js";
+import { getDependencies } from "@/compositionRoot.js";
 import { createGetUserGuidesController } from "@/http/controllers/profile/getUserGuidesController.js";
 
+const router = Router();
+const profileService = getDependencies().getProfileService();
+const getUserGuidesController = createGetUserGuidesController(profileService);
+
 /** Get user guides (for user profile) */
-export function createGetUserGuidesRoute(dependencies: Dependencies) {
-  const router = Router();
-  const controller = createGetUserGuidesController(
-    dependencies.getInstanceService(),
-  );
+router.get("/users/:userId/instances", getUserGuidesController);
 
-  router.get("/users/:userId/instances", controller);
-
-  return router;
-}
+export default router;

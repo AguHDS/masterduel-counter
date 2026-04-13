@@ -58,7 +58,7 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
       className={`rounded-[22px] border p-4 shadow-[0_18px_38px_rgba(2,6,23,0.32)] ${zoneStyle.panel}`}
     >
       <div
-        className={`mb-4 flex flex-wrap items-center justify-between gap-3 rounded-[16px] border px-4 py-3 ${zoneStyle.header}`}
+        className={`mb-4 flex flex-wrap items-center justify-between gap-3  py-3 ${zoneStyle.header}`}
       >
         <div className="flex items-center gap-2">
           <span className="text-base font-semibold text-white">{titleLabel}</span>

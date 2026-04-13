@@ -1,4 +1,5 @@
 import type { Profile } from "@/domain/Profile.js";
+import type { GuideListItem, GuideType } from "@/domain/Guide.js";
 
 export interface ProfileApplicationPort {
   /** Get profile by user ID */
@@ -11,4 +12,8 @@ export interface ProfileApplicationPort {
   deleteProfilePicture(userId: string): Promise<Profile>;
   /** Update favorite card and decks */
   updateFavoriteCardAndDecks(userId: string, favoriteCardId: number | null, favoriteDecks: string | null): Promise<Profile>;
+  /** Get all guides created by a specific user */
+  getGuideListByUserId(userId: string, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
+  /** Search guides by user ID and title */
+  searchGuideItemListProfile(userId: string, title: string, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
 }

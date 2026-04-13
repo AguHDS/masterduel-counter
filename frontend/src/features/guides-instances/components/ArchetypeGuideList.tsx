@@ -49,7 +49,11 @@ const ArchetypeGuideList = ({
         guideType,
       );
     }
-    return guideInstancesApi.getGuidesByArchetypeId(archetypeId, sortBy, guideType);
+    return guideInstancesApi.getGuidesByArchetypeId(
+      archetypeId,
+      sortBy,
+      guideType,
+    );
   }, [archetypeId, debouncedSearchQuery, sortBy, guideType]);
 
   const {
@@ -57,7 +61,13 @@ const ArchetypeGuideList = ({
     isLoading,
     error,
   } = useQuery<GuideListItem[]>({
-    queryKey: ["archetypeInstances", archetypeId, sortBy, debouncedSearchQuery, guideType],
+    queryKey: [
+      "archetypeInstances",
+      archetypeId,
+      sortBy,
+      debouncedSearchQuery,
+      guideType,
+    ],
     queryFn,
     enabled: Number.isFinite(archetypeId),
     staleTime: 5000, // 5 seconds - balance between freshness and performance
@@ -66,9 +76,9 @@ const ArchetypeGuideList = ({
 
   const handleBackClick = () => {
     if (guideType === "COUNTER") {
-      navigate("/archetypes?type=counter");
+      navigate("/guides?type=counter");
     } else if (guideType === "DECK") {
-      navigate("/archetypes?type=deck");
+      navigate("/guides?type=deck");
     } else {
       navigate("/");
     }
@@ -78,10 +88,11 @@ const ArchetypeGuideList = ({
   const canCreateInstance = isAuthenticated;
 
   // Determine title based on guide type
-  const pageTitle = guideType === "COUNTER" ? "Counter Guides" : "Deck Guides";
+  const pageTitle = guideType === "COUNTER" ? `Counter Guides` : `Deck Guides`;
 
   // Determine border color based on guide type
-  const borderColorClass = guideType === "COUNTER" ? "border-orange-500/40" : "border-blue-500/40";
+  const borderColorClass =
+    guideType === "COUNTER" ? "border-orange-500/40" : "border-blue-500/40";
 
   // Calculate pagination info
   const startIndex = currentPage * ITEMS_PER_PAGE;
@@ -90,7 +101,7 @@ const ArchetypeGuideList = ({
 
   return (
     <div className="flex flex-col items-start w-full">
-      <FramedContainer 
+      <FramedContainer
         contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[3%] pt-2 pb-6 gap-4"
         className={borderColorClass}
       >
@@ -120,13 +131,19 @@ const ArchetypeGuideList = ({
         </div>
 
         {/* Title section */}
-        <div className="flex flex-col gap-2 mt-2">
-          <h1 className="text-3xl font-bold text-white">
-            {pageTitle}
+        <div className="flex flex-col gap-1 mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-baseline flex-wrap">
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              {archetypeName}:
+            </span>
+
+            <span className="text-white whitespace-nowrap ml-2 relative top-[2px]">
+              {pageTitle}
+            </span>
           </h1>
           {!isLoading && !error && hasInstances && (
             <p className="text-sm text-blue-300">
-              Showing {showingCount} of {data.length} guides for {archetypeName}
+              Showing {showingCount} of {data.length} guides
             </p>
           )}
         </div>

@@ -58,15 +58,6 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     return this.instanceRepository.findArchetypeInstanceByArchetypeId(archetypeId, sortBy, guideType);
   }
 
-  /** Get all archetype guides created by a user (for user profile) */
-  async getGuideListByUserId(
-    userId: string,
-    sortBy: "likes" | "updated" = "updated",
-    guideType?: GuideType,
-  ): Promise<GuideListItem[]> {
-    return this.instanceRepository.findArchetypeInstanceByUserId(userId, sortBy, guideType);
-  }
-
   /** Search guide items by archetype ID and title */
   async searchGuideItemList(
     archetypeId: number,
@@ -75,16 +66,6 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     return this.instanceRepository.searchGuideItemList(archetypeId, title, sortBy, guideType);
-  }
-
-  /** Search guide items created by a user (for user profile) */
-  async searchGuideItemListProfile(
-    userId: string,
-    title: string,
-    sortBy: "likes" | "updated" = "updated",
-    guideType?: GuideType,
-  ): Promise<GuideListItem[]> {
-    return this.instanceRepository.searchGuideItemListProfile(userId, title, sortBy, guideType);
   }
 
   /** Updates a guide */
@@ -103,7 +84,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
       throw new Error("Unauthorized: You can only edit your own instances");
     }
 
-    return this.instanceRepository.updateArchetypeInstance(id, data);
+    return this.instanceRepository.updateArchetypeGuide(id, data);
   }
 
   async registerGuide(
@@ -303,7 +284,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
       throw new Error("You cannot like your own guide");
     }
 
-    const result = await this.instanceRepository.ToggleLikeInstance(instanceId, userId);
+    const result = await this.instanceRepository.toggleLikeGuide(instanceId, userId);
 
     // Create or update notification (async, don't wait)
     if (result.liked) {
@@ -433,7 +414,16 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     limit: number,
     guideType?: GuideType,
   ): Promise<GuideListItem[]> {
-    return this.instanceRepository.findLatestCreatedInstances(limit, guideType);
+    return this.instanceRepository.findLastestCreatedGuides(limit, guideType);
+  }
+
+  /** Gets all guides across all archetypes, optionally filtered by type and searched by title or archetype name */
+  async getAllGuides(
+    sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
+    search?: string,
+  ): Promise<GuideListItem[]> {
+    return this.instanceRepository.findAllGuides(sortBy, guideType, search);
   }
 
   /**

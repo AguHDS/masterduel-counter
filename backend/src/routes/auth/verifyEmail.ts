@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth.js";
 
 const router = express.Router();
 
-// Verify email with token
+// Verify email with token with BetterAuth
 router.get("/", async (req, res) => {
   try {
     const { token } = req.query;

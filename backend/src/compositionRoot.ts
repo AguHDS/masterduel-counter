@@ -236,6 +236,7 @@ export class Dependencies {
       this.profileService = new ProfileApplicationService(
         this.getProfileRepository(),
         this.getImageStorageService(),
+        this.getInstanceRepository(),
       );
     }
     return this.profileService;

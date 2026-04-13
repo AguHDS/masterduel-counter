@@ -2,7 +2,7 @@ import { useState, useCallback, memo, useEffect } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { profileApi } from "../api/profileApi";
 import type { GuideListItem } from "@/lib/http/guideInstancesApi";
-import { GuidesTable } from "@/shared/components/archetypeLists/GuidesTable";
+import { GuidesTableProfile } from "@/features/profile/components/GuidesTableProfile";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 
@@ -120,7 +120,7 @@ const UserInstancesListComponent = ({
             </div>
           </div>
         ) : (
-          <GuidesTable
+          <GuidesTableProfile
             instances={instances}
             currentPage={currentPage}
             itemsPerPage={ITEMS_PER_PAGE}

@@ -121,19 +121,27 @@ export const GuidesGrid = ({
                 </h3>
 
                 {/* Creator info */}
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-blue-400 text-xs">By</span>
-                  <span
-                    onClick={(e) => handleUserNameClick(e, instance.userId)}
-                    className="text-blue-300 hover:text-blue-200 hover:underline transition-colors cursor-pointer truncate"
-                    title={instance.userName}
-                  >
-                    {instance.userName}
-                  </span>
-                  {isCurrentUser && (
-                    <span className="text-[9px] font-bold uppercase tracking-wide text-green-400 px-1.5 py-0.5 bg-green-400/10 rounded flex-shrink-0">
-                      You
+                <div className="flex flex-col gap-1 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-400 text-xs">By</span>
+                    <span
+                      onClick={(e) => handleUserNameClick(e, instance.userId)}
+                      className="text-blue-300 hover:text-blue-200 hover:underline transition-colors cursor-pointer truncate"
+                      title={instance.userName}
+                    >
+                      {instance.userName}
                     </span>
+                    {isCurrentUser && (
+                      <span className="text-[9px] font-bold uppercase tracking-wide text-green-400 px-1.5 py-0.5 bg-green-400/10 rounded flex-shrink-0">
+                        You
+                      </span>
+                    )}
+                  </div>
+                  {showArchetypeName && (
+                    <div className="flex items-center gap-1 text-xs">
+                      <span className="text-slate-400">Archetype:</span>
+                      <span className="text-blue-300 font-semibold truncate">{instance.archetypeName}</span>
+                    </div>
                   )}
                 </div>
 
@@ -162,13 +170,6 @@ export const GuidesGrid = ({
                     {formattedDate}
                   </div>
                 </div>
-
-                {/* Archetype name (if showing) */}
-                {showArchetypeName && (
-                  <div className="text-xs text-blue-300 truncate pt-1">
-                    {instance.archetypeName}
-                  </div>
-                )}
               </div>
             </button>
           );

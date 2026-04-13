@@ -170,7 +170,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     }));
   }
 
-  async findArchetypeInstanceByUserId(
+  async findArchetypeGuidesByUserId(
     userId: string,
     sortBy: "likes" | "updated" = "updated",
     guideType?: GuideType,
@@ -382,51 +382,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     }));
   }
 
-  async findArchetypeInstanceByArchetypeAndUserId(
-    archetypeId: number,
-    userId: string,
-  ): Promise<Guide | null> {
-    const stmt = this.db.prepare(`
-      SELECT *
-      FROM archetype_instances
-      WHERE archetype_id = ? AND user_id = ?
-    `);
-
-    interface InstanceRow {
-      id: number;
-      archetype_id: number;
-      user_id: string;
-      title: string;
-      header_card_id: number | null;
-      general_tip: string | null;
-      guide_type: string;
-      likes: number;
-      favorites: number;
-      views: number;
-      created_at: string;
-      updated_at: string;
-    }
-
-    const row = stmt.get(archetypeId, userId) as InstanceRow | undefined;
-    if (!row) return null;
-
-    return {
-      id: row.id,
-      archetypeId: row.archetype_id,
-      userId: row.user_id,
-      title: row.title,
-      headerCardId: row.header_card_id,
-      generalTip: row.general_tip,
-      guideType: row.guide_type as GuideType,
-      likes: row.likes,
-      favorites: row.favorites,
-      views: row.views,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
-    };
-  }
-
-  async updateArchetypeInstance(
+  async updateArchetypeGuide(
     id: number,
     data: GuideUpdateDTO,
   ): Promise<Guide> {
@@ -474,7 +430,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     stmt.run(id);
   }
 
-  async ToggleLikeInstance(
+  async toggleLikeGuide(
     instanceId: number,
     userId: string,
   ): Promise<LikeToggleResult> {
@@ -768,7 +724,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     return result._sum.views ?? 0;
   }
 
-async findLatestCreatedInstances(
+async findLastestCreatedGuides(
   limit: number,
   guideType?: GuideType,
 ): Promise<GuideListItem[]> {
@@ -834,6 +790,88 @@ async findLatestCreatedInstances(
     archetypeName: row.archetype_name,
     userName: row.user_name,
     userProfilePictureUrl: row.user_profile_picture_url,
+    headerCardName: row.header_card_name ?? undefined,
+    headerCardImageUrl: row.header_card_image_url ?? undefined,
+  }));
+}
+
+async findAllGuides(
+  sortBy: "likes" | "updated" = "updated",
+  guideType?: GuideType,
+  search?: string,
+): Promise<GuideListItem[]> {
+  const orderClause =
+    sortBy === "likes"
+      ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
+      : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+
+  const conditions: string[] = [];
+  const params: (string | number)[] = [];
+
+  if (guideType) {
+    conditions.push("ai.guide_type = ?");
+    params.push(guideType);
+  }
+
+  if (search && search.trim()) {
+    conditions.push("(ai.title LIKE ? OR a.name LIKE ?)");
+    params.push(`%${search.trim()}%`, `%${search.trim()}%`);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  const stmt = this.db.prepare(`
+    SELECT
+      ai.*,
+      a.name as archetype_name,
+      u.namedb as user_name,
+      c.name as header_card_name,
+      c.image_url_cropped as header_card_image_url
+    FROM archetype_instances ai
+    JOIN archetypes a ON ai.archetype_id = a.id
+    JOIN users u ON ai.user_id = u.id
+    LEFT JOIN cards c ON ai.header_card_id = c.id
+    ${whereClause}
+    ${orderClause}
+  `);
+
+  interface InstanceRow {
+    id: number;
+    archetype_id: number;
+    user_id: string;
+    title: string;
+    header_card_id: number | null;
+    general_tip: string | null;
+    guide_type: string;
+    likes: number;
+    favorites: number;
+    views: number;
+    created_at: string;
+    updated_at: string;
+    archetype_name: string;
+    user_name: string;
+    header_card_name: string | null;
+    header_card_image_url: string | null;
+  }
+
+  const rows = stmt.all(...params) as InstanceRow[];
+
+  return rows.map((row) => ({
+    id: row.id,
+    archetypeId: row.archetype_id,
+    userId: row.user_id,
+    title: row.title,
+    headerCardId: row.header_card_id,
+    generalTip: row.general_tip,
+    guideType: row.guide_type as GuideType,
+    likes: row.likes,
+    favorites: row.favorites,
+    views: row.views,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
+    archetypeName: row.archetype_name,
+    userName: row.user_name,
+    userProfilePictureUrl: null,
     headerCardName: row.header_card_name ?? undefined,
     headerCardImageUrl: row.header_card_image_url ?? undefined,
   }));

@@ -3,13 +3,12 @@ import { getDependencies } from "@/compositionRoot.js";
 import { createGetComboStepsController } from "@/http/controllers/guides/getComboStepsController.js";
 
 const router = express.Router();
-
-const deps = getDependencies();
-const comboStepService = deps.getComboStepService();
+const comboStepService = getDependencies().getComboStepService();
+const getComboStepsController = createGetComboStepsController(comboStepService);
 
 router.get(
   "/:initialHandId/combo-steps",
-  createGetComboStepsController(comboStepService),
+  getComboStepsController,
 );
 
 export default router;

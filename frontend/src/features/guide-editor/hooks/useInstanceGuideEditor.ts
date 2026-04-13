@@ -8,6 +8,8 @@ interface HeaderCard {
   imageUrlCropped: string;
 }
 
+export type { HeaderCard };
+
 export const useInstanceGuideEditor = (initialData?: {
   title?: string;
   generalTip?: string;

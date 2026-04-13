@@ -5,7 +5,7 @@ import { HomePage } from "./pages/HomePage";
 import { SignInPage } from "./pages/SignInPage";
 import { SignUpPage } from "./pages/SignUpPage";
 import { ProfilePage } from "./features/profile/pages/ProfilePage";
-import { ArchetypeGuideListPage } from "./features/guides-instances";
+import { ArchetypeGuideListPage, AllGuidesListPage } from "./features/guides-instances";
 import { GuideContainerPage } from "./features/guide-editor";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
@@ -15,7 +15,6 @@ import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 import NotFound from "./shared/components/NotFound";
 import { SupportPage } from "./pages/SupportPage";
 import { useAnalyticsPageTracking } from "./shared/hooks/useAnalyticsPageTracking";
-import { RegisteredArchetypesPage } from "./features/registered-archetypes/pages/RegisteredArchetypesPage";
 import { CardsPage } from "./features/cards";
 
 /**
@@ -31,7 +30,7 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/support" element={<SupportPage />} />
       <Route path="/cards" element={<CardsPage />} />
-      <Route path="/archetypes" element={<RegisteredArchetypesPage />} />
+      <Route path="/guides" element={<AllGuidesListPage />} />
       {/** Guide list of selected archetype */}
       <Route
         path="/archetype/:archetypeId"

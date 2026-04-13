@@ -18,7 +18,7 @@ interface InstancesTableProps {
 }
 
 /** Table for displaying list of guides of selected archetype or in user profile */
-export const GuidesTable = ({
+export const GuidesTableProfile = ({
   instances,
   currentPage,
   itemsPerPage,

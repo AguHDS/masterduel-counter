@@ -5,7 +5,8 @@ import { Settings, ArrowLeft } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
 import type { ConfigurationTab } from "../types";
-import { ChangePasswordForm } from "../components/ChangePasswordForm";
+import { AccountTab } from "../components/AccountTab";
+import { UsernameTab } from "../components/UsernameTab";
 
 export const ConfigurationPage = () => {
   const navigate = useNavigate();
@@ -53,24 +54,22 @@ export const ConfigurationPage = () => {
             >
               Account
             </button>
-            {/* Future tabs can be added here */}
+            <button
+              onClick={() => setActiveTab("username")}
+              className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                activeTab === "username"
+                  ? "text-[#c2901c] border-b-2 border-[#c2901c] bg-[#1f1a24]"
+                  : "text-gray-400 hover:text-white"
+              }`}
+            >
+              Username
+            </button>
           </div>
 
           {/* Tab Content */}
           <div className="p-8">
-            {activeTab === "account" && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-2">
-                    Change Password
-                  </h3>
-                  <p className="text-sm text-gray-400 mb-6">
-                    Update your password to keep your account secure.
-                  </p>
-                </div>
-                <ChangePasswordForm />
-              </div>
-            )}
+            <AccountTab activeTab={activeTab} />
+            <UsernameTab activeTab={activeTab} />
           </div>
         </div>
       </main>
