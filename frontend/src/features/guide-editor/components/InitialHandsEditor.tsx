@@ -339,7 +339,10 @@ export const InitialHandsEditor = ({
                         : ""
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.16)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
+                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:9px_9px] opacity-15" />
+
+                    <div className="relative z-10 flex items-center justify-between mb-1">
                       <div className="flex items-center gap-1">
                         {isEditMode && (
                           <span title="Drag to reorder">
@@ -397,7 +400,7 @@ export const InitialHandsEditor = ({
                       </div>
                     )}
 
-                    <div className="flex items-end justify-center h-24 relative px-2">
+                    <div className="relative z-10 flex items-end justify-center h-24 px-2">
                       <HandFanDisplay
                         cards={hand.cards}
                         isEditing={isEditMode && isEditing}
@@ -423,11 +426,11 @@ export const InitialHandsEditor = ({
                       </button>
                     )}
 
-                    <div className="mt-1 text-xs text-gray-400 text-center">
+                    <div className="relative z-10 mt-1 text-xs text-gray-400 text-center">
                       {hand.cards.length}/5
                     </div>
 
-                    <div className="min-h-[2.5rem] mt-1">
+                    <div className="relative z-10 min-h-[2.5rem] mt-1">
                       {isEditMode && isEditing ? (
                         <input
                           type="text"

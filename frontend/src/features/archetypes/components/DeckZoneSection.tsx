@@ -85,8 +85,14 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
       </div>
 
       <div
-        className={`rounded-[18px] border p-2 shadow-[inset_0_1px_0_rgba(148,163,184,0.06)] ${zoneStyle.grid}`}
+        className={`relative overflow-hidden rounded-[16px] p-2 shadow-[inset_0_1px_0_rgba(148,163,184,0.06)] ${zoneStyle.grid}`}
       >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.1),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.08),transparent_60%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.18)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.18)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.1)_1px,transparent_1px)] bg-[size:9px_9px] opacity-15" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(248,250,252,0.72)_1px,transparent_1.3px)] bg-[size:57px_57px] opacity-15" />
+
+        <div className="relative z-10">
         {cards.length > 0 ? (
           <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-8 lg:grid-cols-10">
             {cards.map((card, index) => (
@@ -100,7 +106,7 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
                 onDragEnd={onDragEnd}
               >
                 <div
-                  className={`rounded-[13px] border bg-gradient-to-b from-slate-950/95 via-slate-900/92 to-[#130f25] p-1 shadow-[0_10px_22px_rgba(2,6,23,0.35)]  ${zoneStyle.cardFrame}`}
+                  className={`shadow-[0_10px_22px_rgba(2,6,23,0.35)] ${zoneStyle.cardFrame}`}
                 >
                   <CardTooltip
                     cardId={card.id}
@@ -111,7 +117,7 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
                     <img
                       src={card.imageUrlSmall}
                       alt={card.name}
-                      className={`h-auto w-full rounded-[10px] object-contain ${canEdit ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
+                      className={`h-auto w-full object-contain ${canEdit ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
                     />
                   </CardTooltip>
                 </div>
@@ -139,6 +145,7 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
             <span className="text-sm text-slate-300">{emptyMessage}</span>
           </button>
         )}
+        </div>
       </div>
     </section>
   );

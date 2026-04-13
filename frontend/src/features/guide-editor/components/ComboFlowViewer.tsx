@@ -64,8 +64,12 @@ export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps
   });
 
   return (
-    <div className="border-y-2 border-blue-500/30 p-4 bg-slate-900/40">
-      <div className="flex flex-wrap items-start gap-5 ml-6">
+    <div className="border-y-2 border-blue-500/30 bg-slate-900/40 p-4">
+      <div className="relative overflow-hidden rounded-[18px] border border-blue-500/20 bg-slate-950/20 px-3 py-4 sm:px-4">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.16)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:46px_46px] opacity-20" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:9px_9px] opacity-15" />
+
+        <div className="relative z-10 ml-3 flex flex-wrap items-start gap-5 sm:ml-6">
         {sortedSteps.map((step, index) => {
           const isMainFlowStep = !step.parentCanceledStepId;
           const isContext = !!(activeCanceledStepId && isMainFlowStep);
@@ -85,6 +89,7 @@ export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );

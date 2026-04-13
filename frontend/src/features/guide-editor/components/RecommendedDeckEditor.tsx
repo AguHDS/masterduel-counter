@@ -290,22 +290,29 @@ export const RecommendedDeckEditor = ({
               </div>
 
               {isEditMode && (
-                <div className="w-full rounded-[18px] border border-sky-400/15 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-indigo-950/80 p-4 shadow-[0_16px_34px_rgba(2,6,23,0.4)]">
-                  <label className="mb-2 block w-fit rounded-full border border-sky-400/20 bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200">
-                    Deck Title
-                  </label>
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => {
-                      const newTitle = e.target.value;
-                      setTitle(newTitle);
-                      onDeckChange?.(newTitle, mainDeck, extraDeck, sideDeck);
-                    }}
-                    placeholder="Enter a title for your deck"
-                    className="w-full rounded-2xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-[inset_0_1px_0_rgba(148,163,184,0.08)] placeholder:text-slate-500 focus:border-blue-400 focus:outline-none"
-                    maxLength={100}
-                  />
+                <div className="relative w-full overflow-hidden rounded-[18px] border border-sky-400/15 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-indigo-950/80 p-4 shadow-[0_16px_34px_rgba(2,6,23,0.4)]">
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.1),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.08),transparent_60%)]" />
+                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.18)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.18)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
+                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.1)_1px,transparent_1px)] bg-[size:9px_9px] opacity-15" />
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(248,250,252,0.72)_1px,transparent_1.3px)] bg-[size:57px_57px] opacity-15" />
+
+                  <div className="relative z-10">
+                    <label className="mb-2 block w-fit rounded-full border border-sky-400/20 bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200">
+                      Deck Title
+                    </label>
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={(e) => {
+                        const newTitle = e.target.value;
+                        setTitle(newTitle);
+                        onDeckChange?.(newTitle, mainDeck, extraDeck, sideDeck);
+                      }}
+                      placeholder="Enter a title for your deck"
+                      className="w-full rounded-2xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-[inset_0_1px_0_rgba(148,163,184,0.08)] placeholder:text-slate-500 focus:border-blue-400 focus:outline-none"
+                      maxLength={100}
+                    />
+                  </div>
                 </div>
               )}
             </div>

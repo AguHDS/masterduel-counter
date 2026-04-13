@@ -64,12 +64,15 @@ export const ComboStepItemEditor = ({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`relative bg-slate-800/50 border-2 rounded-lg p-8 pb-12 transition-all ${
+      className={`relative overflow-hidden bg-slate-800/50 border-2 rounded-lg p-8 pb-12 transition-all ${
         isReadOnly ? "border-slate-600/40 opacity-70" : "border-blue-500/40"
       } ${isDragging ? "opacity-50 scale-95" : ""} ${
         isDragOver ? "border-yellow-400 scale-105 shadow-lg shadow-yellow-400/20" : ""
       }`}
     >
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.16)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:9px_9px] opacity-15" />
+
       {!isReadOnly && (
         <div
           draggable
@@ -129,10 +132,11 @@ export const ComboStepItemEditor = ({
         </button>
       )}
 
-      <div
-        className={`${isLeftExpanded || isRightExpanded ? "mb-6" : "mb-3"} ${isReadOnly ? "pointer-events-none" : ""}`}
-      >
-        <div className="flex justify-center m-auto items-center gap-3 w-fit">
+      <div className="relative z-10">
+        <div
+          className={`${isLeftExpanded || isRightExpanded ? "mb-6" : "mb-3"} ${isReadOnly ? "pointer-events-none" : ""}`}
+        >
+          <div className="flex justify-center m-auto items-center gap-3 w-fit">
           {step.mainCards.length > 0 && (
             <ComboStepSideColumn
               label="MATERIAL"
@@ -218,28 +222,29 @@ export const ComboStepItemEditor = ({
               onCloseChainPicker={onCloseChainPicker}
             />
           )}
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-col items-center">
-        <label className="text-blue-400 font-semibold text-xs mb-2">
-          Description (Optional)
-        </label>
-        <textarea
-          value={step.description || ""}
-          onChange={(event) => onDescriptionChange(event.target.value)}
-          maxLength={500}
-          disabled={isReadOnly}
-          placeholder="Describe this step (Max. 500 characters)..."
-          className={`w-full max-w-[280px] px-2 py-1.5 text-white text-xs rounded border focus:outline-none resize-y min-h-[60px] scrollbar-homeAllPages mx-auto ${
-            isReadOnly
-              ? "bg-slate-800/50 border-slate-700 cursor-not-allowed"
-              : "bg-slate-700/50 border-slate-600 focus:border-blue-500"
-          }`}
-          rows={3}
-        />
-        <div className="text-xs text-slate-400 mt-0.5 text-right w-full max-w-[280px]">
-          {(step.description || "").length}/500
+        <div className="flex flex-col items-center">
+          <label className="text-blue-400 font-semibold text-xs mb-2">
+            Description (Optional)
+          </label>
+          <textarea
+            value={step.description || ""}
+            onChange={(event) => onDescriptionChange(event.target.value)}
+            maxLength={500}
+            disabled={isReadOnly}
+            placeholder="Describe this step (Max. 500 characters)..."
+            className={`w-full max-w-[280px] px-2 py-1.5 text-white text-xs rounded border focus:outline-none resize-y min-h-[60px] scrollbar-homeAllPages mx-auto ${
+              isReadOnly
+                ? "bg-slate-800/50 border-slate-700 cursor-not-allowed"
+                : "bg-slate-700/50 border-slate-600 focus:border-blue-500"
+            }`}
+            rows={3}
+          />
+          <div className="text-xs text-slate-400 mt-0.5 text-right w-full max-w-[280px]">
+            {(step.description || "").length}/500
+          </div>
         </div>
       </div>
     </div>
