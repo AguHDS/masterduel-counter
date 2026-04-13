@@ -2,11 +2,14 @@ import type { ProfileApplicationPort } from "@/application/ports/ProfileApplicat
 import type { ProfileRepository } from "@/domain/ports/ProfileRepository.js";
 import type { ImageStorageService } from "@/domain/ports/externalServices/ImageStorageService.js";
 import type { Profile } from "@/domain/Profile.js";
+import type { GuideListItem, GuideType } from "@/domain/Guide.js";
+import type { GuideRepository } from "@/domain/ports/GuideRepository.js";
 
 export class ProfileApplicationService implements ProfileApplicationPort {
   constructor(
     private profileRepository: ProfileRepository,
-    private imageStorageService: ImageStorageService
+    private imageStorageService: ImageStorageService,
+    private guideRepository: GuideRepository,
   ) {}
 
   async getProfile(userId: string): Promise<Profile | null> {
@@ -115,5 +118,24 @@ export class ProfileApplicationService implements ProfileApplicationPort {
       favoriteCardId,
       favoriteDecks,
     });
+  }
+
+  /** Get all guides created by a specific user */
+  async getGuideListByUserId(
+    userId: string,
+    sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
+  ): Promise<GuideListItem[]> {
+    return this.guideRepository.findArchetypeInstanceByUserId(userId, sortBy, guideType);
+  }
+
+  /** Search guides by user ID and title */
+  async searchGuideItemListProfile(
+    userId: string,
+    title: string,
+    sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
+  ): Promise<GuideListItem[]> {
+    return this.guideRepository.searchGuideItemListProfile(userId, title, sortBy, guideType);
   }
 }

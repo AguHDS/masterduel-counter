@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { getDependencies } from "@/compositionRoot.js";
-import { createSearchUserGuidesController } from "@/http/controllers/guides/searchUserGuidesController.js";
+import { createSearchUserGuidesController } from "@/http/controllers/profile/searchUserGuidesController.js";
 
 const router = Router();
-const instanceService = getDependencies().getInstanceService();
+const profileService = getDependencies().getProfileService();
 const searchUserGuidesController = createSearchUserGuidesController(
-  instanceService,
+  profileService,
 );
 
 /** Search guide instances for a user by title */

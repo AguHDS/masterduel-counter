@@ -58,15 +58,6 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     return this.instanceRepository.findArchetypeInstanceByArchetypeId(archetypeId, sortBy, guideType);
   }
 
-  /** Get all archetype guides created by a user (for user profile) */
-  async getGuideListByUserId(
-    userId: string,
-    sortBy: "likes" | "updated" = "updated",
-    guideType?: GuideType,
-  ): Promise<GuideListItem[]> {
-    return this.instanceRepository.findArchetypeInstanceByUserId(userId, sortBy, guideType);
-  }
-
   /** Search guide items by archetype ID and title */
   async searchGuideItemList(
     archetypeId: number,
@@ -75,16 +66,6 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     return this.instanceRepository.searchGuideItemList(archetypeId, title, sortBy, guideType);
-  }
-
-  /** Search guide items created by a user (for user profile) */
-  async searchGuideItemListProfile(
-    userId: string,
-    title: string,
-    sortBy: "likes" | "updated" = "updated",
-    guideType?: GuideType,
-  ): Promise<GuideListItem[]> {
-    return this.instanceRepository.searchGuideItemListProfile(userId, title, sortBy, guideType);
   }
 
   /** Updates a guide */

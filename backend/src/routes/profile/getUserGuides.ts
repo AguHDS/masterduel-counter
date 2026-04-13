@@ -3,8 +3,8 @@ import { getDependencies } from "@/compositionRoot.js";
 import { createGetUserGuidesController } from "@/http/controllers/profile/getUserGuidesController.js";
 
 const router = Router();
-const instanceService = getDependencies().getInstanceService();
-const getUserGuidesController = createGetUserGuidesController(instanceService);
+const profileService = getDependencies().getProfileService();
+const getUserGuidesController = createGetUserGuidesController(profileService);
 
 /** Get user guides (for user profile) */
 router.get("/users/:userId/instances", getUserGuidesController);
