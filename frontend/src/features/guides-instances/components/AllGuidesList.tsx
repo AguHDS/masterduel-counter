@@ -123,7 +123,7 @@ const AllGuidesList = ({
               className="flex px-3 py-1.5 items-center gap-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors text-sm whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
-              <span>+ Create</span>
+              Create
             </button>
           )}
         </div>

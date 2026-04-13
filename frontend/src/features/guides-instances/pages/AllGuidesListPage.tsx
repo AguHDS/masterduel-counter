@@ -9,6 +9,7 @@ import { MainLogo } from "@/shared/components/MainLogo";
 import { MainSearch } from "@/shared/components/main-search/MainSearch";
 import { MainSearchResults } from "@/shared/components/main-search/MainSearchResults";
 import { ArchetypeSearchModal } from "@/shared/components/modals/ArchetypeSearchModal";
+import { GuideTypeSelectionModal } from "@/shared/components/modals/GuideTypeSelectionModal";
 import { useArchetypeSearch } from "@/features/archetypes/hooks/useArchetypes";
 import type { GuideType, Archetype } from "@/features/archetypes/types";
 
@@ -22,6 +23,8 @@ export const AllGuidesListPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isArchetypeModalOpen, setIsArchetypeModalOpen] = useState(false);
+  const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
+  const [pendingArchetype, setPendingArchetype] = useState<{ id: number; name: string } | null>(null);
 
   const { results, totalResults, loading, error } = useArchetypeSearch({
     searchQuery,
@@ -49,13 +52,25 @@ export const AllGuidesListPage = () => {
   }, []);
 
   const handleArchetypeSelect = useCallback(
-    (archetypeId: number) => {
+    (archetypeId: number, archetypeName: string) => {
       setIsArchetypeModalOpen(false);
-      navigate(`/archetype/${archetypeId}/instance/new`, {
-        state: { guideType: guideType ?? "COUNTER" },
-      });
+      setPendingArchetype({ id: archetypeId, name: archetypeName });
+      setIsTypeModalOpen(true);
     },
-    [navigate, guideType],
+    [],
+  );
+
+  const handleTypeSelect = useCallback(
+    (selectedType: GuideType) => {
+      if (pendingArchetype) {
+        navigate(`/archetype/${pendingArchetype.id}/instance/new?type=${selectedType.toLowerCase()}`, {
+          state: { guideType: selectedType },
+        });
+        setIsTypeModalOpen(false);
+        setPendingArchetype(null);
+      }
+    },
+    [navigate, pendingArchetype],
   );
 
   const handleSearchChange = useCallback((value: string) => {
@@ -165,6 +180,14 @@ export const AllGuidesListPage = () => {
         onClose={() => setIsArchetypeModalOpen(false)}
         onSelectArchetype={handleArchetypeSelect}
         centered
+      />
+
+      {/* Guide type selection modal (shown when type is not already known from URL) */}
+      <GuideTypeSelectionModal
+        isOpen={isTypeModalOpen}
+        onClose={() => { setIsTypeModalOpen(false); setPendingArchetype(null); }}
+        onSelectType={handleTypeSelect}
+        archetypeName={pendingArchetype?.name ?? ""}
       />
     </>
   );

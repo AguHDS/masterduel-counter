@@ -65,7 +65,7 @@ export const ArchetypeGuideListPage = () => {
   const handleSelectGuideType = useCallback(
     (guideType: GuideType) => {
       if (archetypeId) {
-        navigate(`/archetype/${archetypeId}/instance/new`, {
+        navigate(`/archetype/${archetypeId}/instance/new?type=${guideType.toLowerCase()}`, {
           state: { guideType },
         });
         setIsModalOpen(false);

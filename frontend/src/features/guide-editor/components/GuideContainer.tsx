@@ -1,4 +1,9 @@
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
 import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   CreditCard as Edit3,
@@ -47,17 +52,33 @@ export const GuideContainer = ({
   onEditModeChange,
   onGuideTypeChange,
 }: GuideContainerProps) => {
-  const { archetypeId, instanceId } = useParams<{archetypeId: string; instanceId: string;}>();
+  const { archetypeId, instanceId } = useParams<{
+    archetypeId: string;
+    instanceId: string;
+  }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, user } = useAuth();
   const editor = useInstanceGuideEditor();
-  const { saving, validationError, saveInstance, clearValidationError } = useSaveInstanceGuide();
+  const { saving, validationError, saveInstance, clearValidationError } =
+    useSaveInstanceGuide();
   const [headerAnchor, setHeaderAnchor] = useState<HTMLElement | null>(null);
   const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
   const isCreatingNew = instanceId === "new";
-  const instanceIdNum = !isCreatingNew && instanceId ? parseInt(instanceId) : undefined;
-  const [guideType, setGuideType] = useState<GuideType>((location.state as { guideType?: GuideType })?.guideType || "COUNTER");
+  const instanceIdNum =
+    !isCreatingNew && instanceId ? parseInt(instanceId) : undefined;
+
+  const typeFromUrl = searchParams.get("type");
+  const typeFromState = (location.state as { guideType?: GuideType })
+    ?.guideType;
+  const initialGuideType: GuideType =
+    typeFromUrl === "counter"
+      ? "COUNTER"
+      : typeFromUrl === "deck"
+        ? "DECK"
+        : (typeFromState ?? "COUNTER");
+  const [guideType, setGuideType] = useState<GuideType>(initialGuideType);
 
   // Notify parent of guide type changes
   useEffect(() => {
