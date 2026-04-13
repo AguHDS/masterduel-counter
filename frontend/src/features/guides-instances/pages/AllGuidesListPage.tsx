@@ -1,26 +1,27 @@
+import { useState, useCallback, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useState, useCallback, useMemo } from "react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
-import { RegisteredArchetypesList } from "..";
+import { AllGuidesListView } from "../components/AllGuidesList";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { MainLogo } from "@/shared/components/MainLogo";
 import { MainSearch } from "@/shared/components/main-search/MainSearch";
 import { MainSearchResults } from "@/shared/components/main-search/MainSearchResults";
+import { ArchetypeSearchModal } from "@/shared/components/modals/ArchetypeSearchModal";
 import { useArchetypeSearch } from "@/features/archetypes/hooks/useArchetypes";
 import type { GuideType, Archetype } from "@/features/archetypes/types";
 
-/**
- * Page that displays the list of registered archetypes filtered by guide type
- * Accessed via /archetypes?type=counter or /archetypes?type=deck
+/** Page that shows ALL guides of a given type (counter or deck) across all archetypes.
+ * Accessed via /guides?type=counter or /guides?type=deck
  */
-export const RegisteredArchetypesPage = () => {
+export const AllGuidesListPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isArchetypeModalOpen, setIsArchetypeModalOpen] = useState(false);
 
   const { results, totalResults, loading, error } = useArchetypeSearch({
     searchQuery,
@@ -30,20 +31,32 @@ export const RegisteredArchetypesPage = () => {
 
   const typeParam = searchParams.get("type");
   const guideType: GuideType | undefined =
-    typeParam === "counter"
-      ? "COUNTER"
-      : typeParam === "deck"
-        ? "DECK"
-        : undefined;
+    typeParam === "counter" ? "COUNTER" : typeParam === "deck" ? "DECK" : undefined;
 
-  const handleSelectArchetype = (archetypeId: number) => {
-    // Navigate to archetype guide list with the same type filter
-    if (guideType) {
-      navigate(`/archetype/${archetypeId}?type=${typeParam}`);
-    } else {
-      navigate(`/archetype/${archetypeId}`);
-    }
-  };
+  const handleSelectInstance = useCallback(
+    (instanceId: number, archetypeId: number) => {
+      if (typeParam) {
+        navigate(`/archetype/${archetypeId}/instance/${instanceId}?type=${typeParam}`);
+      } else {
+        navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
+      }
+    },
+    [navigate, typeParam],
+  );
+
+  const handleCreateGuide = useCallback(() => {
+    setIsArchetypeModalOpen(true);
+  }, []);
+
+  const handleArchetypeSelect = useCallback(
+    (archetypeId: number) => {
+      setIsArchetypeModalOpen(false);
+      navigate(`/archetype/${archetypeId}/instance/new`, {
+        state: { guideType: guideType ?? "COUNTER" },
+      });
+    },
+    [navigate, guideType],
+  );
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
@@ -54,12 +67,8 @@ export const RegisteredArchetypesPage = () => {
     (archetype: Archetype, guideTypeFromSearch?: "COUNTER" | "DECK") => {
       setIsDropdownOpen(false);
       setSearchQuery("");
-      
-      // Navigate to archetype guides filtered by type
       if (guideTypeFromSearch) {
-        navigate(
-          `/archetype/${archetype.id}?type=${guideTypeFromSearch.toLowerCase()}`,
-        );
+        navigate(`/archetype/${archetype.id}?type=${guideTypeFromSearch.toLowerCase()}`);
       } else {
         navigate(`/archetype/${archetype.id}`);
       }
@@ -68,31 +77,25 @@ export const RegisteredArchetypesPage = () => {
   );
 
   const handleInputFocus = useCallback(() => {
-    if (searchQuery.trim()) {
-      setIsDropdownOpen(true);
-    }
+    if (searchQuery.trim()) setIsDropdownOpen(true);
   }, [searchQuery]);
 
-  const handleRequestClose = useCallback(() => {
-    setIsDropdownOpen(false);
-  }, []);
+  const handleRequestClose = useCallback(() => setIsDropdownOpen(false), []);
 
-  const shouldShowDropdown = useMemo(() => {
-    return isDropdownOpen;
-  }, [isDropdownOpen]);
+  const shouldShowDropdown = useMemo(() => isDropdownOpen, [isDropdownOpen]);
 
   const getPageTitle = () => {
     if (guideType === "COUNTER") return "Counter Guides - Masterduel Counter";
     if (guideType === "DECK") return "Deck Guides - Masterduel Counter";
-    return "Registered Archetypes - Masterduel Counter";
+    return "Guides - Masterduel Counter";
   };
 
   const getPageDescription = () => {
     if (guideType === "COUNTER")
-      return "Browse all Yu-Gi-Oh! Master Duel archetypes with counter guides. Learn how to counter popular decks with handtraps and board breakers.";
+      return "Browse all Yu-Gi-Oh! Master Duel counter guides. Learn how to counter popular decks with handtraps and board breakers.";
     if (guideType === "DECK")
-      return "Browse all Yu-Gi-Oh! Master Duel archetypes with deck guides. Learn combo lines, deck builds, and strategies.";
-    return "Browse all registered Yu-Gi-Oh! Master Duel archetypes with community guides.";
+      return "Browse all Yu-Gi-Oh! Master Duel deck guides. Learn combo lines, deck builds, and strategies.";
+    return "Browse all Yu-Gi-Oh! Master Duel community guides.";
   };
 
   return (
@@ -143,9 +146,10 @@ export const RegisteredArchetypesPage = () => {
           </div>
 
           <main className="container mx-auto px-4">
-            <FeatureErrorBoundary featureName="RegisteredArchetypesList">
-              <RegisteredArchetypesList
-                onSelectArchetype={handleSelectArchetype}
+            <FeatureErrorBoundary featureName="AllGuidesList">
+              <AllGuidesListView
+                onSelectInstance={handleSelectInstance}
+                onCreateGuide={handleCreateGuide}
                 guideType={guideType}
               />
             </FeatureErrorBoundary>
@@ -154,6 +158,14 @@ export const RegisteredArchetypesPage = () => {
 
         <Footer />
       </div>
+
+      {/* Archetype selection modal for guide creation */}
+      <ArchetypeSearchModal
+        isOpen={isArchetypeModalOpen}
+        onClose={() => setIsArchetypeModalOpen(false)}
+        onSelectArchetype={handleArchetypeSelect}
+        centered
+      />
     </>
   );
 };

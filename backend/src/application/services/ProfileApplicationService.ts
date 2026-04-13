@@ -126,7 +126,7 @@ export class ProfileApplicationService implements ProfileApplicationPort {
     sortBy: "likes" | "updated" = "updated",
     guideType?: GuideType,
   ): Promise<GuideListItem[]> {
-    return this.guideRepository.findArchetypeInstanceByUserId(userId, sortBy, guideType);
+    return this.guideRepository.findArchetypeGuidesByUserId(userId, sortBy, guideType);
   }
 
   /** Search guides by user ID and title */

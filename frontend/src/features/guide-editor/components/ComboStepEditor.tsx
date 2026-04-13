@@ -134,6 +134,8 @@ export const ComboStepEditor = ({
   const handleCardSelected = (card: Card) => {
     if (!selectingCards) return;
 
+    let shouldClose = false;
+
     updateCardsForStep(selectingCards.stepId, (step) => {
       if (selectingCards.type === "main") {
         if (step.mainCards.length >= 1) {
@@ -141,6 +143,7 @@ export const ComboStepEditor = ({
           return step;
         }
 
+        shouldClose = true;
         return { ...step, mainCards: [card] };
       }
 
@@ -160,6 +163,10 @@ export const ComboStepEditor = ({
 
       return { ...step, subCards: [...step.subCards, card] };
     });
+
+    if (shouldClose) {
+      closeCardSearch();
+    }
   };
 
   const handleRemoveCard = (stepId: string, cardIndex: number, cardType: ComboCardType) => {

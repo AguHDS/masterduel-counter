@@ -60,6 +60,9 @@ export interface GuideInstanceServicePort {
    */
   getLastedCreatedGuides(limit: number, guideType?: GuideType): Promise<GuideListItem[]>;
 
+  /** Gets all guides across all archetypes, optionally filtered by type and searched by title or archetype name */
+  getAllGuides(sortBy?: 'likes' | 'updated', guideType?: GuideType, search?: string): Promise<GuideListItem[]>;
+
   /** Cleanup method for shutting down the service */
   shutdown(): Promise<void>;
 }

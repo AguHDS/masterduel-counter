@@ -27,9 +27,7 @@ export interface GuideRepository {
    * @param sortBy - Optional sorting order (by Last Update or Likes)
    * @param guideType - Optional filter by guide type (COUNTER or DECK)
    */
-  findArchetypeInstanceByUserId(userId: string, sortBy?: SortOrder, guideType?: GuideType): Promise<GuideListItem[]>;
-  /** Find archetype instance by archetype ID and user ID */
-  findArchetypeInstanceByArchetypeAndUserId(archetypeId: number, userId: string): Promise<Guide | null>;
+  findArchetypeGuidesByUserId(userId: string, sortBy?: SortOrder, guideType?: GuideType): Promise<GuideListItem[]>;
   /** Search guides by archetype ID and title (for search functionality)
    * @param guideType - Optional filter by guide type (COUNTER or DECK)
    */
@@ -39,11 +37,11 @@ export interface GuideRepository {
    */
   searchGuideItemListProfile(userId: string, title: string, sortBy?: SortOrder, guideType?: GuideType): Promise<GuideListItem[]>;
   /** Update an existing archetype instance */
-  updateArchetypeInstance(id: number, data: GuideUpdateDTO): Promise<Guide>;
+  updateArchetypeGuide(id: number, data: GuideUpdateDTO): Promise<Guide>;
   /** Delete an archetype instance by its ID */
   deleteArchetypeInstanceById(id: number): Promise<void>;
-  /** Toggles a like on an instance (add if not exists, remove if exists) */
-  ToggleLikeInstance(instanceId: number, userId: string): Promise<LikeToggleResult>;
+  /** Toggles a like on a guide (add if not exists, remove if exists) */
+  toggleLikeGuide(instanceId: number, userId: string): Promise<LikeToggleResult>;
   /** Checks if a user has already liked a guide */
   hasUserLikedGuide(instanceId: number, userId: string): Promise<boolean>;
   /** Toggles a favorite on a guide (add if not exists, remove if exists) */
@@ -64,5 +62,7 @@ export interface GuideRepository {
   /** Gets the latest created instances across all archetypes with user profile data
    * @param guideType - Optional filter by guide type (COUNTER or DECK)
    */
-  findLatestCreatedInstances(limit: number, guideType?: GuideType): Promise<GuideListItem[]>;
+  findLastestCreatedGuides(limit: number, guideType?: GuideType): Promise<GuideListItem[]>;
+  /** Gets all guides across all archetypes, optionally filtered by type and searched by title or archetype name */
+  findAllGuides(sortBy?: SortOrder, guideType?: GuideType, search?: string): Promise<GuideListItem[]>;
 }

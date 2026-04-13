@@ -4,7 +4,6 @@ import searchCards from "./cards/searchCards.js";
 import selectCard from "./cards/selectCard.js";
 import confirmCards from "./cards/confirmCards.js";
 import archetypeGuide from "./archetypes/archetypeGuide.js";
-import registeredArchetypes from "./archetypes/registeredArchetypes.js";
 import deleteGuide from "./guides/deleteGuide.js";
 import guideLikes from "./guides/guideLikes.js";
 import guideFavorites from "./guides/guideFavorites.js";
@@ -24,6 +23,7 @@ import searchArchetypeGuides from "./guides/searchArchetypeGuides.js";
 import searchUserGuides from "./profile/searchUserGuides.js";
 import notifications from "./notifications/notifications.js";
 import getLatestGuides from "./guides/getLatestGuides.js";
+import getAllGuides from "./guides/getAllGuides.js";
 import getGuidesGeneralStats from "./archetypes/getGuidesGeneralStats.js";
 
 export {
@@ -33,7 +33,6 @@ export {
   selectCard,
   confirmCards,
   archetypeGuide,
-  registeredArchetypes,
   deleteGuide,
   guideLikes,
   guideFavorites,
@@ -53,5 +52,6 @@ export {
   searchUserGuides,
   notifications,
   getLatestGuides,
+  getAllGuides,
   getGuidesGeneralStats,
 };

@@ -27,7 +27,6 @@ import {
   selectCard,
   confirmCards,
   archetypeGuide,
-  registeredArchetypes,
   deleteGuide,
   guideLikes,
   guideFavorites,
@@ -42,6 +41,7 @@ import {
   searchArchetypeGuides,
   searchUserGuides,
   getLatestGuides,
+  getAllGuides,
   getGuidesGeneralStats,
   admin,
   report,
@@ -153,7 +153,6 @@ app.use("/api", customDecks);
 
 // Archetypes & Instances
 app.use("/api/archetypes", archetypeGuide);
-app.use("/api/archetypes", registeredArchetypes);
 app.use("/api", deleteGuide);
 app.use("/api", guideLikes);
 app.use("/api", guideFavorites);
@@ -167,6 +166,7 @@ app.use("/api", searchArchetypeGuides);
 app.use("/api", searchUserGuides);
 app.use("/api", getGuideById);
 app.use("/api", getLatestGuides);
+app.use("/api", getAllGuides);
 app.use("/api", getGuidesGeneralStats);
 app.use("/api", getGuideCardPairs);
 app.use("/api/searchArchetype", searchArchetype);

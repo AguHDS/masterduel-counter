@@ -42,4 +42,25 @@ export const guideInstancesApi = {
     );
     return response.data;
   },
+
+  /** Get all guides across all archetypes (optionally filtered by type, searched by title or archetype name) */
+  getAllGuides: async (
+    sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
+    search?: string,
+  ): Promise<GuideListItem[]> => {
+    const params: { sortBy: string; type?: string; search?: string } = { sortBy };
+    if (guideType) {
+      params.type = guideType.toLowerCase();
+    }
+    if (search && search.trim()) {
+      params.search = search.trim();
+    }
+
+    const response = await axios.get(
+      `${API_BASE_URL}/api/guides`,
+      { params },
+    );
+    return response.data;
+  },
 };

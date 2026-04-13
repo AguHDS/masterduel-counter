@@ -155,7 +155,7 @@ export const CounterGuides = () => {
         </div>
 
         <Link
-          to="/archetypes?type=counter"
+          to="/guides?type=counter"
           className="relative mt-4 m-auto flex items-center text-[21px] justify-center px-3 py-1.5 text-orange-400 hover:text-orange-300 active:text-orange-600/90 cursor-pointer transition-all duration-150 border border-orange-500/45 hover:border-orange-400/60 active:border-orange-700/50 rounded-lg hover:bg-orange-500/20 active:bg-orange-700/20"
         >
           <span>View All Counter Guides</span>

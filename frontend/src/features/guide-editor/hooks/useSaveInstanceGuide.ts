@@ -325,7 +325,7 @@ export const useSaveInstanceGuide = () => {
       }
 
       if (response.instance?.id) {
-        window.location.href = `/archetype/${archetypeId}/instance/${response.instance.id}`;
+        window.location.href = `/archetype/${archetypeId}/instance/${response.instance.id}?type=${guideType.toLowerCase()}`;
       }
     } catch (error) {
       console.error("Error saving guide:", error);
