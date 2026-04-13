@@ -4,13 +4,16 @@ import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { CardsSearch } from "../components/CardsSearch";
 import { CardGrid } from "../components/CardGrid";
+import { CardPreviewModal } from "../components/CardPreviewModal";
 import { Pagination } from "../components/Pagination";
 import { useCardsSearch } from "../hooks/useCardsSearch";
+import type { Card } from "../types";
 
 export const CardsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
 
   // Debounce search query
   useEffect(() => {
@@ -38,6 +41,14 @@ export const CardsPage = () => {
     setCurrentPage(page);
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCardClick = (card: Card) => {
+    setSelectedCard(card);
+  };
+
+  const handleClosePreview = () => {
+    setSelectedCard(null);
   };
 
   return (
@@ -86,7 +97,11 @@ export const CardsPage = () => {
                 </div>
               )}
 
-              <CardGrid cards={data?.cards || []} isLoading={isLoading} />
+              <CardGrid
+                cards={data?.cards || []}
+                isLoading={isLoading}
+                onCardClick={handleCardClick}
+              />
 
               {data && data.totalPages > 1 && (
                 <Pagination
@@ -101,6 +116,12 @@ export const CardsPage = () => {
 
         <Footer />
       </div>
+
+      <CardPreviewModal
+        isOpen={Boolean(selectedCard)}
+        card={selectedCard}
+        onClose={handleClosePreview}
+      />
     </>
   );
 };

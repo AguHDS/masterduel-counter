@@ -4,9 +4,10 @@ import type { Card } from "../types";
 interface CardGridProps {
   cards: Card[];
   isLoading?: boolean;
+  onCardClick?: (card: Card) => void;
 }
 
-export const CardGrid = ({ cards, isLoading }: CardGridProps) => {
+export const CardGrid = ({ cards, isLoading, onCardClick }: CardGridProps) => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -40,7 +41,12 @@ export const CardGrid = ({ cards, isLoading }: CardGridProps) => {
             className="aspect-[59/86] group cursor-pointer transition-transform hover:scale-105"
           >
             <CardTooltip cardId={card.id} imageUrl={imageUrl} cardName={card.name}>
-              <div className="relative w-full h-full rounded-lg overflow-hidden border-2 border-slate-700 group-hover:border-cyan-500/50 transition-colors shadow-lg">
+              <button
+                type="button"
+                onClick={() => onCardClick?.(card)}
+                className="relative h-full w-full rounded-lg overflow-hidden border-2 border-slate-700 group-hover:border-cyan-500/50 transition-colors shadow-lg"
+                aria-label={`Open ${card.name} preview`}
+              >
                 <img
                   src={imageUrlSmall}
                   alt={card.name}
@@ -54,14 +60,14 @@ export const CardGrid = ({ cards, isLoading }: CardGridProps) => {
                     }
                   }}
                 />
-                
+
                 {/* Card name overlay */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <p className="text-white text-xs font-semibold line-clamp-2">
                     {card.name}
                   </p>
                 </div>
-              </div>
+              </button>
             </CardTooltip>
           </div>
         );
