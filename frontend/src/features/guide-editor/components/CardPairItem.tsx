@@ -190,11 +190,10 @@ export const CardPairItem = ({
                   <img
                     src={card.imageUrlSmall}
                     alt={card.name}
-                    className="object-cover rounded border cursor-pointer shadow-sm"
+                    className="object-cover rounded-sm cursor-pointer"
                     style={{
                       width: `${TOP_CARD_WIDTH}px`,
                       height: `${TOP_CARD_HEIGHT}px`,
-                      borderColor: "transparent",
                     }}
                   />
                 </CardTooltip>
@@ -317,11 +316,10 @@ export const CardPairItem = ({
                       <img
                         src={card.imageUrlSmall}
                         alt={card.name}
-                        className="object-cover rounded border cursor-pointer shadow-sm"
+                        className="object-cover rounded-md cursor-pointer"
                         style={{
                           width: `${BOTTOM_CARD_WIDTH}px`,
                           height: `${BOTTOM_CARD_HEIGHT}px`,
-                          borderColor: "transparent",
                         }}
                       />
                     </CardTooltip>
@@ -380,7 +378,7 @@ export const CardPairItem = ({
             {hasMoreCards && (
               <button
                 onClick={() => setIsBottomExpanded(!isBottomExpanded)}
-                className="mt-2 mb-1 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1"
+                className="mt-2 mb-1 flex items-center gap-1 text-xs text-green-500 hover:text-blue-300 transition-colors px-2 py-1"
               >
                 {isBottomExpanded ? (
                   <>
@@ -471,7 +469,7 @@ export const CardPairItem = ({
                         <img
                           src={card.imageUrlSmall}
                           alt={card.name}
-                          className="object-cover rounded border border-blue-500 cursor-pointer shadow-sm"
+                          className="border border-blue-500 cursor-pointer shadow-sm"
                           style={{
                             width: `${TOP_CARD_WIDTH}px`,
                             height: `${TOP_CARD_HEIGHT}px`,
