@@ -38,10 +38,11 @@ export const ComboFlowSection = ({
   return (
     <div className="mt-8" data-combo-flow-section>
       {/* Header */}
-      <div className="mb-8">
-        <h3 className="text-xl font-bold text-blue-300">
-          Combo for Hand #{selectedHandNumber}
-        </h3>
+      <div className="mb-8 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-blue-300">Combo for</h3>
+        <span className="text-lg font-bold text-yellow-200">
+          Hand #{selectedHandNumber}
+        </span>
         {isEditMode && (
           <p className="text-sm text-gray-400 text-center mt-1">
             Add combo steps to demonstrate the play sequence
@@ -64,7 +65,11 @@ export const ComboFlowSection = ({
           <p className="text-gray-400">Loading hand...</p>
         </div>
       ) : (
-        <ComboFlowViewer key={initialHandId} comboSteps={comboSteps} isEditMode={isEditMode} />
+        <ComboFlowViewer
+          key={initialHandId}
+          comboSteps={comboSteps}
+          isEditMode={isEditMode}
+        />
       )}
     </div>
   );

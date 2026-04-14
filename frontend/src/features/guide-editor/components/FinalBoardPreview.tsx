@@ -463,33 +463,19 @@ export const FinalBoardPreview = ({
   );
   const hasDescription = fieldBoard.description !== undefined;
   const hasHandCards = handCards.length > 0;
-  const occupiedMainZones = [
-    fieldBoard.fieldSpell,
-    ...fieldBoard.extraMonsters,
-    ...fieldBoard.monsters,
-    ...fieldBoard.spellTraps,
-  ].filter((card) => card !== null).length;
 
   return (
     <div className="w-full mt-8">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-5">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg sm:text-xl font-bold text-blue-300">
+          <h3 className="text-lg font-bold text-blue-300">
             Final Board Preview for
           </h3>
           {selectedHandTitle && (
-            <span className="text-lg sm:text-xl font-bold text-green-400/85">
+            <span className="text-lg font-bold text-yellow-200">
               {selectedHandTitle}
             </span>
           )}
-        </div>
-        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
-          <span className="rounded-full border border-sky-400/20 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-200/90">
-            {occupiedMainZones} zones occupied
-          </span>
-          <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-violet-200/90">
-            {handCards.length} cards in hand
-          </span>
         </div>
       </div>
 
