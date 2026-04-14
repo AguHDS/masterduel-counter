@@ -19,6 +19,20 @@ interface RankingModalProps {
   onUserClick: (username: string, userId: string) => void;
 }
 
+function getTopRowBg(rank: number): string {
+  if (rank === 1) {
+    return "!border-l-4 !border-yellow-500 bg-gradient-to-r from-yellow-500/15 to-transparent !border-t-0 !border-b-0 !border-r-0";
+  }
+  if (rank === 2) {
+    return "!border-l-4 !border-slate-300 bg-gradient-to-r from-slate-300/10 to-transparent !border-t-0 !border-b-0 !border-r-0";
+  }
+  if (rank === 3) {
+    return "!border-l-4 !border-orange-700 bg-gradient-to-r from-orange-700/10 to-transparent !border-t-0 !border-b-0 !border-r-0";
+  }
+
+  return "";
+}
+
 export const RankingModal: React.FC<RankingModalProps> = ({
   isOpen,
   onClose,
@@ -42,7 +56,6 @@ export const RankingModal: React.FC<RankingModalProps> = ({
     error: guideError,
   } = useGuideRanking(guidePage, limit);
 
-  // Close on Escape
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -60,25 +73,21 @@ export const RankingModal: React.FC<RankingModalProps> = ({
   const setCurrentPage = activeTab === "users" ? setUserPage : setGuidePage;
 
   return (
-    // Backdrop — click outside to close
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50"
+      className="fixed inset-0 flex items-center justify-center bg-black/75 backdrop-blur-sm z-50"
       onClick={onClose}
     >
-      {/* Modal panel — stop propagation so clicks inside don't close */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.65)] border border-[#c2901c]/40"
-        style={{ background: "linear-gradient(160deg, #261e34 0%, #1d1828 60%, #1a1424 100%)" }}
+        className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.75)] border border-[#c2901c]/40"
+        style={{
+          background:
+            "linear-gradient(160deg, #251a1e 0%, #1d1318 60%, #191014 100%)",
+        }}
       >
-        {/* Gold top accent line */}
-        <div className="h-[3px] flex-shrink-0 bg-gradient-to-r from-transparent via-[#c2901c] to-transparent" />
+        <div className="h-[1px] flex-shrink-0 bg-gradient-to-r from-transparent via-[#c2901c] to-transparent" />
 
-        {/* ── Header ── */}
-        <div
-          className="flex-shrink-0 border-b border-[#c2901c]/20"
-          style={{ background: "linear-gradient(180deg, #2d2440 0%, #231d31 100%)" }}
-        >
+        <div className="flex-shrink-0 border-b border-[#c2901c]/20">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center px-6 pt-4 pb-4">
             <div />
             <div className="flex items-center gap-2.5">
@@ -90,24 +99,23 @@ export const RankingModal: React.FC<RankingModalProps> = ({
             <div className="flex justify-end">
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-white/8 transition-colors group"
+                className="p-1.5 rounded-lg hover:bg-white/8 group"
                 aria-label="Close modal"
               >
-                <X className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
+                <X className="w-5 h-5 text-gray-500 group-hover:text-white" />
               </button>
             </div>
           </div>
 
-          {/* Tabs */}
           <div className="flex px-6 gap-0">
             {(["guides", "users"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-3 text-sm font-bold tracking-widest border-b-2 transition-all duration-200 ${
+                className={`flex-1 py-3 text-sm font-bold tracking-widest border-b-2 ${
                   activeTab === tab
-                    ? "text-[#c2901c] border-[#c2901c] bg-[#c2901c]/6"
-                    : "text-gray-600 border-transparent hover:text-gray-400 hover:bg-white/3"
+                    ? "text-[#c2901c] border-[#c2901c] bg-[#c2901c]/8"
+                    : "text-gray-600 border-transparent hover:text-[#c2901c]/60 hover:bg-white/3"
                 }`}
               >
                 {tab === "users" ? "TOP 50 USERS" : "TOP 50 GUIDES"}
@@ -116,9 +124,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
           </div>
         </div>
 
-        {/* ── Scrollable list ── */}
-        <div className="flex-1 overflow-y-auto scrollbar-cardpair">
-          {/* USERS */}
+        <div className="flex-1 overflow-y-auto scrollbar-homeAllPages">
           {activeTab === "users" && (
             <>
               {isLoadingUsers && (
@@ -143,10 +149,16 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                   <a
                     key={user.userId}
                     href={`/profile/${user.userId}`}
-                    onClick={(e) => { e.preventDefault(); onUserClick(user.username, user.userId); }}
-                    className={`flex items-center gap-4 px-6 py-3.5 border-b border-[#c2901c]/20 cursor-pointer no-underline ${getRankRowBg(user.rank)}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onUserClick(user.username, user.userId);
+                    }}
+                    className={`flex items-center gap-4 px-6 py-3.5 border-b border-[#c2901c]/15 cursor-pointer no-underline hover:bg-white/[0.05] ${
+                      user.rank <= 3
+                        ? getTopRowBg(user.rank)
+                        : getRankRowBg(user.rank)
+                    }`}
                   >
-                    {/* Rank number */}
                     <div
                       className={`w-10 flex-shrink-0 text-center font-black tabular-nums ${getRankColor(user.rank)} ${user.rank <= 3 ? "text-base" : "text-sm"}`}
                     >
@@ -156,12 +168,12 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                     <Avatar
                       username={user.username}
                       profilePictureUrl={user.profilePictureUrl}
-                      size="lg"
+                      size="md"
                     />
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white hover:text-[#c2901c] transition-colors truncate">
+                        <span className="font-semibold text-white truncate">
                           {user.username}
                         </span>
                         {user.rank <= 3 && (
@@ -180,10 +192,10 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                       <span
                         className={`text-xs font-black px-3 py-1 rounded-full border flex-shrink-0 ${
                           user.rank === 1
-                            ? "border-yellow-500/40 text-yellow-400 bg-yellow-500/10"
+                            ? "border-yellow-500/50 text-yellow-400 bg-yellow-500/15"
                             : user.rank === 2
-                              ? "border-slate-400/40 text-slate-300 bg-slate-400/10"
-                              : "border-amber-600/40 text-amber-500 bg-amber-600/10"
+                              ? "border-slate-400/50 text-slate-300 bg-slate-400/15"
+                              : "border-amber-600/50 text-amber-500 bg-amber-600/15"
                         }`}
                       >
                         Top {user.rank}
@@ -194,7 +206,6 @@ export const RankingModal: React.FC<RankingModalProps> = ({
             </>
           )}
 
-          {/* GUIDES */}
           {activeTab === "guides" && (
             <>
               {isLoadingGuides && (
@@ -221,18 +232,26 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                     <a
                       key={guide.id}
                       href={`/archetype/${guide.archetypeId}/instance/${guide.id}`}
-                      onClick={(e) => { e.preventDefault(); navigate(`/archetype/${guide.archetypeId}/instance/${guide.id}`); onClose(); }}
-                      className={`flex items-center gap-4 px-6 py-3.5 border-b border-[#c2901c]/20 cursor-pointer no-underline ${getRankRowBg(guide.rank)}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(
+                          `/archetype/${guide.archetypeId}/instance/${guide.id}`,
+                        );
+                        onClose();
+                      }}
+                      className={`flex items-center gap-4 px-6 py-3.5 border-b border-[#c2901c]/15 cursor-pointer no-underline hover:bg-white/[0.05] ${
+                        guide.rank <= 3
+                          ? getTopRowBg(guide.rank)
+                          : getRankRowBg(guide.rank)
+                      }`}
                     >
-                      {/* Rank number */}
                       <div
                         className={`w-10 flex-shrink-0 text-center font-black tabular-nums ${getRankColor(guide.rank)} ${guide.rank <= 3 ? "text-base" : "text-sm"}`}
                       >
                         #{guide.rank}
                       </div>
 
-                      {/* Card art */}
-                      <div className="w-[52px] h-[52px] flex-shrink-0 rounded-lg overflow-hidden border border-[#c2901c]/25 bg-[#0d0b10] shadow-md">
+                      <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border border-[#c2901c]/25 bg-[#0d0b10] shadow-md">
                         {guide.headerImageUrl ? (
                           <img
                             src={guide.headerImageUrl}
@@ -246,7 +265,6 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                         )}
                       </div>
 
-                      {/* Info */}
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-white truncate">
                           {guide.title}
@@ -286,10 +304,10 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                         <span
                           className={`text-xs font-black px-3 py-1 rounded-full border flex-shrink-0 ${
                             guide.rank === 1
-                              ? "border-yellow-500/40 text-yellow-400 bg-yellow-500/10"
+                              ? "border-yellow-500/50 text-yellow-400 bg-yellow-500/15"
                               : guide.rank === 2
-                                ? "border-slate-400/40 text-slate-300 bg-slate-400/10"
-                                : "border-amber-600/40 text-amber-500 bg-amber-600/10"
+                                ? "border-slate-400/50 text-slate-300 bg-slate-400/15"
+                                : "border-amber-600/50 text-amber-500 bg-amber-600/15"
                           }`}
                         >
                           Top {guide.rank}
@@ -302,16 +320,17 @@ export const RankingModal: React.FC<RankingModalProps> = ({
           )}
         </div>
 
-        {/* ── Pagination ── */}
         {currentPagination && currentPagination.totalPages > 1 && (
           <div
             className="flex-shrink-0 flex items-center justify-between px-6 py-3 border-t border-[#c2901c]/20"
-            style={{ background: "linear-gradient(180deg, #231d31 0%, #1d1828 100%)" }}
+            style={{
+              background: "linear-gradient(180deg, #261619 0%, #1d1318 100%)",
+            }}
           >
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="flex items-center gap-1.5 px-3 py-2 bg-[#c2901c]/10 hover:bg-[#c2901c]/20 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors text-white text-sm"
+              className="flex items-center gap-1.5 px-3 py-2 bg-[#c2901c]/12 hover:bg-[#c2901c]/22 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg text-[#c2901c] text-sm font-semibold border border-[#c2901c]/25 hover:border-[#c2901c]/45"
             >
               <ChevronLeft className="w-4 h-4" />
               Previous
@@ -332,7 +351,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                 )
               }
               disabled={currentPage === currentPagination.totalPages}
-              className="flex items-center gap-1.5 px-3 py-2 bg-[#c2901c]/10 hover:bg-[#c2901c]/20 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors text-white text-sm"
+              className="flex items-center gap-1.5 px-3 py-2 bg-[#c2901c]/12 hover:bg-[#c2901c]/22 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg text-[#c2901c] text-sm font-semibold border border-[#c2901c]/25 hover:border-[#c2901c]/45"
             >
               Next
               <ChevronRight className="w-4 h-4" />

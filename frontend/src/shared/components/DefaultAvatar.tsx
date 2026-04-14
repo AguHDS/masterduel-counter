@@ -8,9 +8,9 @@ interface AvatarProps {
 }
 
 const SIZE_PX: Record<string, number> = {
-  sm: 64,
-  md: 80,
-  lg: 128,
+  sm: 32,
+  md: 48,
+  lg: 64,
 };
 
 function getOptimizedCloudinaryUrl(url: string, sizePx: number): string {
@@ -36,24 +36,30 @@ export const Avatar: React.FC<AvatarProps> = ({
     return name.charAt(0).toUpperCase();
   };
 
+  const baseClasses =
+    "rounded-sm border-2 border-[#c2901c]/30 object-cover flex-shrink-0";
+  const sizeClass = sizeClasses[size] || sizeClasses.md;
+
   if (profilePictureUrl) {
     const optimizedUrl = getOptimizedCloudinaryUrl(
       profilePictureUrl,
-      SIZE_PX[size] ?? 80
+      SIZE_PX[size] ?? 80,
     );
     return (
       <img
         src={optimizedUrl}
         alt={username}
-        className={`rounded-sm border-2 border-[#c2901c]/30 object-cover ${sizeClasses[size]} ${className}`}
+        className={`${baseClasses} ${sizeClass} ${className}`}
         loading="lazy"
+        style={{ width: `${SIZE_PX[size]}px`, height: `${SIZE_PX[size]}px` }}
       />
     );
   }
 
   return (
     <div
-      className={`rounded-sm border-2 border-[#c2901c]/30 flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold ${sizeClasses[size]} ${className}`}
+      className={`${baseClasses} flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold ${sizeClass} ${className}`}
+      style={{ width: `${SIZE_PX[size]}px`, height: `${SIZE_PX[size]}px` }}
     >
       {getInitial(username)}
     </div>

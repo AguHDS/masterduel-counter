@@ -17,6 +17,20 @@ interface RankingPopupProps {
   alignRight?: boolean;
 }
 
+function getTopRowBg(rank: number): string {
+  if (rank === 1) {
+    return "!border-l-4 !border-yellow-500 bg-gradient-to-r from-yellow-500/15 to-transparent !border-t-0 !border-b-0 !border-r-0";
+  }
+  if (rank === 2) {
+    return "!border-l-4 !border-slate-300 bg-gradient-to-r from-slate-300/10 to-transparent !border-t-0 !border-b-0 !border-r-0";
+  }
+  if (rank === 3) {
+    return "!border-l-4 !border-orange-700 bg-gradient-to-r from-orange-700/10 to-transparent !border-t-0 !border-b-0 !border-r-0";
+  }
+
+  return "";
+}
+
 export const RankingPopup: React.FC<RankingPopupProps> = ({
   isOpen,
   onClose,
@@ -29,12 +43,11 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<"users" | "guides">("guides");
-  const navigate = useNavigate();
-
   const { data: guideData, isLoading: isLoadingGuides } = useGuideRanking(
     1,
     50,
   );
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -48,7 +61,6 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
         onClose();
       }
     };
-    // Use mousedown so stopPropagation on child elements works correctly
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose, triggerRef]);
@@ -59,13 +71,18 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
     <div
       ref={popupRef}
       onMouseDown={(e) => e.stopPropagation()}
-      className={`absolute mt-2 w-[420px] bg-[#17131d] border border-[#c2901c]/35 rounded-xl shadow-2xl overflow-hidden z-50 ${
+      className={`absolute mt-2 w-[420px] border border-[#c2901c]/40 rounded-xl shadow-2xl overflow-hidden z-50 ${
         alignRight ? "right-0" : "left-0"
       }`}
-      style={{ top: "100%" }}
+      style={{
+        top: "100%",
+        background:
+          "linear-gradient(160deg, #221519 0%, #1c1115 60%, #181013 100%)",
+      }}
     >
-      {/* ── Header ── */}
-      <div className="px-4 pt-4 pb-0 bg-[#1f1a24]">
+      <div className="h-[1px] flex-shrink-0 bg-gradient-to-r from-transparent via-[#c2901c] to-transparent" />
+
+      <div className="px-4 pt-4 pb-0">
         <div className="flex items-center justify-center gap-2 mb-3">
           <Crown className="w-[18px] h-[18px] text-[#c2901c]" />
           <span className="text-white font-bold text-base tracking-wide">
@@ -73,16 +90,15 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
           </span>
         </div>
 
-        {/* Tabs */}
-        <div className="flex bg-[#0e0b13] rounded-lg p-[3px] gap-[3px]">
+        <div className="flex bg-[#120c0f] rounded-lg p-[3px] gap-[3px]">
           {(["guides", "users"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-[7px] rounded-md text-[11px] font-bold tracking-widest transition-all duration-200 ${
+              className={`flex-1 py-[7px] rounded-md text-[12px] font-bold tracking-widest ${
                 activeTab === tab
-                  ? "bg-[#c2901c] text-black shadow-md"
-                  : "text-[#c2901c]/60 hover:text-[#c2901c] hover:bg-[#c2901c]/5"
+                  ? "bg-[#b88818] text-black shadow-md"
+                  : "text-[#c2901c]/60 hover:text-[#c2901c] hover:bg-[#c2901c]/8"
               }`}
             >
               {tab === "users" ? "TOP 50 USERS" : "TOP 50 GUIDES"}
@@ -90,13 +106,15 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
           ))}
         </div>
 
-        {/* thin gold separator under tabs */}
         <div className="mt-3 h-px bg-gradient-to-r from-transparent via-[#c2901c]/40 to-transparent" />
       </div>
 
-      {/* ── List ── */}
-      <div className="max-h-[420px] overflow-y-auto scrollbar-cardpair bg-[#17131d]">
-        {/* ── USERS TAB ── */}
+      <div
+        className="max-h-[420px] overflow-y-auto scrollbar-homeAllPages"
+        style={{
+          background: "linear-gradient(160deg, #1e1418 0%, #181013 100%)",
+        }}
+      >
         {activeTab === "users" && (
           <>
             {isLoading && (
@@ -116,10 +134,16 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                 <a
                   key={user.userId}
                   href={`/profile/${user.userId}`}
-                  onClick={(e) => { e.preventDefault(); onUserClick(user.username, user.userId); }}
-                  className={`flex items-center gap-3 px-4 py-[11px] border-b border-[#c2901c]/20 cursor-pointer no-underline ${getRankRowBg(user.rank)}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onUserClick(user.username, user.userId);
+                  }}
+                  className={`flex items-center gap-3 px-4 py-[11px] border-b border-[#c2901c]/15 cursor-pointer no-underline hover:bg-white/[0.05] ${
+                    user.rank <= 3
+                      ? getTopRowBg(user.rank)
+                      : getRankRowBg(user.rank)
+                  }`}
                 >
-                  {/* Rank */}
                   <div className="w-8 flex-shrink-0 flex justify-center">
                     <span
                       className={`text-xs font-black tabular-nums ${getRankColor(user.rank)}`}
@@ -131,12 +155,12 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                   <Avatar
                     username={user.username}
                     profilePictureUrl={user.profilePictureUrl}
-                    size="sm"
+                    size="md"
                   />
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-sm font-semibold text-white truncate hover:text-[#c2901c] transition-colors">
+                      <span className="text-sm font-semibold text-white truncate">
                         {user.username}
                       </span>
                       {user.rank <= 3 && (
@@ -155,10 +179,10 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                     <span
                       className={`text-[10px] font-black px-2 py-[3px] rounded-full border ${
                         user.rank === 1
-                          ? "border-yellow-500/40 text-yellow-400 bg-yellow-500/10"
+                          ? "border-yellow-500/50 text-yellow-400 bg-yellow-500/15"
                           : user.rank === 2
-                            ? "border-slate-400/40 text-slate-300 bg-slate-400/10"
-                            : "border-amber-700/40 text-amber-600 bg-amber-700/10"
+                            ? "border-slate-400/50 text-slate-300 bg-slate-400/15"
+                            : "border-amber-700/50 text-amber-600 bg-amber-700/15"
                       }`}
                     >
                       Top {user.rank}
@@ -169,7 +193,6 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
           </>
         )}
 
-        {/* ── GUIDES TAB ── */}
         {activeTab === "guides" && (
           <>
             {isLoadingGuides && (
@@ -192,10 +215,19 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                   <a
                     key={guide.id}
                     href={`/archetype/${guide.archetypeId}/instance/${guide.id}`}
-                    onClick={(e) => { e.preventDefault(); navigate(`/archetype/${guide.archetypeId}/instance/${guide.id}`); onClose(); }}
-                    className={`flex items-center gap-3 px-4 py-[10px] border-b border-[#c2901c]/20 cursor-pointer no-underline ${getRankRowBg(guide.rank)}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(
+                        `/archetype/${guide.archetypeId}/instance/${guide.id}`,
+                      );
+                      onClose();
+                    }}
+                    className={`flex items-center gap-3 px-4 py-[10px] border-b border-[#c2901c]/15 cursor-pointer no-underline hover:bg-white/[0.05] ${
+                      guide.rank <= 3
+                        ? getTopRowBg(guide.rank)
+                        : getRankRowBg(guide.rank)
+                    }`}
                   >
-                    {/* Rank */}
                     <div className="w-8 flex-shrink-0 flex justify-center">
                       <span
                         className={`text-xs font-black tabular-nums ${getRankColor(guide.rank)}`}
@@ -204,8 +236,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                       </span>
                     </div>
 
-                    {/* Card art */}
-                    <div className="w-11 h-11 flex-shrink-0 rounded-md overflow-hidden border border-[#c2901c]/20 bg-[#0d0b10]">
+                    <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden border border-[#c2901c]/20 bg-[#0d0b10]">
                       {guide.headerImageUrl ? (
                         <img
                           src={guide.headerImageUrl}
@@ -219,16 +250,19 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                       )}
                     </div>
 
-                    {/* Info */}
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-sm font-semibold truncate leading-snug">
                         {guide.title}
                       </p>
                       <p className="text-gray-500 text-xs truncate">
                         <span className="text-gray-500">by </span>
-                        <span className="text-blue-200">{guide.authorName}</span>
+                        <span className="text-blue-200">
+                          {guide.authorName}
+                        </span>
                         <span className="text-gray-600"> · </span>
-                        <span className="text-yellow-500">{guide.archetypeName}</span>
+                        <span className="text-yellow-500">
+                          {guide.archetypeName}
+                        </span>
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="flex items-center gap-1 text-xs text-purple-400 font-medium">
@@ -257,12 +291,16 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
         )}
       </div>
 
-      {/* ── Footer ── */}
       <div className="h-px bg-gradient-to-r from-transparent via-[#c2901c]/30 to-transparent" />
-      <div className="px-4 py-2.5 bg-[#110e15]">
+      <div
+        style={{
+          background: "linear-gradient(180deg, #1c1518 0%, #140f12 100%)",
+        }}
+        className="px-4 py-2.5"
+      >
         <button
           onClick={onViewFullRanking}
-          className="w-full text-center text-xs font-semibold text-[#c2901c]/80 hover:text-[#c2901c] transition-colors tracking-wider py-1"
+          className="w-full text-center text-xs font-semibold text-[#c2901c]/80 hover:text-[#c2901c] tracking-wider py-1"
         >
           View Full Ranking →
         </button>
