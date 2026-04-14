@@ -18,6 +18,7 @@ import { NotificationBell, NotificationPopup } from "../features/notifications";
 import { RankingPopup } from "../features/ranking/components/RankingPopup";
 import { RankingModal } from "../features/ranking/components/RankingModal";
 import { useRanking } from "../features/ranking/hooks/useRanking";
+import { useGuideRanking } from "../features/ranking/hooks/useRanking";
 import { UserDropdown } from "./UserDropdown";
 import { useState, useEffect, useRef } from "react";
 import { Avatar } from "@/shared/components/DefaultAvatar";
@@ -28,11 +29,13 @@ export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [isMobileRankingOpen, setIsMobileRankingOpen] = useState(false);
+  const [mobileRankingTab, setMobileRankingTab] = useState<"guides" | "users">("guides");
   const [isRankingModalOpen, setIsRankingModalOpen] = useState(false);
   const [isTabletView, setIsTabletView] = useState(false);
   const rankingButtonRef = useRef<HTMLButtonElement>(null);
 
   const { data: rankingData, isLoading: isLoadingRanking } = useRanking(1, 50);
+  const { data: guideRankingData, isLoading: isLoadingGuideRanking } = useGuideRanking(1, 50);
 
   const handleLogout = async () => {
     await logout();
@@ -77,6 +80,7 @@ export const Navbar = () => {
   };
 
   const handleToggleRanking = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setIsRankingOpen((prev) => !prev);
   };
@@ -184,7 +188,7 @@ export const Navbar = () => {
               <div className="relative flex items-center px-4">
                 <button
                   ref={rankingButtonRef}
-                  onClick={handleToggleRanking}
+                  onMouseDown={handleToggleRanking}
                   className="flex items-center space-x-1 px-2 py-1.5  rounded-lg transition-colors group"
                   aria-label="Open ranking"
                 >
@@ -300,7 +304,7 @@ export const Navbar = () => {
 
               <button
                 ref={rankingButtonRef}
-                onClick={handleToggleRanking}
+                onMouseDown={handleToggleRanking}
                 className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"
                 aria-label="Open ranking"
               >
@@ -427,61 +431,97 @@ export const Navbar = () => {
               </button>
 
               {isMobileRankingOpen && (
-                <div className="ml-6 bg-[#2a2430] rounded-lg border border-[#c2901c]/30 p-2 max-h-64 overflow-y-auto scrollbar-cardpair">
-                  {isLoadingRanking ? (
-                    <div className="text-center text-gray-400 py-4 text-sm">
-                      Loading ranking...
-                    </div>
-                  ) : rankingData && rankingData.ranking.length > 0 ? (
-                    <>
-                      {rankingData.ranking.map((user) => {
-                        const styles = getRankStyles(user.rank);
-                        return (
-                          <div
-                            key={user.userId}
-                            onClick={() =>
-                              handleUserClick(user.username, user.userId)
-                            }
-                            className={`flex items-center gap-2 p-2 hover:bg-[#3a2f40] rounded-lg transition-colors cursor-pointer ${styles.bg}`}
-                          >
-                            <div
-                              className={`w-8 text-center font-bold text-xs ${styles.text}`}
-                            >
-                              #{user.rank}
-                            </div>
-                            <Avatar
-                              username={user.username}
-                              profilePictureUrl={user.profilePictureUrl}
-                              size="sm"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <span className="text-white text-sm truncate block">
-                                {user.username}
-                              </span>
-                              <div className="text-xs text-green-500">
-                                {user.totalLikes} likes
-                              </div>
-                            </div>
-                            {user.rank <= 3 && (
-                              <Crown
-                                className={`w-3 h-3 flex-shrink-0 ${styles.icon}`}
-                              />
-                            )}
-                          </div>
-                        );
-                      })}
+                <div className="ml-2 bg-[#2a2430] rounded-lg border border-[#c2901c]/30 overflow-hidden">
+                  {/* Mobile ranking tabs */}
+                  <div className="flex border-b border-[#c2901c]/20">
+                    {(["guides", "users"] as const).map((tab) => (
                       <button
-                        onClick={handleViewFullRanking}
-                        className="w-full text-center text-sm text-[#c2901c] hover:text-[#d4a534] transition-colors py-2 mt-2 border-t border-[#c2901c]/30"
+                        key={tab}
+                        onClick={() => setMobileRankingTab(tab)}
+                        className={`flex-1 py-2 text-[11px] font-bold tracking-widest transition-all ${
+                          mobileRankingTab === tab
+                            ? "bg-[#c2901c] text-black"
+                            : "text-[#c2901c]/60 hover:text-[#c2901c]"
+                        }`}
                       >
-                        View Full Ranking →
+                        {tab === "guides" ? "GUIDES" : "USERS"}
                       </button>
-                    </>
-                  ) : (
-                    <div className="text-center text-gray-400 py-4 text-sm">
-                      No users in ranking yet
-                    </div>
-                  )}
+                    ))}
+                  </div>
+
+                  <div className="max-h-72 overflow-y-auto scrollbar-cardpair p-2">
+                    {/* Users tab */}
+                    {mobileRankingTab === "users" && (
+                      isLoadingRanking ? (
+                        <div className="text-center text-gray-400 py-4 text-sm">Loading...</div>
+                      ) : rankingData && rankingData.ranking.length > 0 ? (
+                        rankingData.ranking.map((user) => {
+                          const styles = getRankStyles(user.rank);
+                          return (
+                            <a
+                              key={user.userId}
+                              href={`/profile/${user.userId}`}
+                              onClick={(e) => { e.preventDefault(); handleUserClick(user.username, user.userId); }}
+                              className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer no-underline ${styles.bg}`}
+                            >
+                              <div className={`w-6 text-center font-bold text-xs ${styles.text}`}>#{user.rank}</div>
+                              <Avatar username={user.username} profilePictureUrl={user.profilePictureUrl} size="sm" />
+                              <div className="flex-1 min-w-0">
+                                <span className="text-white text-sm truncate block">{user.username}</span>
+                                <span className="text-xs text-emerald-400">{user.totalLikes} Likes</span>
+                              </div>
+                              {user.rank <= 3 && <Crown className={`w-3 h-3 flex-shrink-0 ${styles.icon}`} />}
+                            </a>
+                          );
+                        })
+                      ) : (
+                        <div className="text-center text-gray-400 py-4 text-sm">No users yet</div>
+                      )
+                    )}
+
+                    {/* Guides tab */}
+                    {mobileRankingTab === "guides" && (
+                      isLoadingGuideRanking ? (
+                        <div className="text-center text-gray-400 py-4 text-sm">Loading...</div>
+                      ) : guideRankingData && guideRankingData.ranking.length > 0 ? (
+                        guideRankingData.ranking.map((guide) => {
+                          const isCounter = guide.guideType === "COUNTER";
+                          return (
+                            <a
+                              key={guide.id}
+                              href={`/archetype/${guide.archetypeId}/instance/${guide.id}`}
+                              onClick={(e) => { e.preventDefault(); window.location.href = `/archetype/${guide.archetypeId}/instance/${guide.id}`; setIsMenuOpen(false); }}
+                              className="flex items-center gap-2 p-2 rounded-lg cursor-pointer no-underline"
+                            >
+                              <div className={`w-6 text-center font-bold text-xs ${ guide.rank === 1 ? "text-yellow-400" : guide.rank === 2 ? "text-slate-300" : guide.rank === 3 ? "text-amber-500" : "text-gray-500" }`}>#{guide.rank}</div>
+                              <div className="w-9 h-9 flex-shrink-0 rounded overflow-hidden border border-[#c2901c]/20 bg-[#0d0b10]">
+                                {guide.headerImageUrl
+                                  ? <img src={guide.headerImageUrl} alt={guide.title} className="w-full h-full object-cover" />
+                                  : <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs">?</div>
+                                }
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-white text-sm truncate block">{guide.title}</span>
+                                <span className="text-xs text-gray-500 truncate block">{guide.authorName} · {guide.archetypeName}</span>
+                                <span className={`text-[10px] font-bold ${isCounter ? "text-amber-500" : "text-blue-400"}`}>
+                                  {isCounter ? "Counter Guide" : "Deck Guide"}
+                                </span>
+                              </div>
+                            </a>
+                          );
+                        })
+                      ) : (
+                        <div className="text-center text-gray-400 py-4 text-sm">No guides yet</div>
+                      )
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleViewFullRanking}
+                    className="w-full text-center text-xs text-[#c2901c] hover:text-[#d4a534] transition-colors py-2 border-t border-[#c2901c]/30"
+                  >
+                    View Full Ranking →
+                  </button>
                 </div>
               )}
 

@@ -61,6 +61,10 @@ import { ComboStepRepository } from "@/domain/ports/ComboStepRepository.js";
 import { ComboStepApplicationPort } from "@/application/ports/ComboStepApplicationPort.js";
 import { SqliteComboStepRepository } from "@/infrastructure/repositories/SqliteComboStepRepository.js";
 import { ComboStepApplicationService } from "@/application/services/ComboStepApplicationService.js";
+import { RankingRepository } from "@/domain/ports/RankingRepository.js";
+import { RankingApplicationPort } from "@/application/ports/RankingApplicationPort.js";
+import { SqliteRankingRepository } from "@/infrastructure/repositories/SqliteRankingRepository.js";
+import { RankingApplicationService } from "@/application/services/RankingApplicationService.js";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -96,6 +100,8 @@ export class Dependencies {
   private initialHandService: InitialHandApplicationPort | null = null;
   private comboStepRepository: ComboStepRepository | null = null;
   private comboStepService: ComboStepApplicationPort | null = null;
+  private rankingRepository: RankingRepository | null = null;
+  private rankingService: RankingApplicationPort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -377,6 +383,22 @@ export class Dependencies {
 
   getDatabase(): DatabasePort {
     return this.database;
+  }
+
+  getRankingRepository(): RankingRepository {
+    if (!this.rankingRepository) {
+      this.rankingRepository = new SqliteRankingRepository(this.prisma);
+    }
+    return this.rankingRepository;
+  }
+
+  getRankingService(): RankingApplicationPort {
+    if (!this.rankingService) {
+      this.rankingService = new RankingApplicationService(
+        this.getRankingRepository(),
+      );
+    }
+    return this.rankingService;
   }
 
   getPrismaClient(): PrismaClient {

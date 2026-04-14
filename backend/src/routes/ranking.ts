@@ -1,9 +1,13 @@
 import express from "express";
-import { getRankingController } from "@/http/controllers/ranking/getRankingController.js";
+import { getUserRankingController } from "@/http/controllers/ranking/getUserRankingController.js";
+import { getGuideRankingController } from "@/http/controllers/ranking/getGuideRankingController.js";
 
 const router = express.Router();
 
-// Get ranking (no auth required - public)
-router.get("/", getRankingController);
+// Get user ranking (no auth required - public)
+router.get("/", getUserRankingController);
+
+// Get guide ranking (no auth required - public)
+router.get("/guides", getGuideRankingController);
 
 export default router;
