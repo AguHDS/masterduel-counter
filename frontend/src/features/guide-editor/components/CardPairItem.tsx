@@ -331,7 +331,7 @@ export const CardPairItem = ({
                       onChange={(e) =>
                         onBottomCardEffectivenessChange(index, e.target.value)
                       }
-                      className="mt-1 w-full px-1 py-0.5 bg-slate-800 text-white text-center font-bold text-[10px] rounded border border-slate-600 focus:outline-none focus:border-blue-500"
+                      className="mt-1 w-full px-1 py-0.5 bg-slate-800 text-white text-center font-bold text-[10px] z-50 rounded border border-slate-600 focus:outline-none focus:border-blue-500"
                       style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
                     >
                       {EFFECTIVENESS_OPTIONS.map((opt) => (
