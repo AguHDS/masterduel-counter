@@ -10,7 +10,12 @@ import {
   validateInstanceData,
   transformPairsForApi,
 } from "../utils/validation";
-import type { CardPair, Card, GuideType, ComboStep } from "@/features/archetypes/types";
+import type {
+  CardPair,
+  Card,
+  GuideType,
+  ComboStep,
+} from "@/features/archetypes/types";
 import type { InitialHand } from "../components/InitialHandsEditor";
 
 interface SaveInstanceParams {
@@ -61,17 +66,39 @@ export const useSaveInstanceGuide = () => {
     ];
   };
 
-  const serializeFinalBoard = (hand: InitialHand): FinalBoardDTO | undefined => {
+  const isFinalBoardEmpty = (hand: InitialHand): boolean => {
+    const board = hand.finalBoard;
+    if (!board) return true;
+
+    return (
+      board.fieldSpell === null &&
+      board.extraMonsters.every((card) => card === null) &&
+      board.monsters.every((card) => card === null) &&
+      board.spellTraps.every((card) => card === null) &&
+      board.hand.every((card) => card === null) &&
+      board.graveyard.length === 0 &&
+      board.banished.length === 0 &&
+      !board.description
+    );
+  };
+
+  const serializeFinalBoard = (
+    hand: InitialHand,
+  ): FinalBoardDTO | undefined => {
     // Convert the editor state into the compact DTO expected by the backend.
-    if (!hand.finalBoard) {
+    if (!hand.finalBoard || isFinalBoardEmpty(hand)) {
       return undefined;
     }
 
     return {
       fieldSpellCardId: hand.finalBoard.fieldSpell?.id || null,
-      extraMonsterCardIds: hand.finalBoard.extraMonsters.map((card) => card?.id || null),
+      extraMonsterCardIds: hand.finalBoard.extraMonsters.map(
+        (card) => card?.id || null,
+      ),
       monsterCardIds: hand.finalBoard.monsters.map((card) => card?.id || null),
-      spellTrapCardIds: hand.finalBoard.spellTraps.map((card) => card?.id || null),
+      spellTrapCardIds: hand.finalBoard.spellTraps.map(
+        (card) => card?.id || null,
+      ),
       handCardIds: hand.finalBoard.hand.map((card) => card?.id || null),
       graveyardCardIds: hand.finalBoard.graveyard.map((card) => card.id),
       banishedCardIds: hand.finalBoard.banished.map((card) => card.id),
@@ -101,7 +128,11 @@ export const useSaveInstanceGuide = () => {
     return true;
   };
 
-  const validateInitialHands = (initialHands: InitialHand[], guideType: GuideType, hasDeckContent: boolean): boolean => {
+  const validateInitialHands = (
+    initialHands: InitialHand[],
+    guideType: GuideType,
+    hasDeckContent: boolean,
+  ): boolean => {
     // DECK guides need at least one initial hand OR a recommended deck.
     if (guideType === "DECK") {
       const validHands = initialHands.filter((h) => h.cards.length > 0);
@@ -151,11 +182,17 @@ export const useSaveInstanceGuide = () => {
       }
     }
 
-    const validPairs = guideType === "COUNTER" 
-      ? pairs.filter((p) => p.topCards.length > 0 || p.bottomCards.length > 0)
-      : [];
+    const validPairs =
+      guideType === "COUNTER"
+        ? pairs.filter((p) => p.topCards.length > 0 || p.bottomCards.length > 0)
+        : [];
 
-    const validation = validateInstanceData(validPairs, headerCard, title, guideType);
+    const validation = validateInstanceData(
+      validPairs,
+      headerCard,
+      title,
+      guideType,
+    );
 
     if (!validation.isValid) {
       throw new Error(validation.errorMessage);
@@ -164,7 +201,8 @@ export const useSaveInstanceGuide = () => {
     setSaving(true);
 
     try {
-      const cardPairs = guideType === "COUNTER" ? transformPairsForApi(validPairs) : [];
+      const cardPairs =
+        guideType === "COUNTER" ? transformPairsForApi(validPairs) : [];
 
       const allCardIds: number[] = [];
 
@@ -177,7 +215,7 @@ export const useSaveInstanceGuide = () => {
         cardPairs.forEach((pair) => {
           allCardIds.push(
             ...pair.topCardIds,
-            ...pair.bottomCardIds.map(bc => bc.cardId)
+            ...pair.bottomCardIds.map((bc) => bc.cardId),
           );
         });
       }
@@ -189,7 +227,7 @@ export const useSaveInstanceGuide = () => {
           allCardIds.push(...hand.cards.map((c) => c.id));
           allCardIds.push(...getFinalBoardCardIds(hand));
         });
-        
+
         // Add combo step card IDs
         if (comboSteps) {
           comboSteps.forEach((steps) => {
@@ -197,7 +235,7 @@ export const useSaveInstanceGuide = () => {
               allCardIds.push(
                 ...step.mainCards.map((c) => c.id),
                 ...step.subCards.map((c) => c.id),
-                ...step.leftSubCards.map((c) => c.id)
+                ...step.leftSubCards.map((c) => c.id),
               );
             });
           });
@@ -222,85 +260,100 @@ export const useSaveInstanceGuide = () => {
       const processedGeneralTip = generalTip.trim();
 
       // Send final board state together with each non-empty hand in the same save payload.
-      const initialHandsForApi = guideType === "DECK" 
-        ? initialHands
-            .filter((hand) => hand.cards.length > 0)
-            .map((hand) => ({
-              cardIds: hand.cards.map((c) => c.id),
-              description: hand.description || undefined,
-              finalBoard: serializeFinalBoard(hand),
-            }))
-        : undefined;
+      const initialHandsForApi =
+        guideType === "DECK"
+          ? initialHands
+              .filter((hand) => hand.cards.length > 0)
+              .map((hand) => ({
+                cardIds: hand.cards.map((c) => c.id),
+                description: hand.description || undefined,
+                finalBoard: serializeFinalBoard(hand),
+              }))
+          : undefined;
 
       // Transform combo steps for API (only for non-empty hands with steps)
-      const comboStepsForApi = guideType === "DECK" && comboSteps
-        ? initialHands
-            .filter((hand) => hand.cards.length > 0)
-            .map((hand, index) => {
-              const steps = comboSteps.get(hand.id) || [];
-              if (steps.length === 0) return null;
-              
-              // Validate each step has at least 1 main card
-              const allValidSteps = steps.filter(s => s.mainCards.length > 0);
-              if (allValidSteps.length === 0) return null;
-              
-              // Separate main flow and canceled flow steps, then sort each group
-              const mainFlowSteps = allValidSteps
-                .filter(s => !s.parentCanceledStepId)
-                .sort((a, b) => a.stepOrder - b.stepOrder);
-              
-              const canceledFlowSteps = allValidSteps
-                .filter(s => s.parentCanceledStepId)
-                .sort((a, b) => {
-                  // First sort by parent step, then by stepOrder within each parent
-                  const parentComparison = (a.parentCanceledStepId || '').localeCompare(b.parentCanceledStepId || '');
-                  if (parentComparison !== 0) return parentComparison;
-                  return a.stepOrder - b.stepOrder;
+      const comboStepsForApi =
+        guideType === "DECK" && comboSteps
+          ? initialHands
+              .filter((hand) => hand.cards.length > 0)
+              .map((hand, index) => {
+                const steps = comboSteps.get(hand.id) || [];
+                if (steps.length === 0) return null;
+
+                // Validate each step has at least 1 main card
+                const allValidSteps = steps.filter(
+                  (s) => s.mainCards.length > 0,
+                );
+                if (allValidSteps.length === 0) return null;
+
+                // Separate main flow and canceled flow steps, then sort each group
+                const mainFlowSteps = allValidSteps
+                  .filter((s) => !s.parentCanceledStepId)
+                  .sort((a, b) => a.stepOrder - b.stepOrder);
+
+                const canceledFlowSteps = allValidSteps
+                  .filter((s) => s.parentCanceledStepId)
+                  .sort((a, b) => {
+                    // First sort by parent step, then by stepOrder within each parent
+                    const parentComparison = (
+                      a.parentCanceledStepId || ""
+                    ).localeCompare(b.parentCanceledStepId || "");
+                    if (parentComparison !== 0) return parentComparison;
+                    return a.stepOrder - b.stepOrder;
+                  });
+
+                // Combine: main flow first, then canceled flows
+                const validSteps = [...mainFlowSteps, ...canceledFlowSteps];
+
+                // Create a map of temporary step IDs to their indices
+                const stepIdToIndex = new Map<string, number>();
+                validSteps.forEach((step, idx) => {
+                  stepIdToIndex.set(step.id, idx);
                 });
-              
-              // Combine: main flow first, then canceled flows
-              const validSteps = [...mainFlowSteps, ...canceledFlowSteps];
-              
-              // Create a map of temporary step IDs to their indices
-              const stepIdToIndex = new Map<string, number>();
-              validSteps.forEach((step, idx) => {
-                stepIdToIndex.set(step.id, idx);
-              });
-              
-              return {
-                initialHandId: index, // Use index since backend maps by position
-                steps: validSteps.map((step, stepIndex) => {
-                  // Map parentCanceledStepId from temporary ID to index
-                  let parentIndex: number | undefined = undefined;
-                  if (step.parentCanceledStepId) {
-                    const parentStepIndex = stepIdToIndex.get(step.parentCanceledStepId);
-                    if (parentStepIndex !== undefined) {
-                      parentIndex = parentStepIndex;
+
+                return {
+                  initialHandId: index, // Use index since backend maps by position
+                  steps: validSteps.map((step, stepIndex) => {
+                    // Map parentCanceledStepId from temporary ID to index
+                    let parentIndex: number | undefined = undefined;
+                    if (step.parentCanceledStepId) {
+                      const parentStepIndex = stepIdToIndex.get(
+                        step.parentCanceledStepId,
+                      );
+                      if (parentStepIndex !== undefined) {
+                        parentIndex = parentStepIndex;
+                      }
                     }
-                  }
-                  
-                  return {
-                    mainCardIds: step.mainCards.map((c) => c.id),
-                    mainCardChains: step.mainCards.map((c) => c.chainNumber ?? null),
-                    subCardIds: step.subCards.map((c) => c.id),
-                    subCardChains: step.subCards.map((c) => c.chainNumber ?? null),
-                    leftSubCardIds: step.leftSubCards.map((c) => c.id),
-                    leftSubCardChains: step.leftSubCards.map((c) => c.chainNumber ?? null),
-                    description: step.description || undefined,
-                    parentCanceledStepIndex: parentIndex,
-                    stepOrder: stepIndex,
-                  };
-                }),
-              };
-            })
-            .filter((item): item is NonNullable<typeof item> => item !== null)
-        : undefined;
+
+                    return {
+                      mainCardIds: step.mainCards.map((c) => c.id),
+                      mainCardChains: step.mainCards.map(
+                        (c) => c.chainNumber ?? null,
+                      ),
+                      subCardIds: step.subCards.map((c) => c.id),
+                      subCardChains: step.subCards.map(
+                        (c) => c.chainNumber ?? null,
+                      ),
+                      leftSubCardIds: step.leftSubCards.map((c) => c.id),
+                      leftSubCardChains: step.leftSubCards.map(
+                        (c) => c.chainNumber ?? null,
+                      ),
+                      description: step.description || undefined,
+                      parentCanceledStepIndex: parentIndex,
+                      stepOrder: stepIndex,
+                    };
+                  }),
+                };
+              })
+              .filter((item): item is NonNullable<typeof item> => item !== null)
+          : undefined;
 
       const response = await saveGuideMutation.mutateAsync({
         archetypeId,
         guideType,
         cardPairs: guideType === "COUNTER" ? cardPairs : [],
-        initialHands: guideType === "DECK" && initialHandsForApi ? initialHandsForApi : [],
+        initialHands:
+          guideType === "DECK" && initialHandsForApi ? initialHandsForApi : [],
         title: sanitizedTitle,
         headerCardId: headerCard!.id,
         generalTip: processedGeneralTip || undefined,

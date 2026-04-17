@@ -1,6 +1,10 @@
 import { Plus } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
-import type { CardPair, ComboStep, GuideType } from "@/features/archetypes/types";
+import type {
+  CardPair,
+  ComboStep,
+  GuideType,
+} from "@/features/archetypes/types";
 import { CardPairEditor } from "./CardPairEditor";
 import { ComboFlowSection } from "./ComboFlowSection";
 import { InitialHandsEditor, type InitialHand } from "./InitialHandsEditor";
@@ -33,6 +37,7 @@ interface GuideTypeContentSectionProps {
   onAddInitialHand: () => void;
   onAddCombo: (handId: string) => void;
   onShowCombo: (handId: string) => void;
+  onDuplicateHand?: (originalHandId: string, newHandId: string) => void;
   comboSteps: Map<string, ComboStep[]>;
   showComboFlow: boolean;
   selectedHandComboSteps: ComboStep[];
@@ -89,6 +94,7 @@ export const GuideTypeContentSection = ({
   onAddInitialHand,
   onAddCombo,
   onShowCombo,
+  onDuplicateHand,
   comboSteps,
   showComboFlow,
   selectedHandComboSteps,
@@ -155,6 +161,7 @@ export const GuideTypeContentSection = ({
               onSelectHand={onSelectHand}
               onAddCombo={isEditMode && isOwner ? onAddCombo : undefined}
               onShowCombo={!isEditMode ? onShowCombo : undefined}
+              onDuplicateHand={onDuplicateHand}
               comboSteps={comboSteps}
             />
           </div>
@@ -165,7 +172,8 @@ export const GuideTypeContentSection = ({
             (selectedHandComboSteps.length > 0 || (isEditMode && isOwner)) && (
               <ComboFlowSection
                 selectedHandNumber={
-                  initialHands.findIndex((hand) => hand.id === selectedHandId) + 1
+                  initialHands.findIndex((hand) => hand.id === selectedHandId) +
+                  1
                 }
                 comboSteps={selectedHandComboSteps}
                 setComboSteps={setSelectedHandComboSteps}

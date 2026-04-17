@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, X, Trash2, Edit2, GripVertical } from "lucide-react";
+import { Plus, X, Trash2, Edit2, Copy } from "lucide-react";
 import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
 import type { Card, ComboStep } from "@/features/archetypes/types";
 import { FinalBoardPreview, type FieldBoard } from "./FinalBoardPreview";
@@ -24,7 +24,21 @@ interface InitialHandsEditorProps {
   onAddCombo?: (handId: string) => void;
   onShowCombo?: (handId: string) => void;
   comboSteps?: Map<string, ComboStep[]>;
+  onDuplicateHand?: (originalHandId: string, newHandId: string) => void;
 }
+
+// Module-level helper so Date.now() is not called directly inside the component body
+// (avoids react-hooks/purity violations from eslint-plugin-react-hooks v7+)
+const makeDuplicatedHand = (original: InitialHand): InitialHand => {
+  const ts = Date.now();
+  return {
+    ...original,
+    id: `hand-${ts}`,
+    finalBoard: original.finalBoard
+      ? { ...original.finalBoard, id: `field-${ts}` }
+      : undefined,
+  };
+};
 
 export const InitialHandsEditor = ({
   isEditMode,
@@ -38,6 +52,7 @@ export const InitialHandsEditor = ({
   onAddCombo,
   onShowCombo,
   comboSteps,
+  onDuplicateHand,
 }: InitialHandsEditorProps) => {
   const [selectingHandId, setSelectingHandId] = useState<string | null>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
@@ -59,7 +74,9 @@ export const InitialHandsEditor = ({
 
   // Drag-and-drop state for reordering hands
   const [draggedHandIndex, setDraggedHandIndex] = useState<number | null>(null);
-  const [dragOverHandIndex, setDragOverHandIndex] = useState<number | null>(null);
+  const [dragOverHandIndex, setDragOverHandIndex] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     if (forceCloseModal && selectingHandId) {
@@ -88,7 +105,8 @@ export const InitialHandsEditor = ({
       const firstHand = initialHands[0];
       if (
         firstHand.finalBoard ||
-        (comboSteps?.has(firstHand.id) && comboSteps.get(firstHand.id)!.length > 0)
+        (comboSteps?.has(firstHand.id) &&
+          comboSteps.get(firstHand.id)!.length > 0)
       ) {
         setSelectedShowHandId(firstHand.id);
       }
@@ -228,6 +246,18 @@ export const InitialHandsEditor = ({
     setEditingHandId(handId);
   };
 
+  const handleDuplicateHand = (handId: string) => {
+    const handToDuplicate = initialHands.find((h) => h.id === handId);
+    if (!handToDuplicate) return;
+
+    const duplicatedHand = makeDuplicatedHand(handToDuplicate);
+    const handIndex = initialHands.findIndex((h) => h.id === handId);
+    const newHands = [...initialHands];
+    newHands.splice(handIndex + 1, 0, duplicatedHand);
+    setInitialHands(newHands);
+    onDuplicateHand?.(handId, duplicatedHand.id);
+  };
+
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedHandIndex(index);
     e.dataTransfer.effectAllowed = "move";
@@ -314,14 +344,13 @@ export const InitialHandsEditor = ({
               const isNewEmptyHand =
                 hand.cards.length === 0 && !hand.description;
               const isDragging = draggedHandIndex === index;
-              const isDragOver = dragOverHandIndex === index && draggedHandIndex !== index;
+              const isDragOver =
+                dragOverHandIndex === index && draggedHandIndex !== index;
 
               return (
                 <div
                   key={hand.id}
                   className={`space-y-3 transition-all ${isDragging ? "opacity-40 scale-95" : ""} ${isDragOver ? "ring-2 ring-blue-400/70 rounded-sm" : ""}`}
-                  draggable={isEditMode}
-                  onDragStart={(e) => isEditMode && handleDragStart(e, index)}
                   onDragOver={(e) => isEditMode && handleDragOver(e, index)}
                   onDrop={(e) => isEditMode && handleDrop(e, index)}
                   onDragEnd={() => isEditMode && handleDragEnd()}
@@ -339,24 +368,44 @@ export const InitialHandsEditor = ({
                         : ""
                     }`}
                   >
+                    {isEditMode && (
+                      <div
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragEnd={handleDragEnd}
+                        className="absolute top-0.5 left-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing py-1 px-3 rounded hover:bg-slate-700/30 transition-colors z-20"
+                        title="Drag to reorder"
+                      >
+                        <div className="grid grid-cols-3 gap-[2px]">
+                          <div className="w-1 h-1 bg-slate-500 rounded-full" />
+                          <div className="w-1 h-1 bg-slate-500 rounded-full" />
+                          <div className="w-1 h-1 bg-slate-500 rounded-full" />
+                          <div className="w-1 h-1 bg-slate-500 rounded-full" />
+                          <div className="w-1 h-1 bg-slate-500 rounded-full" />
+                          <div className="w-1 h-1 bg-slate-500 rounded-full" />
+                        </div>
+                      </div>
+                    )}
                     <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.16)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
                     <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:9px_9px] opacity-15" />
 
                     <div className="relative z-10 flex items-center justify-between mb-1">
                       <div className="flex items-center gap-1">
-                        {isEditMode && (
-                          <span title="Drag to reorder">
-                            <GripVertical className="w-3.5 h-3.5 text-gray-500 cursor-grab active:cursor-grabbing flex-shrink-0" />
-                          </span>
-                        )}
                         <h4 className="text-xs font-semibold text-yellow-200">
                           Hand #{index + 1}
                         </h4>
                       </div>
 
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center">
                         {isEditMode && (
                           <>
+                            <button
+                              onClick={() => handleDuplicateHand(hand.id)}
+                              className="flex items-center gap-1 px-1.5 py-0.5 text-gray-400 hover:text-gray-200 transition-colors"
+                              title="Duplicate this hand"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
                             <button
                               onClick={() => {
                                 if (isEditing) {
@@ -404,7 +453,9 @@ export const InitialHandsEditor = ({
                       <HandFanDisplay
                         cards={hand.cards}
                         isEditing={isEditMode && isEditing}
-                        onRemoveCard={(cardIndex) => removeCardFromHand(hand.id, cardIndex)}
+                        onRemoveCard={(cardIndex) =>
+                          removeCardFromHand(hand.id, cardIndex)
+                        }
                       />
                     </div>
 
@@ -492,10 +543,10 @@ export const InitialHandsEditor = ({
 
                     {!isEditMode && (
                       <>
-                        {(hand.finalBoard ||
-                          (comboSteps &&
-                            comboSteps.has(hand.id) &&
-                            comboSteps.get(hand.id)!.length > 0)) ? (
+                        {hand.finalBoard ||
+                        (comboSteps &&
+                          comboSteps.has(hand.id) &&
+                          comboSteps.get(hand.id)!.length > 0) ? (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -556,37 +607,40 @@ export const InitialHandsEditor = ({
           {currentPreviewHandId &&
             initialHands.find((hand) => hand.id === currentPreviewHandId)
               ?.finalBoard && (
-            <div className="mt-8 pt-4">
-              <FinalBoardPreview
-                isEditMode={isEditMode}
-                fieldBoard={
-                  initialHands.find((hand) => hand.id === currentPreviewHandId)
-                    ?.finalBoard || null
-                }
-                onFieldBoardChange={(board) =>
-                  updateHandFinalBoard(currentPreviewHandId, board)
-                }
-                onDelete={() => handleDeleteFieldPreview(currentPreviewHandId)}
-                onModalStateChange={(isOpen) => {
-                  if (isOpen) {
-                    setActiveModalComponent("field-board");
-                  } else {
-                    // Only reset if field-board was the active modal — avoid
-                    // overwriting "card-search" when this callback fires
-                    // spuriously due to re-renders.
-                    setActiveModalComponent((prev) =>
-                      prev === "field-board" ? null : prev,
-                    );
+              <div className="mt-8 pt-4">
+                <FinalBoardPreview
+                  isEditMode={isEditMode}
+                  fieldBoard={
+                    initialHands.find(
+                      (hand) => hand.id === currentPreviewHandId,
+                    )?.finalBoard || null
                   }
-                }}
-                forceCloseModal={
-                  activeModalComponent !== null &&
-                  activeModalComponent !== "field-board"
-                }
-                selectedHandTitle={getSelectedHandTitle()}
-              />
-            </div>
-          )}
+                  onFieldBoardChange={(board) =>
+                    updateHandFinalBoard(currentPreviewHandId, board)
+                  }
+                  onDelete={() =>
+                    handleDeleteFieldPreview(currentPreviewHandId)
+                  }
+                  onModalStateChange={(isOpen) => {
+                    if (isOpen) {
+                      setActiveModalComponent("field-board");
+                    } else {
+                      // Only reset if field-board was the active modal — avoid
+                      // overwriting "card-search" when this callback fires
+                      // spuriously due to re-renders.
+                      setActiveModalComponent((prev) =>
+                        prev === "field-board" ? null : prev,
+                      );
+                    }
+                  }}
+                  forceCloseModal={
+                    activeModalComponent !== null &&
+                    activeModalComponent !== "field-board"
+                  }
+                  selectedHandTitle={getSelectedHandTitle()}
+                />
+              </div>
+            )}
         </>
       )}
 

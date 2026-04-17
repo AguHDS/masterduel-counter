@@ -597,6 +597,37 @@ export const GuideContainer = ({
     setComboSteps(newMap);
   };
 
+  const handleDuplicateInitialHand = useCallback(
+    (originalHandId: string, newHandId: string) => {
+      const originalSteps = comboSteps.get(originalHandId);
+      if (!originalSteps || originalSteps.length === 0) return;
+
+      // Map viejo ID -> nuevo ID para preservar referencias de parentCanceledStepId
+      const idMap = new Map<string, string>();
+      originalSteps.forEach((step) => {
+        idMap.set(
+          step.id,
+          `step-${Math.random().toString(36).slice(2, 9)}-${Date.now()}`,
+        );
+      });
+
+      const duplicatedSteps = originalSteps.map((step) => ({
+        ...step,
+        id: idMap.get(step.id)!,
+        parentCanceledStepId: step.parentCanceledStepId
+          ? (idMap.get(step.parentCanceledStepId) ?? step.parentCanceledStepId)
+          : null,
+      }));
+
+      setComboSteps((prev) => {
+        const next = new Map(prev);
+        next.set(newHandId, duplicatedSteps);
+        return next;
+      });
+    },
+    [comboSteps],
+  );
+
   const validateAndSave = async () => {
     if (!selectedArchetype) return;
 
@@ -788,6 +819,7 @@ export const GuideContainer = ({
                 onAddInitialHand={addInitialHand}
                 onAddCombo={handleAddCombo}
                 onShowCombo={handleShowCombo}
+                onDuplicateHand={handleDuplicateInitialHand}
                 comboSteps={comboSteps}
                 showComboFlow={showComboFlow}
                 selectedHandComboSteps={getComboStepsForSelectedHand()}
