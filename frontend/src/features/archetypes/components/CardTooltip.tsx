@@ -33,7 +33,10 @@ export const CardTooltip = ({
   const tooltipContext = useOptionalTooltipContext();
 
   const reactId = useId();
-  const tooltipId = useMemo(() => `tooltip-${cardId}-${reactId}`, [cardId, reactId]);
+  const tooltipId = useMemo(
+    () => `tooltip-${cardId}-${reactId}`,
+    [cardId, reactId],
+  );
 
   // Fetch card details when tooltip is visible
   const { data: cardDetails, isLoading } = useCardDetails(
@@ -42,7 +45,11 @@ export const CardTooltip = ({
 
   // Hide tooltip when disabled prop changes to true or another tooltip becomes active
   useEffect(() => {
-    if (disabled || (tooltipContext?.activeTooltipId && tooltipContext.activeTooltipId !== tooltipId)) {
+    if (
+      disabled ||
+      (tooltipContext?.activeTooltipId &&
+        tooltipContext.activeTooltipId !== tooltipId)
+    ) {
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
         hoverTimeoutRef.current = null;
@@ -57,7 +64,7 @@ export const CardTooltip = ({
 
   const handleMouseEnter = (e: React.MouseEvent) => {
     if (disabled) return;
-    
+
     // Store initial mouse position and calculate position immediately
     initialMousePosRef.current = { x: e.clientX, y: e.clientY };
 
@@ -249,9 +256,6 @@ export const CardTooltip = ({
 
                       <div className="min-w-0 flex-1 space-y-4">
                         <div className="space-y-3 border-b border-sky-400/20 pb-3">
-                          <span className="inline-flex rounded-full border border-sky-400/20 bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200">
-                            Card Details
-                          </span>
                           <h3 className="text-[30px] font-bold leading-tight text-white">
                             {cardDetails.name}
                           </h3>
@@ -262,7 +266,9 @@ export const CardTooltip = ({
                             {cardDetails.race}
                           </span>
                           <span className="text-slate-500">•</span>
-                          <span className="text-slate-300">{cardDetails.type}</span>
+                          <span className="text-slate-300">
+                            {cardDetails.type}
+                          </span>
                         </div>
 
                         {cardDetails.attribute && (
@@ -352,8 +358,6 @@ export const CardTooltip = ({
                             )}
                           </div>
                         )}
-
-
                       </div>
                     </div>
 
