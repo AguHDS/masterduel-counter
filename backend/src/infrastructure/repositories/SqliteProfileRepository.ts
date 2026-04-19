@@ -5,6 +5,26 @@ import type { Profile, CreateProfileData, UpdateProfileData } from "@/domain/Pro
 export class SqliteProfileRepository implements ProfileRepository {
   constructor(private prisma: PrismaClient) {}
 
+  async resolvePublicUserId(userIdOrSlug: string): Promise<string> {
+    let resolvedUserId = userIdOrSlug;
+    const publicProfileId = userIdOrSlug.match(/(\d+)$/)?.[1];
+
+    if (publicProfileId) {
+      const profileByPublicId = await this.prisma.profile.findUnique({
+        where: { id: Number.parseInt(publicProfileId, 10) },
+        select: { userId: true },
+      });
+
+      if (profileByPublicId?.userId) {
+        resolvedUserId = profileByPublicId.userId;
+      }
+    } else if (userIdOrSlug.includes("-")) {
+      resolvedUserId = userIdOrSlug.split("-").pop() || userIdOrSlug;
+    }
+
+    return resolvedUserId;
+  }
+
   async findProfileByUserId(userId: string): Promise<Profile | null> {
     const profile = await this.prisma.profile.findUnique({
       where: { userId },

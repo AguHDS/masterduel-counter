@@ -7,6 +7,9 @@ export interface RankingRepository {
     limit: number,
   ): Promise<{ ranking: UserRankingItem[]; total: number }>;
 
+  /** Get the rank position for a single user */
+  getUserRankById(userId: string): Promise<number>;
+
   /** Get paginated guide ranking sorted by likes */
   getGuideRanking(
     page: number,

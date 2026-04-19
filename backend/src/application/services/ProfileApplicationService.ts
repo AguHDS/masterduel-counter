@@ -1,26 +1,66 @@
-import type { ProfileApplicationPort } from "@/application/ports/ProfileApplicationPort.js";
+import type {
+  ProfileApplicationPort,
+  PublicProfilePageData,
+} from "@/application/ports/ProfileApplicationPort.js";
 import type { ProfileRepository } from "@/domain/ports/ProfileRepository.js";
 import type { ImageStorageService } from "@/domain/ports/externalServices/ImageStorageService.js";
 import type { Profile } from "@/domain/Profile.js";
 import type { GuideListItem, GuideType } from "@/domain/Guide.js";
 import type { GuideRepository } from "@/domain/ports/GuideRepository.js";
+import type { UserRepository } from "@/domain/ports/UserRepository.js";
+import type { RankingRepository } from "@/domain/ports/RankingRepository.js";
 
 export class ProfileApplicationService implements ProfileApplicationPort {
   constructor(
     private profileRepository: ProfileRepository,
     private imageStorageService: ImageStorageService,
     private guideRepository: GuideRepository,
+    private userRepository: UserRepository,
+    private rankingRepository: RankingRepository,
   ) {}
 
   async getProfile(userId: string): Promise<Profile | null> {
     let profile = await this.profileRepository.findProfileByUserId(userId);
 
-    // Create profile if it doesn't exist
+    // Create a profile lazily only for real users
     if (!profile) {
+      const user = await this.userRepository.findUserById(userId);
+      if (!user) {
+        return null;
+      }
+
       profile = await this.profileRepository.createProfile({ userId });
     }
 
     return profile;
+  }
+
+  async getPublicProfilePageData(
+    userIdOrSlug: string,
+  ): Promise<PublicProfilePageData> {
+    const resolvedUserId =
+      await this.profileRepository.resolvePublicUserId(userIdOrSlug);
+
+    const user = await this.userRepository.findUserById(resolvedUserId);
+    if (!user) {
+      return {
+        profile: null,
+        totalViews: 0,
+        rank: 0,
+      };
+    }
+
+    const [profile, totalViews, rank] = await Promise.all([
+      this.getProfile(resolvedUserId),
+      this.guideRepository.getTotalViewsByUserId(resolvedUserId),
+      this.rankingRepository.getUserRankById(resolvedUserId),
+    ]);
+
+    return {
+      profile,
+      totalViews,
+      rank,
+    };
   }
 
   async updateBio(userId: string, bio: string): Promise<Profile> {
