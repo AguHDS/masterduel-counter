@@ -27,6 +27,28 @@ export const getStepsInOrder = (
     .sort((firstStep, secondStep) => firstStep.stepOrder - secondStep.stepOrder);
 };
 
+export const normalizeStepOrdersByBranch = (steps: ComboStep[]): ComboStep[] => {
+  const mainFlowSteps = getStepsInOrder(steps, null).map((step, index) => ({
+    ...step,
+    stepOrder: index,
+  }));
+
+  const parentIds = [...new Set(
+    steps
+      .map((step) => step.parentCanceledStepId)
+      .filter((parentId): parentId is string => parentId !== null),
+  )].sort();
+
+  const canceledFlowSteps = parentIds.flatMap((parentId) => {
+    return getStepsInOrder(steps, parentId).map((step, index) => ({
+      ...step,
+      stepOrder: index,
+    }));
+  });
+
+  return [...mainFlowSteps, ...canceledFlowSteps];
+};
+
 // Builds the currently visible step list for main flow or an active canceled branch
 export const getVisibleSteps = (
   steps: ComboStep[],
@@ -55,11 +77,17 @@ export const createComboStep = (
   steps: ComboStep[],
   parentCanceledStepId: string | null,
 ): ComboStep => {
-  const currentFlowSteps = steps.filter((step) => step.parentCanceledStepId === parentCanceledStepId);
+  const currentFlowSteps = steps.filter(
+    (step) => step.parentCanceledStepId === parentCanceledStepId,
+  );
+  const nextStepOrder = currentFlowSteps.reduce(
+    (highestOrder, step) => Math.max(highestOrder, step.stepOrder),
+    -1,
+  ) + 1;
 
   return {
     id: `step-${Date.now()}`,
-    stepOrder: currentFlowSteps.length,
+    stepOrder: nextStepOrder,
     description: "",
     parentCanceledStepId,
     mainCards: [],
@@ -114,7 +142,10 @@ export const removeStepAndReorder = (steps: ComboStep[], stepId: string): ComboS
       }));
   });
 
-  return [...mainFlowSteps, ...reorderedCanceledSteps];
+  return normalizeStepOrdersByBranch([
+    ...mainFlowSteps,
+    ...reorderedCanceledSteps,
+  ]);
 };
 
 // Swaps two steps inside the same branch and reindexes their stepOrder

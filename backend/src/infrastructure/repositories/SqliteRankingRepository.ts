@@ -5,12 +5,15 @@ import { UserRankingItem, GuideRankingItem } from "@/domain/Ranking.js";
 export class SqliteRankingRepository implements RankingRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
-  async getUserRanking(
-    page: number,
-    limit: number,
-  ): Promise<{ ranking: UserRankingItem[]; total: number }> {
-    const skip = (page - 1) * limit;
-
+  private async getSortedUsersByLikes(): Promise<
+    Array<{
+      userId: string;
+      username: string;
+      profilePictureUrl: string | null;
+      totalLikes: number;
+      createdAt: Date;
+    }>
+  > {
     const usersWithLikes = await this.prisma.user.findMany({
       select: {
         id: true,
@@ -25,7 +28,7 @@ export class SqliteRankingRepository implements RankingRepository {
       },
     });
 
-    const sorted = usersWithLikes
+    return usersWithLikes
       .map((user) => ({
         userId: user.id,
         username: user.name,
@@ -40,7 +43,14 @@ export class SqliteRankingRepository implements RankingRepository {
         if (b.totalLikes !== a.totalLikes) return b.totalLikes - a.totalLikes;
         return a.createdAt.getTime() - b.createdAt.getTime();
       });
+  }
 
+  async getUserRanking(
+    page: number,
+    limit: number,
+  ): Promise<{ ranking: UserRankingItem[]; total: number }> {
+    const skip = (page - 1) * limit;
+    const sorted = await this.getSortedUsersByLikes();
     const total = sorted.length;
 
     const ranking = sorted.slice(skip, skip + limit).map((user, index) => ({
@@ -52,6 +62,12 @@ export class SqliteRankingRepository implements RankingRepository {
     }));
 
     return { ranking, total };
+  }
+
+  async getUserRankById(userId: string): Promise<number> {
+    const sorted = await this.getSortedUsersByLikes();
+    const rank = sorted.findIndex((user) => user.userId === userId) + 1;
+    return rank > 0 ? rank : 0;
   }
 
   async getGuideRanking(

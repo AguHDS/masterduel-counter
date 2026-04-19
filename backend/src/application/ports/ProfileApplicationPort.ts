@@ -1,9 +1,17 @@
 import type { Profile } from "@/domain/Profile.js";
 import type { GuideListItem, GuideType } from "@/domain/Guide.js";
 
+export interface PublicProfilePageData {
+  profile: Profile | null;
+  totalViews: number;
+  rank: number;
+}
+
 export interface ProfileApplicationPort {
   /** Get profile by user ID */
   getProfile(userId: string): Promise<Profile | null>;
+  /** Get the public profile page data from any supported public identifier */
+  getPublicProfilePageData(userIdOrSlug: string): Promise<PublicProfilePageData>;
   /** Update the bio of a profile */
   updateBio(userId: string, bio: string): Promise<Profile>;
   /** Upload a new profile picture */

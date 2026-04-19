@@ -42,9 +42,9 @@ export const PersonalDecks = ({ decks, onViewAll, isOwner }: PersonalDecksProps)
                 >
                   {canView && previewCard ? (
                     <img
-                      src={previewCard.imageUrlSmall}
+                      src={previewCard.imageUrlCropped}
                       alt={previewCard.name}
-                      className="h-[50px] w-[35px] border border-yellow-400/60 shadow-sm object-cover flex-shrink-0"
+                      className="h-[50px] w-[44px] border border-yellow-400/60 shadow-sm object-cover flex-shrink-0"
                     />
                   ) : (
                     <div className="w-[35px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">

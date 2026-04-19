@@ -4,6 +4,7 @@ import { Search, User, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { profileApi } from "../api/profileApi";
 import { useDebounce } from "@/shared/hooks/useDebounce";
+import { buildProfilePath } from "@/lib/config/urlHelpers";
 
 export const UserSearchDropdown = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,8 +79,8 @@ export const UserSearchDropdown = () => {
     };
   }, []);
 
-  const handleUserClick = (userId: string) => {
-    window.location.assign(`/profile/${userId}`);
+  const handleUserClick = (userId: string, username: string) => {
+    window.location.assign(buildProfilePath({ userName: username, userId }));
   };
 
   const handleClearSearch = () => {
@@ -106,7 +107,7 @@ export const UserSearchDropdown = () => {
           results.map((user) => (
             <button
               key={user.userId}
-              onClick={() => handleUserClick(user.userId)}
+              onClick={() => handleUserClick(user.userId, user.username)}
               type="button"
               className="w-full px-4 py-4 flex items-center gap-3 hover:bg-slate-800 active:bg-slate-700 transition-colors border-b border-slate-700/50 last:border-b-0 text-left cursor-pointer"
             >

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { confirmCards } from "@/features/archetypes/api/archetypesApi";
+import { buildGuidePath } from "@/lib/config/urlHelpers";
 import { useSaveGuide } from "./useArchetypeQueries";
 import {
   saveRecommendedDeck,
@@ -26,6 +27,8 @@ interface SaveInstanceParams {
   generalTip: string;
   headerCard: { id: number; name: string; imageUrl: string } | null;
   archetypeId: number;
+  archetypeName: string;
+  userName?: string;
   instanceId?: number;
   deckTitle: string;
   deckMainCards: Card[];
@@ -161,6 +164,8 @@ export const useSaveInstanceGuide = () => {
       generalTip,
       headerCard,
       archetypeId,
+      archetypeName,
+      userName,
       instanceId,
       deckTitle,
       deckMainCards,
@@ -378,7 +383,14 @@ export const useSaveInstanceGuide = () => {
       }
 
       if (response.instance?.id) {
-        window.location.href = `/archetype/${archetypeId}/instance/${response.instance.id}?type=${guideType.toLowerCase()}`;
+        // After save, jump directly to the public SEO-friendly guide URL
+        window.location.href = buildGuidePath({
+          guideId: response.instance.id,
+          archetypeId,
+          archetypeName,
+          userName,
+          guideType,
+        });
       }
     } catch (error) {
       console.error("Error saving guide:", error);

@@ -15,14 +15,14 @@ import type { GuideType } from "@/features/archetypes/types";
  * Can fetch by instanceId (when editing existing) or return undefined (when creating new)
  */
 export const useGetGuideInstance = (
-  archetypeId: number | undefined,
+  _archetypeId: number | undefined,
   instanceId: number | undefined,
 ) => {
   return useQuery<GuideInstanceWithFullDetails>({
-    queryKey: ["userInstance", archetypeId, instanceId],
+    queryKey: ["userInstance", instanceId],
     queryFn: () => getInstanceGuideById(instanceId!),
     staleTime: 0,
-    enabled: !!archetypeId && !!instanceId,
+    enabled: !!instanceId,
   });
 };
 

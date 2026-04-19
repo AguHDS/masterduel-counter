@@ -372,6 +372,12 @@ export class SqliteAdminRepository implements AdminRepository {
             id: true,
             title: true,
             archetypeId: true,
+            guideType: true,
+            archetype: {
+              select: {
+                name: true,
+              },
+            },
             user: {
               select: {
                 id: true,
@@ -402,6 +408,9 @@ export class SqliteAdminRepository implements AdminRepository {
       reportedInstanceAuthorId: report.reportedInstance?.user?.id || null,
       reportedInstanceAuthorName: report.reportedInstance?.user?.name || null,
       reportedInstanceArchetypeId: report.reportedInstance?.archetypeId || null,
+      reportedInstanceArchetypeName: report.reportedInstance?.archetype?.name || null,
+      reportedInstanceGuideType:
+        (report.reportedInstance?.guideType as "COUNTER" | "DECK" | null) || null,
     }));
   }
 

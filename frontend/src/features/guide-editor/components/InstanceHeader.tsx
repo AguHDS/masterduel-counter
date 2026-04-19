@@ -2,6 +2,7 @@ import { Plus, Eye, Star, ThumbsUp, ChevronDown, ChevronUp, Package } from "luci
 import { Link } from "react-router-dom";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { Avatar } from "@/shared/components/DefaultAvatar";
+import { buildProfilePath } from "@/lib/config/urlHelpers";
 import { useState, useRef, useEffect } from "react";
 
 interface HeaderCard {
@@ -270,7 +271,7 @@ export const InstanceHeader = ({
                 <>
                   <div className="flex flex-col py-1">
                     <Link
-                      to={`/profile/${userId}`}
+                      to={buildProfilePath({ userName, userId })}
                       className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                     >
                       <Avatar

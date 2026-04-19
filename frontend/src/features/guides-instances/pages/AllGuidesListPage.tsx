@@ -12,6 +12,7 @@ import { ArchetypeSearchModal } from "@/shared/components/modals/ArchetypeSearch
 import { GuideTypeSelectionModal } from "@/shared/components/modals/GuideTypeSelectionModal";
 import { useArchetypeSearch } from "@/features/archetypes/hooks/useArchetypes";
 import type { GuideType, Archetype } from "@/features/archetypes/types";
+import { buildGuideEditorPath, buildGuidePath } from "@/lib/config/urlHelpers";
 
 /** Page that shows ALL guides of a given type (counter or deck) across all archetypes.
  * Accessed via /guides?type=counter or /guides?type=deck
@@ -37,14 +38,15 @@ export const AllGuidesListPage = () => {
     typeParam === "counter" ? "COUNTER" : typeParam === "deck" ? "DECK" : undefined;
 
   const handleSelectInstance = useCallback(
-    (instanceId: number, archetypeId: number) => {
-      if (typeParam) {
-        navigate(`/archetype/${archetypeId}/instance/${instanceId}?type=${typeParam}`);
-      } else {
-        navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
-      }
+    (instanceId: number) => {
+      navigate(
+        buildGuidePath({
+          guideId: instanceId,
+          guideType,
+        }),
+      );
     },
-    [navigate, typeParam],
+    [guideType, navigate],
   );
 
   const handleCreateGuide = useCallback(() => {
@@ -63,7 +65,10 @@ export const AllGuidesListPage = () => {
   const handleTypeSelect = useCallback(
     (selectedType: GuideType) => {
       if (pendingArchetype) {
-        navigate(`/archetype/${pendingArchetype.id}/instance/new?type=${selectedType.toLowerCase()}`, {
+        navigate(buildGuideEditorPath({
+          archetypeId: pendingArchetype.id,
+          guideType: selectedType,
+        }), {
           state: { guideType: selectedType },
         });
         setIsTypeModalOpen(false);

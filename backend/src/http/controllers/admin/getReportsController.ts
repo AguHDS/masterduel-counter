@@ -46,6 +46,12 @@ export const getReportsController = async (
         ...(report.reportedInstanceArchetypeId !== undefined && {
           reportedInstanceArchetypeId: report.reportedInstanceArchetypeId,
         }),
+        ...(report.reportedInstanceArchetypeName !== undefined && {
+          reportedInstanceArchetypeName: report.reportedInstanceArchetypeName,
+        }),
+        ...(report.reportedInstanceGuideType !== undefined && {
+          reportedInstanceGuideType: report.reportedInstanceGuideType,
+        }),
       }),
     );
 

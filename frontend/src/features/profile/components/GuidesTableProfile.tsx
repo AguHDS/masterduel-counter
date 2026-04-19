@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
 import { type GuideListItem } from "@/lib/http/guideInstancesApi";
 import { useAuth } from "@/features/auth";
 import { useNavigate } from "react-router-dom";
+import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import instanceItemPlaneBg from "@/assets/background_instanceitem_plane.webp";
 
 interface InstancesTableProps {
@@ -22,7 +23,6 @@ export const GuidesTableProfile = ({
   instances,
   currentPage,
   itemsPerPage,
-  onSelectInstance,
   onPageChange,
   showArchetypeName = false,
   isProfilePage = false,
@@ -45,13 +45,25 @@ export const GuidesTableProfile = ({
     onPageChange(Math.min(totalPages - 1, currentPage + 1));
   };
 
-  const handleUserNameClick = (e: MouseEvent, userId: string) => {
+  const handleUserNameClick = (
+    e: MouseEvent,
+    userId: string,
+    userName?: string,
+  ) => {
     e.stopPropagation();
-    navigate(`/profile/${userId}`);
+    navigate(buildProfilePath({ userName, userId }));
   };
 
-  const handleInstanceClick = (instanceId: number, archetypeId: number) => {
-    onSelectInstance(instanceId, archetypeId);
+  const handleInstanceClick = (instance: GuideListItem) => {
+    navigate(
+      buildGuidePath({
+        guideId: instance.id,
+        archetypeId: instance.archetypeId,
+        archetypeName: instance.archetypeName,
+        userName: instance.userName,
+        guideType: instance.guideType,
+      }),
+    );
   };
 
   const getBackgroundForView = () => {
@@ -165,7 +177,7 @@ export const GuidesTableProfile = ({
           return (
             <button
               key={instance.id}
-              onClick={() => handleInstanceClick(instance.id, instance.archetypeId)}
+              onClick={() => handleInstanceClick(instance)}
               className="group relative w-full overflow-hidden rounded-xl border border-blue-500/40 bg-[#070B29]/80 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
               <img
@@ -232,7 +244,7 @@ export const GuidesTableProfile = ({
                           <>
                             <span
                               onClick={(e) =>
-                                handleUserNameClick(e, instance.userId)
+                                handleUserNameClick(e, instance.userId, instance.userName)
                               }
                               className="text-white hover:text-blue-400 hover:underline transition-colors cursor-pointer truncate text-sm"
                             >
@@ -320,7 +332,11 @@ export const GuidesTableProfile = ({
                       <div className="flex items-center gap-1 min-w-0">
                         <span
                           onClick={(e) =>
-                            handleUserNameClick(e, instance.userId)
+                            handleUserNameClick(
+                              e,
+                              instance.userId,
+                              instance.userName,
+                            )
                           }
                           className="text-blue-300 text-lg overflow-hidden text-ellipsis whitespace-nowrap hover:underline cursor-pointer block"
                           title={instance.userName}

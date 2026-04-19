@@ -3,6 +3,7 @@ import { Edit2, Trash2, Loader2, MessageSquareReply, ChevronDown, ChevronUp } fr
 import { useCommentMutations } from "../hooks/useCommentsQueries";
 import { CommentForm } from "./CommentForm";
 import { Avatar } from "@/shared/components/DefaultAvatar";
+import { buildProfilePath } from "@/lib/config/urlHelpers";
 import type { CommentItemProps } from "../types/commentsTypes";
 
 const getOptimizedImageUrl = (url: string | null | undefined): string | null => {
@@ -73,6 +74,10 @@ export const CommentItem: React.FC<CommentItemProps> = ({
 
   // Get the best available profile picture (prioritize profilePictureUrl from Cloudinary)
   const avatarUrl = getOptimizedImageUrl(comment.author.profilePictureUrl || comment.author.image);
+  const authorProfilePath = buildProfilePath({
+    userName: comment.author.name,
+    userId: comment.author.id,
+  });
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this comment?")) {
@@ -90,9 +95,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
     if (e.button === 1 || e.ctrlKey || e.metaKey || e.shiftKey) {
       return; // Let the browser handle it naturally
     }
-    // For normal left clicks, prevent default and navigate programmatically
+    // For normal left clicks, keep the public SEO profile URL.
     e.preventDefault();
-    window.location.href = `/profile/${comment.author.id}`;
+    window.location.assign(authorProfilePath);
   };
 
   // Prevent scroll on middle mouse down
@@ -107,7 +112,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   const handleAuxClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (e.button === 1) {
       e.preventDefault();
-      window.open(`/profile/${comment.author.id}`, '_blank');
+      window.open(authorProfilePath, '_blank');
     }
   };
 
@@ -117,7 +122,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
         <div className="bg-gradient-to-tr from-gray-800/60 to-gray-900/60 backdrop-blur-xs rounded-lg border border-blue-900/30 p-4">
           <div className="flex items-start gap-3">
             <a
-              href={`/profile/${comment.author.id}`}
+              href={authorProfilePath}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
@@ -136,7 +141,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <a
-                  href={`/profile/${comment.author.id}`}
+                  href={authorProfilePath}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-white hover:text-blue-400 transition-colors focus:outline-none focus:underline"
@@ -202,7 +207,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
         <div className="bg-gradient-to-tr from-gray-800/60 to-gray-900/60 backdrop-blur-xs rounded-lg border border-blue-900/30 p-4 hover:border-blue-700/50 transition-all duration-300 relative z-10">
           <div className="flex items-start gap-3">
             <a
-              href={`/profile/${comment.author.id}`}
+              href={authorProfilePath}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
@@ -222,7 +227,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <a
-                  href={`/profile/${comment.author.id}`}
+                  href={authorProfilePath}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-white hover:text-blue-400 transition-colors focus:outline-none focus:underline"

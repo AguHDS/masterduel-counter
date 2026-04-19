@@ -3,6 +3,7 @@ import type { GuideInstanceWithFullDetails } from "@/lib/http/guideInstancesApi"
 import type { InitialHand } from "../components/InitialHandsEditor";
 import type { FieldBoard } from "../components/FinalBoardPreview";
 import type { HeaderCard } from "../hooks/useInstanceGuideEditor";
+import { normalizeStepOrdersByBranch } from "./comboStepEditorUtils";
 
 interface BuildGuideEditSnapshotParams {
   title: string;
@@ -82,7 +83,10 @@ export const mapInitialHandsAndComboStepsFromInstance = (
       })),
     }));
 
-    comboStepsMap.set(hand.id.toString(), transformedSteps);
+    comboStepsMap.set(
+      hand.id.toString(),
+      normalizeStepOrdersByBranch(transformedSteps),
+    );
   });
 
   return {

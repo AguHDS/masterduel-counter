@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import { getDependencies } from "./compositionRoot.js";
 import { startCleanupJob } from "./services/cleanupService.js";
 import { createGuideOgPreviewMiddleware } from "./http/middlewares/guideOgPreviewMiddleware.js";
+import { createLegacyUrlRedirectMiddleware } from "./http/middlewares/legacyUrlRedirectMiddleware.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT_BACKEND ?? 3001;
@@ -53,6 +54,9 @@ import auth from "./routes/auth/auth.js";
 import getGuideCardPairs from "./routes/guides/getGuideCardPairs.js";
 import profile from "./routes/profile/profile.js";
 import customDecks from "./routes/customDecks.js";
+
+// Middleware for redirect 301 legacy URLs to new ones
+const { redirectLegacyGuideUrl, redirectLegacyProfileUrl } = createLegacyUrlRedirectMiddleware(getDependencies());
 
 // SCP configuration
 const isDevelopment = NODE_ENV === "development";
@@ -192,6 +196,12 @@ app.use("/api/reports", report);
 
 // Serve the React frontend (only if the build exists — production)
 if (existsSync(FRONTEND_DIST)) {
+  // Permanent redirects tell search engines that the old public URLs moved
+  app.get("/archetype/:archetypeId/instance/:instanceId", redirectLegacyGuideUrl);
+  app.get("/archetypes/:archetypeSlug/:authorSlug/:guideSlug", redirectLegacyGuideUrl);
+  app.get("/profile/:userId", redirectLegacyProfileUrl);
+  app.get("/profile/:userId/:tab", redirectLegacyProfileUrl);
+
   // OG tag injection for guide pages (must come before static middleware)
   app.use(createGuideOgPreviewMiddleware(getDependencies()));
 

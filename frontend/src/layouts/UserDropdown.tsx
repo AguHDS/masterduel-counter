@@ -5,6 +5,7 @@ import { useAuth } from "@/features/auth";
 import { useQuery } from "@tanstack/react-query";
 import { profileApi } from "@/features/profile/api/profileApi";
 import { Avatar } from "@/shared/components/DefaultAvatar";
+import { buildProfilePath } from "@/lib/config/urlHelpers";
 
 export const UserDropdown = () => {
   const { user, logout } = useAuth();
@@ -41,6 +42,10 @@ export const UserDropdown = () => {
   if (!user) return null;
 
   const profilePictureUrl = profileData?.profile?.profilePictureUrl;
+  const profilePath = buildProfilePath({
+    userName: profileData?.profile?.userName ?? user.name,
+    userId: user.id,
+  });
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -76,7 +81,7 @@ export const UserDropdown = () => {
 
           <div className="py-2">
             <Link
-              to={`/profile/${user.id}`}
+              to={profilePath}
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-3 px-4 py-2 text-sm text-gray-200 hover:bg-[#c2901c]/10 hover:text-white transition-colors"
             >

@@ -24,12 +24,12 @@ export const useFavoriteCardAndDecks = (userId: string, profile: Profile | undef
               normalizedDecks[index] = deck;
             }
           });
-          setFavoriteDecks(normalizedDecks as any);
+          setFavoriteDecks(normalizedDecks);
         } catch {
-          setFavoriteDecks([null, null, null] as any);
+          setFavoriteDecks([null, null, null]);
         }
       } else {
-        setFavoriteDecks([null, null, null] as any);
+        setFavoriteDecks([null, null, null]);
       }
     }
   }, [profile]);
@@ -38,7 +38,7 @@ export const useFavoriteCardAndDecks = (userId: string, profile: Profile | undef
     mutationFn: (data: { favoriteCardId: number | null; favoriteDecks: string | null }) =>
       profileApi.updateFavorites(userId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', userId] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
   });
 

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { buildProfilePath } from "@/lib/config/urlHelpers";
 import { 
   User, 
   Mail, 
@@ -38,8 +39,8 @@ export const UsersList = ({
 }: UsersListProps) => {
   const navigate = useNavigate();
 
-  const handleUserClick = (userId: string) => {
-    navigate(`/profile/${userId}`);
+  const handleUserClick = (userId: string, userName?: string) => {
+    navigate(buildProfilePath({ userName, userId }));
   };
 
   const getSortIcon = (field: string) => {
@@ -142,7 +143,7 @@ export const UsersList = ({
             }}
             itemContent={(_index, user) => (
               <div
-                onClick={() => handleUserClick(user.id)}
+                onClick={() => handleUserClick(user.id, user.username)}
                 className="grid grid-cols-10 gap-4 p-4 text-sm text-gray-300 hover:bg-slate-700/50 transition-colors cursor-pointer border-b border-slate-700/50 last:border-0"
               >
                 <div className="col-span-3 font-medium truncate" title={user.username}>

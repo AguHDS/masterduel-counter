@@ -11,6 +11,7 @@ import { MainSearch } from "@/shared/components/main-search/MainSearch";
 import { MainSearchResults } from "@/shared/components/main-search/MainSearchResults";
 import { GuideTypeSelectionModal } from "@/shared/components/modals/GuideTypeSelectionModal";
 import type { GuideType, Archetype } from "@/features/archetypes/types";
+import { buildGuideEditorPath, buildGuidePath } from "@/lib/config/urlHelpers";
 
 /** Page for the list of guides of the selected archetype */
 export const ArchetypeGuideListPage = () => {
@@ -43,15 +44,15 @@ export const ArchetypeGuideListPage = () => {
 
   const handleSelectInstance = useCallback(
     (instanceId: number) => {
-      if (archetypeId) {
-        if (typeParam) {
-          navigate(`/archetype/${archetypeId}/instance/${instanceId}?type=${typeParam}`);
-        } else {
-          navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
-        }
-      }
+      navigate(
+        buildGuidePath({
+          guideId: instanceId,
+          archetypeName: archetypeWithHeaderData?.archetype.name,
+          guideType,
+        }),
+      );
     },
-    [archetypeId, navigate, typeParam],
+    [archetypeWithHeaderData?.archetype.name, guideType, navigate],
   );
 
   const handleCreateInstance = useCallback(() => {
@@ -65,7 +66,7 @@ export const ArchetypeGuideListPage = () => {
   const handleSelectGuideType = useCallback(
     (guideType: GuideType) => {
       if (archetypeId) {
-        navigate(`/archetype/${archetypeId}/instance/new?type=${guideType.toLowerCase()}`, {
+        navigate(buildGuideEditorPath({ archetypeId, guideType }), {
           state: { guideType },
         });
         setIsModalOpen(false);

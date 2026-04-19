@@ -243,6 +243,8 @@ export class Dependencies {
         this.getProfileRepository(),
         this.getImageStorageService(),
         this.getInstanceRepository(),
+        this.getUserRepository(),
+        this.getRankingRepository(),
       );
     }
     return this.profileService;
