@@ -41,6 +41,10 @@ import {
   mapGuideCardPairsToEditorPairs,
   mapInitialHandsAndComboStepsFromInstance,
 } from "../utils/guideContainerTransforms";
+import {
+  extractNumericIdFromSlug,
+  inferGuideTypeFromSlug,
+} from "@/lib/config/urlHelpers";
 
 interface GuideContainerProps {
   onEditModeChange?: (isEditMode: boolean) => void;
@@ -52,9 +56,10 @@ export const GuideContainer = ({
   onEditModeChange,
   onGuideTypeChange,
 }: GuideContainerProps) => {
-  const { archetypeId, instanceId } = useParams<{
-    archetypeId: string;
-    instanceId: string;
+  const { archetypeId, instanceId, guideSlug } = useParams<{
+    archetypeId?: string;
+    instanceId?: string;
+    guideSlug?: string;
   }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,36 +69,56 @@ export const GuideContainer = ({
   const { saving, validationError, saveInstance, clearValidationError } =
     useSaveInstanceGuide();
   const [headerAnchor, setHeaderAnchor] = useState<HTMLElement | null>(null);
-  const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
+  const legacyArchetypeIdNum = archetypeId
+    ? Number.parseInt(archetypeId, 10)
+    : undefined;
   const isCreatingNew = instanceId === "new";
+  const parsedInstanceId = !isCreatingNew
+    ? instanceId
+      ? Number.parseInt(instanceId, 10)
+      : extractNumericIdFromSlug(guideSlug)
+    : undefined;
   const instanceIdNum =
-    !isCreatingNew && instanceId ? parseInt(instanceId) : undefined;
+    parsedInstanceId !== undefined && !Number.isNaN(parsedInstanceId)
+      ? parsedInstanceId
+      : undefined;
 
   const typeFromUrl = searchParams.get("type");
   const typeFromState = (location.state as { guideType?: GuideType })
     ?.guideType;
+  const typeFromSlug = inferGuideTypeFromSlug(guideSlug);
   const initialGuideType: GuideType =
     typeFromUrl === "counter"
       ? "COUNTER"
       : typeFromUrl === "deck"
         ? "DECK"
-        : (typeFromState ?? "COUNTER");
+        : (typeFromSlug ?? typeFromState ?? "COUNTER");
   const [guideType, setGuideType] = useState<GuideType>(initialGuideType);
 
-  // Notify parent of guide type changes
+  const { data: guideInstanceData, isError } = useGetGuideInstance(
+    legacyArchetypeIdNum,
+    isCreatingNew ? undefined : instanceIdNum,
+  );
+
+  // Keep the guide type in sync with the loaded guide and notify parent changes
+  useEffect(() => {
+    if (guideInstanceData?.instance.guideType) {
+      setGuideType(guideInstanceData.instance.guideType);
+    }
+  }, [guideInstanceData?.instance.guideType]);
+
   useEffect(() => {
     if (onGuideTypeChange) {
       onGuideTypeChange(guideType);
     }
   }, [guideType, onGuideTypeChange]);
 
+  const archetypeIdNum =
+    legacyArchetypeIdNum ?? guideInstanceData?.instance.archetypeId;
+  const resolvedArchetypeId = archetypeIdNum?.toString();
+
   const { data: archetypeWithHeaderData } =
     useArchetypeWithHeader(archetypeIdNum);
-
-  const { data: guideInstanceData, isError } = useGetGuideInstance(
-    archetypeIdNum,
-    isCreatingNew ? undefined : instanceIdNum,
-  );
 
   const isOwner =
     isAuthenticated &&
@@ -103,7 +128,7 @@ export const GuideContainer = ({
 
   const likes = useInstanceGuideLikes({
     isAuthenticated,
-    archetypeId,
+    archetypeId: resolvedArchetypeId,
     instanceId: guideInstanceData?.instance.id,
     userId: user?.id,
     ownerId: guideInstanceData?.instance.userId,
@@ -111,7 +136,7 @@ export const GuideContainer = ({
 
   const favorites = useInstanceGuideFavorites({
     isAuthenticated,
-    archetypeId,
+    archetypeId: resolvedArchetypeId,
     instanceId: guideInstanceData?.instance.id,
   });
 
@@ -649,6 +674,8 @@ export const GuideContainer = ({
         generalTip: editor.generalTip,
         headerCard: editor.headerCard,
         archetypeId: selectedArchetype.id,
+        archetypeName: selectedArchetype.name,
+        userName: user?.name ?? guideInstanceData?.userName,
         instanceId: isCreatingNew ? undefined : instanceIdNum,
         deckTitle,
         deckMainCards,
@@ -707,9 +734,9 @@ export const GuideContainer = ({
       )
         return;
     }
-    if (archetypeId) {
+    if (resolvedArchetypeId) {
       const typeParam = guideType.toLowerCase();
-      navigate(`/archetype/${archetypeId}?type=${typeParam}`);
+      navigate(`/archetype/${resolvedArchetypeId}?type=${typeParam}`);
     } else {
       navigate(-1);
     }

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Star, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import type { GuideListItem } from "@/lib/http/guideInstancesApi";
+import { buildGuidePath } from "@/lib/config/urlHelpers";
 
 interface FavoritedGuidesListProps {
   guides: GuideListItem[];
@@ -78,13 +79,16 @@ export const ProfileGuideList = ({
     }
   };
 
-  const handleGuideClick = (
-    archetypeId: number,
-    guideId: number,
-    guideType: "COUNTER" | "DECK",
-  ) => {
-    const typeParam = guideType === "COUNTER" ? "counter" : "deck";
-    navigate(`/archetype/${archetypeId}/instance/${guideId}?type=${typeParam}`);
+  const handleGuideClick = (guide: GuideListItem) => {
+    navigate(
+      buildGuidePath({
+        guideId: guide.id,
+        archetypeId: guide.archetypeId,
+        archetypeName: guide.archetypeName,
+        userName: guide.userName,
+        guideType: guide.guideType,
+      }),
+    );
   };
 
   const handlePreviousPage = () => {
@@ -170,9 +174,7 @@ export const ProfileGuideList = ({
               <div
                 key={guide.id}
                 className="relative group"
-                onClick={() =>
-                  handleGuideClick(guide.archetypeId, guide.id, guide.guideType)
-                }
+                onClick={() => handleGuideClick(guide)}
               >
                 {/* Glow border effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />

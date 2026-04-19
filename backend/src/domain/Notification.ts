@@ -17,6 +17,9 @@ export interface Notification {
 export interface NotificationWithDetails extends Notification {
   instanceTitle?: string;
   archetypeId?: number;
+  archetypeName?: string;
+  instanceAuthorName?: string;
+  guideType?: "COUNTER" | "DECK";
 }
 
 export interface CreateNotificationDTO {

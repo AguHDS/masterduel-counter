@@ -1,6 +1,6 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
@@ -16,14 +16,18 @@ import { MainSearchResults } from "@/shared/components/main-search/MainSearchRes
 import { CommentSection } from "@/features/comments";
 import type { Archetype } from "@/features/archetypes/types";
 import { TooltipProvider } from "@/features/archetypes/contexts/TooltipContext";
+import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
+import { buildGuidePath, extractNumericIdFromSlug } from "@/lib/config/urlHelpers";
 
 /** Container page for guides of a specific archetype */
 export const GuideContainerPage = () => {
-  const { archetypeId, instanceId } = useParams<{
-    archetypeId: string;
-    instanceId: string;
+  const { archetypeId, instanceId, guideSlug } = useParams<{
+    archetypeId?: string;
+    instanceId?: string;
+    guideSlug?: string;
   }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isGuideHelpOpen, setIsGuideHelpOpen] = useState(false);
@@ -38,14 +42,37 @@ export const GuideContainerPage = () => {
     limit: 20,
   });
 
-  const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
-  const instanceIdNum = instanceId ? parseInt(instanceId) : undefined;
+  const legacyArchetypeIdNum = archetypeId
+    ? Number.parseInt(archetypeId, 10)
+    : undefined;
+  const isCreatingNew = instanceId === "new";
+
+  // SEO guide URLs only need the trailing numeric id to load the guide
+  const parsedInstanceId = instanceId
+    ? Number.parseInt(instanceId, 10)
+    : extractNumericIdFromSlug(guideSlug);
+  const instanceIdNum = Number.isNaN(parsedInstanceId)
+    ? undefined
+    : parsedInstanceId;
+
+  const {
+    data: guideInstanceData,
+    isLoading: isGuideLoading,
+    error: guideError,
+  } = useGetGuideInstance(
+    legacyArchetypeIdNum,
+    isCreatingNew ? undefined : instanceIdNum,
+  );
+
+  const archetypeIdNum =
+    legacyArchetypeIdNum ?? guideInstanceData?.instance.archetypeId;
 
   const {
     data: archetypeWithHeaderData,
     isLoading,
     error,
   } = useArchetypeWithHeader(archetypeIdNum);
+
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
@@ -81,7 +108,31 @@ export const GuideContainerPage = () => {
     return isDropdownOpen;
   }, [isDropdownOpen]);
 
-  if (isLoading) {
+  // For 301 redirect of old URLs
+  const canonicalGuidePath = !isCreatingNew && guideInstanceData && archetypeWithHeaderData?.success
+    ? buildGuidePath({
+        guideId: guideInstanceData.instance.id,
+        archetypeId: guideInstanceData.instance.archetypeId,
+        archetypeName: archetypeWithHeaderData.archetype.name,
+        userName: guideInstanceData.userName,
+        guideType: guideInstanceData.instance.guideType,
+      })
+    : null;
+
+  useEffect(() => {
+    if (!canonicalGuidePath) {
+      return;
+    }
+
+    // Replace stale public URLs with the canonical SEO path
+    if (`${location.pathname}${location.search}` !== canonicalGuidePath) {
+      navigate(canonicalGuidePath, { replace: true });
+    }
+  }, [canonicalGuidePath, location.pathname, location.search, navigate]);
+
+  const isPageLoading = !isCreatingNew && (isGuideLoading || !archetypeIdNum || isLoading);
+
+  if (isPageLoading) {
     return (
       <>
         <Helmet>
@@ -105,7 +156,12 @@ export const GuideContainerPage = () => {
     );
   }
 
-  if (error || !archetypeWithHeaderData?.success) {
+  if (
+    (!isCreatingNew && !guideInstanceData) ||
+    guideError ||
+    error ||
+    !archetypeWithHeaderData?.success
+  ) {
     return (
       <>
         <Helmet>
@@ -134,10 +190,12 @@ export const GuideContainerPage = () => {
   return (
     <>
       <Helmet>
-        <title>{archetype.name} Guide - Masterduel Counter</title>
+        <title>
+          {archetype.name} {guideType === "DECK" ? "Deck Guide" : "Counter Guide"} - Masterduel Counter
+        </title>
         <meta
           name="description"
-          content={`Create or edit your counter guide for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`}
+          content={`Read this ${guideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! Master Duel.`}
         />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">

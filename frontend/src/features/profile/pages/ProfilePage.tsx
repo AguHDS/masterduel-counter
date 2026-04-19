@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { Flag, Edit, Eye, Crown, Trophy, ThumbsUp } from "lucide-react";
@@ -17,8 +17,9 @@ import { useCustomDecks } from "../hooks/useCustomDecks";
 import { useSession } from "@/lib/auth-client";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
-import { useRef, useState, useCallback } from "react";
-import { guideInstancesApi } from "@/lib/http/guideInstancesApi";
+import { useRef, useState, useCallback, useEffect } from "react";
+import { guideInstancesApi, type GuideListItem } from "@/lib/http/guideInstancesApi";
+import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import profile_background from "@/assets/Profile_Backgroundnew.webp";
 import { formatCompactNumber } from "@/shared/utils/formatNumber";
 import type { TabType } from "../types/profileTypes";
@@ -27,6 +28,7 @@ import type { Card } from "@/features/archetypes/types";
 export const ProfilePage = () => {
   const { userId, tab } = useParams<{ userId: string; tab?: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -46,19 +48,41 @@ export const ProfilePage = () => {
     queryFn: () => profileApi.getProfile(userId!),
     enabled: !!userId,
   });
+
+  const profile = profileData?.profile;
+  const resolvedUserId = profile?.userId ?? "";
+
+  // For 301 redirect of old profile URLs
+  useEffect(() => {
+    if (!profile?.userName || !resolvedUserId) {
+      return;
+    }
+
+    const canonicalPath = buildProfilePath({
+      userName: profile.userName,
+      userId: resolvedUserId,
+      tab: tab && tab !== "profile" ? tab : undefined,
+    });
+
+    // Replace legacy profile URLs with the canonical public slug.
+    if (location.pathname !== canonicalPath) {
+      navigate(canonicalPath, { replace: true });
+    }
+  }, [location.pathname, navigate, profile?.userName, resolvedUserId, tab]);
+
   const { data: userGuides } = useQuery({
-    queryKey: ["userInstances", userId],
-    queryFn: () => profileApi.getGuidesByUserId(userId!, "likes"),
-    enabled: !!userId,
+    queryKey: ["userInstances", resolvedUserId],
+    queryFn: () => profileApi.getGuidesByUserId(resolvedUserId, "likes"),
+    enabled: !!resolvedUserId,
   });
   const { data: favoritedGuidesData, refetch: refetchFavoritedGuides } =
     useQuery({
-      queryKey: ["favoritedGuides", userId],
-      queryFn: () => profileApi.getFavoritedGuides(userId!),
-      enabled: !!userId,
+      queryKey: ["favoritedGuides", resolvedUserId],
+      queryFn: () => profileApi.getFavoritedGuides(resolvedUserId),
+      enabled: !!resolvedUserId,
     });
 
-  const { decks: customDecks } = useCustomDecks(userId!);
+  const { decks: customDecks } = useCustomDecks(resolvedUserId);
   const {
     isEditMode,
     bioValue,
@@ -73,10 +97,9 @@ export const ProfilePage = () => {
     handleDeletePhoto,
     toggleEditMode,
     cancelEdit,
-  } = useProfileEditor(userId!);
+  } = useProfileEditor(resolvedUserId);
 
   // Get profile data
-  const profile = profileData?.profile;
   const totalViews = profileData?.totalViews ?? 0;
   const userRank = profileData?.rank;
 
@@ -88,22 +111,32 @@ export const ProfilePage = () => {
     setFavoriteDecks,
     saveFavoriteCardAndDecks,
     isSaving: isSavingFavorites,
-  } = useFavoriteCardAndDecks(userId!, profile);
+  } = useFavoriteCardAndDecks(resolvedUserId, profile);
 
-  const handleSelectArchetype = useCallback(
-    (
-      archetypeId: number,
-      instanceId: number,
-      guideType?: "COUNTER" | "DECK",
-    ) => {
-      if (guideType) {
-        const typeParam = guideType === "COUNTER" ? "counter" : "deck";
-        navigate(
-          `/archetype/${archetypeId}/instance/${instanceId}?type=${typeParam}`,
-        );
-      } else {
-        navigate(`/archetype/${archetypeId}/instance/${instanceId}`);
-      }
+  const getProfilePath = useCallback(
+    (nextTab?: string) => {
+      // Build the public profile URL when enough metadata is available.
+      return buildProfilePath({
+        userName: profile?.userName,
+        profileId: profile?.id,
+        userId: resolvedUserId || userId,
+        tab: nextTab,
+      });
+    },
+    [profile?.id, profile?.userName, resolvedUserId, userId],
+  );
+
+  const handleSelectGuide = useCallback(
+    (guide: GuideListItem) => {
+      navigate(
+        buildGuidePath({
+          guideId: guide.id,
+          archetypeId: guide.archetypeId,
+          archetypeName: guide.archetypeName,
+          userName: guide.userName,
+          guideType: guide.guideType,
+        }),
+      );
     },
     [navigate],
   );
@@ -118,7 +151,7 @@ export const ProfilePage = () => {
   };
 
   const handleViewAllGuides = () => {
-    navigate(`/profile/${userId}/guides`);
+    navigate(getProfilePath("guides"));
   };
 
   const handleFavoriteCardSelect = (card: Card) => {
@@ -168,7 +201,7 @@ export const ProfilePage = () => {
     }
   };
 
-  const isOwner = session?.user?.id === userId;
+  const isOwner = !!resolvedUserId && session?.user?.id === resolvedUserId;
 
   if (!userId) {
     return (
@@ -359,9 +392,7 @@ export const ProfilePage = () => {
                       {/* Personal Decks */}
                       <PersonalDecks
                         decks={customDecks || []}
-                        onViewAll={() =>
-                          navigate(`/profile/${userId}/my-decks`)
-                        }
+                        onViewAll={() => navigate(getProfilePath("my-decks"))}
                         isOwner={isOwner}
                       />
                     </div>
@@ -396,9 +427,7 @@ export const ProfilePage = () => {
                             <button
                               key={tab.id}
                               onClick={() =>
-                                navigate(
-                                  `/profile/${userId}${tab.path ? `/${tab.path}` : ""}`,
-                                )
+                                navigate(getProfilePath(tab.path || undefined))
                               }
                               className={`px-4 py-2.5 text-sm font-bold transition-all relative overflow-hidden rounded border whitespace-nowrap ${
                                 activeTab === tab.id
@@ -524,7 +553,7 @@ export const ProfilePage = () => {
 
                       {activeTab === "decks" && (
                         <PersonalDeckList
-                          userId={userId}
+                          userId={resolvedUserId}
                           isOwner={isOwner}
                           userRole={profile?.role}
                         />
@@ -543,7 +572,7 @@ export const ProfilePage = () => {
                         <ProfileGuideList
                           guides={favoritedGuidesData?.guides || []}
                           onRemoveFavorite={
-                            session?.user?.id === userId
+                            session?.user?.id === resolvedUserId
                               ? handleRemoveFavorite
                               : undefined
                           }
@@ -574,11 +603,7 @@ export const ProfilePage = () => {
                                     key={guide.id}
                                     className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
                                     onClick={() =>
-                                      handleSelectArchetype(
-                                        guide.archetypeId,
-                                        guide.id,
-                                        guide.guideType,
-                                      )
+                                      handleSelectGuide(guide)
                                     }
                                   >
                                     {guide.headerCardImageUrl ? (
@@ -614,7 +639,7 @@ export const ProfilePage = () => {
                             </div>
                             <button
                               onClick={() =>
-                                navigate(`/profile/${userId}/favorites`)
+                                navigate(getProfilePath("favorites"))
                               }
                               className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
                             >
@@ -638,11 +663,7 @@ export const ProfilePage = () => {
                               key={guide.id}
                               className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
                               onClick={() =>
-                                handleSelectArchetype(
-                                  guide.archetypeId,
-                                  guide.id,
-                                  guide.guideType,
-                                )
+                                handleSelectGuide(guide)
                               }
                             >
                               {guide.headerCardImageUrl ? (

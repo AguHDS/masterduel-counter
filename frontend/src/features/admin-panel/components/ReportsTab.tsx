@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Trash2, User, ExternalLink } from "lucide-react";
 import { adminApi } from "../api/adminApi";
 import type { Report } from "../types/adminPanelTypes";
-import { getFrontendUrl } from "@/lib/config/urlHelpers";
+import { buildGuidePath, buildProfilePath, getFrontendUrl } from "@/lib/config/urlHelpers";
 
 interface ReportsTabProps {
   reports: Report[];
@@ -30,9 +30,22 @@ export const ReportsTab = ({ reports, onRefetchReports }: ReportsTabProps) => {
     }
   };
 
-  const getInstanceUrl = (archetypeId: number, instanceId: number): string => {
+  const getInstanceUrl = (
+    archetypeId: number,
+    instanceId: number,
+    archetypeName?: string | null,
+    authorName?: string | null,
+    guideType?: string | null,
+  ): string => {
     const baseUrl = getFrontendUrl();
-    return `${baseUrl}/archetype/${archetypeId}/instance/${instanceId}`;
+
+    return `${baseUrl}${buildGuidePath({
+      guideId: instanceId,
+      archetypeId,
+      archetypeName: archetypeName ?? undefined,
+      userName: authorName ?? undefined,
+      guideType: guideType ?? undefined,
+    })}`;
   };
 
   return (
@@ -73,10 +86,18 @@ export const ReportsTab = ({ reports, onRefetchReports }: ReportsTabProps) => {
 
                 <div>
                   <span className="text-blue-400">Reported:</span>
-                  {report.reportedUserName ? (
-                    <span className="ml-2 text-white">
+                  {report.reportedUserName && report.reportedUserId ? (
+                    <a
+                      href={buildProfilePath({
+                        userName: report.reportedUserName,
+                        userId: report.reportedUserId,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 text-white hover:text-blue-300 transition-colors underline underline-offset-2"
+                    >
                       {report.reportedUserName}
-                    </span>
+                    </a>
                   ) : report.reportedInstanceTitle ? (
                     <span className="ml-2 text-white">
                       {report.reportedInstanceTitle}
@@ -112,6 +133,9 @@ export const ReportsTab = ({ reports, onRefetchReports }: ReportsTabProps) => {
                           href={getInstanceUrl(
                             report.reportedInstanceArchetypeId,
                             report.reportedInstanceId,
+                            report.reportedInstanceArchetypeName,
+                            report.reportedInstanceAuthorName,
+                            report.reportedInstanceGuideType,
                           )}
                           target="_blank"
                           rel="noopener noreferrer"

@@ -22,6 +22,7 @@ import { useGuideRanking } from "../features/ranking/hooks/useRanking";
 import { UserDropdown } from "./UserDropdown";
 import { useState, useEffect, useRef } from "react";
 import { Avatar } from "@/shared/components/DefaultAvatar";
+import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 
 export const Navbar = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
@@ -64,8 +65,8 @@ export const Navbar = () => {
     setIsMenuOpen(false);
   };
 
-  const handleUserClick = (_username: string, userId: string) => {
-    window.location.href = `/profile/${userId}`;
+  const handleUserClick = (username: string, userId: string) => {
+    window.location.href = buildProfilePath({ userName: username, userId });
     setIsRankingOpen(false);
     setIsMobileRankingOpen(false);
     setIsRankingModalOpen(false);
@@ -460,7 +461,10 @@ export const Navbar = () => {
                           return (
                             <a
                               key={user.userId}
-                              href={`/profile/${user.userId}`}
+                              href={buildProfilePath({
+                                userName: user.username,
+                                userId: user.userId,
+                              })}
                               onClick={(e) => { e.preventDefault(); handleUserClick(user.username, user.userId); }}
                               className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer no-underline ${styles.bg}`}
                             >
@@ -489,8 +493,22 @@ export const Navbar = () => {
                           return (
                             <a
                               key={guide.id}
-                              href={`/archetype/${guide.archetypeId}/instance/${guide.id}`}
-                              onClick={(e) => { e.preventDefault(); window.location.href = `/archetype/${guide.archetypeId}/instance/${guide.id}`; setIsMenuOpen(false); }}
+                              href={buildGuidePath({
+                                guideId: guide.id,
+                                archetypeName: guide.archetypeName,
+                                userName: guide.authorName,
+                                guideType: guide.guideType,
+                              })}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                window.location.href = buildGuidePath({
+                                  guideId: guide.id,
+                                  archetypeName: guide.archetypeName,
+                                  userName: guide.authorName,
+                                  guideType: guide.guideType,
+                                });
+                                setIsMenuOpen(false);
+                              }}
                               className="flex items-center gap-2 p-2 rounded-lg cursor-pointer no-underline"
                             >
                               <div className={`w-6 text-center font-bold text-xs ${ guide.rank === 1 ? "text-yellow-400" : guide.rank === 2 ? "text-slate-300" : guide.rank === 3 ? "text-amber-500" : "text-gray-500" }`}>#{guide.rank}</div>
@@ -533,7 +551,7 @@ export const Navbar = () => {
                   </div>
 
                   <Link
-                    to={`/profile/${user.id}`}
+                    to={buildProfilePath({ userName: user.name, userId: user.id })}
                     onClick={handleLinkClick}
                     className="flex items-center gap-2 text-blue-500 text-sm font-medium hover:opacity-80 transition-opacity py-2"
                   >

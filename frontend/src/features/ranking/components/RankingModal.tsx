@@ -9,6 +9,7 @@ import {
   Eye,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import { useRanking, useGuideRanking } from "../hooks/useRanking";
 import { Avatar } from "@/shared/components/DefaultAvatar";
 import { getRankColor, getRankRowBg } from "../utils/rankingUtils";
@@ -148,7 +149,10 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                 userData.ranking.map((user) => (
                   <a
                     key={user.userId}
-                    href={`/profile/${user.userId}`}
+                    href={buildProfilePath({
+                      userName: user.username,
+                      userId: user.userId,
+                    })}
                     onClick={(e) => {
                       e.preventDefault();
                       onUserClick(user.username, user.userId);
@@ -231,11 +235,21 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                   return (
                     <a
                       key={guide.id}
-                      href={`/archetype/${guide.archetypeId}/instance/${guide.id}`}
+                      href={buildGuidePath({
+                        guideId: guide.id,
+                        archetypeName: guide.archetypeName,
+                        userName: guide.authorName,
+                        guideType: guide.guideType,
+                      })}
                       onClick={(e) => {
                         e.preventDefault();
                         navigate(
-                          `/archetype/${guide.archetypeId}/instance/${guide.id}`,
+                          buildGuidePath({
+                            guideId: guide.id,
+                            archetypeName: guide.archetypeName,
+                            userName: guide.authorName,
+                            guideType: guide.guideType,
+                          }),
                         );
                         onClose();
                       }}

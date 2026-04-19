@@ -36,7 +36,12 @@ function AppRoutes() {
         path="/archetype/:archetypeId"
         element={<ArchetypeGuideListPage />}
       />
-      {/** Guide creation instance page */}
+      {/** Guide route */}
+      <Route
+        path="/archetypes/:archetypeSlug/:authorSlug/:guideSlug"
+        element={<GuideContainerPage />}
+      />
+      {/** Internal guide editor route used for creation and direct access */}
       <Route
         path="/archetype/:archetypeId/instance/:instanceId"
         element={<GuideContainerPage />}

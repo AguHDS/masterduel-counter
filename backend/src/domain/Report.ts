@@ -24,4 +24,6 @@ export interface ReportWithDetails extends Report {
   reportedInstanceAuthorId?: string | null;
   reportedInstanceAuthorName?: string | null;
   reportedInstanceArchetypeId?: number | null;
+  reportedInstanceArchetypeName?: string | null;
+  reportedInstanceGuideType?: "COUNTER" | "DECK" | null;
 }

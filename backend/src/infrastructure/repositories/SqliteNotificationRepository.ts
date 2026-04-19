@@ -71,6 +71,17 @@ export class SqliteNotificationRepository implements NotificationRepository {
               id: true,
               title: true,
               archetypeId: true,
+              guideType: true,
+              archetype: {
+                select: {
+                  name: true,
+                },
+              },
+              user: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -95,6 +106,9 @@ export class SqliteNotificationRepository implements NotificationRepository {
         updatedAt: n.updatedAt,
         instanceTitle: n.instance?.title,
         archetypeId: n.instance?.archetypeId,
+        archetypeName: n.instance?.archetype?.name,
+        instanceAuthorName: n.instance?.user?.name,
+        guideType: (n.instance?.guideType as "COUNTER" | "DECK" | undefined) ?? undefined,
       }));
 
     return { notifications: notificationsWithDetails, total };

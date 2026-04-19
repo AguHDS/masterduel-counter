@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Crown, ThumbsUp, Eye, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import type { RankingUser } from "../types/ranking.types";
 import { Avatar } from "@/shared/components/DefaultAvatar";
 import { useGuideRanking } from "../hooks/useRanking";
@@ -133,7 +134,10 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
               users.map((user) => (
                 <a
                   key={user.userId}
-                  href={`/profile/${user.userId}`}
+                  href={buildProfilePath({
+                    userName: user.username,
+                    userId: user.userId,
+                  })}
                   onClick={(e) => {
                     e.preventDefault();
                     onUserClick(user.username, user.userId);
@@ -214,11 +218,21 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                 return (
                   <a
                     key={guide.id}
-                    href={`/archetype/${guide.archetypeId}/instance/${guide.id}`}
+                    href={buildGuidePath({
+                      guideId: guide.id,
+                      archetypeName: guide.archetypeName,
+                      userName: guide.authorName,
+                      guideType: guide.guideType,
+                    })}
                     onClick={(e) => {
                       e.preventDefault();
                       navigate(
-                        `/archetype/${guide.archetypeId}/instance/${guide.id}`,
+                        buildGuidePath({
+                          guideId: guide.id,
+                          archetypeName: guide.archetypeName,
+                          userName: guide.authorName,
+                          guideType: guide.guideType,
+                        }),
                       );
                       onClose();
                     }}

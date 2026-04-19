@@ -3,15 +3,32 @@ import { getDependencies } from "@/compositionRoot.js";
 
 export const getProfileController = async (req: Request, res: Response) => {
   try {
-    const userId = req.params.userId as string;
+    const userIdParam = req.params.userId as string;
 
     const profileService = getDependencies().getProfileService();
     const instanceService = getDependencies().getInstanceService();
     const prisma = getDependencies().getPrismaClient();
+
+    // Support public slugs like username-2 or username-authUserId.
+    let resolvedUserId = userIdParam;
+    const publicProfileId = userIdParam.match(/(\d+)$/)?.[1];
+
+    if (publicProfileId) {
+      const profileByPublicId = await prisma.profile.findUnique({
+        where: { id: Number.parseInt(publicProfileId, 10) },
+        select: { userId: true },
+      });
+
+      if (profileByPublicId?.userId) {
+        resolvedUserId = profileByPublicId.userId;
+      }
+    } else if (userIdParam.includes("-")) {
+      resolvedUserId = userIdParam.split("-").pop() || userIdParam;
+    }
     
     const [profile, totalViews] = await Promise.all([
-      profileService.getProfile(userId),
-      instanceService.getTotalViewsByUserId(userId),
+      profileService.getProfile(resolvedUserId),
+      instanceService.getTotalViewsByUserId(resolvedUserId),
     ]);
 
     // Calculate user's rank based on total likes
@@ -49,7 +66,7 @@ export const getProfileController = async (req: Request, res: Response) => {
       });
 
     // Find the rank of the current user (will always have a rank now)
-    const rank = rankedUsers.findIndex((u) => u.userId === userId) + 1;
+    const rank = rankedUsers.findIndex((u) => u.userId === resolvedUserId) + 1;
 
     return res.json({
       success: true,

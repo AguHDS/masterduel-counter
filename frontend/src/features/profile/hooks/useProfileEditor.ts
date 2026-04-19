@@ -14,14 +14,14 @@ export const useProfileEditor = (userId: string) => {
   const updateBioMutation = useMutation({
     mutationFn: (bio: string) => profileApi.updateBio(userId, bio),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
   });
 
   const uploadPhotoMutation = useMutation({
     mutationFn: (file: File) => profileApi.uploadProfilePicture(userId, file),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
       setFileError(null);
       setSelectedFile(null);
       setPreviewUrl(null);
@@ -39,7 +39,7 @@ export const useProfileEditor = (userId: string) => {
   const deletePhotoMutation = useMutation({
     mutationFn: () => profileApi.deleteProfilePicture(userId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
   });
 

@@ -57,6 +57,8 @@ export interface Report {
   reportedInstanceAuthorId?: string | null;
   reportedInstanceAuthorName?: string | null;
   reportedInstanceArchetypeId?: number | null;
+  reportedInstanceArchetypeName?: string | null;
+  reportedInstanceGuideType?: "COUNTER" | "DECK" | null;
   reason: string;
   status: string;
   createdAt: string;

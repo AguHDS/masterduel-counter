@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Star, ThumbsUp, Eye } from "lucide-react";
 import { type GuideListItem } from "@/lib/http/guideInstancesApi";
 import { useAuth } from "@/features/auth";
 import { useNavigate } from "react-router-dom";
+import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 
 interface GuidesGridProps {
   instances: GuideListItem[];
@@ -18,7 +19,7 @@ export const GuidesGrid = ({
   instances,
   currentPage,
   itemsPerPage,
-  onSelectInstance,
+  onSelectInstance: _onSelectInstance,
   onPageChange,
   showArchetypeName = false,
 }: GuidesGridProps) => {
@@ -38,13 +39,25 @@ export const GuidesGrid = ({
     onPageChange(Math.min(totalPages - 1, currentPage + 1));
   };
 
-  const handleUserNameClick = (e: MouseEvent, userId: string) => {
+  const handleUserNameClick = (
+    e: MouseEvent,
+    userId: string,
+    userName?: string,
+  ) => {
     e.stopPropagation();
-    navigate(`/profile/${userId}`);
+    navigate(buildProfilePath({ userName, userId }));
   };
 
-  const handleInstanceClick = (instanceId: number, archetypeId: number) => {
-    onSelectInstance(instanceId, archetypeId);
+  const handleInstanceClick = (instance: GuideListItem) => {
+    // Guide cards should open the public SEO-friendly URL
+    navigate(
+      buildGuidePath({
+        guideId: instance.id,
+        archetypeName: instance.archetypeName,
+        userName: instance.userName,
+        guideType: instance.guideType,
+      }),
+    );
   };
 
   const getPageNumbers = () => {
@@ -93,7 +106,7 @@ export const GuidesGrid = ({
           return (
             <button
               key={instance.id}
-              onClick={() => handleInstanceClick(instance.id, instance.archetypeId)}
+              onClick={() => handleInstanceClick(instance)}
               className="group relative w-full overflow-hidden rounded-xl border border-blue-500/40 bg-[#0a0e2e]/90 hover:border-blue-400/60 transition-colors hover:shadow-lg hover:shadow-blue-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
               {/* Card image header */}
@@ -125,7 +138,9 @@ export const GuidesGrid = ({
                   <div className="flex items-center gap-2">
                     <span className="text-blue-400 text-xs">By</span>
                     <span
-                      onClick={(e) => handleUserNameClick(e, instance.userId)}
+                      onClick={(e) =>
+                        handleUserNameClick(e, instance.userId, instance.userName)
+                      }
                       className="text-blue-300 hover:text-blue-200 hover:underline transition-colors cursor-pointer truncate"
                       title={instance.userName}
                     >

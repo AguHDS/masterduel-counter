@@ -1,3 +1,5 @@
+import { buildGuidePath } from "@/lib/config/urlHelpers";
+
 export type NotificationType = "comment" | "like" | "favorite";
 
 export interface Notification {
@@ -14,6 +16,9 @@ export interface Notification {
   updatedAt: string;
   instanceTitle?: string;
   archetypeId?: number;
+  archetypeName?: string;
+  instanceAuthorName?: string;
+  guideType?: "COUNTER" | "DECK";
 }
 
 export interface NotificationContextType {
@@ -92,8 +97,15 @@ export const formatNotificationMessage = (notification: Notification): Formatted
 
 /** Get notification link */
 export const getNotificationLink = (notification: Notification): string | null => {
-  if (!notification.archetypeId || !notification.instanceId) return null;
-  return `/archetype/${notification.archetypeId}/instance/${notification.instanceId}`;
+  if (!notification.instanceId) return null;
+
+  return buildGuidePath({
+    guideId: notification.instanceId,
+    archetypeId: notification.archetypeId,
+    archetypeName: notification.archetypeName,
+    userName: notification.instanceAuthorName,
+    guideType: notification.guideType,
+  });
 };
 
 /** Format time ago */
