@@ -46,6 +46,12 @@ interface BuildProfilePathParams {
   tab?: string;
 }
 
+interface BuildGuideEditorPathParams {
+  archetypeId?: string | number | null;
+  instanceId?: string | number | null;
+  guideType?: PublicGuideType;
+}
+
 // Slug for SEO-friendly URLs
 const slugifySegment = (value: string): string => {
   const normalized = value
@@ -142,4 +148,24 @@ export function buildProfilePath({
   }
 
   return `/profile${tabSuffix}`;
+}
+
+/**
+ * Build the internal id-based guide route used for draft creation,
+ * direct editor access, and legacy SPA compatibility.
+ */
+export function buildGuideEditorPath({
+  archetypeId,
+  instanceId = "new",
+  guideType,
+}: BuildGuideEditorPathParams): string {
+  if (!archetypeId) {
+    return "/guides";
+  }
+
+  const typeQuery = guideType
+    ? `?type=${String(guideType).toLowerCase()}`
+    : "";
+
+  return `/archetype/${archetypeId}/instance/${instanceId}${typeQuery}`;
 }

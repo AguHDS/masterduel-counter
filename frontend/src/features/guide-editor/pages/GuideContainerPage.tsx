@@ -1,6 +1,6 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { Navbar } from "@/layouts/Navbar";
 import { Footer } from "@/layouts/Footer";
@@ -18,6 +18,7 @@ import type { Archetype } from "@/features/archetypes/types";
 import { TooltipProvider } from "@/features/archetypes/contexts/TooltipContext";
 import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
 import { buildGuidePath, extractNumericIdFromSlug } from "@/lib/config/urlHelpers";
+import { useCanonicalPathRedirect } from "@/shared/hooks/useCanonicalPathRedirect";
 
 /** Container page for guides of a specific archetype */
 export const GuideContainerPage = () => {
@@ -27,7 +28,6 @@ export const GuideContainerPage = () => {
     guideSlug?: string;
   }>();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isGuideHelpOpen, setIsGuideHelpOpen] = useState(false);
@@ -119,16 +119,7 @@ export const GuideContainerPage = () => {
       })
     : null;
 
-  useEffect(() => {
-    if (!canonicalGuidePath) {
-      return;
-    }
-
-    // Replace stale public URLs with the canonical SEO path
-    if (`${location.pathname}${location.search}` !== canonicalGuidePath) {
-      navigate(canonicalGuidePath, { replace: true });
-    }
-  }, [canonicalGuidePath, location.pathname, location.search, navigate]);
+  useCanonicalPathRedirect(canonicalGuidePath, { includeSearch: true });
 
   const isPageLoading = !isCreatingNew && (isGuideLoading || !archetypeIdNum || isLoading);
 

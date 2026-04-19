@@ -1,4 +1,4 @@
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { Flag, Edit, Eye, Crown, Trophy, ThumbsUp } from "lucide-react";
@@ -17,18 +17,18 @@ import { useCustomDecks } from "../hooks/useCustomDecks";
 import { useSession } from "@/lib/auth-client";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback } from "react";
 import { guideInstancesApi, type GuideListItem } from "@/lib/http/guideInstancesApi";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import profile_background from "@/assets/Profile_Backgroundnew.webp";
 import { formatCompactNumber } from "@/shared/utils/formatNumber";
+import { useCanonicalPathRedirect } from "@/shared/hooks/useCanonicalPathRedirect";
 import type { TabType } from "../types/profileTypes";
 import type { Card } from "@/features/archetypes/types";
 
 export const ProfilePage = () => {
   const { userId, tab } = useParams<{ userId: string; tab?: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -52,23 +52,15 @@ export const ProfilePage = () => {
   const profile = profileData?.profile;
   const resolvedUserId = profile?.userId ?? "";
 
-  // For 301 redirect of old profile URLs
-  useEffect(() => {
-    if (!profile?.userName || !resolvedUserId) {
-      return;
-    }
+  const canonicalPath = profile?.userName && resolvedUserId
+    ? buildProfilePath({
+        userName: profile.userName,
+        userId: resolvedUserId,
+        tab: tab && tab !== "profile" ? tab : undefined,
+      })
+    : null;
 
-    const canonicalPath = buildProfilePath({
-      userName: profile.userName,
-      userId: resolvedUserId,
-      tab: tab && tab !== "profile" ? tab : undefined,
-    });
-
-    // Replace legacy profile URLs with the canonical public slug.
-    if (location.pathname !== canonicalPath) {
-      navigate(canonicalPath, { replace: true });
-    }
-  }, [location.pathname, navigate, profile?.userName, resolvedUserId, tab]);
+  useCanonicalPathRedirect(canonicalPath);
 
   const { data: userGuides } = useQuery({
     queryKey: ["userInstances", resolvedUserId],

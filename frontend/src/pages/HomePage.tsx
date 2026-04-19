@@ -1,16 +1,12 @@
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { useState, useCallback, useMemo } from "react";
-
 import { Navbar } from "../layouts/Navbar";
 import { Footer } from "../layouts/Footer";
-
 import { MainLogo } from "../shared/components/MainLogo";
 import { HomeAllComponents } from "../features/home";
-
 import { MainSearch } from "../shared/components/main-search/MainSearch";
 import { MainSearchResults } from "../shared/components/main-search/MainSearchResults";
-
 import { useArchetypeSearch } from "../features/archetypes/hooks/useArchetypes";
 import type { Archetype } from "../features/archetypes/types";
 
