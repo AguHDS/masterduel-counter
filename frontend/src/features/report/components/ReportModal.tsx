@@ -47,7 +47,21 @@ export const ReportModal = ({
       setReason("");
       onClose();
     } catch (err) {
-      setError("Failed to submit report. Please try again.");
+      const apiError =
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err &&
+        typeof err.response === "object" &&
+        err.response !== null &&
+        "data" in err.response &&
+        typeof err.response.data === "object" &&
+        err.response.data !== null &&
+        "error" in err.response.data &&
+        typeof err.response.data.error === "string"
+          ? err.response.data.error
+          : "Failed to submit report. Please try again.";
+
+      setError(apiError);
       console.error("Report error:", err);
     }
   };

@@ -712,7 +712,7 @@ export const ProfilePage = () => {
           isOpen={isReportModalOpen}
           onClose={() => setIsReportModalOpen(false)}
           targetType="user"
-          targetId={userId}
+          targetId={resolvedUserId || userId}
           targetName={profile?.userName || userId}
         />
       )}

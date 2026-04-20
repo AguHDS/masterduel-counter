@@ -9,6 +9,7 @@ import { MainSearch } from "../shared/components/main-search/MainSearch";
 import { MainSearchResults } from "../shared/components/main-search/MainSearchResults";
 import { useArchetypeSearch } from "../features/archetypes/hooks/useArchetypes";
 import type { Archetype } from "../features/archetypes/types";
+import { buildArchetypePath } from "../lib/config/urlHelpers";
 
 export const HomePage = () => {
   const navigate = useNavigate();
@@ -32,12 +33,13 @@ export const HomePage = () => {
       setIsDropdownOpen(false);
       setSearchQuery("");
       
-      // Navigate to archetype guides filtered by type
-      if (guideType) {
-        navigate(`/archetype/${archetype.id}?type=${guideType.toLowerCase()}`);
-      } else {
-        navigate(`/archetype/${archetype.id}`);
-      }
+      navigate(
+        buildArchetypePath({
+          archetypeId: archetype.id,
+          archetypeName: archetype.name,
+          guideType,
+        }),
+      );
     },
     [navigate],
   );

@@ -66,6 +66,20 @@ const buildCanonicalProfilePath = ({
   return `/profile/${slugifySegment(userName)}-${userId}${normalizedTab}`;
 };
 
+/** Build the canonical archetype path */
+const buildCanonicalArchetypePath = ({
+  archetypeId,
+  archetypeName,
+  guideType,
+}: {
+  archetypeId: number;
+  archetypeName: string;
+  guideType?: string;
+}) => {
+  const normalizedType = guideType ? `?type=${String(guideType).toLowerCase()}` : "";
+  return `/archetype/${slugifySegment(archetypeName || String(archetypeId))}${normalizedType}`;
+};
+
 const normalizePathname = (path: string): string => {
   if (path.length > 1 && path.endsWith("/")) {
     return path.replace(/\/+$/, "");
@@ -200,6 +214,82 @@ export function createLegacyUrlRedirectMiddleware(dependencies: Dependencies) {
     return next();
   };
 
+  /** Redirect legacy archetype list URLs to their canonical paths */
+  const redirectLegacyArchetypeListUrl = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    const rawArchetypeId = Array.isArray(req.params.archetypeId)
+      ? req.params.archetypeId[0]
+      : req.params.archetypeId;
+    const rawGuideType = Array.isArray(req.query.type)
+      ? req.query.type[0]
+      : req.query.type;
+
+    if (!rawArchetypeId) {
+      return next();
+    }
+
+    const normalizedTypeQuery = typeof rawGuideType === "string" && rawGuideType.trim()
+      ? `?type=${rawGuideType.trim().toLowerCase()}`
+      : "";
+    const currentPath = `${normalizePathname(req.path)}${normalizedTypeQuery}`;
+    const cacheKey = `archetype:${rawArchetypeId}:${rawGuideType ?? ""}`;
+    const cachedPath = getCachedRedirectPath(cacheKey);
+
+    if (cachedPath) {
+      if (currentPath !== cachedPath) {
+        return res.redirect(301, cachedPath);
+      }
+
+      return next();
+    }
+
+    try {
+      let archetype = null;
+      const parsedArchetypeId = Number.parseInt(rawArchetypeId, 10);
+
+      if (!Number.isNaN(parsedArchetypeId) && parsedArchetypeId > 0) {
+        archetype = await prisma.archetype.findUnique({
+          where: { id: parsedArchetypeId },
+          select: { id: true, name: true },
+        });
+      }
+
+      if (!archetype) {
+        const allArchetypes = await prisma.archetype.findMany({
+          select: { id: true, name: true },
+        });
+
+        archetype = allArchetypes.find(
+          (candidate) =>
+            slugifySegment(candidate.name) === slugifySegment(rawArchetypeId),
+        ) ?? null;
+      }
+
+      if (!archetype) {
+        return next();
+      }
+
+      const canonicalPath = buildCanonicalArchetypePath({
+        archetypeId: archetype.id,
+        archetypeName: archetype.name,
+        guideType: typeof rawGuideType === "string" ? rawGuideType : undefined,
+      });
+
+      setCachedRedirectPath(cacheKey, canonicalPath);
+
+      if (currentPath !== canonicalPath) {
+        return res.redirect(301, canonicalPath);
+      }
+    } catch (error) {
+      console.error("Error redirecting archetype list URL:", error);
+    }
+
+    return next();
+  };
+
   const redirectLegacyProfileUrl = async (
     req: Request,
     res: Response,
@@ -250,7 +340,21 @@ export function createLegacyUrlRedirectMiddleware(dependencies: Dependencies) {
           userName = profileByPublicId.user?.name || undefined;
         }
       } else if (rawUserId.includes("-")) {
-        resolvedUserId = rawUserId.split("-").pop() || rawUserId;
+        const users = await prisma.user.findMany({
+          select: {
+            id: true,
+            name: true,
+          },
+        });
+
+        const matchedUser = users.find(
+          (user) => rawUserId === user.id || rawUserId.endsWith(`-${user.id}`),
+        );
+
+        if (matchedUser) {
+          resolvedUserId = matchedUser.id;
+          userName = matchedUser.name || undefined;
+        }
       }
 
       if (!userName) {
@@ -287,6 +391,7 @@ export function createLegacyUrlRedirectMiddleware(dependencies: Dependencies) {
   };
 
   return {
+    redirectLegacyArchetypeListUrl,
     redirectLegacyGuideUrl,
     redirectLegacyProfileUrl,
   };

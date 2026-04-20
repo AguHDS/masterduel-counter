@@ -56,7 +56,7 @@ export const queryKeys = {
       ["archetypes", "search", query, limit] as const,
     registered: () => ["archetypes", "registered"] as const,
     detail: (id: number) => ["archetypes", "detail", id] as const,
-    withHeader: (id: number) => ["archetypes", "with-header", id] as const,
+    withHeader: (id: string | number) => ["archetypes", "with-header", id] as const,
     cardPairs: (id: number) => ["archetypes", "card-pairs", id] as const,
   },
 

@@ -5,7 +5,7 @@ import type { Archetype, SearchResponse, Card } from "../types";
  * Get archetype with header card details
  */
 export const getArchetypeWithHeaderCard = async (
-  archetypeId: number,
+  archetypeId: string | number,
 ): Promise<{
   success: boolean;
   archetype: Archetype & {

@@ -12,7 +12,7 @@ import { ArchetypeSearchModal } from "@/shared/components/modals/ArchetypeSearch
 import { GuideTypeSelectionModal } from "@/shared/components/modals/GuideTypeSelectionModal";
 import { useArchetypeSearch } from "@/features/archetypes/hooks/useArchetypes";
 import type { GuideType, Archetype } from "@/features/archetypes/types";
-import { buildGuideEditorPath, buildGuidePath } from "@/lib/config/urlHelpers";
+import { buildArchetypePath, buildGuideEditorPath, buildGuidePath } from "@/lib/config/urlHelpers";
 
 /** Page that shows ALL guides of a given type (counter or deck) across all archetypes.
  * Accessed via /guides?type=counter or /guides?type=deck
@@ -87,11 +87,13 @@ export const AllGuidesListPage = () => {
     (archetype: Archetype, guideTypeFromSearch?: "COUNTER" | "DECK") => {
       setIsDropdownOpen(false);
       setSearchQuery("");
-      if (guideTypeFromSearch) {
-        navigate(`/archetype/${archetype.id}?type=${guideTypeFromSearch.toLowerCase()}`);
-      } else {
-        navigate(`/archetype/${archetype.id}`);
-      }
+      navigate(
+        buildArchetypePath({
+          archetypeId: archetype.id,
+          archetypeName: archetype.name,
+          guideType: guideTypeFromSearch,
+        }),
+      );
     },
     [navigate],
   );

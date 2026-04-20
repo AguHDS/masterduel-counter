@@ -56,7 +56,7 @@ import profile from "./routes/profile/profile.js";
 import customDecks from "./routes/customDecks.js";
 
 // Middleware for redirect 301 legacy URLs to new ones
-const { redirectLegacyGuideUrl, redirectLegacyProfileUrl } = createLegacyUrlRedirectMiddleware(getDependencies());
+const { redirectLegacyArchetypeListUrl, redirectLegacyGuideUrl, redirectLegacyProfileUrl } = createLegacyUrlRedirectMiddleware(getDependencies());
 
 // SCP configuration
 const isDevelopment = NODE_ENV === "development";
@@ -197,6 +197,7 @@ app.use("/api/reports", report);
 // Serve the React frontend (only if the build exists — production)
 if (existsSync(FRONTEND_DIST)) {
   // Permanent redirects tell search engines that the old public URLs moved
+  app.get("/archetype/:archetypeId", redirectLegacyArchetypeListUrl);
   app.get("/archetype/:archetypeId/instance/:instanceId", redirectLegacyGuideUrl);
   app.get("/archetypes/:archetypeSlug/:authorSlug/:guideSlug", redirectLegacyGuideUrl);
   app.get("/profile/:userId", redirectLegacyProfileUrl);

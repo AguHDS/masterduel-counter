@@ -1,12 +1,16 @@
 import { ReportRepository } from "@/domain/ports/ReportRepository.js";
 import { ReportApplicationPort } from "@/application/ports/ReportApplicationPort.js";
+import { UserRepository } from "@/domain/ports/UserRepository.js";
+import { ProfileRepository } from "@/domain/ports/ProfileRepository.js";
+import { GuideRepository } from "@/domain/ports/GuideRepository.js";
 import type { ReportCreateDTO } from "@/domain/Report.js";
-import { PrismaClient } from "@prisma/client";
 
 export class ReportApplicationService implements ReportApplicationPort {
   constructor(
     private readonly reportRepository: ReportRepository,
-    private readonly prisma: PrismaClient
+    private readonly userRepository: UserRepository,
+    private readonly profileRepository: ProfileRepository,
+    private readonly guideRepository: GuideRepository,
   ) {}
 
   async createReport(data: ReportCreateDTO): Promise<{
@@ -38,12 +42,17 @@ export class ReportApplicationService implements ReportApplicationPort {
         };
       }
 
+      let resolvedReportedUserId = data.reportedUserId ?? null;
+
       // Validate that the reported user exists (if reporting a user)
-      if (data.reportedUserId) {
-        const reportedUser = await this.prisma.user.findUnique({
-          where: { id: data.reportedUserId },
-          select: { id: true }
-        });
+      if (resolvedReportedUserId) {
+        resolvedReportedUserId = await this.profileRepository.resolvePublicUserId(
+          resolvedReportedUserId,
+        );
+
+        const reportedUser = await this.userRepository.findUserById(
+          resolvedReportedUserId,
+        );
 
         if (!reportedUser) {
           return {
@@ -55,10 +64,9 @@ export class ReportApplicationService implements ReportApplicationPort {
 
       // Validate that the reported instance exists (if reporting an instance)
       if (data.reportedInstanceId) {
-        const instance = await this.prisma.archetypeInstance.findUnique({
-          where: { id: data.reportedInstanceId },
-          select: { id: true }
-        });
+        const instance = await this.guideRepository.findArchetypeInstanceById(
+          data.reportedInstanceId,
+        );
 
         if (!instance) {
           return {
@@ -68,7 +76,10 @@ export class ReportApplicationService implements ReportApplicationPort {
         }
       }
 
-      const report = await this.reportRepository.createReport(data);
+      const report = await this.reportRepository.createReport({
+        ...data,
+        reportedUserId: resolvedReportedUserId || null,
+      });
 
       return {
         success: true,

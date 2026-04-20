@@ -1,6 +1,7 @@
 import { TrendingUp } from "lucide-react";
 import { useGeneralStats } from "../hooks/useGeneralStats";
 import { useNavigate } from "react-router-dom";
+import { buildArchetypePath } from "@/lib/config/urlHelpers";
 
 /** Displays quantity of Counter Guides and Deck Guides */
 export const GeneralStats = () => {
@@ -39,10 +40,16 @@ export const GeneralStats = () => {
 
   const handleArchetypeClick = (
     archetypeId: number,
+    archetypeName: string,
     selectedType: "counter" | "deck",
   ) => {
-    // Keep the archetype list page in sync with the selected guide type.
-    navigate(`/archetype/${archetypeId}?type=${selectedType}`);
+    navigate(
+      buildArchetypePath({
+        archetypeId,
+        archetypeName,
+        guideType: selectedType.toUpperCase(),
+      }),
+    );
   };
 
   return (
@@ -79,7 +86,9 @@ export const GeneralStats = () => {
               {counterData.topArchetypes.map((archetype, index) => (
                 <div
                   key={archetype.id}
-                  onClick={() => handleArchetypeClick(archetype.id, "counter")}
+                  onClick={() =>
+                    handleArchetypeClick(archetype.id, archetype.name, "counter")
+                  }
                   className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-red-500/20 hover:border-orange-400/50 hover:bg-black/50 transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
@@ -127,7 +136,9 @@ export const GeneralStats = () => {
               {deckData.topArchetypes.map((deck, index) => (
                 <div
                   key={deck.id}
-                  onClick={() => handleArchetypeClick(deck.id, "deck")}
+                  onClick={() =>
+                    handleArchetypeClick(deck.id, deck.name, "deck")
+                  }
                   className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-blue-500/20 hover:border-purple-400/40 hover:bg-black/50 transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3">

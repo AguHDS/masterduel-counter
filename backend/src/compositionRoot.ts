@@ -287,7 +287,9 @@ export class Dependencies {
     if (!this.reportService) {
       this.reportService = new ReportApplicationService(
         this.getReportRepository(),
-        this.prisma
+        this.getUserRepository(),
+        this.getProfileRepository(),
+        this.getInstanceRepository(),
       );
     }
     return this.reportService;

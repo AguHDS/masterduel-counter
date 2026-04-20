@@ -68,11 +68,13 @@ export const useArchetypeSearch = ({
  * Hook to get archetype with header card
  * Uses LONG stale time since header cards rarely change
  */
-export const useArchetypeWithHeader = (archetypeId: number | undefined) => {
+export const useArchetypeWithHeader = (
+  archetypeId: string | number | undefined,
+) => {
   return useQuery({
-    queryKey: queryKeys.archetypes.withHeader(archetypeId!),
+    queryKey: queryKeys.archetypes.withHeader(String(archetypeId ?? "")),
     queryFn: () => getArchetypeWithHeaderCard(archetypeId!),
     staleTime: QUERY_STALE_TIME.LONG,
-    enabled: !!archetypeId,
+    enabled: archetypeId !== undefined && String(archetypeId).trim().length > 0,
   });
 };

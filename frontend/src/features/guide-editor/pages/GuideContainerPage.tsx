@@ -17,7 +17,7 @@ import { CommentSection } from "@/features/comments";
 import type { Archetype } from "@/features/archetypes/types";
 import { TooltipProvider } from "@/features/archetypes/contexts/TooltipContext";
 import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
-import { buildGuidePath, extractNumericIdFromSlug } from "@/lib/config/urlHelpers";
+import { buildArchetypePath, buildGuidePath, extractNumericIdFromSlug } from "@/lib/config/urlHelpers";
 import { useCanonicalPathRedirect } from "@/shared/hooks/useCanonicalPathRedirect";
 
 /** Container page for guides of a specific archetype */
@@ -84,12 +84,13 @@ export const GuideContainerPage = () => {
       setIsDropdownOpen(false);
       setSearchQuery("");
       
-      // Navigate to archetype guides filtered by type
-      if (guideTypeFromSearch) {
-        navigate(`/archetype/${archetype.id}?type=${guideTypeFromSearch.toLowerCase()}`);
-      } else {
-        navigate(`/archetype/${archetype.id}`);
-      }
+      navigate(
+        buildArchetypePath({
+          archetypeId: archetype.id,
+          archetypeName: archetype.name,
+          guideType: guideTypeFromSearch,
+        }),
+      );
     },
     [navigate],
   );

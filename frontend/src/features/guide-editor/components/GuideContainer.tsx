@@ -42,6 +42,7 @@ import {
   mapInitialHandsAndComboStepsFromInstance,
 } from "../utils/guideContainerTransforms";
 import {
+  buildArchetypePath,
   extractNumericIdFromSlug,
   inferGuideTypeFromSlug,
 } from "@/lib/config/urlHelpers";
@@ -735,8 +736,13 @@ export const GuideContainer = ({
         return;
     }
     if (resolvedArchetypeId) {
-      const typeParam = guideType.toLowerCase();
-      navigate(`/archetype/${resolvedArchetypeId}?type=${typeParam}`);
+      navigate(
+        buildArchetypePath({
+          archetypeId: resolvedArchetypeId,
+          archetypeName: selectedArchetype?.name,
+          guideType,
+        }),
+      );
     } else {
       navigate(-1);
     }

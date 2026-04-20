@@ -52,7 +52,13 @@ interface BuildGuideEditorPathParams {
   guideType?: PublicGuideType;
 }
 
-// Slug for SEO-friendly URLs
+interface BuildArchetypePathParams {
+  archetypeId?: string | number | null;
+  archetypeName?: string | null;
+  guideType?: PublicGuideType;
+}
+
+/** Slug for SEO-friendly URLs */
 const slugifySegment = (value: string): string => {
   const normalized = value
     .normalize("NFD")
@@ -65,7 +71,7 @@ const slugifySegment = (value: string): string => {
   return normalized || "unknown";
 };
 
-// Public guide and profile urls only use the trailing id for data loading
+/** Public guide and profile urls only use the trailing id for data loading */
 export function extractNumericIdFromSlug(value?: string): number | undefined {
   if (!value) {
     return undefined;
@@ -80,6 +86,7 @@ export function extractNumericIdFromSlug(value?: string): number | undefined {
   return Number.isNaN(parsedValue) ? undefined : parsedValue;
 }
 
+/** Infer the guide type from the slug */
 export function inferGuideTypeFromSlug(
   guideSlug?: string,
 ): "COUNTER" | "DECK" | undefined {
@@ -126,6 +133,27 @@ export function buildGuidePath({
   return "/guides";
 }
 
+/** Build the public archetype list URL using the archetype name slug whenever possible */
+export function buildArchetypePath({
+  archetypeId,
+  archetypeName,
+  guideType,
+}: BuildArchetypePathParams): string {
+  const typeQuery = guideType
+    ? `?type=${String(guideType).toLowerCase()}`
+    : "";
+
+  if (archetypeName) {
+    return `/archetype/${slugifySegment(archetypeName)}${typeQuery}`;
+  }
+
+  if (archetypeId) {
+    return `/archetype/${archetypeId}${typeQuery}`;
+  }
+
+  return `/guides${typeQuery}`;
+}
+
 /** Prefer username-userId so profile links stay descriptive without extra redirects */
 export function buildProfilePath({
   userName,
@@ -152,7 +180,7 @@ export function buildProfilePath({
 
 /**
  * Build the internal id-based guide route used for draft creation,
- * direct editor access, and legacy SPA compatibility.
+ * direct editor access, and legacy SPA compatibility
  */
 export function buildGuideEditorPath({
   archetypeId,

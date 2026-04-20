@@ -10,12 +10,17 @@ import { MainLogo } from "@/shared/components/MainLogo";
 import { MainSearch } from "@/shared/components/main-search/MainSearch";
 import { MainSearchResults } from "@/shared/components/main-search/MainSearchResults";
 import { GuideTypeSelectionModal } from "@/shared/components/modals/GuideTypeSelectionModal";
+import { useCanonicalPathRedirect } from "@/shared/hooks/useCanonicalPathRedirect";
 import type { GuideType, Archetype } from "@/features/archetypes/types";
-import { buildGuideEditorPath, buildGuidePath } from "@/lib/config/urlHelpers";
+import {
+  buildArchetypePath,
+  buildGuideEditorPath,
+  buildGuidePath,
+} from "@/lib/config/urlHelpers";
 
 /** Page for the list of guides of the selected archetype */
 export const ArchetypeGuideListPage = () => {
-  const { archetypeId } = useParams<{ archetypeId: string }>();
+  const { archetypeId: archetypeParam } = useParams<{ archetypeId: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,12 +40,21 @@ export const ArchetypeGuideListPage = () => {
     typeParam === "deck" ? "DECK" :
     undefined;
 
-  const archetypeIdNum = archetypeId ? parseInt(archetypeId) : undefined;
   const {
     data: archetypeWithHeaderData,
     isLoading,
     error,
-  } = useArchetypeWithHeader(archetypeIdNum);
+  } = useArchetypeWithHeader(archetypeParam);
+
+  const canonicalPath = archetypeWithHeaderData?.success
+    ? buildArchetypePath({
+        archetypeId: archetypeWithHeaderData.archetype.id,
+        archetypeName: archetypeWithHeaderData.archetype.name,
+        guideType,
+      })
+    : null;
+
+  useCanonicalPathRedirect(canonicalPath, { includeSearch: true });
 
   const handleSelectInstance = useCallback(
     (instanceId: number) => {
@@ -65,14 +79,15 @@ export const ArchetypeGuideListPage = () => {
 
   const handleSelectGuideType = useCallback(
     (guideType: GuideType) => {
-      if (archetypeId) {
-        navigate(buildGuideEditorPath({ archetypeId, guideType }), {
+      const resolvedArchetypeId = archetypeWithHeaderData?.archetype.id ?? archetypeParam;
+      if (resolvedArchetypeId) {
+        navigate(buildGuideEditorPath({ archetypeId: resolvedArchetypeId, guideType }), {
           state: { guideType },
         });
         setIsModalOpen(false);
       }
     },
-    [archetypeId, navigate],
+    [archetypeParam, archetypeWithHeaderData?.archetype.id, navigate],
   );
 
   const handleSearchChange = useCallback((value: string) => {
@@ -85,12 +100,13 @@ export const ArchetypeGuideListPage = () => {
       setIsDropdownOpen(false);
       setSearchQuery("");
       
-      // Navigate to archetype guides filtered by type
-      if (guideTypeFromSearch) {
-        navigate(`/archetype/${archetype.id}?type=${guideTypeFromSearch.toLowerCase()}`);
-      } else {
-        navigate(`/archetype/${archetype.id}`);
-      }
+      navigate(
+        buildArchetypePath({
+          archetypeId: archetype.id,
+          archetypeName: archetype.name,
+          guideType: guideTypeFromSearch,
+        }),
+      );
     },
     [navigate],
   );
@@ -201,7 +217,7 @@ export const ArchetypeGuideListPage = () => {
           <main className="container mx-auto px-4" role="main" aria-label="Main content">
             <FeatureErrorBoundary featureName="Archetype Instances">
               <ArchetypeInstancesGuideList
-                archetypeId={parseInt(archetypeId!)}
+                archetypeId={archetype.id}
                 archetypeName={archetype.name}
                 onSelectInstance={handleSelectInstance}
                 onCreateInstance={handleCreateInstance}
