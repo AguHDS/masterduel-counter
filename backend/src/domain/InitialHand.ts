@@ -6,6 +6,8 @@ export interface FinalBoardCard {
   imageUrlCropped: string;
 }
 
+export type CardPosition = 'atk' | 'def';
+
 export interface FinalBoardPreview {
   fieldSpellCardId: number | null;
   extraMonsterCardIds: Array<number | null>;
@@ -15,6 +17,8 @@ export interface FinalBoardPreview {
   graveyardCardIds: number[];
   banishedCardIds: number[];
   description?: string;
+  monsterPositions?: Array<CardPosition>;
+  extraMonsterPositions?: Array<CardPosition>;
 }
 
 export interface FinalBoardPreviewWithCards {
@@ -26,6 +30,8 @@ export interface FinalBoardPreviewWithCards {
   graveyard: FinalBoardCard[];
   banished: FinalBoardCard[];
   description?: string;
+  monsterPositions?: Array<CardPosition>;
+  extraMonsterPositions?: Array<CardPosition>;
 }
 
 export interface InitialHand {

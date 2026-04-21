@@ -190,6 +190,8 @@ export const createGetGuideByIdController = (
             graveyard: hand.finalBoard.graveyard,
             banished: hand.finalBoard.banished,
             description: hand.finalBoard.description,
+            monsterPositions: hand.finalBoard.monsterPositions,
+            extraMonsterPositions: hand.finalBoard.extraMonsterPositions,
           } : undefined,
           position: hand.position,
           comboSteps: hand.comboSteps,

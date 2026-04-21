@@ -38,6 +38,8 @@ export interface FinalBoardDTO {
   graveyardCardIds: number[];
   banishedCardIds: number[];
   description?: string;
+  monsterPositions?: Array<'atk' | 'def'>;
+  extraMonsterPositions?: Array<'atk' | 'def'>;
 }
 
 export interface RecommendedDeckCard {

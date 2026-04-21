@@ -1,5 +1,6 @@
 import Database from "better-sqlite3";
 import {
+  CardPosition,
   FinalBoardCard,
   FinalBoardPreview,
   FinalBoardPreviewWithCards,
@@ -80,6 +81,15 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
     );
   }
 
+  private normalizePositionArray(
+    value: unknown[],
+    expectedLength: number,
+  ): Array<CardPosition> {
+    const arr = value.slice(0, expectedLength);
+    while (arr.length < expectedLength) arr.push('atk');
+    return arr.map((v) => (v === 'def' ? 'def' : 'atk'));
+  }
+
   private parseFinalBoard(raw: string | null): FinalBoardPreview | undefined {
     // Normalize stored JSON so malformed or partial data does not break guide reads.
     if (!raw) {
@@ -113,6 +123,12 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
         banishedCardIds: this.normalizeCardIdArray(parsed.banishedCardIds),
         description:
           typeof parsed.description === "string" ? parsed.description : undefined,
+        monsterPositions: Array.isArray(parsed.monsterPositions)
+          ? this.normalizePositionArray(parsed.monsterPositions, 5)
+          : undefined,
+        extraMonsterPositions: Array.isArray(parsed.extraMonsterPositions)
+          ? this.normalizePositionArray(parsed.extraMonsterPositions, 2)
+          : undefined,
       };
     } catch {
       return undefined;
@@ -156,6 +172,8 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
         .map((cardId) => cardsById.get(cardId))
         .filter((card): card is FinalBoardCard => card !== undefined),
       description: finalBoard.description,
+      monsterPositions: finalBoard.monsterPositions,
+      extraMonsterPositions: finalBoard.extraMonsterPositions,
     };
   }
 

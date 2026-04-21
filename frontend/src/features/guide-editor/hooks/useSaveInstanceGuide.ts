@@ -106,6 +106,12 @@ export const useSaveInstanceGuide = () => {
       graveyardCardIds: hand.finalBoard.graveyard.map((card) => card.id),
       banishedCardIds: hand.finalBoard.banished.map((card) => card.id),
       description: hand.finalBoard.description || undefined,
+      monsterPositions: hand.finalBoard.monsterPositions?.some((p) => p === 'def')
+        ? hand.finalBoard.monsterPositions
+        : undefined,
+      extraMonsterPositions: hand.finalBoard.extraMonsterPositions?.some((p) => p === 'def')
+        ? hand.finalBoard.extraMonsterPositions
+        : undefined,
     };
   };
 
