@@ -184,11 +184,27 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           <Crown className="w-3.5 h-3.5 flex-shrink-0 text-[#c2901c]" />
                         )}
                       </div>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <ThumbsUp className="w-3 h-3 text-emerald-500" />
-                        <span className="text-sm text-emerald-400">
-                          {user.totalLikes.toLocaleString()} Guide Likes
+                      <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <ThumbsUp className="w-3 h-3 text-emerald-500" />
+                          <span className="text-sm text-emerald-400">
+                            {user.totalLikes.toLocaleString()} Guide Likes
+                          </span>
                         </span>
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3 h-3 text-blue-400" />
+                          <span className="text-sm text-blue-300">
+                            {user.totalViews.toLocaleString()} Guide Views
+                          </span>
+                        </span>
+                        {user.fulfilledRequests > 0 && (
+                          <span className="flex items-center gap-1">
+                            <BookOpen className="w-3 h-3 text-amber-400" />
+                            <span className="text-sm text-amber-300">
+                              {user.fulfilledRequests} Completed Requests
+                            </span>
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -296,7 +312,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                         <div className="flex items-center gap-2.5 mt-1">
                           <span className="flex items-center gap-1 text-sm text-purple-400">
                             <Eye className="w-3 h-3" />
-                            {(guide.views ?? 0).toLocaleString()}
+                            {(guide.views ?? 0).toLocaleString()} Views
                           </span>
                           <span className="flex items-center gap-1 text-sm text-emerald-400">
                             <ThumbsUp className="w-3 h-3" />

@@ -24,6 +24,7 @@ export interface ProfileResponse {
   profile: Profile;
   totalViews?: number;
   rank?: number | null;
+  fulfilledRequestsCount?: number;
   message?: string;
 }
 

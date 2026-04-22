@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Crown, ThumbsUp, Eye, BookOpen } from "lucide-react";
+import { Crown, ThumbsUp, Eye, BookOpen, MailWarning } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import type { RankingUser } from "../types/ranking.types";
@@ -163,7 +163,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                   />
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                       <span className="text-sm font-semibold text-white truncate">
                         {user.username}
                       </span>
@@ -171,11 +171,27 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         <Crown className="w-3 h-3 flex-shrink-0 text-[#c2901c]" />
                       )}
                     </div>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <ThumbsUp className="w-3 h-3 text-emerald-500" />
-                      <span className="text-xs text-emerald-400 font-medium">
-                        {user.totalLikes.toLocaleString()} Guide Likes
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <span className="flex items-center gap-0.5">
+                        <ThumbsUp className="w-3 h-3 text-emerald-500" />
+                        <span className="text-xs text-emerald-400 font-medium">
+                          {user.totalLikes.toLocaleString()} Likes
+                        </span>
                       </span>
+                      <span className="flex items-center gap-0.5">
+                        <Eye className="w-3 h-3 text-blue-400" />
+                        <span className="text-xs text-blue-300 font-medium">
+                          {user.totalViews.toLocaleString()} Views
+                        </span>
+                      </span>
+                      {user.fulfilledRequests > 0 && (
+                        <span className="flex items-center gap-0.5">
+                          <MailWarning className="w-3 h-3 text-orange-400" />
+                          <span className="text-xs text-orange-400 font-medium">
+                            {user.fulfilledRequests} Requests
+                          </span>
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -281,14 +297,14 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                       <div className="flex items-center gap-2 mt-1">
                         <span className="flex items-center gap-1 text-xs text-purple-400 font-medium">
                           <Eye className="w-3 h-3" />
-                          {(guide.views ?? 0).toLocaleString()}
+                          {(guide.views ?? 0).toLocaleString()} Views
                         </span>
                         <span className="flex items-center gap-1 text-xs text-emerald-400 font-medium">
                           <ThumbsUp className="w-3 h-3" />
-                          {guide.likes.toLocaleString()}
+                          {guide.likes.toLocaleString()} Likes
                         </span>
                         <span
-                          className={`text-[10px] font-bold px-1.5 py-[2px] rounded border ${
+                          className={`text-[10px] font-bold px-1.5 py-[2px] rounded-md border ${
                             isCounter
                               ? "bg-amber-950/60 text-amber-500 border-amber-700/50"
                               : "bg-blue-950/60 text-blue-400 border-blue-800/50"

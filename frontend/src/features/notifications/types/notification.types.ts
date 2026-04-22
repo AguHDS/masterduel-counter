@@ -1,6 +1,6 @@
 import { buildGuidePath } from "@/lib/config/urlHelpers";
 
-export type NotificationType = "comment" | "like" | "favorite";
+export type NotificationType = "comment" | "like" | "favorite" | "guide_request_fulfilled";
 
 export interface Notification {
   id: number;
@@ -82,6 +82,13 @@ export const formatNotificationMessage = (notification: Notification): Formatted
       return {
         actorName: null,
         actionText: `${notification.count} users favorited your guide:`,
+        title,
+        link,
+      };
+    case "guide_request_fulfilled":
+      return {
+        actorName: notification.actorName,
+        actionText: "fulfilled your guide request:",
         title,
         link,
       };

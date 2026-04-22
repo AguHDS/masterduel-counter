@@ -37,6 +37,8 @@ interface SaveInstanceParams {
   hasDeckContent: boolean;
   existingDeck: boolean;
   comboSteps?: Map<string, ComboStep[]>;
+  /** Optional callback invoked after saving but before redirect. Receives the new instance id */
+  onAfterSave?: (instanceId: number) => Promise<void>;
 }
 
 export const useSaveInstanceGuide = () => {
@@ -180,6 +182,7 @@ export const useSaveInstanceGuide = () => {
       hasDeckContent,
       existingDeck,
       comboSteps,
+      onAfterSave,
     } = params;
 
     // Validate based on guide type
@@ -389,6 +392,9 @@ export const useSaveInstanceGuide = () => {
       }
 
       if (response.instance?.id) {
+        if (onAfterSave) {
+          await onAfterSave(response.instance.id);
+        }
         // After save, jump directly to the public SEO-friendly guide URL
         window.location.href = buildGuidePath({
           guideId: response.instance.id,

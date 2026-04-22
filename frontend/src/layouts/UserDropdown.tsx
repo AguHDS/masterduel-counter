@@ -7,7 +7,7 @@ import { profileApi } from "@/features/profile/api/profileApi";
 import { Avatar } from "@/shared/components/DefaultAvatar";
 import { buildProfilePath } from "@/lib/config/urlHelpers";
 
-export const UserDropdown = () => {
+export const UserDropdown = ({ onOpen }: { onOpen?: () => void } = {}) => {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -50,7 +50,10 @@ export const UserDropdown = () => {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (!isOpen) onOpen?.();
+          setIsOpen(!isOpen);
+        }}
         className="flex items-center gap-3 hover:bg-[#c2901c]/10 rounded-lg transition-all group"
         aria-label="User menu"
       >

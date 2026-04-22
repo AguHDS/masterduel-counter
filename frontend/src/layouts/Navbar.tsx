@@ -9,7 +9,15 @@ import {
   X,
   Crown,
   Layers,
+  Inbox,
+  MailWarning,
 } from "lucide-react";
+import {
+  GuideRequestNavbarPopup,
+  GuideRequestFullModal,
+  CreateGuideRequestModal,
+} from "../features/guide-request";
+import { useGuideRequestCounts } from "../features/guide-request/hooks/useGuideRequests";
 import { Link } from "react-router-dom";
 import logoImg from "../assets/NavbarLogo.webp";
 import discordContainerIcon from "../assets/discord_container.webp";
@@ -21,6 +29,7 @@ import { useRanking } from "../features/ranking/hooks/useRanking";
 import { useGuideRanking } from "../features/ranking/hooks/useRanking";
 import { UserDropdown } from "./UserDropdown";
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { Avatar } from "@/shared/components/DefaultAvatar";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 
@@ -30,13 +39,79 @@ export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [isMobileRankingOpen, setIsMobileRankingOpen] = useState(false);
-  const [mobileRankingTab, setMobileRankingTab] = useState<"guides" | "users">("guides");
+  const [mobileRankingTab, setMobileRankingTab] = useState<"guides" | "users">(
+    "guides",
+  );
   const [isRankingModalOpen, setIsRankingModalOpen] = useState(false);
   const [isTabletView, setIsTabletView] = useState(false);
+  const [isRequestsOpen, setIsRequestsOpen] = useState(false);
+  const [isMobileRequestsOpen, setIsMobileRequestsOpen] = useState(false);
+  const [showRequestsFullModal, setShowRequestsFullModal] = useState(false);
+  const [showCreateRequestModal, setShowCreateRequestModal] = useState(false);
+  const [showRequestsHint, setShowRequestsHint] = useState(false);
+  const [hintExiting, setHintExiting] = useState(false);
   const rankingButtonRef = useRef<HTMLButtonElement>(null);
+  const requestsButtonRef = useRef<HTMLButtonElement>(null);
+  const requestsPopupRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
 
   const { data: rankingData, isLoading: isLoadingRanking } = useRanking(1, 50);
-  const { data: guideRankingData, isLoading: isLoadingGuideRanking } = useGuideRanking(1, 50);
+  const { data: guideRankingData, isLoading: isLoadingGuideRanking } =
+    useGuideRanking(1, 50);
+  const { data: requestCounts } = useGuideRequestCounts();
+
+  const BADGE_KEY = "openRequestsBadgeDismissed";
+  const BADGE_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+  const badgeDismissed = (() => {
+    try {
+      const v = localStorage.getItem(BADGE_KEY);
+      return !!v && Date.now() - Number(v) < BADGE_COOLDOWN_MS;
+    } catch {
+      return false;
+    }
+  })();
+  const showOpenBadge = (requestCounts?.OPEN ?? 0) > 0 && !badgeDismissed && !isRequestsOpen;
+
+  const REQUESTS_HINT_KEY = "requestsHintLastShown";
+  const HINT_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
+
+  useEffect(() => {
+    if (location.pathname !== "/") return;
+    const last = localStorage.getItem(REQUESTS_HINT_KEY);
+    const shouldShow = !last || Date.now() - Number(last) > HINT_COOLDOWN_MS;
+    if (!shouldShow) return;
+    localStorage.setItem(REQUESTS_HINT_KEY, String(Date.now()));
+    const t = setTimeout(() => setShowRequestsHint(true), 800);
+    return () => clearTimeout(t);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!showRequestsHint) return;
+    const exitTimer = setTimeout(() => setHintExiting(true), 10000);
+    const unmountTimer = setTimeout(() => {
+      setShowRequestsHint(false);
+      setHintExiting(false);
+    }, 10000 + 900);
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(unmountTimer);
+    };
+  }, [showRequestsHint]);
+
+  // Close requests popup on outside click
+  useEffect(() => {
+    if (!isRequestsOpen) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        requestsButtonRef.current?.contains(target) ||
+        requestsPopupRef.current?.contains(target)
+      ) return;
+      setIsRequestsOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [isRequestsOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -50,12 +125,12 @@ export const Navbar = () => {
     const handleResize = () => {
       const width = window.innerWidth;
       setIsTabletView(width >= 640 && width < 1024);
-      
+
       if (width >= 1024) {
         setIsMenuOpen(false);
       }
     };
-    
+
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -83,11 +158,36 @@ export const Navbar = () => {
   const handleToggleRanking = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsRequestsOpen(false);
     setIsRankingOpen((prev) => !prev);
   };
 
   const handleToggleMobileRanking = () => {
     setIsMobileRankingOpen((prev) => !prev);
+  };
+
+  const dismissHint = () => {
+    if (showRequestsHint) {
+      setHintExiting(true);
+      setTimeout(() => {
+        setShowRequestsHint(false);
+        setHintExiting(false);
+      }, 900);
+    }
+  };
+
+  const handleToggleRequests = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsRankingOpen(false);
+    dismissHint();
+    // Dismiss badge when opening popup
+    try { localStorage.setItem(BADGE_KEY, String(Date.now())); } catch { /* ignore */ }
+    setIsRequestsOpen((prev) => !prev);
+  };
+
+  const handleToggleMobileRequests = () => {
+    setIsMobileRequestsOpen((prev) => !prev);
   };
 
   const getRankStyles = (rank: number) => {
@@ -121,10 +221,7 @@ export const Navbar = () => {
 
   return (
     <header className="relative top-0 z-[350] bg-[#18121a]/90 border-b-4 border-[#c2901c] shadow-[0_10px_50px_-5px_rgba(0,0,0,0.7)]">
-      <nav
-        className="px-4 sm:px-6 lg:px-8 py-4"
-        aria-label="Main navigation"
-      >
+      <nav className="px-4 sm:px-6 lg:px-8 py-4" aria-label="Main navigation">
         <div className="absolute ml-1 left-0 top-1/2 -translate-y-1/2 pl-4 sm:pl-6 lg:pl-8">
           <Link
             to="/"
@@ -185,7 +282,67 @@ export const Navbar = () => {
                   </span>
                 </Link>
               </div>
-              
+
+              {/* Guide Requests - Desktop */}
+              <div className="relative flex items-center px-4">
+                <button
+                  ref={requestsButtonRef}
+                  onMouseDown={handleToggleRequests}
+                  className="flex items-center space-x-1 px-2 py-1.5 rounded-lg transition-colors group relative"
+                  aria-label="Guide Requests"
+                >
+                  <span className="relative shrink-0">
+                    <MailWarning className="w-[19px] h-[19px] text-[#c2901c] group-hover:text-[#e9b53c] transition-colors" />
+                    {showOpenBadge && (
+                      <span className="absolute -top-2 right-3 min-w-[16px] h-[16px] px-0.5 bg-amber-400 text-black text-[9px] font-black rounded-full flex items-center justify-center leading-none ring-2 ring-[#0d0f1a]">
+                        {requestCounts!.OPEN}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-xs font-medium text-[#c2901c] group-hover:text-[#e9b53c] transition-colors">
+                    Requests
+                  </span>
+                </button>
+
+                {/* Home hint tooltip */}
+                {showRequestsHint && (
+                  <div
+                    className={`${hintExiting ? "hint-float-out" : "hint-float-in"} absolute top-full left-1/2 mt-3 z-[400] pointer-events-none`}
+                    style={{ transform: "translateX(-50%)" }}
+                  >
+                    {/* Arrow */}
+                    <div
+                      className="w-2.5 h-2.5 bg-[#1e1825] border-l border-t border-[#c2901c]/50 rotate-45 mx-auto"
+                      style={{
+                        marginBottom: "-5px",
+                        position: "relative",
+                        zIndex: 1,
+                      }}
+                    />
+                    {/* Bubble */}
+                    <div className="bg-[#1e1825] border border-[#c2901c]/50 rounded-lg px-3.5 py-2.5 shadow-xl shadow-black/50 whitespace-nowrap">
+                      <p className="text-[#e9c87a] text-xs font-semibold leading-snug">
+                        Can't find a guide? Request it to the community!
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <GuideRequestNavbarPopup
+                  isOpen={isRequestsOpen}
+                  onClose={() => setIsRequestsOpen(false)}
+                  onOpenFullModal={() => {
+                    setIsRequestsOpen(false);
+                    setShowRequestsFullModal(true);
+                  }}
+                  onOpenCreate={() => {
+                    setIsRequestsOpen(false);
+                    setShowCreateRequestModal(true);
+                  }}
+                  popupRef={requestsPopupRef}
+                />
+              </div>
+
               <div className="relative flex items-center px-4">
                 <button
                   ref={rankingButtonRef}
@@ -220,7 +377,12 @@ export const Navbar = () => {
 
                   {/* Profile, Logout, Admin */}
                   <div className="flex items-center gap-4 px-4 ">
-                    <UserDropdown />
+                    <UserDropdown
+                      onOpen={() => {
+                        setIsRankingOpen(false);
+                        setIsRequestsOpen(false);
+                      }}
+                    />
 
                     {isAdmin && (
                       <Link
@@ -328,12 +490,49 @@ export const Navbar = () => {
                 alignRight={isTabletView}
               />
 
+              {/* Guide Requests icon - Tablet */}
+              <div className="relative">
+                <button
+                  ref={requestsButtonRef}
+                  onMouseDown={handleToggleRequests}
+                  className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"
+                  aria-label="Guide Requests"
+                >
+                  <span className="relative">
+                    <Inbox className="w-5 h-5 text-[#c2901c] group-hover:text-[#e9b53c] transition-colors" />
+                    {showOpenBadge && (
+                      <span className="absolute -top-2 -right-2 min-w-[16px] h-[16px] px-0.5 bg-amber-400 text-black text-[9px] font-black rounded-full flex items-center justify-center leading-none ring-2 ring-[#0d0f1a]">
+                        {requestCounts!.OPEN}
+                      </span>
+                    )}
+                  </span>
+                </button>
+                <GuideRequestNavbarPopup
+                  isOpen={isRequestsOpen}
+                  onClose={() => setIsRequestsOpen(false)}
+                  onOpenFullModal={() => {
+                    setIsRequestsOpen(false);
+                    setShowRequestsFullModal(true);
+                  }}
+                  onOpenCreate={() => {
+                    setIsRequestsOpen(false);
+                    setShowCreateRequestModal(true);
+                  }}
+                  popupRef={requestsPopupRef}
+                />
+              </div>
+
               {!isLoading && isAuthenticated && user ? (
                 <>
                   <NotificationBell />
                   <NotificationPopup />
 
-                  <UserDropdown />
+                  <UserDropdown
+                    onOpen={() => {
+                      setIsRankingOpen(false);
+                      setIsRequestsOpen(false);
+                    }}
+                  />
 
                   {isAdmin && (
                     <Link
@@ -452,9 +651,11 @@ export const Navbar = () => {
 
                   <div className="max-h-72 overflow-y-auto scrollbar-cardpair p-2">
                     {/* Users tab */}
-                    {mobileRankingTab === "users" && (
-                      isLoadingRanking ? (
-                        <div className="text-center text-gray-400 py-4 text-sm">Loading...</div>
+                    {mobileRankingTab === "users" &&
+                      (isLoadingRanking ? (
+                        <div className="text-center text-gray-400 py-4 text-sm">
+                          Loading...
+                        </div>
                       ) : rankingData && rankingData.ranking.length > 0 ? (
                         rankingData.ranking.map((user) => {
                           const styles = getRankStyles(user.rank);
@@ -465,29 +666,52 @@ export const Navbar = () => {
                                 userName: user.username,
                                 userId: user.userId,
                               })}
-                              onClick={(e) => { e.preventDefault(); handleUserClick(user.username, user.userId); }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleUserClick(user.username, user.userId);
+                              }}
                               className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer no-underline ${styles.bg}`}
                             >
-                              <div className={`w-6 text-center font-bold text-xs ${styles.text}`}>#{user.rank}</div>
-                              <Avatar username={user.username} profilePictureUrl={user.profilePictureUrl} size="sm" />
-                              <div className="flex-1 min-w-0">
-                                <span className="text-white text-sm truncate block">{user.username}</span>
-                                <span className="text-xs text-emerald-400">{user.totalLikes} Likes</span>
+                              <div
+                                className={`w-6 text-center font-bold text-xs ${styles.text}`}
+                              >
+                                #{user.rank}
                               </div>
-                              {user.rank <= 3 && <Crown className={`w-3 h-3 flex-shrink-0 ${styles.icon}`} />}
+                              <Avatar
+                                username={user.username}
+                                profilePictureUrl={user.profilePictureUrl}
+                                size="sm"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <span className="text-white text-sm truncate block">
+                                  {user.username}
+                                </span>
+                                <span className="text-xs text-emerald-400">
+                                  {user.totalLikes} Likes
+                                </span>
+                              </div>
+                              {user.rank <= 3 && (
+                                <Crown
+                                  className={`w-3 h-3 flex-shrink-0 ${styles.icon}`}
+                                />
+                              )}
                             </a>
                           );
                         })
                       ) : (
-                        <div className="text-center text-gray-400 py-4 text-sm">No users yet</div>
-                      )
-                    )}
+                        <div className="text-center text-gray-400 py-4 text-sm">
+                          No users yet
+                        </div>
+                      ))}
 
                     {/* Guides tab */}
-                    {mobileRankingTab === "guides" && (
-                      isLoadingGuideRanking ? (
-                        <div className="text-center text-gray-400 py-4 text-sm">Loading...</div>
-                      ) : guideRankingData && guideRankingData.ranking.length > 0 ? (
+                    {mobileRankingTab === "guides" &&
+                      (isLoadingGuideRanking ? (
+                        <div className="text-center text-gray-400 py-4 text-sm">
+                          Loading...
+                        </div>
+                      ) : guideRankingData &&
+                        guideRankingData.ranking.length > 0 ? (
                         guideRankingData.ranking.map((guide) => {
                           const isCounter = guide.guideType === "COUNTER";
                           return (
@@ -511,17 +735,34 @@ export const Navbar = () => {
                               }}
                               className="flex items-center gap-2 p-2 rounded-lg cursor-pointer no-underline"
                             >
-                              <div className={`w-6 text-center font-bold text-xs ${ guide.rank === 1 ? "text-yellow-400" : guide.rank === 2 ? "text-slate-300" : guide.rank === 3 ? "text-amber-500" : "text-gray-500" }`}>#{guide.rank}</div>
+                              <div
+                                className={`w-6 text-center font-bold text-xs ${guide.rank === 1 ? "text-yellow-400" : guide.rank === 2 ? "text-slate-300" : guide.rank === 3 ? "text-amber-500" : "text-gray-500"}`}
+                              >
+                                #{guide.rank}
+                              </div>
                               <div className="w-9 h-9 flex-shrink-0 rounded overflow-hidden border border-[#c2901c]/20 bg-[#0d0b10]">
-                                {guide.headerImageUrl
-                                  ? <img src={guide.headerImageUrl} alt={guide.title} className="w-full h-full object-cover" />
-                                  : <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs">?</div>
-                                }
+                                {guide.headerImageUrl ? (
+                                  <img
+                                    src={guide.headerImageUrl}
+                                    alt={guide.title}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs">
+                                    ?
+                                  </div>
+                                )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <span className="text-white text-sm truncate block">{guide.title}</span>
-                                <span className="text-xs text-gray-500 truncate block">{guide.authorName} · {guide.archetypeName}</span>
-                                <span className={`text-[10px] font-bold ${isCounter ? "text-amber-500" : "text-blue-400"}`}>
+                                <span className="text-white text-sm truncate block">
+                                  {guide.title}
+                                </span>
+                                <span className="text-xs text-gray-500 truncate block">
+                                  {guide.authorName} · {guide.archetypeName}
+                                </span>
+                                <span
+                                  className={`text-[10px] font-bold ${isCounter ? "text-amber-500" : "text-blue-400"}`}
+                                >
                                   {isCounter ? "Counter Guide" : "Deck Guide"}
                                 </span>
                               </div>
@@ -529,9 +770,10 @@ export const Navbar = () => {
                           );
                         })
                       ) : (
-                        <div className="text-center text-gray-400 py-4 text-sm">No guides yet</div>
-                      )
-                    )}
+                        <div className="text-center text-gray-400 py-4 text-sm">
+                          No guides yet
+                        </div>
+                      ))}
                   </div>
 
                   <button
@@ -539,6 +781,38 @@ export const Navbar = () => {
                     className="w-full text-center text-xs text-[#c2901c] hover:text-[#d4a534] transition-colors py-2 border-t border-[#c2901c]/30"
                   >
                     View Full Ranking →
+                  </button>
+                </div>
+              )}
+
+              {/* Guide Requests - Mobile */}
+              <button
+                onClick={handleToggleMobileRequests}
+                className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 transition-opacity py-2 w-full text-left"
+              >
+                <Inbox className="h-4 w-4" />
+                <span>Guide Requests</span>
+              </button>
+
+              {isMobileRequestsOpen && (
+                <div className="ml-2 bg-[#2a2430] rounded-lg border border-[#c2901c]/30 overflow-hidden">
+                  <button
+                    onClick={() => {
+                      setShowCreateRequestModal(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-[#c2901c] text-xs font-medium hover:bg-[#c2901c]/10 border-b border-[#c2901c]/20 transition-colors"
+                  >
+                    + Request a Guide
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowRequestsFullModal(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-slate-300 text-xs hover:bg-[#c2901c]/10 transition-colors"
+                  >
+                    View all requests →
                   </button>
                 </div>
               )}
@@ -551,7 +825,10 @@ export const Navbar = () => {
                   </div>
 
                   <Link
-                    to={buildProfilePath({ userName: user.name, userId: user.id })}
+                    to={buildProfilePath({
+                      userName: user.name,
+                      userId: user.id,
+                    })}
                     onClick={handleLinkClick}
                     className="flex items-center gap-2 text-blue-500 text-sm font-medium hover:opacity-80 transition-opacity py-2"
                   >
@@ -625,6 +902,17 @@ export const Navbar = () => {
         isOpen={isRankingModalOpen}
         onClose={() => setIsRankingModalOpen(false)}
         onUserClick={handleUserClick}
+      />
+
+      {/* Guide Requests Modals */}
+      <GuideRequestFullModal
+        isOpen={showRequestsFullModal}
+        onClose={() => setShowRequestsFullModal(false)}
+        currentUser={user ?? null}
+      />
+      <CreateGuideRequestModal
+        isOpen={showCreateRequestModal}
+        onClose={() => setShowCreateRequestModal(false)}
       />
     </header>
   );

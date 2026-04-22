@@ -65,6 +65,10 @@ import { RankingRepository } from "@/domain/ports/RankingRepository.js";
 import { RankingApplicationPort } from "@/application/ports/RankingApplicationPort.js";
 import { SqliteRankingRepository } from "@/infrastructure/repositories/SqliteRankingRepository.js";
 import { RankingApplicationService } from "@/application/services/RankingApplicationService.js";
+import { GuideRequestRepository } from "@/domain/ports/GuideRequestRepository.js";
+import { GuideRequestApplicationPort } from "@/application/ports/GuideRequestApplicationPort.js";
+import { SqliteGuideRequestRepository } from "@/infrastructure/repositories/SqliteGuideRequestRepository.js";
+import { GuideRequestApplicationService } from "@/application/services/GuideRequestApplicationService.js";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -102,6 +106,8 @@ export class Dependencies {
   private comboStepService: ComboStepApplicationPort | null = null;
   private rankingRepository: RankingRepository | null = null;
   private rankingService: RankingApplicationPort | null = null;
+  private guideRequestRepository: GuideRequestRepository | null = null;
+  private guideRequestService: GuideRequestApplicationPort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -403,6 +409,22 @@ export class Dependencies {
       );
     }
     return this.rankingService;
+  }
+
+  getGuideRequestRepository(): GuideRequestRepository {
+    if (!this.guideRequestRepository) {
+      this.guideRequestRepository = new SqliteGuideRequestRepository(this.prisma);
+    }
+    return this.guideRequestRepository;
+  }
+
+  getGuideRequestService(): GuideRequestApplicationPort {
+    if (!this.guideRequestService) {
+      this.guideRequestService = new GuideRequestApplicationService(
+        this.getGuideRequestRepository(),
+      );
+    }
+    return this.guideRequestService;
   }
 
   getPrismaClient(): PrismaClient {
