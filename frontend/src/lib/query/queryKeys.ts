@@ -77,4 +77,13 @@ export const queryKeys = {
     detail: (userId: string, deckId: number) =>
       ["customDecks", userId, deckId] as const,
   },
+
+  guideRequests: {
+    all: ["guideRequests"] as const,
+    list: (page: number, limit: number, status?: string) =>
+      ["guideRequests", "list", page, limit, status ?? "all"] as const,
+    recent: (limit: number) => ["guideRequests", "recent", limit] as const,
+    detail: (id: number) => ["guideRequests", "detail", id] as const,
+    counts: ["guideRequests", "counts"] as const,
+  },
 } as const;

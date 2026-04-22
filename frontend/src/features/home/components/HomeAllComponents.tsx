@@ -4,6 +4,7 @@ import { GeneralStats } from "./GeneralStats";
 import { LatestUpdates } from "./LastestUpdates";
 import { MainFeatures } from "./MainFeatures";
 import MDCBackground from "@/assets/HomeAllPages_Background2.webp";
+import { GuideRequestsSection } from "@/features/guide-request";
 
 interface HomeAllComponentsProps {
   isSearchActive?: boolean;
@@ -47,13 +48,17 @@ export const HomeAllComponents = ({
           </div>
         </div>
 
+        <div className="px-8 py-4">
+          <GuideRequestsSection />
+        </div>
+
         <div
           className="lg:col-span-2 h-[550px] mt-1.5"
           aria-label="General statistics section"
         >
           <GeneralStats />
         </div>
-
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div className="lg:col-span-2" aria-hidden="true" />
 
@@ -69,7 +74,6 @@ export const HomeAllComponents = ({
               <MainFeatures />
             </div>
           </div>
-
         </div>
       </div>
     </div>

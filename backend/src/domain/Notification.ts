@@ -1,4 +1,4 @@
-export type NotificationType = "comment" | "like" | "favorite";
+export type NotificationType = "comment" | "like" | "favorite" | "guide_request_fulfilled";
 
 export interface Notification {
   id: number;

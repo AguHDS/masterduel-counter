@@ -17,7 +17,7 @@ const PaginationControls: React.FC<{
       <button
         disabled={currentPage === 1}
         onClick={() => setCurrentPage(currentPage - 1)}
-        className="px-2 py-1 text-xs text-[#c2901c] disabled:opacity-30 hover:text-[#d4a534] transition-colors"
+        className="px-2 py-1 text-xs text-[#c2901c] disabled:opacity-30 hover:text-[#d4a534]"
       >
         ‹
       </button>
@@ -25,7 +25,7 @@ const PaginationControls: React.FC<{
         <button
           key={page}
           onClick={() => setCurrentPage(page)}
-          className={`w-6 h-6 text-xs rounded transition-colors ${
+          className={`w-6 h-6 text-xs rounded ${
             page === currentPage
               ? "bg-[#c2901c] text-black font-bold"
               : "text-[#c2901c] hover:text-[#d4a534]"
@@ -37,7 +37,7 @@ const PaginationControls: React.FC<{
       <button
         disabled={currentPage === totalPages}
         onClick={() => setCurrentPage(currentPage + 1)}
-        className="px-2 py-1 text-xs text-[#c2901c] disabled:opacity-30 hover:text-[#d4a534] transition-colors"
+        className="px-2 py-1 text-xs text-[#c2901c] disabled:opacity-30 hover:text-[#d4a534]"
       >
         ›
       </button>
@@ -94,7 +94,7 @@ export const NotificationPopup: React.FC<NotificationPopupProps> = ({
 
         <div className="p-2 border-t border-[#c2901c]/30 bg-[#151017]">
           <button
-            className="w-full text-center text-sm text-[#c2901c] hover:text-[#d4a534] transition-colors py-1"
+            className="w-full text-center text-sm text-[#c2901c] hover:text-[#d4a534] py-1"
             onClick={markAllAsRead}
           >
             Mark all as read
@@ -107,7 +107,7 @@ export const NotificationPopup: React.FC<NotificationPopupProps> = ({
   return (
     <div
       ref={notificationRef}
-      className="absolute right-0 mt-2 w-80 bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-xl overflow-hidden z-50"
+      className="scrollbar-homeAllPages absolute right-0 mt-2 w-80 bg-[#1f1a24] border border-[#c2901c]/30 rounded-lg shadow-xl overflow-hidden z-50"
       style={{ top: "100%" }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -136,7 +136,7 @@ export const NotificationPopup: React.FC<NotificationPopupProps> = ({
 
       <div className="p-2 border-t border-[#c2901c]/30 bg-[#151017]">
         <button
-          className="w-full text-center text-sm text-[#c2901c] hover:text-[#d4a534] transition-colors py-1"
+          className="w-full text-center text-sm text-[#c2901c] hover:text-[#d4a534] py-1"
           onClick={markAllAsRead}
         >
           Mark all as read

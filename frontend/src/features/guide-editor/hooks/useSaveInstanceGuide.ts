@@ -37,6 +37,8 @@ interface SaveInstanceParams {
   hasDeckContent: boolean;
   existingDeck: boolean;
   comboSteps?: Map<string, ComboStep[]>;
+  /** Optional callback invoked after saving but before redirect. Receives the new instance id */
+  onAfterSave?: (instanceId: number) => Promise<void>;
 }
 
 export const useSaveInstanceGuide = () => {
@@ -106,6 +108,12 @@ export const useSaveInstanceGuide = () => {
       graveyardCardIds: hand.finalBoard.graveyard.map((card) => card.id),
       banishedCardIds: hand.finalBoard.banished.map((card) => card.id),
       description: hand.finalBoard.description || undefined,
+      monsterPositions: hand.finalBoard.monsterPositions?.some((p) => p === 'def')
+        ? hand.finalBoard.monsterPositions
+        : undefined,
+      extraMonsterPositions: hand.finalBoard.extraMonsterPositions?.some((p) => p === 'def')
+        ? hand.finalBoard.extraMonsterPositions
+        : undefined,
     };
   };
 
@@ -174,6 +182,7 @@ export const useSaveInstanceGuide = () => {
       hasDeckContent,
       existingDeck,
       comboSteps,
+      onAfterSave,
     } = params;
 
     // Validate based on guide type
@@ -383,6 +392,9 @@ export const useSaveInstanceGuide = () => {
       }
 
       if (response.instance?.id) {
+        if (onAfterSave) {
+          await onAfterSave(response.instance.id);
+        }
         // After save, jump directly to the public SEO-friendly guide URL
         window.location.href = buildGuidePath({
           guideId: response.instance.id,

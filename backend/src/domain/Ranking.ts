@@ -3,6 +3,8 @@ export interface UserRankingItem {
   username: string;
   profilePictureUrl: string | null;
   totalLikes: number;
+  totalViews: number;
+  fulfilledRequests: number;
   rank: number;
 }
 

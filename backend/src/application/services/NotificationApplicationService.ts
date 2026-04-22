@@ -160,4 +160,18 @@ export class NotificationApplicationService implements NotificationApplicationPo
   async markAllAsRead(userId: string): Promise<void> {
     await this.notificationRepository.markAllAsRead(userId);
   }
+
+  async createGuideRequestFulfilledNotification(
+    requesterId: string,
+    fulfilledInstanceId: number,
+    fulfillerName: string,
+  ): Promise<void> {
+    const data: CreateNotificationDTO = {
+      userId: requesterId,
+      type: "guide_request_fulfilled",
+      instanceId: fulfilledInstanceId,
+      actorName: fulfillerName,
+    };
+    await this.notificationRepository.createNotification(data);
+  }
 }

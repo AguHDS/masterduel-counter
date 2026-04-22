@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { X, Plus } from "lucide-react";
+import { X, Plus, RotateCw } from "lucide-react";
 import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
+
+export type CardPosition = 'atk' | 'def';
 
 export interface FieldBoard {
   id: string;
@@ -14,6 +16,8 @@ export interface FieldBoard {
   graveyard: Card[];
   banished: Card[];
   description?: string;
+  monsterPositions?: CardPosition[];
+  extraMonsterPositions?: CardPosition[];
 }
 
 interface FinalBoardPreviewProps {
@@ -112,6 +116,26 @@ export const FinalBoardPreview = ({
 
     onFieldBoardChange(updatedBoard);
     setSelectingZone(null);
+  };
+
+  const handleTogglePosition = (
+    type: "monster" | "extraMonster",
+    index: number,
+  ) => {
+    if (!fieldBoard) return;
+    if (type === "monster") {
+      const current: CardPosition[] =
+        fieldBoard.monsterPositions ?? ['atk', 'atk', 'atk', 'atk', 'atk'];
+      const next = [...current];
+      next[index] = current[index] === 'def' ? 'atk' : 'def';
+      onFieldBoardChange({ ...fieldBoard, monsterPositions: next });
+    } else {
+      const current: CardPosition[] =
+        fieldBoard.extraMonsterPositions ?? ['atk', 'atk'];
+      const next = [...current];
+      next[index] = current[index] === 'def' ? 'atk' : 'def';
+      onFieldBoardChange({ ...fieldBoard, extraMonsterPositions: next });
+    }
   };
 
   const handleRemoveCard = (type: ZoneType, index: number) => {
@@ -231,13 +255,13 @@ export const FinalBoardPreview = ({
         <div className="pointer-events-none absolute inset-0 rounded-[16px] border border-slate-700/70 bg-gradient-to-b from-slate-950/95 via-slate-900/90 to-[#140f26] shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_28px_rgba(2,6,23,0.4)]" />
         <div
           className={`pointer-events-none absolute inset-[5px] rounded-[12px] border ${
-            isEditMode ? borderColor : "border-slate-700/60"
+            card ? "border-slate-700/40" : isEditMode ? borderColor : "border-slate-700/60"
           } bg-slate-950/20`}
         />
         {card ? (
           <div className="relative z-10 h-full w-full p-1.5">
             <div
-              className={`relative flex h-full w-full items-center justify-center overflow-hidden rounded-[12px] border ${borderColor} bg-slate-950/90 shadow-[0_10px_20px_rgba(15,23,42,0.45)]`}
+              className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[12px] border border-slate-700/30 bg-slate-950/90 shadow-[0_10px_20px_rgba(15,23,42,0.45)]"
             >
               <span className="pointer-events-none absolute left-1.5 top-1.5 rounded-full border border-slate-400/15 bg-slate-950/80 px-1.5 py-0.5 text-[7px] font-semibold tracking-[0.24em] text-slate-300/70">
                 {zoneLabel}
@@ -586,36 +610,88 @@ export const FinalBoardPreview = ({
                 >
                   {/* Extra Monster Zone */}
                   <div className="flex justify-center gap-8 sm:gap-12 md:gap-16 lg:gap-24">
-                    <div className="w-12 sm:w-14 md:w-16 lg:w-20 opacity-0 invisible"></div>
-                    {fieldBoard.extraMonsters.slice(0, 2).map((card, index) => (
-                      <div
-                        key={`extra-${index}`}
-                        className="w-12 sm:w-14 md:w-16 lg:w-20 aspect-[5/7]"
-                      >
-                        {renderZone(card, "extraMonster", index)}
-                      </div>
-                    ))}
-                    <div className="w-12 sm:w-14 md:w-16 lg:w-20 opacity-0 invisible"></div>
+                    <div className="w-16 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
+                    {fieldBoard.extraMonsters.slice(0, 2).map((card, index) => {
+                      const isDef =
+                        (fieldBoard.extraMonsterPositions?.[index] ?? 'atk') === 'def';
+                      return (
+                        <div
+                          key={`extra-${index}`}
+                          className="relative w-16 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
+                        >
+                          {isEditMode && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTogglePosition('extraMonster', index);
+                              }}
+                              className={`absolute top-0 left-0 z-30 w-5 h-5 rounded-full flex items-center justify-center shadow-md border transition-colors ${
+                                isDef
+                                  ? 'bg-indigo-600 border-indigo-400 hover:bg-indigo-500'
+                                  : 'bg-slate-800/90 border-slate-600 hover:bg-slate-700'
+                              }`}
+                              title={isDef ? 'Switch to Attack position' : 'Switch to Defense position'}
+                            >
+                              <RotateCw className={`w-2.5 h-2.5 ${isDef ? 'text-white' : 'text-slate-400'}`} />
+                            </button>
+                          )}
+                          <div
+                            className={`w-full h-full transition-transform duration-300 origin-center ${
+                              isDef ? 'rotate-90' : ''
+                            }`}
+                          >
+                            {renderZone(card, "extraMonster", index)}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div className="w-16 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
                   </div>
 
                   {/* Monster Zones */}
-                  <div className="flex justify-center gap-1.5 sm:gap-2 md:gap-3">
-                    {fieldBoard.monsters.map((card, index) => (
-                      <div
-                        key={`monster-${index}`}
-                        className="w-12 sm:w-14 md:w-16 lg:w-20 aspect-[5/7]"
-                      >
-                        {renderZone(card, "monster", index)}
-                      </div>
-                    ))}
+                  <div className="flex justify-center gap-2 sm:gap-3 md:gap-6">
+                    {fieldBoard.monsters.map((card, index) => {
+                      const isDef =
+                        (fieldBoard.monsterPositions?.[index] ?? 'atk') === 'def';
+                      return (
+                        <div
+                          key={`monster-${index}`}
+                          className="relative w-16 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
+                        >
+                          {isEditMode && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTogglePosition('monster', index);
+                              }}
+                              className={`absolute top-0 left-0 z-30 w-5 h-5 rounded-full flex items-center justify-center shadow-md border transition-colors ${
+                                isDef
+                                  ? 'bg-indigo-600 border-indigo-400 hover:bg-indigo-500'
+                                  : 'bg-slate-800/90 border-slate-600 hover:bg-slate-700'
+                              }`}
+                              title={isDef ? 'Switch to Attack position' : 'Switch to Defense position'}
+                            >
+                              <RotateCw className={`w-2.5 h-2.5 ${isDef ? 'text-white' : 'text-slate-400'}`} />
+                            </button>
+                          )}
+                          <div
+                            className={`w-full h-full transition-transform duration-300 origin-center ${
+                              isDef ? 'rotate-90' : ''
+                            }`}
+                          >
+                            {renderZone(card, "monster", index)}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Spell/Trap Zones */}
-                  <div className="flex justify-center gap-1.5 sm:gap-2 md:gap-3">
+                  <div className="flex justify-center gap-2 sm:gap-3 md:gap-6">
                     {fieldBoard.spellTraps.map((card, index) => (
                       <div
                         key={`spell-${index}`}
-                        className="w-12 sm:w-14 md:w-16 lg:w-20 aspect-[5/7]"
+                        className="w-16 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
                       >
                         {renderZone(card, "spellTrap", index)}
                       </div>

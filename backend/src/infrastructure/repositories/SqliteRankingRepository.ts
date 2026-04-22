@@ -11,6 +11,8 @@ export class SqliteRankingRepository implements RankingRepository {
       username: string;
       profilePictureUrl: string | null;
       totalLikes: number;
+      totalViews: number;
+      fulfilledRequests: number;
       createdAt: Date;
     }>
   > {
@@ -23,7 +25,11 @@ export class SqliteRankingRepository implements RankingRepository {
           select: { profilePictureUrl: true },
         },
         archetypeInstances: {
-          select: { likes: true },
+          select: { likes: true, views: true },
+        },
+        guideRequestsFulfilled: {
+          where: { status: "COMPLETED" },
+          select: { id: true },
         },
       },
     });
@@ -37,6 +43,11 @@ export class SqliteRankingRepository implements RankingRepository {
           (sum, instance) => sum + instance.likes,
           0,
         ),
+        totalViews: user.archetypeInstances.reduce(
+          (sum, instance) => sum + instance.views,
+          0,
+        ),
+        fulfilledRequests: user.guideRequestsFulfilled.length,
         createdAt: user.createdAt,
       }))
       .sort((a, b) => {
@@ -58,6 +69,8 @@ export class SqliteRankingRepository implements RankingRepository {
       username: user.username,
       profilePictureUrl: user.profilePictureUrl,
       totalLikes: user.totalLikes,
+      totalViews: user.totalViews,
+      fulfilledRequests: user.fulfilledRequests,
       rank: skip + index + 1,
     }));
 

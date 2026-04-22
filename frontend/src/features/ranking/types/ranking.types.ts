@@ -3,6 +3,8 @@ export interface RankingUser {
   username: string;
   profilePictureUrl: string;
   totalLikes: number;
+  totalViews: number;
+  fulfilledRequests: number;
   rank: number;
 }
 

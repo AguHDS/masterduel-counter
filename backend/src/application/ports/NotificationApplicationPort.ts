@@ -48,4 +48,11 @@ export interface NotificationApplicationPort {
 
   /** Mark all notifications as read */
   markAllAsRead(userId: string): Promise<void>;
+
+  /** Create a notification when a guide request is fulfilled */
+  createGuideRequestFulfilledNotification(
+    requesterId: string,
+    fulfilledInstanceId: number,
+    fulfillerName: string,
+  ): Promise<void>;
 }

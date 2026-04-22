@@ -12,6 +12,7 @@ import {
   X,
   Flag,
   ArrowLeft,
+  PenLine,
 } from "lucide-react";
 import type { InitialHand } from "./InitialHandsEditor";
 import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
@@ -30,6 +31,7 @@ import { ReportModal } from "@/features/report/components/ReportModal";
 import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
 import { useRegisterView } from "@/shared/hooks/useRegisterView";
+import { useFulfillGuideRequest } from "@/features/guide-request";
 import type {
   CardPair,
   Card,
@@ -69,6 +71,7 @@ export const GuideContainer = ({
   const editor = useInstanceGuideEditor();
   const { saving, validationError, saveInstance, clearValidationError } =
     useSaveInstanceGuide();
+  const fulfillRequestMutation = useFulfillGuideRequest();
   const [headerAnchor, setHeaderAnchor] = useState<HTMLElement | null>(null);
   const legacyArchetypeIdNum = archetypeId
     ? Number.parseInt(archetypeId, 10)
@@ -85,8 +88,9 @@ export const GuideContainer = ({
       : undefined;
 
   const typeFromUrl = searchParams.get("type");
-  const typeFromState = (location.state as { guideType?: GuideType })
+  const typeFromState = (location.state as { guideType?: GuideType; guideRequestId?: number })
     ?.guideType;
+  const guideRequestId = (location.state as { guideRequestId?: number })?.guideRequestId ?? null;
   const typeFromSlug = inferGuideTypeFromSlug(guideSlug);
   const initialGuideType: GuideType =
     typeFromUrl === "counter"
@@ -685,6 +689,18 @@ export const GuideContainer = ({
         hasDeckContent,
         existingDeck: !!recommendedDeck.deck,
         comboSteps,
+        onAfterSave: guideRequestId
+          ? async (newInstanceId) => {
+              try {
+                await fulfillRequestMutation.mutateAsync({
+                  requestId: guideRequestId,
+                  instanceId: newInstanceId,
+                });
+              } catch {
+                // Non-fatal: guide was saved successfully; fulfill can fail silently
+              }
+            }
+          : undefined,
       });
     } catch (error) {
       blockNavigation();
@@ -767,6 +783,18 @@ export const GuideContainer = ({
 
   return (
     <>
+      {/* Guide request banner — shown above the section, centered */}
+      {guideRequestId && isCreatingNew && (
+        <div className="w-full flex justify-center px-4 sm:px-6 lg:px-8 mt-4">
+          <div className="w-full max-w-[2100px] bg-[#c2901c]/10 border border-[#c2901c]/40 rounded-lg px-4 py-3 flex items-center justify-center gap-3">
+            <PenLine className="h-4 w-4 text-[#c2901c] shrink-0" />
+            <p className="text-[#c2901c] text-sm text-center">
+              You are creating a guide to complete a community request. Save the guide to mark it as fulfilled.
+            </p>
+          </div>
+        </div>
+      )}
+
       <section className="w-full relative flex justify-center top-2 px-4 sm:px-6 lg:px-8 mt-2">
         <div className="relative w-full max-w-[2100px] rounded-[28px] p-[3px]">
           {/* Background image with transparency effect */}

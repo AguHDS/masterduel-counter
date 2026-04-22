@@ -54,6 +54,7 @@ import auth from "./routes/auth/auth.js";
 import getGuideCardPairs from "./routes/guides/getGuideCardPairs.js";
 import profile from "./routes/profile/profile.js";
 import customDecks from "./routes/customDecks.js";
+import guideRequests from "./routes/guide-request/guideRequests.js";
 
 // Middleware for redirect 301 legacy URLs to new ones
 const { redirectLegacyArchetypeListUrl, redirectLegacyGuideUrl, redirectLegacyProfileUrl } = createLegacyUrlRedirectMiddleware(getDependencies());
@@ -148,13 +149,10 @@ app.use(express.json());
 // BetterAuth routes (handles /api/auth/*)
 app.use("/api/auth", auth);
 app.use("/api/logout", logout);
-
 // Profile
 app.use("/api/profile", profile);
-
 // Custom Decks
 app.use("/api", customDecks);
-
 // Archetypes & Instances
 app.use("/api/archetypes", archetypeGuide);
 app.use("/api", deleteGuide);
@@ -175,24 +173,21 @@ app.use("/api", getGuidesGeneralStats);
 app.use("/api", getGuideCardPairs);
 app.use("/api/searchArchetype", searchArchetype);
 app.use("/api/comments", comments);
-
 // Notifications
 app.use("/api/notifications", notifications);
-
 // Ranking
 app.use("/api/ranking", ranking);
-
 // Cards
 app.use("/api/cards/search", searchCards);
 app.use("/api/cards/select", selectCard);
 app.use("/api/cards/confirm", confirmCards);
 app.use("/api/cards", getCardDetails);
-
 // Admin routes
 app.use("/api/admin", admin);
-
 // Reports
 app.use("/api/reports", report);
+// Guide Requests
+app.use("/api/guide-requests", guideRequests);
 
 // Serve the React frontend (only if the build exists — production)
 if (existsSync(FRONTEND_DIST)) {
