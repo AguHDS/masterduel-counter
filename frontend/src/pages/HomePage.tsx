@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { useState, useCallback, useMemo } from "react";
-import { Navbar } from "../layouts/Navbar";
+import { Navbar } from "../layouts/navbar/components/Navbar";
 import { Footer } from "../layouts/Footer";
 import { MainLogo } from "../shared/components/MainLogo";
 import { HomeAllComponents } from "../features/home";

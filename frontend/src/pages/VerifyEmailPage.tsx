@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Navbar } from "@/layouts/Navbar";
+import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import axios from "axios";

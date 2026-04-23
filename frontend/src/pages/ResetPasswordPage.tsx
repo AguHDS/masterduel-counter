@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Navbar } from "@/layouts/Navbar";
+import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { Lock, Loader2, CheckCircle, XCircle } from "lucide-react";
 import { authClient } from "@/lib/auth-client";

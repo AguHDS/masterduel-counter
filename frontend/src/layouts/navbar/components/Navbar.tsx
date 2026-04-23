@@ -1,14 +1,14 @@
-import { useAuth } from "../features/auth";
+import { useAuth } from "../../../features/auth";
 import { Menu, X } from "lucide-react";
-import { useNavbarLayout } from "./navbar/hooks/useNavbarLayout";
-import { useNavbarRanking } from "./navbar/hooks/useNavbarRanking";
-import { useNavbarRequests } from "./navbar/hooks/useNavbarRequests";
-import { NavbarLogo } from "./navbar/components/NavbarLogo";
-import { NavbarDesktopNav } from "./navbar/components/NavbarDesktopNav";
-import { NavbarTabletNav } from "./navbar/components/NavbarTabletNav";
-import { NavbarMobileMenu } from "./navbar/components/NavbarMobileMenu";
-import { NavbarModals } from "./navbar/components/NavbarModals";
-import logoImg from "../assets/NavbarLogo.webp";
+import { useNavbarLayout } from "../hooks/useNavbarLayout";
+import { useNavbarRanking } from "../hooks/useNavbarRanking";
+import { useNavbarRequests } from "../hooks/useNavbarRequests";
+import { NavbarLogo } from "./NavbarLogo";
+import { NavbarDesktopNav } from "./NavbarDesktopNav";
+import { NavbarTabletNav } from "./NavbarTabletNav";
+import { NavbarMobileMenu } from "./NavbarMobileMenu";
+import { NavbarModals } from "./NavbarModals";
+import logoImg from "../../../assets/NavbarLogo.webp";
 
 export const Navbar = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
@@ -67,6 +67,7 @@ export const Navbar = () => {
               user={user ?? null}
               isAdmin={!!isAdmin}
               ranking={{
+                buttonRef: ranking.buttonRef,
                 isOpen: ranking.isOpen,
                 onToggle: handleToggleRanking,
                 onClose: () => ranking.setIsOpen(false),
@@ -76,6 +77,8 @@ export const Navbar = () => {
                 onViewFull: handleViewFullRanking,
               }}
               requests={{
+                buttonRef: requests.buttonRef,
+                popupRef: requests.popupRef,
                 isOpen: requests.isOpen,
                 onToggle: handleToggleRequests,
                 onClose: () => requests.setIsOpen(false),
@@ -104,6 +107,7 @@ export const Navbar = () => {
               user={user ?? null}
               isAdmin={!!isAdmin}
               ranking={{
+                buttonRef: ranking.buttonRef,
                 isOpen: ranking.isOpen,
                 onToggle: handleToggleRanking,
                 onClose: () => ranking.setIsOpen(false),
@@ -114,6 +118,8 @@ export const Navbar = () => {
                 alignRight: isTabletView,
               }}
               requests={{
+                buttonRef: requests.buttonRef,
+                popupRef: requests.popupRef,
                 isOpen: requests.isOpen,
                 onToggle: handleToggleRequests,
                 onClose: () => requests.setIsOpen(false),

@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { Flag, Edit, Eye, Crown, Trophy, ThumbsUp, MailWarning } from "lucide-react";
-import { Navbar } from "@/layouts/Navbar";
+import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { FavoriteCardEditor } from "../components/FavoriteCardEditor";
 import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";

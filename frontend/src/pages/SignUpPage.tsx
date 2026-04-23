@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { RegisterForm } from "../features/auth/components/RegisterForm";
-import { Navbar } from "../layouts/Navbar";
+import { Navbar } from "../layouts/navbar/components/Navbar";
 import { FeatureErrorBoundary } from "../shared/components";
 
 export const SignUpPage = () => {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Shield } from "lucide-react";
-import { Navbar } from "@/layouts/Navbar";
+import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { useAdminData } from "../hooks/useAdminData";
 import { useAdminAuth } from "../hooks/useAdminAuth";
 import { TabNavigation } from "../components/TabNavigation";
