@@ -67,7 +67,6 @@ export const Navbar = () => {
               user={user ?? null}
               isAdmin={!!isAdmin}
               ranking={{
-                buttonRef: ranking.buttonRef,
                 isOpen: ranking.isOpen,
                 onToggle: handleToggleRanking,
                 onClose: () => ranking.setIsOpen(false),
@@ -77,8 +76,6 @@ export const Navbar = () => {
                 onViewFull: handleViewFullRanking,
               }}
               requests={{
-                buttonRef: requests.buttonRef,
-                popupRef: requests.popupRef,
                 isOpen: requests.isOpen,
                 onToggle: handleToggleRequests,
                 onClose: () => requests.setIsOpen(false),
@@ -107,7 +104,6 @@ export const Navbar = () => {
               user={user ?? null}
               isAdmin={!!isAdmin}
               ranking={{
-                buttonRef: ranking.buttonRef,
                 isOpen: ranking.isOpen,
                 onToggle: handleToggleRanking,
                 onClose: () => ranking.setIsOpen(false),
@@ -118,8 +114,6 @@ export const Navbar = () => {
                 alignRight: isTabletView,
               }}
               requests={{
-                buttonRef: requests.buttonRef,
-                popupRef: requests.popupRef,
                 isOpen: requests.isOpen,
                 onToggle: handleToggleRequests,
                 onClose: () => requests.setIsOpen(false),
