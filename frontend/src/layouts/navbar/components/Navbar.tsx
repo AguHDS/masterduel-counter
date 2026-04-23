@@ -8,7 +8,6 @@ import { NavbarDesktopNav } from "./NavbarDesktopNav";
 import { NavbarTabletNav } from "./NavbarTabletNav";
 import { NavbarMobileMenu } from "./NavbarMobileMenu";
 import { NavbarModals } from "./NavbarModals";
-import logoImg from "../../../assets/NavbarLogo.webp";
 
 export const Navbar = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
