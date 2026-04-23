@@ -93,7 +93,7 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
           <Link
             to="/cards"
             onClick={onClose}
-            className="flex items-center gap-2 text-cyan-500 text-sm font-medium hover:opacity-80 transition-opacity py-2 w-full text-left"
+            className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 py-2 w-full text-left"
           >
             <Layers className="h-4 w-4" />
             <span>CARDS</span>

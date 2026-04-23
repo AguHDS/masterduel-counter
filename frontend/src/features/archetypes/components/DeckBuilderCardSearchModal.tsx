@@ -246,7 +246,7 @@ export const DeckBuilderCardSearchModal = ({
         <button
           onClick={handleClose}
           type="button"
-          className="rounded-full p-2 text-slate-400 hover:bg-slate-800/70 hover:text-white transition-colors"
+          className="rounded-full p-2 text-slate-400 hover:bg-slate-800/70 hover:text-white"
           aria-label="Close search"
         >
           <X className="w-4 h-4" />

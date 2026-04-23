@@ -58,7 +58,7 @@ export const NavbarTabletNav: React.FC<NavbarTabletNavProps> = ({
         className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"
         aria-label="View cards"
       >
-        <Layers className="w-5 h-5 text-cyan-500 group-hover:text-cyan-400 transition-colors" />
+        <Layers className="w-5 h-5 text-[#c2901c]" />
       </Link>
 
       {/* Ranking */}

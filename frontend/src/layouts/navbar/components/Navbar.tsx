@@ -54,10 +54,7 @@ export const Navbar = () => {
             {/* Invisible spacer that mirrors the logo size to keep flex layout balanced */}
             <div className="invisible" aria-hidden="true">
               <div className="flex items-center space-x-2 sm:space-x-3">
-                <img src={logoImg} alt="" className="h-8 sm:h-9 md:h-10 w-auto opacity-0" />
-                <span className="px-1.5 py-0.5 text-[0.6rem] sm:text-[0.65rem] opacity-0">
-                  OPEN BETA
-                </span>
+                <div className="h-8 sm:h-9 md:h-10 w-auto opacity-0" />
               </div>
             </div>
 
@@ -140,7 +137,11 @@ export const Navbar = () => {
               className="sm:hidden p-2 text-[#c2901c] hover:text-[#d4a534] transition-colors"
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
@@ -190,5 +191,3 @@ export const Navbar = () => {
     </header>
   );
 };
-
-
