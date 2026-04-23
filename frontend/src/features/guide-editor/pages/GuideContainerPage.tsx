@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams, useNavigate } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
-import { Navbar } from "@/layouts/Navbar";
+import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { GuideContainer } from "../components/GuideContainer";
 import { useArchetypeWithHeader, useArchetypeSearch } from "@/features/archetypes/hooks/useArchetypes";

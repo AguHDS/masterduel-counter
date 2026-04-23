@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { Flag, Edit, Eye, Crown, Trophy, ThumbsUp, MailWarning } from "lucide-react";
-import { Navbar } from "@/layouts/Navbar";
+import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { FavoriteCardEditor } from "../components/FavoriteCardEditor";
 import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
@@ -32,6 +32,7 @@ export const ProfilePage = () => {
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [autoSelectDeckId, setAutoSelectDeckId] = useState<number | null>(null);
 
   // Determine active tab from URL or default to "profile"
   const getActiveTab = (): TabType => {
@@ -74,7 +75,7 @@ export const ProfilePage = () => {
       enabled: !!resolvedUserId,
     });
 
-  const { decks: customDecks } = useCustomDecks(resolvedUserId);
+  const { decks: customDecks, isLoading: isCustomDecksLoading } = useCustomDecks(resolvedUserId);
   const {
     isEditMode,
     bioValue,
@@ -550,6 +551,13 @@ export const ProfilePage = () => {
                             favoriteDecks={favoriteDecks}
                             isEditMode={isEditMode && isOwner}
                             onDecksUpdate={handleFavoriteDecksUpdate}
+                            customDecks={customDecks || []}
+                            isCustomDecksLoaded={!isCustomDecksLoading}
+                            onNavigateToDecks={() => { cancelEdit(); navigate(getProfilePath("my-decks")); }}
+                            onDeckClick={(deckId) => {
+                              setAutoSelectDeckId(deckId);
+                              navigate(getProfilePath("my-decks"));
+                            }}
                           />
                         </div>
                       )}
@@ -559,6 +567,8 @@ export const ProfilePage = () => {
                           userId={resolvedUserId}
                           isOwner={isOwner}
                           userRole={profile?.role}
+                          initialSelectedDeckId={autoSelectDeckId}
+                          onDeckOpened={() => setAutoSelectDeckId(null)}
                         />
                       )}
 

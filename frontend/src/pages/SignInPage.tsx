@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { LoginForm } from "../features/auth/components/LoginForm";
-import { Navbar } from "../layouts/Navbar";
+import { Navbar } from "../layouts/navbar/components/Navbar";
 import { FeatureErrorBoundary } from "../shared/components";
 
 export const SignInPage = () => {

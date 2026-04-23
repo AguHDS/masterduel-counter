@@ -9,7 +9,7 @@ interface GuideRequestNavbarPopupProps {
   onClose: () => void;
   onOpenFullModal: (requestId?: number) => void;
   onOpenCreate: () => void;
-  popupRef: React.RefObject<HTMLDivElement | null>;
+  popupRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export const GuideRequestNavbarPopup: React.FC<

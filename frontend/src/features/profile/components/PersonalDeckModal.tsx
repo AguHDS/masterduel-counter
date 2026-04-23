@@ -249,6 +249,12 @@ export const PersonalDeckModal = ({
     onClose();
   }, [hasChanges, isEditMode, onClose]);
 
+  // Backdrop click
+  const handleBackdropClick = useCallback(() => {
+    if (isEditMode) return;
+    handleClose();
+  }, [isEditMode, handleClose]);
+
   const handleDelete = useCallback(() => {
     if (!deck || !onDelete) return;
     onDelete(deck.id, deck.title);
@@ -276,7 +282,7 @@ export const PersonalDeckModal = ({
   return (
     <div
       className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[400] flex items-center justify-center p-4 animate-in fade-in duration-200"
-      onClick={handleClose}
+      onClick={handleBackdropClick}
     >
       {/* Flex row: deck builder on the left, search panel on the right */}
       <div
