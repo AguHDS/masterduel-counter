@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Info } from "lucide-react";
 import { useCustomDecks } from "../hooks/useCustomDecks";
 import { PersonalDeckModal } from "./PersonalDeckModal";
@@ -8,6 +8,8 @@ interface PersonalDeckListProps {
   userId: string;
   isOwner: boolean;
   userRole?: string;
+  initialSelectedDeckId?: number | null;
+  onDeckOpened?: () => void;
 }
 
 const MAX_DECKS_USER = 10;
@@ -17,6 +19,8 @@ export const PersonalDeckList = ({
   userId,
   isOwner,
   userRole,
+  initialSelectedDeckId,
+  onDeckOpened,
 }: PersonalDeckListProps) => {
   const {
     decks,
@@ -33,6 +37,17 @@ export const PersonalDeckList = ({
   const [selectedDeck, setSelectedDeck] = useState<CustomDeck | null>(null);
   const [draggedDeckId, setDraggedDeckId] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // Auto-open a deck when navigated from Favorite Decks
+  useEffect(() => {
+    if (!initialSelectedDeckId || decks.length === 0) return;
+    const target = decks.find((d) => d.id === initialSelectedDeckId);
+    if (target) {
+      setSelectedDeck(target);
+      onDeckOpened?.();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSelectedDeckId, decks]);
 
   // Sort by displayOrder (ascending)
   const sortedDecks = [...decks].sort((a, b) => a.displayOrder - b.displayOrder);

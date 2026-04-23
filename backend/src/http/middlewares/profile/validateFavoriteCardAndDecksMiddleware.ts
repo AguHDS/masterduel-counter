@@ -46,14 +46,17 @@ export const validateFavoriteCardAndDecksMiddleware = (
           
           if (
             typeof deck !== "object" ||
-            typeof deck.archetypeId !== "number" ||
-            typeof deck.archetypeName !== "string" ||
-            typeof deck.cardId !== "number"
+            typeof deck.deckId !== "number" ||
+            typeof deck.title !== "string" ||
+            (deck.imageUrl !== null && typeof deck.imageUrl !== "string") ||
+            typeof deck.mainCount !== "number" ||
+            typeof deck.extraCount !== "number" ||
+            typeof deck.sideCount !== "number"
           ) {
             return res.status(400).json({
               success: false,
               message:
-                "Each deck must have archetypeId (number), archetypeName (string), and cardId (number)",
+                "Each deck must have deckId (number), title (string), imageUrl (string|null), mainCount, extraCount, sideCount (numbers)",
             });
           }
         }

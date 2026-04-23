@@ -32,6 +32,7 @@ export const ProfilePage = () => {
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [autoSelectDeckId, setAutoSelectDeckId] = useState<number | null>(null);
 
   // Determine active tab from URL or default to "profile"
   const getActiveTab = (): TabType => {
@@ -74,7 +75,7 @@ export const ProfilePage = () => {
       enabled: !!resolvedUserId,
     });
 
-  const { decks: customDecks } = useCustomDecks(resolvedUserId);
+  const { decks: customDecks, isLoading: isCustomDecksLoading } = useCustomDecks(resolvedUserId);
   const {
     isEditMode,
     bioValue,
@@ -550,6 +551,13 @@ export const ProfilePage = () => {
                             favoriteDecks={favoriteDecks}
                             isEditMode={isEditMode && isOwner}
                             onDecksUpdate={handleFavoriteDecksUpdate}
+                            customDecks={customDecks || []}
+                            isCustomDecksLoaded={!isCustomDecksLoading}
+                            onNavigateToDecks={() => { cancelEdit(); navigate(getProfilePath("my-decks")); }}
+                            onDeckClick={(deckId) => {
+                              setAutoSelectDeckId(deckId);
+                              navigate(getProfilePath("my-decks"));
+                            }}
                           />
                         </div>
                       )}
@@ -559,6 +567,8 @@ export const ProfilePage = () => {
                           userId={resolvedUserId}
                           isOwner={isOwner}
                           userRole={profile?.role}
+                          initialSelectedDeckId={autoSelectDeckId}
+                          onDeckOpened={() => setAutoSelectDeckId(null)}
                         />
                       )}
 
