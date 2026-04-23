@@ -713,8 +713,7 @@ export const GuideContainer = ({
   };
 
   const handleDeleteInstance = async () => {
-    if (!selectedArchetype || !guideInstanceData?.instance.id || !archetypeId)
-      return;
+    if (!selectedArchetype || !guideInstanceData?.instance.id) return;
 
     const confirmed = confirm(
       "Are you sure you want to delete your instance? This action cannot be undone.",
