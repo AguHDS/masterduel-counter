@@ -21,7 +21,7 @@ export const FavoriteCardEditor = ({
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [viewingCardUrl, setViewingCardUrl] = useState<string | null>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
-  const { favoriteCard, isLoading } = useFavoriteCards(cardId, []);
+  const { favoriteCard, isLoading } = useFavoriteCards(cardId);
 
   const handleCardSelect = (card: Card) => {
     setSelectedCard(card);
