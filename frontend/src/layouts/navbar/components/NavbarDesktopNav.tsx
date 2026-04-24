@@ -84,7 +84,7 @@ export const NavbarDesktopNav: React.FC<NavbarDesktopNavProps> = ({
             )}
           </span>
           <span className="text-xs font-medium text-[#c2901c] group-hover:text-[#e9b53c] transition-colors">
-            Requests
+            Guide Requests
           </span>
         </button>
 

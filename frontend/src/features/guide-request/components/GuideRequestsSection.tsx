@@ -18,7 +18,7 @@ const SECTIONS: {
 }[] = [
   { label: "Open", status: "OPEN", emptyMsg: "No open requests" },
   { label: "In Progress", status: "TAKEN", emptyMsg: "None in progress" },
-  { label: "Fulfilled", status: "COMPLETED", emptyMsg: "None fulfilled" },
+  { label: "Completed", status: "COMPLETED", emptyMsg: "None fulfilled" },
 ];
 
 export const GuideRequestsSection: React.FC = () => {
@@ -104,9 +104,9 @@ export const GuideRequestsSection: React.FC = () => {
                   {status === "OPEN" && (
                     <button
                       onClick={() => setShowCreateModal(true)}
-                      className="text-[#c2901c]/60 text-[10px] hover:text-[#c2901c] hover:underline"
+                      className="text-yellow-500 text-xs hover:text-yellow-600 hover:underline"
                     >
-                      Create one
+                      + Create one
                     </button>
                   )}
                 </div>

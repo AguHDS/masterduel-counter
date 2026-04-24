@@ -117,7 +117,7 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#c2901c] text-black text-xs font-semibold hover:bg-[#d4a534] transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#c2901c] text-black text-xs font-bold hover:bg-[#d4a534] transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Request a Guide
