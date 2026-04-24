@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { Footer } from "@/layouts/Footer";
@@ -28,6 +28,7 @@ export const GuideContainerPage = () => {
     guideSlug?: string;
   }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isGuideHelpOpen, setIsGuideHelpOpen] = useState(false);
@@ -178,17 +179,29 @@ export const GuideContainerPage = () => {
   }
 
   const archetype = archetypeWithHeaderData.archetype;
+  const currentGuideTitle = guideInstanceData?.instance.title?.trim();
+  const currentGuideType = guideInstanceData?.instance.guideType ?? guideType;
+  const pageTitle = currentGuideTitle
+    ? `${currentGuideTitle} | ${archetype.name} ${currentGuideType === "DECK" ? "Deck Guide" : "Counter Guide"} - Masterduel Counter`
+    : `${archetype.name} ${currentGuideType === "DECK" ? "Deck Guide" : "Counter Guide"} - Masterduel Counter`;
+  const pageDescription = currentGuideTitle
+    ? `Read ${currentGuideTitle}, a ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! Master Duel.`
+    : `Read this ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! Master Duel.`;
+  const canonicalUrl = `${window.location.origin}${canonicalGuidePath ?? location.pathname}`;
 
   return (
     <>
       <Helmet>
-        <title>
-          {archetype.name} {guideType === "DECK" ? "Deck Guide" : "Counter Guide"} - Masterduel Counter
-        </title>
-        <meta
-          name="description"
-          content={`Read this ${guideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! Master Duel.`}
-        />
+        <title>{pageTitle}</title>
+        <link rel="canonical" href={canonicalUrl} />
+        <meta name="description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />

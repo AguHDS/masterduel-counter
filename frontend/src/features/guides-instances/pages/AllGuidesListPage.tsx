@@ -124,10 +124,24 @@ export const AllGuidesListPage = () => {
     <>
       <Helmet>
         <title>{getPageTitle()}</title>
+        <link
+          rel="canonical"
+          href={`${window.location.origin}/guides${guideType === "COUNTER" ? "?type=counter" : guideType === "DECK" ? "?type=deck" : ""}`}
+        />
         <meta name="description" content={getPageDescription()} />
         <meta
           name="keywords"
-          content="Yu-Gi-Oh, Master Duel, archetypes, guides, counters, decks, strategy"
+          content={
+            guideType === "COUNTER"
+              ? "Yu-Gi-Oh, Master Duel, counter guides, handtraps, how to counter, board breakers, strategy"
+              : guideType === "DECK"
+                ? "Yu-Gi-Oh, Master Duel, deck guides, combos, deck builds, strategy"
+                : "Yu-Gi-Oh, Master Duel, archetypes, guides, counters, decks, strategy"
+          }
+        />
+        <meta
+          property="og:url"
+          content={`${window.location.origin}/guides${guideType === "COUNTER" ? "?type=counter" : guideType === "DECK" ? "?type=deck" : ""}`}
         />
         <meta property="og:title" content={getPageTitle()} />
         <meta property="og:description" content={getPageDescription()} />
@@ -167,7 +181,7 @@ export const AllGuidesListPage = () => {
             </div>
           </div>
 
-          <main className="container mx-auto px-4">
+          <main className="container mx-auto px-4" role="main" aria-label="Main content">
             <FeatureErrorBoundary featureName="AllGuidesList">
               <AllGuidesListView
                 onSelectInstance={handleSelectInstance}

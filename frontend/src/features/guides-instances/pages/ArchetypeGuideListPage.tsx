@@ -175,14 +175,37 @@ export const ArchetypeGuideListPage = () => {
 
   const archetype = archetypeWithHeaderData.archetype;
 
+  const pageTitle =
+    guideType === "COUNTER"
+      ? `${archetype.name} - How to Counter & Handtraps | Masterduel Counter`
+      : guideType === "DECK"
+        ? `${archetype.name} - Best Deck Guides & Combos | Masterduel Counter`
+        : `${archetype.name} Guides | Masterduel Counter`;
+
+  const pageDescription =
+    guideType === "COUNTER"
+      ? `Find the best counter strategies, handtraps, and tips to stop ${archetype.name} in Yu-Gi-Oh! Master Duel.`
+      : guideType === "DECK"
+        ? `Discover the best ${archetype.name} deck guides, combos, and strategies for Yu-Gi-Oh! Master Duel.`
+        : `Browse counter guides and deck guides for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`;
+
   return (
     <>
       <Helmet>
-        <title>{archetype.name} Guides - Masterduel Counter</title>
+        <title>{pageTitle}</title>
+        <link rel="canonical" href={`${window.location.origin}${canonicalPath ?? ""}`} />
+        <meta name="description" content={pageDescription} />
         <meta
-          name="description"
-          content={`Browse and create guides for the ${archetype.name} archetype to learn how to win against them in Yu-Gi-Oh! Master Duel.`}
+          name="keywords"
+          content={`Yu-Gi-Oh, Master Duel, ${archetype.name}, ${guideType === "COUNTER" ? "counter, handtraps, how to beat" : guideType === "DECK" ? "deck guide, combos, strategy" : "guides, counter, deck"}, archetypes`}
         />
+        <meta property="og:url" content={`${window.location.origin}${canonicalPath ?? ""}`} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />

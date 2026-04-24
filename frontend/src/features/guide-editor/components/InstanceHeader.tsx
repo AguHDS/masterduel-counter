@@ -149,9 +149,9 @@ export const InstanceHeader = ({
 
       <div className="flex-1 min-w-0 w-full lg:relative lg:bottom-12">
         <div className="w-full flex flex-col items-start mb-2">
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-3">
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-3">
             {archetypeName}
-          </h1>
+          </h2>
           <div className="flex w-full my-2">
             <div
               className="w-full h-[2px]"
@@ -187,7 +187,7 @@ export const InstanceHeader = ({
               }}
             />
           ) : (
-            <h2
+            <h1
               className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white max-w-full break-words overflow-wrap-anywhere"
               style={{
                 wordBreak: "break-word",
@@ -196,7 +196,7 @@ export const InstanceHeader = ({
               }}
             >
               {title}
-            </h2>
+            </h1>
           )}
         </div>
 

@@ -88,7 +88,10 @@ const ArchetypeGuideList = ({
   const canCreateInstance = isAuthenticated;
 
   // Determine title based on guide type
-  const pageTitle = guideType === "COUNTER" ? `Counter Guides` : `Deck Guides`;
+  const pageTitle =
+    guideType === "COUNTER"
+      ? `How to Counter & Handtraps`
+      : `Best Deck Guides & Combos`;
 
   // Determine border color based on guide type
   const borderColorClass =
