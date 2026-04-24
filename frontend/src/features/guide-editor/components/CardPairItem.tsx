@@ -8,6 +8,7 @@ interface BottomCard extends Card {
 }
 
 interface CardPairItemProps {
+  pairNumber: number;
   topCards: Card[];
   bottomCards: BottomCard[];
   comment?: string;
@@ -47,6 +48,7 @@ const READ_MORE_BUTTON_HEIGHT = 32;
 const EFFICIENCY_SELECTOR_HEIGHT = 24;
 
 export const CardPairItem = ({
+  pairNumber,
   topCards,
   bottomCards,
   comment,
@@ -427,6 +429,9 @@ export const CardPairItem = ({
       </div>
 
       <div className="relative overflow-hidden bg-gradient-to-br p-2 border border-blue-500/40">
+        <div className="absolute left-2 top-2 z-10 bg-slate-950/85 px-2 py-0.5 text-xs font-bold text-amber-300">
+          #{pairNumber}
+        </div>
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
 
         {isEditMode && (

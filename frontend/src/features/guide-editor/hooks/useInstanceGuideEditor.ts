@@ -10,6 +10,7 @@ interface HeaderCard {
 
 export type { HeaderCard };
 
+/** Hook to handle the state and logic for editing an instance of a guide */
 export const useInstanceGuideEditor = (initialData?: {
   title?: string;
   generalTip?: string;

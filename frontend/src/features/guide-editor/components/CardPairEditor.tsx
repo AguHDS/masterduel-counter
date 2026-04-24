@@ -173,6 +173,7 @@ export const CardPairEditor = ({
       items.push(
         <div key={pair.id} className="flex justify-center">
           <CardPairItem
+            pairNumber={i + 1}
             topCards={pair.topCards}
             bottomCards={pair.bottomCards}
             comment={pair.comment}

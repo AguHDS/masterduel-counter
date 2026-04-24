@@ -50,6 +50,13 @@ export const GuideRequestsSection: React.FC = () => {
     COMPLETED: { data: completedData, isLoading: completedLoading },
   } as const;
 
+  const sortCompletedByCompletionDate = (requests: GuideRequest[]) => {
+    return [...requests].sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
+  };
+
   return (
     <section className="w-full">
       <div className="flex items-center justify-between mb-3">
@@ -78,7 +85,10 @@ export const GuideRequestsSection: React.FC = () => {
       <div className="bg-[#1c1f2e] rounded-xl border border-[#c2901c]/20 overflow-hidden flex divide-x divide-[#c2901c]/10">
         {SECTIONS.map(({ label, status, emptyMsg }) => {
           const { data, isLoading } = dataMap[status];
-          const requests = data?.items ?? [];
+          const requests =
+            status === "COMPLETED"
+              ? sortCompletedByCompletionDate(data?.items ?? [])
+              : (data?.items ?? []);
           const total = data?.total ?? 0;
 
           return (

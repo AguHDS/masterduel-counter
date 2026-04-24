@@ -54,7 +54,7 @@ export const GuideRequestNavbarPopup: React.FC<
               onClick={onOpenCreate}
               className="mt-2 text-[#c2901c] text-xs hover:underline"
             >
-              Create the first one
+              Request the community for a guide!
             </button>
           </div>
         ) : (

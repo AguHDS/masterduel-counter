@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { X, Plus, Search, Loader2 } from "lucide-react";
 import { Virtuoso } from "react-virtuoso";
@@ -83,12 +83,21 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
     setPage(1);
     setSelectedRequest(null);
   };
-
-  if (!isOpen) return null;
-
   const items = data?.items ?? [];
+  const displayItems = useMemo(() => {
+    if (statusFilter !== "COMPLETED") {
+      return items;
+    }
+
+    return [...items].sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
+  }, [items, statusFilter]);
   const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / LIMIT);
+
+  if (!isOpen) return null;
 
   const modal = (
     <>
@@ -167,7 +176,7 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
                 <div className="flex-1 flex items-center justify-center">
                   <Loader2 className="h-6 w-6 text-[#c2901c] animate-spin" />
                 </div>
-              ) : items.length === 0 ? (
+              ) : displayItems.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
                   <p className="text-slate-500 text-sm">No requests found.</p>
                   <button
@@ -181,7 +190,7 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
                 <>
                   <Virtuoso
                     style={{ flex: 1 }}
-                    data={items}
+                    data={displayItems}
                     itemContent={(_, request) => (
                       <GuideRequestListItem
                         key={request.id}
