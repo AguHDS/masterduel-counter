@@ -59,14 +59,14 @@ export function useNavbarRequests(): NavbarRequestsState {
     return () => clearTimeout(t);
   }, [location.pathname]);
 
-  // Auto-dismiss hint after 10 seconds
+  // Auto-dismiss hint after 15 seconds
   useEffect(() => {
     if (!showHint) return;
-    const exitTimer = setTimeout(() => setHintExiting(true), 10000);
+    const exitTimer = setTimeout(() => setHintExiting(true), 15000);
     const unmountTimer = setTimeout(() => {
       setShowHint(false);
       setHintExiting(false);
-    }, 10900);
+    }, 15900);
     return () => {
       clearTimeout(exitTimer);
       clearTimeout(unmountTimer);
@@ -79,7 +79,7 @@ export function useNavbarRequests(): NavbarRequestsState {
     if (!isOpen) return;
     const handler = (e: MouseEvent) => {
       const target = e.target as Element;
-      if (target.closest('[data-navbar-requests-trigger]')) return;
+      if (target.closest("[data-navbar-requests-trigger]")) return;
       setIsOpen(false);
     };
     document.addEventListener("mousedown", handler);

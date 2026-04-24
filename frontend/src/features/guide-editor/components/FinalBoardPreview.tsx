@@ -61,7 +61,7 @@ export const FinalBoardPreview = ({
   // Detectar el ancho de pantalla para el modo responsive
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsResponsive(window.innerWidth <= 1694);
+      setIsResponsive(window.innerWidth <= 1780);
     };
 
     // Verificar inicialmente

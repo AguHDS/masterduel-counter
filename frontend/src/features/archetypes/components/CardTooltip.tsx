@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useId } from "react";
 import { createPortal } from "react-dom";
 import { useCardDetails } from "../hooks/useCardDetails";
-import { Star, Swords, Shield, Link2 } from "lucide-react";
+import { Star, Link2 } from "lucide-react";
 import { useOptionalTooltipContext } from "../hooks/useTooltipContext";
 
 const ATTRIBUTE_COLORS: Record<string, string> = {
@@ -285,7 +285,9 @@ export const CardTooltip = ({
                           )}
                           {cardDetails.level !== undefined && (
                             <div className="flex items-center gap-0.5">
-                              {Array.from({ length: Math.min(cardDetails.level, 12) }).map((_, i) => (
+                              {Array.from({
+                                length: Math.min(cardDetails.level, 12),
+                              }).map((_, i) => (
                                 <Star
                                   key={i}
                                   className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"
@@ -305,20 +307,29 @@ export const CardTooltip = ({
 
                       {/* Type line: [ Race / Type ] */}
                       <p className="text-[13px] italic text-slate-300">
-                        [ {cardDetails.race} / {cardDetails.type.replace(" Monster", "").replace("Monster", "").trim()} ]
+                        [ {cardDetails.race} /{" "}
+                        {cardDetails.type
+                          .replace(" Monster", "")
+                          .replace("Monster", "")
+                          .trim()}{" "}
+                        ]
                       </p>
 
                       {/* Link markers */}
-                      {cardDetails.linkmarkers && cardDetails.linkmarkers.length > 0 && (
-                        <p className="text-xs text-sky-400">
-                          Link: [{cardDetails.linkmarkers.join(", ")}]
-                        </p>
-                      )}
+                      {cardDetails.linkmarkers &&
+                        cardDetails.linkmarkers.length > 0 && (
+                          <p className="text-xs text-sky-400">
+                            Link: [{cardDetails.linkmarkers.join(", ")}]
+                          </p>
+                        )}
 
                       {/* Pendulum scale */}
                       {cardDetails.scale !== undefined && (
                         <p className="text-xs text-violet-300">
-                          Pendulum Scale: <span className="font-semibold text-white">{cardDetails.scale}</span>
+                          Pendulum Scale:{" "}
+                          <span className="font-semibold text-white">
+                            {cardDetails.scale}
+                          </span>
                         </p>
                       )}
 
@@ -328,20 +339,23 @@ export const CardTooltip = ({
                       </div>
 
                       {/* ATK / DEF */}
-                      {(cardDetails.atk !== undefined || cardDetails.def !== undefined) && (
+                      {(cardDetails.atk !== undefined ||
+                        cardDetails.def !== undefined) && (
                         <div className="flex items-center gap-5 border-t border-slate-700/50 pt-2 text-sm font-bold">
                           {cardDetails.atk !== undefined && (
                             <div className="flex items-center gap-1.5">
-                              <Swords className="w-4 h-4 text-red-400" aria-hidden="true" />
                               <span className="text-slate-400">ATK/</span>
-                              <span className="text-white">{cardDetails.atk}</span>
+                              <span className="text-white">
+                                {cardDetails.atk}
+                              </span>
                             </div>
                           )}
                           {cardDetails.def !== undefined && (
                             <div className="flex items-center gap-1.5">
-                              <Shield className="w-4 h-4 text-blue-400" aria-hidden="true" />
                               <span className="text-slate-400">DEF/</span>
-                              <span className="text-white">{cardDetails.def}</span>
+                              <span className="text-white">
+                                {cardDetails.def}
+                              </span>
                             </div>
                           )}
                         </div>
