@@ -26,7 +26,7 @@ export const GuideRequestListItem: React.FC<GuideRequestListItemProps> = ({
     >
       <div className="mt-0.5 shrink-0 text-[#c2901c]/60"></div>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-medium truncate">
+        <p className="text-white text-sm font-semibold truncate">
           {request.title}
         </p>
         <p className="text-[10px] truncate mt-0.5 flex items-center flex-wrap gap-x-0.5">

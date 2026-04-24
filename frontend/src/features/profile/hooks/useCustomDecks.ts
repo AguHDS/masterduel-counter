@@ -9,6 +9,7 @@ export const useCustomDecks = (userId: string) => {
   const {
     data: decks = [],
     isLoading,
+    isFetched,
     error,
   } = useQuery({
     queryKey: queryKeys.customDecks.byUser(userId),
@@ -113,6 +114,7 @@ export const useCustomDecks = (userId: string) => {
   return {
     decks,
     isLoading,
+    isFetched,
     error,
     createDeck: createDeckMutation.mutate,
     updateDeck: updateDeckMutation.mutate,

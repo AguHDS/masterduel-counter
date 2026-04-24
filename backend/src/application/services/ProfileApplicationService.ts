@@ -10,6 +10,45 @@ import type { GuideRepository } from "@/domain/ports/GuideRepository.js";
 import type { UserRepository } from "@/domain/ports/UserRepository.js";
 import type { RankingRepository } from "@/domain/ports/RankingRepository.js";
 
+interface FavoriteDeckReference {
+  deckId: number;
+}
+
+const normalizeFavoriteDeckReferences = (
+  favoriteDecks: string | null,
+): string | null => {
+  if (favoriteDecks === null || favoriteDecks.trim() === "") {
+    return null;
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(favoriteDecks);
+  } catch {
+    throw new Error("Invalid favoriteDecks JSON format");
+  }
+
+  if (!Array.isArray(parsed)) {
+    throw new Error("Invalid favoriteDecks JSON format");
+  }
+
+  const normalized: (FavoriteDeckReference | null)[] = [null, null, null];
+
+  parsed.slice(0, 3).forEach((entry, index) => {
+    if (!entry || typeof entry !== "object") {
+      return;
+    }
+
+    const deckId = (entry as { deckId?: unknown }).deckId;
+    if (typeof deckId === "number" && Number.isInteger(deckId) && deckId > 0) {
+      normalized[index] = { deckId };
+    }
+  });
+
+  const hasAnyDeck = normalized.some((entry) => entry !== null);
+  return hasAnyDeck ? JSON.stringify(normalized) : null;
+};
+
 export class ProfileApplicationService implements ProfileApplicationPort {
   constructor(
     private profileRepository: ProfileRepository,
@@ -144,19 +183,12 @@ export class ProfileApplicationService implements ProfileApplicationPort {
       profile = await this.profileRepository.createProfile({ userId });
     }
 
-    // Validate favoriteDecks JSON if provided
-    if (favoriteDecks !== null && favoriteDecks.trim() !== "") {
-      try {
-        JSON.parse(favoriteDecks);
-      } catch {
-        throw new Error("Invalid favoriteDecks JSON format");
-      }
-    }
+    const normalizedFavoriteDecks = normalizeFavoriteDeckReferences(favoriteDecks);
 
     // Update favorites
     return await this.profileRepository.updateProfile(userId, {
       favoriteCardId,
-      favoriteDecks,
+      favoriteDecks: normalizedFavoriteDecks,
     });
   }
 

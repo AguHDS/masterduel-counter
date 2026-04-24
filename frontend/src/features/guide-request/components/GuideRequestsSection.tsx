@@ -100,7 +100,7 @@ export const GuideRequestsSection: React.FC = () => {
                 </div>
               ) : requests.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-6 gap-1.5 px-2 text-center">
-                  <p className="text-slate-600 text-xs">{emptyMsg}</p>
+                  <p className="text-slate-300 text-xs">{emptyMsg}</p>
                   {status === "OPEN" && (
                     <button
                       onClick={() => setShowCreateModal(true)}

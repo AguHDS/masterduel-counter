@@ -14,11 +14,11 @@ const config: Record<GuideRequestStatus, { label: string; className: string }> =
     },
     TAKEN: {
       label: "In Progress",
-      className: "bg-amber-500/20 text-amber-400 border border-amber-500/30",
+      className: "bg-indigo-400/20 text-indigo-100 border border-indigo-300/30",
     },
     COMPLETED: {
       label: "Completed",
-      className: "bg-green-500/20 text-green-300 border border-green-400/30",
+      className: "bg-amber-500/20 text-amber-400 border border-amber-400/30",
     },
   };
 

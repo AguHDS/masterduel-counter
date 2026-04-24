@@ -14,27 +14,9 @@ export const ContactContent = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-blue-950/50 to-cyan-950/50 rounded-lg border border-blue-600/30 p-5 hover:border-blue-500/50 transition-all duration-200">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-blue-600/20 rounded-lg">
-              <Mail className="w-5 h-5 text-blue-400" aria-hidden="true" />
-            </div>
-            <h4 className="text-lg font-semibold text-white">Email Support</h4>
-          </div>
-          <p className="text-gray-300 text-sm mb-3">
-            For general inquiries, bug reports, or feature suggestions
-          </p>
-          <a
-            href="mailto:masterduelcounter@gmail.com"
-            className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
-            aria-label="Send email to masterduelcounter@gmail.com"
-          >
-            <span className="break-all">masterduelcounter@gmail.com</span>
-          </a>
-        </div>
-
-        <div className="bg-gradient-to-br from-purple-950/50 to-blue-950/50 rounded-lg border border-purple-600/30 p-5 hover:border-purple-500/50 transition-all duration-200">
+      {/* Contenedor centrado */}
+      <div className="flex justify-center">
+        <div className="bg-gradient-to-br from-purple-950/50 to-blue-950/50 rounded-lg border border-purple-600/30 p-5 hover:border-purple-500/50 transition-all duration-200 max-w-md w-full">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-purple-600/20 rounded-lg">
               <MessageCircle
@@ -110,8 +92,8 @@ export const ContactContent = () => {
             aria-hidden="true"
           />
           <span>
-            <strong>Please note:</strong> This project was made by one single
-            person. Be patient and mark your email subject with "URGENT".
+            <strong>Please Note:</strong> This project was made by one person.
+            Be patient and talk about it in our discord .
           </span>
         </p>
       </div>

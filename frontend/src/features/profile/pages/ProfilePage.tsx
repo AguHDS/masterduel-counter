@@ -12,7 +12,10 @@ import { PersonalDecks } from "../components/PersonalDecks";
 import { UserSearchDropdown } from "../components/UserSearchDropdown";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
-import { useFavoriteCardAndDecks } from "../hooks/useFavoriteCardAndDecks";
+import {
+  normalizeFavoriteDeckSlots,
+  useFavoriteCardAndDecks,
+} from "../hooks/useFavoriteCardAndDecks";
 import { useCustomDecks } from "../hooks/useCustomDecks";
 import { useSession } from "@/lib/auth-client";
 import { FeatureErrorBoundary } from "@/shared/components";
@@ -75,7 +78,11 @@ export const ProfilePage = () => {
       enabled: !!resolvedUserId,
     });
 
-  const { decks: customDecks, isLoading: isCustomDecksLoading } = useCustomDecks(resolvedUserId);
+  const {
+    decks: customDecks,
+    isLoading: isCustomDecksLoading,
+    isFetched: isCustomDecksFetched,
+  } = useCustomDecks(resolvedUserId);
   const {
     isEditMode,
     bioValue,
@@ -172,10 +179,8 @@ export const ProfilePage = () => {
       setFavoriteCardId(profile.favoriteCardId || null);
       if (profile.favoriteDecks) {
         try {
-          const decks = JSON.parse(
-            profile.favoriteDecks,
-          ) as typeof favoriteDecks;
-          setFavoriteDecks(decks);
+          const decks = JSON.parse(profile.favoriteDecks) as unknown;
+          setFavoriteDecks(normalizeFavoriteDeckSlots(decks));
         } catch {
           setFavoriteDecks([null, null, null]);
         }
@@ -552,7 +557,7 @@ export const ProfilePage = () => {
                             isEditMode={isEditMode && isOwner}
                             onDecksUpdate={handleFavoriteDecksUpdate}
                             customDecks={customDecks || []}
-                            isCustomDecksLoaded={!isCustomDecksLoading}
+                            isCustomDecksLoaded={isCustomDecksFetched && !isCustomDecksLoading}
                             onNavigateToDecks={() => { cancelEdit(); navigate(getProfilePath("my-decks")); }}
                             onDeckClick={(deckId) => {
                               setAutoSelectDeckId(deckId);

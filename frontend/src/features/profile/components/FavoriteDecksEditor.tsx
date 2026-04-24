@@ -51,11 +51,6 @@ export const FavoriteDecksEditor = ({
     if (pickerSlot === null) return;
     const newDeck: FavoriteDeck = {
       deckId: deck.id,
-      title: deck.title,
-      imageUrl: getDeckPreviewImage(deck),
-      mainCount: deck.mainDeck.length,
-      extraCount: deck.extraDeck.length,
-      sideCount: deck.sideDeck.length,
     };
     const newDecks: (FavoriteDeck | null)[] = [...favoriteDecks];
     while (newDecks.length < 3) newDecks.push(null);
@@ -92,21 +87,42 @@ export const FavoriteDecksEditor = ({
           const liveDeck = savedDeck
             ? (customDecks.find((d) => d.id === savedDeck.deckId) ?? null)
             : null;
-          // Treat as empty if customDecks loaded and deck was deleted
-          const deck = savedDeck && (!isCustomDecksLoaded || liveDeck !== null)
+          const isDeckLoading = !!savedDeck && !isCustomDecksLoaded;
+          // Treat as empty if customDecks loaded and deck was deleted.
+          // We intentionally avoid using saved snapshot fields while loading
+          // to prevent showing stale header images.
+          const deck = savedDeck && liveDeck
             ? {
                 deckId: savedDeck.deckId,
-                title: liveDeck?.title ?? savedDeck.title,
-                imageUrl: liveDeck ? getDeckPreviewImage(liveDeck) : savedDeck.imageUrl,
-                mainCount: liveDeck?.mainDeck.length ?? savedDeck.mainCount,
-                extraCount: liveDeck?.extraDeck.length ?? savedDeck.extraCount,
-                sideCount: liveDeck?.sideDeck.length ?? savedDeck.sideCount,
+                title: liveDeck.title,
+                imageUrl: getDeckPreviewImage(liveDeck),
+                mainCount: liveDeck.mainDeck.length,
+                extraCount: liveDeck.extraDeck.length,
+                sideCount: liveDeck.sideDeck.length,
               }
             : null;
 
           return (
             <div key={slotIndex} className="relative group">
-              {deck ? (
+              {isDeckLoading ? (
+                <div
+                  className="relative rounded-lg overflow-hidden shadow-lg shadow-black/50"
+                  style={{ background: "linear-gradient(to bottom, #111827, #0b0d14)" }}
+                >
+                  <div className="w-full aspect-[12/9] bg-slate-800/50 animate-pulse" />
+                  <div
+                    className="absolute bottom-0 left-0 right-0 px-3 py-2.5"
+                    style={{
+                      background: "linear-gradient(to top, rgba(8,10,25,0.92) 50%, rgba(8,10,20,0.0) 100%)",
+                      WebkitBackdropFilter: "blur(6px)",
+                    }}
+                  >
+                    <p className="text-slate-300 font-bold text-sm truncate">
+                      Loading deck...
+                    </p>
+                  </div>
+                </div>
+              ) : deck ? (
                 <div
                   className="relative rounded-lg overflow-hidden shadow-lg shadow-black/50 group cursor-pointer"
                   style={{ background: "linear-gradient(to bottom, #111827, #0b0d14)" }}

@@ -37,26 +37,22 @@ export const validateFavoriteCardAndDecksMiddleware = (
           });
         }
 
-        // Validate structure of each non-null deck entry
+        // Validate structure of each deck entry
+        // Canonical shape is { deckId }
         for (const deck of parsed) {
           // Skip null entries (they represent empty slots)
           if (deck === null || deck === undefined) {
             continue;
           }
-          
+
           if (
             typeof deck !== "object" ||
-            typeof deck.deckId !== "number" ||
-            typeof deck.title !== "string" ||
-            (deck.imageUrl !== null && typeof deck.imageUrl !== "string") ||
-            typeof deck.mainCount !== "number" ||
-            typeof deck.extraCount !== "number" ||
-            typeof deck.sideCount !== "number"
+            typeof (deck as { deckId?: unknown }).deckId !== "number"
           ) {
             return res.status(400).json({
               success: false,
               message:
-                "Each deck must have deckId (number), title (string), imageUrl (string|null), mainCount, extraCount, sideCount (numbers)",
+                "Each deck must have at least deckId (number)",
             });
           }
         }
