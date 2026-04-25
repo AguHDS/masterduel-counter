@@ -47,7 +47,7 @@ interface NavbarMobileMenuProps {
   isMobileRequestsOpen: boolean;
   onToggleMobileRequests: () => void;
   onOpenCreate: () => void;
-  onOpenFullModal: () => void;
+  onOpenFullModal: (requestId?: number) => void;
 }
 
 /** Navbar content for mobile view (sm and below) */
@@ -286,7 +286,7 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                 + Request a Guide
               </button>
               <button
-                onClick={onOpenFullModal}
+                onClick={() => onOpenFullModal()}
                 className="w-full text-left px-4 py-2.5 text-slate-300 text-xs hover:bg-[#c2901c]/10 transition-colors"
               >
                 View all requests →

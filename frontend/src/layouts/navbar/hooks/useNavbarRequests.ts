@@ -23,6 +23,8 @@ export interface NavbarRequestsState {
   isMobileOpen: boolean;
   showFullModal: boolean;
   setShowFullModal: (v: boolean) => void;
+  selectedRequestId: number | null;
+  setSelectedRequestId: (v: number | null) => void;
   showCreateModal: boolean;
   setShowCreateModal: (v: boolean) => void;
   showHint: boolean;
@@ -39,6 +41,9 @@ export function useNavbarRequests(): NavbarRequestsState {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [showFullModal, setShowFullModal] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
+    null,
+  );
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [hintExiting, setHintExiting] = useState(false);
@@ -118,6 +123,8 @@ export function useNavbarRequests(): NavbarRequestsState {
     isMobileOpen,
     showFullModal,
     setShowFullModal,
+    selectedRequestId,
+    setSelectedRequestId,
     showCreateModal,
     setShowCreateModal,
     showHint,

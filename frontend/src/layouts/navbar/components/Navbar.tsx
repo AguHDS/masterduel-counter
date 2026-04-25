@@ -79,12 +79,14 @@ export const Navbar = () => {
                 openCount: requests.counts?.OPEN ?? 0,
                 showHint: requests.showHint,
                 hintExiting: requests.hintExiting,
-                onOpenFullModal: () => {
+                onOpenFullModal: (requestId?: number) => {
                   requests.setIsOpen(false);
+                  requests.setSelectedRequestId(requestId ?? null);
                   requests.setShowFullModal(true);
                 },
                 onOpenCreate: () => {
                   requests.setIsOpen(false);
+                  requests.setSelectedRequestId(null);
                   requests.setShowCreateModal(true);
                 },
               }}
@@ -115,12 +117,14 @@ export const Navbar = () => {
                 onClose: () => requests.setIsOpen(false),
                 showBadge: requests.showBadge,
                 openCount: requests.counts?.OPEN ?? 0,
-                onOpenFullModal: () => {
+                onOpenFullModal: (requestId?: number) => {
                   requests.setIsOpen(false);
+                  requests.setSelectedRequestId(requestId ?? null);
                   requests.setShowFullModal(true);
                 },
                 onOpenCreate: () => {
                   requests.setIsOpen(false);
+                  requests.setSelectedRequestId(null);
                   requests.setShowCreateModal(true);
                 },
               }}
@@ -168,10 +172,12 @@ export const Navbar = () => {
         isMobileRequestsOpen={requests.isMobileOpen}
         onToggleMobileRequests={requests.toggleMobile}
         onOpenCreate={() => {
+          requests.setSelectedRequestId(null);
           requests.setShowCreateModal(true);
           setIsMenuOpen(false);
         }}
-        onOpenFullModal={() => {
+        onOpenFullModal={(requestId?: number) => {
+          requests.setSelectedRequestId(requestId ?? null);
           requests.setShowFullModal(true);
           setIsMenuOpen(false);
         }}
@@ -182,8 +188,12 @@ export const Navbar = () => {
         onCloseRankingModal={() => ranking.setIsModalOpen(false)}
         onRankingUserClick={handleUserClick}
         isFullModalOpen={requests.showFullModal}
-        onCloseFullModal={() => requests.setShowFullModal(false)}
+        onCloseFullModal={() => {
+          requests.setShowFullModal(false);
+          requests.setSelectedRequestId(null);
+        }}
         currentUser={user ?? null}
+        initialRequestId={requests.selectedRequestId}
         isCreateModalOpen={requests.showCreateModal}
         onCloseCreateModal={() => requests.setShowCreateModal(false)}
       />

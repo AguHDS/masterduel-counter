@@ -428,7 +428,7 @@ export const CardPairItem = ({
         )}
       </div>
 
-      <div className="relative overflow-hidden bg-gradient-to-br p-2 border border-blue-500/40">
+      <div className="relative overflow-visible bg-gradient-to-br p-2 border border-blue-500/40">
         <div className="absolute left-2 top-2 z-10 bg-slate-950/85 px-2 py-0.5 text-xs font-bold text-yellow-500">
           #{pairNumber}
         </div>
@@ -437,7 +437,7 @@ export const CardPairItem = ({
         {isEditMode && (
           <button
             onClick={onRemove}
-            className="absolute -top-1.5 -right-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 shadow-md"
+            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-20 shadow-md"
             title="Remove pair"
           >
             <X className="w-3 h-3" />

@@ -334,9 +334,13 @@ export class GuideApplicationService implements GuideInstanceServicePort {
       // Count current favorites
       const favoritedInstances = await this.instanceRepository.findFavoritedInstancesByUserId(userId);
       const currentCount = favoritedInstances.length;
+      const normalizedRole = user.role.toLowerCase();
 
-      // Check limit based on role (supporters have unlimited)
-      if (user.role === "user" && currentCount >= MAX_FAVORITES_USER) {
+      const hasUnlimitedFavorites =
+        normalizedRole === "admin" || normalizedRole === "supporter";
+
+      // Check limit based on role (admins/supporters have unlimited)
+      if (!hasUnlimitedFavorites && currentCount >= MAX_FAVORITES_USER) {
         throw new Error(`Maximum favorite limit reached (${MAX_FAVORITES_USER}). Upgrade to Supporter for unlimited favorites!`);
       }
     }
