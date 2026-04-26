@@ -29,6 +29,10 @@ export const mapGuideCardPairsToEditorPairs = (
   // Normalizes API/editor pairs to the format used by the container state
   return cardPairs.map((pair) => ({
     id: String(pair.id),
+    section:
+      ("pairSection" in pair ? pair.pairSection : undefined) ??
+      ("section" in pair ? pair.section : undefined) ??
+      null,
     topCards: pair.topCards,
     bottomCards: pair.bottomCards,
     comment: pair.comment,
@@ -114,6 +118,7 @@ export const buildGuideEditSnapshot = ({
     generalTip,
     headerCardId: headerCard?.id ?? null,
     pairs: pairs.map((pair) => ({
+      section: pair.section ?? null,
       topCardIds: pair.topCards.map((card) => card.id),
       bottomCardIds: pair.bottomCards.map((card) => card.id),
       comment: pair.comment ?? null,

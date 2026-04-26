@@ -11,6 +11,7 @@ interface HeaderCard {
 interface GuideInstanceData {
   cardPairs: Array<{
     id: number;
+    pairSection?: "HANDTRAP" | "BOARD_BREAKER" | null;
     topCards: Array<{
       id: number;
       name: string;
@@ -77,6 +78,7 @@ export const useInstanceGuideData = ({
       // Load existing instance data
       const pairs: CardPair[] = guideInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
+        section: pair.pairSection ?? null,
         topCards: pair.topCards,
         bottomCards: pair.bottomCards,
         comment: pair.comment,

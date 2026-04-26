@@ -262,13 +262,8 @@ export const CardPairItem = ({
       const gapHeight = (rows - 1) * 6;
       const cardsHeight = rows * BOTTOM_CARD_HEIGHT + gapHeight;
 
-      // Calculate efficiency height for both edit and view modes
-      // In edit mode, all cards have selectors. In view mode, only cards with effectiveness show labels
-      const hasEfficiencyLabels =
-        isEditMode || visibleCards.some((c) => c.effectiveness);
-      const efficiencyHeight = hasEfficiencyLabels
-        ? EFFICIENCY_SELECTOR_HEIGHT + 4
-        : 0; // +4 for mt-1
+      // Reserve a fixed row for efficiency/selector in every pair to keep card pair height stable.
+      const efficiencyHeight = EFFICIENCY_SELECTOR_HEIGHT + 4;
 
       return (
         cardsHeight +
@@ -347,14 +342,12 @@ export const CardPairItem = ({
                       ))}
                     </select>
                   ) : (
-                    card.effectiveness && (
-                      <div
-                        className={`mt-1 text-center text-[10px] font-bold uppercase tracking-wide ${selectedOption?.color || "text-slate-400"}`}
-                        style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
-                      >
-                        {selectedOption?.label}
-                      </div>
-                    )
+                    <div
+                      className={`mt-1 text-center text-[10px] font-bold uppercase tracking-wide ${card.effectiveness ? (selectedOption?.color || "text-slate-400") : "text-transparent"}`}
+                      style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                    >
+                      {card.effectiveness ? selectedOption?.label : "NONE"}
+                    </div>
                   )}
                 </div>
               );
@@ -428,7 +421,7 @@ export const CardPairItem = ({
         )}
       </div>
 
-      <div className="relative overflow-hidden bg-gradient-to-br p-2 border border-blue-500/40">
+      <div className="relative overflow-visible bg-gradient-to-br p-2 border border-blue-500/40">
         <div className="absolute left-2 top-2 z-10 bg-slate-950/85 px-2 py-0.5 text-xs font-bold text-yellow-500">
           #{pairNumber}
         </div>
@@ -437,7 +430,7 @@ export const CardPairItem = ({
         {isEditMode && (
           <button
             onClick={onRemove}
-            className="absolute -top-1.5 -right-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 shadow-md"
+            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-20 shadow-md"
             title="Remove pair"
           >
             <X className="w-3 h-3" />
@@ -455,31 +448,35 @@ export const CardPairItem = ({
               >
                 {hasTopCards &&
                   topCards.map((card, index) => (
-                    <div key={index} className="relative group">
-                      {isEditMode && (
-                        <button
-                          onClick={() => onRemoveTopCard(index)}
-                          className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
-                          title="Remove card"
+                    <div key={index} className="flex flex-col items-center">
+                      <div className="relative group">
+                        {isEditMode && (
+                          <button
+                            onClick={() => onRemoveTopCard(index)}
+                            className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
+                            title="Remove card"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                        )}
+                        <CardTooltip
+                          imageUrl={card.imageUrl}
+                          cardName={card.name}
+                          cardId={card.id}
                         >
-                          <X className="w-2.5 h-2.5" />
-                        </button>
-                      )}
-                      <CardTooltip
-                        imageUrl={card.imageUrl}
-                        cardName={card.name}
-                        cardId={card.id}
+                          <img
+                            src={card.imageUrlSmall}
+                            alt={card.name}
+                            className="w-24 h-32 object-cover rounded border border-none cursor-pointer shadow-sm"
+                          />
+                        </CardTooltip>
+                      </div>
+                      <div
+                        className="mt-1 text-center text-[10px] font-bold uppercase tracking-wide text-transparent"
+                        style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
                       >
-                        <img
-                          src={card.imageUrlSmall}
-                          alt={card.name}
-                          className="border border-blue-500 cursor-pointer shadow-sm"
-                          style={{
-                            width: `${TOP_CARD_WIDTH}px`,
-                            height: `${TOP_CARD_HEIGHT}px`,
-                          }}
-                        />
-                      </CardTooltip>
+                        NONE
+                      </div>
                     </div>
                   ))}
                 {hasBottomCards &&
@@ -534,14 +531,12 @@ export const CardPairItem = ({
                             ))}
                           </select>
                         ) : (
-                          card.effectiveness && (
-                            <div
-                              className={`mt-1 text-center text-[10px] font-bold uppercase tracking-wide ${selectedOption?.color || "text-slate-400"}`}
-                              style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
-                            >
-                              {selectedOption?.label}
-                            </div>
-                          )
+                          <div
+                            className={`mt-1 text-center text-[10px] font-bold uppercase tracking-wide ${card.effectiveness ? (selectedOption?.color || "text-slate-400") : "text-transparent"}`}
+                            style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                          >
+                            {card.effectiveness ? selectedOption?.label : "NONE"}
+                          </div>
                         )}
                       </div>
                     );

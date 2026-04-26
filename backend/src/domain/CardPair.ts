@@ -3,6 +3,7 @@ export interface CardPair {
   id: number;
   instance_id: number;
   pair_order: number;
+  pair_section?: string | null;
   comment: string | null;
   created_at: string;
   top_card_ids: number[];
@@ -14,6 +15,7 @@ export interface GuideCardPairCreateDTO {
   top_card_ids: number[];
   bottom_card_ids: Array<{ cardId: number; effectiveness?: string | null }>;
   pair_order: number;
+  pair_section?: string | null;
   comment?: string | null;
 }
 

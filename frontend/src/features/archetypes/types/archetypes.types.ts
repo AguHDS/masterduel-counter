@@ -30,6 +30,7 @@ export interface Card {
 
 export interface CardPair {
   id: string;
+  section?: "HANDTRAP" | "BOARD_BREAKER" | null;
   topCards: Array<{
     id: number;
     name: string;

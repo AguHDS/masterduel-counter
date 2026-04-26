@@ -15,6 +15,7 @@ interface NavbarModalsProps {
   isFullModalOpen: boolean;
   onCloseFullModal: () => void;
   currentUser: User | null;
+  initialRequestId?: number | null;
   // Create guide request modal
   isCreateModalOpen: boolean;
   onCloseCreateModal: () => void;
@@ -28,6 +29,7 @@ export const NavbarModals: React.FC<NavbarModalsProps> = ({
   isFullModalOpen,
   onCloseFullModal,
   currentUser,
+  initialRequestId,
   isCreateModalOpen,
   onCloseCreateModal,
 }) => {
@@ -42,6 +44,7 @@ export const NavbarModals: React.FC<NavbarModalsProps> = ({
         isOpen={isFullModalOpen}
         onClose={onCloseFullModal}
         currentUser={currentUser}
+        initialRequestId={initialRequestId}
       />
       <CreateGuideRequestModal
         isOpen={isCreateModalOpen}

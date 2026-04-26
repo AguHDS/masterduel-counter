@@ -154,6 +154,7 @@ export const createGetGuideByIdController = (
         headerCard,
         cardPairs: cardPairs.map((pair) => ({
           id: pair.id,
+          pairSection: pair.pair_section ?? null,
           topCards: pair.top_cards.map((card) => ({
             id: card.id,
             name: card.name,

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import { Plus, Info } from "lucide-react";
 import { useCustomDecks } from "../hooks/useCustomDecks";
 import { PersonalDeckModal } from "./PersonalDeckModal";
@@ -52,9 +53,14 @@ export const PersonalDeckList = ({
   // Sort by displayOrder (ascending)
   const sortedDecks = [...decks].sort((a, b) => a.displayOrder - b.displayOrder);
 
-  const maxDecks =
-    userRole === "supporter" ? MAX_DECKS_SUPPORTER : MAX_DECKS_USER;
-  const canCreateMore = sortedDecks.length < maxDecks;
+  const normalizedRole = (userRole || "user").toLowerCase();
+  const isAdmin = normalizedRole === "admin";
+  const maxDecks = isAdmin
+    ? Number.POSITIVE_INFINITY
+    : normalizedRole === "supporter"
+      ? MAX_DECKS_SUPPORTER
+      : MAX_DECKS_USER;
+  const canCreateMore = isAdmin || sortedDecks.length < maxDecks;
 
   const handleCreateDeck = (
     data: { title: string; mainDeckCards: number[]; extraDeckCards: number[]; sideDeckCards: number[]; headerCardId?: number; isPublic: boolean }
@@ -65,7 +71,27 @@ export const PersonalDeckList = ({
         onSuccess: () => setIsCreatingNew(false),
         onError: (error) => {
           console.error("Error creating deck:", error);
-          alert("Failed to create deck. Please try again.");
+          let errorMessage = "Failed to create deck. Please try again.";
+
+          if (axios.isAxiosError(error)) {
+            const backendMessage =
+              (error.response?.data as { error?: string; message?: string } | undefined)
+                ?.error ||
+              (error.response?.data as { error?: string; message?: string } | undefined)
+                ?.message ||
+              error.message;
+
+            if (backendMessage) {
+              if (/no cards|at least one card|invalid deck data/i.test(backendMessage)) {
+                errorMessage =
+                  "You must add at least one card to Main Deck or Extra Deck before saving.";
+              } else {
+                errorMessage = backendMessage;
+              }
+            }
+          }
+
+          alert(errorMessage);
         },
       },
     );
@@ -343,7 +369,7 @@ export const PersonalDeckList = ({
                       canCreateMore ? "text-slate-400" : "text-slate-600"
                     }`}
                   >
-                    {sortedDecks.length}/{maxDecks}
+                    {isAdmin ? `${sortedDecks.length}/∞` : `${sortedDecks.length}/${maxDecks}`}
                   </p>
                 </div>
               </button>

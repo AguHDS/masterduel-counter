@@ -28,7 +28,7 @@ interface RequestsProps {
   openCount: number;
   showHint: boolean;
   hintExiting: boolean;
-  onOpenFullModal: () => void;
+  onOpenFullModal: (requestId?: number) => void;
   onOpenCreate: () => void;
 }
 

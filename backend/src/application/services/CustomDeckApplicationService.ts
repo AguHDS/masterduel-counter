@@ -89,13 +89,19 @@ export class CustomDeckApplicationService implements CustomDeckApplicationPort {
 
   async canUserCreateDeck(userId: string, userRole: string): Promise<boolean> {
     const deckCount = await this.deckRepository.countDecksByUserId(userId);
+    const normalizedRole = userRole.toLowerCase();
+
+    // Admins have unlimited deck capacity
+    if (normalizedRole === "admin") {
+      return true;
+    }
     
     // Check limit based on role
-    if (userRole === "supporter" && deckCount >= MAX_DECKS_SUPPORTER) {
+    if (normalizedRole === "supporter" && deckCount >= MAX_DECKS_SUPPORTER) {
       return false;
     }
     
-    if (userRole === "user" && deckCount >= MAX_DECKS_USER) {
+    if (normalizedRole === "user" && deckCount >= MAX_DECKS_USER) {
       return false;
     }
 

@@ -52,6 +52,7 @@ export interface GuideInstanceWithFullDetails {
   } | null;
   cardPairs: Array<{
     id: number;
+    pairSection?: "HANDTRAP" | "BOARD_BREAKER" | null;
     topCards: Array<{
       id: number;
       name: string;

@@ -26,7 +26,7 @@ interface RequestsProps {
   onClose: () => void;
   showBadge: boolean;
   openCount: number;
-  onOpenFullModal: () => void;
+  onOpenFullModal: (requestId?: number) => void;
   onOpenCreate: () => void;
 }
 

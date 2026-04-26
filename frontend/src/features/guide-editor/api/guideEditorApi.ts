@@ -9,6 +9,7 @@ const API_BASE_URL = getBackendUrl();
 export interface CardPairDTO {
   topCardIds: number[];
   bottomCardIds: Array<{ cardId: number; effectiveness?: string }>;
+  pairSection?: "HANDTRAP" | "BOARD_BREAKER" | null;
   comment?: string;
 }
 

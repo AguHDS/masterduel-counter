@@ -2,7 +2,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { X, Plus, Search, Loader2 } from "lucide-react";
 import { Virtuoso } from "react-virtuoso";
-import { useGuideRequests, useGuideRequestCounts } from "../hooks/useGuideRequests";
+import {
+  useGuideRequests,
+  useGuideRequestCounts,
+  useGuideRequestById,
+} from "../hooks/useGuideRequests";
 import { GuideRequestListItem } from "./GuideRequestListItem";
 import { GuideRequestDetailPanel } from "./GuideRequestDetailPanel";
 import { CreateGuideRequestModal } from "./CreateGuideRequestModal";
@@ -35,6 +39,7 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
   currentUser,
   initialTab,
   initialRequest,
+  initialRequestId,
 }) => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialTab ?? "OPEN");
   const [page, setPage] = useState(1);
@@ -46,6 +51,9 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
     LIMIT,
     statusFilter === "ALL" ? undefined : statusFilter,
   );
+  const { data: initialRequestById } = useGuideRequestById(
+    isOpen && initialRequestId ? initialRequestId : null,
+  );
   const { data: counts } = useGuideRequestCounts();
 
   // Sync initialTab and initialRequest when modal reopens, reset create modal on close
@@ -54,10 +62,23 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
       setShowCreateModal(false);
       return;
     }
-    if (initialTab) setStatusFilter(initialTab);
-    if (initialRequest) setSelectedRequest(initialRequest);
-    else setSelectedRequest(null);
-  }, [isOpen, initialTab, initialRequest]);
+    if (initialRequest) {
+      setStatusFilter(initialRequest.status);
+      setSelectedRequest(initialRequest);
+      return;
+    }
+
+    if (initialRequestById) {
+      setStatusFilter(initialRequestById.status);
+      setSelectedRequest(initialRequestById);
+      return;
+    }
+
+    if (initialTab) {
+      setStatusFilter(initialTab);
+    }
+    setSelectedRequest(null);
+  }, [isOpen, initialTab, initialRequest, initialRequestById]);
 
   // Lock body scroll while open
   useEffect(() => {
