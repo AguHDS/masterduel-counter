@@ -1,5 +1,12 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Crown, ThumbsUp, Eye, BookOpen, MailWarning, Heart } from "lucide-react";
+import {
+  Crown,
+  ThumbsUp,
+  Eye,
+  BookOpen,
+  MailWarning,
+  Heart,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import type { RankingUser } from "../types/ranking.types";
@@ -72,7 +79,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
     <div
       ref={popupRef}
       onMouseDown={(e) => e.stopPropagation()}
-      className={`absolute mt-2 w-[420px] border border-[#c2901c]/40 rounded-xl shadow-2xl overflow-hidden z-50 ${
+      className={`absolute mt-2 w-[450px] border border-[#c2901c]/40 rounded-xl shadow-2xl overflow-hidden z-50 ${
         alignRight ? "right-0" : "left-0"
       }`}
       style={{
@@ -292,6 +299,16 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         <span className="text-gray-600"> · </span>
                         <span className="text-yellow-500">
                           {guide.archetypeName}
+                        </span>{" "}
+                        <span className="text-gray-600"> · </span>
+                        <span
+                          className={`text-[10px] font-bold px-1.5 py-[2px] rounded-md border ${
+                            isCounter
+                              ? "bg-amber-950/60 text-amber-500 border-amber-700/50"
+                              : "bg-blue-950/60 text-blue-400 border-blue-800/50"
+                          }`}
+                        >
+                          {isCounter ? "Counter" : "Deck"}
                         </span>
                       </p>
                       <div className="flex items-center gap-2 mt-1">
@@ -306,15 +323,6 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         <span className="flex items-center gap-1 text-xs text-emerald-400 font-medium">
                           <ThumbsUp className="w-3 h-3" />
                           {guide.likes.toLocaleString()} Likes
-                        </span>
-                        <span
-                          className={`text-[10px] font-bold px-1.5 py-[2px] rounded-md border ${
-                            isCounter
-                              ? "bg-amber-950/60 text-amber-500 border-amber-700/50"
-                              : "bg-blue-950/60 text-blue-400 border-blue-800/50"
-                          }`}
-                        >
-                          {isCounter ? "Counter Guide" : "Deck Guide"}
                         </span>
                       </div>
                     </div>
