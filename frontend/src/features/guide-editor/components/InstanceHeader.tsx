@@ -1,4 +1,14 @@
-import { Plus, Eye, Star, ThumbsUp, ChevronDown, ChevronUp, Package } from "lucide-react";
+import {
+  Plus,
+  Eye,
+  Star,
+  ThumbsUp,
+  ChevronDown,
+  ChevronUp,
+  Package,
+  PackagePlus,
+  PackageXIcon,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { Avatar } from "@/shared/components/DefaultAvatar";
@@ -36,6 +46,9 @@ interface InstanceHeaderProps {
   currentUserId?: number | string | null;
   guideType?: "COUNTER" | "DECK";
   hasRecommendedDeck?: boolean;
+  hasHandtraps?: boolean;
+  hasBoardBreakers?: boolean;
+  createdAt?: string;
 }
 
 export const InstanceHeader = ({
@@ -62,6 +75,9 @@ export const InstanceHeader = ({
   isAuthenticated = false,
   currentUserId,
   hasRecommendedDeck = false,
+  hasHandtraps = false,
+  hasBoardBreakers = false,
+  createdAt,
 }: InstanceHeaderProps) => {
   const isOwner = !!(
     currentUserId &&
@@ -85,17 +101,28 @@ export const InstanceHeader = ({
   }, [generalTip, isEditMode]);
 
   const scrollToRecommendedDeck = () => {
-    const deckSection = document.getElementById('recommended-deck-section');
+    const deckSection = document.getElementById("recommended-deck-section");
     if (deckSection) {
-      deckSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      deckSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const formattedCreatedDate = createdAt
+    ? new Date(createdAt).toLocaleDateString()
+    : null;
+
   return (
     <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 mb-8 w-full">
-      <div className="flex-shrink-0 w-full lg:w-auto flex flex-col items-center lg:items-start gap-4">
+      <div className="flex-shrink-0 mb-5 w-full lg:w-auto flex flex-col items-center gap-4">
         {headerCard ? (
-          <div className="relative lg:top-8 w-48 sm:w-56 lg:w-64 h-auto ">
+          <div className="relative lg:top-8 w-48 sm:w-56 lg:w-64 h-auto">
             <CardTooltip
               imageUrl={headerCard.imageUrl}
               cardName={headerCard.name}
@@ -135,16 +162,50 @@ export const InstanceHeader = ({
             />
           </button>
         )}
-        
+
         {!isEditMode && guideType === "DECK" && hasRecommendedDeck && (
           <button
             onClick={scrollToRecommendedDeck}
-            className="z-50 flex justify-center m-auto items-center gap-2 px-3 py-1.5 text-amber-500/90 font-medium"
+            className="z-50 flex justify-center m-auto items-center gap-2 px-3 py-1.5 text-amber-500/90 font-medium hover:underline underline-offset-4"
           >
             <Package className="w-5 h-5" />
             <span>Show Deck</span>
           </button>
         )}
+
+        {!isEditMode &&
+          guideType === "COUNTER" &&
+          (hasHandtraps || hasBoardBreakers) && (
+            <div className="z-50 w-full flex items-center justify-center gap-2 text-amber-500/90 font-medium text-center">
+              {hasHandtraps && (
+                <>
+                  <PackagePlus className="w-5 h-5 " />
+                  <button
+                    onClick={() => scrollToSection("handtraps-section")}
+                    className="hover:underline underline-offset-4"
+                  >
+                    Handtraps
+                  </button>
+                </>
+              )}
+
+              {hasHandtraps && hasBoardBreakers && (
+                <span className="text-amber-500/70">|</span>
+              )}
+
+              {hasBoardBreakers && (
+                <>
+                <PackageXIcon className="w-5 h-5" />
+                  <button
+                    onClick={() => scrollToSection("board-breakers-section")}
+                    className="hover:underline underline-offset-4"
+                  >
+                    Board Breakers
+                  </button>
+                </>
+              )}
+            </div>
+          )}
       </div>
 
       <div className="flex-1 min-w-0 w-full lg:relative lg:bottom-12">
@@ -222,7 +283,7 @@ export const InstanceHeader = ({
             <div className="w-full">
               <div
                 className={`py-4 border-l-2 border-r-2 border-blue-700/30 bg-slate-900/30 px-4 rounded overflow-hidden transition-all duration-300 ${
-                  isDescriptionExpanded || !needsReadMore ? '' : 'max-h-[180px]'
+                  isDescriptionExpanded || !needsReadMore ? "" : "max-h-[180px]"
                 }`}
                 style={{
                   wordBreak: "break-word",
@@ -233,7 +294,9 @@ export const InstanceHeader = ({
                 <p
                   ref={descriptionRef}
                   className={`text-slate-300 text-base leading-relaxed break-words overflow-wrap-anywhere ${
-                    !isDescriptionExpanded && needsReadMore ? 'line-clamp-6' : ''
+                    !isDescriptionExpanded && needsReadMore
+                      ? "line-clamp-6"
+                      : ""
                   }`}
                   style={{ whiteSpace: "pre-wrap" }}
                 >
@@ -242,7 +305,9 @@ export const InstanceHeader = ({
               </div>
               {needsReadMore && (
                 <button
-                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  onClick={() =>
+                    setIsDescriptionExpanded(!isDescriptionExpanded)
+                  }
                   className="mt-2 flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
                 >
                   {isDescriptionExpanded ? (
@@ -264,7 +329,12 @@ export const InstanceHeader = ({
       </div>
 
       {!isCreatingNew && (
-        <div className="flex-shrink-0 w-full lg:w-56 lg:relative lg:bottom-10">
+        <div className="flex-shrink-0 w-full lg:w-56 lg:relative lg:bottom-11">
+          {formattedCreatedDate && (
+            <div className="text-slate-500 text-xs mb-1 text-center flex justify-end">
+              {formattedCreatedDate}
+            </div>
+          )}
           <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm p-4 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
             <div className="flex flex-col gap-2">
               {userName && userId && (
@@ -305,7 +375,9 @@ export const InstanceHeader = ({
               </div>
 
               <button
-                onClick={isAuthenticated && !isEditMode ? onFavoriteToggle : undefined}
+                onClick={
+                  isAuthenticated && !isEditMode ? onFavoriteToggle : undefined
+                }
                 disabled={!isAuthenticated || isEditMode}
                 className={`flex items-center justify-between px-2 py-1.5 rounded-lg w-full transition-colors ${
                   isFavorited
@@ -318,8 +390,8 @@ export const InstanceHeader = ({
                     : isEditMode
                       ? "Cannot favorite while editing"
                       : isFavorited
-                      ? "Remove from favorites"
-                      : "Add to favorites"
+                        ? "Remove from favorites"
+                        : "Add to favorites"
                 }
               >
                 <div className="flex items-center gap-2">
@@ -338,7 +410,11 @@ export const InstanceHeader = ({
               </button>
 
               <button
-                onClick={!isOwner && isAuthenticated && !isEditMode ? onLikeToggle : undefined}
+                onClick={
+                  !isOwner && isAuthenticated && !isEditMode
+                    ? onLikeToggle
+                    : undefined
+                }
                 disabled={!isAuthenticated || isOwner || isEditMode}
                 className={`flex items-center justify-between px-2 py-1.5 rounded-lg w-full transition-colors ${
                   isLiked
@@ -353,8 +429,8 @@ export const InstanceHeader = ({
                       : isEditMode
                         ? "Cannot like while editing"
                         : isLiked
-                        ? "Unlike this guide"
-                        : "Like this guide"
+                          ? "Unlike this guide"
+                          : "Like this guide"
                 }
               >
                 <div className="flex items-center gap-2">

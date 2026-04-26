@@ -1,5 +1,6 @@
 import type { CardPair } from "@/features/archetypes/types";
 import type { GuideType } from "@/features/archetypes/types";
+import type { CardPairDTO } from "../api/guideEditorApi";
 
 interface HeaderCard {
   id: number;
@@ -81,13 +82,15 @@ export const validateInstanceData = (
   return { isValid: true };
 };
 
-export const transformPairsForApi = (pairs: CardPair[]) => {
+export const transformPairsForApi = (pairs: CardPair[]): CardPairDTO[] => {
   return pairs.map((pair) => ({
     topCardIds: pair.topCards.map((card) => card.id),
     bottomCardIds: pair.bottomCards.map((card) => ({
       cardId: card.id,
       effectiveness: card.effectiveness,
     })),
+    pairSection:
+      pair.section === "BOARD_BREAKER" ? "BOARD_BREAKER" : "HANDTRAP",
     comment: pair.comment,
   }));
 };

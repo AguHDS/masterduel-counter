@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
+import { Plus } from "lucide-react";
 import { CardPairItem } from "./CardPairItem";
 import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
 import type { CardPair, Card } from "@/features/archetypes/types";
 
 interface CardPairEditorProps {
   isEditMode: boolean;
-  initialPairs?: CardPair[];
   pairs: CardPair[];
   setPairs: React.Dispatch<React.SetStateAction<CardPair[]>>;
   onAddPair?: () => void;
+  addPlaceholderLabel?: string;
   onModalStateChange?: (isOpen: boolean) => void;
   forceCloseModal?: boolean;
 }
@@ -17,10 +18,10 @@ type SelectingPosition = { pairId: string; position: "top" | "bottom" } | null;
 
 export const CardPairEditor = ({
   isEditMode,
-  initialPairs = [],
   pairs,
   setPairs,
   onAddPair,
+  addPlaceholderLabel,
   onModalStateChange,
   forceCloseModal = false,
 }: CardPairEditorProps) => {
@@ -41,10 +42,6 @@ export const CardPairEditor = ({
       onModalStateChange(!!selectingPosition);
     }
   }, [selectingPosition, onModalStateChange]);
-
-  useEffect(() => {
-    setPairs(initialPairs);
-  }, [initialPairs]);
 
   const removePair = (pairId: string) => {
     setPairs(pairs.filter((p) => p.id !== pairId));
@@ -203,6 +200,31 @@ export const CardPairEditor = ({
             isEditMode={isEditMode}
           />
         </div>,
+      );
+    }
+
+    if (isEditMode && onAddPair && addPlaceholderLabel) {
+      items.push(
+        <button
+          key="add-pair-placeholder"
+          onClick={onAddPair}
+          className="flex justify-center text-left"
+          aria-label={addPlaceholderLabel}
+        >
+          <div
+            className="space-y-1.5"
+            style={{ width: "360px" }}
+          >
+            <div className="min-h-[28px]" />
+            <div className="relative overflow-visible bg-gradient-to-br p-2 border border-dashed border-blue-500/50 hover:border-blue-400 transition-colors">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
+              <div className="relative z-10 min-h-[520px] flex flex-col items-center justify-center gap-2 text-blue-300">
+                <Plus className="w-9 h-9" />
+                <span className="text-base font-semibold">{addPlaceholderLabel}</span>
+              </div>
+            </div>
+          </div>
+        </button>,
       );
     }
 

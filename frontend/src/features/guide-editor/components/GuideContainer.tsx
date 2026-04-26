@@ -203,7 +203,12 @@ export const GuideContainer = ({
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [showRecommendedDeck, setShowRecommendedDeck] = useState(false);
   const [activeModalComponent, setActiveModalComponent] = useState<
-    "recommended-deck" | "initial-hands" | "card-pairs" | "combo-steps" | null
+    | "recommended-deck"
+    | "initial-hands"
+    | "card-pairs-handtraps"
+    | "card-pairs-board-breakers"
+    | "combo-steps"
+    | null
   >(null);
   const [originalDeckState, setOriginalDeckState] = useState<{
     exists: boolean;
@@ -219,7 +224,8 @@ export const GuideContainer = ({
       component:
         | "recommended-deck"
         | "initial-hands"
-        | "card-pairs"
+        | "card-pairs-handtraps"
+        | "card-pairs-board-breakers"
         | "combo-steps",
       isOpen: boolean,
     ) => {
@@ -564,14 +570,41 @@ export const GuideContainer = ({
     }
   };
 
-  const addPair = () => {
+  const addHandtrap = () => {
     const newPair: CardPair = {
-      id: `pair-${Date.now()}`,
+      id: `pair-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      section: "HANDTRAP",
       topCards: [],
       bottomCards: [],
       comment: undefined,
     };
-    setPairs([...pairs, newPair]);
+
+    setPairs((prevPairs) => {
+      const firstBoardBreakerIndex = prevPairs.findIndex(
+        (pair) => pair.section === "BOARD_BREAKER",
+      );
+
+      if (firstBoardBreakerIndex === -1) {
+        return [...prevPairs, newPair];
+      }
+
+      return [
+        ...prevPairs.slice(0, firstBoardBreakerIndex),
+        newPair,
+        ...prevPairs.slice(firstBoardBreakerIndex),
+      ];
+    });
+  };
+
+  const addBoardBreaker = () => {
+    const newPair: CardPair = {
+      id: `pair-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      section: "BOARD_BREAKER",
+      topCards: [],
+      bottomCards: [],
+      comment: undefined,
+    };
+    setPairs((prevPairs) => [...prevPairs, newPair]);
   };
 
   const addInitialHand = () => {
@@ -860,6 +893,13 @@ export const GuideContainer = ({
                 hasRecommendedDeck={
                   showRecommendedDeck || !!recommendedDeck.deck
                 }
+                hasHandtraps={pairs.some(
+                  (pair) => pair.section === "HANDTRAP" || pair.section == null,
+                )}
+                hasBoardBreakers={pairs.some(
+                  (pair) => pair.section === "BOARD_BREAKER",
+                )}
+                createdAt={guideInstanceData?.instance.createdAt}
               />
 
               <GuideTypeContentSection
@@ -870,8 +910,8 @@ export const GuideContainer = ({
                 onModalStateChange={handleModalStateChange}
                 pairs={pairs}
                 setPairs={setPairs}
-                loadedPairs={editor.loadedPairs}
-                onAddPair={addPair}
+                onAddHandtrap={addHandtrap}
+                onAddBoardBreaker={addBoardBreaker}
                 initialHands={initialHands}
                 setInitialHands={setInitialHands}
                 selectedHandId={selectedHandId}

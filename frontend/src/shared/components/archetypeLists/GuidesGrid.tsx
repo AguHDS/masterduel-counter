@@ -101,13 +101,25 @@ export const GuidesGrid = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
         {currentInstances.map((instance) => {
           const isCurrentUser = user?.id === instance.userId;
-          const formattedDate = new Date(instance.updatedAt).toLocaleDateString();
+          const formattedDate = new Date(
+            instance.updatedAt,
+          ).toLocaleDateString();
+          const guideUrl = buildGuidePath({
+            guideId: instance.id,
+            archetypeName: instance.archetypeName,
+            userName: instance.userName,
+            guideType: instance.guideType,
+          });
 
           return (
-            <button
+            <a
               key={instance.id}
-              onClick={() => handleInstanceClick(instance)}
-              className="group relative w-full overflow-hidden rounded-xl border border-blue-500/40 bg-[#0a0e2e]/90 hover:border-blue-400/60 transition-colors hover:shadow-lg hover:shadow-blue-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              href={guideUrl}
+              onClick={(e) => {
+                e.preventDefault();
+                handleInstanceClick(instance);
+              }}
+              className="group relative w-full overflow-hidden rounded-xl border border-blue-500/40 bg-[#0a0e2e]/90 hover:border-blue-400/60 transition-colors hover:shadow-lg hover:shadow-blue-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 block"
             >
               {/* Card image header */}
               <div className="relative w-full h-48 bg-gradient-to-br from-slate-800/50 to-slate-900/50 overflow-hidden">
@@ -139,7 +151,11 @@ export const GuidesGrid = ({
                     <span className="text-blue-400 text-xs">By</span>
                     <span
                       onClick={(e) =>
-                        handleUserNameClick(e, instance.userId, instance.userName)
+                        handleUserNameClick(
+                          e,
+                          instance.userId,
+                          instance.userName,
+                        )
                       }
                       className="text-blue-300 hover:text-blue-200 hover:underline transition-colors cursor-pointer truncate"
                       title={instance.userName}
@@ -155,7 +171,9 @@ export const GuidesGrid = ({
                   {showArchetypeName && (
                     <div className="flex items-center gap-1 text-xs">
                       <span className="text-slate-400">Archetype:</span>
-                      <span className="text-blue-300 font-semibold truncate">{instance.archetypeName}</span>
+                      <span className="text-blue-300 font-semibold truncate">
+                        {instance.archetypeName}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -163,30 +181,36 @@ export const GuidesGrid = ({
                 {/* Stats row */}
                 <div className="flex items-center justify-between gap-2 pt-2 border-t border-blue-500/20">
                   <div className="flex items-center gap-3 text-xs">
-                    {/* Favorites */}
-                    <div className="flex items-center gap-1 text-yellow-400" title="Favorites">
-                      <Star className="w-3.5 h-3.5 fill-current" />
-                      <span className="font-semibold">{instance.favorites}</span>
-                    </div>
-                    {/* Likes */}
-                    <div className="flex items-center gap-1 text-green-400" title="Likes">
-                      <ThumbsUp className="w-3.5 h-3.5 fill-current" />
-                      <span className="font-semibold">{instance.likes}</span>
-                    </div>
-                    {/* Views */}
-                    <div className="flex items-center gap-1 text-blue-400" title="Views">
+                    <div
+                      className="flex items-center gap-1 text-purple-400"
+                      title="Views"
+                    >
                       <Eye className="w-3.5 h-3.5" />
                       <span className="font-semibold">{instance.views}</span>
+                    </div>
+                    <div
+                      className="flex items-center gap-1 text-green-400"
+                      title="Likes"
+                    >
+                      <ThumbsUp className="w-3.5 h-3.5" />
+                      <span className="font-semibold">{instance.likes}</span>
+                    </div>
+                    <div
+                      className="flex items-center gap-1 text-yellow-400"
+                      title="Favorites"
+                    >
+                      <Star className="w-3.5 h-3.5" />
+                      <span className="font-semibold">
+                        {instance.favorites}
+                      </span>
                     </div>
                   </div>
 
                   {/* Date */}
-                  <div className="text-xs text-slate-400">
-                    {formattedDate}
-                  </div>
+                  <div className="text-xs text-slate-400">{formattedDate}</div>
                 </div>
               </div>
-            </button>
+            </a>
           );
         })}
       </div>

@@ -42,6 +42,7 @@ export interface RegisterGuideDTO {
   cardPairs?: Array<{
     topCardIds: number[];
     bottomCardIds: Array<{ cardId: number; effectiveness?: string | null }>;
+    pairSection?: "HANDTRAP" | "BOARD_BREAKER" | null;
     comment?: string;
   }>;
   initialHands?: Array<{

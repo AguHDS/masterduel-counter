@@ -17,9 +17,9 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
     pairs: GuideCardPairCreateDTO[],
   ): Promise<CardPair[]> {
     const pairStmt = this.db.prepare(`
-      INSERT INTO archetype_card_pairs (instance_id, pair_order, comment)
-      VALUES (?, ?, ?)
-      RETURNING id, instance_id, pair_order, comment, created_at
+      INSERT INTO archetype_card_pairs (instance_id, pair_order, pair_section, comment)
+      VALUES (?, ?, ?, ?)
+      RETURNING id, instance_id, pair_order, pair_section, comment, created_at
     `);
 
     const topStmt = this.db.prepare(`
@@ -39,6 +39,7 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
       const result = pairStmt.get(
         pair.instance_id,
         pair.pair_order,
+        pair.pair_section || null,
         pair.comment || null,
       ) as Omit<CardPair, "top_card_ids" | "bottom_card_ids">;
 
@@ -64,7 +65,7 @@ export class SqliteArchetypeCardPairRepository implements GuideCardPairRepositor
     instanceId: number,
   ): Promise<GuideCardPairWithDetails[]> {
     const pairStmt = this.db.prepare(`
-      SELECT id, instance_id, pair_order, comment, created_at
+      SELECT id, instance_id, pair_order, pair_section, comment, created_at
       FROM archetype_card_pairs
       WHERE instance_id = ?
       ORDER BY pair_order
