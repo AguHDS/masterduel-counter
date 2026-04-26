@@ -14,6 +14,7 @@ export interface GuideRankingItem {
   title: string;
   likes: number;
   views: number;
+  favorites: number;
   guideType: string;
   headerImageUrl: string | null;
   authorName: string;

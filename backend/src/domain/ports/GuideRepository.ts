@@ -6,7 +6,7 @@ import {
   GuideType,
 } from "../Guide.js";
 
-export type SortOrder = "likes" | "updated";
+export type SortOrder = "likes" | "updated" | "views";
 
 export interface LikeToggleResult {
   liked: boolean;

@@ -7,6 +7,7 @@ import {
   BookOpen,
   ThumbsUp,
   Eye,
+  Heart,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
@@ -310,6 +311,10 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           </span>
                         </p>
                         <div className="flex items-center gap-2.5 mt-1">
+                          <span className="flex items-center gap-1 text-sm text-pink-400">
+                            <Heart className="w-3 h-3" />
+                            {(guide.favorites ?? 0).toLocaleString()} Favorites
+                          </span>
                           <span className="flex items-center gap-1 text-sm text-purple-400">
                             <Eye className="w-3 h-3" />
                             {(guide.views ?? 0).toLocaleString()} Views

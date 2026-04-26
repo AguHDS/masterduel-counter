@@ -9,7 +9,7 @@ export const guideInstancesApi = {
   /** Get all guides for the selected archetype */
   getGuidesByArchetypeId: async (
     archetypeId: number,
-    sortBy: "likes" | "updated" = "updated",
+    sortBy: "likes" | "updated" | "views" = "updated",
     guideType?: GuideType,
   ): Promise<GuideListItem[]> => {
     const params: { sortBy: string; type?: string } = { sortBy };
@@ -28,7 +28,7 @@ export const guideInstancesApi = {
   searchGuidesByArchetypeId: async (
     archetypeId: number,
     title: string,
-    sortBy: "likes" | "updated" = "updated",
+    sortBy: "likes" | "updated" | "views" = "updated",
     guideType?: GuideType,
   ): Promise<GuideListItem[]> => {
     const params: { title: string; sortBy: string; type?: string } = { title, sortBy };
@@ -45,7 +45,7 @@ export const guideInstancesApi = {
 
   /** Get all guides across all archetypes (optionally filtered by type, searched by title or archetype name) */
   getAllGuides: async (
-    sortBy: "likes" | "updated" = "updated",
+    sortBy: "likes" | "updated" | "views" = "updated",
     guideType?: GuideType,
     search?: string,
   ): Promise<GuideListItem[]> => {

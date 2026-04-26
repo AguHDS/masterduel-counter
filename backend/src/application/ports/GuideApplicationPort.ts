@@ -14,16 +14,16 @@ export interface GuideInstanceServicePort {
   /** Gets a guide by ID */
   getGuideById(id: number): Promise<Guide | null>;
   
-  /** Get all archetype guides created for a specific archetype created by all users
+  /** Get all guides created for a specific archetype
    * @param sortBy - Optional sorting order (by Likes or Last Update)
    * @param guideType - Optional filter by guide type (COUNTER or DECK)
    */
-  getGuidesByArchetypeId(archetypeId: number, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
+  getGuidesByArchetypeId(archetypeId: number, sortBy?: 'likes' | 'updated' | 'views', guideType?: GuideType): Promise<GuideListItem[]>;
   
-  /** Search guides instances by archetype ID and title (for search functionality)
+  /** Search guides by archetype ID and title (for search functionality)
    * @param guideType - Optional filter by guide type (COUNTER or DECK)
    */
-  searchGuideItemList(archetypeId: number, title: string, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
+  searchGuideItemList(archetypeId: number, title: string, sortBy?: 'likes' | 'updated' | 'views', guideType?: GuideType): Promise<GuideListItem[]>;
   
   /** Updates an existing guide */
   updateGuide(id: number, userId: string, data: GuideUpdateDTO): Promise<Guide>;
@@ -61,7 +61,7 @@ export interface GuideInstanceServicePort {
   getLastedCreatedGuides(limit: number, guideType?: GuideType): Promise<GuideListItem[]>;
 
   /** Gets all guides across all archetypes, optionally filtered by type and searched by title or archetype name */
-  getAllGuides(sortBy?: 'likes' | 'updated', guideType?: GuideType, search?: string): Promise<GuideListItem[]>;
+  getAllGuides(sortBy?: 'likes' | 'updated' | 'views', guideType?: GuideType, search?: string): Promise<GuideListItem[]>;
 
   /** Cleanup method for shutting down the service */
   shutdown(): Promise<void>;

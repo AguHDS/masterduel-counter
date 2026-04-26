@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Crown, ThumbsUp, Eye, BookOpen, MailWarning } from "lucide-react";
+import { Crown, ThumbsUp, Eye, BookOpen, MailWarning, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import type { RankingUser } from "../types/ranking.types";
@@ -295,6 +295,10 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         </span>
                       </p>
                       <div className="flex items-center gap-2 mt-1">
+                        <span className="flex items-center gap-1 text-xs text-pink-400 font-medium">
+                          <Heart className="w-3 h-3" />
+                          {(guide.favorites ?? 0).toLocaleString()} Favs
+                        </span>
                         <span className="flex items-center gap-1 text-xs text-purple-400 font-medium">
                           <Eye className="w-3 h-3" />
                           {(guide.views ?? 0).toLocaleString()} Views

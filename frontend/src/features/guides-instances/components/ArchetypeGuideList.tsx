@@ -34,7 +34,7 @@ const ArchetypeGuideList = ({
   guideType,
 }: ArchetypeInstancesListProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [sortBy, setSortBy] = useState<"likes" | "updated">("updated");
+  const [sortBy, setSortBy] = useState<"likes" | "updated" | "views">("updated");
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const { isAuthenticated } = useAuth();

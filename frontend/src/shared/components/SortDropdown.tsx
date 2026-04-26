@@ -2,12 +2,13 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 
 interface SortDropdownProps {
-  value: "likes" | "updated";
-  onChange: (value: "likes" | "updated") => void;
+  value: "likes" | "updated" | "views";
+  onChange: (value: "likes" | "updated" | "views") => void;
 }
 
 const sortOptions = [
   { value: "updated" as const, label: "Most Recent" },
+  { value: "views" as const, label: "Most Viewed" },
   { value: "likes" as const, label: "Most Liked" },
 ];
 
@@ -34,7 +35,7 @@ export const SortDropdown = ({ value, onChange }: SortDropdownProps) => {
     };
   }, [isOpen]);
 
-  const handleSelect = (newValue: "likes" | "updated") => {
+  const handleSelect = (newValue: "likes" | "updated" | "views") => {
     onChange(newValue);
     setIsOpen(false);
   };

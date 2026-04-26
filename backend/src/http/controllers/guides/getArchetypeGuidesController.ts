@@ -8,7 +8,7 @@ export const createGetArchetypeGuidesController =
     try {
       const id = req.params.id;
       const archetypeId = typeof id === 'string' ? parseInt(id) : NaN;
-      const sortBy = req.query.sortBy as 'likes' | 'updated' | undefined;
+      const sortBy = req.query.sortBy as 'likes' | 'updated' | 'views' | undefined;
       const type = req.query.type as string | undefined;
 
       if (isNaN(archetypeId)) {
@@ -16,8 +16,8 @@ export const createGetArchetypeGuidesController =
         return;
       }
 
-      if (sortBy && sortBy !== 'likes' && sortBy !== 'updated') {
-        res.status(400).json({ error: "Invalid sortBy parameter. Must be 'likes' or 'updated'" });
+      if (sortBy && sortBy !== 'likes' && sortBy !== 'updated' && sortBy !== 'views') {
+        res.status(400).json({ error: "Invalid sortBy parameter. Must be 'likes', 'updated' or 'views'" });
         return;
       }
 

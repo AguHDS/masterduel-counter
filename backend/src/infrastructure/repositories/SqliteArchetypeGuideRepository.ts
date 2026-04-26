@@ -102,13 +102,15 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
 
   async findArchetypeInstanceByArchetypeId(
     archetypeId: number,
-    sortBy: "likes" | "updated" = "updated",
+    sortBy: "likes" | "updated" | "views" = "updated",
     guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
-        : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+        : sortBy === "views"
+          ? "ORDER BY ai.views DESC, ai.updated_at DESC"
+          : "ORDER BY ai.updated_at DESC, ai.likes DESC";
 
     const guideTypeFilter = guideType ? "AND ai.guide_type = ?" : "";
     const params = guideType ? [archetypeId, guideType] : [archetypeId];
@@ -172,13 +174,15 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
 
   async findArchetypeGuidesByUserId(
     userId: string,
-    sortBy: "likes" | "updated" = "updated",
+    sortBy: "likes" | "updated" | "views" = "updated",
     guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
-        : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+        : sortBy === "views"
+          ? "ORDER BY ai.views DESC, ai.updated_at DESC"
+          : "ORDER BY ai.updated_at DESC, ai.likes DESC";
 
     const guideTypeFilter = guideType ? "AND ai.guide_type = ?" : "";
     const params = guideType ? [userId, guideType] : [userId];
@@ -243,13 +247,15 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
   async searchGuideItemList(
     archetypeId: number,
     title: string,
-    sortBy: "likes" | "updated" = "updated",
+    sortBy: "likes" | "updated" | "views" = "updated",
     guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
-        : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+        : sortBy === "views"
+          ? "ORDER BY ai.views DESC, ai.updated_at DESC"
+          : "ORDER BY ai.updated_at DESC, ai.likes DESC";
 
     const guideTypeFilter = guideType ? "AND ai.guide_type = ?" : "";
     const params = guideType ? [archetypeId, `%${title}%`, guideType] : [archetypeId, `%${title}%`];
@@ -314,13 +320,15 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
   async searchGuideItemListProfile(
     userId: string,
     title: string,
-    sortBy: "likes" | "updated" = "updated",
+    sortBy: "likes" | "updated" | "views" = "updated",
     guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
         ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
-        : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+        : sortBy === "views"
+          ? "ORDER BY ai.views DESC, ai.updated_at DESC"
+          : "ORDER BY ai.updated_at DESC, ai.likes DESC";
 
     const guideTypeFilter = guideType ? "AND ai.guide_type = ?" : "";
     const params = guideType ? [userId, `%${title}%`, guideType] : [userId, `%${title}%`];
@@ -796,14 +804,16 @@ async findLastestCreatedGuides(
 }
 
 async findAllGuides(
-  sortBy: "likes" | "updated" = "updated",
+  sortBy: "likes" | "updated" | "views" = "updated",
   guideType?: GuideType,
   search?: string,
 ): Promise<GuideListItem[]> {
   const orderClause =
     sortBy === "likes"
       ? "ORDER BY ai.likes DESC, ai.updated_at DESC"
-      : "ORDER BY ai.updated_at DESC, ai.likes DESC";
+      : sortBy === "views"
+        ? "ORDER BY ai.views DESC, ai.updated_at DESC"
+        : "ORDER BY ai.updated_at DESC, ai.likes DESC";
 
   const conditions: string[] = [];
   const params: (string | number)[] = [];

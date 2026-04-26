@@ -6,12 +6,12 @@ export const createGetAllGuidesController =
   (instanceService: GuideInstanceServicePort) =>
   async (req: Request, res: Response) => {
     try {
-      const sortBy = req.query.sortBy as "likes" | "updated" | undefined;
+      const sortBy = req.query.sortBy as "likes" | "updated" | "views" | undefined;
       const type = req.query.type as string | undefined;
       const search = req.query.search as string | undefined;
 
-      if (sortBy && sortBy !== "likes" && sortBy !== "updated") {
-        res.status(400).json({ error: "Invalid sortBy parameter. Must be 'likes' or 'updated'" });
+      if (sortBy && sortBy !== "likes" && sortBy !== "updated" && sortBy !== "views") {
+        res.status(400).json({ error: "Invalid sortBy parameter. Must be 'likes', 'updated' or 'views'" });
         return;
       }
 

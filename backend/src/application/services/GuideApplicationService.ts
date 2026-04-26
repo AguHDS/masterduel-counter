@@ -52,7 +52,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
   /** Used for Archetype guide list  */
   async getGuidesByArchetypeId(
     archetypeId: number,
-    sortBy: "likes" | "updated" = "updated",
+    sortBy: "likes" | "updated" | "views" = "updated",
     guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     return this.instanceRepository.findArchetypeInstanceByArchetypeId(archetypeId, sortBy, guideType);
@@ -62,7 +62,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
   async searchGuideItemList(
     archetypeId: number,
     title: string,
-    sortBy: "likes" | "updated" = "updated",
+    sortBy: "likes" | "updated" | "views" = "updated",
     guideType?: GuideType,
   ): Promise<GuideListItem[]> {
     return this.instanceRepository.searchGuideItemList(archetypeId, title, sortBy, guideType);
@@ -424,7 +424,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
 
   /** Gets all guides across all archetypes, optionally filtered by type and searched by title or archetype name */
   async getAllGuides(
-    sortBy: "likes" | "updated" = "updated",
+    sortBy: "likes" | "updated" | "views" = "updated",
     guideType?: GuideType,
     search?: string,
   ): Promise<GuideListItem[]> {
