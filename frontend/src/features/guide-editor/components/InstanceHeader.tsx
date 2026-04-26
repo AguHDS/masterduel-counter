@@ -329,13 +329,13 @@ export const InstanceHeader = ({
       </div>
 
       {!isCreatingNew && (
-        <div className="flex-shrink-0 w-full lg:w-56 lg:relative lg:bottom-11">
+        <div className="flex-shrink-0 w-full max-w-[340px] lg:max-w-none mx-auto lg:mx-0 lg:w-56 lg:relative lg:bottom-11">
           {formattedCreatedDate && (
-            <div className="text-slate-500 text-xs mb-1 text-center flex justify-end">
+            <div className="text-slate-500 text-xs mb-1 text-center lg:text-right lg:flex lg:justify-end">
               {formattedCreatedDate}
             </div>
           )}
-          <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm p-4 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+          <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm p-3 sm:p-4 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
             <div className="flex flex-col gap-2">
               {userName && userId && (
                 <>
@@ -350,11 +350,11 @@ export const InstanceHeader = ({
                         size="lg"
                         className="w-16 h-16 border-blue-400/50"
                       />
-                      <div className="flex flex-col relative bottom-3">
+                      <div className="flex flex-col relative bottom-3 min-w-0">
                         <span className="text-slate-400 text-xs font-medium uppercase tracking-wide">
                           Made by
                         </span>
-                        <span className="text-blue-400 hover:text-blue-300 font-semibold text-base transition-colors">
+                        <span className="text-blue-400 hover:text-blue-300 font-semibold text-base transition-colors break-all">
                           {userName}
                         </span>
                       </div>

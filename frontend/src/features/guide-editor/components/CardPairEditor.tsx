@@ -16,6 +16,19 @@ interface CardPairEditorProps {
 
 type SelectingPosition = { pairId: string; position: "top" | "bottom" } | null;
 
+const DEFAULT_PAIR_WIDTH = 360;
+const RESPONSIVE_PAIR_BREAKPOINT = 956;
+
+const calculatePairWidth = (viewportWidth: number) => {
+  if (viewportWidth > RESPONSIVE_PAIR_BREAKPOINT) {
+    return DEFAULT_PAIR_WIDTH;
+  }
+
+  // Keep two pairs per row by reducing width progressively on smaller viewports.
+  const targetWidth = Math.floor((viewportWidth - 300) / 2);
+  return Math.max(170, Math.min(DEFAULT_PAIR_WIDTH, targetWidth));
+};
+
 export const CardPairEditor = ({
   isEditMode,
   pairs,
@@ -28,6 +41,20 @@ export const CardPairEditor = ({
   const [selectingPosition, setSelectingPosition] =
     useState<SelectingPosition>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
+  const [viewportWidth, setViewportWidth] = useState<number>(
+    typeof window !== "undefined" ? window.innerWidth : 1200,
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const pairWidth = calculatePairWidth(viewportWidth);
 
   // Close modal when forced from parent
   useEffect(() => {
@@ -168,7 +195,11 @@ export const CardPairEditor = ({
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
       items.push(
-        <div key={pair.id} className="flex justify-center">
+        <div
+          key={pair.id}
+          className="flex justify-center"
+          style={{ width: `${pairWidth}px` }}
+        >
           <CardPairItem
             pairNumber={i + 1}
             topCards={pair.topCards}
@@ -198,6 +229,7 @@ export const CardPairEditor = ({
             canMoveLeft={i > 0}
             canMoveRight={i < pairs.length - 1}
             isEditMode={isEditMode}
+            pairWidth={pairWidth}
           />
         </div>,
       );
@@ -209,11 +241,12 @@ export const CardPairEditor = ({
           key="add-pair-placeholder"
           onClick={onAddPair}
           className="flex justify-center text-left"
+          style={{ width: `${pairWidth}px` }}
           aria-label={addPlaceholderLabel}
         >
           <div
             className="space-y-1.5"
-            style={{ width: "360px" }}
+            style={{ width: `${pairWidth}px` }}
           >
             <div className="min-h-[28px]" />
             <div className="relative overflow-visible bg-gradient-to-br p-2 border border-dashed border-blue-500/50 hover:border-blue-400 transition-colors">
@@ -235,7 +268,7 @@ export const CardPairEditor = ({
     <div className="flex flex-col w-full">
       <div className="flex-1 w-full">
         {pairs.length > 0 ? (
-          <div className="flex flex-wrap gap-8 justify-center">
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 lg:gap-5 xl:gap-6 2xl:gap-8">
             {renderPairsWithSeparators()}
           </div>
         ) : (

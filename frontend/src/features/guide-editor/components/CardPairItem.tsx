@@ -24,6 +24,7 @@ interface CardPairItemProps {
   canMoveLeft?: boolean;
   canMoveRight?: boolean;
   isEditMode: boolean;
+  pairWidth?: number;
 }
 
 const EFFECTIVENESS_OPTIONS = [
@@ -34,15 +35,13 @@ const EFFECTIVENESS_OPTIONS = [
   { value: "VERY_EFFECTIVE", label: "PERFECT", color: "text-[#30ff34]" },
 ];
 
-const BOTTOM_CARD_WIDTH = 96;
-const BOTTOM_CARD_HEIGHT = 128;
-const TOP_CARD_WIDTH = Math.round(BOTTOM_CARD_WIDTH * 0.7);
-const TOP_CARD_HEIGHT = Math.round(BOTTOM_CARD_HEIGHT * 0.75);
+const BASE_PAIR_WIDTH = 360;
+const BASE_BOTTOM_CARD_WIDTH = 96;
+const BASE_BOTTOM_CARD_HEIGHT = 128;
 const MAX_VISIBLE_TOP_CARDS = 3;
 const MAX_VISIBLE_BOTTOM_CARDS = 3;
 const MAX_TOP_CARDS = 8;
 const MAX_BOTTOM_CARDS = 8;
-const FIXED_CONTAINER_WIDTH = 360;
 const SHOW_MORE_BUTTON_HEIGHT = 40;
 const READ_MORE_BUTTON_HEIGHT = 32;
 const EFFICIENCY_SELECTOR_HEIGHT = 24;
@@ -64,10 +63,28 @@ export const CardPairItem = ({
   canMoveLeft,
   canMoveRight,
   isEditMode,
+  pairWidth = BASE_PAIR_WIDTH,
 }: CardPairItemProps) => {
   const [isTopExpanded, setIsTopExpanded] = useState(false);
   const [isBottomExpanded, setIsBottomExpanded] = useState(false);
   const [isCommentExpanded, setIsCommentExpanded] = useState(false);
+
+  // For responsive design
+  const normalizedPairWidth = Math.max(
+    170,
+    Math.min(BASE_PAIR_WIDTH, Math.round(pairWidth)),
+  );
+  const scale = normalizedPairWidth / BASE_PAIR_WIDTH;
+  const bottomCardWidth = Math.max(
+    56,
+    Math.round(BASE_BOTTOM_CARD_WIDTH * scale),
+  );
+  const bottomCardHeight = Math.max(
+    74,
+    Math.round(BASE_BOTTOM_CARD_HEIGHT * scale),
+  );
+  const topCardWidth = Math.max(40, Math.round(bottomCardWidth * 0.7));
+  const topCardHeight = Math.max(52, Math.round(bottomCardHeight * 0.75));
 
   const topSectionRef = useRef<HTMLDivElement>(null);
   const bottomSectionRef = useRef<HTMLDivElement>(null);
@@ -153,7 +170,7 @@ export const CardPairItem = ({
 
       const rows = Math.ceil(totalElements / cardsPerRow);
       const gapHeight = (rows - 1) * 6;
-      const cardsHeight = rows * TOP_CARD_HEIGHT + gapHeight;
+      const cardsHeight = rows * topCardHeight + gapHeight;
 
       return cardsHeight + SHOW_MORE_BUTTON_HEIGHT;
     };
@@ -171,7 +188,7 @@ export const CardPairItem = ({
         >
           <div
             className="flex flex-wrap gap-1.5 justify-center"
-            style={{ maxWidth: `${FIXED_CONTAINER_WIDTH - 32}px` }}
+            style={{ maxWidth: `${normalizedPairWidth - 32}px` }}
           >
             {visibleCards.map((card, index) => (
               <div key={index} className="relative group">
@@ -194,8 +211,8 @@ export const CardPairItem = ({
                     alt={card.name}
                     className="object-cover rounded-sm cursor-pointer"
                     style={{
-                      width: `${TOP_CARD_WIDTH}px`,
-                      height: `${TOP_CARD_HEIGHT}px`,
+                      width: `${topCardWidth}px`,
+                      height: `${topCardHeight}px`,
                     }}
                   />
                 </CardTooltip>
@@ -206,8 +223,8 @@ export const CardPairItem = ({
                 onClick={onSelectTop}
                 className="rounded border border-dashed hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
                 style={{
-                  width: `${TOP_CARD_WIDTH}px`,
-                  height: `${TOP_CARD_HEIGHT}px`,
+                  width: `${topCardWidth}px`,
+                  height: `${topCardHeight}px`,
                   borderColor: "rgb(71 85 105)",
                 }}
               >
@@ -260,7 +277,7 @@ export const CardPairItem = ({
 
       const rows = Math.ceil(totalElements / cardsPerRow);
       const gapHeight = (rows - 1) * 6;
-      const cardsHeight = rows * BOTTOM_CARD_HEIGHT + gapHeight;
+      const cardsHeight = rows * bottomCardHeight + gapHeight;
 
       // Reserve a fixed row for efficiency/selector in every pair to keep card pair height stable.
       const efficiencyHeight = EFFICIENCY_SELECTOR_HEIGHT + 4;
@@ -286,7 +303,7 @@ export const CardPairItem = ({
         >
           <div
             className="flex flex-wrap gap-1.5 justify-center"
-            style={{ maxWidth: `${FIXED_CONTAINER_WIDTH - 32}px` }}
+            style={{ maxWidth: `${normalizedPairWidth - 32}px` }}
           >
             {visibleCards.map((card, index) => {
               const selectedOption = EFFECTIVENESS_OPTIONS.find(
@@ -315,8 +332,8 @@ export const CardPairItem = ({
                         alt={card.name}
                         className="object-cover rounded-md cursor-pointer"
                         style={{
-                          width: `${BOTTOM_CARD_WIDTH}px`,
-                          height: `${BOTTOM_CARD_HEIGHT}px`,
+                          width: `${bottomCardWidth}px`,
+                          height: `${bottomCardHeight}px`,
                         }}
                       />
                     </CardTooltip>
@@ -329,7 +346,7 @@ export const CardPairItem = ({
                         onBottomCardEffectivenessChange(index, e.target.value)
                       }
                       className="mt-1 w-full px-1 py-0.5 bg-slate-800 text-white text-center font-bold text-[10px] z-50 rounded border border-slate-600 focus:outline-none focus:border-blue-500"
-                      style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                      style={{ width: `${bottomCardWidth}px` }}
                     >
                       {EFFECTIVENESS_OPTIONS.map((opt) => (
                         <option
@@ -344,7 +361,7 @@ export const CardPairItem = ({
                   ) : (
                     <div
                       className={`mt-1 text-center text-[10px] font-bold uppercase tracking-wide ${card.effectiveness ? (selectedOption?.color || "text-slate-400") : "text-transparent"}`}
-                      style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                      style={{ width: `${bottomCardWidth}px` }}
                     >
                       {card.effectiveness ? selectedOption?.label : "NONE"}
                     </div>
@@ -357,8 +374,8 @@ export const CardPairItem = ({
                 onClick={onSelectBottom}
                 className="rounded border border-dashed hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
                 style={{
-                  width: `${BOTTOM_CARD_WIDTH}px`,
-                  height: `${BOTTOM_CARD_HEIGHT}px`,
+                  width: `${bottomCardWidth}px`,
+                  height: `${bottomCardHeight}px`,
                   borderColor: "rgb(71 85 105)",
                 }}
               >
@@ -397,7 +414,7 @@ export const CardPairItem = ({
   return (
     <div
       className="space-y-1.5"
-      style={{ width: `${FIXED_CONTAINER_WIDTH}px` }}
+      style={{ width: `${normalizedPairWidth}px` }}
     >
       <div className="min-h-[28px] flex items-center justify-center gap-1">
         {isEditMode && onMoveLeft && canMoveLeft && (
@@ -444,7 +461,7 @@ export const CardPairItem = ({
               </div>
               <div
                 className="flex flex-wrap gap-1.5 justify-start"
-                style={{ maxWidth: `${FIXED_CONTAINER_WIDTH - 32}px` }}
+                style={{ maxWidth: `${normalizedPairWidth - 32}px` }}
               >
                 {hasTopCards &&
                   topCards.map((card, index) => (
@@ -467,13 +484,17 @@ export const CardPairItem = ({
                           <img
                             src={card.imageUrlSmall}
                             alt={card.name}
-                            className="w-24 h-32 object-cover rounded border border-none cursor-pointer shadow-sm"
+                            className="object-cover rounded border border-none cursor-pointer shadow-sm"
+                            style={{
+                              width: `${bottomCardWidth}px`,
+                              height: `${bottomCardHeight}px`,
+                            }}
                           />
                         </CardTooltip>
                       </div>
                       <div
                         className="mt-1 text-center text-[10px] font-bold uppercase tracking-wide text-transparent"
-                        style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                        style={{ width: `${bottomCardWidth}px` }}
                       >
                         NONE
                       </div>
@@ -518,7 +539,7 @@ export const CardPairItem = ({
                               )
                             }
                             className="mt-1 w-full px-1 py-0.5 bg-slate-800 text-white text-center font-bold text-[10px] rounded border border-slate-600 focus:outline-none focus:border-blue-500"
-                            style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                            style={{ width: `${bottomCardWidth}px` }}
                           >
                             {EFFECTIVENESS_OPTIONS.map((opt) => (
                               <option
@@ -533,7 +554,7 @@ export const CardPairItem = ({
                         ) : (
                           <div
                             className={`mt-1 text-center text-[10px] font-bold uppercase tracking-wide ${card.effectiveness ? (selectedOption?.color || "text-slate-400") : "text-transparent"}`}
-                            style={{ width: `${BOTTOM_CARD_WIDTH}px` }}
+                            style={{ width: `${bottomCardWidth}px` }}
                           >
                             {card.effectiveness ? selectedOption?.label : "NONE"}
                           </div>
@@ -549,8 +570,8 @@ export const CardPairItem = ({
                           onClick={(e) => onSelectTop(e)}
                           className="rounded border border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
                           style={{
-                            width: `${TOP_CARD_WIDTH}px`,
-                            height: `${TOP_CARD_HEIGHT}px`,
+                            width: `${topCardWidth}px`,
+                            height: `${topCardHeight}px`,
                           }}
                         >
                           <Plus className="w-5 h-5 text-slate-400" />
@@ -560,7 +581,11 @@ export const CardPairItem = ({
                       bottomCards.length < MAX_BOTTOM_CARDS && (
                         <button
                           onClick={(e) => onSelectBottom(e)}
-                          className="w-24 h-32 rounded border border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                          className="rounded border border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                          style={{
+                            width: `${bottomCardWidth}px`,
+                            height: `${bottomCardHeight}px`,
+                          }}
                         >
                           <Plus className="w-6 h-6 text-slate-400" />
                         </button>

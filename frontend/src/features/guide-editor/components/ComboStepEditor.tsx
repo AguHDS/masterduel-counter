@@ -35,6 +35,27 @@ export const ComboStepEditor = ({
   const [expandedRightSteps, setExpandedRightSteps] = useState<Set<string>>(new Set());
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [chainPickerOpen, setChainPickerOpen] = useState<ChainPickerState | null>(null);
+  const [viewportWidth, setViewportWidth] = useState<number>(
+    typeof window !== "undefined" ? window.innerWidth : 1200,
+  );
+
+  // For responsive design
+  useEffect(() => {
+    const handleResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const forcedColumns =
+    viewportWidth <= 550
+      ? 1
+      : viewportWidth <= 860
+        ? 2
+        : viewportWidth >= 1040 && viewportWidth <= 1187
+          ? 3
+          : viewportWidth >= 1396 && viewportWidth <= 1548
+            ? 4
+            : null;
 
   const {
     draggedStepId,
@@ -255,7 +276,14 @@ export const ComboStepEditor = ({
         </button>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
+          <div
+            className={`grid gap-4 max-w-7xl mx-auto ${forcedColumns ? "" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"}`}
+            style={{
+              gridTemplateColumns: forcedColumns
+                ? `repeat(${forcedColumns}, minmax(0, 1fr))`
+                : undefined,
+            }}
+          >
             {visibleSteps.map((step) => {
               const isMainFlowStep = !step.parentCanceledStepId;
               const isReadOnly = !!(activeCanceledStepId && isMainFlowStep);
@@ -299,7 +327,7 @@ export const ComboStepEditor = ({
             {/* Add Step Placeholder */}
             <button
               onClick={handleAddStep}
-              className="relative bg-slate-800/30 border-2 border-dashed border-blue-500/50 max-w-[60%] rounded-lg p-4 pt-8 hover:border-blue-400 hover:bg-blue-500/10 transition-colors group flex items-center justify-center"
+              className="relative bg-slate-800/30 border-2 border-dashed border-blue-500/50 w-full rounded-lg p-4 pt-8 hover:border-blue-400 hover:bg-blue-500/10 transition-colors group flex items-center justify-center"
             >
               <div className="flex flex-col items-center">
                 <Plus className="w-8 h-8 text-blue-400 group-hover:text-blue-300 mb-2" />

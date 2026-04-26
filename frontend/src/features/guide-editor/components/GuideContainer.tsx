@@ -827,7 +827,7 @@ export const GuideContainer = ({
         </div>
       )}
 
-      <section className="w-full relative flex justify-center top-2 px-4 sm:px-6 lg:px-8 mt-2">
+      <section className="w-full relative flex justify-center top-2 px-4 sm:px-6 lg:px-6 xl:px-8 mt-2">
         <div className="relative w-full max-w-[2100px] rounded-[28px] p-[3px]">
           {/* Background image with transparency effect */}
           <div className="absolute inset-0 rounded-[24px] overflow-hidden">
@@ -837,7 +837,7 @@ export const GuideContainer = ({
 
           {/* Content container with gradient and transparency */}
           <div
-            className={`relative flex flex-col w-full min-h-[600px] border-2 rounded-md py-10 sm:py-12 px-4 sm:px-6 lg:px-10 ${
+            className={`relative flex flex-col w-full min-h-[600px] border-2 rounded-md py-10 sm:py-12 px-4 sm:px-6 lg:px-6 xl:px-10 ${
               guideType === "COUNTER"
                 ? "border-amber-500/70"
                 : "border-blue-500/70"
