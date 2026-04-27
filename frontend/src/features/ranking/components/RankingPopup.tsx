@@ -5,7 +5,7 @@ import {
   Eye,
   BookOpen,
   MailWarning,
-  Heart,
+  Star,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
@@ -312,10 +312,6 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         </span>
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="flex items-center gap-1 text-xs text-pink-400 font-medium">
-                          <Heart className="w-3 h-3" />
-                          {(guide.favorites ?? 0).toLocaleString()} Favs
-                        </span>
                         <span className="flex items-center gap-1 text-xs text-purple-400 font-medium">
                           <Eye className="w-3 h-3" />
                           {(guide.views ?? 0).toLocaleString()} Views
@@ -323,6 +319,10 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         <span className="flex items-center gap-1 text-xs text-emerald-400 font-medium">
                           <ThumbsUp className="w-3 h-3" />
                           {guide.likes.toLocaleString()} Likes
+                        </span>
+                        <span className="flex items-center gap-1 text-xs text-yellow-400 font-medium">
+                          <Star className="w-3 h-3 fill-current" />
+                          {(guide.favorites ?? 0).toLocaleString()} Favs
                         </span>
                       </div>
                     </div>

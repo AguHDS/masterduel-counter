@@ -7,7 +7,7 @@ import {
   BookOpen,
   ThumbsUp,
   Eye,
-  Heart,
+  Star,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
@@ -202,7 +202,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           <span className="flex items-center gap-1">
                             <BookOpen className="w-3 h-3 text-amber-400" />
                             <span className="text-sm text-amber-300">
-                              {user.fulfilledRequests} Completed Requests
+                              {user.fulfilledRequests} Requests
                             </span>
                           </span>
                         )}
@@ -311,10 +311,6 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           </span>
                         </p>
                         <div className="flex items-center gap-2.5 mt-1">
-                          <span className="flex items-center gap-1 text-sm text-pink-400">
-                            <Heart className="w-3 h-3" />
-                            {(guide.favorites ?? 0).toLocaleString()} Favorites
-                          </span>
                           <span className="flex items-center gap-1 text-sm text-purple-400">
                             <Eye className="w-3 h-3" />
                             {(guide.views ?? 0).toLocaleString()} Views
@@ -323,6 +319,10 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                             <ThumbsUp className="w-3 h-3" />
                             {guide.likes.toLocaleString()} Likes
                           </span>
+                          <span className="flex items-center gap-1 text-sm text-yellow-400">
+                            <Star className="w-3 h-3 fill-current" />
+                            {(guide.favorites ?? 0).toLocaleString()} Favs
+                          </span>
                           <span
                             className={`text-[11px] font-bold px-2 py-[3px] rounded border ${
                               isCounter
@@ -330,7 +330,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                                 : "bg-blue-950/60 text-blue-400 border-blue-800/50"
                             }`}
                           >
-                            {isCounter ? "Counter Guide" : "Deck Guide"}
+                            {isCounter ? "Counter" : "Deck"}
                           </span>
                         </div>
                       </div>
