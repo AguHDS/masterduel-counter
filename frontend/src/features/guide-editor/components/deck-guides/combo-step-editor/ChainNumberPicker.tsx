@@ -11,7 +11,9 @@ interface ChainNumberPickerProps {
   onClose: () => void;
 }
 
-// Renders a chain-number trigger and popup selector for a card slot
+/**
+ * Chain number picker for marking cards' position in the yugioh chain sequence
+ */
 export const ChainNumberPicker = ({
   value,
   isOpen,

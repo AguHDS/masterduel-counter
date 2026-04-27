@@ -31,7 +31,11 @@ interface ComboStepItemEditorProps {
   onDrop: (event: React.DragEvent<HTMLDivElement>) => void;
 }
 
-// Composes the full editable UI for one combo step card, including controls and layout
+/**
+ * Full editable UI for one combo step in edit mode
+ * Includes main card slot, side columns (materials/effects), description input, drag-and-drop handles,
+ * canceled flow toggle, and delete button
+ */
 export const ComboStepItemEditor = ({
   step,
   isReadOnly,

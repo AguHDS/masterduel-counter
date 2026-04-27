@@ -9,6 +9,9 @@ interface UseInstanceGuideFavoritesProps {
   instanceId?: number;
 }
 
+/**
+ * Manages favorite state and toggling for guide instances
+ */
 export const useInstanceGuideFavorites = ({
   isAuthenticated,
   archetypeId,

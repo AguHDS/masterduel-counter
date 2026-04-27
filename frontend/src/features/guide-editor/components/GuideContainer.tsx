@@ -4,7 +4,7 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router-dom";
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   CreditCard as Edit3,
   Trash2,
@@ -18,11 +18,16 @@ import type { InitialHand } from "./deck-guides/InitialHandsEditor";
 import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
 import { GuideHeader } from "./GuideHeader";
 import { GuideTypeContentSection } from "./GuideTypeContentSection";
-import { useInstanceGuideEditor } from "../hooks/useInstanceGuideEditor";
+import { useSharedGuideEditor } from "../hooks/useSharedGuideEditor";
 import { useInstanceGuideLikes } from "../hooks/useInstanceGuideLikes";
 import { useInstanceGuideFavorites } from "../hooks/useInstanceGuideFavorites";
-import { useInstanceGuideData } from "../hooks/useInstanceGuideData";
-import { useGuideRecommendedDeck } from "../hooks/useGuideRecommendedDeck";
+import { useCounterGuideData } from "../hooks/counter-guides/useCounterGuideData";
+import { useCounterGuideHandlers } from "../hooks/counter-guides/useCounterGuideHandlers";
+import { useDeckGuideHandlers } from "../hooks/deck-guides/useDeckGuideHandlers";
+import { useDeckManagement } from "../hooks/deck-guides/useDeckManagement";
+import { useGuideRecommendedDeck } from "../hooks/deck-guides/useGuideRecommendedDeck";
+import { useModalOrchestration } from "../hooks/useModalOrchestration";
+import { useGuideEditorCancellation } from "../hooks/useGuideEditorCancellation";
 import { useGuideEditorDraftState } from "../hooks/useGuideEditorDraftState";
 import { useSaveInstanceGuide } from "../hooks/useSaveInstanceGuide";
 import { useAuth } from "@/features/auth";
@@ -34,7 +39,6 @@ import { useRegisterView } from "@/shared/hooks/useRegisterView";
 import { useFulfillGuideRequest } from "@/features/guide-request";
 import type {
   CardPair,
-  Card,
   GuideType,
   ComboStep,
 } from "@/features/archetypes/types";
@@ -54,7 +58,24 @@ interface GuideContainerProps {
   onGuideTypeChange?: (guideType: GuideType) => void;
 }
 
-// Orchestrates guide loading, edit state, and type-specific sections for the guide editor page
+/**
+ * Orchestrates guide creation, editing, and viewing for both Counter and Deck guides
+ *
+ * Responsibilities:
+ * - Route parameter parsing and guide type detection
+ * - Authentication and ownership verification
+ * - Data loading and state synchronization from server
+ * - Edit mode management and draft state persistence
+ * - Save/delete operations and navigation
+ * - Likes, favorites, and view tracking
+ * - Type-specific logic delegation to specialized hooks
+ *
+ * Guide Types:
+ * - Counter guides: Card pairs (handtraps/board breakers matchup system)
+ * - Deck guides: Initial hands, combo steps, final board preview, recommended deck (optional)
+ *
+ * Both types share: title, description, header card, guide metadata (likes, favorites, views, etc)
+ */
 export const GuideContainer = ({
   onEditModeChange,
   onGuideTypeChange,
@@ -68,11 +89,13 @@ export const GuideContainer = ({
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { isAuthenticated, user } = useAuth();
-  const editor = useInstanceGuideEditor();
+  const editor = useSharedGuideEditor();
   const { saving, validationError, saveInstance, clearValidationError } =
     useSaveInstanceGuide();
   const fulfillRequestMutation = useFulfillGuideRequest();
-  const [headerAnchor, setHeaderAnchor] = useState<HTMLElement | null>(null);
+  const modalOrchestration = useModalOrchestration();
+  const { headerAnchor, setHeaderAnchor, isReportModalOpen } =
+    modalOrchestration;
   const legacyArchetypeIdNum = archetypeId
     ? Number.parseInt(archetypeId, 10)
     : undefined;
@@ -86,11 +109,12 @@ export const GuideContainer = ({
     parsedInstanceId !== undefined && !Number.isNaN(parsedInstanceId)
       ? parsedInstanceId
       : undefined;
-
   const typeFromUrl = searchParams.get("type");
-  const typeFromState = (location.state as { guideType?: GuideType; guideRequestId?: number })
-    ?.guideType;
-  const guideRequestId = (location.state as { guideRequestId?: number })?.guideRequestId ?? null;
+  const typeFromState = (
+    location.state as { guideType?: GuideType; guideRequestId?: number }
+  )?.guideType;
+  const guideRequestId =
+    (location.state as { guideRequestId?: number })?.guideRequestId ?? null;
   const typeFromSlug = inferGuideTypeFromSlug(guideSlug);
   const initialGuideType: GuideType =
     typeFromUrl === "counter"
@@ -99,7 +123,6 @@ export const GuideContainer = ({
         ? "DECK"
         : (typeFromSlug ?? typeFromState ?? "COUNTER");
   const [guideType, setGuideType] = useState<GuideType>(initialGuideType);
-
   const { data: guideInstanceData, isError } = useGetGuideInstance(
     legacyArchetypeIdNum,
     isCreatingNew ? undefined : instanceIdNum,
@@ -145,167 +168,75 @@ export const GuideContainer = ({
     instanceId: guideInstanceData?.instance.id,
   });
 
-  const recommendedDeck = useGuideRecommendedDeck(instanceIdNum);
-
   useRegisterView(instanceIdNum, archetypeIdNum);
 
-  const memoizedMainDeck = useMemo(
-    () => recommendedDeck.deck?.mainDeck || [],
-    [recommendedDeck.deck?.mainDeck],
-  );
-  const memoizedExtraDeck = useMemo(
-    () => recommendedDeck.deck?.extraDeck || [],
-    [recommendedDeck.deck?.extraDeck],
-  );
-  const memoizedSideDeck = useMemo(
-    () => recommendedDeck.deck?.sideDeck || [],
-    [recommendedDeck.deck?.sideDeck],
+  // Deck Management State (only for deck guides)
+  const recommendedDeck = useGuideRecommendedDeck(
+    guideType === "DECK" ? instanceIdNum : undefined
   );
 
-  const [deckTitle, setDeckTitle] = useState<string>(
-    recommendedDeck.deck?.title || "Recommended Deck",
-  );
-  const [deckMainCards, setDeckMainCards] = useState<
-    Array<{
-      id: number;
-      name: string;
-      imageUrl: string;
-      imageUrlSmall: string;
-      imageUrlCropped: string;
-    }>
-  >(memoizedMainDeck);
-  const [deckExtraCards, setDeckExtraCards] = useState<
-    Array<{
-      id: number;
-      name: string;
-      imageUrl: string;
-      imageUrlSmall: string;
-      imageUrlCropped: string;
-    }>
-  >(memoizedExtraDeck);
-  const [deckSideCards, setDeckSideCards] = useState<
-    Array<{
-      id: number;
-      name: string;
-      imageUrl: string;
-      imageUrlSmall: string;
-      imageUrlCropped: string;
-    }>
-  >(memoizedSideDeck);
+  const deckManagement = useDeckManagement({
+    recommendedDeck,
+    isEditMode: editor.isEditMode,
+    isOwner,
+  });
 
+  const {
+    deckTitle,
+    deckMainCards,
+    deckExtraCards,
+    deckSideCards,
+    showRecommendedDeck,
+    setShowRecommendedDeck,
+    handleDeckChange,
+    handleDeleteDeck,
+    hasRecommendedDeckFromServer,
+  } = deckManagement;
+
+  // Counter Guide State (card pairs)
   const [pairs, setPairs] = useState<CardPair[]>([]);
+
+  // Deck Guide State (initial hands, combo steps, final board)
   const [initialHands, setInitialHands] = useState<InitialHand[]>([]);
   const [comboSteps, setComboSteps] = useState<Map<string, ComboStep[]>>(
     new Map(),
   );
   const [selectedHandId, setSelectedHandId] = useState<string | null>(null);
   const [showComboFlow, setShowComboFlow] = useState(false);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [showRecommendedDeck, setShowRecommendedDeck] = useState(false);
-  const [activeModalComponent, setActiveModalComponent] = useState<
-    | "recommended-deck"
-    | "initial-hands"
-    | "card-pairs-handtraps"
-    | "card-pairs-board-breakers"
-    | "combo-steps"
-    | null
-  >(null);
-  const [originalDeckState, setOriginalDeckState] = useState<{
-    exists: boolean;
-    title: string;
-    mainCards: Card[];
-    extraCards: Card[];
-    sideCards: Card[];
-  } | null>(null);
 
-  // Handle modal state changes from child components
-  const handleModalStateChange = useCallback(
-    (
-      component:
-        | "recommended-deck"
-        | "initial-hands"
-        | "card-pairs-handtraps"
-        | "card-pairs-board-breakers"
-        | "combo-steps",
-      isOpen: boolean,
-    ) => {
-      // Maintains a single active modal to avoid overlap between editors.
-      if (isOpen) {
-        setActiveModalComponent(component);
-      } else {
-        setActiveModalComponent(null);
-      }
-    },
-    [],
-  );
+  // Counter Guide Handlers
+  const counterHandlers = useCounterGuideHandlers({ setPairs });
+  const { addHandtrap, addBoardBreaker } = counterHandlers;
 
+  // Deck Guide Handlers
+  const deckHandlers = useDeckGuideHandlers({
+    initialHands,
+    setInitialHands,
+    comboSteps,
+    setComboSteps,
+    selectedHandId,
+    setSelectedHandId,
+    setShowComboFlow,
+  });
+
+  const {
+    addInitialHand,
+    handleAddCombo,
+    handleShowCombo,
+    handleSelectHand,
+    getComboStepsForSelectedHand,
+    setComboStepsForSelectedHand,
+    handleDuplicateInitialHand,
+  } = deckHandlers;
+
+  // === Notify parent of edit mode changes ===
   useEffect(() => {
     onEditModeChange?.(editor.isEditMode && isOwner);
-
-    // Save original deck state when entering edit mode
-    if (editor.isEditMode && isOwner && !originalDeckState) {
-      setOriginalDeckState({
-        exists: !!recommendedDeck.deck,
-        title: deckTitle,
-        mainCards: [...deckMainCards],
-        extraCards: [...deckExtraCards],
-        sideCards: [...deckSideCards],
-      });
-    }
-
-    // Clear original deck state when exiting edit mode (after save)
-    if (!editor.isEditMode && originalDeckState) {
-      setOriginalDeckState(null);
-    }
-  }, [
-    editor.isEditMode,
-    isOwner,
-    onEditModeChange,
-    originalDeckState,
-    recommendedDeck.deck,
-    deckTitle,
-    deckMainCards,
-    deckExtraCards,
-    deckSideCards,
-  ]);
-
-  useEffect(() => {
-    if (!editor.isEditMode || !isOwner) {
-      setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
-      setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
-      setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
-      setDeckSideCards(recommendedDeck.deck?.sideDeck || []);
-    } else if (recommendedDeck.deck === null) {
-      setDeckTitle("Recommended Deck");
-      setDeckMainCards([]);
-      setDeckExtraCards([]);
-      setDeckSideCards([]);
-    }
-  }, [recommendedDeck.deck, editor.isEditMode, isOwner]);
-
-  // Show recommended deck automatically when not in edit mode if it exists
-  useEffect(() => {
-    if (!editor.isEditMode && recommendedDeck.deck) {
-      setShowRecommendedDeck(true);
-    }
-  }, [editor.isEditMode, recommendedDeck.deck]);
-
-  // Show recommended deck in edit mode if it exists
-  useEffect(() => {
-    if (
-      editor.isEditMode &&
-      isOwner &&
-      recommendedDeck.deck &&
-      !showRecommendedDeck
-    ) {
-      setShowRecommendedDeck(true);
-    }
-  }, [recommendedDeck.deck, editor.isEditMode, isOwner, showRecommendedDeck]);
+  }, [editor.isEditMode, isOwner, onEditModeChange]);
 
   // Auto-select first initial hand when hands are loaded or changed
   useEffect(() => {
     if (guideType === "DECK" && initialHands.length > 0) {
-      // If no hand is selected or selected hand no longer exists, select the first one
       if (
         !selectedHandId ||
         !initialHands.find((h) => h.id === selectedHandId)
@@ -317,39 +248,8 @@ export const GuideContainer = ({
     }
   }, [initialHands, guideType, selectedHandId]);
 
-  const handleDeckChange = useCallback(
-    (
-      title: string,
-      mainDeck: typeof deckMainCards,
-      extraDeck: typeof deckExtraCards,
-      sideDeck: typeof deckSideCards,
-    ) => {
-      // Synchronizes recommended deck changes in the container state.
-      setDeckTitle(title);
-      setDeckMainCards(mainDeck);
-      setDeckExtraCards(extraDeck);
-      setDeckSideCards(sideDeck);
-    },
-    [],
-  );
-
-  // Deletes/hides deck based on edit or view mode.
-  const handleDeleteDeck = useCallback(async () => {
-    // In edit mode, only hide the deck locally
-    if (editor.isEditMode && isOwner) {
-      setShowRecommendedDeck(false);
-      setDeckTitle("Recommended Deck");
-      setDeckMainCards([]);
-      setDeckExtraCards([]);
-      setDeckSideCards([]);
-    } else {
-      // In view mode, actually delete from server
-      await recommendedDeck.deleteRecommendedDeck();
-      setShowRecommendedDeck(false);
-    }
-  }, [recommendedDeck, editor.isEditMode, isOwner]);
-
-  useInstanceGuideData({
+  // Load Counter Guide Data from Server
+  useCounterGuideData({
     isCreatingNew,
     guideInstanceData,
     isError,
@@ -358,12 +258,12 @@ export const GuideContainer = ({
       const sanitizedTitle = data.title.replace(/\s+/g, " ").trim();
       const generalTip = data.generalTip || "";
 
-      // Set guide type from loaded data
+      // Set guide type from loaded data (counter or deck)
       if (guideInstanceData?.instance.guideType) {
         setGuideType(guideInstanceData.instance.guideType as GuideType);
       }
 
-      editor.setLoadedPairs(data.pairs);
+      // Set shared editor state
       editor.setTitle(sanitizedTitle);
       editor.setGeneralTip(generalTip);
       editor.setHeaderCard(data.headerCard);
@@ -371,6 +271,7 @@ export const GuideContainer = ({
       favorites.setFavoriteCount(data.favorites);
       editor.setIsEditMode(false);
 
+      // Set Counter guide state (card pairs)
       const transformedPairs: CardPair[] = mapGuideCardPairsToEditorPairs(
         data.pairs,
       );
@@ -392,7 +293,6 @@ export const GuideContainer = ({
         // Select first hand by default and show combo flow if it has steps
         if (transformedHands.length > 0) {
           setSelectedHandId(transformedHands[0].id);
-          // Show combo flow if first hand has combo steps
           if (
             comboStepsMap.has(transformedHands[0].id.toString()) &&
             comboStepsMap.get(transformedHands[0].id.toString())!.length > 0
@@ -406,6 +306,7 @@ export const GuideContainer = ({
         setSelectedHandId(null);
       }
 
+      // Load likes/favorites status if authenticated
       if (isAuthenticated && !isOwner) {
         likes.loadLikeStatus();
       } else {
@@ -420,7 +321,6 @@ export const GuideContainer = ({
     },
     onNewInstance: () => {
       editor.setIsEditMode(true);
-      editor.setLoadedPairs([]);
       editor.setHeaderCard(null);
       editor.setTitle("Title");
       editor.setGeneralTip("");
@@ -431,7 +331,6 @@ export const GuideContainer = ({
       setInitialHands([]);
     },
     onReset: () => {
-      editor.setLoadedPairs([]);
       editor.setHeaderCard(null);
       editor.setTitle("Title");
       editor.setGeneralTip("");
@@ -440,7 +339,9 @@ export const GuideContainer = ({
       favorites.setFavorited(false);
       setPairs([]);
       setInitialHands([]);
-      setShowRecommendedDeck(false);
+      if (guideType === "DECK") {
+        setShowRecommendedDeck(false);
+      }
     },
   });
 
@@ -453,11 +354,12 @@ export const GuideContainer = ({
         pairs,
         initialHands,
         comboSteps,
-        deckTitle,
-        deckMainCards,
-        deckExtraCards,
-        deckSideCards,
-        showRecommendedDeck,
+        // Only include deck data for Deck guides
+        deckTitle: guideType === "DECK" ? deckTitle : "",
+        deckMainCards: guideType === "DECK" ? deckMainCards : [],
+        deckExtraCards: guideType === "DECK" ? deckExtraCards : [],
+        deckSideCards: guideType === "DECK" ? deckSideCards : [],
+        showRecommendedDeck: guideType === "DECK" ? showRecommendedDeck : false,
       }),
     [
       editor.title,
@@ -466,6 +368,7 @@ export const GuideContainer = ({
       pairs,
       initialHands,
       comboSteps,
+      guideType,
       deckTitle,
       deckMainCards,
       deckExtraCards,
@@ -481,223 +384,39 @@ export const GuideContainer = ({
       snapshot: latestEditSnapshot,
     });
 
-  const handleCancel = () => {
-    // Cancels editing and restores persisted data in the guide
-    if (
-      !confirmDiscardIfDirty(
-        "You have unsaved changes. Are you sure you want to cancel?",
-      )
-    )
-      return;
+  // Handle Edit Cancellation
+  const cancellationHook = useGuideEditorCancellation({
+    isCreatingNew,
+    guideInstanceData,
+    confirmDiscardIfDirty,
+    clearValidationError,
+    navigate,
+    setIsEditMode: editor.setIsEditMode,
+    resetEditorToInitialData: editor.resetToInitialData,
+    setPairs,
+    setInitialHands,
+    setComboSteps,
+    setSelectedHandId,
+    selectedHandId,
+    setShowComboFlow,
+    deckManagement,
+    recommendedDeck,
+  });
 
-    editor.setIsEditMode(false);
-    clearValidationError();
+  const { handleCancel } = cancellationHook;
 
-    if (!isCreatingNew && guideInstanceData) {
-      const pairs: CardPair[] = mapGuideCardPairsToEditorPairs(
-        guideInstanceData.cardPairs,
-      );
-
-      const sanitizedTitle =
-        guideInstanceData.instance.title?.replace(/\s+/g, " ").trim() ||
-        "Title";
-      const generalTip = guideInstanceData.instance.generalTip || "";
-
-      // Restore original deck state if it was saved
-      if (originalDeckState) {
-        setDeckTitle(originalDeckState.title);
-        setDeckMainCards(originalDeckState.mainCards);
-        setDeckExtraCards(originalDeckState.extraCards);
-        setDeckSideCards(originalDeckState.sideCards);
-        setShowRecommendedDeck(originalDeckState.exists);
-        setOriginalDeckState(null);
-      } else {
-        // Fallback to current deck state
-        setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
-        setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
-        setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
-        setDeckSideCards(recommendedDeck.deck?.sideDeck || []);
-        setShowRecommendedDeck(recommendedDeck.deck ? true : false);
-      }
-
-      editor.resetToInitialData({
-        pairs,
-        title: sanitizedTitle,
-        generalTip: generalTip,
-        headerCard: guideInstanceData.headerCard
-          ? {
-              id: guideInstanceData.headerCard.id,
-              name: guideInstanceData.headerCard.name,
-              imageUrl: guideInstanceData.headerCard.imageUrl,
-              imageUrlCropped: guideInstanceData.headerCard.imageUrlCropped,
-            }
-          : null,
-      });
-
-      setPairs(pairs);
-
-      // Restore initial hands if this is a DECK guide
-      if (
-        guideInstanceData.instance.guideType === "DECK" &&
-        guideInstanceData.initialHands
-      ) {
-        const { initialHands: transformedHands, comboSteps: comboStepsMap } =
-          mapInitialHandsAndComboStepsFromInstance(
-            guideInstanceData.initialHands,
-          );
-
-        setInitialHands(transformedHands);
-        setComboSteps(comboStepsMap);
-
-        // Restore selected hand and show combo flow if it has steps
-        if (transformedHands.length > 0 && !selectedHandId) {
-          setSelectedHandId(transformedHands[0].id);
-          // Show combo flow if first hand has combo steps
-          if (
-            comboStepsMap.has(transformedHands[0].id.toString()) &&
-            comboStepsMap.get(transformedHands[0].id.toString())!.length > 0
-          ) {
-            setShowComboFlow(true);
-          }
-        }
-      } else {
-        setInitialHands([]);
-        setComboSteps(new Map());
-        setSelectedHandId(null);
-      }
-    } else {
-      navigate(-1);
-    }
-  };
-
-  const addHandtrap = () => {
-    const newPair: CardPair = {
-      id: `pair-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      section: "HANDTRAP",
-      topCards: [],
-      bottomCards: [],
-      comment: undefined,
-    };
-
-    setPairs((prevPairs) => {
-      const firstBoardBreakerIndex = prevPairs.findIndex(
-        (pair) => pair.section === "BOARD_BREAKER",
-      );
-
-      if (firstBoardBreakerIndex === -1) {
-        return [...prevPairs, newPair];
-      }
-
-      return [
-        ...prevPairs.slice(0, firstBoardBreakerIndex),
-        newPair,
-        ...prevPairs.slice(firstBoardBreakerIndex),
-      ];
-    });
-  };
-
-  const addBoardBreaker = () => {
-    const newPair: CardPair = {
-      id: `pair-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      section: "BOARD_BREAKER",
-      topCards: [],
-      bottomCards: [],
-      comment: undefined,
-    };
-    setPairs((prevPairs) => [...prevPairs, newPair]);
-  };
-
-  const addInitialHand = () => {
-    const newHand: InitialHand = {
-      id: `hand-${Date.now()}`,
-      cards: [],
-    };
-    setInitialHands([...initialHands, newHand]);
-  };
-
-  const handleAddCombo = (handId: string) => {
-    // Select the hand to show combo flow section
-    setSelectedHandId(handId);
-    setShowComboFlow(true);
-
-    // Optional: Scroll to combo flow section after a brief delay
-    setTimeout(() => {
-      const comboSection = document.querySelector("[data-combo-flow-section]");
-      if (comboSection) {
-        comboSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
-    }, 100);
-  };
-
-  const handleShowCombo = (handId: string) => {
-    setSelectedHandId(handId);
-    setShowComboFlow(true);
-  };
-
-  const handleSelectHand = (handId: string) => {
-    setSelectedHandId(handId);
-  };
-
-  const getComboStepsForSelectedHand = (): ComboStep[] => {
-    if (!selectedHandId) return [];
-    return comboSteps.get(selectedHandId) || [];
-  };
-
-  const setComboStepsForSelectedHand = (
-    value: React.SetStateAction<ComboStep[]>,
-  ) => {
-    if (!selectedHandId) return;
-
-    const currentSteps = comboSteps.get(selectedHandId) || [];
-    const newSteps = typeof value === "function" ? value(currentSteps) : value;
-
-    const newMap = new Map(comboSteps);
-    if (newSteps.length === 0) {
-      newMap.delete(selectedHandId);
-    } else {
-      newMap.set(selectedHandId, newSteps);
-    }
-    setComboSteps(newMap);
-  };
-
-  const handleDuplicateInitialHand = useCallback(
-    (originalHandId: string, newHandId: string) => {
-      const originalSteps = comboSteps.get(originalHandId);
-      if (!originalSteps || originalSteps.length === 0) return;
-
-      // Map viejo ID -> nuevo ID para preservar referencias de parentCanceledStepId
-      const idMap = new Map<string, string>();
-      originalSteps.forEach((step) => {
-        idMap.set(
-          step.id,
-          `step-${Math.random().toString(36).slice(2, 9)}-${Date.now()}`,
-        );
-      });
-
-      const duplicatedSteps = originalSteps.map((step) => ({
-        ...step,
-        id: idMap.get(step.id)!,
-        parentCanceledStepId: step.parentCanceledStepId
-          ? (idMap.get(step.parentCanceledStepId) ?? step.parentCanceledStepId)
-          : null,
-      }));
-
-      setComboSteps((prev) => {
-        const next = new Map(prev);
-        next.set(newHandId, duplicatedSteps);
-        return next;
-      });
-    },
-    [comboSteps],
-  );
-
+  /**
+   * Validates and saves the guide instance to the server
+   * Handles both Counter and Deck guides
+   */
   const validateAndSave = async () => {
     if (!selectedArchetype) return;
 
     try {
-      const mainDeckIds = deckMainCards.map((c) => c.id);
-      const extraDeckIds = deckExtraCards.map((c) => c.id);
-      const sideDeckIds = deckSideCards.map((c) => c.id);
+      // Only process deck data for Deck guides
+      const mainDeckIds = guideType === "DECK" ? deckMainCards.map((c) => c.id) : [];
+      const extraDeckIds = guideType === "DECK" ? deckExtraCards.map((c) => c.id) : [];
+      const sideDeckIds = guideType === "DECK" ? deckSideCards.map((c) => c.id) : [];
       const hasDeckContent =
         mainDeckIds.length > 0 ||
         extraDeckIds.length > 0 ||
@@ -715,12 +434,12 @@ export const GuideContainer = ({
         archetypeName: selectedArchetype.name,
         userName: user?.name ?? guideInstanceData?.userName,
         instanceId: isCreatingNew ? undefined : instanceIdNum,
-        deckTitle,
-        deckMainCards,
-        deckExtraCards,
-        deckSideCards,
+        deckTitle: guideType === "DECK" ? deckTitle : "",
+        deckMainCards: guideType === "DECK" ? deckMainCards : [],
+        deckExtraCards: guideType === "DECK" ? deckExtraCards : [],
+        deckSideCards: guideType === "DECK" ? deckSideCards : [],
         hasDeckContent,
-        existingDeck: !!recommendedDeck.deck,
+        existingDeck: guideType === "DECK" ? !!recommendedDeck.deck : false,
         comboSteps,
         onAfterSave: guideRequestId
           ? async (newInstanceId) => {
@@ -745,6 +464,9 @@ export const GuideContainer = ({
     }
   };
 
+  /**
+   * Deletes the guide instance from the server after confirmation
+  */
   const handleDeleteInstance = async () => {
     if (!selectedArchetype || !guideInstanceData?.instance.id) return;
 
@@ -763,6 +485,9 @@ export const GuideContainer = ({
     }
   };
 
+  /**
+   * Enters edit mode for creating a new guide or editing an existing guide if user is the owner
+  */
   const handleRegisterClick = () => {
     if (!isAuthenticated) {
       alert("You must be logged in to register archetypes.");
@@ -770,6 +495,10 @@ export const GuideContainer = ({
     }
 
     if (!selectedArchetype?.registered || isOwner) {
+      /**
+       * Navigates back to the archetype detail page or previous page
+       * Confirms navigation if there are unsaved changes in edit mode
+      */
       editor.setIsEditMode(true);
     }
   };
@@ -804,24 +533,16 @@ export const GuideContainer = ({
     );
   }
 
-  const displayMainDeck =
-    editor.isEditMode && isOwner ? deckMainCards : memoizedMainDeck;
-  const displayExtraDeck =
-    editor.isEditMode && isOwner ? deckExtraCards : memoizedExtraDeck;
-  const displaySideDeck =
-    editor.isEditMode && isOwner ? deckSideCards : memoizedSideDeck;
-  const displayTitle =
-    editor.isEditMode && isOwner ? deckTitle : recommendedDeck.deck?.title;
-
   return (
     <>
-      {/* Guide request banner — shown above the section, centered */}
+      {/* Guide request banner */}
       {guideRequestId && isCreatingNew && (
         <div className="w-full flex justify-center px-4 sm:px-6 lg:px-8 mt-4">
           <div className="w-full max-w-[2100px] bg-[#c2901c]/10 border border-[#c2901c]/40 rounded-lg px-4 py-3 flex items-center justify-center gap-3">
             <PenLine className="h-4 w-4 text-[#c2901c] shrink-0" />
             <p className="text-[#c2901c] text-sm text-center">
-              You are creating a guide to complete a community request. Save the guide to mark it as fulfilled.
+              You are creating a guide to complete a community request. Save the
+              guide to mark it as fulfilled.
             </p>
           </div>
         </div>
@@ -843,7 +564,7 @@ export const GuideContainer = ({
                 : "border-blue-500/70"
             }`}
           >
-            {/* Gradient overlay with transparency - this maintains the original effect */}
+            {/* Gradient overlay with transparency */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#120b31]/85 to-[#060017]/85"></div>
 
             <div className="relative z-10 space-y-6">
@@ -891,7 +612,7 @@ export const GuideContainer = ({
                 guideType={guideType}
                 currentUserId={user?.id}
                 hasRecommendedDeck={
-                  showRecommendedDeck || !!recommendedDeck.deck
+                  guideType === "DECK" && (showRecommendedDeck || !!recommendedDeck.deck)
                 }
                 hasHandtraps={pairs.some(
                   (pair) => pair.section === "HANDTRAP" || pair.section == null,
@@ -906,8 +627,8 @@ export const GuideContainer = ({
                 guideType={guideType}
                 isEditMode={editor.isEditMode}
                 isOwner={isOwner}
-                activeModalComponent={activeModalComponent}
-                onModalStateChange={handleModalStateChange}
+                activeModalComponent={modalOrchestration.activeModalComponent}
+                onModalStateChange={modalOrchestration.handleModalStateChange}
                 pairs={pairs}
                 setPairs={setPairs}
                 onAddHandtrap={addHandtrap}
@@ -925,12 +646,12 @@ export const GuideContainer = ({
                 selectedHandComboSteps={getComboStepsForSelectedHand()}
                 setSelectedHandComboSteps={setComboStepsForSelectedHand}
                 showRecommendedDeck={showRecommendedDeck}
-                hasRecommendedDeckFromServer={!!recommendedDeck.deck}
+                hasRecommendedDeckFromServer={hasRecommendedDeckFromServer}
                 onShowRecommendedDeck={() => setShowRecommendedDeck(true)}
-                displayTitle={displayTitle}
-                displayMainDeck={displayMainDeck}
-                displayExtraDeck={displayExtraDeck}
-                displaySideDeck={displaySideDeck}
+                displayTitle={deckTitle}
+                displayMainDeck={deckMainCards}
+                displayExtraDeck={deckExtraCards}
+                displaySideDeck={deckSideCards}
                 onDeckChange={handleDeckChange}
                 onDeleteDeck={handleDeleteDeck}
               />
@@ -993,7 +714,9 @@ export const GuideContainer = ({
                   !isCreatingNew &&
                   !isOwner && (
                     <button
-                      onClick={() => setIsReportModalOpen(true)}
+                      onClick={() =>
+                        modalOrchestration.setIsReportModalOpen(true)
+                      }
                       className="hover:text-red-800/80 text-white"
                     >
                       <Flag className="w-5 h-5" />
@@ -1034,7 +757,7 @@ export const GuideContainer = ({
       {isReportModalOpen && guideInstanceData && (
         <ReportModal
           isOpen={isReportModalOpen}
-          onClose={() => setIsReportModalOpen(false)}
+          onClose={() => modalOrchestration.setIsReportModalOpen(false)}
           targetType="instance"
           targetId={guideInstanceData.instance.id}
           targetName={guideInstanceData.instance.title}

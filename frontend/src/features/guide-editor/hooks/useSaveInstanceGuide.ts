@@ -41,6 +41,10 @@ interface SaveInstanceParams {
   onAfterSave?: (instanceId: number) => Promise<void>;
 }
 
+/**
+ * Orchestrates the complete save process for guide instances
+ * Validates data, confirms cards, saves guide and recommended deck
+ */
 export const useSaveInstanceGuide = () => {
   const [saving, setSaving] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);

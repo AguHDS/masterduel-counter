@@ -2,8 +2,14 @@ import type { CardPair, ComboStep } from "@/features/archetypes/types";
 import type { GuideInstanceWithFullDetails } from "@/lib/http/guideInstancesApi";
 import type { InitialHand } from "../components/deck-guides/InitialHandsEditor";
 import type { FieldBoard } from "../components/deck-guides/FinalBoardPreview";
-import type { HeaderCard } from "../hooks/useInstanceGuideEditor";
 import { normalizeStepOrdersByBranch } from "./comboStepEditorUtils";
+
+interface HeaderCard {
+  id: number;
+  name: string;
+  imageUrl: string;
+  imageUrlCropped: string;
+}
 
 interface BuildGuideEditSnapshotParams {
   title: string;
@@ -23,10 +29,10 @@ type GuidePairLike =
   | GuideInstanceWithFullDetails["cardPairs"][number]
   | CardPair;
 
+/** Normalizes API/editor pairs to the format used by the container state */
 export const mapGuideCardPairsToEditorPairs = (
   cardPairs: GuidePairLike[],
 ): CardPair[] => {
-  // Normalizes API/editor pairs to the format used by the container state
   return cardPairs.map((pair) => ({
     id: String(pair.id),
     section:
@@ -39,13 +45,13 @@ export const mapGuideCardPairsToEditorPairs = (
   }));
 };
 
+/** Converts initial hands from the backend and its combo steps to the editor's UI model */
 export const mapInitialHandsAndComboStepsFromInstance = (
   apiInitialHands: GuideInstanceWithFullDetails["initialHands"],
 ): {
   initialHands: InitialHand[];
   comboSteps: Map<string, ComboStep[]>;
 } => {
-  // Converts initial hands from the backend and its combo steps to the editor's UI model
   if (!apiInitialHands || apiInitialHands.length === 0) {
     return {
       initialHands: [],
@@ -99,6 +105,7 @@ export const mapInitialHandsAndComboStepsFromInstance = (
   };
 };
 
+/** Generates a serialized snapshot to detect unsaved changes */
 export const buildGuideEditSnapshot = ({
   title,
   generalTip,
@@ -112,7 +119,6 @@ export const buildGuideEditSnapshot = ({
   deckSideCards,
   showRecommendedDeck,
 }: BuildGuideEditSnapshotParams): string => {
-  // Generates a serialized snapshot to detect unsaved changes
   return JSON.stringify({
     title,
     generalTip,

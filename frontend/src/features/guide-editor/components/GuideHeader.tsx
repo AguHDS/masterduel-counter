@@ -50,7 +50,9 @@ interface GuideHeaderProps {
   hasBoardBreakers?: boolean;
   createdAt?: string;
 }
-
+/**
+ * Header component displaying guide metadata and edit controls
+ */
 export const GuideHeader = ({
   archetypeName,
   title,
@@ -195,7 +197,7 @@ export const GuideHeader = ({
 
               {hasBoardBreakers && (
                 <>
-                <PackageXIcon className="w-5 h-5" />
+                  <PackageXIcon className="w-5 h-5" />
                   <button
                     onClick={() => scrollToSection("board-breakers-section")}
                     className="hover:underline underline-offset-4"

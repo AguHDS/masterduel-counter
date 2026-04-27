@@ -10,6 +10,9 @@ interface UseInstanceGuideLikesProps {
   ownerId?: string;
 }
 
+/**
+ * Manages like state and toggling for guide instances
+ */
 export const useInstanceGuideLikes = ({
   isAuthenticated,
   archetypeId,

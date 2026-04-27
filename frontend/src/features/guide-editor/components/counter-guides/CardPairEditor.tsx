@@ -29,6 +29,11 @@ const calculatePairWidth = (viewportWidth: number) => {
   return Math.max(170, Math.min(DEFAULT_PAIR_WIDTH, targetWidth));
 };
 
+/**
+ * Editor component for managing Counter guide card pairs
+ * Allows users to add, edit, reorder, and remove card pairs
+ * Supports both HANDTRAP and BOARD_BREAKER sections
+ */
 export const CardPairEditor = ({
   isEditMode,
   pairs,

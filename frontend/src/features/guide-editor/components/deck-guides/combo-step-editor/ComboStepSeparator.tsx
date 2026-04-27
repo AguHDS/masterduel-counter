@@ -4,6 +4,9 @@ interface ComboStepSeparatorProps {
   isEditMode?: boolean;
 }
 
+/**
+ * Visual arrow between combo steps in the flow
+ */
 export const ComboStepSeparator = ({ isEditMode = false }: ComboStepSeparatorProps) => {
   return (
     <div 

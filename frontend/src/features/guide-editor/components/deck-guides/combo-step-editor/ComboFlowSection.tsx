@@ -14,6 +14,11 @@ interface ComboFlowSectionProps {
   onResetCanceledFlow?: () => void;
 }
 
+/**
+ * Wrapper component that manages combo flow display and editing
+ * Switches between ComboStepEditor (edit mode) and ComboFlowViewer (view mode)
+ * Handles hand ID changes and resets component state accordingly
+ */
 export const ComboFlowSection = ({
   selectedHandNumber,
   comboSteps,

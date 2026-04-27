@@ -39,6 +39,11 @@ type ZoneType =
   | "banished"
   | "hand";
 
+/**
+ * Editor component for managing the final board state
+ * Allows placing cards in field zones (Field Spell, Extra Deck Monsters, Main Monsters, Spell/Trap, Hand, GY, Banish)
+ * Supports monster position toggles (ATK/DEF) and optional description
+ */
 export const FinalBoardPreview = ({
   isEditMode,
   fieldBoard,

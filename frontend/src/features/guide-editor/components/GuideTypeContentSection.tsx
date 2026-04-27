@@ -7,7 +7,10 @@ import type {
 } from "@/features/archetypes/types";
 import { CardPairEditor } from "./counter-guides/CardPairEditor";
 import { ComboFlowSection } from "./deck-guides/combo-step-editor/ComboFlowSection";
-import { InitialHandsEditor, type InitialHand } from "./deck-guides/InitialHandsEditor";
+import {
+  InitialHandsEditor,
+  type InitialHand,
+} from "./deck-guides/InitialHandsEditor";
 import { RecommendedDeckEditor } from "./deck-guides/RecommendedDeckEditor";
 
 type ActiveModalComponent =
@@ -77,7 +80,11 @@ interface GuideTypeContentSectionProps {
   onDeleteDeck: () => Promise<void>;
 }
 
-/** Renders specific content by guide type and recommended deck section */
+/**
+ * Main content section that renders the appropriate editor based on guide type
+ * Counter guides: Shows HANDTRAP and BOARD_BREAKER card pair sections
+ * Deck guides: Shows initial hands, combo flow editor/viewer, final board preview, recommended deck
+ */
 export const GuideTypeContentSection = ({
   guideType,
   isEditMode,

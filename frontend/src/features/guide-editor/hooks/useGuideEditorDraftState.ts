@@ -7,7 +7,10 @@ interface UseGuideEditorDraftStateParams {
   snapshot: string;
 }
 
-/** Manage draft status, dirty-checking and editing navigation guards */
+/**
+ * Manages draft state, dirty tracking, and navigation guards for guide editing
+ * Prevents accidental navigation away from unsaved changes
+ */
 export const useGuideEditorDraftState = ({
   isEditMode,
   isOwner,

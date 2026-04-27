@@ -27,6 +27,10 @@ interface CardPairItemProps {
   pairWidth?: number;
 }
 
+/**
+ * Individual card pair item displaying top and bottom cards
+ * In edit mode, supports adding/removing cards, effectiveness ratings, comments, and reordering card pairs
+ */
 const EFFECTIVENESS_OPTIONS = [
   { value: "", label: "None", color: "text-slate-400" },
   { value: "BAD", label: "BAD", color: "text-red-500" },

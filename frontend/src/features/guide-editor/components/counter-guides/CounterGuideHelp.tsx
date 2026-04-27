@@ -10,6 +10,9 @@ interface CounterGuideHelpProps {
   onClose: () => void;
 }
 
+/**
+ * Help modal that explains how to create Counter guides
+ */
 export const CounterGuideHelp = ({
   isOpen,
   onClose,

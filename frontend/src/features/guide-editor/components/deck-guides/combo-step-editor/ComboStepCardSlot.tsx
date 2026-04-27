@@ -18,7 +18,11 @@ interface ComboStepCardSlotProps {
   onCloseChainPicker: () => void;
 }
 
-// Renders a single card slot with add/remove actions and optional chain controls
+/**
+ * Individual card slot within a combo step
+ * Supports add/remove actions, chain number picker (main cards only), and card tooltip
+ * Used in main, material (subcard-left), and effect (subcard-right) card positions
+ */
 export const ComboStepCardSlot = ({
   card,
   cardType,

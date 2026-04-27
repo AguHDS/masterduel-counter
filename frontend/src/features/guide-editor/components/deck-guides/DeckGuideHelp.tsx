@@ -12,6 +12,9 @@ interface DeckGuideHelpProps {
   onClose: () => void;
 }
 
+/**
+ * Help modal that explains how to create Deck guides
+ */
 export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
   return (
     <InfoModal

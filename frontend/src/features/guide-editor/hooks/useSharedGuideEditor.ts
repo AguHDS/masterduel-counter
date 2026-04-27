@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CardPair, Card } from "@/features/archetypes/types";
+import type { Card } from "@/features/archetypes/types";
 
 interface HeaderCard {
   id: number;
@@ -10,17 +10,20 @@ interface HeaderCard {
 
 export type { HeaderCard };
 
-/** Hook to handle the state and logic for editing an instance of a guide */
-export const useInstanceGuideEditor = (initialData?: {
+/**
+ * Manages shared editing state for both Counter and Deck guides
+ * 
+ * Handles common guide properties:
+ * - Title and general description (generalTip)
+ * - Header card selection and modal state
+ * - Edit mode toggle
+ */
+export const useSharedGuideEditor = (initialData?: {
   title?: string;
   generalTip?: string;
   headerCard?: HeaderCard | null;
-  pairs?: CardPair[];
 }) => {
   const [isEditMode, setIsEditMode] = useState(false);
-  const [loadedPairs, setLoadedPairs] = useState<CardPair[]>(
-    initialData?.pairs || [],
-  );
   const [headerCard, setHeaderCard] = useState<HeaderCard | null>(
     initialData?.headerCard || null,
   );
@@ -34,9 +37,7 @@ export const useInstanceGuideEditor = (initialData?: {
     title?: string;
     generalTip?: string;
     headerCard?: HeaderCard | null;
-    pairs?: CardPair[];
   }) => {
-    setLoadedPairs(data.pairs || []);
     setHeaderCard(data.headerCard || null);
     setTitle(data.title || "Title");
     setGeneralTip(data.generalTip || "");
@@ -55,8 +56,6 @@ export const useInstanceGuideEditor = (initialData?: {
   return {
     isEditMode,
     setIsEditMode,
-    loadedPairs,
-    setLoadedPairs,
     headerCard,
     setHeaderCard,
     title,
