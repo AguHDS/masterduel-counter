@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import ChainBadgeImg from "@/assets/chaincircle.webp";
-import { CHAIN_NUMBER_OPTIONS } from "../../utils/comboStepEditorUtils";
+import { CHAIN_NUMBER_OPTIONS } from "../../../utils/comboStepEditorUtils";
 
 interface ChainNumberPickerProps {
   value?: number | null;

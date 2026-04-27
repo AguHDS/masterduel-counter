@@ -5,10 +5,10 @@ import type {
   ComboStep,
   GuideType,
 } from "@/features/archetypes/types";
-import { CardPairEditor } from "./CardPairEditor";
-import { ComboFlowSection } from "./ComboFlowSection";
-import { InitialHandsEditor, type InitialHand } from "./InitialHandsEditor";
-import { RecommendedDeckEditor } from "./RecommendedDeckEditor";
+import { CardPairEditor } from "./counter-guides/CardPairEditor";
+import { ComboFlowSection } from "./deck-guides/combo-step-editor/ComboFlowSection";
+import { InitialHandsEditor, type InitialHand } from "./deck-guides/InitialHandsEditor";
+import { RecommendedDeckEditor } from "./deck-guides/RecommendedDeckEditor";
 
 type ActiveModalComponent =
   | "recommended-deck"

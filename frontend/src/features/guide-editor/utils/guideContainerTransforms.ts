@@ -1,7 +1,7 @@
 import type { CardPair, ComboStep } from "@/features/archetypes/types";
 import type { GuideInstanceWithFullDetails } from "@/lib/http/guideInstancesApi";
-import type { InitialHand } from "../components/InitialHandsEditor";
-import type { FieldBoard } from "../components/FinalBoardPreview";
+import type { InitialHand } from "../components/deck-guides/InitialHandsEditor";
+import type { FieldBoard } from "../components/deck-guides/FinalBoardPreview";
 import type { HeaderCard } from "../hooks/useInstanceGuideEditor";
 import { normalizeStepOrdersByBranch } from "./comboStepEditorUtils";
 

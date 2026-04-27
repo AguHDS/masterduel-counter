@@ -2,7 +2,7 @@ import { Plus, X } from "lucide-react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
 import ChainOverlayImg from "@/assets/chain_new_card.webp";
-import type { ComboCardType } from "../../utils/comboStepEditorUtils";
+import type { ComboCardType } from "../../../utils/comboStepEditorUtils";
 import { ChainNumberPicker } from "./ChainNumberPicker";
 
 interface ComboStepCardSlotProps {

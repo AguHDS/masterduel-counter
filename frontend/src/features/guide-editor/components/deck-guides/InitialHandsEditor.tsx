@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, X, Trash2, Edit2, Copy } from "lucide-react";
-import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "../../../archetypes/components/FloatingCardSearchModal";
 import type { Card, ComboStep } from "@/features/archetypes/types";
 import { FinalBoardPreview, type FieldBoard } from "./FinalBoardPreview";
 import { HandFanDisplay } from "./HandFanDisplay";

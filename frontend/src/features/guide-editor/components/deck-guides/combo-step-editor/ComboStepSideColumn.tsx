@@ -1,6 +1,6 @@
 import type { Card } from "@/features/archetypes/types";
-import type { ChainPickerState, ComboCardType } from "../../utils/comboStepEditorUtils";
-import { SIDE_CARD_MAX_SLOTS, SIDE_CARD_VISIBLE_SLOTS } from "../../utils/comboStepEditorUtils";
+import type { ChainPickerState, ComboCardType } from "../../../utils/comboStepEditorUtils";
+import { SIDE_CARD_MAX_SLOTS, SIDE_CARD_VISIBLE_SLOTS } from "../../../utils/comboStepEditorUtils";
 import { ComboStepCardSlot } from "./ComboStepCardSlot";
 
 interface ComboStepSideColumnProps {

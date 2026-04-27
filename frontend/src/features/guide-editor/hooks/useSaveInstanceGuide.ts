@@ -17,7 +17,7 @@ import type {
   GuideType,
   ComboStep,
 } from "@/features/archetypes/types";
-import type { InitialHand } from "../components/InitialHandsEditor";
+import type { InitialHand } from "../components/deck-guides/InitialHandsEditor";
 
 interface SaveInstanceParams {
   pairs: CardPair[];

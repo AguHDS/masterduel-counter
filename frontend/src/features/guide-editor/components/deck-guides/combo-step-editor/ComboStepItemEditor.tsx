@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 import type { ComboStep } from "@/features/archetypes/types";
-import type { ChainPickerState, ComboCardType } from "../../utils/comboStepEditorUtils";
+import type { ChainPickerState, ComboCardType } from "../../../utils/comboStepEditorUtils";
 import { ComboStepCardSlot } from "./ComboStepCardSlot";
 import { ComboStepSideColumn } from "./ComboStepSideColumn";
 

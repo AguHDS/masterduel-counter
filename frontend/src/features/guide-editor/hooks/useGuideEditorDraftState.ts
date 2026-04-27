@@ -7,12 +7,12 @@ interface UseGuideEditorDraftStateParams {
   snapshot: string;
 }
 
+/** Manage draft status, dirty-checking and editing navigation guards */
 export const useGuideEditorDraftState = ({
   isEditMode,
   isOwner,
   snapshot,
 }: UseGuideEditorDraftStateParams) => {
-  // Manage draft status, dirty-checking and editing navigation guards
   const allowNavigationRef = useRef(false);
   const editStartSnapshotRef = useRef<string | null>(null);
   const [hasDirtyEdits, setHasDirtyEdits] = useState(false);

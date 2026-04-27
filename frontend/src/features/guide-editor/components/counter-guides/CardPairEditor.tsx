@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { CardPairItem } from "./CardPairItem";
-import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "../../../archetypes/components/FloatingCardSearchModal";
 import type { CardPair, Card } from "@/features/archetypes/types";
 
 interface CardPairEditorProps {

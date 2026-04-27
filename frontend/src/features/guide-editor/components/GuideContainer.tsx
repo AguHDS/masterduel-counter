@@ -14,9 +14,9 @@ import {
   ArrowLeft,
   PenLine,
 } from "lucide-react";
-import type { InitialHand } from "./InitialHandsEditor";
+import type { InitialHand } from "./deck-guides/InitialHandsEditor";
 import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
-import { InstanceHeader } from "./InstanceHeader";
+import { GuideHeader } from "./GuideHeader";
 import { GuideTypeContentSection } from "./GuideTypeContentSection";
 import { useInstanceGuideEditor } from "../hooks/useInstanceGuideEditor";
 import { useInstanceGuideLikes } from "../hooks/useInstanceGuideLikes";
@@ -860,7 +860,7 @@ export const GuideContainer = ({
                 <div className="ml-auto flex items-center space-x-4"></div>
               </div>
 
-              <InstanceHeader
+              <GuideHeader
                 archetypeName={selectedArchetype.name}
                 title={editor.title}
                 generalTip={editor.generalTip}

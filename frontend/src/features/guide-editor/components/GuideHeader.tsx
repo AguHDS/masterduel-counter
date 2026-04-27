@@ -22,7 +22,7 @@ interface HeaderCard {
   imageUrlCropped: string;
 }
 
-interface InstanceHeaderProps {
+interface GuideHeaderProps {
   archetypeName: string;
   title: string;
   generalTip: string;
@@ -51,7 +51,7 @@ interface InstanceHeaderProps {
   createdAt?: string;
 }
 
-export const InstanceHeader = ({
+export const GuideHeader = ({
   archetypeName,
   title,
   generalTip,
@@ -78,7 +78,7 @@ export const InstanceHeader = ({
   hasHandtraps = false,
   hasBoardBreakers = false,
   createdAt,
-}: InstanceHeaderProps) => {
+}: GuideHeaderProps) => {
   const isOwner = !!(
     currentUserId &&
     userId &&

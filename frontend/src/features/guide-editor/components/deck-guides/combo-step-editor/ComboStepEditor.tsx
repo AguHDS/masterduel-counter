@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import type { Card, ComboStep } from "@/features/archetypes/types";
-import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
-import { ComboStepItemEditor } from "./combo-step-editor/ComboStepItemEditor";
-import { useComboStepDragDrop } from "../hooks/useComboStepDragDrop";
+import { FloatingCardSearchModal } from "../../../../archetypes/components/FloatingCardSearchModal";
+import { ComboStepItemEditor } from "./ComboStepItemEditor";
+import { useComboStepDragDrop } from "../../../hooks/useComboStepDragDrop";
 import {
   createComboStep,
   getVisibleSteps,
@@ -12,7 +12,7 @@ import {
   type CardSelectionMode,
   type ChainPickerState,
   type ComboCardType,
-} from "../utils/comboStepEditorUtils";
+} from "../../../utils/comboStepEditorUtils";
 
 interface ComboStepEditorProps {
   comboSteps: ComboStep[];

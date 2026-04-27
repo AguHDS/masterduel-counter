@@ -1,24 +1,23 @@
 import { InfoModal } from "@/shared/components/info/components/InfoModal";
 import {
-  guideHelp_CardPairs,
+  deckguide_comboflow,
   guideHelp_Header,
+  guideHelp_Recommended,
   guideHelp_TitleAndDescr,
-} from "../assets";
+  deckguide_initialhands,
+} from "../../assets";
 
-interface CounterGuideHelpProps {
+interface DeckGuideHelpProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const CounterGuideHelp = ({
-  isOpen,
-  onClose,
-}: CounterGuideHelpProps) => {
+export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
   return (
     <InfoModal
       isOpen={isOpen}
       onClose={onClose}
-      title="How to Create a Guide Correctly"
+      title="How to Correctly Create a Deck Guide"
     >
       <div className="space-y-6 text-gray-200">
         <section className="space-y-3">
@@ -42,9 +41,15 @@ export const CounterGuideHelp = ({
                 <span className="text-blue-300 font-semibold">
                   Description:
                 </span>{" "}
-                Explain the main idea of your guide. You don't need to go into
-                detail about countering cards here, but rather in the Card Pairs
-                section.
+                Explain general things about combos. <br /> <br />
+                <b>
+                  Example: <br />
+                  Combo #1 (7 disruptions): You need Dark Beckoning OR Spirit
+                  Gates <br />
+                  Combo #2 (10 disruptions): You need Throne + Spirit gates OR
+                  beckoning <br />
+                  Combo #3: (8 disruptions): Can be done with Throne OR Lotus
+                </b>
               </p>
             </div>
             <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
@@ -64,45 +69,70 @@ export const CounterGuideHelp = ({
           </div>
         </section>
 
-        {/* Phase 2: Card Pairs */}
+        {/* Phase 2: Initial Hands */}
         <section className="space-y-3">
           <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
             <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
               2
             </span>
-            Card Pairs
+            Initial hands
           </h3>
           <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
             <img
-              src={guideHelp_CardPairs}
+              src={deckguide_initialhands}
               alt="Card pair example showing target cards and their counters"
               className="w-full rounded-lg mb-2 border border-slate-700/50"
             />
             <p className="text-sm mb-2">
               <span className="text-blue-300 font-semibold">
-                Creating Card Pairs:
+                Initial hands:
               </span>{" "}
-              The top cards are the <b>target</b> cards, and the bottom cards
-              represent their <b>counters</b>
+              Represents the starting hand of the combo you are showcasing in
+              the combo flow.
+            </p>
+          </div>
+        </section>
+
+        {/* Phase 3: Combo FLOW*/}
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
+            <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
+              2
+            </span>
+            Combo Flow
+          </h3>
+          <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
+            <img
+              src={deckguide_comboflow}
+              alt="Card pair example showing target cards and their counters"
+              className="w-full rounded-lg mb-2 border border-slate-700/50"
+            />
+            <p className="text-sm mb-2">
+              <span className="text-blue-300 font-semibold">
+                Creating Combo flow:
+              </span>{" "}
+              Create a step by step combo guide for your selected initial hand.
             </p>
             <ul className="list-disc list-inside text-gray-300 space-y-1 text-xs">
               <li>
                 <span className="text-blue-300 font-medium">
-                  Top Cards (targets):
+                  Left mini cards:
                 </span>{" "}
-                Key cards that you want to counter
+                Use these cards to show the material cards you use to summon the
+                main card.
               </li>
               <li>
                 <span className="text-blue-300 font-medium">
-                  Bottom Cards (counters):
+                  Right mini cards:
                 </span>{" "}
-                Cards that counter the top cards
+                The result of the activation effect of the main card's sequence.
               </li>
               <li>
                 <span className="text-blue-300 font-medium">
-                  Effectiveness:
+                  <span className="text-red-500">Negated flow:</span>
                 </span>{" "}
-                Rate the impact (Bad/Medium/Good/Perfect)
+                You can put a secondary combo route for each step you have by
+                clicking the "Negated?" label.
               </li>
               <li>
                 <span className="text-blue-300 font-medium">Comment:</span> Give
@@ -110,10 +140,42 @@ export const CounterGuideHelp = ({
                 should be aware of.
               </li>
             </ul>
-            <p className="text-xs mt-2">
-              Note: if you want to show board breakers, you can select cards
-              without pairing them
-            </p>
+          </div>
+        </section>
+
+        {/* Phase 3: Recommended Deck */}
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
+            <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
+              3
+            </span>
+            Recommended Deck (Optional)
+          </h3>
+          <p className="text-sm">
+            Deck builder to show the deck of this guide.
+          </p>
+          <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
+            <img
+              src={guideHelp_Recommended}
+              alt="Recommended deck sections example showing main and extra deck"
+              className="w-full rounded-lg mb-2 border border-slate-700/50"
+            />
+            <div className="text-sm space-y-1">
+              <p>
+                <span className="text-blue-300 font-semibold">Main Deck:</span>{" "}
+                Cards from the main deck (Max. 60).
+              </p>
+              <p>
+                <span className="text-blue-300 font-semibold">Extra Deck:</span>{" "}
+                Cards from the extra deck (Max. 15).
+              </p>
+              <p>
+                <span className="text-blue-300 font-semibold">
+                  Side Deck (optional):
+                </span>{" "}
+                Alternative cards (Max. 20).
+              </p>
+            </div>
           </div>
         </section>
 
