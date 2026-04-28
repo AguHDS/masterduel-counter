@@ -15,6 +15,4 @@ export interface CardApiService {
   searchCardByNameFromExternalApi(name: string): Promise<RawCardData[]>;
   /** Find a card by its ID in YGOProDeck API */
   findCardByIdFromExternalApi(id: number): Promise<RawCardData | null>;
-  /** Download card image from given URL from YGOProDeck API */
-  downloadCardImageFromExternalApi(url: string): Promise<Buffer>;
 }
