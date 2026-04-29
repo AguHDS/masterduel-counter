@@ -184,11 +184,21 @@ model Comment {
 model Card {
   id                      Int       @id
   name                    String
+  type                    String?   // e.g., "Effect Monster", "Spell Card", "Trap Card" - TEMP optional until data migration
+  desc                    String?   // Card description/effect text - TEMP optional until data migration
+  race                    String?   // e.g., "Dragon", "Warrior", "Quick-Play Spell" - TEMP optional until data migration
+  attribute               String?   // e.g., "DARK", "LIGHT" (monsters only)
+  atk                     Int?      // Attack points (monsters only)
+  def                     Int?      // Defense points (monsters only)
+  level                   Int?      // Level/Rank (monsters only)
+  scale                   Int?      // Pendulum scale (pendulum monsters only)
+  linkval                 Int?      // Link rating (link monsters only)
+  linkmarkers             String?   // JSON array: ["Top", "Bottom-Left"] (link monsters only)
+  archetype               String?   // Archetype name if applicable
   imageUrl                String    @map("image_url")
   imageUrlSmall           String    @map("image_url_small")
   imageUrlCropped         String    @map("image_url_cropped")
   frameType               String?   @map("frame_type")
-  level                   Int?
   createdAt               DateTime  @default(now()) @map("created_at")
 
   instanceHeaders        ArchetypeInstance[] @relation("InstanceHeaderCard")

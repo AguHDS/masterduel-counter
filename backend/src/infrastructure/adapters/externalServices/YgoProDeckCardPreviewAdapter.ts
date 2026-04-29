@@ -52,14 +52,34 @@ export class YgoProDeckCardPreviewAdapter implements CardApiService {
         (card: {
           id: number;
           name: string;
-          frameType?: string;
+          type?: string;
+          desc?: string;
+          race?: string;
+          attribute?: string;
+          atk?: number;
+          def?: number;
           level?: number;
+          scale?: number;
+          linkval?: number;
+          linkmarkers?: string[];
+          archetype?: string;
+          frameType?: string;
           card_images: unknown[];
         }) => ({
           id: card.id,
           name: card.name,
-          frameType: card.frameType,
+          type: card.type,
+          desc: card.desc,
+          race: card.race,
+          attribute: card.attribute,
+          atk: card.atk,
+          def: card.def,
           level: card.level,
+          scale: card.scale,
+          linkval: card.linkval,
+          linkmarkers: card.linkmarkers,
+          archetype: card.archetype,
+          frameType: card.frameType,
           card_images: card.card_images,
         }),
       );
@@ -100,8 +120,18 @@ export class YgoProDeckCardPreviewAdapter implements CardApiService {
       return {
         id: card.id,
         name: card.name,
-        frameType: card.frameType,
+        type: card.type,
+        desc: card.desc,
+        race: card.race,
+        attribute: card.attribute,
+        atk: card.atk,
+        def: card.def,
         level: card.level,
+        scale: card.scale,
+        linkval: card.linkval,
+        linkmarkers: card.linkmarkers,
+        archetype: card.archetype,
+        frameType: card.frameType,
         card_images: card.card_images,
       };
     } catch (error) {

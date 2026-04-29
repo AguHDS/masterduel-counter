@@ -28,6 +28,10 @@ Mejoras_antes_de_prod.md
 PASOS_VPS_PRODUCCION.md
 GOOGLE_OAUTH_SETUP.md
 
+# Uploaded card images
+/backend/uploads/
+DEPLOYMENT_CARD_IMAGES.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

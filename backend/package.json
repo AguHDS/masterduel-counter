@@ -11,7 +11,10 @@
     "lint": "eslint . --ext .ts",
     "populate-archetypes": "tsx src/scripts/populate-archetypes.ts",
     "reset-db": "tsx src/scripts/reset-database.ts",
-    "create-admin": "tsx src/scripts/create-admin.ts"
+    "create-admin": "tsx src/scripts/create-admin.ts",
+    "migrate-images": "tsx src/scripts/migrate-card-images.ts",
+    "update-urls": "tsx src/scripts/update-card-urls.ts",
+    "update-card-details": "tsx src/scripts/update-card-details.ts"
   },
   "keywords": [],
   "author": "",
