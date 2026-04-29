@@ -4,8 +4,12 @@ import {
   saveRecommendedDeck,
   deleteRecommendedDeck,
   type RecommendedDeck,
-} from "../api/guideEditorApi";
+} from "../../api/guideEditorApi";
 
+/**
+ * Manages recommended deck loading, editing, and persistence for a guide instance
+ * Provides methods to save and delete recommended deck
+ */
 export const useGuideRecommendedDeck = (instanceId: number | undefined) => {
   const [deck, setDeck] = useState<RecommendedDeck | null>(null);
   const [isEditingDeck, setIsEditingDeck] = useState(false);

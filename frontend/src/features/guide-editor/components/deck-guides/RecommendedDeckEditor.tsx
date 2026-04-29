@@ -29,6 +29,9 @@ interface RecommendedDeckEditorProps {
 
 type DeckZone = "main" | "extra" | "side" | null;
 
+/**
+ * Editor component for managing the recommended deck associated with a guide
+ */
 export const RecommendedDeckEditor = ({
   isEditMode,
   initialTitle = "Recommended Deck",

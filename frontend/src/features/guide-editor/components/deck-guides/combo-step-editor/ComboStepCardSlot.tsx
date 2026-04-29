@@ -2,7 +2,7 @@ import { Plus, X } from "lucide-react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
 import ChainOverlayImg from "@/assets/chain_new_card.webp";
-import type { ComboCardType } from "../../utils/comboStepEditorUtils";
+import type { ComboCardType } from "../../../utils/comboStepEditorUtils";
 import { ChainNumberPicker } from "./ChainNumberPicker";
 
 interface ComboStepCardSlotProps {
@@ -18,7 +18,11 @@ interface ComboStepCardSlotProps {
   onCloseChainPicker: () => void;
 }
 
-// Renders a single card slot with add/remove actions and optional chain controls
+/**
+ * Individual card slot within a combo step
+ * Supports add/remove actions, chain number picker (main cards only), and card tooltip
+ * Used in main, material (subcard-left), and effect (subcard-right) card positions
+ */
 export const ComboStepCardSlot = ({
   card,
   cardType,

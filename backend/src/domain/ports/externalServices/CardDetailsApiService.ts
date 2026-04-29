@@ -1,12 +1,12 @@
 export interface CardDetails {
   id: number;
   name: string;
-  type: string;
-  desc: string;
+  type?: string;
+  desc?: string;
+  race?: string;
   atk?: number;
   def?: number;
   level?: number;
-  race: string;
   attribute?: string;
   archetype?: string;
   scale?: number;

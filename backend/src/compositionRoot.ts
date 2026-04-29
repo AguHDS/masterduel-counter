@@ -26,6 +26,7 @@ import { ImageStorageService } from "@/domain/ports/externalServices/ImageStorag
 import { YgoProDeckCardPreviewAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckCardPreviewAdapter.js";
 import { YgoProDeckCardDetailsAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckCardDetailsAdapter.js";
 import { CloudinaryAdapter } from "@/infrastructure/adapters/externalServices/CloudinaryAdapter.js";
+import { CardImageStorageService } from "@/services/cardImageStorageService.js";
 import { GetCardDetailsApplicationService } from "@/application/services/GetCardDetailsApplicationService.js";
 import { getCardDetailsApplicationPort } from "@/application/ports/GetCardDetailsApplicationPort.js";
 import { PrismaClient } from "@prisma/client";
@@ -88,6 +89,7 @@ export class Dependencies {
   private recommendedDeckService: RecommendedDeckApplicationPort | null = null;
   private cardApiService: CardApiService | null = null;
   private cardDetailsApiService: CardDetailsApiService | null = null;
+  private cardImageStorageService: CardImageStorageService | null = null;
   private getCardDetailsService: getCardDetailsApplicationPort | null = null;
   private imageStorageService: ImageStorageService | null = null;
   private adminService: AdminApplicationPort | null = null;
@@ -179,6 +181,13 @@ export class Dependencies {
     return this.cardApiService;
   }
 
+  getCardImageStorageService(): CardImageStorageService {
+    if (!this.cardImageStorageService) {
+      this.cardImageStorageService = new CardImageStorageService();
+    }
+    return this.cardImageStorageService;
+  }
+
   getImageStorageService(): ImageStorageService {
     if (!this.imageStorageService) {
       this.imageStorageService = new CloudinaryAdapter();
@@ -197,6 +206,7 @@ export class Dependencies {
     if (!this.getCardDetailsService) {
       this.getCardDetailsService = new GetCardDetailsApplicationService(
         this.getCardDetailsApiService(),
+        this.getCardRepository(),
       );
     }
     return this.getCardDetailsService;
@@ -238,6 +248,7 @@ export class Dependencies {
       this.cardService = new CardApplicationService(
         this.getCardRepository(),
         this.getCardApiService(),
+        this.getCardImageStorageService(),
       );
     }
     return this.cardService;

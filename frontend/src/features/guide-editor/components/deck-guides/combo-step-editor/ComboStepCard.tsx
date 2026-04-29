@@ -16,6 +16,11 @@ interface ComboStepCardProps {
   isContext?: boolean;
 }
 
+/**
+ * Displays a single combo step card with main card, subcards, description, and chain indicators
+ * Supports compact mode, canceled flow toggle, and expandable description/subcard lists
+ * Used in both edit and view modes
+ */
 export const ComboStepCard = ({
   step,
   stepNumber,

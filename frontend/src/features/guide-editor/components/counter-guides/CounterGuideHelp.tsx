@@ -3,13 +3,16 @@ import {
   guideHelp_CardPairs,
   guideHelp_Header,
   guideHelp_TitleAndDescr,
-} from "../assets";
+} from "../../assets";
 
 interface CounterGuideHelpProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+/**
+ * Help modal that explains how to create Counter guides
+ */
 export const CounterGuideHelp = ({
   isOpen,
   onClose,

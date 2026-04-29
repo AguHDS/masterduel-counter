@@ -10,7 +10,10 @@ interface HandFanDisplayProps {
 }
 
 /** Returns the rotation angle (degrees) for a card at a given index in a fan of totalCards. */
-export const getCardFanRotation = (index: number, totalCards: number): number => {
+export const getCardFanRotation = (
+  index: number,
+  totalCards: number,
+): number => {
   if (totalCards === 1) return 0;
   const maxRotation =
     totalCards === 5
@@ -25,9 +28,14 @@ export const getCardFanRotation = (index: number, totalCards: number): number =>
   const step = (maxRotation * 2) / (totalCards - 1);
   return -maxRotation + step * index;
 };
-
-/** Returns the vertical offset (px, positive = up) for a card at a given index in a fan. */
-export const getCardFanTranslateY = (index: number, totalCards: number): number => {
+/**
+ * Displays a hand of cards in a fan layout with rotation and elevation
+ * Used in initial hands and final board preview to show cards held in hand
+ */
+export const getCardFanTranslateY = (
+  index: number,
+  totalCards: number,
+): number => {
   if (totalCards === 1) return 14;
   const center = (totalCards - 1) / 2;
   const distanceFromCenter = Math.abs(index - center);
@@ -43,20 +51,13 @@ export const getCardFanTranslateY = (index: number, totalCards: number): number 
             ? 15
             : 0;
   const dropFactor =
-    totalCards === 5
-      ? 3.5
-      : totalCards === 4
-        ? 3.8
-        : totalCards === 3
-          ? 4
-          : 3;
+    totalCards === 5 ? 3.5 : totalCards === 4 ? 3.8 : totalCards === 3 ? 4 : 3;
 
   return maxElevation - distanceFromCenter * distanceFromCenter * dropFactor;
 };
 
 /**
- * Renders a fanned-out set of card images.
- * Used in InitialHandsEditor and can be reused in FinalBoardPreview hand zones.
+ * Renders a fanned-out set of card images
  */
 export const HandFanDisplay = ({
   cards,

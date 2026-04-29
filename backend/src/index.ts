@@ -21,6 +21,8 @@ const __dirname = dirname(__filename);
 // Frontend dist is located at project-root/frontend/dist
 // When compiled, this file is at project-root/backend/dist/index.js
 const FRONTEND_DIST = join(__dirname, "../../frontend/dist");
+// Uploads directory for card images (project-root/backend/uploads)
+const UPLOADS_DIR = join(__dirname, "../uploads");
 import {
   searchArchetype,
   logout,
@@ -67,16 +69,28 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        imgSrc: [
-          "'self'",
-          "data:",
-          "blob:",
-          "https://res.cloudinary.com",
-          "https://*.cloudinary.com",
-          "https://images.ygoprodeck.com",
-          "https://*.ygoprodeck.com",
-          "https://ygoprodeck.com",
-        ],
+        imgSrc: isDevelopment
+          ? [
+              "'self'",
+              "data:",
+              "blob:",
+              "http://localhost:3001",
+              "https://res.cloudinary.com",
+              "https://*.cloudinary.com",
+              "https://images.ygoprodeck.com",
+              "https://*.ygoprodeck.com",
+              "https://ygoprodeck.com",
+            ]
+          : [
+              "'self'",
+              "data:",
+              "blob:",
+              "https://res.cloudinary.com",
+              "https://*.cloudinary.com",
+              "https://images.ygoprodeck.com",
+              "https://*.ygoprodeck.com",
+              "https://ygoprodeck.com",
+            ],
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
@@ -146,6 +160,10 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 
+// Serve card images from local uploads directory
+// This allows frontend to request images via /api/uploads/cards/{cardId}.jpg
+app.use("/api/uploads", express.static(UPLOADS_DIR));
+
 // BetterAuth routes (handles /api/auth/*)
 app.use("/api/auth", auth);
 app.use("/api/logout", logout);
@@ -205,7 +223,11 @@ if (existsSync(FRONTEND_DIST)) {
   app.use(express.static(FRONTEND_DIST));
 
   // Catch-all: serve index.html for all non-API client-side routes
-  app.get("/{*path}", (_req, res) => {
+  // Only serve index.html for routes that don't start with /api/
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/api/")) {
+      return next();
+    }
     res.sendFile(join(FRONTEND_DIST, "index.html"));
   });
 }

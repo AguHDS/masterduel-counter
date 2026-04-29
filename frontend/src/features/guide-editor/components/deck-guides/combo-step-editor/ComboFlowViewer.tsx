@@ -8,6 +8,11 @@ interface ComboFlowViewerProps {
   isEditMode: boolean;
 }
 
+/**
+ * Read-only viewer for displaying combo steps in a responsive grid/flow layout
+ * Adjusts column count based on viewport width and shows canceled flow branches when toggled
+ * Used in view mode to display completed combos
+ */
 export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps) => {
   const [activeCanceledStepId, setActiveCanceledStepId] = useState<string | null>(null);
   const [viewportWidth, setViewportWidth] = useState<number>(

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import type { Card, ComboStep } from "@/features/archetypes/types";
-import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
-import { ComboStepItemEditor } from "./combo-step-editor/ComboStepItemEditor";
-import { useComboStepDragDrop } from "../hooks/useComboStepDragDrop";
+import { FloatingCardSearchModal } from "../../../../archetypes/components/FloatingCardSearchModal";
+import { ComboStepItemEditor } from "./ComboStepItemEditor";
+import { useComboStepDragDrop } from "../../../hooks/deck-guides/useComboStepDragDrop";
 import {
   createComboStep,
   getVisibleSteps,
@@ -12,7 +12,7 @@ import {
   type CardSelectionMode,
   type ChainPickerState,
   type ComboCardType,
-} from "../utils/comboStepEditorUtils";
+} from "../../../utils/comboStepEditorUtils";
 
 interface ComboStepEditorProps {
   comboSteps: ComboStep[];
@@ -22,6 +22,11 @@ interface ComboStepEditorProps {
   forceCloseModal?: boolean;
 }
 
+/**
+ * Editor for creating and managing combo steps for a Deck guide initial hand
+ * Supports drag-and-drop reordering, canceled flow branches, main/sub/left-sub cards, chain numbers
+ * Steps connect sequentially with optional branching for alternate paths when combos are interrupted
+ */
 export const ComboStepEditor = ({
   comboSteps,
   setComboSteps,

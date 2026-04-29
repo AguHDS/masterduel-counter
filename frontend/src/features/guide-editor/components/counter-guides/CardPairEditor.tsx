@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { CardPairItem } from "./CardPairItem";
-import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "../../../archetypes/components/FloatingCardSearchModal";
 import type { CardPair, Card } from "@/features/archetypes/types";
 
 interface CardPairEditorProps {
@@ -29,6 +29,11 @@ const calculatePairWidth = (viewportWidth: number) => {
   return Math.max(170, Math.min(DEFAULT_PAIR_WIDTH, targetWidth));
 };
 
+/**
+ * Editor component for managing Counter guide card pairs
+ * Allows users to add, edit, reorder, and remove card pairs
+ * Supports both HANDTRAP and BOARD_BREAKER sections
+ */
 export const CardPairEditor = ({
   isEditMode,
   pairs,

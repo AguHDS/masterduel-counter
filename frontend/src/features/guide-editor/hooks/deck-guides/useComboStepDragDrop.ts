@@ -1,13 +1,16 @@
 import { useState } from "react";
 import type { ComboStep } from "@/features/archetypes/types";
-import { swapStepsWithinFlow } from "../utils/comboStepEditorUtils";
+import { swapStepsWithinFlow } from "../../utils/comboStepEditorUtils";
 
 interface UseComboStepDragDropParams {
   comboSteps: ComboStep[];
   setComboSteps: React.Dispatch<React.SetStateAction<ComboStep[]>>;
 }
 
-// Manages drag-and-drop state and constrained reordering for combo steps
+/**
+ * Manages drag-and-drop state and logic for reordering combo steps
+ * Enforces constraints to prevent invalid reordering (e.g., canceled flow steps)
+ */
 export const useComboStepDragDrop = ({
   comboSteps,
   setComboSteps,

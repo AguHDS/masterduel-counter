@@ -8,7 +8,7 @@ interface HeaderCard {
   imageUrlCropped: string;
 }
 
-interface GuideInstanceData {
+interface CounterGuideInstanceData {
   cardPairs: Array<{
     id: number;
     pairSection?: "HANDTRAP" | "BOARD_BREAKER" | null;
@@ -35,6 +35,7 @@ interface GuideInstanceData {
     generalTip?: string | null;
     likes: number;
     favorites: number;
+    guideType?: string;
   };
   headerCard?: {
     id: number;
@@ -43,11 +44,12 @@ interface GuideInstanceData {
     imageUrlCropped: string;
   } | null;
   userName?: string;
+  initialHands?: unknown; // Optional for compatibility with full guide data
 }
 
-interface UseInstanceGuideDataProps {
+interface UseCounterGuideDataProps {
   isCreatingNew: boolean;
-  guideInstanceData?: GuideInstanceData;
+  guideInstanceData?: CounterGuideInstanceData;
   isError: boolean;
   isOwner: boolean;
   onDataLoaded: (data: {
@@ -62,20 +64,28 @@ interface UseInstanceGuideDataProps {
   onReset: () => void;
 }
 
-export const useInstanceGuideData = ({
+/**
+ * Loads and transforms Counter guide data from the server into editor format
+ * 
+ * Handles three scenarios:
+ * - Creating a new Counter guide: calls onNewInstance
+ * - Loading existing Counter guide: transforms cardPairs data and calls onDataLoaded
+ * - Error loading guide: calls onReset
+ */
+export const useCounterGuideData = ({
   isCreatingNew,
   guideInstanceData,
   isError,
   onDataLoaded,
   onNewInstance,
   onReset,
-}: UseInstanceGuideDataProps) => {
+}: UseCounterGuideDataProps) => {
   useEffect(() => {
     if (isCreatingNew) {
-      // Creating new instance
+      // Creating new Counter guide instance
       onNewInstance();
     } else if (guideInstanceData) {
-      // Load existing instance data
+      // Load existing Counter guide instance data
       const pairs: CardPair[] = guideInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
         section: pair.pairSection ?? null,
@@ -102,7 +112,7 @@ export const useInstanceGuideData = ({
         favorites: guideInstanceData.instance.favorites,
       });
     } else if (!isCreatingNew && isError) {
-      // Error loading existing instance
+      // Error loading existing Counter guide instance
       onReset();
     }
   }, [isCreatingNew, guideInstanceData, isError]);

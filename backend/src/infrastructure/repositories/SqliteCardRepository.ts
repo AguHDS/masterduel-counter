@@ -20,25 +20,46 @@ export class SqliteCardRepository implements CardRepository {
   async saveOrUpdateCard(card: Card): Promise<void> {
     const stmt = this.db.prepare(`
       INSERT INTO cards (
-        id, name, image_url, image_url_small, image_url_cropped, frame_type, level, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        id, name, type, desc, race, attribute, atk, def, level, scale, linkval, linkmarkers, archetype,
+        image_url, image_url_small, image_url_cropped, frame_type, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
+        type = excluded.type,
+        desc = excluded.desc,
+        race = excluded.race,
+        attribute = excluded.attribute,
+        atk = excluded.atk,
+        def = excluded.def,
+        level = excluded.level,
+        scale = excluded.scale,
+        linkval = excluded.linkval,
+        linkmarkers = excluded.linkmarkers,
+        archetype = excluded.archetype,
         image_url = excluded.image_url,
         image_url_small = excluded.image_url_small,
         image_url_cropped = excluded.image_url_cropped,
-        frame_type = excluded.frame_type,
-        level = excluded.level
+        frame_type = excluded.frame_type
     `);
 
     stmt.run(
       card.id,
       card.name,
+      card.type,
+      card.desc,
+      card.race,
+      card.attribute ?? null,
+      card.atk ?? null,
+      card.def ?? null,
+      card.level ?? null,
+      card.scale ?? null,
+      card.linkval ?? null,
+      card.linkmarkers ?? null,
+      card.archetype ?? null,
       card.imageUrl,
       card.imageUrlSmall,
       card.imageUrlCropped,
       card.frameType ?? null,
-      card.level ?? null,
       card.createdAt
     );
   }
@@ -60,21 +81,41 @@ export class SqliteCardRepository implements CardRepository {
     const r = row as {
       id: number;
       name: string;
+      type: string;
+      desc: string;
+      race: string;
+      attribute: string | null;
+      atk: number | null;
+      def: number | null;
+      level: number | null;
+      scale: number | null;
+      linkval: number | null;
+      linkmarkers: string | null;
+      archetype: string | null;
       image_url: string;
       image_url_small: string;
       image_url_cropped: string;
       frame_type: string | null;
-      level: number | null;
       created_at: string;
     };
     return {
       id: r.id,
       name: r.name,
+      type: r.type,
+      desc: r.desc,
+      race: r.race,
+      attribute: r.attribute ?? undefined,
+      atk: r.atk ?? undefined,
+      def: r.def ?? undefined,
+      level: r.level ?? undefined,
+      scale: r.scale ?? undefined,
+      linkval: r.linkval ?? undefined,
+      linkmarkers: r.linkmarkers ?? undefined,
+      archetype: r.archetype ?? undefined,
       imageUrl: r.image_url,
       imageUrlSmall: r.image_url_small,
       imageUrlCropped: r.image_url_cropped,
       frameType: r.frame_type ?? undefined,
-      level: r.level ?? undefined,
       createdAt: r.created_at,
     };
   }

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import ChainBadgeImg from "@/assets/chaincircle.webp";
-import { CHAIN_NUMBER_OPTIONS } from "../../utils/comboStepEditorUtils";
+import { CHAIN_NUMBER_OPTIONS } from "../../../utils/comboStepEditorUtils";
 
 interface ChainNumberPickerProps {
   value?: number | null;
@@ -11,7 +11,9 @@ interface ChainNumberPickerProps {
   onClose: () => void;
 }
 
-// Renders a chain-number trigger and popup selector for a card slot
+/**
+ * Chain number picker for marking cards' position in the yugioh chain sequence
+ */
 export const ChainNumberPicker = ({
   value,
   isOpen,

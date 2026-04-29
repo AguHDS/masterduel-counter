@@ -11,8 +11,8 @@ import type { GuideInstanceWithFullDetails } from "@/lib/http/guideInstancesApi"
 import type { GuideType } from "@/features/archetypes/types";
 
 /**
- * Get user instance guide for an archetype
- * Can fetch by instanceId (when editing existing) or return undefined (when creating new)
+ * Fetches a guide instance by ID for editing or viewing
+ * Returns undefined when creating new guides (no instanceId provided)
  */
 export const useGetGuideInstance = (
   _archetypeId: number | undefined,
@@ -27,7 +27,8 @@ export const useGetGuideInstance = (
 };
 
 /**
- * Save a guide for an archetype
+ * Mutation hook for saving guide changes to the server
+ * Handles both Counter and Deck guides
  */
 export const useSaveGuide = () => {
   const queryClient = useQueryClient();

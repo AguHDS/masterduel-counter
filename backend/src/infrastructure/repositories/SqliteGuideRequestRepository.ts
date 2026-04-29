@@ -90,7 +90,7 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
  public async takeRequest(
     requestId: number,
     userId: string,
-    _userName: string,
+    _userName: string, // eslint-disable-line @typescript-eslint/no-unused-vars
   ): Promise<{ success: boolean; request: GuideRequestWithDetails | null }> {
     // Atomic update: only succeeds if status is still OPEN
     const result = await this.prisma.guideRequest.updateMany({
@@ -112,7 +112,7 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
 
   public async cancelTakeRequest(
     requestId: number,
-    _userId: string,
+    _userId: string, // eslint-disable-line @typescript-eslint/no-unused-vars
   ): Promise<GuideRequest> {
     const row = await this.prisma.guideRequest.update({
       where: { id: requestId },

@@ -13,7 +13,9 @@ export default defineConfig(({ mode }) => {
         transformIndexHtml(html) {
           const cspDirectives = [
             "default-src 'self'",
-            "img-src 'self' data: https: blob:",
+            isDevelopment
+              ? "img-src 'self' data: http://localhost:3001 https: blob:"
+              : "img-src 'self' data: https: blob:",
             "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com blob:",
             "style-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
             isDevelopment

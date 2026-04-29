@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Plus, RotateCw } from "lucide-react";
-import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "../../../archetypes/components/FloatingCardSearchModal";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
 
@@ -39,6 +39,11 @@ type ZoneType =
   | "banished"
   | "hand";
 
+/**
+ * Editor component for managing the final board state
+ * Allows placing cards in field zones (Field Spell, Extra Deck Monsters, Main Monsters, Spell/Trap, Hand, GY, Banish)
+ * Supports monster position toggles (ATK/DEF) and optional description
+ */
 export const FinalBoardPreview = ({
   isEditMode,
   fieldBoard,

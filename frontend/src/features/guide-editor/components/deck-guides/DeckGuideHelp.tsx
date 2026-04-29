@@ -5,13 +5,16 @@ import {
   guideHelp_Recommended,
   guideHelp_TitleAndDescr,
   deckguide_initialhands,
-} from "../assets";
+} from "../../assets";
 
 interface DeckGuideHelpProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+/**
+ * Help modal that explains how to create Deck guides
+ */
 export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
   return (
     <InfoModal

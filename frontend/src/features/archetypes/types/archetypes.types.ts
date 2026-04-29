@@ -17,6 +17,8 @@ export interface SearchResponse {
   message?: string;
 }
 
+// Card type for selected/saved cards (local URLs from backend)
+// These URLs point to our backend (/api/uploads/cards/{id}.jpg)
 export interface Card {
   id: number;
   name: string;

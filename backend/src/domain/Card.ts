@@ -1,22 +1,34 @@
 /**
- * Card entity stored in database with YGOProdeck direct URLs
- * Images are served directly from YGOProdeck CDN (https://images.ygoprodeck.com)
+ * Card entity stored in database with local image URLs
+ * Images are downloaded from YGOProdeck API and stored locally in backend/uploads/cards/
+ * Images are served via /api/uploads/cards/{cardId}.jpg
  * Each card is uniquely identified by its id (PRIMARY KEY prevents duplicates)
  */
 export interface Card {
   id: number;
   name: string;
-  imageUrl: string; // Direct URL from YGOProdeck API
-  imageUrlSmall: string; // Direct URL from YGOProdeck API
-  imageUrlCropped: string; // Direct URL from YGOProdeck API
-  frameType?: string;
+  type?: string;
+  desc?: string;
+  race?: string;
+  attribute?: string;
+  atk?: number;
+  def?: number;
   level?: number;
+  scale?: number;
+  linkval?: number;
+  linkmarkers?: string;
+  archetype?: string;
+  imageUrl: string;
+  imageUrlSmall: string;
+  imageUrlCropped: string;
+  frameType?: string;
   createdAt: string;
 }
 
 /**
  * Card search result from YGOPRODeck API
- * Contains direct URLs from YGOProdeck (for search preview purposes)
+ * Contains direct URLs from YGOProdeck (for temporary search preview purposes only)
+ * These URLs are NOT saved to database - only used for search UI
  */
 export interface CardSearchResult {
   id: number;
@@ -24,8 +36,18 @@ export interface CardSearchResult {
   imageUrlExternal?: string;
   imageUrlSmallExternal?: string;
   imageUrlCroppedExternal?: string;
-  frameType?: string;
+  type?: string;
+  desc?: string;
+  race?: string;
+  attribute?: string;
+  atk?: number;
+  def?: number;
   level?: number;
+  scale?: number;
+  linkval?: number;
+  linkmarkers?: string[];
+  archetype?: string;
+  frameType?: string;
 }
 
 export interface CardPreviewDTO {
@@ -34,6 +56,16 @@ export interface CardPreviewDTO {
   imageUrl: string;
   imageUrlSmall: string;
   imageUrlCropped: string;
-  frameType?: string;
+  type?: string;
+  desc?: string;
+  race?: string;
+  attribute?: string;
+  atk?: number;
+  def?: number;
   level?: number;
+  scale?: number;
+  linkval?: number;
+  linkmarkers?: string;
+  archetype?: string;
+  frameType?: string;
 }

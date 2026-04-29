@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, X, Trash2, Edit2, Copy } from "lucide-react";
-import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
+import { FloatingCardSearchModal } from "../../../archetypes/components/FloatingCardSearchModal";
 import type { Card, ComboStep } from "@/features/archetypes/types";
 import { FinalBoardPreview, type FieldBoard } from "./FinalBoardPreview";
 import { HandFanDisplay } from "./HandFanDisplay";
@@ -28,7 +28,6 @@ interface InitialHandsEditorProps {
 }
 
 // Module-level helper so Date.now() is not called directly inside the component body
-// (avoids react-hooks/purity violations from eslint-plugin-react-hooks v7+)
 const makeDuplicatedHand = (original: InitialHand): InitialHand => {
   const ts = Date.now();
   return {
@@ -40,6 +39,11 @@ const makeDuplicatedHand = (original: InitialHand): InitialHand => {
   };
 };
 
+/**
+ * Editor component for managing initial hands in Deck guides
+ * Each hand contains up to 5 cards and can have an optional final board preview and combo steps
+ * Supports adding, editing, duplicating, and deleting initial hands
+ */
 export const InitialHandsEditor = ({
   isEditMode,
   initialHands,
