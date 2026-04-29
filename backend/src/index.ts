@@ -57,6 +57,7 @@ import getGuideCardPairs from "./routes/guides/getGuideCardPairs.js";
 import profile from "./routes/profile/profile.js";
 import customDecks from "./routes/customDecks.js";
 import guideRequests from "./routes/guide-request/guideRequests.js";
+import sitemap from "./routes/sitemap.js";
 
 // Middleware for redirect 301 legacy URLs to new ones
 const { redirectLegacyArchetypeListUrl, redirectLegacyGuideUrl, redirectLegacyProfileUrl } = createLegacyUrlRedirectMiddleware(getDependencies());
@@ -206,6 +207,8 @@ app.use("/api/admin", admin);
 app.use("/api/reports", report);
 // Guide Requests
 app.use("/api/guide-requests", guideRequests);
+// Sitemap for SEO
+app.use(sitemap);
 
 // Serve the React frontend (only if the build exists — production)
 if (existsSync(FRONTEND_DIST)) {
