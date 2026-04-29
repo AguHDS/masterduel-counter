@@ -24,11 +24,15 @@ const formatDateForSitemap = (date: Date): string => {
 // Generate sitemap.xml
 router.get("/sitemap.xml", async (req, res) => {
   try {
-    // Get instance service (must be called inside route handler for proper initialization)
+    // Get services (must be called inside route handler for proper initialization)
     const instanceService = getDependencies().getInstanceService();
+    const archetypeRepository = getDependencies().getArchetypeRepository();
     
     // Get all published guides
     const guides = await instanceService.getAllGuides();
+    
+    // Get all archetypes (empty search matches all)
+    const archetypes = await archetypeRepository.searchArchetypeByName("", 10000);
 
     // Base URL
     const baseUrl = "https://masterduelcounter.com";
@@ -73,6 +77,24 @@ router.get("/sitemap.xml", async (req, res) => {
       };
     });
 
+    // Generate archetype list page URLs (counter + deck for each archetype)
+    const archetypeEntries = archetypes.flatMap((archetype: { name: string }) => {
+      const archetypeSlug = slugifySegment(archetype.name);
+      
+      return [
+        {
+          loc: `${baseUrl}/archetype/${archetypeSlug}?type=counter`,
+          changefreq: "daily",
+          priority: "0.8",
+        },
+        {
+          loc: `${baseUrl}/archetype/${archetypeSlug}?type=deck`,
+          changefreq: "daily",
+          priority: "0.8",
+        },
+      ];
+    });
+
     // Build XML
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -82,6 +104,15 @@ ${staticPages
     <loc>${page.loc}</loc>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
+  </url>`,
+  )
+  .join("\n")}
+${archetypeEntries
+  .map(
+    (entry: { loc: string; changefreq: string; priority: string }) => `  <url>
+    <loc>${entry.loc}</loc>
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>
   </url>`,
   )
   .join("\n")}
