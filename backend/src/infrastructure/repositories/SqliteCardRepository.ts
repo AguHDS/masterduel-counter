@@ -17,6 +17,21 @@ export class SqliteCardRepository implements CardRepository {
     return this.mapRowToCard(row);
   }
 
+  async findCardsByIds(ids: number[]): Promise<Card[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    // Build parameterized query with correct number of placeholders
+    const placeholders = ids.map(() => '?').join(', ');
+    const query = `SELECT * FROM cards WHERE id IN (${placeholders})`;
+    
+    const stmt = this.db.prepare(query);
+    const rows = stmt.all(...ids) as unknown[];
+    
+    return rows.map(this.mapRowToCard);
+  }
+
   async saveOrUpdateCard(card: Card): Promise<void> {
     const stmt = this.db.prepare(`
       INSERT INTO cards (

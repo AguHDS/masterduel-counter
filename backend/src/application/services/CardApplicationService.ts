@@ -12,17 +12,69 @@ export class CardApplicationService implements CardApplicationPort {
   ) {}
 
   async searchCards(query: string): Promise<CardSearchResult[]> {
+    // 1. Search external API for card names
     const cards = await this.cardApiService.searchCardByNameFromExternalApi(query);
 
-    return cards.map((card) => ({
-      id: card.id,
-      name: card.name,
-      imageUrlExternal: card.card_images?.[0]?.image_url,
-      imageUrlSmallExternal: card.card_images?.[0]?.image_url_small,
-      imageUrlCroppedExternal: card.card_images?.[0]?.image_url_cropped,
-      frameType: card.frameType,
-      level: card.level,
-    }));
+    // 2. Check which cards exist locally in database (batch lookup for performance)
+    const cardIds = cards.map(card => card.id);
+    const localCards = await this.cardRepository.findCardsByIds(cardIds);
+    
+    // 3. Build map for O(1) lookup (cards in DB)
+    const localCardsMap = new Map(localCards.map(card => [card.id, card]));
+
+    // 4. For cards NOT in DB, check if images exist in filesystem
+    //    (script downloads to disk but doesn't save to DB)
+    //    Use imageExistsForSearch() which only checks _small.jpg (faster + handles partial downloads)
+    const cardsNotInDb = cards.filter(card => !localCardsMap.has(card.id));
+    const filesystemChecks = await Promise.all(
+      cardsNotInDb.map(async (card) => {
+        const exists = await this.cardImageStorage.imageExistsForSearch(card.id);
+        return { id: card.id, exists };
+      })
+    );
+    const filesystemMap = new Map(filesystemChecks.map(check => [check.id, check.exists]));
+
+    // 5. Map results: prioritize local URLs when available (DB or filesystem), fallback to external
+    return cards.map((card) => {
+      // Priority 1: Card in database (has all metadata + images)
+      const localCard = localCardsMap.get(card.id);
+      if (localCard) {
+        return {
+          id: localCard.id,
+          name: localCard.name,
+          imageUrlExternal: localCard.imageUrl,
+          imageUrlSmallExternal: localCard.imageUrlSmall,
+          imageUrlCroppedExternal: localCard.imageUrlCropped,
+          frameType: localCard.frameType,
+          level: localCard.level,
+        };
+      }
+      
+      // Priority 2: Images exist in filesystem (downloaded by script)
+      const inFilesystem = filesystemMap.get(card.id);
+      if (inFilesystem) {
+        return {
+          id: card.id,
+          name: card.name,
+          imageUrlExternal: this.cardImageStorage.getApiImageUrl(card.id, "normal"),
+          imageUrlSmallExternal: this.cardImageStorage.getApiImageUrl(card.id, "small"),
+          imageUrlCroppedExternal: this.cardImageStorage.getApiImageUrl(card.id, "cropped"),
+          frameType: card.frameType,
+          level: card.level,
+        };
+      }
+      
+      // Priority 3: Fallback to external YGOProDeck URLs
+      return {
+        id: card.id,
+        name: card.name,
+        imageUrlExternal: card.card_images?.[0]?.image_url,
+        imageUrlSmallExternal: card.card_images?.[0]?.image_url_small,
+        imageUrlCroppedExternal: card.card_images?.[0]?.image_url_cropped,
+        frameType: card.frameType,
+        level: card.level,
+      };
+    });
   }
 
   async selectCard(cardId: number): Promise<CardPreviewDTO> {

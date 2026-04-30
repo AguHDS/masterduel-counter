@@ -14,7 +14,8 @@
     "create-admin": "tsx src/scripts/create-admin.ts",
     "migrate-images": "tsx src/scripts/migrate-card-images.ts",
     "update-urls": "tsx src/scripts/update-card-urls.ts",
-    "update-card-details": "tsx src/scripts/update-card-details.ts"
+    "update-card-details": "tsx src/scripts/update-card-details.ts",
+    "download-all-cards": "tsx src/scripts/download-all-cards.ts"
   },
   "keywords": [],
   "author": "",

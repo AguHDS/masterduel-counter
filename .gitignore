@@ -31,6 +31,9 @@ GOOGLE_OAUTH_SETUP.md
 # Uploaded card images
 /backend/uploads/
 SITEMAP_IMPLEMENTATION.md
+TESTING_CARD_SEARCH_OPTIMIZATION.md
+IMAGE_STORAGE_ARCHITECTURE.md
+DOWNLOAD_ALL_CARDS_GUIDE.md
 
 # Editor directories and files
 .vscode/*

@@ -77,6 +77,21 @@ export class CardImageStorageService {
   }
 
   /**
+   * Check if the small image exists for a card (optimized for search results)
+   * This is more permissive than imageExists() and handles partial downloads.
+   * Only checks _small.jpg since that's what search grids display.
+   */
+  async imageExistsForSearch(cardId: number): Promise<boolean> {
+    try {
+      const smallPath = this.getLocalFilePath(cardId, "small");
+      await access(smallPath, constants.F_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Download image from external URL and return as Buffer
    */
   async downloadImage(url: string): Promise<Buffer> {
@@ -118,6 +133,9 @@ export class CardImageStorageService {
   /**
    * Download and save all three versions of a card image
    * Returns API URLs for frontend consumption
+   * 
+   * RESILIENT MODE: If some images fail (404), continues with available ones.
+   * Only throws error if ALL three images fail.
    */
   async downloadAndSaveCardImages(
     cardId: number,
@@ -137,22 +155,49 @@ export class CardImageStorageService {
       };
     }
 
+    // Download each image individually with error tolerance
+    const downloadResults = await Promise.allSettled([
+      this.downloadImage(externalUrls.normal).then(buffer => ({ type: 'normal' as const, buffer })),
+      this.downloadImage(externalUrls.small).then(buffer => ({ type: 'small' as const, buffer })),
+      this.downloadImage(externalUrls.cropped).then(buffer => ({ type: 'cropped' as const, buffer })),
+    ]);
+
+    // Separate successful and failed downloads
+    const successfulDownloads: Array<{ type: ImageType; buffer: Buffer }> = [];
+    const failedDownloads: Array<{ type: ImageType; error: string }> = [];
+
+    downloadResults.forEach((result, index) => {
+      const types: ImageType[] = ['normal', 'small', 'cropped'];
+      const type = types[index];
+
+      if (result.status === 'fulfilled') {
+        successfulDownloads.push(result.value);
+      } else {
+        failedDownloads.push({ type, error: result.reason?.message || 'Unknown error' });
+      }
+    });
+
+    // If ALL downloads failed, throw error
+    if (successfulDownloads.length === 0) {
+      const errorMsg = failedDownloads.map(f => `${f.type}: ${f.error}`).join(', ');
+      throw new Error(`Failed to download ANY images for card ${cardId}: ${errorMsg}`);
+    }
+
+    // Save successful downloads
     try {
-      // Download all three versions in parallel
-      const [normalBuffer, smallBuffer, croppedBuffer] = await Promise.all([
-        this.downloadImage(externalUrls.normal),
-        this.downloadImage(externalUrls.small),
-        this.downloadImage(externalUrls.cropped),
-      ]);
+      await Promise.all(
+        successfulDownloads.map(({ type, buffer }) => this.saveImage(cardId, type, buffer))
+      );
 
-      // Save all three versions
-      await Promise.all([
-        this.saveImage(cardId, "normal", normalBuffer),
-        this.saveImage(cardId, "small", smallBuffer),
-        this.saveImage(cardId, "cropped", croppedBuffer),
-      ]);
-
-      console.log(`Successfully saved all images for card ${cardId}`);
+      // Log partial failures (warnings, not errors)
+      if (failedDownloads.length > 0) {
+        console.warn(
+          `Card ${cardId}: Saved ${successfulDownloads.length}/3 images. ` +
+          `Failed: ${failedDownloads.map(f => f.type).join(', ')} (likely 404 - card may be token/special)`
+        );
+      } else {
+        console.log(`Successfully saved all 3 images for card ${cardId}`);
+      }
 
       return {
         imageUrl: this.getApiImageUrl(cardId, "normal"),
@@ -160,7 +205,7 @@ export class CardImageStorageService {
         imageUrlCropped: this.getApiImageUrl(cardId, "cropped"),
       };
     } catch (error) {
-      console.error(`Error downloading images for card ${cardId}:`, error);
+      console.error(`Error saving images for card ${cardId}:`, error);
       throw error;
     }
   }
