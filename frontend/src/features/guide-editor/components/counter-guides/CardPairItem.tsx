@@ -1,7 +1,9 @@
 import { X, Plus, ChevronLeft, ChevronRight, Minus } from "lucide-react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
+import { useCardPairDragDrop } from "@/features/guide-editor/hooks/counter-guides/useCardPairDragDrop";
 import { useState, useRef, useEffect } from "react";
+import { CardPairCommentSection } from "./CardPairCommentSection";
 
 interface BottomCard extends Card {
   effectiveness?: string;
@@ -55,6 +57,17 @@ const MAX_BOTTOM_CARDS = 8;
 const SHOW_MORE_BUTTON_HEIGHT = 40;
 const READ_MORE_BUTTON_HEIGHT = 32;
 const EFFICIENCY_SELECTOR_HEIGHT = 24;
+const CARD_GRID_GAP = 6;
+const CARD_SECTION_HORIZONTAL_PADDING = 32;
+
+const calculateCardsPerRow = (containerWidth: number, cardWidth: number) =>
+  Math.max(
+    1,
+    Math.floor(
+      (containerWidth - CARD_SECTION_HORIZONTAL_PADDING + CARD_GRID_GAP) /
+        (cardWidth + CARD_GRID_GAP),
+    ),
+  );
 
 export const CardPairItem = ({
   pairNumber,
@@ -85,12 +98,26 @@ export const CardPairItem = ({
   const [isCommentExpanded, setIsCommentExpanded] = useState(false);
   const [isSingleSlotExpanded, setIsSingleSlotExpanded] = useState(false);
 
-  // Drag-and-drop state for reordering cards
-  const [draggedTopCardIndex, setDraggedTopCardIndex] = useState<number | null>(null);
-  const [dragOverTopCardIndex, setDragOverTopCardIndex] = useState<number | null>(null);
-  const [draggedBottomCardIndex, setDraggedBottomCardIndex] = useState<number | null>(null);
-  const [dragOverBottomCardIndex, setDragOverBottomCardIndex] = useState<number | null>(null);
-  const [currentDragPairId, setCurrentDragPairId] = useState<string | null>(null);
+  const {
+    draggedTopCardIndex,
+    dragOverTopCardIndex,
+    draggedBottomCardIndex,
+    dragOverBottomCardIndex,
+    handleTopCardDragStart,
+    handleTopCardDragOver,
+    handleTopCardDrop,
+    handleTopCardDragEnd,
+    handleBottomCardDragStart,
+    handleBottomCardDragOver,
+    handleBottomCardDrop,
+    handleBottomCardDragEnd,
+  } = useCardPairDragDrop({
+    pairId,
+    onReorderTopCards,
+    onReorderBottomCards,
+    onMoveCardToTop,
+    onMoveCardToBottom,
+  });
 
   // For responsive design
   const normalizedPairWidth = Math.max(
@@ -128,9 +155,9 @@ export const CardPairItem = ({
   const singleSlotVisibleCardsCount = hasTopCards
     ? Math.min(topCards.length, MAX_VISIBLE_SINGLE_SLOT_CARDS)
     : Math.min(bottomCards.length, MAX_VISIBLE_SINGLE_SLOT_CARDS);
-  const singleSlotCardsPerRow = Math.max(
-    1,
-    Math.floor((normalizedPairWidth - 32 + 6) / (singleSlotCardWidth + 6)),
+  const singleSlotCardsPerRow = calculateCardsPerRow(
+    normalizedPairWidth,
+    singleSlotCardWidth,
   );
   const singleSlotRowsCollapsed = Math.max(
     1,
@@ -182,160 +209,9 @@ export const CardPairItem = ({
     }
   }, [isCommentExpanded]);
 
-  // Drag-and-drop handlers for top cards
-  const handleTopCardDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedTopCardIndex(index);
-    setCurrentDragPairId(pairId);
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("cardSection", "top");
-    e.dataTransfer.setData("cardIndex", index.toString());
-    e.dataTransfer.setData("pairId", pairId);
-  };
-
-  const handleTopCardDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    
-    // Check if dragging from a different pair using state
-    if (currentDragPairId && currentDragPairId !== pairId) {
-      e.dataTransfer.dropEffect = "none";
-      setDragOverTopCardIndex(null);
-      return;
-    }
-    
-    e.dataTransfer.dropEffect = "move";
-    setDragOverTopCardIndex(index);
-  };
-
-  const handleTopCardDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const dragSection = e.dataTransfer.getData("cardSection");
-    const dragIndex = parseInt(e.dataTransfer.getData("cardIndex"));
-    const dragPairId = e.dataTransfer.getData("pairId");
-    
-    // Prevent dropping from different pair
-    if (dragPairId !== pairId) {
-      setDraggedTopCardIndex(null);
-      setDraggedBottomCardIndex(null);
-      setDragOverTopCardIndex(null);
-      setCurrentDragPairId(null);
-      return;
-    }
-    
-    if (isNaN(dragIndex)) {
-      setDraggedTopCardIndex(null);
-      setDraggedBottomCardIndex(null);
-      setDragOverTopCardIndex(null);
-      setCurrentDragPairId(null);
-      return;
-    }
-
-    if (dragSection === "top") {
-      if (dragIndex !== dropIndex) {
-        onReorderTopCards?.(dragIndex, dropIndex);
-      }
-    } else if (dragSection === "bottom") {
-      // Move from bottom to top
-      onMoveCardToTop?.(dragIndex, dropIndex);
-    }
-    
-    setDraggedTopCardIndex(null);
-    setDraggedBottomCardIndex(null);
-    setDragOverTopCardIndex(null);
-    setCurrentDragPairId(null);
-  };
-
-  const handleTopCardDragEnd = () => {
-    setDraggedTopCardIndex(null);
-    setDragOverTopCardIndex(null);
-    setCurrentDragPairId(null);
-  };
-
-  // Drag-and-drop handlers for bottom cards
-  const handleBottomCardDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedBottomCardIndex(index);
-    setCurrentDragPairId(pairId);
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("cardSection", "bottom");
-    e.dataTransfer.setData("cardIndex", index.toString());
-    e.dataTransfer.setData("pairId", pairId);
-  };
-
-  const handleBottomCardDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    
-    // Check if dragging from a different pair using state
-    if (currentDragPairId && currentDragPairId !== pairId) {
-      e.dataTransfer.dropEffect = "none";
-      setDragOverBottomCardIndex(null);
-      return;
-    }
-    
-    e.dataTransfer.dropEffect = "move";
-    setDragOverBottomCardIndex(index);
-  };
-
-  const handleBottomCardDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const dragSection = e.dataTransfer.getData("cardSection");
-    const dragIndex = parseInt(e.dataTransfer.getData("cardIndex"));
-    const dragPairId = e.dataTransfer.getData("pairId");
-    
-    // Prevent dropping from different pair
-    if (dragPairId !== pairId) {
-      setDraggedTopCardIndex(null);
-      setDraggedBottomCardIndex(null);
-      setDragOverBottomCardIndex(null);
-      setCurrentDragPairId(null);
-      return;
-    }
-    
-    if (isNaN(dragIndex)) {
-      setDraggedTopCardIndex(null);
-      setDraggedBottomCardIndex(null);
-      setDragOverBottomCardIndex(null);
-      setCurrentDragPairId(null);
-      return;
-    }
-
-    if (dragSection === "bottom") {
-      if (dragIndex !== dropIndex) {
-        onReorderBottomCards?.(dragIndex, dropIndex);
-      }
-    } else if (dragSection === "top") {
-      // Move from top to bottom
-      onMoveCardToBottom?.(dragIndex, dropIndex);
-    }
-    
-    setDraggedTopCardIndex(null);
-    setDraggedBottomCardIndex(null);
-    setDragOverBottomCardIndex(null);
-    setCurrentDragPairId(null);
-  };
-
-  const handleBottomCardDragEnd = () => {
-    setDraggedBottomCardIndex(null);
-    setDragOverBottomCardIndex(null);
-    setCurrentDragPairId(null);
-  };
-
   if (!isEditMode && !hasTopCards && !hasBottomCards) {
     return null;
   }
-
-  const renderCommentWithLineBreaks = (text: string) => {
-    if (!text) return "No comment";
-
-    return text.split("\n").map((line, index) => (
-      <span key={index}>
-        {line}
-        {index < text.split("\n").length - 1 && <br />}
-      </span>
-    ));
-  };
 
   const renderTopCardSection = () => {
     const maxVisible = MAX_VISIBLE_TOP_CARDS;
@@ -344,14 +220,14 @@ export const CardPairItem = ({
     const hasMoreCards = !isEditMode && topCards.length > maxVisible;
 
     const calculateHeight = () => {
-      const cardsPerRow = 4;
+      const cardsPerRow = calculateCardsPerRow(normalizedPairWidth, topCardWidth);
       let totalElements = visibleCards.length;
       if (isEditMode && topCards.length < MAX_TOP_CARDS) {
         totalElements += 1;
       }
 
       const rows = Math.ceil(totalElements / cardsPerRow);
-      const gapHeight = (rows - 1) * 6;
+      const gapHeight = (rows - 1) * CARD_GRID_GAP;
       const cardsHeight = rows * topCardHeight + gapHeight;
       const dragHandleSpace = isEditMode ? 12 : 0; // Extra space for drag handles
       // Always reserve space for Show More button to keep consistent heights across all pairs
@@ -373,7 +249,7 @@ export const CardPairItem = ({
         >
           <div
             className="flex flex-wrap gap-1.5 justify-center pt-3"
-            style={{ maxWidth: `${normalizedPairWidth - 32}px` }}
+            style={{ maxWidth: `${normalizedPairWidth - CARD_SECTION_HORIZONTAL_PADDING}px` }}
           >
             {visibleCards.map((card, index) => {
               const isDragging = draggedTopCardIndex === index;
@@ -406,7 +282,7 @@ export const CardPairItem = ({
                       </div>
                       <button
                         onClick={() => onRemoveTopCard(index)}
-                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
+                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 z-10 opacity-0 group-hover:opacity-100"
                         title="Remove card"
                       >
                         <X className="w-2.5 h-2.5" />
@@ -483,14 +359,17 @@ export const CardPairItem = ({
     const hasMoreCards = !isEditMode && bottomCards.length > maxVisible;
 
     const calculateHeight = () => {
-      const cardsPerRow = 3;
+      const cardsPerRow = calculateCardsPerRow(
+        normalizedPairWidth,
+        bottomCardWidth,
+      );
       let totalElements = visibleCards.length;
       if (isEditMode && bottomCards.length < MAX_BOTTOM_CARDS) {
         totalElements += 1;
       }
 
       const rows = Math.ceil(totalElements / cardsPerRow);
-      const gapHeight = (rows - 1) * 6;
+      const gapHeight = (rows - 1) * CARD_GRID_GAP;
       const cardsHeight = rows * bottomCardHeight + gapHeight;
 
       // Reserve a fixed row for efficiency/selector in every pair to keep card pair height stable.
@@ -522,7 +401,7 @@ export const CardPairItem = ({
         >
           <div
             className="flex flex-wrap gap-1.5 justify-center pt-3"
-            style={{ maxWidth: `${normalizedPairWidth - 32}px` }}
+            style={{ maxWidth: `${normalizedPairWidth - CARD_SECTION_HORIZONTAL_PADDING}px` }}
           >
             {visibleCards.map((card, index) => {
               const selectedOption = EFFECTIVENESS_OPTIONS.find(
@@ -559,7 +438,7 @@ export const CardPairItem = ({
                         </div>
                         <button
                           onClick={() => onRemoveBottomCard(index)}
-                          className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
+                          className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 z-10 opacity-0 group-hover:opacity-100"
                           title="Remove card"
                         >
                           <X className="w-2.5 h-2.5" />
@@ -635,7 +514,7 @@ export const CardPairItem = ({
             {hasMoreCards && (
               <button
                 onClick={() => setIsBottomExpanded(!isBottomExpanded)}
-                className="mt-6 mb-1 flex items-center gap-1 text-xs text-green-500 hover:text-blue-300 transition-colors px-2 py-1"
+                className="mt-6 mb-1 flex items-center gap-1 text-xs text-green-500 hover:text-blue-300 px-2 py-1"
               >
                 {isBottomExpanded ? (
                   <>
@@ -665,7 +544,7 @@ export const CardPairItem = ({
         {isEditMode && onMoveLeft && canMoveLeft && (
           <button
             onClick={onMoveLeft}
-            className="bg-blue-700 hover:bg-blue-600 text-white rounded p-0.5 transition-colors flex-shrink-0"
+            className="bg-blue-700 hover:bg-blue-600 text-white rounded p-0.5 flex-shrink-0"
             title="Move left"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
@@ -675,7 +554,7 @@ export const CardPairItem = ({
         {isEditMode && onMoveRight && canMoveRight && (
           <button
             onClick={onMoveRight}
-            className="bg-blue-700 hover:bg-blue-600 text-white rounded p-0.5 transition-colors flex-shrink-0"
+            className="bg-blue-700 hover:bg-blue-600 text-white rounded p-0.5 flex-shrink-0"
             title="Move right"
           >
             <ChevronRight className="w-3.5 h-3.5" />
@@ -692,7 +571,7 @@ export const CardPairItem = ({
         {isEditMode && (
           <button
             onClick={onRemove}
-            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-20 shadow-md"
+            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 z-20"
             title="Remove pair"
           >
             <X className="w-3 h-3" />
@@ -700,15 +579,18 @@ export const CardPairItem = ({
         )}
         <div className="relative z-10 flex flex-col items-center space-y-2">
           {isSingleSlotPair ? (
-            <div className="flex flex-col items-center" style={{
-              minHeight: "300px",
-            }}>
-              <div className="text-xs text-slate-400 mb-1 text-center font-medium">
-                Cards
+            <div
+              className="flex flex-col items-center transition-[min-height] duration-300 ease-in-out"
+              style={{
+                minHeight: "300px",
+              }}
+            >
+              <div className="text-xs text-slate-400 mb-4 text-center font-medium">
+                Tech Cards
               </div>
               <div className="flex-1 flex items-center">
                 <div
-                  className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
+                  className="overflow-hidden transition-all duration-300 ease-in-out"
                   style={{
                     maxHeight:
                       !isEditMode && !isSingleSlotExpanded
@@ -718,7 +600,7 @@ export const CardPairItem = ({
                 >
                   <div
                     className="flex flex-wrap gap-1.5 justify-center content-center"
-                    style={{ maxWidth: `${normalizedPairWidth - 32}px` }}
+                    style={{ maxWidth: `${normalizedPairWidth - CARD_SECTION_HORIZONTAL_PADDING}px` }}
                   >
                 {hasTopCards &&
                   (isEditMode || isSingleSlotExpanded ? topCards : topCards.slice(0, MAX_VISIBLE_SINGLE_SLOT_CARDS)).map((card, index) => (
@@ -727,7 +609,7 @@ export const CardPairItem = ({
                         {isEditMode && (
                           <button
                             onClick={() => onRemoveTopCard(index)}
-                            className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
+                            className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 z-10 opacity-0 group-hover:opacity-100"
                             title="Remove card"
                           >
                             <X className="w-2.5 h-2.5" />
@@ -768,7 +650,7 @@ export const CardPairItem = ({
                           {isEditMode && (
                             <button
                               onClick={() => onRemoveBottomCard(index)}
-                              className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
+                              className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 z-10 opacity-0 group-hover:opacity-100"
                               title="Remove card"
                             >
                               <X className="w-2.5 h-2.5" />
@@ -860,7 +742,7 @@ export const CardPairItem = ({
                 <div className="w-full flex justify-center mt-2">
                   <button
                     onClick={() => setIsSingleSlotExpanded(!isSingleSlotExpanded)}
-                    className="text-xs text-green-500 hover:text-blue-300 transition-colors px-2 py-1"
+                    className="text-xs text-green-500 hover:text-blue-300 px-2 py-1"
                   >
                     {isSingleSlotExpanded ? `- Show Less` : `+ Show ${Math.max(
                       (hasTopCards ? topCards.length : 0) - MAX_VISIBLE_SINGLE_SLOT_CARDS,
@@ -896,62 +778,15 @@ export const CardPairItem = ({
             </>
           )}
         </div>
-        <div
-          ref={commentRef}
-          className="flex items-center justify-center mt-2 scrollbar-homeAllPages"
-        >
-          {isEditMode ? (
-            <div className="w-full">
-              <label className="text-blue-400 font-semibold text-xs mb-0.5 block">
-                Comment
-              </label>
-              <textarea
-                value={comment || ""}
-                onChange={(e) => onCommentChange(e.target.value)}
-                maxLength={500}
-                placeholder="Add a comment (Max. 500 characters)..."
-                className="w-full px-2 py-1.5 bg-slate-700/50 text-white text-xs rounded border border-slate-600 focus:outline-none focus:border-blue-500 resize-y min-h-[60px]"
-                rows={3}
-              />
-              <div className="text-xs text-slate-400 mt-0.5 text-right">
-                {(comment || "").length}/500
-              </div>
-            </div>
-          ) : (
-            <div className="w-full pb-1 flex flex-col items-center">
-              <span className="text-xs mt-2 font-semibold text-blue-400 uppercase tracking-wide">
-                Comment
-              </span>
-              <div
-                className={`text-center mt-2 py-1 px-3 text-slate-300 text-[13px] w-full overflow-hidden`}
-                style={{
-                  overflowWrap: "break-word",
-                  wordBreak: "break-word",
-                  whiteSpace: "pre-wrap",
-                  lineHeight: "1.3em",
-                  maxHeight: !isCommentExpanded ? "4.5rem" : "500px",
-                  transition: "max-height 0.3s ease-in-out",
-                  minHeight: "4.5rem",
-                }}
-              >
-                {renderCommentWithLineBreaks(comment || "No comment")}
-              </div>
-              <div
-                style={{ height: `${READ_MORE_BUTTON_HEIGHT}px` }}
-                className="flex items-center justify-center"
-              >
-                {comment && comment.length > 150 && (
-                  <button
-                    onClick={() => setIsCommentExpanded(!isCommentExpanded)}
-                    className="text-xs text-blue-400 hover:text-blue-300 px-2 py-1"
-                  >
-                    {isCommentExpanded ? "Read Less" : "Read More"}
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        <CardPairCommentSection
+          comment={comment}
+          isEditMode={isEditMode}
+          isCommentExpanded={isCommentExpanded}
+          onToggleExpanded={() => setIsCommentExpanded(!isCommentExpanded)}
+          onCommentChange={onCommentChange}
+          commentRef={commentRef}
+          readMoreButtonHeight={READ_MORE_BUTTON_HEIGHT}
+        />
       </div>
     </div>
   );

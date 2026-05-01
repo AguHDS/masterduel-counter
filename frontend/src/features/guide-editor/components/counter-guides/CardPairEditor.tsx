@@ -364,7 +364,7 @@ export const CardPairEditor = ({
             style={{ width: `${pairWidth}px` }}
           >
             <div className="min-h-[28px]" />
-            <div className="relative overflow-visible bg-gradient-to-br p-2 border border-dashed border-blue-500/50 hover:border-blue-400 transition-colors">
+            <div className="relative overflow-visible bg-gradient-to-br p-2 border border-dashed border-blue-500/50 hover:border-blue-400">
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
               <div className="relative z-10 min-h-[520px] flex flex-col items-center justify-center gap-2 text-blue-300">
                 <Plus className="w-9 h-9" />
