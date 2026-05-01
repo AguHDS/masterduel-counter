@@ -178,6 +178,21 @@ model Comment {
   @@map("comments")
 }
 
+// Anonymous view tracking for guides
+// Tracks views with 12-hour cooldown per viewer/guide combination
+// Uses SHA256 hashed fingerprint (cookie-based) to identify viewers anonymously
+// Cleaned up automatically by cleanupService.ts (entries older than 30 days)
+model GuideViewTracking {
+  instanceId        Int      @map("instance_id")
+  viewerFingerprint String   @map("viewer_fingerprint")
+  lastViewedAt      DateTime @map("last_viewed_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@id([instanceId, viewerFingerprint])
+  @@index([lastViewedAt])
+  @@map("guide_view_tracking")
+}
+
 // Card storage with YGOProdeck direct URLs
 // Images are served directly from YGOProdeck CDN (https://images.ygoprodeck.com)
 // Each card is uniquely identified by id (PRIMARY KEY prevents duplicates)
