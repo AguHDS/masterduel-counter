@@ -2,12 +2,10 @@ import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { guideInstancesApi } from "@/lib/http/guideInstancesApi";
 
-const VIEW_EXPIRATION_TIME = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
-
 /**
  * Hook to register a view for an instance
- * Uses localStorage to avoid duplicate requests from the same browser.
- * The real 12h cooldown is enforced by the backend.
+ * The 12h cooldown is enforced by the backend using cookies and fingerprinting.
+ * Backend responds with { counted: true/false } to indicate if view was counted.
  * 
  * @param instanceId - The ID of the instance to track views for
  * @param archetypeId - The ID of the archetype (needed to invalidate the query)
@@ -21,26 +19,8 @@ export const useRegisterView = (instanceId: number | undefined, archetypeId: num
 
     const registerView = async () => {
       try {
-        // Check if view was already registered for this instance in this session
-        const storageKey = `view_registered_${instanceId}`;
-        const lastViewedStr = localStorage.getItem(storageKey);
-
-        if (lastViewedStr) {
-          const lastViewed = parseInt(lastViewedStr, 10);
-          const now = Date.now();
-
-          // If less than VIEW_EXPIRATION_TIME has passed, don't register
-          if (now - lastViewed < VIEW_EXPIRATION_TIME) {
-            hasRegisteredRef.current[instanceId] = true;
-            return;
-          }
-        }
-
-        // Register the view
+        // Register the view - backend handles cooldown logic
         await guideInstancesApi.registerView(instanceId);
-
-        // Store the timestamp in localStorage
-        localStorage.setItem(storageKey, Date.now().toString());
         hasRegisteredRef.current[instanceId] = true;
 
         // Invalidate the query to refetch updated view count

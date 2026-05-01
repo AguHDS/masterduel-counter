@@ -1,7 +1,9 @@
 import { X, Plus, ChevronLeft, ChevronRight, Minus } from "lucide-react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "@/features/archetypes/types";
+import { useCardPairDragDrop } from "@/features/guide-editor/hooks/counter-guides/useCardPairDragDrop";
 import { useState, useRef, useEffect } from "react";
+import { CardPairCommentSection } from "./CardPairCommentSection";
 
 interface BottomCard extends Card {
   effectiveness?: string;
@@ -9,6 +11,7 @@ interface BottomCard extends Card {
 
 interface CardPairItemProps {
   pairNumber: number;
+  pairId: string;
   topCards: Card[];
   bottomCards: BottomCard[];
   comment?: string;
@@ -16,6 +19,10 @@ interface CardPairItemProps {
   onSelectBottom: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   onRemoveTopCard: (index: number) => void;
   onRemoveBottomCard: (index: number) => void;
+  onReorderTopCards?: (oldIndex: number, newIndex: number) => void;
+  onReorderBottomCards?: (oldIndex: number, newIndex: number) => void;
+  onMoveCardToTop?: (cardIndex: number, targetIndex: number) => void;
+  onMoveCardToBottom?: (cardIndex: number, targetIndex: number) => void;
   onBottomCardEffectivenessChange: (cardIndex: number, value: string) => void;
   onCommentChange: (value: string) => void;
   onRemove: () => void;
@@ -44,14 +51,27 @@ const BASE_BOTTOM_CARD_WIDTH = 96;
 const BASE_BOTTOM_CARD_HEIGHT = 128;
 const MAX_VISIBLE_TOP_CARDS = 3;
 const MAX_VISIBLE_BOTTOM_CARDS = 3;
+const MAX_VISIBLE_SINGLE_SLOT_CARDS = 6;
 const MAX_TOP_CARDS = 8;
 const MAX_BOTTOM_CARDS = 8;
 const SHOW_MORE_BUTTON_HEIGHT = 40;
 const READ_MORE_BUTTON_HEIGHT = 32;
 const EFFICIENCY_SELECTOR_HEIGHT = 24;
+const CARD_GRID_GAP = 6;
+const CARD_SECTION_HORIZONTAL_PADDING = 32;
+
+const calculateCardsPerRow = (containerWidth: number, cardWidth: number) =>
+  Math.max(
+    1,
+    Math.floor(
+      (containerWidth - CARD_SECTION_HORIZONTAL_PADDING + CARD_GRID_GAP) /
+        (cardWidth + CARD_GRID_GAP),
+    ),
+  );
 
 export const CardPairItem = ({
   pairNumber,
+  pairId,
   topCards,
   bottomCards,
   comment,
@@ -59,6 +79,10 @@ export const CardPairItem = ({
   onSelectBottom,
   onRemoveTopCard,
   onRemoveBottomCard,
+  onReorderTopCards,
+  onReorderBottomCards,
+  onMoveCardToTop,
+  onMoveCardToBottom,
   onBottomCardEffectivenessChange,
   onCommentChange,
   onRemove,
@@ -72,6 +96,28 @@ export const CardPairItem = ({
   const [isTopExpanded, setIsTopExpanded] = useState(false);
   const [isBottomExpanded, setIsBottomExpanded] = useState(false);
   const [isCommentExpanded, setIsCommentExpanded] = useState(false);
+  const [isSingleSlotExpanded, setIsSingleSlotExpanded] = useState(false);
+
+  const {
+    draggedTopCardIndex,
+    dragOverTopCardIndex,
+    draggedBottomCardIndex,
+    dragOverBottomCardIndex,
+    handleTopCardDragStart,
+    handleTopCardDragOver,
+    handleTopCardDrop,
+    handleTopCardDragEnd,
+    handleBottomCardDragStart,
+    handleBottomCardDragOver,
+    handleBottomCardDrop,
+    handleBottomCardDragEnd,
+  } = useCardPairDragDrop({
+    pairId,
+    onReorderTopCards,
+    onReorderBottomCards,
+    onMoveCardToTop,
+    onMoveCardToBottom,
+  });
 
   // For responsive design
   const normalizedPairWidth = Math.max(
@@ -89,6 +135,8 @@ export const CardPairItem = ({
   );
   const topCardWidth = Math.max(40, Math.round(bottomCardWidth * 0.7));
   const topCardHeight = Math.max(52, Math.round(bottomCardHeight * 0.75));
+  const singleSlotCardWidth = Math.max(52, Math.round(bottomCardWidth * 0.9));
+  const singleSlotCardHeight = Math.max(68, Math.round(bottomCardHeight * 0.9));
 
   const topSectionRef = useRef<HTMLDivElement>(null);
   const bottomSectionRef = useRef<HTMLDivElement>(null);
@@ -104,6 +152,23 @@ export const CardPairItem = ({
   const isSingleSlotPair =
     !isEditMode &&
     ((hasTopCards && !hasBottomCards) || (!hasTopCards && hasBottomCards));
+  const singleSlotVisibleCardsCount = hasTopCards
+    ? Math.min(topCards.length, MAX_VISIBLE_SINGLE_SLOT_CARDS)
+    : Math.min(bottomCards.length, MAX_VISIBLE_SINGLE_SLOT_CARDS);
+  const singleSlotCardsPerRow = calculateCardsPerRow(
+    normalizedPairWidth,
+    singleSlotCardWidth,
+  );
+  const singleSlotRowsCollapsed = Math.max(
+    1,
+    Math.ceil(singleSlotVisibleCardsCount / singleSlotCardsPerRow),
+  );
+  const SINGLE_SLOT_CARD_META_HEIGHT = 18;
+  const singleSlotCollapsedMaxHeight =
+    singleSlotRowsCollapsed *
+      (singleSlotCardHeight + SINGLE_SLOT_CARD_META_HEIGHT) +
+    (singleSlotRowsCollapsed - 1) * 6 +
+    12;
 
   useEffect(() => {
     if (isFirstRenderTop.current) {
@@ -148,17 +213,6 @@ export const CardPairItem = ({
     return null;
   }
 
-  const renderCommentWithLineBreaks = (text: string) => {
-    if (!text) return "No comment";
-
-    return text.split("\n").map((line, index) => (
-      <span key={index}>
-        {line}
-        {index < text.split("\n").length - 1 && <br />}
-      </span>
-    ));
-  };
-
   const renderTopCardSection = () => {
     const maxVisible = MAX_VISIBLE_TOP_CARDS;
     const visibleCards =
@@ -166,17 +220,20 @@ export const CardPairItem = ({
     const hasMoreCards = !isEditMode && topCards.length > maxVisible;
 
     const calculateHeight = () => {
-      const cardsPerRow = 4;
+      const cardsPerRow = calculateCardsPerRow(normalizedPairWidth, topCardWidth);
       let totalElements = visibleCards.length;
       if (isEditMode && topCards.length < MAX_TOP_CARDS) {
         totalElements += 1;
       }
 
       const rows = Math.ceil(totalElements / cardsPerRow);
-      const gapHeight = (rows - 1) * 6;
+      const gapHeight = (rows - 1) * CARD_GRID_GAP;
       const cardsHeight = rows * topCardHeight + gapHeight;
+      const dragHandleSpace = isEditMode ? 12 : 0; // Extra space for drag handles
+      // Always reserve space for Show More button to keep consistent heights across all pairs
+      const showMoreButtonSpace = SHOW_MORE_BUTTON_HEIGHT;
 
-      return cardsHeight + SHOW_MORE_BUTTON_HEIGHT;
+      return cardsHeight + showMoreButtonSpace + dragHandleSpace;
     };
 
     return (
@@ -185,47 +242,76 @@ export const CardPairItem = ({
           Target
         </div>
         <div
-          className="relative transition-all duration-300 ease-in-out overflow-hidden"
+          className="relative overflow-visible"
           style={{
             height: `${calculateHeight()}px`,
           }}
         >
           <div
-            className="flex flex-wrap gap-1.5 justify-center"
-            style={{ maxWidth: `${normalizedPairWidth - 32}px` }}
+            className="flex flex-wrap gap-1.5 justify-center pt-3"
+            style={{ maxWidth: `${normalizedPairWidth - CARD_SECTION_HORIZONTAL_PADDING}px` }}
           >
-            {visibleCards.map((card, index) => (
-              <div key={index} className="relative group">
-                {isEditMode && (
-                  <button
-                    onClick={() => onRemoveTopCard(index)}
-                    className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
-                    title="Remove card"
-                  >
-                    <X className="w-2.5 h-2.5" />
-                  </button>
-                )}
-                <CardTooltip
-                  imageUrl={card.imageUrl}
-                  cardName={card.name}
-                  cardId={card.id}
+            {visibleCards.map((card, index) => {
+              const isDragging = draggedTopCardIndex === index;
+              const isDragOver = dragOverTopCardIndex === index && draggedTopCardIndex !== index;
+
+              return (
+                <div 
+                  key={index} 
+                  className={`relative group ${isDragging ? "opacity-40 scale-95" : ""} ${isDragOver ? "ring-2 ring-blue-400 rounded-sm" : ""}`}
+                  onDragOver={(e) => isEditMode && handleTopCardDragOver(e, index)}
+                  onDrop={(e) => isEditMode && handleTopCardDrop(e, index)}
                 >
-                  <img
-                    src={card.imageUrlSmall}
-                    alt={card.name}
-                    className="object-cover rounded-sm cursor-pointer"
-                    style={{
-                      width: `${topCardWidth}px`,
-                      height: `${topCardHeight}px`,
-                    }}
-                  />
-                </CardTooltip>
-              </div>
-            ))}
+                  {isEditMode && (
+                    <>
+                      <div
+                        draggable
+                        onDragStart={(e) => handleTopCardDragStart(e, index)}
+                        onDragEnd={handleTopCardDragEnd}
+                        className="absolute top-0.5 left-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing py-1 px-2.5 rounde z-30 bg-slate-800/35"
+                        title="Drag to reorder"
+                      >
+                        <div className="grid grid-cols-3 gap-[2px]">
+                          <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                          <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                          <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                          <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                          <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                          <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => onRemoveTopCard(index)}
+                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 z-10 opacity-0 group-hover:opacity-100"
+                        title="Remove card"
+                      >
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </>
+                  )}
+                  <CardTooltip
+                    imageUrl={card.imageUrl}
+                    cardName={card.name}
+                    cardId={card.id}
+                  >
+                    <img
+                      src={card.imageUrlSmall}
+                      alt={card.name}
+                      draggable={false}
+                      className="object-cover rounded-sm cursor-pointer pointer-events-none"
+                      style={{
+                        width: `${topCardWidth}px`,
+                        height: `${topCardHeight}px`,
+                      }}
+                    />
+                  </CardTooltip>
+                </div>
+              );
+            })}
             {isEditMode && topCards.length < MAX_TOP_CARDS && (
               <button
                 onClick={onSelectTop}
-                className="rounded border border-dashed hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                className="rounded border border-dashed hover:border-blue-500 bg-slate-700/50 flex items-center justify-center"
                 style={{
                   width: `${topCardWidth}px`,
                   height: `${topCardHeight}px`,
@@ -243,7 +329,7 @@ export const CardPairItem = ({
             {hasMoreCards && (
               <button
                 onClick={() => setIsTopExpanded(!isTopExpanded)}
-                className="mt-2 mb-1 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1"
+                className="mt-2 mb-1 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 px-2 py-1"
               >
                 {isTopExpanded ? (
                   <>
@@ -273,23 +359,31 @@ export const CardPairItem = ({
     const hasMoreCards = !isEditMode && bottomCards.length > maxVisible;
 
     const calculateHeight = () => {
-      const cardsPerRow = 3;
+      const cardsPerRow = calculateCardsPerRow(
+        normalizedPairWidth,
+        bottomCardWidth,
+      );
       let totalElements = visibleCards.length;
       if (isEditMode && bottomCards.length < MAX_BOTTOM_CARDS) {
         totalElements += 1;
       }
 
       const rows = Math.ceil(totalElements / cardsPerRow);
-      const gapHeight = (rows - 1) * 6;
+      const gapHeight = (rows - 1) * CARD_GRID_GAP;
       const cardsHeight = rows * bottomCardHeight + gapHeight;
 
       // Reserve a fixed row for efficiency/selector in every pair to keep card pair height stable.
       const efficiencyHeight = EFFICIENCY_SELECTOR_HEIGHT + 4;
+      const dragHandleSpace = isEditMode ? 12 : 0; // Extra space for drag handles
+      // Always reserve space for Show Less button to keep consistent heights across all pairs
+      const showLessButtonSpace = 16;
 
       return (
         cardsHeight +
         efficiencyHeight +
         SHOW_MORE_BUTTON_HEIGHT +
+        dragHandleSpace +
+        showLessButtonSpace +
         (isEditMode ? 10 : 0)
       );
     };
@@ -300,31 +394,56 @@ export const CardPairItem = ({
           Counter
         </div>
         <div
-          className="relative transition-all duration-300 ease-in-out overflow-hidden"
+          className="relative transition-all duration-150 ease-in-out overflow-visible"
           style={{
             height: `${calculateHeight()}px`,
           }}
         >
           <div
-            className="flex flex-wrap gap-1.5 justify-center"
-            style={{ maxWidth: `${normalizedPairWidth - 32}px` }}
+            className="flex flex-wrap gap-1.5 justify-center pt-3"
+            style={{ maxWidth: `${normalizedPairWidth - CARD_SECTION_HORIZONTAL_PADDING}px` }}
           >
             {visibleCards.map((card, index) => {
               const selectedOption = EFFECTIVENESS_OPTIONS.find(
                 (opt) => opt.value === (card.effectiveness || ""),
               );
+              const isDragging = draggedBottomCardIndex === index;
+              const isDragOver = dragOverBottomCardIndex === index && draggedBottomCardIndex !== index;
 
               return (
-                <div key={index} className="flex flex-col items-center">
+                <div 
+                  key={index} 
+                  className={`flex flex-col items-center ${isDragging ? "opacity-40 scale-95" : ""} ${isDragOver ? "ring-2 ring-blue-400 rounded-sm" : ""}`}
+                  onDragOver={(e) => isEditMode && handleBottomCardDragOver(e, index)}
+                  onDrop={(e) => isEditMode && handleBottomCardDrop(e, index)}
+                >
                   <div className="relative group">
                     {isEditMode && (
-                      <button
-                        onClick={() => onRemoveBottomCard(index)}
-                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
-                        title="Remove card"
-                      >
-                        <X className="w-2.5 h-2.5" />
-                      </button>
+                      <>
+                        <div
+                          draggable
+                          onDragStart={(e) => handleBottomCardDragStart(e, index)}
+                          onDragEnd={handleBottomCardDragEnd}
+                          className="absolute top-0.5 left-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing py-1 px-2.5 rounded z-30 bg-slate-800/35"
+                          title="Drag to reorder"
+                        >
+                          <div className="grid grid-cols-3 gap-[2px]">
+                            <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                            <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                            <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                            <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                            <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                            <div className="w-[3px] h-[3px] bg-slate-300 rounded-full" />
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => onRemoveBottomCard(index)}
+                          className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 z-10 opacity-0 group-hover:opacity-100"
+                          title="Remove card"
+                        >
+                          <X className="w-2.5 h-2.5" />
+                        </button>
+                      </>
                     )}
                     <CardTooltip
                       imageUrl={card.imageUrl}
@@ -334,7 +453,8 @@ export const CardPairItem = ({
                       <img
                         src={card.imageUrlSmall}
                         alt={card.name}
-                        className="object-cover rounded-md cursor-pointer"
+                        draggable={false}
+                        className="object-cover rounded-md cursor-pointer pointer-events-none"
                         style={{
                           width: `${bottomCardWidth}px`,
                           height: `${bottomCardHeight}px`,
@@ -376,7 +496,7 @@ export const CardPairItem = ({
             {isEditMode && bottomCards.length < MAX_BOTTOM_CARDS && (
               <button
                 onClick={onSelectBottom}
-                className="rounded border border-dashed hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                className="rounded border border-dashed hover:border-purple-500 bg-slate-700/50 flex items-center justify-center"
                 style={{
                   width: `${bottomCardWidth}px`,
                   height: `${bottomCardHeight}px`,
@@ -394,7 +514,7 @@ export const CardPairItem = ({
             {hasMoreCards && (
               <button
                 onClick={() => setIsBottomExpanded(!isBottomExpanded)}
-                className="mt-2 mb-1 flex items-center gap-1 text-xs text-green-500 hover:text-blue-300 transition-colors px-2 py-1"
+                className="mt-6 mb-1 flex items-center gap-1 text-xs text-green-500 hover:text-blue-300 px-2 py-1"
               >
                 {isBottomExpanded ? (
                   <>
@@ -424,7 +544,7 @@ export const CardPairItem = ({
         {isEditMode && onMoveLeft && canMoveLeft && (
           <button
             onClick={onMoveLeft}
-            className="bg-blue-700 hover:bg-blue-600 text-white rounded p-0.5 transition-colors flex-shrink-0"
+            className="bg-blue-700 hover:bg-blue-600 text-white rounded p-0.5 flex-shrink-0"
             title="Move left"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
@@ -434,7 +554,7 @@ export const CardPairItem = ({
         {isEditMode && onMoveRight && canMoveRight && (
           <button
             onClick={onMoveRight}
-            className="bg-blue-700 hover:bg-blue-600 text-white rounded p-0.5 transition-colors flex-shrink-0"
+            className="bg-blue-700 hover:bg-blue-600 text-white rounded p-0.5 flex-shrink-0"
             title="Move right"
           >
             <ChevronRight className="w-3.5 h-3.5" />
@@ -451,7 +571,7 @@ export const CardPairItem = ({
         {isEditMode && (
           <button
             onClick={onRemove}
-            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-20 shadow-md"
+            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 z-20"
             title="Remove pair"
           >
             <X className="w-3 h-3" />
@@ -459,22 +579,37 @@ export const CardPairItem = ({
         )}
         <div className="relative z-10 flex flex-col items-center space-y-2">
           {isSingleSlotPair ? (
-            <div className="flex flex-col items-center">
-              <div className="text-xs text-slate-400 mb-1 text-center font-medium">
-                Cards
+            <div
+              className="flex flex-col items-center transition-[min-height] duration-300 ease-in-out"
+              style={{
+                minHeight: "300px",
+              }}
+            >
+              <div className="text-xs text-slate-400 mb-4 text-center font-medium">
+                Tech Cards
               </div>
-              <div
-                className="flex flex-wrap gap-1.5 justify-start"
-                style={{ maxWidth: `${normalizedPairWidth - 32}px` }}
-              >
+              <div className="flex-1 flex items-center">
+                <div
+                  className="overflow-hidden transition-all duration-300 ease-in-out"
+                  style={{
+                    maxHeight:
+                      !isEditMode && !isSingleSlotExpanded
+                        ? `${singleSlotCollapsedMaxHeight}px`
+                        : "1200px",
+                  }}
+                >
+                  <div
+                    className="flex flex-wrap gap-1.5 justify-center content-center"
+                    style={{ maxWidth: `${normalizedPairWidth - CARD_SECTION_HORIZONTAL_PADDING}px` }}
+                  >
                 {hasTopCards &&
-                  topCards.map((card, index) => (
+                  (isEditMode || isSingleSlotExpanded ? topCards : topCards.slice(0, MAX_VISIBLE_SINGLE_SLOT_CARDS)).map((card, index) => (
                     <div key={index} className="flex flex-col items-center">
                       <div className="relative group">
                         {isEditMode && (
                           <button
                             onClick={() => onRemoveTopCard(index)}
-                            className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
+                            className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 z-10 opacity-0 group-hover:opacity-100"
                             title="Remove card"
                           >
                             <X className="w-2.5 h-2.5" />
@@ -490,22 +625,22 @@ export const CardPairItem = ({
                             alt={card.name}
                             className="object-cover rounded border border-none cursor-pointer shadow-sm"
                             style={{
-                              width: `${bottomCardWidth}px`,
-                              height: `${bottomCardHeight}px`,
+                              width: `${singleSlotCardWidth}px`,
+                              height: `${singleSlotCardHeight}px`,
                             }}
                           />
                         </CardTooltip>
                       </div>
                       <div
                         className="mt-1 text-center text-[10px] font-bold uppercase tracking-wide text-transparent"
-                        style={{ width: `${bottomCardWidth}px` }}
+                        style={{ width: `${singleSlotCardWidth}px` }}
                       >
                         NONE
                       </div>
                     </div>
                   ))}
                 {hasBottomCards &&
-                  bottomCards.map((card, index) => {
+                  (isEditMode || isSingleSlotExpanded ? bottomCards : bottomCards.slice(0, MAX_VISIBLE_SINGLE_SLOT_CARDS)).map((card, index) => {
                     const selectedOption = EFFECTIVENESS_OPTIONS.find(
                       (opt) => opt.value === (card.effectiveness || ""),
                     );
@@ -515,7 +650,7 @@ export const CardPairItem = ({
                           {isEditMode && (
                             <button
                               onClick={() => onRemoveBottomCard(index)}
-                              className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm"
+                              className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 z-10 opacity-0 group-hover:opacity-100"
                               title="Remove card"
                             >
                               <X className="w-2.5 h-2.5" />
@@ -529,7 +664,11 @@ export const CardPairItem = ({
                             <img
                               src={card.imageUrlSmall}
                               alt={card.name}
-                              className="w-24 h-32 object-cover rounded border border-none cursor-pointer shadow-sm"
+                              className="object-cover rounded border border-none cursor-pointer shadow-sm"
+                              style={{
+                                width: `${singleSlotCardWidth}px`,
+                                height: `${singleSlotCardHeight}px`,
+                              }}
                             />
                           </CardTooltip>
                         </div>
@@ -558,7 +697,7 @@ export const CardPairItem = ({
                         ) : (
                           <div
                             className={`mt-1 text-center text-[10px] font-bold uppercase tracking-wide ${card.effectiveness ? (selectedOption?.color || "text-slate-400") : "text-transparent"}`}
-                            style={{ width: `${bottomCardWidth}px` }}
+                            style={{ width: `${singleSlotCardWidth}px` }}
                           >
                             {card.effectiveness ? selectedOption?.label : "NONE"}
                           </div>
@@ -572,7 +711,7 @@ export const CardPairItem = ({
                       topCards.length < MAX_TOP_CARDS && (
                         <button
                           onClick={(e) => onSelectTop(e)}
-                          className="rounded border border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                          className="rounded border border-dashed border-slate-600 hover:border-blue-500 bg-slate-700/50 flex items-center justify-center"
                           style={{
                             width: `${topCardWidth}px`,
                             height: `${topCardHeight}px`,
@@ -585,7 +724,7 @@ export const CardPairItem = ({
                       bottomCards.length < MAX_BOTTOM_CARDS && (
                         <button
                           onClick={(e) => onSelectBottom(e)}
-                          className="rounded border border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 transition-all flex items-center justify-center"
+                          className="rounded border border-dashed border-slate-600 hover:border-purple-500 bg-slate-700/50 flex items-center justify-center"
                           style={{
                             width: `${bottomCardWidth}px`,
                             height: `${bottomCardHeight}px`,
@@ -596,7 +735,22 @@ export const CardPairItem = ({
                       )}
                   </>
                 )}
+                  </div>
+                </div>
               </div>
+              {!isEditMode && ((hasTopCards && topCards.length > MAX_VISIBLE_SINGLE_SLOT_CARDS) || (hasBottomCards && bottomCards.length > MAX_VISIBLE_SINGLE_SLOT_CARDS)) && (
+                <div className="w-full flex justify-center mt-2">
+                  <button
+                    onClick={() => setIsSingleSlotExpanded(!isSingleSlotExpanded)}
+                    className="text-xs text-green-500 hover:text-blue-300 px-2 py-1"
+                  >
+                    {isSingleSlotExpanded ? `- Show Less` : `+ Show ${Math.max(
+                      (hasTopCards ? topCards.length : 0) - MAX_VISIBLE_SINGLE_SLOT_CARDS,
+                      (hasBottomCards ? bottomCards.length : 0) - MAX_VISIBLE_SINGLE_SLOT_CARDS
+                    )} More`}
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -624,62 +778,15 @@ export const CardPairItem = ({
             </>
           )}
         </div>
-        <div
-          ref={commentRef}
-          className="flex items-center justify-center mt-2 scrollbar-homeAllPages"
-        >
-          {isEditMode ? (
-            <div className="w-full">
-              <label className="text-blue-400 font-semibold text-xs mb-0.5 block">
-                Comment
-              </label>
-              <textarea
-                value={comment || ""}
-                onChange={(e) => onCommentChange(e.target.value)}
-                maxLength={500}
-                placeholder="Add a comment (Max. 500 characters)..."
-                className="w-full px-2 py-1.5 bg-slate-700/50 text-white text-xs rounded border border-slate-600 focus:outline-none focus:border-blue-500 resize-y min-h-[60px]"
-                rows={3}
-              />
-              <div className="text-xs text-slate-400 mt-0.5 text-right">
-                {(comment || "").length}/500
-              </div>
-            </div>
-          ) : (
-            <div className="w-full pb-1 flex flex-col items-center">
-              <span className="text-xs mt-2 font-semibold text-blue-400 uppercase tracking-wide">
-                Comment
-              </span>
-              <div
-                className={`text-center mt-2 py-1 px-3 text-slate-300 text-[13px] w-full transition-all duration-300 overflow-hidden`}
-                style={{
-                  overflowWrap: "break-word",
-                  wordBreak: "break-word",
-                  whiteSpace: "pre-wrap",
-                  lineHeight: "1.3em",
-                  maxHeight: !isCommentExpanded ? "4.5rem" : "500px",
-                  transition: "max-height 0.3s ease-in-out",
-                  minHeight: "4.5rem",
-                }}
-              >
-                {renderCommentWithLineBreaks(comment || "No comment")}
-              </div>
-              <div
-                style={{ height: `${READ_MORE_BUTTON_HEIGHT}px` }}
-                className="flex items-center justify-center"
-              >
-                {comment && comment.length > 150 && (
-                  <button
-                    onClick={() => setIsCommentExpanded(!isCommentExpanded)}
-                    className="text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1"
-                  >
-                    {isCommentExpanded ? "Read Less" : "Read More"}
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        <CardPairCommentSection
+          comment={comment}
+          isEditMode={isEditMode}
+          isCommentExpanded={isCommentExpanded}
+          onToggleExpanded={() => setIsCommentExpanded(!isCommentExpanded)}
+          onCommentChange={onCommentChange}
+          commentRef={commentRef}
+          readMoreButtonHeight={READ_MORE_BUTTON_HEIGHT}
+        />
       </div>
     </div>
   );

@@ -75,7 +75,7 @@ export const HomePage = () => {
 
         <meta
           property="og:title"
-          content="Masterduel Counter - Yu-Gi-Oh! Master Duel Counters and Deck Guides"
+          content="Masterduel Counter - Yu-Gi-Oh! Counters and Deck Guides"
         />
         <meta
           property="og:description"

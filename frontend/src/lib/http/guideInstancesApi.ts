@@ -1,8 +1,5 @@
-import axios from "axios";
-import { getBackendUrl } from "@/lib/config/urlHelpers";
+import { axiosClient } from "./axiosClient";
 import type { GuideType, InitialHand } from "@/features/archetypes/types";
-
-const API_BASE_URL = getBackendUrl();
 
 export interface GuideListItem {
   id: number;
@@ -175,14 +172,13 @@ export const guideInstancesApi = {
     archetypeId: number,
     instanceId: number,
   ): Promise<{ success: boolean; favorited: boolean; favorites: number }> => {
-    const response = await axios.post<{
+    const response = await axiosClient.post<{
       success: boolean;
       favorited: boolean;
       favorites: number;
     }>(
-      `${API_BASE_URL}/api/archetypes/${archetypeId}/instances/${instanceId}/favorite`,
+      `/api/archetypes/${archetypeId}/instances/${instanceId}/favorite`,
       {},
-      { withCredentials: true },
     );
     return response.data;
   },
@@ -193,8 +189,8 @@ export const guideInstancesApi = {
   registerView: async (
     instanceId: number,
   ): Promise<{ success: boolean; message: string }> => {
-    const response = await axios.post<{ success: boolean; message: string }>(
-      `${API_BASE_URL}/api/instances/${instanceId}/view`,
+    const response = await axiosClient.post<{ success: boolean; message: string }>(
+      `/api/instances/${instanceId}/view`,
       {},
     );
     return response.data;
@@ -213,8 +209,8 @@ export const guideInstancesApi = {
     if (guideType) {
       params.type = guideType.toLowerCase();
     }
-    const response = await axios.get<GuideListItem[]>(
-      `${API_BASE_URL}/api/guides/latest`,
+    const response = await axiosClient.get<GuideListItem[]>(
+      `/api/guides/latest`,
       { params },
     );
     return response.data;
@@ -226,8 +222,8 @@ export const guideInstancesApi = {
   getInitialHands: async (
     instanceId: number,
   ): Promise<InitialHand[]> => {
-    const response = await axios.get<InitialHand[]>(
-      `${API_BASE_URL}/api/instances/${instanceId}/initial-hands`,
+    const response = await axiosClient.get<InitialHand[]>(
+      `/api/instances/${instanceId}/initial-hands`,
     );
     return response.data;
   },

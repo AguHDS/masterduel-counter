@@ -16,24 +16,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
   constructor(
     private db: Database.Database,
     private prisma: PrismaClient,
-  ) {
-    this.initializeAnonymousViewTrackingTable();
-  }
-
-  private initializeAnonymousViewTrackingTable(): void {
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS guide_view_tracking (
-        instance_id INTEGER NOT NULL,
-        viewer_fingerprint TEXT NOT NULL,
-        last_viewed_at TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (instance_id, viewer_fingerprint)
-      );
-
-      CREATE INDEX IF NOT EXISTS idx_guide_view_tracking_last_viewed_at
-      ON guide_view_tracking(last_viewed_at);
-    `);
-  }
+  ) {}
 
   async createArchetypeInstance(
     data: GuideCreateDTO,
@@ -712,13 +695,15 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
   }
 
   async cleanupOldViewTracking(cutoffDate: Date): Promise<number> {
-    const stmt = this.db.prepare(`
-      DELETE FROM guide_view_tracking
-      WHERE last_viewed_at < ?
-    `);
+    const result = await this.prisma.guideViewTracking.deleteMany({
+      where: {
+        lastViewedAt: {
+          lt: cutoffDate,
+        },
+      },
+    });
 
-    const result = stmt.run(cutoffDate.toISOString());
-    return result.changes;
+    return result.count;
   }
 
   async getTotalViewsByUserId(userId: string): Promise<number> {

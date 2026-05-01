@@ -194,11 +194,108 @@ export const CardPairEditor = ({
     }
   };
 
+  const reorderTopCards = (pairId: string, oldIndex: number, newIndex: number) => {
+    setPairs(
+      pairs.map((pair) => {
+        if (pair.id === pairId) {
+          const newTopCards = [...pair.topCards];
+          // Swap positions instead of splice
+          const temp = newTopCards[oldIndex];
+          newTopCards[oldIndex] = newTopCards[newIndex];
+          newTopCards[newIndex] = temp;
+          return { ...pair, topCards: newTopCards };
+        }
+        return pair;
+      }),
+    );
+  };
+
+  const reorderBottomCards = (pairId: string, oldIndex: number, newIndex: number) => {
+    setPairs(
+      pairs.map((pair) => {
+        if (pair.id === pairId) {
+          const newBottomCards = [...pair.bottomCards];
+          // Swap positions instead of splice
+          const temp = newBottomCards[oldIndex];
+          newBottomCards[oldIndex] = newBottomCards[newIndex];
+          newBottomCards[newIndex] = temp;
+          return { ...pair, bottomCards: newBottomCards };
+        }
+        return pair;
+      }),
+    );
+  };
+
+  const moveCardToTop = (pairId: string, bottomCardIndex: number, targetIndex: number) => {
+    setPairs(
+      pairs.map((pair) => {
+        if (pair.id === pairId) {
+          const bottomCard = pair.bottomCards[bottomCardIndex];
+          const topCard = pair.topCards[targetIndex];
+          if (!bottomCard) return pair;
+          
+          const newBottomCards = [...pair.bottomCards];
+          const newTopCards = [...pair.topCards];
+          
+          // Remove effectiveness from bottom card
+          const { effectiveness: _eff, ...cardWithoutEffectiveness } = bottomCard;
+          
+          if (topCard) {
+            // Swap: move top card to bottom with effectiveness
+            const cardWithEffectiveness = { ...topCard, effectiveness: undefined };
+            newBottomCards[bottomCardIndex] = cardWithEffectiveness;
+            newTopCards[targetIndex] = cardWithoutEffectiveness as Card;
+          } else {
+            // No card at target, just move
+            newBottomCards.splice(bottomCardIndex, 1);
+            newTopCards[targetIndex] = cardWithoutEffectiveness as Card;
+          }
+          
+          return { ...pair, topCards: newTopCards, bottomCards: newBottomCards };
+        }
+        return pair;
+      }),
+    );
+  };
+
+  const moveCardToBottom = (pairId: string, topCardIndex: number, targetIndex: number) => {
+    setPairs(
+      pairs.map((pair) => {
+        if (pair.id === pairId) {
+          const topCard = pair.topCards[topCardIndex];
+          const bottomCard = pair.bottomCards[targetIndex];
+          if (!topCard) return pair;
+          
+          const newTopCards = [...pair.topCards];
+          const newBottomCards = [...pair.bottomCards];
+          
+          // Add effectiveness to top card
+          const cardWithEffectiveness = { ...topCard, effectiveness: undefined };
+          
+          if (bottomCard) {
+            // Swap: move bottom card to top without effectiveness
+            const { effectiveness: _eff, ...cardWithoutEffectiveness } = bottomCard;
+            newTopCards[topCardIndex] = cardWithoutEffectiveness as Card;
+            newBottomCards[targetIndex] = cardWithEffectiveness;
+          } else {
+            // No card at target, just move
+            newTopCards.splice(topCardIndex, 1);
+            newBottomCards[targetIndex] = cardWithEffectiveness;
+          }
+          
+          return { ...pair, topCards: newTopCards, bottomCards: newBottomCards };
+        }
+        return pair;
+      }),
+    );
+  };
+
   const renderPairsWithSeparators = () => {
     const items = [];
 
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
+
       items.push(
         <div
           key={pair.id}
@@ -207,6 +304,7 @@ export const CardPairEditor = ({
         >
           <CardPairItem
             pairNumber={i + 1}
+            pairId={pair.id}
             topCards={pair.topCards}
             bottomCards={pair.bottomCards}
             comment={pair.comment}
@@ -223,6 +321,18 @@ export const CardPairEditor = ({
             }
             onRemoveBottomCard={(cardIndex) =>
               removeCard(pair.id, "bottom", cardIndex)
+            }
+            onReorderTopCards={(oldIndex, newIndex) =>
+              reorderTopCards(pair.id, oldIndex, newIndex)
+            }
+            onReorderBottomCards={(oldIndex, newIndex) =>
+              reorderBottomCards(pair.id, oldIndex, newIndex)
+            }
+            onMoveCardToTop={(bottomCardIndex, targetIndex) =>
+              moveCardToTop(pair.id, bottomCardIndex, targetIndex)
+            }
+            onMoveCardToBottom={(topCardIndex, targetIndex) =>
+              moveCardToBottom(pair.id, topCardIndex, targetIndex)
             }
             onBottomCardEffectivenessChange={(cardIndex, value) =>
               handleBottomCardEffectivenessChange(pair.id, cardIndex, value)
@@ -254,7 +364,7 @@ export const CardPairEditor = ({
             style={{ width: `${pairWidth}px` }}
           >
             <div className="min-h-[28px]" />
-            <div className="relative overflow-visible bg-gradient-to-br p-2 border border-dashed border-blue-500/50 hover:border-blue-400 transition-colors">
+            <div className="relative overflow-visible bg-gradient-to-br p-2 border border-dashed border-blue-500/50 hover:border-blue-400">
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.20)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
               <div className="relative z-10 min-h-[520px] flex flex-col items-center justify-center gap-2 text-blue-300">
                 <Plus className="w-9 h-9" />
