@@ -59,7 +59,7 @@ interface BuildArchetypePathParams {
 }
 
 /** Slug for SEO-friendly URLs with transliteration support for non-ASCII characters */
-const slugifySegment = (value: string): string => {
+export const slugifySegment = (value: string): string => {
   // Character mapping for Cyrillic transliteration
   const cyrillicMap: Record<string, string> = {
     'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 

@@ -17,7 +17,7 @@ import { CommentSection } from "@/features/comments";
 import type { Archetype } from "@/features/archetypes/types";
 import { TooltipProvider } from "@/features/archetypes/contexts/TooltipContext";
 import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
-import { buildArchetypePath, buildGuidePath, extractNumericIdFromSlug } from "@/lib/config/urlHelpers";
+import { buildArchetypePath, buildGuidePath, extractNumericIdFromSlug, slugifySegment } from "@/lib/config/urlHelpers";
 import { useCanonicalPathRedirect } from "@/shared/hooks/useCanonicalPathRedirect";
 
 /** Container page for guides of a specific archetype */
@@ -199,6 +199,10 @@ export const GuideContainerPage = () => {
   const canonicalUrl = `${window.location.origin}${canonicalGuidePath ?? location.pathname}`;
 
   // Schema.org structured data for rich snippets
+  const authorProfileUrl = guideInstanceData?.instance.userId && guideInstanceData?.userName
+    ? `${window.location.origin}/profile/${slugifySegment(guideInstanceData.userName)}-${guideInstanceData.instance.userId}`
+    : undefined;
+
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -207,7 +211,8 @@ export const GuideContainerPage = () => {
     "image": guideInstanceData?.headerCard?.imageUrlCropped || guideInstanceData?.headerCard?.imageUrl || `${window.location.origin}/logo.png`,
     "author": {
       "@type": "Person",
-      "name": guideInstanceData?.userName || "Anonymous"
+      "name": guideInstanceData?.userName || "Anonymous",
+      ...(authorProfileUrl && { "url": authorProfileUrl })
     },
     "publisher": {
       "@type": "Organization",
