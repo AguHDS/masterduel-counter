@@ -135,10 +135,10 @@ export const AllGuidesListPage = () => {
 
   const getPageDescription = () => {
     if (guideType === "COUNTER")
-      return "Browse all Yu-Gi-Oh! Master Duel counter guides. Learn how to counter popular decks with handtraps and board breakers.";
+      return "Browse all Yu-Gi-Oh! counter guides for TCG, OCG, and Master Duel. Learn how to counter popular decks with handtraps and board breakers.";
     if (guideType === "DECK")
-      return "Browse all Yu-Gi-Oh! Master Duel deck guides. Learn combo lines, deck builds, and strategies.";
-    return "Browse all Yu-Gi-Oh! Master Duel community guides.";
+      return "Browse all Yu-Gi-Oh! deck guides for TCG, OCG, and Master Duel. Learn combo lines, deck builds, and strategies.";
+    return "Browse all Yu-Gi-Oh! community guides for all formats (TCG, OCG, Master Duel).";
   };
 
   return (
@@ -154,10 +154,10 @@ export const AllGuidesListPage = () => {
           name="keywords"
           content={
             guideType === "COUNTER"
-              ? "Yu-Gi-Oh, Master Duel, counter guides, handtraps, how to counter, board breakers, strategy"
+              ? "Yu-Gi-Oh, TCG, OCG, Master Duel, counter guides, handtraps, how to counter, board breakers, strategy"
               : guideType === "DECK"
-                ? "Yu-Gi-Oh, Master Duel, deck guides, combos, deck builds, strategy"
-                : "Yu-Gi-Oh, Master Duel, archetypes, guides, counters, decks, strategy"
+                ? "Yu-Gi-Oh, TCG, OCG, Master Duel, deck guides, combos, deck builds, strategy"
+                : "Yu-Gi-Oh, TCG, OCG, Master Duel, archetypes, guides, counters, decks, strategy"
           }
         />
         <meta

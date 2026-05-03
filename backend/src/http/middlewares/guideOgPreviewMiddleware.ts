@@ -95,7 +95,7 @@ export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
       const title = instance.title || archetype.name;
       const description =
         instance.generalTip ||
-        `${instance.guideType === "DECK" ? "Deck" : "Counter"} guide for ${archetype.name} in Yu-Gi-Oh! Master Duel.`;
+        `${instance.guideType === "DECK" ? "Deck" : "Counter"} guide for ${archetype.name} in Yu-Gi-Oh!.`;
       const forwardedProto = req.headers["x-forwarded-proto"];
       const protocol =
         typeof forwardedProto === "string"

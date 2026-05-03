@@ -62,35 +62,35 @@ export const HomePage = () => {
   return (
     <>
       <Helmet>
-        <title>Masterduel Counter - Yu-Gi-Oh! Counters and Deck Guides</title>
+        <title>Masterduel Counter - Yu-Gi-Oh! TCG, OCG & Master Duel Guides</title>
 
         <meta
           name="description"
-          content="Find the best counter strategies and deck guides for Yu-Gi-Oh! Master Duel, and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
+          content="Find counter strategies and deck guides for all Yu-Gi-Oh! formats (TCG, OCG, Master Duel). Community-driven guides with handtraps, combos, and strategies to beat meta decks."
         />
         <meta
           name="keywords"
-          content="Yu-Gi-Oh, Master Duel, archetypes, counters, deck guides, strategy, card game"
+          content="Yu-Gi-Oh, TCG, OCG, Master Duel, archetypes, counters, deck guides, handtraps, combos, strategy"
         />
 
         <meta
           property="og:title"
-          content="Masterduel Counter - Yu-Gi-Oh! Counters and Deck Guides"
+          content="Masterduel Counter - Yu-Gi-Oh! TCG, OCG & Master Duel Guides"
         />
         <meta
           property="og:description"
-          content="Find the best counter strategies and deck guides for Yu-Gi-Oh! Master Duel, and learn how to win against them. Community-driven deck guides, card recommendations, and effective counter plays."
+          content="Find counter strategies and deck guides for all Yu-Gi-Oh! formats (TCG, OCG, Master Duel). Community-driven guides with handtraps, combos, and strategies."
         />
         <meta property="og:type" content="website" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:title"
-          content="Masterduel Counter - Yu-Gi-Oh! Master Duel Counters and Deck Guides"
+          content="Masterduel Counter - Yu-Gi-Oh! TCG, OCG & Master Duel Guides"
         />
         <meta
           name="twitter:description"
-          content="Find the best counter strategies and deck guides for Yu-Gi-Oh! Master Duel, and learn how to win against them."
+          content="Find counter strategies and deck guides for all Yu-Gi-Oh! formats (TCG, OCG, Master Duel)."
         />
 
         <link rel="canonical" href="https://masterduelcounter.com" />

@@ -199,10 +199,10 @@ export const ArchetypeGuideListPage = () => {
 
   const pageDescription =
     guideType === "COUNTER"
-      ? `Find the best counter strategies, handtraps, and tips to stop ${archetype.name} in Yu-Gi-Oh! Master Duel.`
+      ? `Find the best counter strategies and handtraps to stop ${archetype.name} in all Yu-Gi-Oh! formats (TCG, OCG, Master Duel).`
       : guideType === "DECK"
-        ? `Discover the best ${archetype.name} deck guides, combos, and strategies for Yu-Gi-Oh! Master Duel.`
-        : `Browse counter guides and deck guides for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`;
+        ? `Discover the best ${archetype.name} deck guides, combos, and strategies for all Yu-Gi-Oh! formats (TCG, OCG, Master Duel).`
+        : `Browse counter and deck guides for the ${archetype.name} archetype in all Yu-Gi-Oh! formats.`;
 
   return (
     <>
@@ -212,7 +212,7 @@ export const ArchetypeGuideListPage = () => {
         <meta name="description" content={pageDescription} />
         <meta
           name="keywords"
-          content={`Yu-Gi-Oh, Master Duel, ${archetype.name}, ${guideType === "COUNTER" ? "counter, handtraps, how to beat" : guideType === "DECK" ? "deck guide, combos, strategy" : "guides, counter, deck"}, archetypes`}
+          content={`Yu-Gi-Oh, TCG, OCG, Master Duel, ${archetype.name}, ${guideType === "COUNTER" ? "counter, handtraps, how to beat" : guideType === "DECK" ? "deck guide, combos, strategy" : "guides, counter, deck"}, archetypes`}
         />
         <meta property="og:url" content={`${window.location.origin}${canonicalPath ?? ""}`} />
         <meta property="og:title" content={pageTitle} />

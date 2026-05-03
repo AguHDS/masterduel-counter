@@ -35,7 +35,7 @@ export const MainLogo = ({ asHeading = false }: MainLogoProps) => {
             />
             {asHeading && (
               <span className="sr-only">
-                Yu-Gi-Oh! Guides - Find Counter and Deck Guides - Use Handtraps and learn Combos to Beat Meta Decks
+                Yu-Gi-Oh! Counter and Deck Guides for All Formats
               </span>
             )}
           </Wrapper>

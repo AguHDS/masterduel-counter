@@ -70,7 +70,7 @@ export const CardsPage = () => {
               Card Search
             </h1>
             <p className="text-gray-400">
-              Search through thousands of Yu-Gi-Oh! Master Duel cards
+              Search through thousands of Yu-Gi-Oh! cards
             </p>
           </div>
 

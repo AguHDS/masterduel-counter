@@ -194,8 +194,8 @@ export const GuideContainerPage = () => {
     ? `${currentGuideTitle} | ${archetype.name} ${currentGuideType === "DECK" ? "Deck Guide" : "Counter Guide"} - Masterduel Counter`
     : `${archetype.name} ${currentGuideType === "DECK" ? "Deck Guide" : "Counter Guide"} - Masterduel Counter`;
   const pageDescription = currentGuideTitle
-    ? `Read ${currentGuideTitle}, a ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! Master Duel.`
-    : `Read this ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! Master Duel.`;
+    ? `Read ${currentGuideTitle}, a ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! (TCG, OCG, Master Duel).`
+    : `Read this ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! (TCG, OCG, Master Duel).`;
   const canonicalUrl = `${window.location.origin}${canonicalGuidePath ?? location.pathname}`;
 
   return (
