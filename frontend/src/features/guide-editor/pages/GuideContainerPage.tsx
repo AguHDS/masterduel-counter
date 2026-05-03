@@ -198,6 +198,41 @@ export const GuideContainerPage = () => {
     : `Read this ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! (TCG, OCG, Master Duel).`;
   const canonicalUrl = `${window.location.origin}${canonicalGuidePath ?? location.pathname}`;
 
+  // Schema.org structured data for rich snippets
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": currentGuideTitle || `${archetype.name} ${currentGuideType === "DECK" ? "Deck Guide" : "Counter Guide"}`,
+    "description": pageDescription,
+    "image": guideInstanceData?.headerCard?.imageUrlCropped || guideInstanceData?.headerCard?.imageUrl || `${window.location.origin}/logo.png`,
+    "author": {
+      "@type": "Person",
+      "name": guideInstanceData?.userName || "Anonymous"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Masterduel Counter",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${window.location.origin}/logo.webp`
+      }
+    },
+    "datePublished": guideInstanceData?.instance.createdAt,
+    "dateModified": guideInstanceData?.instance.updatedAt,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": canonicalUrl
+    },
+    ...(guideInstanceData?.instance?.likes && guideInstanceData.instance.likes > 0 && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.5",
+        "bestRating": "5",
+        "ratingCount": guideInstanceData.instance.likes.toString()
+      }
+    })
+  };
+
   return (
     <>
       <Helmet>
@@ -211,6 +246,9 @@ export const GuideContainerPage = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />

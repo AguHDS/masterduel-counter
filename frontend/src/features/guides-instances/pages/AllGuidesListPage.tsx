@@ -141,6 +141,24 @@ export const AllGuidesListPage = () => {
     return "Browse all Yu-Gi-Oh! community guides for all formats (TCG, OCG, Master Duel).";
   };
 
+  // Schema.org structured data for collection pages
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": getPageTitle(),
+    "description": getPageDescription(),
+    "url": `${window.location.origin}${buildArchetypePath({ guideType })}`,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Masterduel Counter",
+      "url": "https://masterduelcounter.com"
+    },
+    "about": {
+      "@type": "Thing",
+      "name": guideType === "COUNTER" ? "Yu-Gi-Oh! Counter Strategies" : guideType === "DECK" ? "Yu-Gi-Oh! Deck Building Guides" : "Yu-Gi-Oh! Guides"
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -150,6 +168,9 @@ export const AllGuidesListPage = () => {
           href={`${window.location.origin}${buildArchetypePath({ guideType })}`}
         />
         <meta name="description" content={getPageDescription()} />
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
         <meta
           name="keywords"
           content={

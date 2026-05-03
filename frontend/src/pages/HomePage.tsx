@@ -59,6 +59,32 @@ export const HomePage = () => {
     return isDropdownOpen;
   }, [isDropdownOpen]);
 
+  // Schema.org structured data for homepage with search functionality
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Masterduel Counter",
+    "alternateName": "Yu-Gi-Oh! Counter and Deck Guides",
+    "url": "https://masterduelcounter.com",
+    "description": "Find counter strategies and deck guides for all Yu-Gi-Oh! formats (TCG, OCG, Master Duel). Community-driven guides with handtraps, combos, and strategies to beat meta decks.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://masterduelcounter.com/archetype/{search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Masterduel Counter",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://masterduelcounter.com/logo.webp"
+      }
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -94,6 +120,10 @@ export const HomePage = () => {
         />
 
         <link rel="canonical" href="https://masterduelcounter.com" />
+        
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
       </Helmet>
 
       <div className="min-h-screen flex flex-col">

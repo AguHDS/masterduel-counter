@@ -199,10 +199,52 @@ export const ArchetypeGuideListPage = () => {
 
   const pageDescription =
     guideType === "COUNTER"
-      ? `Find the best counter strategies and handtraps to stop ${archetype.name} in all Yu-Gi-Oh! formats (TCG, OCG, Master Duel).`
+      ? `Find the best counter strategies, handtraps, and board breakers to stop ${archetype.name} in all Yu-Gi-Oh! formats (TCG, OCG, Master Duel).`
       : guideType === "DECK"
-        ? `Discover the best ${archetype.name} deck guides, combos, and strategies for all Yu-Gi-Oh! formats (TCG, OCG, Master Duel).`
+        ? `Discover the best ${archetype.name} deck guides, combos, and deck building strategies for all Yu-Gi-Oh! formats (TCG, OCG, Master Duel).`
         : `Browse counter and deck guides for the ${archetype.name} archetype in all Yu-Gi-Oh! formats.`;
+
+  // Schema.org structured data for archetype collection pages
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": pageTitle,
+    "description": pageDescription,
+    "url": `${window.location.origin}${canonicalPath ?? ""}`,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Masterduel Counter",
+      "url": "https://masterduelcounter.com"
+    },
+    "about": {
+      "@type": "Thing",
+      "name": `${archetype.name} ${guideType === "COUNTER" ? "Counter Strategies" : guideType === "DECK" ? "Deck Building" : "Guides"}`,
+      "description": `${archetype.name} archetype in Yu-Gi-Oh! TCG, OCG, and Master Duel`
+    },
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://masterduelcounter.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": guideType === "COUNTER" ? "Counter Guides" : guideType === "DECK" ? "Deck Guides" : "Guides",
+          "item": `${window.location.origin}${buildArchetypePath({ guideType })}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": archetype.name,
+          "item": `${window.location.origin}${canonicalPath ?? ""}`
+        }
+      ]
+    }
+  };
 
   return (
     <>
@@ -210,6 +252,9 @@ export const ArchetypeGuideListPage = () => {
         <title>{pageTitle}</title>
         <link rel="canonical" href={`${window.location.origin}${canonicalPath ?? ""}`} />
         <meta name="description" content={pageDescription} />
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
         <meta
           name="keywords"
           content={`Yu-Gi-Oh, TCG, OCG, Master Duel, ${archetype.name}, ${guideType === "COUNTER" ? "counter, handtraps, how to beat" : guideType === "DECK" ? "deck guide, combos, strategy" : "guides, counter, deck"}, archetypes`}
