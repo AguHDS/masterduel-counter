@@ -13,9 +13,10 @@ import { GuideTypeSelectionModal } from "@/shared/components/modals/GuideTypeSel
 import { useArchetypeSearch } from "@/features/archetypes/hooks/useArchetypes";
 import type { GuideType, Archetype } from "@/features/archetypes/types";
 import { buildArchetypePath, buildGuideEditorPath, buildGuidePath } from "@/lib/config/urlHelpers";
+import { useCanonicalPathRedirect } from "@/shared/hooks/useCanonicalPathRedirect";
 
 /** Page that shows ALL guides of a given type (counter or deck) across all archetypes.
- * Accessed via /guides?type=counter or /guides?type=deck
+ * Accessed via /guides/counter-guides or /guides/deck-guides
  */
 export const AllGuidesListPage = () => {
   const navigate = useNavigate();
@@ -33,9 +34,29 @@ export const AllGuidesListPage = () => {
     limit: 20,
   });
 
-  const typeParam = searchParams.get("type");
-  const guideType: GuideType | undefined =
-    typeParam === "counter" ? "COUNTER" : typeParam === "deck" ? "DECK" : undefined;
+  // Extract guide type from URL path segment (e.g., /guides/counter-guides)
+  // Fallback to query param for backward compatibility (will be redirected by middleware)
+  const currentPath = window.location.pathname;
+  const guideType: GuideType | undefined = useMemo(() => {
+    if (currentPath.endsWith('/counter-guides')) {
+      return "COUNTER";
+    }
+    if (currentPath.endsWith('/deck-guides')) {
+      return "DECK";
+    }
+    // Fallback to legacy query param
+    const typeParam = searchParams.get("type");
+    if (typeParam === "counter") return "COUNTER";
+    if (typeParam === "deck") return "DECK";
+    return undefined;
+  }, [currentPath, searchParams]);
+
+  // Canonical path for SEO - redirects query params to path-based URLs
+  const canonicalPath = guideType
+    ? buildArchetypePath({ guideType })
+    : null;
+
+  useCanonicalPathRedirect(canonicalPath);
 
   const handleSelectInstance = useCallback(
     (instanceId: number) => {
@@ -114,10 +135,28 @@ export const AllGuidesListPage = () => {
 
   const getPageDescription = () => {
     if (guideType === "COUNTER")
-      return "Browse all Yu-Gi-Oh! Master Duel counter guides. Learn how to counter popular decks with handtraps and board breakers.";
+      return "Browse all Yu-Gi-Oh! counter guides for TCG, OCG, and Master Duel. Learn how to counter popular decks with handtraps and board breakers.";
     if (guideType === "DECK")
-      return "Browse all Yu-Gi-Oh! Master Duel deck guides. Learn combo lines, deck builds, and strategies.";
-    return "Browse all Yu-Gi-Oh! Master Duel community guides.";
+      return "Browse all Yu-Gi-Oh! deck guides for TCG, OCG, and Master Duel. Learn combo lines, deck builds, and strategies.";
+    return "Browse all Yu-Gi-Oh! community guides for all formats (TCG, OCG, Master Duel).";
+  };
+
+  // Schema.org structured data for collection pages
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": getPageTitle(),
+    "description": getPageDescription(),
+    "url": `${window.location.origin}${buildArchetypePath({ guideType })}`,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Masterduel Counter",
+      "url": "https://masterduelcounter.com"
+    },
+    "about": {
+      "@type": "Thing",
+      "name": guideType === "COUNTER" ? "Yu-Gi-Oh! Counter Strategies" : guideType === "DECK" ? "Yu-Gi-Oh! Deck Building Guides" : "Yu-Gi-Oh! Guides"
+    }
   };
 
   return (
@@ -126,22 +165,25 @@ export const AllGuidesListPage = () => {
         <title>{getPageTitle()}</title>
         <link
           rel="canonical"
-          href={`${window.location.origin}/guides${guideType === "COUNTER" ? "?type=counter" : guideType === "DECK" ? "?type=deck" : ""}`}
+          href={`${window.location.origin}${buildArchetypePath({ guideType })}`}
         />
         <meta name="description" content={getPageDescription()} />
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
         <meta
           name="keywords"
           content={
             guideType === "COUNTER"
-              ? "Yu-Gi-Oh, Master Duel, counter guides, handtraps, how to counter, board breakers, strategy"
+              ? "Yu-Gi-Oh, TCG, OCG, Master Duel, counter guides, handtraps, how to counter, board breakers, strategy"
               : guideType === "DECK"
-                ? "Yu-Gi-Oh, Master Duel, deck guides, combos, deck builds, strategy"
-                : "Yu-Gi-Oh, Master Duel, archetypes, guides, counters, decks, strategy"
+                ? "Yu-Gi-Oh, TCG, OCG, Master Duel, deck guides, combos, deck builds, strategy"
+                : "Yu-Gi-Oh, TCG, OCG, Master Duel, archetypes, guides, counters, decks, strategy"
           }
         />
         <meta
           property="og:url"
-          content={`${window.location.origin}/guides${guideType === "COUNTER" ? "?type=counter" : guideType === "DECK" ? "?type=deck" : ""}`}
+          content={`${window.location.origin}${buildArchetypePath({ guideType })}`}
         />
         <meta property="og:title" content={getPageTitle()} />
         <meta property="og:description" content={getPageDescription()} />

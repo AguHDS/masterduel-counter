@@ -60,7 +60,7 @@ import guideRequests from "./routes/guide-request/guideRequests.js";
 import sitemap from "./routes/sitemap.js";
 
 // Middleware for redirect 301 legacy URLs to new ones
-const { redirectLegacyArchetypeListUrl, redirectLegacyGuideUrl, redirectLegacyProfileUrl } = createLegacyUrlRedirectMiddleware(getDependencies());
+const { redirectLegacyArchetypeListUrl, redirectLegacyGuideUrl, redirectLegacyProfileUrl, redirectLegacyGuidesListUrl } = createLegacyUrlRedirectMiddleware(getDependencies());
 
 // SCP configuration
 const isDevelopment = NODE_ENV === "development";
@@ -212,15 +212,16 @@ app.use(sitemap);
 
 // Serve the React frontend (only if the build exists — production)
 if (existsSync(FRONTEND_DIST)) {
+  // OG tag injection for guide pages (MUST come BEFORE redirects so bots see meta tags)
+  app.use(createGuideOgPreviewMiddleware(getDependencies()));
+
   // Permanent redirects tell search engines that the old public URLs moved
+  app.get("/guides", redirectLegacyGuidesListUrl);
   app.get("/archetype/:archetypeId", redirectLegacyArchetypeListUrl);
   app.get("/archetype/:archetypeId/instance/:instanceId", redirectLegacyGuideUrl);
   app.get("/archetypes/:archetypeSlug/:authorSlug/:guideSlug", redirectLegacyGuideUrl);
   app.get("/profile/:userId", redirectLegacyProfileUrl);
   app.get("/profile/:userId/:tab", redirectLegacyProfileUrl);
-
-  // OG tag injection for guide pages (must come before static middleware)
-  app.use(createGuideOgPreviewMiddleware(getDependencies()));
 
   // Serve static assets (JS, CSS, images, etc.)
   app.use(express.static(FRONTEND_DIST));

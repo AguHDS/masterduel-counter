@@ -32,7 +32,16 @@ export const GuideContainerPage = () => {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isGuideHelpOpen, setIsGuideHelpOpen] = useState(false);
-  const [guideType, setGuideType] = useState<GuideType>("COUNTER");
+  
+  // Extract guideType from location state (for new guides) or search params (backward compatibility)
+  const stateGuideType = (location.state as { guideType?: GuideType })?.guideType;
+  const searchParams = new URLSearchParams(location.search);
+  const queryGuideType = searchParams.get("type");
+  const initialGuideType: GuideType = 
+    stateGuideType ||
+    (queryGuideType === "deck" ? "DECK" : queryGuideType === "counter" ? "COUNTER" : "COUNTER");
+  
+  const [guideType, setGuideType] = useState<GuideType>(initialGuideType);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -185,9 +194,44 @@ export const GuideContainerPage = () => {
     ? `${currentGuideTitle} | ${archetype.name} ${currentGuideType === "DECK" ? "Deck Guide" : "Counter Guide"} - Masterduel Counter`
     : `${archetype.name} ${currentGuideType === "DECK" ? "Deck Guide" : "Counter Guide"} - Masterduel Counter`;
   const pageDescription = currentGuideTitle
-    ? `Read ${currentGuideTitle}, a ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! Master Duel.`
-    : `Read this ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! Master Duel.`;
+    ? `Read ${currentGuideTitle}, a ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! (TCG, OCG, Master Duel).`
+    : `Read this ${currentGuideType === "DECK" ? "deck guide" : "counter guide"} for ${archetype.name} in Yu-Gi-Oh! (TCG, OCG, Master Duel).`;
   const canonicalUrl = `${window.location.origin}${canonicalGuidePath ?? location.pathname}`;
+
+  // Schema.org structured data for rich snippets
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": currentGuideTitle || `${archetype.name} ${currentGuideType === "DECK" ? "Deck Guide" : "Counter Guide"}`,
+    "description": pageDescription,
+    "image": guideInstanceData?.headerCard?.imageUrlCropped || guideInstanceData?.headerCard?.imageUrl || `${window.location.origin}/logo.png`,
+    "author": {
+      "@type": "Person",
+      "name": guideInstanceData?.userName || "Anonymous"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Masterduel Counter",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${window.location.origin}/logo.webp`
+      }
+    },
+    "datePublished": guideInstanceData?.instance.createdAt,
+    "dateModified": guideInstanceData?.instance.updatedAt,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": canonicalUrl
+    },
+    ...(guideInstanceData?.instance?.likes && guideInstanceData.instance.likes > 0 && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.5",
+        "bestRating": "5",
+        "ratingCount": guideInstanceData.instance.likes.toString()
+      }
+    })
+  };
 
   return (
     <>
@@ -202,6 +246,9 @@ export const GuideContainerPage = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />

@@ -34,11 +34,22 @@ export const ArchetypeGuideListPage = () => {
     limit: 20,
   });
 
-  const typeParam = searchParams.get("type");
-  const guideType: GuideType | undefined = 
-    typeParam === "counter" ? "COUNTER" :
-    typeParam === "deck" ? "DECK" :
-    undefined;
+  // Extract guide type from URL path segment (e.g., /archetype/rikka/counter-guides)
+  // Fallback to query param for backward compatibility (will be redirected by middleware)
+  const currentPath = window.location.pathname;
+  const guideType: GuideType | undefined = useMemo(() => {
+    if (currentPath.endsWith('/counter-guides')) {
+      return "COUNTER";
+    }
+    if (currentPath.endsWith('/deck-guides')) {
+      return "DECK";
+    }
+    // Fallback to legacy query param
+    const typeParam = searchParams.get("type");
+    if (typeParam === "counter") return "COUNTER";
+    if (typeParam === "deck") return "DECK";
+    return undefined;
+  }, [currentPath, searchParams]);
 
   const {
     data: archetypeWithHeaderData,
@@ -46,7 +57,7 @@ export const ArchetypeGuideListPage = () => {
     error,
   } = useArchetypeWithHeader(archetypeParam);
 
-  const canonicalPath = archetypeWithHeaderData?.success
+  const canonicalPath = archetypeWithHeaderData?.success && guideType
     ? buildArchetypePath({
         archetypeId: archetypeWithHeaderData.archetype.id,
         archetypeName: archetypeWithHeaderData.archetype.name,
@@ -54,7 +65,7 @@ export const ArchetypeGuideListPage = () => {
       })
     : null;
 
-  useCanonicalPathRedirect(canonicalPath, { includeSearch: true });
+  useCanonicalPathRedirect(canonicalPath);
 
   const handleSelectInstance = useCallback(
     (instanceId: number) => {
@@ -79,15 +90,19 @@ export const ArchetypeGuideListPage = () => {
 
   const handleSelectGuideType = useCallback(
     (guideType: GuideType) => {
-      const resolvedArchetypeId = archetypeWithHeaderData?.archetype.id ?? archetypeParam;
-      if (resolvedArchetypeId) {
-        navigate(buildGuideEditorPath({ archetypeId: resolvedArchetypeId, guideType }), {
-          state: { guideType },
-        });
-        setIsModalOpen(false);
+      // Always use the numeric archetype ID for guide editor navigation
+      const archetypeId = archetypeWithHeaderData?.archetype.id;
+      if (!archetypeId) {
+        console.error('Cannot navigate to guide editor: archetype data not loaded');
+        return;
       }
+      
+      navigate(buildGuideEditorPath({ archetypeId, guideType }), {
+        state: { guideType },
+      });
+      setIsModalOpen(false);
     },
-    [archetypeParam, archetypeWithHeaderData?.archetype.id, navigate],
+    [archetypeWithHeaderData?.archetype.id, navigate],
   );
 
   const handleSearchChange = useCallback((value: string) => {
@@ -184,10 +199,52 @@ export const ArchetypeGuideListPage = () => {
 
   const pageDescription =
     guideType === "COUNTER"
-      ? `Find the best counter strategies, handtraps, and tips to stop ${archetype.name} in Yu-Gi-Oh! Master Duel.`
+      ? `Find the best counter strategies, handtraps, and board breakers to stop ${archetype.name} in all Yu-Gi-Oh! formats (TCG, OCG, Master Duel).`
       : guideType === "DECK"
-        ? `Discover the best ${archetype.name} deck guides, combos, and strategies for Yu-Gi-Oh! Master Duel.`
-        : `Browse counter guides and deck guides for the ${archetype.name} archetype in Yu-Gi-Oh! Master Duel.`;
+        ? `Discover the best ${archetype.name} deck guides, combos, and deck building strategies for all Yu-Gi-Oh! formats (TCG, OCG, Master Duel).`
+        : `Browse counter and deck guides for the ${archetype.name} archetype in all Yu-Gi-Oh! formats.`;
+
+  // Schema.org structured data for archetype collection pages
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": pageTitle,
+    "description": pageDescription,
+    "url": `${window.location.origin}${canonicalPath ?? ""}`,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Masterduel Counter",
+      "url": "https://masterduelcounter.com"
+    },
+    "about": {
+      "@type": "Thing",
+      "name": `${archetype.name} ${guideType === "COUNTER" ? "Counter Strategies" : guideType === "DECK" ? "Deck Building" : "Guides"}`,
+      "description": `${archetype.name} archetype in Yu-Gi-Oh! TCG, OCG, and Master Duel`
+    },
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://masterduelcounter.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": guideType === "COUNTER" ? "Counter Guides" : guideType === "DECK" ? "Deck Guides" : "Guides",
+          "item": `${window.location.origin}${buildArchetypePath({ guideType })}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": archetype.name,
+          "item": `${window.location.origin}${canonicalPath ?? ""}`
+        }
+      ]
+    }
+  };
 
   return (
     <>
@@ -195,9 +252,12 @@ export const ArchetypeGuideListPage = () => {
         <title>{pageTitle}</title>
         <link rel="canonical" href={`${window.location.origin}${canonicalPath ?? ""}`} />
         <meta name="description" content={pageDescription} />
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
         <meta
           name="keywords"
-          content={`Yu-Gi-Oh, Master Duel, ${archetype.name}, ${guideType === "COUNTER" ? "counter, handtraps, how to beat" : guideType === "DECK" ? "deck guide, combos, strategy" : "guides, counter, deck"}, archetypes`}
+          content={`Yu-Gi-Oh, TCG, OCG, Master Duel, ${archetype.name}, ${guideType === "COUNTER" ? "counter, handtraps, how to beat" : guideType === "DECK" ? "deck guide, combos, strategy" : "guides, counter, deck"}, archetypes`}
         />
         <meta property="og:url" content={`${window.location.origin}${canonicalPath ?? ""}`} />
         <meta property="og:title" content={pageTitle} />
