@@ -64,6 +64,12 @@ export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
     // Skip if frontend dist doesn't exist
     if (!existsSync(INDEX_HTML_PATH)) return next();
 
+    // Only process for social media bots
+    const userAgent = req.headers["user-agent"] || "";
+    const isSocialBot = /bot|crawler|spider|crawling|discordbot|twitterbot|facebookexternalhit|whatsapp|telegram|slack|linkedin|pinterest/i.test(userAgent);
+    
+    if (!isSocialBot) return next(); // Let regular users be redirected
+
     const instanceId = parseInt(match[2]);
     const archetypeId = parseInt(match[1]);
 
