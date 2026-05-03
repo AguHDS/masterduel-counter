@@ -7,21 +7,41 @@ export class SqliteProfileRepository implements ProfileRepository {
 
   async resolvePublicUserId(userIdOrSlug: string): Promise<string> {
     let resolvedUserId = userIdOrSlug;
-    const publicProfileId = userIdOrSlug.match(/(\d+)$/)?.[1];
 
-    if (publicProfileId) {
+    // Format 1: username-userId (e.g., "khela-r4TvicZBkyDiKkcERxodAJvICDtbRbis")
+    // The userId is always after the last hyphen and is alphanumeric
+    if (userIdOrSlug.includes("-")) {
+      const parts = userIdOrSlug.split("-");
+      const lastPart = parts[parts.length - 1];
+      
+      // Check if the last part looks like a userId (long alphanumeric string)
+      if (lastPart && lastPart.length >= 20 && /^[a-zA-Z0-9]+$/.test(lastPart)) {
+        // Verify this userId actually exists
+        const user = await this.prisma.user.findUnique({
+          where: { id: lastPart },
+          select: { id: true },
+        });
+        
+        if (user) {
+          return user.id;
+        }
+      }
+    }
+
+    // Format 2: numeric profile ID (e.g., "123")
+    if (/^\d+$/.test(userIdOrSlug)) {
       const profileByPublicId = await this.prisma.profile.findUnique({
-        where: { id: Number.parseInt(publicProfileId, 10) },
+        where: { id: Number.parseInt(userIdOrSlug, 10) },
         select: { userId: true },
       });
 
       if (profileByPublicId?.userId) {
-        resolvedUserId = profileByPublicId.userId;
+        return profileByPublicId.userId;
       }
-    } else if (userIdOrSlug.includes("-")) {
-      resolvedUserId = userIdOrSlug.split("-").pop() || userIdOrSlug;
     }
 
+    // Format 3: direct userId (fallback - try as-is)
+    // This handles cases where the userId is passed directly
     return resolvedUserId;
   }
 

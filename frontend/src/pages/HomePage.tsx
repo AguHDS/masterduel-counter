@@ -100,7 +100,7 @@ export const HomePage = () => {
         <Navbar />
 
         <div className="scale-[0.92] origin-top">
-          <MainLogo />
+          <MainLogo asHeading={true} />
 
           {/* Main Search Section - Prominent entry point */}
           <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 mb-9 mt-2 relative z-[100]">

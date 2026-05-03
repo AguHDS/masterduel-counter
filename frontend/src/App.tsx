@@ -30,8 +30,27 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/support" element={<SupportPage />} />
       <Route path="/cards" element={<CardsPage />} />
+      {/** Global guide lists with specific types */}
+      <Route path="/guides/counter-guides" element={<AllGuidesListPage />} />
+      <Route path="/guides/deck-guides" element={<AllGuidesListPage />} />
+      {/** Legacy global guides route (for backward compatibility and old URLs) */}
       <Route path="/guides" element={<AllGuidesListPage />} />
-      {/** Guide list of selected archetype */}
+      {/** Archetype-specific guide lists with types */}
+      <Route
+        path="/archetype/:archetypeId/counter-guides"
+        element={<ArchetypeGuideListPage />}
+      />
+      <Route
+        path="/archetype/:archetypeId/deck-guides"
+        element={<ArchetypeGuideListPage />}
+      />
+      {/** Internal id-based route kept for guide creation, direct editor access, and SPA compatibility */}
+      {/** IMPORTANT: This must come BEFORE the generic /archetype/:archetypeId route */}
+      <Route
+        path="/archetype/:archetypeId/instance/:instanceId"
+        element={<GuideContainerPage />}
+      />
+      {/** Legacy archetype guide list route (for backward compatibility) */}
       <Route
         path="/archetype/:archetypeId"
         element={<ArchetypeGuideListPage />}
@@ -39,11 +58,6 @@ function AppRoutes() {
       {/** Guide route */}
       <Route
         path="/archetypes/:archetypeSlug/:authorSlug/:guideSlug"
-        element={<GuideContainerPage />}
-      />
-      {/** Internal id-based route kept for guide creation, direct editor access, and SPA compatibility */}
-      <Route
-        path="/archetype/:archetypeId/instance/:instanceId"
         element={<GuideContainerPage />}
       />
       <Route path="/profile/:userId" element={<ProfilePage />} />

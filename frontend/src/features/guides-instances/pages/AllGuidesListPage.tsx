@@ -13,9 +13,10 @@ import { GuideTypeSelectionModal } from "@/shared/components/modals/GuideTypeSel
 import { useArchetypeSearch } from "@/features/archetypes/hooks/useArchetypes";
 import type { GuideType, Archetype } from "@/features/archetypes/types";
 import { buildArchetypePath, buildGuideEditorPath, buildGuidePath } from "@/lib/config/urlHelpers";
+import { useCanonicalPathRedirect } from "@/shared/hooks/useCanonicalPathRedirect";
 
 /** Page that shows ALL guides of a given type (counter or deck) across all archetypes.
- * Accessed via /guides?type=counter or /guides?type=deck
+ * Accessed via /guides/counter-guides or /guides/deck-guides
  */
 export const AllGuidesListPage = () => {
   const navigate = useNavigate();
@@ -33,9 +34,29 @@ export const AllGuidesListPage = () => {
     limit: 20,
   });
 
-  const typeParam = searchParams.get("type");
-  const guideType: GuideType | undefined =
-    typeParam === "counter" ? "COUNTER" : typeParam === "deck" ? "DECK" : undefined;
+  // Extract guide type from URL path segment (e.g., /guides/counter-guides)
+  // Fallback to query param for backward compatibility (will be redirected by middleware)
+  const currentPath = window.location.pathname;
+  const guideType: GuideType | undefined = useMemo(() => {
+    if (currentPath.endsWith('/counter-guides')) {
+      return "COUNTER";
+    }
+    if (currentPath.endsWith('/deck-guides')) {
+      return "DECK";
+    }
+    // Fallback to legacy query param
+    const typeParam = searchParams.get("type");
+    if (typeParam === "counter") return "COUNTER";
+    if (typeParam === "deck") return "DECK";
+    return undefined;
+  }, [currentPath, searchParams]);
+
+  // Canonical path for SEO - redirects query params to path-based URLs
+  const canonicalPath = guideType
+    ? buildArchetypePath({ guideType })
+    : null;
+
+  useCanonicalPathRedirect(canonicalPath);
 
   const handleSelectInstance = useCallback(
     (instanceId: number) => {
@@ -126,7 +147,7 @@ export const AllGuidesListPage = () => {
         <title>{getPageTitle()}</title>
         <link
           rel="canonical"
-          href={`${window.location.origin}/guides${guideType === "COUNTER" ? "?type=counter" : guideType === "DECK" ? "?type=deck" : ""}`}
+          href={`${window.location.origin}${buildArchetypePath({ guideType })}`}
         />
         <meta name="description" content={getPageDescription()} />
         <meta
@@ -141,7 +162,7 @@ export const AllGuidesListPage = () => {
         />
         <meta
           property="og:url"
-          content={`${window.location.origin}/guides${guideType === "COUNTER" ? "?type=counter" : guideType === "DECK" ? "?type=deck" : ""}`}
+          content={`${window.location.origin}${buildArchetypePath({ guideType })}`}
         />
         <meta property="og:title" content={getPageTitle()} />
         <meta property="og:description" content={getPageDescription()} />

@@ -1,11 +1,17 @@
 import mainLogo from "@/assets/home-rework/MDC_logo_full.webp";
 
-export const MainLogo = () => {
+interface MainLogoProps {
+  asHeading?: boolean;
+}
+
+export const MainLogo = ({ asHeading = false }: MainLogoProps) => {
+  const Wrapper = asHeading ? 'h1' : 'div';
+  
   return (
     <div className="relative mt-2 w-full ">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-center items-center relative top-3">
-          <div className="relative">
+          <Wrapper className="relative">
             <img
               src={mainLogo}
               alt="Masterduel Counter - Yu-Gi-Oh! Master Duel Archetype Counter Guides"
@@ -27,7 +33,12 @@ export const MainLogo = () => {
                 mx-auto
               "
             />
-          </div>
+            {asHeading && (
+              <span className="sr-only">
+                Yu-Gi-Oh! Guides - Find Counter and Deck Guides - Use Handtraps and learn Combos to Beat Meta Decks
+              </span>
+            )}
+          </Wrapper>
         </div>
       </div>
     </div>

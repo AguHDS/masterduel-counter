@@ -11,6 +11,7 @@ import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import { useNavigate, Link } from "react-router-dom";
 import type { GuideType } from "@/features/archetypes/types";
+import { buildArchetypePath } from "@/lib/config/urlHelpers";
 
 interface ArchetypeInstancesListProps {
   archetypeId: number;
@@ -76,9 +77,9 @@ const ArchetypeGuideList = ({
 
   const handleBackClick = () => {
     if (guideType === "COUNTER") {
-      navigate("/guides?type=counter");
+      navigate(buildArchetypePath({ guideType: "COUNTER" }));
     } else if (guideType === "DECK") {
-      navigate("/guides?type=deck");
+      navigate(buildArchetypePath({ guideType: "DECK" }));
     } else {
       navigate("/");
     }

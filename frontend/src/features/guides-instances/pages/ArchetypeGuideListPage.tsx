@@ -34,11 +34,22 @@ export const ArchetypeGuideListPage = () => {
     limit: 20,
   });
 
-  const typeParam = searchParams.get("type");
-  const guideType: GuideType | undefined = 
-    typeParam === "counter" ? "COUNTER" :
-    typeParam === "deck" ? "DECK" :
-    undefined;
+  // Extract guide type from URL path segment (e.g., /archetype/rikka/counter-guides)
+  // Fallback to query param for backward compatibility (will be redirected by middleware)
+  const currentPath = window.location.pathname;
+  const guideType: GuideType | undefined = useMemo(() => {
+    if (currentPath.endsWith('/counter-guides')) {
+      return "COUNTER";
+    }
+    if (currentPath.endsWith('/deck-guides')) {
+      return "DECK";
+    }
+    // Fallback to legacy query param
+    const typeParam = searchParams.get("type");
+    if (typeParam === "counter") return "COUNTER";
+    if (typeParam === "deck") return "DECK";
+    return undefined;
+  }, [currentPath, searchParams]);
 
   const {
     data: archetypeWithHeaderData,
@@ -46,7 +57,7 @@ export const ArchetypeGuideListPage = () => {
     error,
   } = useArchetypeWithHeader(archetypeParam);
 
-  const canonicalPath = archetypeWithHeaderData?.success
+  const canonicalPath = archetypeWithHeaderData?.success && guideType
     ? buildArchetypePath({
         archetypeId: archetypeWithHeaderData.archetype.id,
         archetypeName: archetypeWithHeaderData.archetype.name,
@@ -54,7 +65,7 @@ export const ArchetypeGuideListPage = () => {
       })
     : null;
 
-  useCanonicalPathRedirect(canonicalPath, { includeSearch: true });
+  useCanonicalPathRedirect(canonicalPath);
 
   const handleSelectInstance = useCallback(
     (instanceId: number) => {
@@ -79,15 +90,19 @@ export const ArchetypeGuideListPage = () => {
 
   const handleSelectGuideType = useCallback(
     (guideType: GuideType) => {
-      const resolvedArchetypeId = archetypeWithHeaderData?.archetype.id ?? archetypeParam;
-      if (resolvedArchetypeId) {
-        navigate(buildGuideEditorPath({ archetypeId: resolvedArchetypeId, guideType }), {
-          state: { guideType },
-        });
-        setIsModalOpen(false);
+      // Always use the numeric archetype ID for guide editor navigation
+      const archetypeId = archetypeWithHeaderData?.archetype.id;
+      if (!archetypeId) {
+        console.error('Cannot navigate to guide editor: archetype data not loaded');
+        return;
       }
+      
+      navigate(buildGuideEditorPath({ archetypeId, guideType }), {
+        state: { guideType },
+      });
+      setIsModalOpen(false);
     },
-    [archetypeParam, archetypeWithHeaderData?.archetype.id, navigate],
+    [archetypeWithHeaderData?.archetype.id, navigate],
   );
 
   const handleSearchChange = useCallback((value: string) => {

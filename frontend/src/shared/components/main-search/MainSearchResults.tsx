@@ -2,6 +2,7 @@ import { type Archetype } from "@/features/archetypes/types/archetypes.types";
 import { Search, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { useState, useCallback, memo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { buildArchetypePath } from "@/lib/config/urlHelpers";
 
 interface SearchResultsProps {
   isVisible: boolean;
@@ -65,11 +66,11 @@ export const MainSearchResults = memo(
     }, []);
 
     const handleViewAllCounterGuides = useCallback(() => {
-      navigate("/guides?type=counter");
+      navigate(buildArchetypePath({ guideType: "COUNTER" }));
     }, [navigate]);
 
     const handleViewAllDeckGuides = useCallback(() => {
-      navigate("/guides?type=deck");
+      navigate(buildArchetypePath({ guideType: "DECK" }));
     }, [navigate]);
 
     const renderGuideItem = useCallback(

@@ -31,7 +31,7 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
             Header Information
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
+            <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30">
               <img
                 src={guideHelp_TitleAndDescr}
                 alt="Title and description section example"
@@ -55,7 +55,7 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
                 </b>
               </p>
             </div>
-            <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
+            <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30">
               <img
                 src={guideHelp_Header}
                 alt="Header card image example"
@@ -80,7 +80,7 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
             </span>
             Initial hands
           </h3>
-          <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
+          <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30">
             <img
               src={deckguide_initialhands}
               alt="Card pair example showing target cards and their counters"
@@ -91,7 +91,7 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
                 Initial hands:
               </span>{" "}
               Represents the starting hand of the combo you are showcasing in
-              the combo flow.
+              the combo flow. You can also add a final board preview.
             </p>
           </div>
         </section>
@@ -104,7 +104,7 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
             </span>
             Combo Flow
           </h3>
-          <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
+          <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30">
             <img
               src={deckguide_comboflow}
               alt="Card pair example showing target cards and their counters"
@@ -157,7 +157,7 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
           <p className="text-sm">
             Deck builder to show the deck of this guide.
           </p>
-          <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30 transition-shadow">
+          <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30">
             <img
               src={guideHelp_Recommended}
               alt="Recommended deck sections example showing main and extra deck"

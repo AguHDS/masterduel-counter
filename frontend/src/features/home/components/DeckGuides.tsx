@@ -1,7 +1,7 @@
 import { BookOpen, Eye, ThumbsUp, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
-import { buildGuidePath } from "@/lib/config/urlHelpers";
+import { buildGuidePath, buildArchetypePath } from "@/lib/config/urlHelpers";
 
 const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
@@ -158,7 +158,7 @@ export const DeckGuides = () => {
         </div>
 
         <Link
-          to="/guides?type=deck"
+          to={buildArchetypePath({ guideType: "DECK" })}
           className="relative mt-4 m-auto flex items-center text-[21px] justify-center px-3 py-1.5 text-blue-400/90 hover:text-blue-300 active:text-blue-600/90 cursor-pointer transition-all duration-150 border border-blue-500/50 hover:border-blue-400/60 active:border-blue-700/50 rounded-lg bg-transparent hover:bg-blue-500/20 active:bg-blue-700/20 backdrop-blur-sm"
         >
           <span>View All Deck Guides</span>

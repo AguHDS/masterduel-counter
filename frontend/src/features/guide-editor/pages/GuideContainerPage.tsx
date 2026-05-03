@@ -32,7 +32,16 @@ export const GuideContainerPage = () => {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isGuideHelpOpen, setIsGuideHelpOpen] = useState(false);
-  const [guideType, setGuideType] = useState<GuideType>("COUNTER");
+  
+  // Extract guideType from location state (for new guides) or search params (backward compatibility)
+  const stateGuideType = (location.state as { guideType?: GuideType })?.guideType;
+  const searchParams = new URLSearchParams(location.search);
+  const queryGuideType = searchParams.get("type");
+  const initialGuideType: GuideType = 
+    stateGuideType ||
+    (queryGuideType === "deck" ? "DECK" : queryGuideType === "counter" ? "COUNTER" : "COUNTER");
+  
+  const [guideType, setGuideType] = useState<GuideType>(initialGuideType);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
