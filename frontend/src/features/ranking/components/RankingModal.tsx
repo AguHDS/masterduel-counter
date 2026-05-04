@@ -193,8 +193,8 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           </span>
                         </span>
                         <span className="flex items-center gap-1">
-                          <Eye className="w-3 h-3 text-blue-400" />
-                          <span className="text-sm text-blue-300">
+                          <Eye className="w-3 h-3 text-purple-400" />
+                          <span className="text-sm text-purple-400">
                             {user.totalViews.toLocaleString()} Guide Views
                           </span>
                         </span>

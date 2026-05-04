@@ -1,9 +1,7 @@
 import { InfoModal } from "@/shared/components/info/components/InfoModal";
 import {
   deckguide_comboflow,
-  guideHelp_Header,
   guideHelp_Recommended,
-  guideHelp_TitleAndDescr,
   deckguide_initialhands,
 } from "../../assets";
 
@@ -28,57 +26,7 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
             <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
               1
             </span>
-            Header Information
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30">
-              <img
-                src={guideHelp_TitleAndDescr}
-                alt="Title and description section example"
-                className="w-full rounded-lg mb-2 border border-slate-700/50"
-              />
-              <p className="text-sm">
-                <span className="text-blue-300 font-semibold">Title:</span> Give
-                your guide a clear title.
-                <br />
-                <span className="text-blue-300 font-semibold">
-                  Description:
-                </span>{" "}
-                Explain general things about combos. <br /> <br />
-                <b>
-                  Example: <br />
-                  Combo #1 (7 disruptions): You need Dark Beckoning OR Spirit
-                  Gates <br />
-                  Combo #2 (10 disruptions): You need Throne + Spirit gates OR
-                  beckoning <br />
-                  Combo #3: (8 disruptions): Can be done with Throne OR Lotus
-                </b>
-              </p>
-            </div>
-            <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30">
-              <img
-                src={guideHelp_Header}
-                alt="Header card image example"
-                className="w-full rounded-lg mb-2 border border-slate-700/50"
-              />
-              <p className="text-sm">
-                <span className="text-blue-300 font-semibold">
-                  Header Card:
-                </span>{" "}
-                Preview image for your guide. It will be used as a thumbnail
-                when listing.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Phase 2: Initial Hands */}
-        <section className="space-y-3">
-          <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
-            <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
-              2
-            </span>
-            Initial hands
+            Initial hands & Board Preview
           </h3>
           <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30">
             <img
@@ -88,15 +36,18 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
             />
             <p className="text-sm mb-2">
               <span className="text-blue-300 font-semibold">
-                Initial hands:
+                Initial Hands:
               </span>{" "}
               Represents the starting hand of the combo you are showcasing in
-              the combo flow. You can also add a final board preview.
+              the combo flow.
             </p>
+            <span className="text-blue-300 font-semibold">
+                Final Board Preview:
+              </span>{" "}
+              An example of the result of the combo flow you created for that initial hand.
           </div>
         </section>
 
-        {/* Phase 3: Combo FLOW*/}
         <section className="space-y-3">
           <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
             <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
@@ -146,7 +97,6 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
           </div>
         </section>
 
-        {/* Phase 3: Recommended Deck */}
         <section className="space-y-3">
           <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
             <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">

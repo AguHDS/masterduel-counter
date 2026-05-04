@@ -186,8 +186,8 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         </span>
                       </span>
                       <span className="flex items-center gap-0.5">
-                        <Eye className="w-3 h-3 text-blue-400" />
-                        <span className="text-xs text-blue-300 font-medium">
+                        <Eye className="w-3 h-3 text-purple-400" />
+                        <span className="text-xs text-purple-400 font-medium">
                           {user.totalViews.toLocaleString()} Views
                         </span>
                       </span>
