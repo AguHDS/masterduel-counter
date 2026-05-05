@@ -21,6 +21,9 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
       title="How to Correctly Create a Deck Guide"
     >
       <div className="space-y-6 text-gray-200">
+        <div className=" text-blue-300 font-semibold text-center">
+          You are free to decide if you want to include only Initial Hands for combo flows, only a recommended deck, or both for your guide. However, including both sections will make your guide more comprehensive and appealing to users.
+        </div>
         <section className="space-y-3">
           <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
             <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
@@ -42,9 +45,10 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
               the combo flow.
             </p>
             <span className="text-blue-300 font-semibold">
-                Final Board Preview:
-              </span>{" "}
-              An example of the result of the combo flow you created for that initial hand.
+              Final Board Preview:
+            </span>{" "}
+            An example of the result of the combo flow you created for that
+            initial hand.
           </div>
         </section>
 
