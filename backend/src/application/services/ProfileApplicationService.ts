@@ -32,9 +32,9 @@ const normalizeFavoriteDeckReferences = (
     throw new Error("Invalid favoriteDecks JSON format");
   }
 
-  const normalized: (FavoriteDeckReference | null)[] = [null, null, null];
+  const normalized: (FavoriteDeckReference | null)[] = [null, null, null, null, null, null];
 
-  parsed.slice(0, 3).forEach((entry, index) => {
+  parsed.slice(0, 6).forEach((entry, index) => {
     if (!entry || typeof entry !== "object") {
       return;
     }

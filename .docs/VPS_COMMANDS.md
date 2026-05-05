@@ -14,6 +14,11 @@ La configuración de nginx (rutas, headers, etc.)
 Los certificados SSL
 Los upstreams del backend
 
+
+## ver cfg nginx
+cat /etc/nginx/sites-available/masterduelcounter
+## editar nginx
+sudo nano /etc/nginx/sites-available/masterduelcounter
 ## Verificar nginx
 # Verificar sintaxis
 sudo nginx -t

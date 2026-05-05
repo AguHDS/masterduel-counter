@@ -1,14 +1,23 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
-import { Flag, Edit, Eye, Crown, Trophy, ThumbsUp, MailWarning } from "lucide-react";
+import {
+  Flag,
+  Edit,
+  Eye,
+  Crown,
+  Trophy,
+  ThumbsUp,
+  MailWarning,
+  Camera,
+  Flame,
+} from "lucide-react";
 import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { Footer } from "@/layouts/Footer";
 import { FavoriteCardEditor } from "../components/FavoriteCardEditor";
 import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
 import { ProfileGuideList } from "../components/ProfileGuideList";
 import { PersonalDeckList } from "../components/PersonalDeckList";
-import { PersonalDecks } from "../components/PersonalDecks";
 import { UserSearchDropdown } from "../components/UserSearchDropdown";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
@@ -22,7 +31,10 @@ import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
 import { useRef, useState, useCallback } from "react";
-import { guideInstancesApi, type GuideListItem } from "@/lib/http/guideInstancesApi";
+import {
+  guideInstancesApi,
+  type GuideListItem,
+} from "@/lib/http/guideInstancesApi";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import profile_background from "@/assets/Profile_Backgroundnew.webp";
 import { formatCompactNumber } from "@/shared/utils/formatNumber";
@@ -57,13 +69,14 @@ export const ProfilePage = () => {
   const profile = profileData?.profile;
   const resolvedUserId = profile?.userId ?? "";
 
-  const canonicalPath = profile?.userName && resolvedUserId
-    ? buildProfilePath({
-        userName: profile.userName,
-        userId: resolvedUserId,
-        tab: tab && tab !== "profile" ? tab : undefined,
-      })
-    : null;
+  const canonicalPath =
+    profile?.userName && resolvedUserId
+      ? buildProfilePath({
+          userName: profile.userName,
+          userId: resolvedUserId,
+          tab: tab && tab !== "profile" ? tab : undefined,
+        })
+      : null;
 
   useCanonicalPathRedirect(canonicalPath);
 
@@ -183,10 +196,10 @@ export const ProfilePage = () => {
           const decks = JSON.parse(profile.favoriteDecks) as unknown;
           setFavoriteDecks(normalizeFavoriteDeckSlots(decks));
         } catch {
-          setFavoriteDecks([null, null, null]);
+          setFavoriteDecks([null, null, null, null, null, null]);
         }
       } else {
-        setFavoriteDecks([null, null, null]);
+        setFavoriteDecks([null, null, null, null, null, null]);
       }
     }
   }, [cancelEdit, profile, setFavoriteCardId, setFavoriteDecks]);
@@ -254,8 +267,15 @@ export const ProfilePage = () => {
               <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
                 {/* Left Sidebar */}
                 <aside className="w-full lg:w-[280px] xl:w-[320px] flex-shrink-0 lg:sticky lg:top-8">
-                  <div className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]">
-                    <div className="relative z-10 bg-gradient-to-br bg-slate-900/95 backdrop-blur-sm p-4 sm:p-5 space-y-4 h-full">
+                  <div
+                    className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]"
+                    style={{ background: 'radial-gradient(ellipse at 50% 30%, #1a1235 0%, #08061a 65%)' }}
+                  >
+                    <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-yellow-500/50 rounded-tr-lg z-20 pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-yellow-500/50 rounded-bl-lg z-20 pointer-events-none" />
+                    <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
+                    <div className="relative z-10 p-4 sm:p-5 space-y-4 h-full">
                       {/* Username and Profile Photo Square */}
                       <div className="flex flex-col items-center">
                         <h1 className="text-xl sm:text-2xl font-semibold text-yellow-400 mb-3">
@@ -381,46 +401,121 @@ export const ProfilePage = () => {
                           />
                           <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="w-full px-3 py-1.5 bg-blue-600/80 hover:bg-blue-700 text-white text-xs rounded transition-colors"
                             disabled={isSaving}
+                            className="relative w-full py-2 group overflow-hidden rounded disabled:opacity-50"
                           >
-                            Change Photo
+                            <div className="absolute inset-0 border border-amber-600/40 rounded group-hover:border-amber-500/60 transition-colors" />
+                            <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+                            <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+                            <span className="relative flex items-center justify-center gap-1.5 text-amber-300/80 font-bold text-[10px] tracking-[0.18em] uppercase group-hover:text-amber-300 transition-colors">
+                              <Camera className="w-3.5 h-3.5" />
+                              Change Photo
+                            </span>
                           </button>
 
                           {profile?.profilePictureUrl && (
                             <button
                               onClick={handleDeletePhoto}
                               disabled={isDeletingPhoto || isSaving}
-                              className="w-full px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition-colors disabled:opacity-50"
+                              className="relative w-full py-2 group overflow-hidden rounded disabled:opacity-50"
                             >
-                              {isDeletingPhoto ? "Deleting..." : "Delete Photo"}
+                              <div className="absolute inset-0 border border-red-700/40 rounded group-hover:border-red-600/60 transition-colors" />
+                              <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
+                              <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
+                              <span className="relative flex items-center justify-center gap-1.5 text-red-400/80 font-bold text-[10px] tracking-[0.18em] uppercase group-hover:text-red-400 transition-colors">
+                                <Flame className="w-3.5 h-3.5" />
+                                {isDeletingPhoto ? "Deleting..." : "Delete Photo"}
+                              </span>
                             </button>
                           )}
                         </div>
                       )}
 
-                      {/* Personal Decks */}
-                      <PersonalDecks
-                        decks={customDecks || []}
-                        onViewAll={() => navigate(getProfilePath("my-decks"))}
-                        isOwner={isOwner}
-                      />
+                      {/* Best Guides */}
+                      <div className="space-y-3">
+                        <h3 className="text-yellow-500 font-bold text-sm flex items-center gap-2 border-t border-yellow-600/30 pt-4">
+                          <span className="text-lg">♦</span> Best Guides
+                        </h3>
+                        {userGuides && userGuides.length > 0 ? (
+                          <>
+                            <div className="space-y-2 mb-4">
+                              {userGuides.slice(0, 3).map((guide) => (
+                                <div
+                                  key={guide.id}
+                                  className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
+                                  onClick={() => handleSelectGuide(guide)}
+                                >
+                                  {guide.headerCardImageUrl ? (
+                                    <img
+                                      src={getOptimizedCardImageUrl(
+                                        guide.headerCardImageUrl,
+                                        { size: "thumbnail" },
+                                      )}
+                                      alt={
+                                        guide.headerCardName || "Header card"
+                                      }
+                                      className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
+                                      loading="lazy"
+                                    />
+                                  ) : (
+                                    <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
+                                      <span className="text-slate-400 text-xs">
+                                        -
+                                      </span>
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className="text-white text-sm font-semibold truncate flex-1">
+                                        {guide.title}
+                                      </p>
+                                      <span className="text-green-400 text-xs font-semibold flex-shrink-0">
+                                        ↑ {guide.likes}
+                                      </span>
+                                    </div>
+                                    <p className="text-amber-200/70 text-xs truncate">
+                                      {guide.archetypeName}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <button
+                              onClick={handleViewAllGuides}
+                              className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
+                            >
+                              View all ({userGuides.length})
+                            </button>
+                          </>
+                        ) : (
+                          <div className="text-center text-gray-400 py-4">
+                            <p className="text-sm">No guides yet</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </aside>
 
                 <div className="flex-1 min-w-0">
                   {/* Main Content Container */}
-                  <div className="bg-gradient-to-br relative bg-slate-900/95  rounded-lg border-2 border-yellow-600/50 h-auto lg:h-[800px] flex flex-col">
+                  <div
+                    className="relative rounded-lg border-2 border-yellow-600/50 h-auto lg:h-[800px] flex flex-col overflow-hidden"
+                    style={{ background: 'radial-gradient(ellipse at 50% 25%, #1a1235 0%, #08061a 65%)' }}
+                  >
+                    <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-yellow-500/50 rounded-tr-lg z-20 pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-yellow-500/50 rounded-bl-lg z-20 pointer-events-none" />
+                    <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
                     {/* Tabs inside container */}
                     <div className="relative z-10 border-b border-yellow-600/30 bg-slate-900/40 backdrop-blur-sm">
                       <div className="flex flex-col gap-2 sm:gap-3 p-3 lg:flex-row lg:items-center lg:justify-between overflow-visible">
-                        <div className="flex flex-wrap gap-2">
+                        <div className="grid grid-cols-2 gap-1.5 lg:flex lg:flex-wrap lg:gap-2">
                           {[
                             { id: "profile", label: "Profile", path: "" },
                             {
                               id: "decks",
-                              label: "My Decks",
+                              label: `My Decks (${customDecks?.length ?? 0})`,
                               path: "my-decks",
                             },
                             {
@@ -506,50 +601,52 @@ export const ProfilePage = () => {
                     <div className="flex-1 p-4 sm:p-6 overflow-auto scrollbar-cardpair relative">
                       {activeTab === "profile" && (
                         <div className="space-y-8 sm:space-y-12">
-                          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-                            {/* Bio */}
-                            <div className="flex-1 min-w-0">
-                              <h2 className="text-yellow-400 font-semibold text-xl mb-3">
-                                Bio
-                              </h2>
-                              <div className="relative min-h-[248px] bg-gradient-to-br from-slate-900/40 to-purple-900/40 overflow-hidden rounded-lg border-2 border-yellow-500/60 shadow-lg shadow-yellow-500/20">
-                                <div className="relative z-10 p-4 sm:p-6">
-                                  {isEditMode && isOwner ? (
-                                    <div className="space-y-2">
-                                      <textarea
-                                        value={bioValue}
-                                        onChange={(e) =>
-                                          handleBioChange(e.target.value)
-                                        }
-                                        placeholder="Tell us about yourself... (Max 1000 characters)"
-                                        className="w-full px-4 py-3 bg-slate-900/70 text-white rounded border border-yellow-600/40 focus:border-yellow-500 focus:outline-none resize-none"
-                                        rows={6}
-                                        maxLength={1000}
-                                      />
-                                      <div className="text-sm text-gray-400">
-                                        {bioValue.length}/1000 characters
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div className="max-h-[200px] overflow-y-auto scrollbar-cardpair">
-                                      <p className="text-gray-300 whitespace-pre-wrap text-sm leading-relaxed">
-                                        {profile?.bio ||
-                                          (isOwner
-                                            ? "No bio available. Click 'Edit Profile' to add one."
-                                            : "No bio yet.")}
-                                      </p>
-                                    </div>
-                                  )}
+                          {/* Bio */}
+                          <div>
+                            <div
+                              className="relative overflow-hidden rounded-lg border border-yellow-600/30"
+                              style={{ background: 'radial-gradient(ellipse at 50% 0%, #1e1640 0%, #09071d 70%)' }}
+                            >
+                              {/* Bio header */}
+                              <div className="px-5 pt-4 pb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 h-px bg-gradient-to-r from-transparent to-yellow-600/40" />
+                                  <span className="text-yellow-500/55 text-[9px]">◆</span>
+                                  <h3 className="text-yellow-400 font-bold text-[11px] tracking-[0.22em] uppercase px-1">About</h3>
+                                  <span className="text-yellow-500/55 text-[9px]">◆</span>
+                                  <div className="flex-1 h-px bg-gradient-to-l from-transparent to-yellow-600/40" />
                                 </div>
                               </div>
+                              {/* Bio content */}
+                              <div className="px-6 pb-5">
+                                {isEditMode && isOwner ? (
+                                  <div className="space-y-2">
+                                    <textarea
+                                      value={bioValue}
+                                      onChange={(e) =>
+                                        handleBioChange(e.target.value)
+                                      }
+                                      placeholder="Tell us about yourself... (Max 1000 characters)"
+                                      className="w-full px-4 py-3 bg-[#06040f]/70 text-white/90 rounded border border-yellow-600/30 focus:border-yellow-500/60 focus:outline-none resize-none text-sm leading-relaxed placeholder:text-slate-600"
+                                      rows={4}
+                                      maxLength={1000}
+                                    />
+                                    <div className="text-right text-xs text-slate-500">
+                                      {bioValue.length}/1000
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="overflow-y-auto scrollbar-cardpair min-h-[2.5rem] flex items-center justify-center">
+                                    <p className="text-gray-300/80 whitespace-pre-wrap text-sm leading-relaxed text-center italic">
+                                      {profile?.bio ||
+                                        (isOwner
+                                          ? "No bio yet — click Edit Profile to add one."
+                                          : "No bio yet.")}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-
-                            {/* Favorite Card */}
-                            <FavoriteCardEditor
-                              cardId={favoriteCardId}
-                              isEditMode={isEditMode && isOwner}
-                              onCardSelect={handleFavoriteCardSelect}
-                            />
                           </div>
 
                           {/* Favorite Decks */}
@@ -558,8 +655,13 @@ export const ProfilePage = () => {
                             isEditMode={isEditMode && isOwner}
                             onDecksUpdate={handleFavoriteDecksUpdate}
                             customDecks={customDecks || []}
-                            isCustomDecksLoaded={isCustomDecksFetched && !isCustomDecksLoading}
-                            onNavigateToDecks={() => { cancelEdit(); navigate(getProfilePath("my-decks")); }}
+                            isCustomDecksLoaded={
+                              isCustomDecksFetched && !isCustomDecksLoading
+                            }
+                            onNavigateToDecks={() => {
+                              cancelEdit();
+                              navigate(getProfilePath("my-decks"));
+                            }}
                             onDeckClick={(deckId) => {
                               setAutoSelectDeckId(deckId);
                               navigate(getProfilePath("my-decks"));
@@ -605,126 +707,42 @@ export const ProfilePage = () => {
 
                 {/* Right Sidebar */}
                 <aside className="w-full lg:w-[280px] xl:w-[320px] flex-shrink-0 lg:sticky lg:top-8">
-                  <div className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]">
-                    <div className="relative z-10 bg-gradient-to-br bg-slate-900/95 backdrop-blur-sm p-4 sm:p-6 space-y-4 sm:space-y-6 h-full">
-                      <div className="space-y-3">
-                        <h3 className="text-yellow-500 font-bold text-sm flex items-center gap-2 mt-1">
-                          <span className="text-lg">♦</span> Favorite Guides
-                        </h3>
-                        {favoritedGuidesData?.guides &&
-                        favoritedGuidesData.guides.length > 0 ? (
-                          <>
-                            <div className="space-y-2 mb-4">
-                              {favoritedGuidesData.guides
-                                .slice(0, 3)
-                                .map((guide) => (
-                                  <div
-                                    key={guide.id}
-                                    className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
-                                    onClick={() =>
-                                      handleSelectGuide(guide)
-                                    }
-                                  >
-                                    {guide.headerCardImageUrl ? (
-                                      <img
-                                        src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
-                                        alt={
-                                          guide.headerCardName || "Header card"
-                                        }
-                                        className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
-                                        loading="lazy"
-                                      />
-                                    ) : (
-                                      <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
-                                        <span className="text-slate-400 text-xs">
-                                          -
-                                        </span>
-                                      </div>
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center justify-between gap-2">
-                                        <p className="text-white text-sm font-semibold truncate flex-1">
-                                          {guide.title}
-                                        </p>
-                                        <span className="text-green-400 text-xs font-semibold flex-shrink-0">
-                                          ↑ {guide.likes}
-                                        </span>
-                                      </div>
-                                      <p className="text-amber-200/70 text-xs truncate">
-                                        {guide.archetypeName}
-                                      </p>
-                                    </div>
-                                  </div>
-                                ))}
-                            </div>
-                            <button
-                              onClick={() =>
-                                navigate(getProfilePath("favorites"))
-                              }
-                              className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
-                            >
-                              View all ({favoritedGuidesData.guides.length})
-                            </button>
-                          </>
-                        ) : (
-                          <div className="text-center text-gray-400 py-4">
-                            <p className="text-sm">No favorites yet</p>
-                          </div>
-                        )}
+                  <div
+                    className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]"
+                    style={{ background: 'radial-gradient(ellipse at 50% 38%, #1a1235 0%, #08061a 65%)' }}
+                  >
+                    {/* Subtle corner accents */}
+                    <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-yellow-500/50 rounded-tr-lg z-20 pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-yellow-500/50 rounded-bl-lg z-20 pointer-events-none" />
+                    <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
+
+                    <div className="relative z-10 h-full flex flex-col">
+                      {/* Decorative title */}
+                      <div className="pt-6 pb-5 px-5">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-yellow-500/55" />
+                          <span className="text-yellow-500/55 text-[9px] leading-none">◆</span>
+                          <h2 className="text-yellow-400 font-bold text-sm tracking-[0.22em] uppercase px-1">
+                            Favorite Card
+                          </h2>
+                          <span className="text-yellow-500/55 text-[9px] leading-none">◆</span>
+                          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-yellow-500/55" />
+                        </div>
+                        <div className="mt-2 h-px bg-gradient-to-r from-transparent via-yellow-600/15 to-transparent" />
                       </div>
 
-                      <div>
-                        <h3 className="text-yellow-500 font-bold mb-3 border-t border-yellow-600/30 pt-6">
-                          ♦ Best Guides
-                        </h3>
-                        <div className="space-y-2 mb-4">
-                          {userGuides?.slice(0, 3).map((guide) => (
-                            <div
-                              key={guide.id}
-                              className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
-                              onClick={() =>
-                                handleSelectGuide(guide)
-                              }
-                            >
-                              {guide.headerCardImageUrl ? (
-                                <img
-                                  src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
-                                  alt={guide.headerCardName || "Header card"}
-                                  className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
-                                  loading="lazy"
-                                />
-                              ) : (
-                                <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
-                                  <span className="text-slate-400 text-xs">
-                                    -
-                                  </span>
-                                </div>
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-2">
-                                  <p className="text-white text-sm font-semibold truncate flex-1">
-                                    {guide.title}
-                                  </p>
-                                  <span className="text-green-400 text-xs font-semibold flex-shrink-0">
-                                    ↑ {guide.likes}
-                                  </span>
-                                </div>
-                                <p className="text-amber-200/70 text-xs truncate">
-                                  {guide.archetypeName}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        {userGuides && userGuides.length > 0 && (
-                          <button
-                            onClick={handleViewAllGuides}
-                            className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
-                          >
-                            View all ({userGuides.length})
-                          </button>
-                        )}
+                      {/* Card content */}
+                      <div className="flex-1 flex flex-col items-center justify-start">
+                        <FavoriteCardEditor
+                          cardId={favoriteCardId}
+                          isEditMode={isEditMode && isOwner}
+                          onCardSelect={handleFavoriteCardSelect}
+                        />
                       </div>
+
+                      {/* Bottom accent */}
+                      <div className="mx-6 mb-5 h-px bg-gradient-to-r from-transparent via-yellow-600/25 to-transparent" />
                     </div>
                   </div>
                 </aside>

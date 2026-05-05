@@ -4,7 +4,7 @@ import { profileApi } from '../api/profileApi';
 import type { FavoriteDeck } from '../types/profileTypes';
 import type { Profile } from '../api/profileApi';
 
-const EMPTY_FAVORITE_DECK_SLOTS: (FavoriteDeck | null)[] = [null, null, null];
+const EMPTY_FAVORITE_DECK_SLOTS: (FavoriteDeck | null)[] = [null, null, null, null, null, null];
 
 type FavoriteDeckRaw =
   | { deckId?: unknown }
@@ -23,7 +23,7 @@ export const normalizeFavoriteDeckSlots = (
     return normalized;
   }
 
-  input.slice(0, 3).forEach((entry, index) => {
+  input.slice(0, 6).forEach((entry, index) => {
     const raw = entry as FavoriteDeckRaw;
     const deckId = raw && typeof raw === 'object' ? raw.deckId : null;
 
