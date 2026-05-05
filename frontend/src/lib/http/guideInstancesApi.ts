@@ -20,6 +20,10 @@ export interface GuideListItem {
   headerCardName?: string;
   headerCardImageUrl?: string;
   minutesAgo?: number;
+  hasHandtraps?: boolean;
+  hasBoardbreakers?: boolean;
+  hasInitialHands?: boolean;
+  hasRecommendedDeck?: boolean;
 }
 
 export interface GuideInstanceWithFullDetails {

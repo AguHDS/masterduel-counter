@@ -62,7 +62,8 @@ export const HomeAllComponents = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div className="lg:col-span-2" aria-hidden="true" />
 
-          <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-3">
+          {/**Legacy containers */}
+          {/* <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-3">
             <div
               className="lg:col-span-2 h-[420px]"
               aria-label="Latest updates section"
@@ -73,7 +74,7 @@ export const HomeAllComponents = ({
             <div className="h-[420px]" aria-label="Main features section">
               <MainFeatures />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
