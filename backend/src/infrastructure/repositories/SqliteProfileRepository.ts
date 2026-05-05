@@ -6,7 +6,7 @@ export class SqliteProfileRepository implements ProfileRepository {
   constructor(private prisma: PrismaClient) {}
 
   async resolvePublicUserId(userIdOrSlug: string): Promise<string> {
-    let resolvedUserId = userIdOrSlug;
+    const resolvedUserId = userIdOrSlug;
 
     // Format 1: username-userId (e.g., "khela-r4TvicZBkyDiKkcERxodAJvICDtbRbis")
     // The userId is always after the last hyphen and is alphanumeric

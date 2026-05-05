@@ -32,7 +32,7 @@ export const GuideRequestNavbarPopup: React.FC<
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#c2901c]/20">
-        <span className="text-white text-sm font-semibold">Guide Requests</span>
+        <span className="text-white text-sm font-semibold">Request a Guide</span>
         <button
           onClick={onOpenCreate}
           className="flex items-center gap-1 text-[#c2901c] hover:text-[#d4a534] text-xs transition-colors"

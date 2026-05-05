@@ -130,8 +130,8 @@ async function fetchAllCardImages(): Promise<CardImageData[]> {
     
     // Extract only what we need (IDs and URLs) - discard everything else
     const cardImages: CardImageData[] = data.data
-      .filter((card: any) => card.card_images && card.card_images[0])
-      .map((card: any) => ({
+      .filter((card: { card_images?: { image_url: string; image_url_small: string; image_url_cropped: string }[] }) => card.card_images && card.card_images[0])
+      .map((card: { id: number; card_images: { image_url: string; image_url_small: string; image_url_cropped: string }[] }) => ({
         id: card.id,
         normalUrl: card.card_images[0].image_url,
         smallUrl: card.card_images[0].image_url_small,
@@ -220,7 +220,7 @@ async function downloadCardWithRetry(
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       // Download all 3 versions
-      const localUrls = await imageStorage.downloadAndSaveCardImages(card.id, {
+      await imageStorage.downloadAndSaveCardImages(card.id, {
         normal: card.normalUrl,
         small: card.smallUrl,
         cropped: card.croppedUrl,
