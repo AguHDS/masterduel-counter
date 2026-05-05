@@ -13,6 +13,7 @@ import type { RankingUser } from "../types/ranking.types";
 import { Avatar } from "@/shared/components/DefaultAvatar";
 import { useGuideRanking } from "../hooks/useRanking";
 import { getRankColor, getRankRowBg } from "../utils/rankingUtils";
+import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
 interface RankingPopupProps {
   isOpen: boolean;
@@ -276,9 +277,10 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                     <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden border border-[#c2901c]/20 bg-[#0d0b10]">
                       {guide.headerImageUrl ? (
                         <img
-                          src={guide.headerImageUrl}
+                          src={getOptimizedCardImageUrl(guide.headerImageUrl, { size: 'thumbnail' })}
                           alt={guide.title}
                           className="w-full h-full object-cover"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">

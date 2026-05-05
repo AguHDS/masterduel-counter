@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { Avatar } from "@/shared/components/DefaultAvatar";
 import { buildProfilePath } from "@/lib/config/urlHelpers";
+import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import { useState, useRef, useEffect } from "react";
 
 interface HeaderCard {
@@ -131,9 +132,10 @@ export const GuideHeader = ({
               cardId={headerCard.id}
             >
               <img
-                src={headerCard.imageUrlCropped}
+                src={getOptimizedCardImageUrl(headerCard.imageUrlCropped, { size: 'thumbnail', width: 300, height: 300 })}
                 alt={headerCard.name}
                 className="w-full border-2 relative bottom-7 border-amber-500/90 rounded-[3px] h-auto object-contain cursor-pointer"
+                loading="lazy"
               />
             </CardTooltip>
             {isEditMode && (

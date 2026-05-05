@@ -58,6 +58,7 @@ import profile from "./routes/profile/profile.js";
 import customDecks from "./routes/customDecks.js";
 import guideRequests from "./routes/guide-request/guideRequests.js";
 import sitemap from "./routes/sitemap.js";
+import cardThumbnails from "./routes/cardThumbnails.js";
 
 // Middleware for redirect 301 legacy URLs to new ones
 const { redirectLegacyArchetypeListUrl, redirectLegacyGuideUrl, redirectLegacyProfileUrl, redirectLegacyGuidesListUrl } = createLegacyUrlRedirectMiddleware(getDependencies());
@@ -160,6 +161,9 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+
+// Serve thumbnails with dynamic generation (must come before static middleware)
+app.use("/api/uploads", cardThumbnails);
 
 // Serve card images from local uploads directory
 // This allows frontend to request images via /api/uploads/cards/{cardId}.jpg

@@ -1,4 +1,4 @@
-import mainLogo from "@/assets/home-rework/MDC_logo_full.webp";
+import mainLogo from "@/assets/home-rework/MDC_logo_full-optimized.webp";
 
 interface MainLogoProps {
   asHeading?: boolean;

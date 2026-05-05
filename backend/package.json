@@ -15,7 +15,8 @@
     "migrate-images": "tsx src/scripts/migrate-card-images.ts",
     "update-urls": "tsx src/scripts/update-card-urls.ts",
     "update-card-details": "tsx src/scripts/update-card-details.ts",
-    "download-all-cards": "tsx src/scripts/download-all-cards.ts"
+    "download-all-cards": "tsx src/scripts/download-all-cards.ts",
+    "generate-thumbnails": "tsx src/scripts/generate-thumbnails.ts"
   },
   "keywords": [],
   "author": "",
@@ -57,6 +58,7 @@
     "multer": "^2.0.0",
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.1",
+    "sharp": "^0.34.5",
     "streamifier": "^0.1.1",
     "tsconfig-paths": "^4.2.0"
   }

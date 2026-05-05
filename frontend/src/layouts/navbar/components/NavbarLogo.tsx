@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import logoImg from "../../../assets/NavbarLogo.webp";
+import logoImg from "../../../assets/NavbarLogo-optimized.webp";
 
 export const NavbarLogo: React.FC = () => {
   const [showBetaTooltip, setShowBetaTooltip] = useState(false);

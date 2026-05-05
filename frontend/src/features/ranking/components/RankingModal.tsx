@@ -14,6 +14,7 @@ import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import { useRanking, useGuideRanking } from "../hooks/useRanking";
 import { Avatar } from "@/shared/components/DefaultAvatar";
 import { getRankColor, getRankRowBg } from "../utils/rankingUtils";
+import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
 interface RankingModalProps {
   isOpen: boolean;
@@ -285,9 +286,10 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                       <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border border-[#c2901c]/25 bg-[#0d0b10] shadow-md">
                         {guide.headerImageUrl ? (
                           <img
-                            src={guide.headerImageUrl}
+                            src={getOptimizedCardImageUrl(guide.headerImageUrl, { size: 'thumbnail' })}
                             alt={guide.title}
                             className="w-full h-full object-cover"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">

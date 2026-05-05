@@ -4,6 +4,7 @@ import { Plus, Info } from "lucide-react";
 import { useCustomDecks } from "../hooks/useCustomDecks";
 import { PersonalDeckModal } from "./PersonalDeckModal";
 import type { CustomDeck } from "../api/customDeckApi";
+import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
 interface PersonalDeckListProps {
   userId: string;
@@ -276,11 +277,12 @@ export const PersonalDeckList = ({
                     <div className="flex justify-center mb-3">
                       {previewCard ? (
                         <img
-                          src={previewCard.imageUrlCropped}
+                          src={getOptimizedCardImageUrl(previewCard.imageUrlCropped, { size: 'thumbnail' })}
                           alt={previewCard.name}
                           className={`h-[80px] w-[80px] object-cover rounded border-2 border-[#4a5866] shadow-lg ${
                             !canView ? "opacity-60" : ""
                           }`}
+                          loading="lazy"
                         />
                       ) : (
                         <div className="w-[80px] h-[80px] bg-[#6a7888] rounded border-2 border-[#4a5866] flex items-center justify-center">

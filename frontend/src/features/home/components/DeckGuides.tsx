@@ -2,6 +2,7 @@ import { BookOpen, Eye, ThumbsUp, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
 import { buildGuidePath, buildArchetypePath } from "@/lib/config/urlHelpers";
+import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
 const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
@@ -81,9 +82,9 @@ export const DeckGuides = () => {
                   <div className="flex-shrink-0 p-1">
                     {guide.headerCardImageUrl ? (
                       <img
-                        src={guide.headerCardImageUrl}
+                        src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
                         alt={guide.headerCardName || "Header card"}
-                        className="w-[74px] h-[74px] object-cover border-2 border-[#30303b]"
+                        className="w-[74px] h-[74px] object-cover border-2 border-[#30303b]"loading="lazy"
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
                           const parent = e.currentTarget.parentElement;

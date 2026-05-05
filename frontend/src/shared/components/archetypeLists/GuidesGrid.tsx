@@ -4,6 +4,7 @@ import { type GuideListItem } from "@/lib/http/guideInstancesApi";
 import { useAuth } from "@/features/auth";
 import { useNavigate } from "react-router-dom";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
+import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
 interface GuidesGridProps {
   instances: GuideListItem[];
@@ -125,9 +126,14 @@ export const GuidesGrid = ({
               <div className="relative w-full h-48 bg-gradient-to-br from-slate-800/50 to-slate-900/50 overflow-hidden">
                 {instance.headerCardImageUrl ? (
                   <img
-                    src={instance.headerCardImageUrl}
+                    src={getOptimizedCardImageUrl(instance.headerCardImageUrl, { 
+                      size: 'thumbnail', 
+                      width: 300, 
+                      height: 300 
+                    })}
                     alt={instance.headerCardName || "Header card"}
                     className="w-full h-full object-contain"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="w-full h-full bg-slate-700 flex items-center justify-center">
