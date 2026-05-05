@@ -2,6 +2,7 @@ import { BookOpen, Eye, ThumbsUp, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
 import { buildGuidePath, buildArchetypePath } from "@/lib/config/urlHelpers";
+import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
 const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
@@ -81,9 +82,9 @@ export const DeckGuides = () => {
                   <div className="flex-shrink-0 p-1">
                     {guide.headerCardImageUrl ? (
                       <img
-                        src={guide.headerCardImageUrl}
+                        src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
                         alt={guide.headerCardName || "Header card"}
-                        className="w-[74px] h-[74px] object-cover border-2 border-[#30303b]"
+                        className="w-[74px] h-[74px] object-cover border-2 border-[#30303b]"loading="lazy"
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
                           const parent = e.currentTarget.parentElement;
@@ -124,14 +125,15 @@ export const DeckGuides = () => {
 
                     {(guide.hasInitialHands || guide.hasRecommendedDeck) && (
                       <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                        {guide.hasInitialHands && (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 ">
-                            Combos
-                          </span>
-                        )}
+
                         {guide.hasRecommendedDeck && (
                           <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/30">
                             Deck
+                          </span>
+                        )}
+                                                {guide.hasInitialHands && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 ">
+                            Combos
                           </span>
                         )}
                       </div>

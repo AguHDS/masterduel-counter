@@ -4,6 +4,7 @@ import { Star, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 import { buildGuidePath } from "@/lib/config/urlHelpers";
+import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
 interface FavoritedGuidesListProps {
   guides: GuideListItem[];
@@ -195,9 +196,10 @@ export const ProfileGuideList = ({
                     <div className="flex-shrink-0">
                       {guide.headerCardImageUrl ? (
                         <img
-                          src={guide.headerCardImageUrl}
+                          src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
                           alt={guide.headerCardName || "Card"}
                           className="h-[65px] w-[65px] object-cover rounded border-2 border-cyan-500/60 group-hover:border-cyan-400 shadow-lg"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="w-[65px] h-[65px] bg-[#2a2550] rounded border-2 border-[#4a4070] flex items-center justify-center">
@@ -273,9 +275,10 @@ export const ProfileGuideList = ({
                         </span>
                         {guide.headerCardImageUrl ? (
                           <img
-                            src={guide.headerCardImageUrl}
+                            src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
                             alt={guide.headerCardName || "Card"}
                             className="h-[55px] w-[55px] object-cover rounded border-2 border-cyan-500/60 group-hover:border-cyan-400  shadow-lg"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="w-[55px] h-[55px] bg-[#2a2550] rounded border-2 border-[#4a4070] flex items-center justify-center">

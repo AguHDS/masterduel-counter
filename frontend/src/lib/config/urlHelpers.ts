@@ -86,7 +86,7 @@ export const slugifySegment = (value: string): string => {
   };
 
   // Transliterate Cyrillic and Greek characters
-  let transliterated = value.split('').map(char => {
+  const transliterated = value.split('').map(char => {
     return cyrillicMap[char] || greekMap[char] || char;
   }).join('');
 

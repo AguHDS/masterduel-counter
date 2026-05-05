@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { CreditCard as Edit, X, Plus, Layers } from "lucide-react";
+import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import type { FavoriteDeck } from "../types/profileTypes";
 import type { CustomDeck } from "../api/customDeckApi";
 
@@ -132,9 +133,10 @@ export const FavoriteDecksEditor = ({
                   <div className="w-full aspect-[12/9] overflow-hidden relative">
                     {deck.imageUrl ? (
                       <img
-                        src={deck.imageUrl}
+                        src={getOptimizedCardImageUrl(deck.imageUrl, { size: 'thumbnail', width: 300, height: 300 })}
                         alt={deck.title}
                         className="w-full h-[130%] object-cover object-top hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
                         onClick={(e) => {
                           if (isEditMode) {
                             e.stopPropagation();

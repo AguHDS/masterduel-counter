@@ -18,6 +18,7 @@ import {
 } from "../hooks/useFavoriteCardAndDecks";
 import { useCustomDecks } from "../hooks/useCustomDecks";
 import { useSession } from "@/lib/auth-client";
+import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
 import { useRef, useState, useCallback } from "react";
@@ -626,11 +627,12 @@ export const ProfilePage = () => {
                                   >
                                     {guide.headerCardImageUrl ? (
                                       <img
-                                        src={guide.headerCardImageUrl}
+                                        src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
                                         alt={
                                           guide.headerCardName || "Header card"
                                         }
                                         className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
+                                        loading="lazy"
                                       />
                                     ) : (
                                       <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
@@ -686,9 +688,10 @@ export const ProfilePage = () => {
                             >
                               {guide.headerCardImageUrl ? (
                                 <img
-                                  src={guide.headerCardImageUrl}
+                                  src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
                                   alt={guide.headerCardName || "Header card"}
                                   className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
+                                  loading="lazy"
                                 />
                               ) : (
                                 <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
