@@ -51,15 +51,37 @@ function buildOgTags(params: {
 }
 
 /**
+ * Extract instance ID from guide URL (both legacy and SEO-friendly formats)
+ * - Legacy: /archetype/123/instance/456 → 456
+ * - SEO: /archetypes/blue-eyes/ponyrosa/counter-guide-32 → 32
+ */
+function extractInstanceIdFromPath(path: string): number | null {
+  // Try legacy format first: /archetype/:archetypeId/instance/:instanceId
+  const legacyMatch = path.match(/^\/archetype\/\d+\/instance\/(\d+)\/?$/);
+  if (legacyMatch) {
+    return parseInt(legacyMatch[1], 10);
+  }
+
+  // Try SEO-friendly format: /archetypes/:archetypeSlug/:authorSlug/:guideSlug
+  // Guide slug ends with the instance ID (e.g., "counter-guide-32")
+  const seoMatch = path.match(/^\/archetypes\/[^\/]+\/[^\/]+\/[^\/]+-(\d+)\/?$/);
+  if (seoMatch) {
+    return parseInt(seoMatch[1], 10);
+  }
+
+  return null;
+}
+
+/**
  * Middleware that intercepts guide page URLs and injects OG meta tags
  * into the frontend's index.html for social media link previews.
  * Only active if the frontend dist folder exists (production build).
  */
 export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
   return async (req: Request, res: Response, next: NextFunction) => {
-    // Only handle guide URL patterns
-    const match = req.path.match(/^\/archetype\/(\d+)\/instance\/(\d+)\/?$/);
-    if (!match) return next();
+    // Extract instance ID from both legacy and SEO-friendly URLs
+    const instanceId = extractInstanceIdFromPath(req.path);
+    if (!instanceId) return next();
 
     // Skip if frontend dist doesn't exist
     if (!existsSync(INDEX_HTML_PATH)) return next();
@@ -70,38 +92,40 @@ export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
     
     if (!isSocialBot) return next(); // Let regular users be redirected
 
-    const instanceId = parseInt(match[2]);
-    const archetypeId = parseInt(match[1]);
-
-    if (isNaN(instanceId) || isNaN(archetypeId)) return next();
-
     try {
       const instanceRepository = dependencies.getInstanceRepository();
       const cardRepository = dependencies.getCardRepository();
+
+      const instance = await instanceRepository.findArchetypeInstanceById(instanceId);
+
+      if (!instance) return next();
+
+      // Get archetype information if needed
       const archetypeRepository = dependencies.getArchetypeRepository();
+      const archetype = instance.archetypeId 
+        ? await archetypeRepository.findArchetypeById(instance.archetypeId)
+        : null;
 
-      const [instance, archetype] = await Promise.all([
-        instanceRepository.findArchetypeInstanceById(instanceId),
-        archetypeRepository.findArchetypeById(archetypeId),
-      ]);
-
-      if (!instance || !archetype) return next();
-
-      // Try to get the header card image
+      // Try to get the header card image (prefer cropped version for better OG previews)
       let headerImageUrl = `${SITE_URL}/og-default.png`;
       if (instance.headerCardId) {
         const headerCard = await cardRepository.finCardById(
           instance.headerCardId,
         );
-        if (headerCard?.imageUrl) {
-          headerImageUrl = headerCard.imageUrl;
+        if (headerCard?.imageUrlCropped) {
+          // Convert relative URL to absolute if needed
+          const imageUrl = headerCard.imageUrlCropped;
+          headerImageUrl = imageUrl.startsWith("http") 
+            ? imageUrl 
+            : `${SITE_URL}${imageUrl}`;
         }
       }
 
-      const title = instance.title || archetype.name;
+      const archetypeName = archetype?.name || "Yu-Gi-Oh!";
+      const title = instance.title || archetypeName;
       const description =
         instance.generalTip ||
-        `${instance.guideType === "DECK" ? "Deck" : "Counter"} guide for ${archetype.name} in Yu-Gi-Oh!.`;
+        `${instance.guideType === "DECK" ? "Deck" : "Counter"} guide for ${archetypeName} in Yu-Gi-Oh!.`;
       const forwardedProto = req.headers["x-forwarded-proto"];
       const protocol =
         typeof forwardedProto === "string"

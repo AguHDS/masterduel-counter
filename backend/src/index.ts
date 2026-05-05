@@ -217,7 +217,10 @@ app.use(sitemap);
 // Serve the React frontend (only if the build exists — production)
 if (existsSync(FRONTEND_DIST)) {
   // OG tag injection for guide pages (MUST come BEFORE redirects so bots see meta tags)
-  app.use(createGuideOgPreviewMiddleware(getDependencies()));
+  // Register as specific routes to have priority over redirect middleware
+  const guideOgMiddleware = createGuideOgPreviewMiddleware(getDependencies());
+  app.get("/archetype/:archetypeId/instance/:instanceId", guideOgMiddleware);
+  app.get("/archetypes/:archetypeSlug/:authorSlug/:guideSlug", guideOgMiddleware);
 
   // Permanent redirects tell search engines that the old public URLs moved
   app.get("/guides", redirectLegacyGuidesListUrl);
