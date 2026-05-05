@@ -22,6 +22,7 @@ export interface GuideRequestWithDetails extends GuideRequest {
   archetypeName: string;
   requesterProfilePictureUrl?: string | null;
   fulfilledByName?: string | null;
+  fulfilledByProfilePictureUrl?: string | null;
   takenByName?: string | null;
 }
 

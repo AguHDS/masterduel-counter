@@ -82,7 +82,7 @@ export const GuideRequestsSection: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-[#1c1f2e] rounded-xl border border-[#c2901c]/20 overflow-hidden flex divide-x divide-[#c2901c]/10">
+      <div className="bg-[#1c1f2e] rounded-xl border border-[#c2901c]/20 overflow-hidden flex divide-x divide-[#c2901c]/10 max-[1346px]:flex-col max-[1346px]:divide-x-0 max-[1346px]:divide-y max-[1346px]:divide-[#c2901c]/10">
         {SECTIONS.map(({ label, status, emptyMsg }) => {
           const { data, isLoading } = dataMap[status];
           const requests =
@@ -92,7 +92,7 @@ export const GuideRequestsSection: React.FC = () => {
           const total = data?.total ?? 0;
 
           return (
-            <div key={status} className="flex-1 min-w-0 flex flex-col">
+            <div key={status} className="flex-1 min-w-0 flex flex-col max-[1346px]:w-full">
               <div className="px-3 py-2 border-b border-[#c2901c]/10 flex items-center gap-1.5 min-w-0">
                 <span className="text-xs font-semibold text-[#c2901c] truncate">
                   {label}
@@ -126,6 +126,7 @@ export const GuideRequestsSection: React.FC = () => {
                     <GuideRequestListItem
                       key={request.id}
                       request={request}
+                      showCompletedParticipants={status === "COMPLETED"}
                       onClick={() => {
                         setFullModalTab(status);
                         setFullModalRequest(request);

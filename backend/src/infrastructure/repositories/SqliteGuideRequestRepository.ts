@@ -33,7 +33,7 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
       include: {
         archetype: { select: { name: true } },
         requester: { select: { profile: { select: { profilePictureUrl: true } } } },
-        fulfilledBy: { select: { name: true } },
+        fulfilledBy: { select: { name: true, profile: { select: { profilePictureUrl: true } } } },
         takenBy: { select: { name: true } },
       },
     });
@@ -85,7 +85,7 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
         include: {
           archetype: { select: { name: true } },
           requester: { select: { profile: { select: { profilePictureUrl: true } } } },
-          fulfilledBy: { select: { name: true } },
+          fulfilledBy: { select: { name: true, profile: { select: { profilePictureUrl: true } } } },
           takenBy: { select: { name: true } },
         },
       }),
@@ -108,7 +108,7 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
       include: {
         archetype: { select: { name: true } },
         requester: { select: { profile: { select: { profilePictureUrl: true } } } },
-        fulfilledBy: { select: { name: true } },
+        fulfilledBy: { select: { name: true, profile: { select: { profilePictureUrl: true } } } },
         takenBy: { select: { name: true } },
       },
     });
@@ -260,7 +260,7 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
       updatedAt: Date;
       archetype: { name: string };
       requester: { profile: { profilePictureUrl: string | null } | null } | null;
-      fulfilledBy: { name: string } | null;
+      fulfilledBy: { name: string; profile: { profilePictureUrl: string | null } | null } | null;
       takenBy: { name: string } | null;
     },
   ): GuideRequestWithDetails {
@@ -269,6 +269,7 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
       archetypeName: row.archetype.name,
       requesterProfilePictureUrl: row.requester?.profile?.profilePictureUrl ?? null,
       fulfilledByName: row.fulfilledBy?.name ?? null,
+      fulfilledByProfilePictureUrl: row.fulfilledBy?.profile?.profilePictureUrl ?? null,
       takenByName: row.takenBy?.name ?? null,
     };
   }

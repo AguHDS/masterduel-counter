@@ -137,6 +137,12 @@ export const deleteReport = async (reportId: string): Promise<void> => {
   await axiosClient.delete<ApiResponse<void>>(`/api/admin/reports/${reportId}`);
 };
 
+export const deleteGuideRequest = async (requestId: number): Promise<void> => {
+  await axiosClient.delete<ApiResponse<void>>(
+    `/api/admin/guide-requests/${requestId}`,
+  );
+};
+
 export const getTotalUsers = async (): Promise<number> => {
   const { data } = await axiosClient.get<ApiResponse<TotalUsersResponse>>(
     `/api/admin/tracking/total-users`,
@@ -178,6 +184,7 @@ export const adminApi = {
   unbanUser,
   getReports,
   deleteReport,
+  deleteGuideRequest,
   getTotalUsers,
   getAllUsers,
 };

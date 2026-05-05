@@ -16,7 +16,7 @@ export const GeneralStats = () => {
     return (
       <div className="relative flex flex-col h-full rounded-2xl overflow-hidden border border-purple-500/30">
         <div className="absolute inset-0 bg-cover bg-center opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-purple-950 to-blue-950 opacity-90" />
+        <div className="absolute inset-0 opacity-90" />
 
         <div className="relative z-10 p-8 flex items-center justify-center h-full">
           <div className="text-purple-300 text-lg">Loading stats...</div>
@@ -89,7 +89,7 @@ export const GeneralStats = () => {
                   onClick={() =>
                     handleArchetypeClick(archetype.id, archetype.name, "counter")
                   }
-                  className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-red-500/20 hover:border-orange-400/50 hover:bg-black/50 transition-all cursor-pointer"
+                  className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-red-500/20 hover:border-orange-400/50 hover:bg-black/50 cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <span
@@ -139,7 +139,7 @@ export const GeneralStats = () => {
                   onClick={() =>
                     handleArchetypeClick(deck.id, deck.name, "deck")
                   }
-                  className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-blue-500/20 hover:border-purple-400/40 hover:bg-black/50 transition-all cursor-pointer"
+                  className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-blue-500/20 hover:border-purple-400/40 hover:bg-black/50 cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <span

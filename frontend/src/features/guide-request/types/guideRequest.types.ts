@@ -19,6 +19,7 @@ export interface GuideRequest {
   updatedAt: string;
   archetypeName?: string;
   fulfilledByName?: string | null;
+  fulfilledByProfilePictureUrl?: string | null;
   takenByName?: string | null;
 }
 

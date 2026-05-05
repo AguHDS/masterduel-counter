@@ -1,11 +1,14 @@
 import React from "react";
-import { Loader2, ArrowLeft, ExternalLink, LogIn } from "lucide-react";
+import { Loader2, ArrowLeft, ExternalLink, LogIn, Trash2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { GuideRequest } from "../types/guideRequest.types";
 import { GuideRequestStatusBadge } from "./GuideRequestStatusBadge";
 import {
   useTakeGuideRequest,
   useCancelTakeGuideRequest,
 } from "../hooks/useGuideRequests";
+import { queryKeys } from "@/lib/query/queryKeys";
+import { adminApi } from "@/features/admin-panel/api/adminApi";
 import { buildGuidePath, buildGuideEditorPath } from "@/lib/config/urlHelpers";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@/features/auth/context/AuthContext";
@@ -15,13 +18,21 @@ interface GuideRequestDetailPanelProps {
   currentUser: User | null;
   onBack?: () => void;
   onTakeSuccess?: (request: GuideRequest) => void;
+  onDeleteSuccess?: (requestId: number) => void;
 }
 
 export const GuideRequestDetailPanel: React.FC<
   GuideRequestDetailPanelProps
-> = ({ request, currentUser, onBack, onTakeSuccess }) => {
+> = ({ request, currentUser, onBack, onTakeSuccess, onDeleteSuccess }) => {
   const takeMutation = useTakeGuideRequest();
   const cancelMutation = useCancelTakeGuideRequest();
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: (requestId: number) => adminApi.deleteGuideRequest(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.guideRequests.all });
+    },
+  });
   const navigate = useNavigate();
   const [error, setError] = React.useState("");
 
@@ -35,6 +46,7 @@ export const GuideRequestDetailPanel: React.FC<
     currentUser.id !== request.requesterId;
   const canCancel = request.status === "TAKEN" && isMyTake;
   const showSignIn = request.status === "OPEN" && !currentUser;
+  const canDeleteAsAdmin = currentUser?.role === "admin";
 
   const handleTake = async () => {
     setError("");
@@ -69,6 +81,25 @@ export const GuideRequestDetailPanel: React.FC<
       const msg =
         (err as { response?: { data?: { error?: string } } })?.response?.data
           ?.error ?? "Failed to cancel.";
+      setError(msg);
+    }
+  };
+
+  const handleDeleteRequest = async () => {
+    setError("");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this request? This action cannot be undone.",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteMutation.mutateAsync(request.id);
+      onDeleteSuccess?.(request.id);
+    } catch (err) {
+      const msg =
+        (err as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error ?? "Failed to delete this request.";
       setError(msg);
     }
   };
@@ -170,7 +201,7 @@ export const GuideRequestDetailPanel: React.FC<
         )}
       </div>
 
-      {(canTake || canCancel || showSignIn) && (
+      {(canTake || canCancel || showSignIn || canDeleteAsAdmin) && (
         <div className="p-5 border-t border-[#c2901c]/20">
           {showSignIn && (
             <a
@@ -203,6 +234,19 @@ export const GuideRequestDetailPanel: React.FC<
                 <Loader2 className="h-4 w-4 animate-spin" />
               )}
               Cancel My Take
+            </button>
+          )}
+          {canDeleteAsAdmin && (
+            <button
+              onClick={handleDeleteRequest}
+              disabled={deleteMutation.isPending}
+              className="w-full py-2.5 mt-2 rounded-lg border border-red-500/40 text-red-400 text-sm hover:bg-red-500/10 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+            >
+              {deleteMutation.isPending && (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
+              {!deleteMutation.isPending && <Trash2 className="h-4 w-4" />}
+              Delete this Request
             </button>
           )}
         </div>

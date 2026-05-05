@@ -2,6 +2,7 @@ export { banUserController } from "./banUserController.js";
 export { changeUserCredentialsController } from "./changeUserCredentialsController.js";
 export { changeUserRoleController } from "./changeUserRoleController.js";
 export { deleteReportController } from "./deleteReportController.js";
+export { deleteGuideRequestController } from "./deleteGuideRequestController.js";
 export { deleteUserController } from "./deleteUserController.js";
 export { deleteUserGuideController } from "./deleteUserGuideController.js";
 export { getReportsController } from "./getReportsController.js";
