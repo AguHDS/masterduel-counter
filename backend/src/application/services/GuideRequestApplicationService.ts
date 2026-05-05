@@ -3,6 +3,7 @@ import type {
   GuideRequestWithDetails,
   GuideRequestListResult,
   GuideRequestCounts,
+  GuideSourceRequestSummary,
 } from "@/domain/GuideRequest.js";
 import type { GuideRequestRepository } from "@/domain/ports/GuideRequestRepository.js";
 import type {
@@ -65,6 +66,15 @@ export class GuideRequestApplicationService implements GuideRequestApplicationPo
   async getRequestById(id: number): Promise<GuideRequestWithDetails | null> {
     await this.guideRequestRepository.releaseStaleRequests();
     return this.guideRequestRepository.findGuideRequestById(id);
+  }
+
+  async getRequestByFulfilledInstanceId(
+    instanceId: number,
+  ): Promise<GuideSourceRequestSummary | null> {
+    await this.guideRequestRepository.releaseStaleRequests();
+    return this.guideRequestRepository.findGuideRequestByFulfilledInstanceId(
+      instanceId,
+    );
   }
 
   async takeRequest(

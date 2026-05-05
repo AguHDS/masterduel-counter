@@ -25,6 +25,12 @@ export interface GuideRequestWithDetails extends GuideRequest {
   takenByName?: string | null;
 }
 
+export interface GuideSourceRequestSummary {
+  id: number;
+  title: string;
+  status: GuideRequestStatus;
+}
+
 export interface GuideRequestCounts {
   OPEN: number;
   TAKEN: number;

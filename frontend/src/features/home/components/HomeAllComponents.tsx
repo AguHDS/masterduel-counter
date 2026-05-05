@@ -1,8 +1,6 @@
 import { CounterGuides } from "./CounterGuides";
 import { DeckGuides } from "./DeckGuides";
 import { GeneralStats } from "./GeneralStats";
-import { LatestUpdates } from "./LastestUpdates";
-import { MainFeatures } from "./MainFeatures";
 import MDCBackground from "@/assets/HomeAllPages_Background2.webp";
 import { GuideRequestsSection } from "@/features/guide-request";
 

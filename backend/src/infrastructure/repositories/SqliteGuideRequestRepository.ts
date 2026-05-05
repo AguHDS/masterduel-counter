@@ -3,6 +3,7 @@ import type { GuideRequestRepository } from "@/domain/ports/GuideRequestReposito
 import type {
   GuideRequest,
   GuideRequestWithDetails,
+  GuideSourceRequestSummary,
   CreateGuideRequestDTO,
   GuideRequestListResult,
   GuideRequestCounts,
@@ -38,6 +39,33 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
     });
     if (!row) return null;
     return this.mapRowWithDetails(row);
+  }
+
+  public async findGuideRequestByFulfilledInstanceId(
+    instanceId: number,
+  ): Promise<GuideSourceRequestSummary | null> {
+    const row = await this.prisma.guideRequest.findFirst({
+      where: {
+        fulfilledInstanceId: instanceId,
+        status: "COMPLETED",
+      },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      title: row.title,
+      status: row.status as "OPEN" | "TAKEN" | "COMPLETED",
+    };
   }
 
   public async findManyGuideRequests(

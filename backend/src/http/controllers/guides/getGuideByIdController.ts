@@ -132,6 +132,9 @@ export const createGetGuideByIdController = (
       const profileService = getDependencies().getProfileService();
       const userProfile = await profileService.getProfile(instance.userId);
       const userProfilePictureUrl = userProfile?.profilePictureUrl || null;
+      const sourceRequest = await getDependencies()
+        .getGuideRequestService()
+        .getRequestByFulfilledInstanceId(instance.id);
 
       return res.json({
         instance: {
@@ -151,6 +154,7 @@ export const createGetGuideByIdController = (
         userName,
         userProfilePictureUrl,
         archetypeName,
+        sourceRequest,
         headerCard,
         cardPairs: cardPairs.map((pair) => ({
           id: pair.id,

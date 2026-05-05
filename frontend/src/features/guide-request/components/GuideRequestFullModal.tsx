@@ -62,6 +62,9 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
       setShowCreateModal(false);
       return;
     }
+
+    setPage(1);
+
     if (initialRequest) {
       setStatusFilter(initialRequest.status);
       setSelectedRequest(initialRequest);
@@ -76,6 +79,8 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
 
     if (initialTab) {
       setStatusFilter(initialTab);
+    } else {
+      setStatusFilter("OPEN");
     }
     setSelectedRequest(null);
   }, [isOpen, initialTab, initialRequest, initialRequestById]);

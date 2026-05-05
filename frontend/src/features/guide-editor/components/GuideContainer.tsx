@@ -13,6 +13,7 @@ import {
   Flag,
   ArrowLeft,
   PenLine,
+  MailWarning,
 } from "lucide-react";
 import type { InitialHand } from "./deck-guides/InitialHandsEditor";
 import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
@@ -36,7 +37,10 @@ import { ReportModal } from "@/features/report/components/ReportModal";
 import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
 import { useRegisterView } from "@/shared/hooks/useRegisterView";
-import { useFulfillGuideRequest } from "@/features/guide-request";
+import {
+  GuideRequestFullModal,
+  useFulfillGuideRequest,
+} from "@/features/guide-request";
 import type {
   CardPair,
   GuideType,
@@ -123,6 +127,7 @@ export const GuideContainer = ({
         ? "DECK"
         : (typeFromSlug ?? typeFromState ?? "COUNTER");
   const [guideType, setGuideType] = useState<GuideType>(initialGuideType);
+  const [isSourceRequestModalOpen, setIsSourceRequestModalOpen] = useState(false);
   const { data: guideInstanceData, isError } = useGetGuideInstance(
     legacyArchetypeIdNum,
     isCreatingNew ? undefined : instanceIdNum,
@@ -525,6 +530,8 @@ export const GuideContainer = ({
     }
   };
 
+  const sourceRequest = guideInstanceData?.sourceRequest ?? null;
+
   if (!selectedArchetype) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -735,6 +742,22 @@ export const GuideContainer = ({
                     </button>
                   )}
               </div>
+
+              {!editor.isEditMode && !isCreatingNew && sourceRequest && (
+                <div className="flex justify-center relative top-4">
+                  <div className="flex flex-wrap items-center justify-center gap-2 rounded-lg border border-[#c2901c]/30 bg-[#c2901c]/8 px-4 py-2 text-sm text-slate-300">
+                    <MailWarning className="h-4 w-4 text-[#c2901c] shrink-0" />
+                    <span className="text-slate-300">Created from Request</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsSourceRequestModalOpen(true)}
+                      className="font-semibold text-[#c2901c] hover:text-[#d4a534] underline underline-offset-2 break-all"
+                    >
+                      {sourceRequest.title}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -761,6 +784,16 @@ export const GuideContainer = ({
           targetType="instance"
           targetId={guideInstanceData.instance.id}
           targetName={guideInstanceData.instance.title}
+        />
+      )}
+
+      {sourceRequest && (
+        <GuideRequestFullModal
+          isOpen={isSourceRequestModalOpen}
+          onClose={() => setIsSourceRequestModalOpen(false)}
+          currentUser={user ?? null}
+          initialTab="COMPLETED"
+          initialRequestId={sourceRequest.id}
         />
       )}
     </>

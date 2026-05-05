@@ -44,6 +44,11 @@ export interface GuideInstanceWithFullDetails {
   userName: string;
   userProfilePictureUrl: string | null;
   archetypeName: string;
+  sourceRequest?: {
+    id: number;
+    title: string;
+    status: "OPEN" | "TAKEN" | "COMPLETED";
+  } | null;
   headerCard: {
     id: number;
     name: string;

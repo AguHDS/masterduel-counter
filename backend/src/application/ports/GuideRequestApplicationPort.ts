@@ -4,6 +4,7 @@ import type {
   GuideRequestListResult,
   GuideRequestCounts,
   GuideRequestGuideType,
+  GuideSourceRequestSummary,
 } from "@/domain/GuideRequest.js";
 import type { NotificationApplicationPort } from "@/application/ports/NotificationApplicationPort.js";
 
@@ -38,6 +39,11 @@ export interface GuideRequestApplicationPort {
 
   /** Get a single request by ID */
   getRequestById(id: number): Promise<GuideRequestWithDetails | null>;
+
+  /** Get the completed request associated with a guide instance, if any */
+  getRequestByFulfilledInstanceId(
+    instanceId: number,
+  ): Promise<GuideSourceRequestSummary | null>;
 
   /** Atomically take a request */
   takeRequest(
