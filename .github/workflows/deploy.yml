@@ -30,7 +30,7 @@ jobs:
             pm2 restart masterduel-backend || pm2 start npm --name "masterduel-backend" -- start
 
             cd /var/www/masterduel-counter/frontend
-            npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+            npm ci || npm install
             npm run build
 
             pm2 save
