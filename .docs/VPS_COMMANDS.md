@@ -21,6 +21,14 @@ sudo nginx -t
 sudo nginx -T
 `Nota: Acordarse de permitir hasta 3MB como max en la cfg de nginx para evitar errores 413 Payload Too Large`
 
+## Thumbnails optimizados (Opcional)
+# Pre-generar cache de thumbnails para todas las cartas (10-20 min)
+cd /var/www/masterduel-counter/backend
+pm2 stop masterduel-backend
+npm run generate-thumbnails:prod
+pm2 start masterduel-backend
+# Nota: Los thumbnails se generan automáticamente on-demand si no se pre-generan
+
 ## Reiniciar DB
 
 pm2 stop all -> Detener todos los servicios
@@ -46,6 +54,8 @@ pm2 restart masterduel-backend -> Reiniciar el servicio
 pm2 status -> Ver estado de los servicios
 
 pm2 stop all -> Detener todos los servicios
+
+pm2 start all -> Iniciar todos los servicios
 
 --------------
 
