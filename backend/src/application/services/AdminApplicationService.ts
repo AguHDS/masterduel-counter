@@ -277,6 +277,28 @@ export class AdminApplicationService implements AdminApplicationPort {
     }
   }
 
+  async deleteGuideRequest(requestId: number): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    try {
+      await this.adminRepository.deleteGuideRequest(requestId);
+      return {
+        success: true,
+        message: "Guide request deleted successfully",
+      };
+    } catch (error) {
+      console.error("Error deleting guide request:", error);
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Internal error deleting guide request",
+      };
+    }
+  }
+
   async getTotalUsers(): Promise<{
     total: number;
   }> {

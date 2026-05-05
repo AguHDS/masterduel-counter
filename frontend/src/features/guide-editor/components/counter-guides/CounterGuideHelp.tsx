@@ -1,9 +1,5 @@
 import { InfoModal } from "@/shared/components/info/components/InfoModal";
-import {
-  guideHelp_CardPairs,
-  guideHelp_Header,
-  guideHelp_TitleAndDescr,
-} from "../../assets";
+import { guideHelp_CardPairs } from "../../assets";
 
 interface CounterGuideHelpProps {
   isOpen: boolean;
@@ -24,54 +20,11 @@ export const CounterGuideHelp = ({
       title="How to Create a Guide Correctly"
     >
       <div className="space-y-6 text-gray-200">
-        <section className="space-y-3">
-          <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
-            <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
-              1
-            </span>
-            Header Information
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30">
-              <img
-                src={guideHelp_TitleAndDescr}
-                alt="Title and description section example"
-                className="w-full rounded-lg mb-2 border border-slate-700/50"
-              />
-              <p className="text-sm">
-                <span className="text-blue-300 font-semibold">Title:</span> Give
-                your guide a clear title.
-                <br />
-                <span className="text-blue-300 font-semibold">
-                  Description:
-                </span>{" "}
-                Explain the main idea of your guide. You don't need to go into
-                detail about countering cards here, but rather in the Card Pairs
-                section.
-              </p>
-            </div>
-            <div className="bg-gradient-to-br from-blue-800/40 via-indigo-800/40 to-purple-800/40 rounded-lg p-3 border border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-800/30">
-              <img
-                src={guideHelp_Header}
-                alt="Header card image example"
-                className="w-full rounded-lg mb-2 border border-slate-700/50"
-              />
-              <p className="text-sm">
-                <span className="text-blue-300 font-semibold">
-                  Header Card:
-                </span>{" "}
-                Preview image for your guide. It will be used as a thumbnail
-                when listing.
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* Phase 2: Card Pairs */}
         <section className="space-y-3">
           <h3 className="text-lg font-semibold text-blue-200 flex items-center gap-2 drop-shadow-md">
             <span className="bg-blue-500/40 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-blue-400/50">
-              2
+              1
             </span>
             Card Pairs
           </h3>

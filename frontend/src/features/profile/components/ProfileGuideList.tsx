@@ -38,7 +38,8 @@ export const ProfileGuideList = ({
       ? guides
       : guides.filter(
           (guide) =>
-            guide.guideType === (guideTypeFilter === "counter" ? "COUNTER" : "DECK"),
+            guide.guideType ===
+            (guideTypeFilter === "counter" ? "COUNTER" : "DECK"),
         );
 
   // Filter guides by search query (title only)
@@ -135,7 +136,7 @@ export const ProfileGuideList = ({
                   event.target.value as "all" | "counter" | "deck",
                 )
               }
-              className="h-[32px] w-full sm:w-auto sm:min-w-[102px] rounded-md border border-[#4a4070]/70 bg-[#1a1545]/90 px-3 text-sm font-semibold text-blue-200 outline-none transition-colors focus:border-cyan-400"
+              className="h-[32px] w-full sm:w-auto sm:min-w-[102px] rounded-md border border-[#4a4070]/70 bg-[#1a1545]/90 px-3 text-sm font-semibold text-blue-200 outline-none  focus:border-cyan-400"
               aria-label="Filter guides by type"
             >
               <option value="all">All</option>
@@ -177,10 +178,10 @@ export const ProfileGuideList = ({
                 onClick={() => handleGuideClick(guide)}
               >
                 {/* Glow border effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm" />
 
                 {/* Main row */}
-                <div className="relative bg-gradient-to-r from-[#1a1545]/95 via-purple-950/60 to-[#1a1545]/95 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-cyan-400/80 transition-all duration-200 cursor-pointer overflow-hidden">
+                <div className="relative bg-gradient-to-r from-[#1a1545]/95 via-purple-950/60 to-[#1a1545]/95 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-blue-800/80 cursor-pointer overflow-hidden">
                   {/* Desktop Layout */}
                   <div className="hidden xl:flex items-center gap-4 p-3">
                     {/* ID Number */}
@@ -196,7 +197,7 @@ export const ProfileGuideList = ({
                         <img
                           src={guide.headerCardImageUrl}
                           alt={guide.headerCardName || "Card"}
-                          className="h-[65px] w-[65px] object-cover rounded border-2 border-cyan-500/60 group-hover:border-cyan-400 transition-colors shadow-lg"
+                          className="h-[65px] w-[65px] object-cover rounded border-2 border-cyan-500/60 group-hover:border-cyan-400 shadow-lg"
                         />
                       ) : (
                         <div className="w-[65px] h-[65px] bg-[#2a2550] rounded border-2 border-[#4a4070] flex items-center justify-center">
@@ -207,7 +208,7 @@ export const ProfileGuideList = ({
 
                     {/* Title */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors truncate">
+                      <h4 className="text-base font-bold text-white group-hover:text-cyan-300  truncate">
                         {guide.title}
                       </h4>
                     </div>
@@ -233,14 +234,14 @@ export const ProfileGuideList = ({
                     {/* Likes */}
                     <div className="flex-shrink-0 w-[180px] text-right">
                       <div className="inline-flex items-center gap-3 text-sm font-bold">
+                        <span className="inline-flex items-center gap-1 text-purple-400">
+                          <Eye className="h-4 w-4" /> {guide.views}
+                        </span>
                         <span className="inline-flex items-center gap-1 text-green-400">
                           <span className="text-lg">↑</span> {guide.likes}
                         </span>
                         <span className="inline-flex items-center gap-1 text-yellow-400">
                           <Star className="h-4 w-4" /> {guide.favorites}
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-violet-300">
-                          <Eye className="h-4 w-4" /> {guide.views}
                         </span>
                       </div>
                     </div>
@@ -253,10 +254,10 @@ export const ProfileGuideList = ({
                             handleRemoveFavorite(e, guide.id, guide.archetypeId)
                           }
                           disabled={removingId === guide.id}
-                          className="p-2 hover:bg-yellow-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="p-2 disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Remove from favorites"
                         >
-                          <Star className={"w-5 h-5  text-yellow-400"} />
+                          <span className="text-yellow-600 hover:text-yellow-500">Remove</span>
                         </button>
                       </div>
                     )}
@@ -274,7 +275,7 @@ export const ProfileGuideList = ({
                           <img
                             src={guide.headerCardImageUrl}
                             alt={guide.headerCardName || "Card"}
-                            className="h-[55px] w-[55px] object-cover rounded border-2 border-cyan-500/60 group-hover:border-cyan-400 transition-colors shadow-lg"
+                            className="h-[55px] w-[55px] object-cover rounded border-2 border-cyan-500/60 group-hover:border-cyan-400  shadow-lg"
                           />
                         ) : (
                           <div className="w-[55px] h-[55px] bg-[#2a2550] rounded border-2 border-[#4a4070] flex items-center justify-center">
@@ -288,7 +289,7 @@ export const ProfileGuideList = ({
                       {/* Content */}
                       <div className="flex-1 min-w-0 flex flex-col gap-2">
                         {/* Title */}
-                        <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
+                        <h4 className="text-sm font-bold text-white group-hover:text-cyan-300  line-clamp-2">
                           {guide.title}
                         </h4>
 
@@ -329,7 +330,7 @@ export const ProfileGuideList = ({
                                   )
                                 }
                                 disabled={removingId === guide.id}
-                                className="p-1 hover:bg-yellow-500/10 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="p-1 hover:bg-yellow-500/10 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Remove from favorites"
                               >
                                 <Star className="w-4 h-4 text-yellow-400" />
@@ -351,7 +352,7 @@ export const ProfileGuideList = ({
               <button
                 onClick={handlePreviousPage}
                 disabled={currentPage === 0}
-                className="group relative p-3 bg-gradient-to-r from-blue-600/60 to-blue-700/60 hover:from-blue-500/80 hover:to-blue-600/80 disabled:from-gray-700/40 disabled:to-gray-800/40 disabled:cursor-not-allowed rounded-lg transition-all duration-200 border-2 border-blue-500/40 hover:border-blue-400/60 disabled:border-gray-600/30 shadow-lg hover:shadow-blue-500/30 disabled:shadow-none"
+                className="group relative p-3 bg-gradient-to-r from-blue-600/60 to-blue-700/60 hover:from-blue-500/80 hover:to-blue-600/80 disabled:from-gray-700/40 disabled:to-gray-800/40 disabled:cursor-not-allowed rounded-lg border-2 border-blue-500/40 hover:border-blue-400/60 disabled:border-gray-600/30 shadow-lg hover:shadow-blue-500/30 disabled:shadow-none"
                 aria-label="Previous page"
               >
                 <ChevronLeft className="w-5 h-5 text-white group-disabled:text-gray-500" />
@@ -367,7 +368,7 @@ export const ProfileGuideList = ({
               <button
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages - 1}
-                className="group relative p-3 bg-gradient-to-r from-blue-600/60 to-blue-700/60 hover:from-blue-500/80 hover:to-blue-600/80 disabled:from-gray-700/40 disabled:to-gray-800/40 disabled:cursor-not-allowed rounded-lg transition-all duration-200 border-2 border-blue-500/40 hover:border-blue-400/60 disabled:border-gray-600/30 shadow-lg hover:shadow-blue-500/30 disabled:shadow-none"
+                className="group relative p-3 bg-gradient-to-r from-blue-600/60 to-blue-700/60 hover:from-blue-500/80 hover:to-blue-600/80 disabled:from-gray-700/40 disabled:to-gray-800/40 disabled:cursor-not-allowed rounded-lg border-2 border-blue-500/40 hover:border-blue-400/60 disabled:border-gray-600/30 shadow-lg hover:shadow-blue-500/30 disabled:shadow-none"
                 aria-label="Next page"
               >
                 <ChevronRight className="w-5 h-5 text-white group-disabled:text-gray-500" />
@@ -386,7 +387,7 @@ export const ProfileGuideList = ({
               href="https://www.paypal.com/paypalme/ponyrosa?locale.x=es_XC&country.x=AR"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
+              className="text-cyan-400 hover:text-cyan-300 font-semibold "
             >
               Support us
             </a>{" "}

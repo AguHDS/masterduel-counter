@@ -125,6 +125,21 @@ export const CounterGuides = () => {
                         {guide.archetypeName}
                       </p>
                     </div>
+
+                    {(guide.hasHandtraps || guide.hasBoardbreakers) && (
+                      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                        {guide.hasHandtraps && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-orange-500/15 text-orange-300 border border-orange-500/30">
+                            Handtraps
+                          </span>
+                        )}
+                        {guide.hasBoardbreakers && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-red-500/15 text-red-300 border border-red-500/30">
+                            Board Breakers
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Stats in top right corner */}

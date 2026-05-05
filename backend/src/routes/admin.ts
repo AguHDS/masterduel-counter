@@ -7,6 +7,7 @@ import {
   banUserController,
   changeUserCredentialsController,
   changeUserRoleController,
+  deleteGuideRequestController,
   deleteReportController,
   deleteUserController,
   deleteUserGuideController,
@@ -75,6 +76,12 @@ router.delete(
   "/reports/:reportId",
   verifyAdminMiddleware,
   deleteReportController,
+);
+
+router.delete(
+  "/guide-requests/:requestId",
+  verifyAdminMiddleware,
+  deleteGuideRequestController,
 );
 
 // Tracking

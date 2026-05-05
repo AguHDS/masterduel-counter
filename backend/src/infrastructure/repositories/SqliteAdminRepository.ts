@@ -420,6 +420,12 @@ export class SqliteAdminRepository implements AdminRepository {
     });
   }
 
+  async deleteGuideRequest(requestId: number): Promise<void> {
+    await this.prisma.guideRequest.delete({
+      where: { id: requestId },
+    });
+  }
+
   async getTotalUsers(): Promise<number> {
     const count = await this.prisma.user.count();
     return count;

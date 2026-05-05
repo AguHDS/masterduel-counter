@@ -14,12 +14,13 @@ export const GeneralStats = () => {
 
   if (isLoading) {
     return (
-      <div className="relative flex flex-col h-full rounded-2xl overflow-hidden border border-purple-500/30">
-        <div className="absolute inset-0 bg-cover bg-center opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-purple-950 to-blue-950 opacity-90" />
-
-        <div className="relative z-10 p-8 flex items-center justify-center h-full">
-          <div className="text-purple-300 text-lg">Loading stats...</div>
+      <div className="flex flex-col h-full">
+        <div className="flex items-center gap-2 mb-3">
+          <TrendingUp className="h-5 w-5 text-[#c2901c]" />
+          <h2 className="text-white font-semibold text-base">General Stats</h2>
+        </div>
+        <div className="bg-[#1c1f2e] rounded-xl border border-[#c2901c]/20 flex-1 flex items-center justify-center">
+          <div className="text-[#c2901c]/60 text-sm">Loading stats...</div>
         </div>
       </div>
     );
@@ -27,12 +28,13 @@ export const GeneralStats = () => {
 
   if (error || !counterData || !deckData) {
     return (
-      <div className="relative flex flex-col h-full rounded-2xl overflow-hidden border border-purple-500/30">
-        <div className="absolute inset-0 bg-cover bg-center opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-purple-950 to-blue-950 opacity-90" />
-
-        <div className="relative z-10 p-8 flex items-center justify-center h-full">
-          <div className="text-red-400 text-lg">Failed to load stats</div>
+      <div className="flex flex-col h-full">
+        <div className="flex items-center gap-2 mb-3">
+          <TrendingUp className="h-5 w-5 text-[#c2901c]" />
+          <h2 className="text-white font-semibold text-base">General Stats</h2>
+        </div>
+        <div className="bg-[#1c1f2e] rounded-xl border border-[#c2901c]/20 flex-1 flex items-center justify-center">
+          <div className="text-red-400 text-sm">Failed to load stats</div>
         </div>
       </div>
     );
@@ -53,113 +55,113 @@ export const GeneralStats = () => {
   };
 
   return (
-    <div className="relative flex flex-col h-full overflow-hidden">
-      <div className="absolute inset-0 bg-cover bg-center opacity-30" />
+    <div className="flex flex-col h-full">
+      <div className="flex items-center gap-2 mb-3">
+        <TrendingUp className="h-5 w-5 text-[#c2901c]" />
+        <h2 className="text-white font-semibold text-base">General Stats</h2>
+      </div>
 
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/50 via-indigo-950/40 to-indigo-950/50" />
-
-      <div className="relative z-10 flex flex-col h-full p-8 min-h-0 ">
-        <div className="flex items-center gap-3 mb-4">
-          <TrendingUp className="w-7 h-7 text-orange-400" />
-          <h2 className="text-3xl font-bold text-white">General Stats</h2>
-        </div>
-
-        <div className="grid grid-cols-2 divide-x divide-slate-700 flex-1 min-h-0">
-          {/* COUNTER GUIDES (ROJO / NARANJA / AMARILLO) */}
-          <div className="flex flex-col h-full pr-6 min-h-0">
-            <h3 className="text-xl font-semibold text-orange-400 mb-4">
-              Counter Guides
-            </h3>
-
-            <div className="mb-4">
-              <div className="p-3 rounded-lg bg-black/40 border border-red-500/30">
-                <p className="text-sm text-orange-300 font-semibold mb-1">
-                  Total Counter Guides
-                </p>
-                <p className="text-2xl font-bold text-white">
-                  {counterData.totalGuides}
-                </p>
-              </div>
+      <div className="bg-[#1c1f2e] rounded-xl border border-[#c2901c]/20 overflow-hidden flex-1 min-h-0 flex flex-col">
+        <div className="grid grid-cols-2 divide-x divide-[#c2901c]/10 flex-1 min-h-0">
+          {/* COUNTER GUIDES */}
+          <div className="flex flex-col min-h-0">
+            <div className="px-4 py-2.5 border-b border-[#c2901c]/10">
+              <span className="text-xs font-semibold text-[#c2901c]">Counter Guides</span>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-homeAllPages pr-2 space-y-2">
-              {counterData.topArchetypes.map((archetype, index) => (
-                <div
-                  key={archetype.id}
-                  onClick={() =>
-                    handleArchetypeClick(archetype.id, archetype.name, "counter")
-                  }
-                  className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-red-500/20 hover:border-orange-400/50 hover:bg-black/50 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold ${
-                        index < 3
-                          ? "bg-orange-500/20 text-yellow-300"
-                          : "bg-purple-500/20 text-blue-300"
-                      }`}
-                    >
-                      {index + 1}
-                    </span>
+            <div className="flex flex-col flex-1 min-h-0 p-4">
+              <div className="mb-3">
+                <div className="p-3 rounded-lg bg-black/30 border border-[#c2901c]/20">
+                  <p className="text-xs text-amber-500 font-semibold mb-1">
+                    Total Counter Guides
+                  </p>
+                  <p className="text-2xl font-bold text-white">
+                    {counterData.totalGuides}
+                  </p>
+                </div>
+              </div>
 
-                    <span className="text-white font-medium">
-                      {archetype.name}
+              <div className="flex-1 min-h-0 overflow-y-auto scrollbar-homeAllPages pr-1 space-y-1.5">
+                {counterData.topArchetypes.map((archetype, index) => (
+                  <div
+                    key={archetype.id}
+                    onClick={() =>
+                      handleArchetypeClick(archetype.id, archetype.name, "counter")
+                    }
+                    className="flex items-center justify-between p-2.5 rounded-lg bg-black/20 border border-[#c2901c]/15 hover:border-[#c2901c]/40 hover:bg-black/40 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span
+                        className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                          index < 3
+                            ? "bg-[#c2901c]/20 text-[#c2901c]"
+                            : "bg-slate-700/50 text-slate-400"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+
+                      <span className="text-white text-sm font-medium">
+                        {archetype.name}
+                      </span>
+                    </div>
+
+                    <span className="text-[#c2901c] text-sm font-semibold">
+                      {archetype.guideCount}
                     </span>
                   </div>
-
-                  <span className="text-orange-300 font-semibold">
-                    {archetype.guideCount}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* DECK GUIDES (AZUL / CELESTE / MORADO) */}
-          <div className="flex flex-col h-full pl-6 min-h-0">
-            <h3 className="text-xl font-semibold text-blue-300 mb-4">
-              Deck Guides
-            </h3>
-
-            <div className="mb-4">
-              <div className="p-3 rounded-lg bg-black/40 border border-blue-500/30">
-                <p className="text-sm text-sky-300 font-semibold mb-1">
-                  Total Deck Guides
-                </p>
-                <p className="text-2xl font-bold text-white">
-                  {deckData.totalGuides}
-                </p>
-              </div>
+          {/* DECK GUIDES */}
+          <div className="flex flex-col min-h-0">
+            <div className="px-4 py-2.5 border-b border-[#c2901c]/10">
+              <span className="text-xs font-semibold text-purple-400">Deck Guides</span>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-homeAllPages pr-2 space-y-2">
-              {deckData.topArchetypes.map((deck, index) => (
-                <div
-                  key={deck.id}
-                  onClick={() =>
-                    handleArchetypeClick(deck.id, deck.name, "deck")
-                  }
-                  className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-blue-500/20 hover:border-purple-400/40 hover:bg-black/50 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold ${
-                        index < 3
-                          ? "bg-orange-500/20 text-yellow-300"
-                          : "bg-purple-500/20 text-blue-300"
-                      }`}
-                    >
-                      {index + 1}
-                    </span>
-
-                    <span className="text-white font-medium">{deck.name}</span>
-                  </div>
-
-                  <span className="text-sky-300 font-semibold">
-                    {deck.guideCount}
-                  </span>
+            <div className="flex flex-col flex-1 min-h-0 p-4">
+              <div className="mb-3">
+                <div className="p-3 rounded-lg bg-black/30 border border-purple-500/20">
+                  <p className="text-xs text-purple-400/90 font-semibold mb-1">
+                    Total Deck Guides
+                  </p>
+                  <p className="text-2xl font-bold text-white">
+                    {deckData.totalGuides}
+                  </p>
                 </div>
-              ))}
+              </div>
+
+              <div className="flex-1 min-h-0 overflow-y-auto scrollbar-homeAllPages pr-1 space-y-1.5">
+                {deckData.topArchetypes.map((deck, index) => (
+                  <div
+                    key={deck.id}
+                    onClick={() =>
+                      handleArchetypeClick(deck.id, deck.name, "deck")
+                    }
+                    className="flex items-center justify-between p-2.5 rounded-lg bg-black/20 border border-purple-500/15 hover:border-purple-400/40 hover:bg-black/40 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span
+                        className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                          index < 3
+                            ? "bg-purple-500/20 text-purple-400"
+                            : "bg-slate-700/50 text-slate-400"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+
+                      <span className="text-white text-sm font-medium">{deck.name}</span>
+                    </div>
+
+                    <span className="text-purple-400 text-sm font-semibold">
+                      {deck.guideCount}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

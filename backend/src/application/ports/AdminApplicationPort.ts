@@ -81,6 +81,12 @@ export interface AdminApplicationPort {
     message: string;
   }>;
 
+  /** Delete guide request by ID */
+  deleteGuideRequest(requestId: number): Promise<{
+    success: boolean;
+    message: string;
+  }>;
+
   /** Get total number of registered users */
   getTotalUsers(): Promise<{
     total: number;

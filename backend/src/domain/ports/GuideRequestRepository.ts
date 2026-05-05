@@ -1,6 +1,7 @@
 import type {
   GuideRequest,
   GuideRequestWithDetails,
+  GuideSourceRequestSummary,
   CreateGuideRequestDTO,
   GuideRequestListResult,
 } from "@/domain/GuideRequest.js";
@@ -11,6 +12,11 @@ export interface GuideRequestRepository {
 
   /** Find a request by ID with archetype/user details */
   findGuideRequestById(id: number): Promise<GuideRequestWithDetails | null>;
+
+  /** Find the completed request that produced a guide instance */
+  findGuideRequestByFulfilledInstanceId(
+    instanceId: number,
+  ): Promise<GuideSourceRequestSummary | null>;
 
   /** Paginated list with optional status filter */
   findManyGuideRequests(

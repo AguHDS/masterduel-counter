@@ -20,6 +20,10 @@ export interface GuideListItem {
   headerCardName?: string;
   headerCardImageUrl?: string;
   minutesAgo?: number;
+  hasHandtraps?: boolean;
+  hasBoardbreakers?: boolean;
+  hasInitialHands?: boolean;
+  hasRecommendedDeck?: boolean;
 }
 
 export interface GuideInstanceWithFullDetails {
@@ -40,6 +44,11 @@ export interface GuideInstanceWithFullDetails {
   userName: string;
   userProfilePictureUrl: string | null;
   archetypeName: string;
+  sourceRequest?: {
+    id: number;
+    title: string;
+    status: "OPEN" | "TAKEN" | "COMPLETED";
+  } | null;
   headerCard: {
     id: number;
     name: string;

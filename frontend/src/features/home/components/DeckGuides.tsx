@@ -121,6 +121,21 @@ export const DeckGuides = () => {
                         {guide.archetypeName}
                       </p>
                     </div>
+
+                    {(guide.hasInitialHands || guide.hasRecommendedDeck) && (
+                      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                        {guide.hasInitialHands && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 ">
+                            Combos
+                          </span>
+                        )}
+                        {guide.hasRecommendedDeck && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                            Deck
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Stats in top right corner */}

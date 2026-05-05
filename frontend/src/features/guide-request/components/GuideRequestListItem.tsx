@@ -7,12 +7,14 @@ interface GuideRequestListItemProps {
   request: GuideRequest;
   isSelected?: boolean;
   onClick: () => void;
+  showCompletedParticipants?: boolean;
 }
 
 export const GuideRequestListItem: React.FC<GuideRequestListItemProps> = ({
   request,
   isSelected = false,
   onClick,
+  showCompletedParticipants = false,
 }) => {
   const guideTypeLabel =
     request.guideType === "COUNTER" ? "Counter guide" : "Deck guide";
@@ -44,18 +46,45 @@ export const GuideRequestListItem: React.FC<GuideRequestListItemProps> = ({
             {guideTypeLabel}
           </span>
         </p>
-        <div className="flex items-center gap-2 mt-1.5">
-          <GuideRequestStatusBadge status={request.status} size="xs" />
-          <Avatar
-            username={request.requesterAlias}
-            profilePictureUrl={request.requesterProfilePictureUrl}
-            size="sm"
-            className="!w-4 !h-4 !text-[9px] rounded-full"
-          />
-          <span className="text-blue-200 text-[10px] truncate">
-            {request.requesterAlias}
-          </span>
-        </div>
+        {showCompletedParticipants && request.status === "COMPLETED" ? (
+          <div className="flex items-center gap-1.5 mt-1.5 min-w-0 text-[10px] max-[1346px]:flex-wrap">
+            <GuideRequestStatusBadge status={request.status} size="xs" />
+            <span className="text-slate-400 shrink-0">Requester:</span>
+            <Avatar
+              username={request.requesterAlias}
+              profilePictureUrl={request.requesterProfilePictureUrl}
+              size="sm"
+              className="!w-4 !h-4 !text-[9px] rounded-full"
+            />
+            <span className="text-blue-200 truncate max-w-[80px] max-[1346px]:max-w-none">
+              {request.requesterAlias}
+            </span>
+            <span className="text-slate-500 shrink-0">-</span>
+            <span className="text-slate-400 shrink-0">Completed by:</span>
+            <Avatar
+              username={request.fulfilledByName ?? "Unknown"}
+              profilePictureUrl={request.fulfilledByProfilePictureUrl}
+              size="sm"
+              className="!w-4 !h-4 !text-[9px] rounded-full"
+            />
+            <span className="text-cyan-200 truncate max-w-[90px] max-[1346px]:max-w-none">
+              {request.fulfilledByName ?? "Unknown"}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 mt-1.5">
+            <GuideRequestStatusBadge status={request.status} size="xs" />
+            <Avatar
+              username={request.requesterAlias}
+              profilePictureUrl={request.requesterProfilePictureUrl}
+              size="sm"
+              className="!w-4 !h-4 !text-[9px] rounded-full"
+            />
+            <span className="text-blue-200 text-[10px] truncate">
+              {request.requesterAlias}
+            </span>
+          </div>
+        )}
       </div>
     </button>
   );

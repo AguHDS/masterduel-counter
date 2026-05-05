@@ -104,7 +104,11 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
         a.name as archetype_name,
         u.namedb as user_name,
         c.name as header_card_name,
-        c.image_url_cropped as header_card_image_url
+        c.image_url_cropped as header_card_image_url,
+        EXISTS(SELECT 1 FROM archetype_card_pairs acp WHERE acp.instance_id = ai.id AND acp.pair_section = 'HANDTRAP') as has_handtraps,
+        EXISTS(SELECT 1 FROM archetype_card_pairs acp WHERE acp.instance_id = ai.id AND acp.pair_section = 'BOARD_BREAKER') as has_boardbreakers,
+        EXISTS(SELECT 1 FROM initial_hands ih WHERE ih.instance_id = ai.id) as has_initial_hands,
+        EXISTS(SELECT 1 FROM recommended_decks rd WHERE rd.instance_id = ai.id) as has_recommended_deck
       FROM archetype_instances ai
       JOIN archetypes a ON ai.archetype_id = a.id
       JOIN users u ON ai.user_id = u.id
@@ -130,6 +134,10 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       user_name: string;
       header_card_name: string | null;
       header_card_image_url: string | null;
+      has_handtraps: number;
+      has_boardbreakers: number;
+      has_initial_hands: number;
+      has_recommended_deck: number;
     }
 
     const rows = stmt.all(...params) as InstanceRow[];
@@ -152,6 +160,10 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       userProfilePictureUrl: null,
       headerCardName: row.header_card_name ?? undefined,
       headerCardImageUrl: row.header_card_image_url ?? undefined,
+      hasHandtraps: Boolean(row.has_handtraps),
+      hasBoardbreakers: Boolean(row.has_boardbreakers),
+      hasInitialHands: Boolean(row.has_initial_hands),
+      hasRecommendedDeck: Boolean(row.has_recommended_deck),
     }));
   }
 
@@ -249,7 +261,11 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
         a.name as archetype_name,
         u.namedb as user_name,
         c.name as header_card_name,
-        c.image_url_cropped as header_card_image_url
+        c.image_url_cropped as header_card_image_url,
+        EXISTS(SELECT 1 FROM archetype_card_pairs acp WHERE acp.instance_id = ai.id AND acp.pair_section = 'HANDTRAP') as has_handtraps,
+        EXISTS(SELECT 1 FROM archetype_card_pairs acp WHERE acp.instance_id = ai.id AND acp.pair_section = 'BOARD_BREAKER') as has_boardbreakers,
+        EXISTS(SELECT 1 FROM initial_hands ih WHERE ih.instance_id = ai.id) as has_initial_hands,
+        EXISTS(SELECT 1 FROM recommended_decks rd WHERE rd.instance_id = ai.id) as has_recommended_deck
       FROM archetype_instances ai
       JOIN archetypes a ON ai.archetype_id = a.id
       JOIN users u ON ai.user_id = u.id
@@ -275,6 +291,10 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       user_name: string;
       header_card_name: string | null;
       header_card_image_url: string | null;
+      has_handtraps: number;
+      has_boardbreakers: number;
+      has_initial_hands: number;
+      has_recommended_deck: number;
     }
 
     const rows = stmt.all(...params) as InstanceRow[];
@@ -297,6 +317,10 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       userProfilePictureUrl: null,
       headerCardName: row.header_card_name ?? undefined,
       headerCardImageUrl: row.header_card_image_url ?? undefined,
+      hasHandtraps: Boolean(row.has_handtraps),
+      hasBoardbreakers: Boolean(row.has_boardbreakers),
+      hasInitialHands: Boolean(row.has_initial_hands),
+      hasRecommendedDeck: Boolean(row.has_recommended_deck),
     }));
   }
 
@@ -732,7 +756,11 @@ async findLastestCreatedGuides(
       p.profile_picture_url as user_profile_picture_url,
       c.name as header_card_name,
       c.image_url_cropped as header_card_image_url,
-      CAST((strftime('%s', 'now') - strftime('%s', ai.created_at)) / 60 AS INTEGER) as minutes_ago
+      CAST((strftime('%s', 'now') - strftime('%s', ai.created_at)) / 60 AS INTEGER) as minutes_ago,
+      EXISTS(SELECT 1 FROM archetype_card_pairs acp WHERE acp.instance_id = ai.id AND acp.pair_section = 'HANDTRAP') as has_handtraps,
+      EXISTS(SELECT 1 FROM archetype_card_pairs acp WHERE acp.instance_id = ai.id AND acp.pair_section = 'BOARD_BREAKER') as has_boardbreakers,
+      EXISTS(SELECT 1 FROM initial_hands ih WHERE ih.instance_id = ai.id) as has_initial_hands,
+      EXISTS(SELECT 1 FROM recommended_decks rd WHERE rd.instance_id = ai.id) as has_recommended_deck
     FROM archetype_instances ai
     JOIN archetypes a ON ai.archetype_id = a.id
     JOIN users u ON ai.user_id = u.id
@@ -762,6 +790,10 @@ async findLastestCreatedGuides(
     header_card_name: string | null;
     header_card_image_url: string | null;
     minutes_ago: number;
+    has_handtraps: number;
+    has_boardbreakers: number;
+    has_initial_hands: number;
+    has_recommended_deck: number;
   }
 
   const rows = stmt.all(...params) as InstanceRow[];
@@ -785,6 +817,10 @@ async findLastestCreatedGuides(
     userProfilePictureUrl: row.user_profile_picture_url,
     headerCardName: row.header_card_name ?? undefined,
     headerCardImageUrl: row.header_card_image_url ?? undefined,
+    hasHandtraps: Boolean(row.has_handtraps),
+    hasBoardbreakers: Boolean(row.has_boardbreakers),
+    hasInitialHands: Boolean(row.has_initial_hands),
+    hasRecommendedDeck: Boolean(row.has_recommended_deck),
   }));
 }
 
@@ -821,7 +857,11 @@ async findAllGuides(
       a.name as archetype_name,
       u.namedb as user_name,
       c.name as header_card_name,
-      c.image_url_cropped as header_card_image_url
+      c.image_url_cropped as header_card_image_url,
+      EXISTS(SELECT 1 FROM archetype_card_pairs acp WHERE acp.instance_id = ai.id AND acp.pair_section = 'HANDTRAP') as has_handtraps,
+      EXISTS(SELECT 1 FROM archetype_card_pairs acp WHERE acp.instance_id = ai.id AND acp.pair_section = 'BOARD_BREAKER') as has_boardbreakers,
+      EXISTS(SELECT 1 FROM initial_hands ih WHERE ih.instance_id = ai.id) as has_initial_hands,
+      EXISTS(SELECT 1 FROM recommended_decks rd WHERE rd.instance_id = ai.id) as has_recommended_deck
     FROM archetype_instances ai
     JOIN archetypes a ON ai.archetype_id = a.id
     JOIN users u ON ai.user_id = u.id
@@ -847,6 +887,10 @@ async findAllGuides(
     user_name: string;
     header_card_name: string | null;
     header_card_image_url: string | null;
+    has_handtraps: number;
+    has_boardbreakers: number;
+    has_initial_hands: number;
+    has_recommended_deck: number;
   }
 
   const rows = stmt.all(...params) as InstanceRow[];
@@ -869,6 +913,10 @@ async findAllGuides(
     userProfilePictureUrl: null,
     headerCardName: row.header_card_name ?? undefined,
     headerCardImageUrl: row.header_card_image_url ?? undefined,
+    hasHandtraps: Boolean(row.has_handtraps),
+    hasBoardbreakers: Boolean(row.has_boardbreakers),
+    hasInitialHands: Boolean(row.has_initial_hands),
+    hasRecommendedDeck: Boolean(row.has_recommended_deck),
   }));
 }
 }

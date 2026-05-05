@@ -62,6 +62,9 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
       setShowCreateModal(false);
       return;
     }
+
+    setPage(1);
+
     if (initialRequest) {
       setStatusFilter(initialRequest.status);
       setSelectedRequest(initialRequest);
@@ -76,6 +79,8 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
 
     if (initialTab) {
       setStatusFilter(initialTab);
+    } else {
+      setStatusFilter("OPEN");
     }
     setSelectedRequest(null);
   }, [isOpen, initialTab, initialRequest, initialRequestById]);
@@ -257,6 +262,11 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
                   currentUser={currentUser}
                   onBack={() => setSelectedRequest(null)}
                   onTakeSuccess={(updated) => setSelectedRequest(updated)}
+                  onDeleteSuccess={(deletedRequestId) => {
+                    if (selectedRequest?.id === deletedRequestId) {
+                      setSelectedRequest(null);
+                    }
+                  }}
                 />
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-3">

@@ -168,6 +168,35 @@ export const GuidesGrid = ({
                       </span>
                     )}
                   </div>
+
+                  {instance.guideType === "COUNTER" && (instance.hasHandtraps || instance.hasBoardbreakers) && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {instance.hasHandtraps && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-500/15 text-orange-300 border border-orange-500/30">
+                          Handtraps
+                        </span>
+                      )}
+                      {instance.hasBoardbreakers && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-500/15 text-red-300 border border-red-500/30">
+                          Board Breakers
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {instance.guideType === "DECK" && (instance.hasInitialHands || instance.hasRecommendedDeck) && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {instance.hasInitialHands && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                          Combos
+                        </span>
+                      )}
+                      {instance.hasRecommendedDeck && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                          Deck
+                        </span>
+                      )}
+                    </div>
+                  )}
                   {showArchetypeName && (
                     <div className="flex items-center gap-1 text-xs">
                       <span className="text-slate-400">Archetype:</span>

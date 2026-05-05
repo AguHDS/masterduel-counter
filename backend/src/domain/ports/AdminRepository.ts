@@ -38,6 +38,8 @@ export interface AdminRepository {
   getReports(): Promise<ReportWithDetails[]>;
   /** Delete report by ID */
   deleteReport(reportId: number): Promise<void>;
+  /** Delete guide request by ID */
+  deleteGuideRequest(requestId: number): Promise<void>;
   /** Get total number of registered users */
   getTotalUsers(): Promise<number>;
 
