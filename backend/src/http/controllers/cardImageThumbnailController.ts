@@ -32,9 +32,9 @@ export const getThumbnail = async (req: Request, res: Response): Promise<void> =
     const height = parseInt(match[3], 10);
 
     // Validate dimensions (prevent abuse)
-    if (width > 500 || height > 500 || width < 10 || height < 10) {
+    if (width > 800 || height > 800 || width < 10 || height < 10) {
       res.status(400).json({ 
-        error: "Invalid dimensions. Width and height must be between 10 and 500 pixels" 
+        error: "Invalid dimensions. Width and height must be between 10 and 800 pixels" 
       });
       return;
     }

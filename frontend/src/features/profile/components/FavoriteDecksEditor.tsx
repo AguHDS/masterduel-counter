@@ -132,7 +132,7 @@ export const FavoriteDecksEditor = ({
                   <div className="w-full aspect-[3/2] overflow-hidden relative">
                     {deck.imageUrl ? (
                       <img
-                        src={getOptimizedCardImageUrl(deck.imageUrl, { size: 'thumbnail', width: 300, height: 300 })}
+                        src={getOptimizedCardImageUrl(deck.imageUrl, { size: 'thumbnail', width: 400, height: 400 })}
                         alt={deck.title}
                         className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
                         loading="lazy"

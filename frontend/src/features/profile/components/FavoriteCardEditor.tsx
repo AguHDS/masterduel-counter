@@ -80,7 +80,7 @@ export const FavoriteCardEditor = ({
                     >
                       <img
                         src={useCropped
-                          ? (getOptimizedCardImageUrl(displayCard.imageUrlCropped, { size: 'thumbnail', width: 500, height: 500 }) ?? displayCard.imageUrlCropped)
+                          ? (getOptimizedCardImageUrl(displayCard.imageUrlCropped, { size: 'thumbnail', width: 700, height: 700 }) ?? displayCard.imageUrlCropped)
                           : displayCard.imageUrl
                         }
                         alt="Favorite card"
