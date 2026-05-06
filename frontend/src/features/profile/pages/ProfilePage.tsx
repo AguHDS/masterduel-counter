@@ -612,7 +612,7 @@ export const ProfilePage = () => {
                                 <div className="flex items-center gap-2">
                                   <div className="flex-1 h-px bg-gradient-to-r from-transparent to-yellow-600/40" />
                                   <span className="text-yellow-500/55 text-[9px]">◆</span>
-                                  <h3 className="text-yellow-400 font-bold text-[11px] tracking-[0.22em] uppercase px-1">About</h3>
+                                  <h3 className="text-yellow-400 font-bold text-[11px] tracking-[0.22em] uppercase px-1">Bio</h3>
                                   <span className="text-yellow-500/55 text-[9px]">◆</span>
                                   <div className="flex-1 h-px bg-gradient-to-l from-transparent to-yellow-600/40" />
                                 </div>
