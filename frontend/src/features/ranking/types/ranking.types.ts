@@ -22,6 +22,14 @@ export interface RankingGuide {
   rank: number;
 }
 
+export interface TrendingRankingUser extends RankingUser {
+  month: string; // Format: YYYY-MM
+}
+
+export interface TrendingRankingGuide extends RankingGuide {
+  month: string; // Format: YYYY-MM
+}
+
 export interface RankingResponse {
   ranking: RankingUser[];
   pagination: {
@@ -34,6 +42,26 @@ export interface RankingResponse {
 
 export interface GuideRankingResponse {
   ranking: RankingGuide[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface TrendingUserRankingResponse {
+  ranking: TrendingRankingUser[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface TrendingGuideRankingResponse {
+  ranking: TrendingRankingGuide[];
   pagination: {
     page: number;
     limit: number;

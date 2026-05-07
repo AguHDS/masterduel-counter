@@ -495,3 +495,37 @@ model GuideRequest {
   @@index([takenById])
   @@map("guide_requests")
 }
+
+model MonthlyGuideRanking {
+  id         Int      @id @default(autoincrement())
+  guideId    Int      @map("guide_id")
+  month      String   // Format: YYYY-MM (e.g., "2026-05")
+  rank       Int
+  score      Float
+  likes      Int
+  views      Int
+  favorites  Int
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([guideId, month])
+  @@index([month])
+  @@index([month, rank])
+  @@map("monthly_guide_rankings")
+}
+
+model MonthlyUserRanking {
+  id                 Int      @id @default(autoincrement())
+  userId             String   @map("user_id")
+  month              String   // Format: YYYY-MM (e.g., "2026-05")
+  rank               Int
+  score              Float
+  totalLikes         Int      @map("total_likes")
+  totalViews         Int      @map("total_views")
+  fulfilledRequests  Int      @map("fulfilled_requests")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, month])
+  @@index([month])
+  @@index([month, rank])
+  @@map("monthly_user_rankings")
+}

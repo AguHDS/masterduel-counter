@@ -8,6 +8,7 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { getDependencies } from "./compositionRoot.js";
 import { startCleanupJob } from "./services/cleanupService.js";
+import { startTrendingSnapshotService } from "./services/trendingSnapshotService.js";
 import { createGuideOgPreviewMiddleware } from "./http/middlewares/guideOgPreviewMiddleware.js";
 import { createLegacyUrlRedirectMiddleware } from "./http/middlewares/legacyUrlRedirectMiddleware.js";
 dotenv.config();
@@ -244,6 +245,6 @@ if (existsSync(FRONTEND_DIST)) {
 }
 
 app.listen(PORT, () => {
-  
   startCleanupJob();
+  startTrendingSnapshotService();
 });

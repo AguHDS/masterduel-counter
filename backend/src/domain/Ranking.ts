@@ -22,6 +22,14 @@ export interface GuideRankingItem {
   rank: number;
 }
 
+export interface TrendingGuideRankingItem extends GuideRankingItem {
+  month: string; // Format: YYYY-MM
+}
+
+export interface TrendingUserRankingItem extends UserRankingItem {
+  month: string; // Format: YYYY-MM
+}
+
 export interface RankingPagination {
   page: number;
   limit: number;
