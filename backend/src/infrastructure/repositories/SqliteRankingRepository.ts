@@ -714,7 +714,10 @@ export class SqliteRankingRepository implements RankingRepository {
   async getGuideBestTrending(
     guideId: number,
   ): Promise<GuideBestTrending | null> {
-    const bestRank = await this.prisma.monthlyGuideRanking.findFirst({
+    const currentMonth = new Date().toISOString().slice(0, 7);
+
+    // Get all snapshot rankings for this guide
+    const snapshots = await this.prisma.monthlyGuideRanking.findMany({
       where: { guideId },
       orderBy: { rank: "asc" },
       select: {
@@ -727,18 +730,41 @@ export class SqliteRankingRepository implements RankingRepository {
       },
     });
 
-    if (!bestRank) {
+    // Check if current month has snapshot
+    const hasCurrentMonthSnapshot = snapshots.some(s => s.month === currentMonth);
+
+    // If no snapshot for current month, calculate live ranking
+    let currentMonthRanking: GuideBestTrending | null = null;
+    if (!hasCurrentMonthSnapshot) {
+      const currentMonthGuides = await this.getTrendingGuidesForMonth(currentMonth);
+      const guideIndex = currentMonthGuides.findIndex(g => g.id === guideId);
+
+      if (guideIndex !== -1) {
+        const guide = currentMonthGuides[guideIndex];
+        currentMonthRanking = {
+          month: currentMonth,
+          rank: guideIndex + 1,
+          score: this.guideScore(guide.likes, guide.favorites, guide.views),
+          likes: guide.likes,
+          favorites: guide.favorites,
+          views: guide.views,
+        };
+      }
+    }
+
+    // Combine snapshots and current month ranking (if exists)
+    const allRankings = currentMonthRanking 
+      ? [currentMonthRanking, ...snapshots]
+      : snapshots;
+
+    // Return best ranking (lowest rank number)
+    if (allRankings.length === 0) {
       return null;
     }
 
-    return {
-      month: bestRank.month,
-      rank: bestRank.rank,
-      score: bestRank.score,
-      likes: bestRank.likes,
-      favorites: bestRank.favorites,
-      views: bestRank.views,
-    };
+    return allRankings.reduce((best, current) => 
+      current.rank < best.rank ? current : best
+    );
   }
 
   async getUserTrendingAchievements(userId: string): Promise<TrendingAchievement[]> {
