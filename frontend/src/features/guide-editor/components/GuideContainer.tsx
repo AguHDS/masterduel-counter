@@ -556,23 +556,17 @@ export const GuideContainer = ({
       )}
 
       <section className="w-full relative flex justify-center top-2 px-4 sm:px-6 lg:px-6 xl:px-8 mt-2">
-        <div className="relative w-full max-w-[2100px] rounded-[28px] p-[3px]">
-          {/* Background image with transparency effect */}
-          <div className="absolute inset-0 rounded-[24px] overflow-hidden">
-            {/* Semi-transparent overlay to maintain the original transparency effect */}
-            <div className="absolute inset-0 " />
-          </div>
-
-          {/* Content container with gradient and transparency */}
+        <div className="relative w-full max-w-[2100px]">
+          {/* Content container with game UI style matching ProfilePage */}
           <div
-            className={`relative flex flex-col w-full min-h-[600px] border-2 rounded-md py-10 sm:py-12 px-4 sm:px-6 lg:px-6 xl:px-10 ${
-              guideType === "COUNTER"
-                ? "border-amber-500/70"
-                : "border-blue-500/70"
-            }`}
+            className="relative flex flex-col w-full min-h-[600px] border-2 border-yellow-600/50 rounded-lg py-10 sm:py-12 px-4 sm:px-6 lg:px-6 xl:px-10 overflow-hidden"
+            style={{ background: 'radial-gradient(ellipse at 50% 25%, #1a1235 0%, #08061a 65%)' }}
           >
-            {/* Gradient overlay with transparency */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#120b31]/85 to-[#060017]/85"></div>
+            {/* Corner decorators */}
+            <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-yellow-500/50 rounded-tr-lg z-20 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-yellow-500/50 rounded-bl-lg z-20 pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
 
             <div className="relative z-10 space-y-6">
               <div className="absolute right-3 top-[-26px] flex items-center justify-between w-full px-4">
