@@ -560,7 +560,7 @@ export const GuideContainer = ({
           {/* Content container with game UI style matching ProfilePage */}
           <div
             className="relative flex flex-col w-full min-h-[600px] border-2 border-yellow-600/50 rounded-lg py-10 sm:py-12 px-4 sm:px-6 lg:px-6 xl:px-10 overflow-hidden"
-            style={{ background: 'radial-gradient(ellipse at 50% 25%, #1a1235 0%, #08061a 65%)' }}
+            style={{ background: 'linear-gradient(180deg, #0d0a25 0%, #08061a 100%)' }}
           >
             {/* Corner decorators */}
             <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />

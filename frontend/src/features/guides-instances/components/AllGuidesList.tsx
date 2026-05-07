@@ -67,7 +67,7 @@ const AllGuidesList = ({
         <div className="relative w-full max-w-[1456px]">
           <div
             className="relative flex flex-col w-full border-2 border-yellow-600/50 rounded-lg px-3 sm:px-4 md:px-[3%] pt-2 pb-6 gap-4 overflow-hidden"
-            style={{ background: 'radial-gradient(ellipse at 50% 25%, #1a1235 0%, #08061a 65%)' }}
+            style={{ background: 'linear-gradient(180deg, #0d0a25 0%, #08061a 100%)' }}
           >
             {/* Corner decorators */}
             <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />
