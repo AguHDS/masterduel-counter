@@ -68,7 +68,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const [rankingType, setRankingType] = useState<"all-time" | "trending">(
-    "all-time",
+    "trending",
   );
   const [entityType, setEntityType] = useState<"guides" | "users">("guides");
   const navigate = useNavigate();
@@ -82,19 +82,19 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
   // All-time data
   const { data: guideData, isLoading: isLoadingGuides } = useGuideRanking(
     1,
-    100,
+    50,
   );
-  const { data: userData, isLoading: isLoadingUsers } = useRanking(1, 100);
+  const { data: userData, isLoading: isLoadingUsers } = useRanking(1, 50);
 
   // Trending data
   const {
     data: trendingGuideData,
     isLoading: isLoadingTrendingGuides,
-  } = useTrendingGuideRanking(currentMonth, 1, 100);
+  } = useTrendingGuideRanking(currentMonth, 1, 50);
   const {
     data: trendingUserData,
     isLoading: isLoadingTrendingUsers,
-  } = useTrendingUserRanking(currentMonth, 1, 100);
+  } = useTrendingUserRanking(currentMonth, 1, 50);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -147,7 +147,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
     <div
       ref={popupRef}
       onMouseDown={(e) => e.stopPropagation()}
-      className={`absolute mt-2 w-[450px] border border-[#c2901c]/40 rounded-xl shadow-2xl overflow-hidden z-50 ${
+      className={`absolute mt-2 w-[450px] max-w-[calc(100vw-2rem)] border border-[#c2901c]/40 rounded-xl shadow-2xl overflow-hidden z-50 ${
         alignRight ? "right-0" : "left-0"
       }`}
       style={{
@@ -168,28 +168,12 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
         </div>
       </div>
 
-      {/* Main tabs: ALL-TIME vs TRENDING - Game UI style with borders */}
+      {/* Main tabs: TRENDING vs ALL-TIME - Game UI style with borders */}
       <div className="px-3 pb-0">
         <div className="flex gap-2 mb-0">
           <button
-            onClick={() => setRankingType("all-time")}
-            className={`relative flex-1 py-3 rounded-t-lg text-xs font-bold tracking-widest transition-all border-t-2 border-x-2 ${
-              rankingType === "all-time"
-                ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c] shadow-lg z-10"
-                : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20 hover:text-[#c2901c]/80 hover:border-[#c2901c]/40"
-            }`}
-            style={{
-              borderBottom: rankingType === "all-time" ? "2px solid transparent" : "none",
-            }}
-          >
-            <div className="flex items-center justify-center gap-1.5">
-              <Crown className="w-3.5 h-3.5" />
-              ALL-TIME
-            </div>
-          </button>
-          <button
             onClick={() => setRankingType("trending")}
-            className={`relative flex-1 py-3 rounded-t-lg text-xs font-bold tracking-widest transition-all border-t-2 border-x-2 ${
+            className={`relative flex-1 py-2 sm:py-3 rounded-t-lg text-[10px] sm:text-xs font-bold tracking-wide sm:tracking-widest transition-all border-t-2 border-x-2 ${
               rankingType === "trending"
                 ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c] shadow-lg z-10"
                 : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20 hover:text-[#c2901c]/80 hover:border-[#c2901c]/40"
@@ -198,9 +182,27 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
               borderBottom: rankingType === "trending" ? "2px solid transparent" : "none",
             }}
           >
-            <div className="flex items-center justify-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5" />
-              TRENDING ({monthLabel})
+            <div className="flex items-center justify-center gap-1">
+              <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="hidden sm:inline">TRENDING ({monthLabel})</span>
+              <span className="sm:hidden">TREND ({monthLabel})</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setRankingType("all-time")}
+            className={`relative flex-1 py-2 sm:py-3 rounded-t-lg text-[10px] sm:text-xs font-bold tracking-wide sm:tracking-widest transition-all border-t-2 border-x-2 ${
+              rankingType === "all-time"
+                ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c] shadow-lg z-10"
+                : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20 hover:text-[#c2901c]/80 hover:border-[#c2901c]/40"
+            }`}
+            style={{
+              borderBottom: rankingType === "all-time" ? "2px solid transparent" : "none",
+            }}
+          >
+            <div className="flex items-center justify-center gap-1">
+              <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="hidden sm:inline">ALL-TIME</span>
+              <span className="sm:hidden">ALL TIME</span>
             </div>
           </button>
         </div>
@@ -218,23 +220,23 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
           <div className="flex bg-black/30 rounded-md p-1 gap-1 border border-[#c2901c]/20">
             <button
               onClick={() => setEntityType("guides")}
-              className={`flex-1 py-2 rounded text-[10px] font-bold tracking-wider transition-all ${
+              className={`flex-1 py-2 rounded text-[10px] font-bold tracking-wider ${
                 entityType === "guides"
                   ? "bg-gradient-to-b from-[#c2901c] to-[#a67615] text-black shadow-md"
                   : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
               }`}
             >
-              📖 GUIDES
+              GUIDES
             </button>
             <button
               onClick={() => setEntityType("users")}
-              className={`flex-1 py-2 rounded text-[10px] font-bold tracking-wider transition-all ${
+              className={`flex-1 py-2 rounded text-[10px] font-bold tracking-wider ${
                 entityType === "users"
                   ? "bg-gradient-to-b from-[#c2901c] to-[#a67615] text-black shadow-md"
                   : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
               }`}
             >
-              👤 USERS
+              USERS
             </button>
           </div>
         </div>

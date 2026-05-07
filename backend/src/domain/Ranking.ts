@@ -41,3 +41,47 @@ export interface RankingResult<T> {
   ranking: T[];
   pagination: RankingPagination;
 }
+
+export interface UserTrendingHistory {
+  month: string; // Format: "YYYY-MM"
+  rank: number;
+  score: number;
+  totalLikes: number;
+  fulfilledRequests: number;
+  totalViews: number;
+}
+
+export interface GuideBestTrending {
+  month: string; // Format: "YYYY-MM"
+  rank: number;
+  score: number;
+  likes: number;
+  favorites: number;
+  views: number;
+}
+
+export interface GuideTrendingAchievement {
+  type: "guide";
+  guideId: number;
+  guideTitle: string;
+  archetypeName: string;
+  headerImageUrl: string | null;
+  month: string;
+  rank: number;
+  score: number;
+  likes: number;
+  favorites: number;
+  views: number;
+}
+
+export interface UserTrendingAchievement {
+  type: "user";
+  month: string;
+  rank: number;
+  score: number;
+  totalLikes: number;
+  fulfilledRequests: number;
+  totalViews: number;
+}
+
+export type TrendingAchievement = GuideTrendingAchievement | UserTrendingAchievement;

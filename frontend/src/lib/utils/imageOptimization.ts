@@ -108,3 +108,65 @@ export function getRecommendedImageSize(displayWidth: number): ImageSize {
   // Use full for displays 120px and above
   return displayWidth < 120 ? 'thumbnail' : 'full';
 }
+
+/**
+ * Cloudinary profile picture optimization
+ * Applies appropriate transformations for different display contexts
+ */
+export type ProfilePictureSize = 'mini' | 'small' | 'medium' | 'large';
+
+interface ProfilePictureOptions {
+  /**
+   * Size variant to use
+   * - 'mini': For navbar, trending achievements (40-50px), very optimized
+   * - 'small': For small avatars (80-100px), moderately optimized
+   * - 'medium': For profile pages (150-200px), balanced optimization
+   * - 'large': For large displays (300px+), minimal optimization
+   */
+  size?: ProfilePictureSize;
+}
+
+/**
+ * Optimize Cloudinary profile picture URL with appropriate transformations
+ * 
+ * @param url - Original Cloudinary URL
+ * @param options - Optimization options
+ * @returns Optimized Cloudinary URL with transformations
+ * 
+ * @example
+ * ```tsx
+ * // For navbar (mini)
+ * <img src={getOptimizedProfilePictureUrl(profileUrl, { size: 'mini' })} />
+ * 
+ * // For profile page (medium)
+ * <img src={getOptimizedProfilePictureUrl(profileUrl, { size: 'medium' })} />
+ * ```
+ */
+export function getOptimizedProfilePictureUrl(
+  url: string | null | undefined,
+  options: ProfilePictureOptions = {}
+): string | undefined {
+  if (!url) {
+    return undefined;
+  }
+
+  // Only process Cloudinary URLs
+  if (!url.includes('res.cloudinary.com')) {
+    return url;
+  }
+
+  const { size = 'medium' } = options;
+
+  // Define transformations for each size
+  const transformations: Record<ProfilePictureSize, string> = {
+    mini: 'w_50,h_50,c_fill,q_auto:low,f_auto',
+    small: 'w_100,h_100,c_fill,q_auto,f_auto',
+    medium: 'w_250,h_250,c_fill,q_auto:good,f_auto',
+    large: 'w_400,h_400,c_fill,q_auto:good,f_auto',
+  };
+
+  const transform = transformations[size];
+
+  // Insert transformation into Cloudinary URL
+  return url.replace('/upload/', `/upload/${transform}/`);
+}

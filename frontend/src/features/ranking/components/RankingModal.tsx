@@ -88,7 +88,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
   onClose,
   onUserClick,
 }) => {
-  const [rankingType, setRankingType] = useState<"all-time" | "trending">("all-time");
+  const [rankingType, setRankingType] = useState<"all-time" | "trending">("trending");
   const [entityType, setEntityType] = useState<"guides" | "users">("guides");
   const [selectedMonth, setSelectedMonth] = useState<string>(() => 
     new Date().toISOString().slice(0, 7)
@@ -140,6 +140,18 @@ export const RankingModal: React.FC<RankingModalProps> = ({
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, [isOpen, onClose]);
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   // Reset page when switching tabs
   useEffect(() => {
@@ -215,7 +227,6 @@ export const RankingModal: React.FC<RankingModalProps> = ({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-black/75 backdrop-blur-sm z-50"
-      onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -248,24 +259,8 @@ export const RankingModal: React.FC<RankingModalProps> = ({
             </div>
           </div>
 
-          {/* Main tabs: ALL-TIME vs TRENDING - Game UI style with borders */}
+          {/* Main tabs: TRENDING vs ALL-TIME - Game UI style with borders */}
           <div className="flex gap-2">
-            <button
-              onClick={() => setRankingType("all-time")}
-              className={`relative flex-1 py-3.5 rounded-t-lg text-sm font-bold tracking-widest transition-all border-t-2 border-x-2 ${
-                rankingType === "all-time"
-                  ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c] shadow-lg z-10"
-                  : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20 hover:text-[#c2901c]/80 hover:border-[#c2901c]/40"
-              }`}
-              style={{
-                borderBottom: rankingType === "all-time" ? "2px solid transparent" : "none",
-              }}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <Crown className="w-4 h-4" />
-                ALL-TIME
-              </div>
-            </button>
             <button
               onClick={() => setRankingType("trending")}
               className={`relative flex-1 py-3.5 rounded-t-lg text-sm font-bold tracking-widest transition-all border-t-2 border-x-2 ${
@@ -280,6 +275,22 @@ export const RankingModal: React.FC<RankingModalProps> = ({
               <div className="flex items-center justify-center gap-2">
                 <TrendingUp className="w-4 h-4" />
                 TRENDING ({monthLabel})
+              </div>
+            </button>
+            <button
+              onClick={() => setRankingType("all-time")}
+              className={`relative flex-1 py-3.5 rounded-t-lg text-sm font-bold tracking-widest transition-all border-t-2 border-x-2 ${
+                rankingType === "all-time"
+                  ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c] shadow-lg z-10"
+                  : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20 hover:text-[#c2901c]/80 hover:border-[#c2901c]/40"
+              }`}
+              style={{
+                borderBottom: rankingType === "all-time" ? "2px solid transparent" : "none",
+              }}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Crown className="w-4 h-4" />
+                ALL-TIME
               </div>
             </button>
           </div>
@@ -321,7 +332,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                     : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
                 }`}
               >
-                📖 GUIDES
+                GUIDES
               </button>
               <button
                 onClick={() => setEntityType("users")}
@@ -331,7 +342,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                     : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
                 }`}
               >
-                👤 USERS
+                USERS
               </button>
             </div>
           </div>

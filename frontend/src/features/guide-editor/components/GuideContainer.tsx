@@ -628,6 +628,7 @@ export const GuideContainer = ({
                   (pair) => pair.section === "BOARD_BREAKER",
                 )}
                 createdAt={guideInstanceData?.instance.createdAt}
+                guideId={guideInstanceData?.instance.id}
               />
 
               <GuideTypeContentSection

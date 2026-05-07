@@ -19,6 +19,8 @@ import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
 import { ProfileGuideList } from "../components/ProfileGuideList";
 import { PersonalDeckList } from "../components/PersonalDeckList";
 import { UserSearchDropdown } from "../components/UserSearchDropdown";
+import { TrendingSection } from "../components/TrendingSection";
+import { TrendingHistoryModal } from "../components/TrendingHistoryModal";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
 import {
@@ -27,7 +29,8 @@ import {
 } from "../hooks/useFavoriteCardAndDecks";
 import { useCustomDecks } from "../hooks/useCustomDecks";
 import { useSession } from "@/lib/auth-client";
-import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
+import { useUserTrendingAchievements } from "@/features/ranking/hooks/useRanking";
+import { getOptimizedCardImageUrl, getOptimizedProfilePictureUrl } from "@/lib/utils/imageOptimization";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
 import { useRef, useState, useCallback } from "react";
@@ -48,6 +51,7 @@ export const ProfilePage = () => {
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isTrendingModalOpen, setIsTrendingModalOpen] = useState(false);
   const [autoSelectDeckId, setAutoSelectDeckId] = useState<number | null>(null);
 
   // Determine active tab from URL or default to "profile"
@@ -126,6 +130,10 @@ export const ProfilePage = () => {
     saveFavoriteCardAndDecks,
     isSaving: isSavingFavorites,
   } = useFavoriteCardAndDecks(resolvedUserId, profile);
+
+  // Fetch trending achievements
+  const { data: trendingAchievementsData } = useUserTrendingAchievements(resolvedUserId);
+  const trendingAchievements = trendingAchievementsData?.achievements ?? [];
 
   const getProfilePath = useCallback(
     (nextTab?: string) => {
@@ -298,7 +306,7 @@ export const ProfilePage = () => {
                           >
                             {displayPhotoUrl ? (
                               <img
-                                src={displayPhotoUrl}
+                                src={getOptimizedProfilePictureUrl(displayPhotoUrl, { size: 'medium' }) || displayPhotoUrl}
                                 alt={`${profile?.userName}'s profile`}
                                 className={`w-full h-full object-cover ${
                                   fileError && previewUrl && !selectedFile
@@ -438,7 +446,7 @@ export const ProfilePage = () => {
                         </h3>
                         {userGuides && userGuides.length > 0 ? (
                           <>
-                            <div className="space-y-2 mb-4">
+                            <div className="space-y-1 mb-4">
                               {userGuides.slice(0, 3).map((guide) => (
                                 <div
                                   key={guide.id}
@@ -717,7 +725,7 @@ export const ProfilePage = () => {
                     <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-yellow-500/50 rounded-bl-lg z-20 pointer-events-none" />
                     <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
 
-                    <div className="relative z-10 h-full flex flex-col">
+                    <div className="relative z-10 flex flex-col">
                       {/* Decorative title */}
                       <div className="pt-6 pb-5 px-5">
                         <div className="flex items-center gap-2">
@@ -733,12 +741,34 @@ export const ProfilePage = () => {
                       </div>
 
                       {/* Card content */}
-                      <div className="flex-1 flex flex-col items-center justify-start">
+                      <div className="flex-1 flex flex-col items-center justify-start overflow-y-auto overflow-x-hidden scrollbar-homeAllPages px-5 pt-4">
                         <FavoriteCardEditor
                           cardId={favoriteCardId}
                           isEditMode={isEditMode && isOwner}
                           onCardSelect={handleFavoriteCardSelect}
                         />
+                        
+                        {/* Trending Section */}
+                        <div className="w-full mt-7 overflow-hidden">
+                          <TrendingSection
+                            achievements={trendingAchievements}
+                            profilePictureUrl={profile?.profilePictureUrl ?? undefined}
+                            onShowAll={() => setIsTrendingModalOpen(true)}
+                            onGuideClick={(guideId) => {
+                              const guide = userGuides?.find((g: GuideListItem) => g.id === guideId);
+                              if (guide) {
+                                const path = buildGuidePath({
+                                  guideId: guide.id,
+                                  archetypeId: guide.archetypeId,
+                                  archetypeName: guide.archetypeName,
+                                  userName: guide.userName,
+                                  guideType: guide.guideType,
+                                });
+                                navigate(path);
+                              }
+                            }}
+                          />
+                        </div>
                       </div>
 
                       {/* Bottom accent */}
@@ -761,6 +791,29 @@ export const ProfilePage = () => {
           targetType="user"
           targetId={resolvedUserId || userId}
           targetName={profile?.userName || userId}
+        />
+      )}
+
+      {isTrendingModalOpen && (
+        <TrendingHistoryModal
+          isOpen={isTrendingModalOpen}
+          onClose={() => setIsTrendingModalOpen(false)}
+          achievements={trendingAchievements}
+          username={profile?.userName || "User"}
+          profilePictureUrl={profile?.profilePictureUrl ?? undefined}
+          onGuideClick={(guideId) => {
+            const guide = userGuides?.find((g: GuideListItem) => g.id === guideId);
+            if (guide) {
+              const path = buildGuidePath({
+                guideId: guide.id,
+                archetypeId: guide.archetypeId,
+                archetypeName: guide.archetypeName,
+                userName: guide.userName,
+                guideType: guide.guideType,
+              });
+              navigate(path);
+            }
+          }}
         />
       )}
     </>

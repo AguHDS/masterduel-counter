@@ -7,6 +7,11 @@ import {
   TrendingGuideRankingItem,
   RankingResult,
 } from "@/domain/Ranking.js";
+import {
+  UserTrendingHistory,
+  GuideBestTrending,
+  TrendingAchievement,
+} from "@/domain/Ranking.js";
 
 export class RankingApplicationService implements RankingApplicationPort {
   constructor(private readonly rankingRepository: RankingRepository) {}
@@ -83,5 +88,19 @@ export class RankingApplicationService implements RankingApplicationPort {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async getUserTrendingHistory(userId: string): Promise<UserTrendingHistory[]> {
+    return await this.rankingRepository.getUserTrendingHistory(userId);
+  }
+
+  async getGuideBestTrending(
+    guideId: number,
+  ): Promise<GuideBestTrending | null> {
+    return await this.rankingRepository.getGuideBestTrending(guideId);
+  }
+
+  async getUserTrendingAchievements(userId: string): Promise<TrendingAchievement[]> {
+    return await this.rankingRepository.getUserTrendingAchievements(userId);
   }
 }

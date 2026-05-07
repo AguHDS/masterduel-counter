@@ -40,3 +40,30 @@ export const useTrendingUserRanking = (
     staleTime: 5 * 60 * 1000,
   });
 };
+
+export const useUserTrendingHistory = (userId: string) => {
+  return useQuery({
+    queryKey: ["user-trending-history", userId],
+    queryFn: () => rankingApi.getUserTrendingHistory(userId),
+    staleTime: 5 * 60 * 1000,
+    enabled: !!userId,
+  });
+};
+
+export const useGuideBestTrending = (guideId: number) => {
+  return useQuery({
+    queryKey: ["guide-best-trending", guideId],
+    queryFn: () => rankingApi.getGuideBestTrending(guideId),
+    staleTime: 5 * 60 * 1000,
+    enabled: guideId > 0,
+  });
+};
+
+export const useUserTrendingAchievements = (userId: string) => {
+  return useQuery({
+    queryKey: ["user-trending-achievements", userId],
+    queryFn: () => rankingApi.getUserTrendingAchievements(userId),
+    staleTime: 5 * 60 * 1000,
+    enabled: !!userId,
+  });
+};

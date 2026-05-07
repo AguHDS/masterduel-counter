@@ -4,6 +4,9 @@ import type {
   RankingGuide,
   TrendingRankingUser,
   TrendingRankingGuide,
+  UserTrendingHistoryResponse,
+  GuideBestTrendingResponse,
+  UserTrendingAchievementsResponse,
 } from "../types/ranking.types";
 
 interface RankingResponse {
@@ -92,6 +95,33 @@ export const rankingApi = {
     const response = await axiosClient.get<TrendingUserRankingResponse>(
       `/api/ranking/trending/users`,
       { params: { month, page, limit } },
+    );
+    return response.data;
+  },
+
+  getUserTrendingHistory: async (
+    userId: string,
+  ): Promise<UserTrendingHistoryResponse> => {
+    const response = await axiosClient.get<UserTrendingHistoryResponse>(
+      `/api/ranking/user/${userId}/trending-history`,
+    );
+    return response.data;
+  },
+
+  getGuideBestTrending: async (
+    guideId: number,
+  ): Promise<GuideBestTrendingResponse> => {
+    const response = await axiosClient.get<GuideBestTrendingResponse>(
+      `/api/ranking/guide/${guideId}/best-trending`,
+    );
+    return response.data;
+  },
+
+  getUserTrendingAchievements: async (
+    userId: string,
+  ): Promise<UserTrendingAchievementsResponse> => {
+    const response = await axiosClient.get<UserTrendingAchievementsResponse>(
+      `/api/ranking/user/${userId}/trending-achievements`,
     );
     return response.data;
   },

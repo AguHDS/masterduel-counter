@@ -15,6 +15,8 @@ import { Avatar } from "@/shared/components/DefaultAvatar";
 import { buildProfilePath } from "@/lib/config/urlHelpers";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import { useState, useRef, useEffect } from "react";
+import { TrendingBadge } from "./TrendingBadge";
+import { useGuideBestTrending } from "@/features/ranking/hooks/useRanking";
 
 interface HeaderCard {
   id: number;
@@ -50,6 +52,7 @@ interface GuideHeaderProps {
   hasHandtraps?: boolean;
   hasBoardBreakers?: boolean;
   createdAt?: string;
+  guideId?: number;
 }
 /**
  * Header component displaying guide metadata and edit controls
@@ -81,12 +84,17 @@ export const GuideHeader = ({
   hasHandtraps = false,
   hasBoardBreakers = false,
   createdAt,
+  guideId,
 }: GuideHeaderProps) => {
   const isOwner = !!(
     currentUserId &&
     userId &&
     currentUserId.toString() === userId.toString()
   );
+
+  // Fetch best trending achievement for this guide
+  const { data: bestTrendingData } = useGuideBestTrending(guideId || 0);
+  const bestTrending = bestTrendingData?.bestTrending;
 
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [needsReadMore, setNeedsReadMore] = useState(false);
@@ -132,7 +140,11 @@ export const GuideHeader = ({
               cardId={headerCard.id}
             >
               <img
-                src={getOptimizedCardImageUrl(headerCard.imageUrlCropped, { size: 'thumbnail', width: 300, height: 300 })}
+                src={getOptimizedCardImageUrl(headerCard.imageUrlCropped, {
+                  size: "thumbnail",
+                  width: 300,
+                  height: 300,
+                })}
                 alt={headerCard.name}
                 className="w-full border-2 relative bottom-7 border-amber-500/90 rounded-[3px] h-auto object-contain cursor-pointer"
                 loading="lazy"
@@ -214,9 +226,17 @@ export const GuideHeader = ({
 
       <div className="flex-1 min-w-0 w-full lg:relative lg:bottom-12">
         <div className="w-full flex flex-col items-start mb-2">
-          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-3">
-            {archetypeName}
-          </h2>
+          <div className="w-full relative mb-3">
+            {!isEditMode && bestTrending && (
+              <div className="absolute left-1/2 max-[436px]:ml-10 -translate-x-1/2 top-7 -translate-y-1/2">
+                <TrendingBadge bestTrending={bestTrending} />
+              </div>
+            )}
+            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              {archetypeName}
+            </h2>
+          </div>
+
           <div className="flex w-full my-2">
             <div
               className="w-full h-[2px]"
