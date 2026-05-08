@@ -417,9 +417,11 @@ export class SqliteRankingRepository implements RankingRepository {
 
     // Otherwise, calculate live from current data
     const sorted = await this.getTrendingGuidesForMonth(month);
-    const total = sorted.length;
+    // Limit to top 15 for current month (matches snapshot behavior)
+    const limitedSorted = sorted.slice(0, 15);
+    const total = limitedSorted.length;
 
-    const ranking = sorted.slice(skip, skip + limit).map((guide, index) => ({
+    const ranking = limitedSorted.slice(skip, skip + limit).map((guide, index) => ({
       id: guide.id,
       archetypeId: guide.archetypeId,
       title: guide.title,
@@ -613,9 +615,11 @@ export class SqliteRankingRepository implements RankingRepository {
 
     // Otherwise, calculate live from current data
     const sorted = await this.getTrendingUsersForMonth(month);
-    const total = sorted.length;
+    // Limit to top 10 for current month (matches snapshot behavior)
+    const limitedSorted = sorted.slice(0, 10);
+    const total = limitedSorted.length;
 
-    const ranking = sorted.slice(skip, skip + limit).map((user, index) => ({
+    const ranking = limitedSorted.slice(skip, skip + limit).map((user, index) => ({
       userId: user.userId,
       username: user.username,
       profilePictureUrl: user.profilePictureUrl,
@@ -739,7 +743,8 @@ export class SqliteRankingRepository implements RankingRepository {
       const currentMonthGuides = await this.getTrendingGuidesForMonth(currentMonth);
       const guideIndex = currentMonthGuides.findIndex(g => g.id === guideId);
 
-      if (guideIndex !== -1) {
+      // Only include if guide is in top 15
+      if (guideIndex !== -1 && guideIndex < 15) {
         const guide = currentMonthGuides[guideIndex];
         currentMonthRanking = {
           month: currentMonth,
@@ -813,7 +818,8 @@ export class SqliteRankingRepository implements RankingRepository {
       const currentMonthUsers = await this.getTrendingUsersForMonth(currentMonth);
       const userIndex = currentMonthUsers.findIndex(u => u.userId === userId);
       
-      if (userIndex !== -1) {
+      // Only include if user is in top 10
+      if (userIndex !== -1 && userIndex < 10) {
         const user = currentMonthUsers[userIndex];
         achievements.push({
           type: "user",
@@ -864,7 +870,8 @@ export class SqliteRankingRepository implements RankingRepository {
         const currentMonthGuides = await this.getTrendingGuidesForMonth(currentMonth);
         const guideIndex = currentMonthGuides.findIndex(g => g.id === guide.id);
         
-        if (guideIndex !== -1) {
+        // Only include if guide is in top 15
+        if (guideIndex !== -1 && guideIndex < 15) {
           const guideData = currentMonthGuides[guideIndex];
           achievements.push({
             type: "guide",
