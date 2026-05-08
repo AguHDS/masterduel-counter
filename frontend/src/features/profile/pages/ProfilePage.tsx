@@ -648,7 +648,7 @@ export const ProfilePage = () => {
                                     <p className="text-gray-300/80 whitespace-pre-wrap text-sm leading-relaxed text-center italic">
                                       {profile?.bio ||
                                         (isOwner
-                                          ? "No bio yet — click Edit Profile to add one."
+                                          ? "No bio available.."
                                           : "No bio yet.")}
                                     </p>
                                   </div>
