@@ -1,7 +1,12 @@
-import { useState } from "react";
-import { useRanking, useGuideRanking } from "@/features/ranking/hooks/useRanking";
+import { useState, useMemo } from "react";
+import { 
+  useRanking, 
+  useGuideRanking,
+  useTrendingUserRanking,
+  useTrendingGuideRanking
+} from "@/features/ranking/hooks/useRanking";
 import { buildProfilePath } from "@/lib/config/urlHelpers";
-import type { RankingUser, RankingGuide } from "@/features/ranking/types/ranking.types";
+import type { RankingUser, RankingGuide, TrendingRankingUser, TrendingRankingGuide } from "@/features/ranking/types/ranking.types";
 
 interface RankStyles {
   bg: string;
@@ -15,12 +20,18 @@ export interface NavbarRankingState {
   isMobileOpen: boolean;
   mobileTab: "guides" | "users";
   setMobileTab: (tab: "guides" | "users") => void;
+  mobileRankingType: "all-time" | "trending";
+  setMobileRankingType: (type: "all-time" | "trending") => void;
   isModalOpen: boolean;
   setIsModalOpen: (v: boolean) => void;
   users: RankingUser[];
   isLoading: boolean;
   guides: RankingGuide[];
   isGuidesLoading: boolean;
+  trendingUsers: TrendingRankingUser[];
+  isLoadingTrendingUsers: boolean;
+  trendingGuides: TrendingRankingGuide[];
+  isLoadingTrendingGuides: boolean;
   toggle: (e: React.MouseEvent) => void;
   toggleMobile: () => void;
   handleUserClick: (username: string, userId: string) => void;
@@ -33,10 +44,21 @@ export function useNavbarRanking(): NavbarRankingState {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<"guides" | "users">("guides");
+  const [mobileRankingType, setMobileRankingType] = useState<"all-time" | "trending">("trending");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const currentMonth = useMemo(
+    () => new Date().toISOString().slice(0, 7),
+    []
+  );
+
+  // All-time data
   const { data: rankingData, isLoading } = useRanking(1, 50);
   const { data: guideRankingData, isLoading: isGuidesLoading } = useGuideRanking(1, 50);
+
+  // Trending data
+  const { data: trendingUserData, isLoading: isLoadingTrendingUsers } = useTrendingUserRanking(currentMonth, 1, 50);
+  const { data: trendingGuideData, isLoading: isLoadingTrendingGuides } = useTrendingGuideRanking(currentMonth, 1, 50);
 
   const toggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -96,12 +118,18 @@ export function useNavbarRanking(): NavbarRankingState {
     isMobileOpen,
     mobileTab,
     setMobileTab,
+    mobileRankingType,
+    setMobileRankingType,
     isModalOpen,
     setIsModalOpen,
     users: rankingData?.ranking ?? [],
     isLoading,
     guides: guideRankingData?.ranking ?? [],
     isGuidesLoading,
+    trendingUsers: trendingUserData?.ranking ?? [],
+    isLoadingTrendingUsers,
+    trendingGuides: trendingGuideData?.ranking ?? [],
+    isLoadingTrendingGuides,
     toggle,
     toggleMobile,
     handleUserClick,

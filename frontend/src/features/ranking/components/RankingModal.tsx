@@ -425,15 +425,15 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                       </div>
                       <div className="flex items-center gap-3 mt-1 flex-wrap">
                         <span className="flex items-center gap-1">
-                          <ThumbsUp className="w-3.5 h-3.5 text-emerald-500" />
-                          <span className="text-sm text-emerald-400 font-medium">
-                            {user.totalLikes.toLocaleString()}
-                          </span>
-                        </span>
-                        <span className="flex items-center gap-1">
                           <Eye className="w-3.5 h-3.5 text-purple-400" />
                           <span className="text-sm text-purple-400 font-medium">
                             {user.totalViews.toLocaleString()}
+                          </span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <ThumbsUp className="w-3.5 h-3.5 text-emerald-500" />
+                          <span className="text-sm text-emerald-400 font-medium">
+                            {user.totalLikes.toLocaleString()}
                           </span>
                         </span>
                         {user.fulfilledRequests > 0 && (

@@ -34,7 +34,6 @@ interface RankingPopupProps {
   onViewFullRanking: () => void;
   triggerRef: React.RefObject<HTMLElement | null>;
   isLoading?: boolean;
-  alignRight?: boolean;
 }
 
 function getTopRowBg(rank: number): string {
@@ -64,7 +63,6 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
   onViewFullRanking,
   triggerRef,
   isLoading = false,
-  alignRight = false,
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const [rankingType, setRankingType] = useState<"all-time" | "trending">(
@@ -147,9 +145,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
     <div
       ref={popupRef}
       onMouseDown={(e) => e.stopPropagation()}
-      className={`absolute mt-2 w-[468px] max-w-[calc(100vw-2rem)] border border-[#c2901c]/40 rounded-xl overflow-hidden z-50 ${
-        alignRight ? "right-0" : "right-0"
-      }`}
+      className="absolute mt-2 w-[468px] max-w-[calc(100vw-2rem)] border border-[#c2901c]/40 rounded-xl overflow-hidden z-50 left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 lg:left-1/2 lg:-translate-x-1/2 lg:right-auto"
       style={{
         top: "100%",
         background:
@@ -309,15 +305,15 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                     </div>
                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       <span className="flex items-center gap-0.5">
-                        <ThumbsUp className="w-3 h-3 text-emerald-500" />
-                        <span className="text-xs text-emerald-400 font-medium">
-                          {user.totalLikes.toLocaleString()} Likes
-                        </span>
-                      </span>
-                      <span className="flex items-center gap-0.5">
                         <Eye className="w-3 h-3 text-purple-400" />
                         <span className="text-xs text-purple-400 font-medium">
                           {user.totalViews.toLocaleString()} Views
+                        </span>
+                      </span>
+                      <span className="flex items-center gap-0.5">
+                        <ThumbsUp className="w-3 h-3 text-emerald-500" />
+                        <span className="text-xs text-emerald-400 font-medium">
+                          {user.totalLikes.toLocaleString()} Likes
                         </span>
                       </span>
                       {user.fulfilledRequests > 0 && (

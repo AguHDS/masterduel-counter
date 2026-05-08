@@ -9,13 +9,19 @@ import {
   LogOut,
   User,
   Shield,
+  TrendingUp,
 } from "lucide-react";
 import { NotificationBell, NotificationPopup } from "@/features/notifications";
 import { Avatar } from "@/shared/components/DefaultAvatar";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import discordSvgIcon from "../../../assets/discord-square-icon.webp";
 import type { User as AuthUser } from "@/features/auth/context/AuthContext";
-import type { RankingUser, RankingGuide } from "@/features/ranking/types/ranking.types";
+import type {
+  RankingUser,
+  RankingGuide,
+  TrendingRankingUser,
+  TrendingRankingGuide,
+} from "@/features/ranking/types/ranking.types";
 
 interface RankStyles {
   bg: string;
@@ -36,10 +42,16 @@ interface NavbarMobileMenuProps {
   rankingGuides: RankingGuide[] | undefined;
   isLoadingRanking: boolean;
   isLoadingGuideRanking: boolean;
+  trendingUsers: TrendingRankingUser[] | undefined;
+  trendingGuides: TrendingRankingGuide[] | undefined;
+  isLoadingTrendingUsers: boolean;
+  isLoadingTrendingGuides: boolean;
   isMobileRankingOpen: boolean;
   mobileRankingTab: "guides" | "users";
+  mobileRankingType: "all-time" | "trending";
   onToggleMobileRanking: () => void;
   onSetMobileRankingTab: (tab: "guides" | "users") => void;
+  onSetMobileRankingType: (type: "all-time" | "trending") => void;
   onUserClick: (username: string, userId: string) => void;
   onViewFullRanking: () => void;
   getRankStyles: (rank: number) => RankStyles;
@@ -63,10 +75,16 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
   rankingGuides,
   isLoadingRanking,
   isLoadingGuideRanking,
+  trendingUsers,
+  trendingGuides,
+  isLoadingTrendingUsers,
+  isLoadingTrendingGuides,
   isMobileRankingOpen,
   mobileRankingTab,
+  mobileRankingType,
   onToggleMobileRanking,
   onSetMobileRankingTab,
+  onSetMobileRankingType,
   onUserClick,
   onViewFullRanking,
   getRankStyles,
@@ -77,18 +95,30 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  // Select the correct data based on ranking type
+  const currentUsers =
+    mobileRankingType === "trending" ? trendingUsers : rankingUsers;
+  const currentGuides =
+    mobileRankingType === "trending" ? trendingGuides : rankingGuides;
+  const currentUsersLoading =
+    mobileRankingType === "trending"
+      ? isLoadingTrendingUsers
+      : isLoadingRanking;
+  const currentGuidesLoading =
+    mobileRankingType === "trending"
+      ? isLoadingTrendingGuides
+      : isLoadingGuideRanking;
+
+  function getCurrentMonthLabel(): string {
+    const date = new Date();
+    return date.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+  }
+
+  const monthLabel = getCurrentMonthLabel();
+
   return (
     <div className="sm:hidden absolute top-full left-0 right-0 bg-[#1f1a24] border-b border-[#c2901c]/30 shadow-xl py-4 px-4 z-50">
       <div className="flex flex-col space-y-3">
-        {!isLoading && isAuthenticated && user && (
-          <div className="pb-3 mb-3 border-b border-[#c2901c]/30">
-            <div className="text-sm text-gray-300">
-              Welcome,{" "}
-              <span className="font-semibold text-blue-400">{user.name}</span>
-            </div>
-          </div>
-        )}
-
         <div className="space-y-2">
           <Link
             to="/cards"
@@ -107,12 +137,45 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
             <Crown className="h-4 w-4" />
             <span>
               Ranking
-              {rankingUsers && rankingUsers.length > 0 && ` (${rankingUsers.length})`}
+              {currentUsers &&
+                currentUsers.length > 0 &&
+                ` (${currentUsers.length})`}
             </span>
           </button>
 
           {isMobileRankingOpen && (
             <div className="ml-2 bg-[#2a2430] rounded-lg border border-[#c2901c]/30 overflow-hidden">
+              {/* Main tabs: TRENDING vs ALL-TIME */}
+              <div className="flex gap-2 border-b-2 border-[#c2901c]/30 px-2 pt-2">
+                <button
+                  onClick={() => onSetMobileRankingType("trending")}
+                  className={`flex-1 py-2 rounded-t-lg text-[10px] font-bold tracking-widest transition-all border-t-2 border-x-2 ${
+                    mobileRankingType === "trending"
+                      ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c]"
+                      : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20"
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    <span>TREND ({monthLabel})</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => onSetMobileRankingType("all-time")}
+                  className={`flex-1 py-2 rounded-t-lg text-[10px] font-bold tracking-widest transition-all border-t-2 border-x-2 ${
+                    mobileRankingType === "all-time"
+                      ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c]"
+                      : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20"
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    <Crown className="w-3 h-3" />
+                    <span>ALL TIME</span>
+                  </div>
+                </button>
+              </div>
+
+              {/* Sub-tabs: GUIDES vs USERS */}
               <div className="flex border-b border-[#c2901c]/20">
                 {(["guides", "users"] as const).map((tab) => (
                   <button
@@ -132,12 +195,12 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
               <div className="max-h-72 overflow-y-auto scrollbar-cardpair p-2">
                 {/* Users tab */}
                 {mobileRankingTab === "users" &&
-                  (isLoadingRanking ? (
+                  (currentUsersLoading ? (
                     <div className="text-center text-gray-400 py-4 text-sm">
                       Loading...
                     </div>
-                  ) : rankingUsers && rankingUsers.length > 0 ? (
-                    rankingUsers.map((rankUser) => {
+                  ) : currentUsers && currentUsers.length > 0 ? (
+                    currentUsers.map((rankUser) => {
                       const styles = getRankStyles(rankUser.rank);
                       return (
                         <a
@@ -152,7 +215,9 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                           }}
                           className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer no-underline ${styles.bg}`}
                         >
-                          <div className={`w-6 text-center font-bold text-xs ${styles.text}`}>
+                          <div
+                            className={`w-6 text-center font-bold text-xs ${styles.text}`}
+                          >
                             #{rankUser.rank}
                           </div>
                           <Avatar
@@ -169,7 +234,9 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                             </span>
                           </div>
                           {rankUser.rank <= 3 && (
-                            <Crown className={`w-3 h-3 flex-shrink-0 ${styles.icon}`} />
+                            <Crown
+                              className={`w-3 h-3 flex-shrink-0 ${styles.icon}`}
+                            />
                           )}
                         </a>
                       );
@@ -182,12 +249,12 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
 
                 {/* Guides tab */}
                 {mobileRankingTab === "guides" &&
-                  (isLoadingGuideRanking ? (
+                  (currentGuidesLoading ? (
                     <div className="text-center text-gray-400 py-4 text-sm">
                       Loading...
                     </div>
-                  ) : rankingGuides && rankingGuides.length > 0 ? (
-                    rankingGuides.map((guide) => {
+                  ) : currentGuides && currentGuides.length > 0 ? (
+                    currentGuides.map((guide) => {
                       const isCounter = guide.guideType === "COUNTER";
                       return (
                         <a

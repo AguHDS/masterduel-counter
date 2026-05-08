@@ -11,7 +11,7 @@ import { NavbarModals } from "./NavbarModals";
 
 export const Navbar = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
-  const { isMenuOpen, setIsMenuOpen, isTabletView } = useNavbarLayout();
+  const { isMenuOpen, setIsMenuOpen } = useNavbarLayout();
   const ranking = useNavbarRanking();
   const requests = useNavbarRequests();
 
@@ -109,7 +109,6 @@ export const Navbar = () => {
                 isLoading: ranking.isLoading,
                 onUserClick: handleUserClick,
                 onViewFull: handleViewFullRanking,
-                alignRight: isTabletView,
               }}
               requests={{
                 isOpen: requests.isOpen,
@@ -162,10 +161,16 @@ export const Navbar = () => {
         rankingGuides={ranking.guides}
         isLoadingRanking={ranking.isLoading}
         isLoadingGuideRanking={ranking.isGuidesLoading}
+        trendingUsers={ranking.trendingUsers}
+        trendingGuides={ranking.trendingGuides}
+        isLoadingTrendingUsers={ranking.isLoadingTrendingUsers}
+        isLoadingTrendingGuides={ranking.isLoadingTrendingGuides}
         isMobileRankingOpen={ranking.isMobileOpen}
         mobileRankingTab={ranking.mobileTab}
+        mobileRankingType={ranking.mobileRankingType}
         onToggleMobileRanking={ranking.toggleMobile}
         onSetMobileRankingTab={ranking.setMobileTab}
+        onSetMobileRankingType={ranking.setMobileRankingType}
         onUserClick={handleUserClick}
         onViewFullRanking={handleViewFullRanking}
         getRankStyles={ranking.getRankStyles}

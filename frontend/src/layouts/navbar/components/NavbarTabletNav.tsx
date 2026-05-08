@@ -17,7 +17,6 @@ interface RankingProps {
   isLoading: boolean;
   onUserClick: (username: string, userId: string) => void;
   onViewFull: () => void;
-  alignRight: boolean;
 }
 
 interface RequestsProps {
@@ -83,7 +82,6 @@ export const NavbarTabletNav: React.FC<NavbarTabletNavProps> = ({
         onViewFullRanking={ranking.onViewFull}
         triggerRef={rankingButtonRef}
         isLoading={ranking.isLoading}
-        alignRight={ranking.alignRight}
       />
 
       {/* Guide Requests */}
