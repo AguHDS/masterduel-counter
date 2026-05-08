@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import {
   Crown,
   ThumbsUp,
@@ -6,12 +6,23 @@ import {
   BookOpen,
   MailWarning,
   Star,
+  TrendingUp,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
-import type { RankingUser } from "../types/ranking.types";
+import type {
+  RankingUser,
+  RankingGuide,
+  TrendingRankingUser,
+  TrendingRankingGuide,
+} from "../types/ranking.types";
 import { Avatar } from "@/shared/components/DefaultAvatar";
-import { useGuideRanking } from "../hooks/useRanking";
+import {
+  useGuideRanking,
+  useRanking,
+  useTrendingGuideRanking,
+  useTrendingUserRanking,
+} from "../hooks/useRanking";
 import { getRankColor, getRankRowBg } from "../utils/rankingUtils";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
@@ -40,6 +51,11 @@ function getTopRowBg(rank: number): string {
   return "";
 }
 
+function getCurrentMonthLabel(): string {
+  const date = new Date();
+  return date.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+}
+
 export const RankingPopup: React.FC<RankingPopupProps> = ({
   isOpen,
   onClose,
@@ -51,12 +67,34 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
   alignRight = false,
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<"users" | "guides">("guides");
+  const [rankingType, setRankingType] = useState<"all-time" | "trending">(
+    "trending",
+  );
+  const [entityType, setEntityType] = useState<"guides" | "users">("guides");
+  const navigate = useNavigate();
+
+  const currentMonth = useMemo(
+    () => new Date().toISOString().slice(0, 7),
+    [],
+  );
+  const monthLabel = useMemo(() => getCurrentMonthLabel(), []);
+
+  // All-time data
   const { data: guideData, isLoading: isLoadingGuides } = useGuideRanking(
     1,
     50,
   );
-  const navigate = useNavigate();
+  const { data: userData, isLoading: isLoadingUsers } = useRanking(1, 50);
+
+  // Trending data
+  const {
+    data: trendingGuideData,
+    isLoading: isLoadingTrendingGuides,
+  } = useTrendingGuideRanking(currentMonth, 1, 50);
+  const {
+    data: trendingUserData,
+    isLoading: isLoadingTrendingUsers,
+  } = useTrendingUserRanking(currentMonth, 1, 50);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -76,11 +114,40 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
 
   if (!isOpen) return null;
 
+  // Determine which data to show
+  const isShowingTrending = rankingType === "trending";
+  const isShowingGuides = entityType === "guides";
+
+  let currentData: Array<RankingUser | RankingGuide | TrendingRankingUser | TrendingRankingGuide> = [];
+  let currentLoading = false;
+
+  if (isShowingTrending) {
+    if (isShowingGuides) {
+      currentData = trendingGuideData?.ranking ?? [];
+      currentLoading = isLoadingTrendingGuides;
+    } else {
+      currentData = trendingUserData?.ranking ?? [];
+      currentLoading = isLoadingTrendingUsers;
+    }
+  } else {
+    if (isShowingGuides) {
+      currentData = guideData?.ranking ?? [];
+      currentLoading = isLoadingGuides;
+    } else {
+      currentData = userData?.ranking ?? users;
+      currentLoading = isLoadingUsers || isLoading;
+    }
+  }
+
+  // Show message if trending has no data (no fallback to all-time)
+  const showNoTrendingMessage =
+    isShowingTrending && !currentLoading && currentData.length === 0;
+
   return (
     <div
       ref={popupRef}
       onMouseDown={(e) => e.stopPropagation()}
-      className={`absolute mt-2 w-[450px] border border-[#c2901c]/40 rounded-xl shadow-2xl overflow-hidden z-50 ${
+      className={`absolute mt-2 w-[450px] max-w-[calc(100vw-2rem)] border border-[#c2901c]/40 rounded-xl shadow-2xl overflow-hidden z-50 ${
         alignRight ? "right-0" : "left-0"
       }`}
       style={{
@@ -91,55 +158,116 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
     >
       <div className="h-[1px] flex-shrink-0 bg-gradient-to-r from-transparent via-[#c2901c] to-transparent" />
 
-      <div className="px-4 pt-4 pb-0">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <Crown className="w-[18px] h-[18px] text-[#c2901c]" />
-          <span className="text-white font-bold text-base tracking-wide">
+      {/* Header with title */}
+      <div className="px-4 pt-4 pb-3">
+        <div className="flex items-center justify-center gap-2">
+          <Crown className="w-5 h-5 text-[#c2901c]" />
+          <span className="text-white font-bold text-lg tracking-wide">
             Ranking
           </span>
         </div>
-
-        <div className="flex bg-[#120c0f] rounded-lg p-[3px] gap-[3px]">
-          {(["guides", "users"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-[7px] rounded-md text-[12px] font-bold tracking-widest ${
-                activeTab === tab
-                  ? "bg-[#b88818] text-black shadow-md"
-                  : "text-[#c2901c]/60 hover:text-[#c2901c] hover:bg-[#c2901c]/8"
-              }`}
-            >
-              {tab === "users" ? "TOP 50 USERS" : "TOP 50 GUIDES"}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-3 h-px bg-gradient-to-r from-transparent via-[#c2901c]/40 to-transparent" />
       </div>
 
-      <div
-        className="max-h-[420px] overflow-y-auto scrollbar-homeAllPages"
+      {/* Main tabs: TRENDING vs ALL-TIME - Game UI style with borders */}
+      <div className="px-3 pb-0">
+        <div className="flex gap-2 mb-0">
+          <button
+            onClick={() => setRankingType("trending")}
+            className={`relative flex-1 py-2 sm:py-3 rounded-t-lg text-[10px] sm:text-xs font-bold tracking-wide sm:tracking-widest transition-all border-t-2 border-x-2 ${
+              rankingType === "trending"
+                ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c] shadow-lg z-10"
+                : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20 hover:text-[#c2901c]/80 hover:border-[#c2901c]/40"
+            }`}
+            style={{
+              borderBottom: rankingType === "trending" ? "2px solid transparent" : "none",
+            }}
+          >
+            <div className="flex items-center justify-center gap-1">
+              <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="hidden sm:inline">TRENDING ({monthLabel})</span>
+              <span className="sm:hidden">TREND ({monthLabel})</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setRankingType("all-time")}
+            className={`relative flex-1 py-2 sm:py-3 rounded-t-lg text-[10px] sm:text-xs font-bold tracking-wide sm:tracking-widest transition-all border-t-2 border-x-2 ${
+              rankingType === "all-time"
+                ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c] shadow-lg z-10"
+                : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20 hover:text-[#c2901c]/80 hover:border-[#c2901c]/40"
+            }`}
+            style={{
+              borderBottom: rankingType === "all-time" ? "2px solid transparent" : "none",
+            }}
+          >
+            <div className="flex items-center justify-center gap-1">
+              <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="hidden sm:inline">ALL-TIME</span>
+              <span className="sm:hidden">ALL TIME</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Content container with border continuation */}
+      <div 
+        className="border-2 border-t-0 border-[#c2901c] mx-3 rounded-b-lg overflow-hidden"
         style={{
           background: "linear-gradient(160deg, #1e1418 0%, #181013 100%)",
         }}
       >
-        {activeTab === "users" && (
+        {/* Sub-tabs: GUIDES vs USERS - Segmented control style */}
+        <div className="px-3 pt-3 pb-2">
+          <div className="flex bg-black/30 rounded-md p-1 gap-1 border border-[#c2901c]/20">
+            <button
+              onClick={() => setEntityType("guides")}
+              className={`flex-1 py-2 rounded text-[10px] font-bold tracking-wider ${
+                entityType === "guides"
+                  ? "bg-gradient-to-b from-[#c2901c] to-[#a67615] text-black shadow-md"
+                  : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
+              }`}
+            >
+              GUIDES
+            </button>
+            <button
+              onClick={() => setEntityType("users")}
+              className={`flex-1 py-2 rounded text-[10px] font-bold tracking-wider ${
+                entityType === "users"
+                  ? "bg-gradient-to-b from-[#c2901c] to-[#a67615] text-black shadow-md"
+                  : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
+              }`}
+            >
+              USERS
+            </button>
+          </div>
+        </div>
+
+        <div className="h-px bg-gradient-to-r from-transparent via-[#c2901c]/30 to-transparent mx-3" />
+
+        <div className="h-px bg-gradient-to-r from-transparent via-[#c2901c]/30 to-transparent mx-3" />
+
+        {/* Scrollable content */}
+        <div className="max-h-[400px] overflow-y-auto scrollbar-homeAllPages">
+          {entityType === "users" && (
           <>
-            {isLoading && (
+            {currentLoading && (
               <div className="flex items-center justify-center py-12">
                 <span className="text-gray-400 text-sm">Loading…</span>
               </div>
             )}
-            {!isLoading && users.length === 0 && (
+            {!currentLoading && currentData.length === 0 && (
               <div className="flex items-center justify-center py-12">
                 <span className="text-gray-500 text-sm">
-                  No users in ranking yet.
+                  {showNoTrendingMessage
+                    ? "No trending activity this month"
+                    : "No users in ranking yet."}
                 </span>
               </div>
             )}
-            {!isLoading &&
-              users.map((user) => (
+            {!currentLoading &&
+              currentData.map((item) => {
+                if (!('userId' in item)) return null;
+                const user = item as RankingUser | TrendingRankingUser;
+                return (
                 <a
                   key={user.userId}
                   href={buildProfilePath({
@@ -217,27 +345,31 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                     </span>
                   )}
                 </a>
-              ))}
+              );
+              })}
           </>
         )}
 
-        {activeTab === "guides" && (
+        {entityType === "guides" && (
           <>
-            {isLoadingGuides && (
+            {currentLoading && (
               <div className="flex items-center justify-center py-12">
                 <span className="text-gray-400 text-sm">Loading…</span>
               </div>
             )}
-            {!isLoadingGuides &&
-              (!guideData || guideData.ranking.length === 0) && (
-                <div className="flex items-center justify-center py-12">
-                  <span className="text-gray-500 text-sm">
-                    No guides in ranking yet.
-                  </span>
-                </div>
-              )}
-            {!isLoadingGuides &&
-              guideData?.ranking.map((guide) => {
+            {!currentLoading && currentData.length === 0 && (
+              <div className="flex items-center justify-center py-12">
+                <span className="text-gray-500 text-sm">
+                  {showNoTrendingMessage
+                    ? "No trending activity this month"
+                    : "No guides in ranking yet."}
+                </span>
+              </div>
+            )}
+            {!currentLoading &&
+              currentData.map((item) => {
+                if (!('id' in item)) return null;
+                const guide = item as RankingGuide | TrendingRankingGuide;
                 const isCounter = guide.guideType === "COUNTER";
                 return (
                   <a
@@ -277,7 +409,9 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                     <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden border border-[#c2901c]/20 bg-[#0d0b10]">
                       {guide.headerImageUrl ? (
                         <img
-                          src={getOptimizedCardImageUrl(guide.headerImageUrl, { size: 'thumbnail' })}
+                          src={getOptimizedCardImageUrl(guide.headerImageUrl, {
+                            size: "thumbnail",
+                          })}
                           alt={guide.title}
                           className="w-full h-full object-cover"
                           loading="lazy"
@@ -333,21 +467,18 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
               })}
           </>
         )}
-      </div>
+        </div>
 
-      <div className="h-px bg-gradient-to-r from-transparent via-[#c2901c]/30 to-transparent" />
-      <div
-        style={{
-          background: "linear-gradient(180deg, #1c1518 0%, #140f12 100%)",
-        }}
-        className="px-4 py-2.5"
-      >
-        <button
-          onClick={onViewFullRanking}
-          className="w-full text-center text-xs font-semibold text-[#c2901c]/80 hover:text-[#c2901c] tracking-wider py-1"
-        >
-          View Full Ranking →
-        </button>
+        {/* Footer inside border */}
+        <div className="h-px bg-gradient-to-r from-transparent via-[#c2901c]/30 to-transparent" />
+        <div className="px-4 py-3">
+          <button
+            onClick={onViewFullRanking}
+            className="w-full text-center text-xs font-bold text-[#c2901c] hover:text-[#f4d68f] tracking-wider py-1.5 rounded-md border border-[#c2901c]/30 hover:border-[#c2901c] hover:bg-[#c2901c]/10 transition-all"
+          >
+            View Full Ranking →
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ export const getGuideRankingController = async (
 ) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 50;
+    const limit = parseInt(req.query.limit as string) || 100;
 
     if (page < 1 || limit < 1 || limit > 100) {
       res.status(400).json({

@@ -1,4 +1,14 @@
-import { UserRankingItem, GuideRankingItem } from "@/domain/Ranking.js";
+import {
+  UserRankingItem,
+  GuideRankingItem,
+  TrendingUserRankingItem,
+  TrendingGuideRankingItem,
+} from "@/domain/Ranking.js";
+import {
+  UserTrendingHistory,
+  GuideBestTrending,
+  TrendingAchievement,
+} from "@/domain/Ranking.js";
 
 export interface RankingRepository {
   /** Get paginated user ranking sorted by total likes */
@@ -15,4 +25,30 @@ export interface RankingRepository {
     page: number,
     limit: number,
   ): Promise<{ ranking: GuideRankingItem[]; total: number }>;
+
+  /** Get paginated trending guide ranking for a specific month */
+  getTrendingGuideRanking(
+    month: string,
+    page: number,
+    limit: number,
+  ): Promise<{ ranking: TrendingGuideRankingItem[]; total: number }>;
+
+  /** Get paginated trending user ranking for a specific month */
+  getTrendingUserRanking(
+    month: string,
+    page: number,
+    limit: number,
+  ): Promise<{ ranking: TrendingUserRankingItem[]; total: number }>;
+
+  /** Save trending snapshot for a specific month (called by cron job) */
+  saveTrendingSnapshot(month: string): Promise<void>;
+
+  /** Get trending history for a specific user (sorted by date descending) */
+  getUserTrendingHistory(userId: string): Promise<UserTrendingHistory[]>;
+
+  /** Get the best trending achievement for a specific guide */
+  getGuideBestTrending(guideId: number): Promise<GuideBestTrending | null>;
+
+  /** Get all trending achievements for a user (both user rankings and guide rankings) */
+  getUserTrendingAchievements(userId: string): Promise<TrendingAchievement[]>;
 }

@@ -6,7 +6,6 @@ import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 import { useAuth } from "@/features/auth";
 import { GuidesGrid } from "@/shared/components/archetypeLists/GuidesGrid";
 import { SortDropdown } from "@/shared/components/SortDropdown";
-import { FramedContainer } from "@/layouts/FramedContainer";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import { useNavigate, Link } from "react-router-dom";
@@ -94,10 +93,6 @@ const ArchetypeGuideList = ({
       ? `How to Counter & Handtraps`
       : `Best Deck Guides & Combos`;
 
-  // Determine border color based on guide type
-  const borderColorClass =
-    guideType === "COUNTER" ? "border-orange-500/40" : "border-blue-500/40";
-
   // Calculate pagination info
   const startIndex = currentPage * ITEMS_PER_PAGE;
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, data.length);
@@ -105,10 +100,17 @@ const ArchetypeGuideList = ({
 
   return (
     <div className="flex flex-col items-start w-full">
-      <FramedContainer
-        contentClassName="flex flex-col w-full px-3 sm:px-4 md:px-[3%] pt-2 pb-6 gap-4"
-        className={borderColorClass}
-      >
+      <section className="w-full flex justify-center">
+        <div className="relative w-full max-w-[1456px]">
+          <div
+            className="relative flex flex-col w-full border-2 border-yellow-600/50 rounded-lg px-3 sm:px-4 md:px-[3%] pt-2 pb-6 gap-4 overflow-hidden"
+            style={{ background: 'linear-gradient(180deg, #0d0a25 0%, #08061a 100%)' }}
+          >
+            {/* Corner decorators */}
+            <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-yellow-500/50 rounded-tr-lg z-20 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-yellow-500/50 rounded-bl-lg z-20 pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
         {/* Back button */}
         <div className="flex items-center justify-between relative top-3">
           <button
@@ -239,7 +241,9 @@ const ArchetypeGuideList = ({
             showArchetypeName={false}
           />
         )}
-      </FramedContainer>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

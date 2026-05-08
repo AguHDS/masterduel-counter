@@ -17,7 +17,9 @@
     "update-card-details": "tsx src/scripts/update-card-details.ts",
     "download-all-cards": "tsx src/scripts/download-all-cards.ts",
     "generate-thumbnails": "tsx src/scripts/generate-thumbnails.ts",
-    "generate-thumbnails:prod": "node dist/scripts/generate-thumbnails.js"
+    "generate-thumbnails:prod": "node dist/scripts/generate-thumbnails.js",
+    "simulate-snapshot": "tsx src/scripts/simulate-monthly-snapshot.ts",
+    "clear-snapshots": "tsx src/scripts/clear-monthly-snapshots.ts"
   },
   "keywords": [],
   "author": "",
@@ -53,6 +55,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.1",
     "express-validator": "^7.3.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",

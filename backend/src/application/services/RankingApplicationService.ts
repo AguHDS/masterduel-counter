@@ -1,6 +1,17 @@
 import { RankingApplicationPort } from "@/application/ports/RankingApplicationPort.js";
 import { RankingRepository } from "@/domain/ports/RankingRepository.js";
-import { UserRankingItem, GuideRankingItem, RankingResult } from "@/domain/Ranking.js";
+import {
+  UserRankingItem,
+  GuideRankingItem,
+  TrendingUserRankingItem,
+  TrendingGuideRankingItem,
+  RankingResult,
+} from "@/domain/Ranking.js";
+import {
+  UserTrendingHistory,
+  GuideBestTrending,
+  TrendingAchievement,
+} from "@/domain/Ranking.js";
 
 export class RankingApplicationService implements RankingApplicationPort {
   constructor(private readonly rankingRepository: RankingRepository) {}
@@ -41,5 +52,55 @@ export class RankingApplicationService implements RankingApplicationPort {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async getTrendingGuideRanking(
+    month: string,
+    page: number,
+    limit: number,
+  ): Promise<RankingResult<TrendingGuideRankingItem>> {
+    const { ranking, total } =
+      await this.rankingRepository.getTrendingGuideRanking(month, page, limit);
+    return {
+      ranking,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getTrendingUserRanking(
+    month: string,
+    page: number,
+    limit: number,
+  ): Promise<RankingResult<TrendingUserRankingItem>> {
+    const { ranking, total } =
+      await this.rankingRepository.getTrendingUserRanking(month, page, limit);
+    return {
+      ranking,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getUserTrendingHistory(userId: string): Promise<UserTrendingHistory[]> {
+    return await this.rankingRepository.getUserTrendingHistory(userId);
+  }
+
+  async getGuideBestTrending(
+    guideId: number,
+  ): Promise<GuideBestTrending | null> {
+    return await this.rankingRepository.getGuideBestTrending(guideId);
+  }
+
+  async getUserTrendingAchievements(userId: string): Promise<TrendingAchievement[]> {
+    return await this.rankingRepository.getUserTrendingAchievements(userId);
   }
 }

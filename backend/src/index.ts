@@ -8,10 +8,20 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { getDependencies } from "./compositionRoot.js";
 import { startCleanupJob } from "./services/cleanupService.js";
+import { startTrendingSnapshotService } from "./services/trendingSnapshotService.js";
 import { createGuideOgPreviewMiddleware } from "./http/middlewares/guideOgPreviewMiddleware.js";
 import { createLegacyUrlRedirectMiddleware } from "./http/middlewares/legacyUrlRedirectMiddleware.js";
+import {
+  authWriteRateLimiter,
+  dynamicContentCreationRateLimiter,
+} from "./http/middlewares/rateLimitMiddleware.js";
 dotenv.config();
 const app = express();
+
+// Trust proxy - Required for rate limiting to work correctly behind Nginx
+// Nginx passes real IP via X-Forwarded-For header
+app.set("trust proxy", 1);
+
 const PORT = process.env.PORT_BACKEND ?? 3001;
 const NODE_ENV = process.env.NODE_ENV ?? "development";
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? "*";
@@ -169,15 +179,41 @@ app.use("/api/uploads", cardThumbnails);
 // This allows frontend to request images via /api/uploads/cards/{cardId}.jpg
 app.use("/api/uploads", express.static(UPLOADS_DIR));
 
-// BetterAuth routes (handles /api/auth/*)
+// RATE LIMITING - MINIMAL APPROACH
+// Only protect real attack vectors, let everything else run freely
+
+// Rate limiting helper: Only apply to write operations (POST, PUT, PATCH, DELETE)
+const onlyWriteOperations = (limiter: express.RequestHandler) => {
+  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
+      return limiter(req, res, next);
+    }
+    next();   
+  };
+};
+
+// 1. AUTHENTICATION - Prevent brute force attacks (login/register only)
+app.use("/api/auth", onlyWriteOperations(authWriteRateLimiter));
+
+// 2. REPORT SPAM - Prevent malicious report flooding
+app.use("/api/reports", onlyWriteOperations(dynamicContentCreationRateLimiter));
+
+// ROUTES WITHOUT RATE LIMITING
+
+// BetterAuth routes
 app.use("/api/auth", auth);
 app.use("/api/logout", logout);
+
 // Profile
 app.use("/api/profile", profile);
+
 // Custom Decks
 app.use("/api", customDecks);
+
 // Archetypes & Instances
 app.use("/api/archetypes", archetypeGuide);
+
+// Guides
 app.use("/api", deleteGuide);
 app.use("/api", guideLikes);
 app.use("/api", guideFavorites);
@@ -194,23 +230,34 @@ app.use("/api", getLatestGuides);
 app.use("/api", getAllGuides);
 app.use("/api", getGuidesGeneralStats);
 app.use("/api", getGuideCardPairs);
+
+// Search
 app.use("/api/searchArchetype", searchArchetype);
+
+// Comments
 app.use("/api/comments", comments);
+
 // Notifications
 app.use("/api/notifications", notifications);
+
 // Ranking
 app.use("/api/ranking", ranking);
+
 // Cards
 app.use("/api/cards/search", searchCards);
 app.use("/api/cards/select", selectCard);
 app.use("/api/cards/confirm", confirmCards);
 app.use("/api/cards", getCardDetails);
+
 // Admin routes
 app.use("/api/admin", admin);
+
 // Reports
 app.use("/api/reports", report);
+
 // Guide Requests
 app.use("/api/guide-requests", guideRequests);
+
 // Sitemap for SEO
 app.use(sitemap);
 
@@ -244,6 +291,6 @@ if (existsSync(FRONTEND_DIST)) {
 }
 
 app.listen(PORT, () => {
-  
   startCleanupJob();
+  startTrendingSnapshotService();
 });
