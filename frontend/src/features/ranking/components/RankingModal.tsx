@@ -383,6 +383,19 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                   'ranking' in currentData &&
                   currentData.ranking.map((user) => {
                     if (!('userId' in user)) return null;
+                    const trendingUser = user as TrendingUserRankingResponse["ranking"][number];
+                    const monthlyViews =
+                      typeof trendingUser.monthlyViews === "number"
+                        ? trendingUser.monthlyViews
+                        : user.totalViews;
+                    const monthlyLikes =
+                      typeof trendingUser.monthlyLikes === "number"
+                        ? trendingUser.monthlyLikes
+                        : user.totalLikes;
+                    const monthlyRequests =
+                      typeof trendingUser.monthlyFulfilledRequests === "number"
+                        ? trendingUser.monthlyFulfilledRequests
+                        : user.fulfilledRequests;
                     return (
                     <a
                       key={user.userId}
@@ -428,9 +441,9 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           <Eye className="w-3.5 h-3.5 text-purple-400" />
                           <span className="text-sm text-purple-400 font-medium">
                             {user.totalViews.toLocaleString()}
-                            {isShowingTrending && 'monthlyViews' in user && (
-                              <span className="ml-1 text-[11px] text-purple-300/80">
-                                (+{user.monthlyViews.toLocaleString()})
+                            {isShowingTrending && (
+                              <span className="text-[10px] text-purple-300 ml-1">
+                                (+{monthlyViews.toLocaleString()})
                               </span>
                             )}
                           </span>
@@ -439,9 +452,9 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           <ThumbsUp className="w-3.5 h-3.5 text-emerald-500" />
                           <span className="text-sm text-emerald-400 font-medium">
                             {user.totalLikes.toLocaleString()}
-                            {isShowingTrending && 'monthlyLikes' in user && user.monthlyLikes > 0 && (
-                              <span className="ml-1 text-[11px] text-emerald-300/80">
-                                (+{user.monthlyLikes.toLocaleString()})
+                            {isShowingTrending && (
+                              <span className="text-[10px] text-emerald-300 ml-1">
+                                (+{monthlyLikes.toLocaleString()})
                               </span>
                             )}
                           </span>
@@ -451,9 +464,9 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                             <BookOpen className="w-3.5 h-3.5 text-orange-400" />
                             <span className="text-sm text-orange-400 font-medium">
                               {user.fulfilledRequests} Requests
-                              {isShowingTrending && 'monthlyFulfilledRequests' in user && user.monthlyFulfilledRequests > 0 && (
-                                <span className="ml-1 text-[11px] text-orange-300/80">
-                                  (+{user.monthlyFulfilledRequests})
+                              {isShowingTrending && (
+                                <span className="text-[10px] text-orange-300 ml-1">
+                                  (+{monthlyRequests.toLocaleString()})
                                 </span>
                               )}
                             </span>
@@ -508,6 +521,19 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                 'ranking' in currentData &&
                 currentData.ranking.map((guide) => {
                   if (!('id' in guide)) return null;
+                  const trendingGuide = guide as TrendingGuideRankingResponse["ranking"][number];
+                  const monthlyViews =
+                    typeof trendingGuide.monthlyViews === "number"
+                      ? trendingGuide.monthlyViews
+                      : (guide.views ?? 0);
+                  const monthlyLikes =
+                    typeof trendingGuide.monthlyLikes === "number"
+                      ? trendingGuide.monthlyLikes
+                      : guide.likes;
+                  const monthlyFavorites =
+                    typeof trendingGuide.monthlyFavorites === "number"
+                      ? trendingGuide.monthlyFavorites
+                      : (guide.favorites ?? 0);
                   const isCounter = guide.guideType === "COUNTER";
                   return (
                     <a
@@ -589,27 +615,27 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           <span className="flex items-center gap-1 text-xs text-purple-400 font-medium">
                             <Eye className="w-3.5 h-3.5" />
                             {(guide.views ?? 0).toLocaleString()}
-                            {isShowingTrending && 'monthlyViews' in guide && (
-                              <span className="ml-1 text-[11px] text-purple-300/80">
-                                (+{guide.monthlyViews.toLocaleString()})
+                            {isShowingTrending && (
+                              <span className="text-[10px] text-purple-300 ml-1">
+                                (+{monthlyViews.toLocaleString()})
                               </span>
                             )}
                           </span>
                           <span className="flex items-center gap-1 text-xs text-emerald-400 font-medium">
                             <ThumbsUp className="w-3.5 h-3.5" />
                             {guide.likes.toLocaleString()}
-                            {isShowingTrending && 'monthlyLikes' in guide && guide.monthlyLikes > 0 && (
-                              <span className="ml-1 text-[11px] text-emerald-300/80">
-                                (+{guide.monthlyLikes.toLocaleString()})
+                            {isShowingTrending && (
+                              <span className="text-[10px] text-emerald-300 ml-1">
+                                (+{monthlyLikes.toLocaleString()})
                               </span>
                             )}
                           </span>
                           <span className="flex items-center gap-1 text-xs text-yellow-400 font-medium">
                             <Star className="w-3.5 h-3.5 fill-current" />
                             {(guide.favorites ?? 0).toLocaleString()}
-                            {isShowingTrending && 'monthlyFavorites' in guide && guide.monthlyFavorites > 0 && (
-                              <span className="ml-1 text-[11px] text-yellow-300/80">
-                                (+{guide.monthlyFavorites.toLocaleString()})
+                            {isShowingTrending && (
+                              <span className="text-[10px] text-yellow-300 ml-1">
+                                (+{monthlyFavorites.toLocaleString()})
                               </span>
                             )}
                           </span>
