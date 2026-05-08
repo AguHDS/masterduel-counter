@@ -214,6 +214,9 @@ export class SqliteRankingRepository implements RankingRepository {
       likes: number;
       views: number;
       favorites: number;
+      monthlyLikes: number;
+      monthlyViews: number;
+      monthlyFavorites: number;
       guideType: string;
       createdAt: Date;
       headerCard: {
@@ -224,14 +227,20 @@ export class SqliteRankingRepository implements RankingRepository {
       user: { name: string };
     }>
   > {
-    // Parse month to get start and end dates as UTC timestamps (milliseconds)
+    // Parse month boundaries in UTC.
+    // SQLite DateTime columns are stored as ISO strings, so comparisons in raw SQL
+    // should use ISO strings rather than numeric timestamps.
     const [year, monthNum] = month.split("-").map(Number);
     const startTs = Date.UTC(year, monthNum - 1, 1, 0, 0, 0, 0);
     const endTs = Date.UTC(year, monthNum, 0, 23, 59, 59, 999);
+    const startIso = new Date(startTs).toISOString();
+    const nextMonthStartIso = new Date(
+      Date.UTC(year, monthNum, 1, 0, 0, 0, 0),
+    ).toISOString();
 
     // Use raw SQL to get guides with activity in the target month
-    // NOTE: We don't filter by ai.created_at in SQL because Prisma has issues
-    // with WHERE comparisons on DateTime fields with SQLite. We filter in JS instead.
+    // Monthly stats: only likes/favorites/views that occurred in this month
+    // Total stats: accumulated over all time
     const sql = `
       SELECT 
         ai.id,
@@ -241,19 +250,25 @@ export class SqliteRankingRepository implements RankingRepository {
         ai.created_at,
         ai.header_card_id,
         ai.views as total_views,
+        ai.likes as total_likes,
+        ai.favorites as total_favorites,
         a.name as archetype_name,
         u.namedb as user_name,
-        COUNT(DISTINCT il.id) as likes_count,
-        COUNT(DISTINCT if.id) as favorites_count
+        COUNT(DISTINCT il.id) as monthly_likes_count,
+        COUNT(DISTINCT if.id) as monthly_favorites_count,
+        COUNT(DISTINCT gvt.viewer_fingerprint) as monthly_views_count
       FROM archetype_instances ai
       JOIN archetypes a ON a.id = ai.archetype_id
       JOIN users u ON u.id = ai.user_id
       LEFT JOIN instance_likes il ON il.instance_id = ai.id 
-        AND il.created_at >= ` + startTs + ` 
+        AND il.created_at >= ` + startTs + `
         AND il.created_at <= ` + endTs + `
       LEFT JOIN instance_favorites if ON if.instance_id = ai.id 
-        AND if.created_at >= ` + startTs + ` 
+        AND if.created_at >= ` + startTs + `
         AND if.created_at <= ` + endTs + `
+      LEFT JOIN guide_view_tracking gvt ON gvt.instance_id = ai.id
+        AND gvt.last_viewed_at >= '` + startIso + `'
+        AND gvt.last_viewed_at < '` + nextMonthStartIso + `'
       GROUP BY ai.id
     `;
 
@@ -263,19 +278,22 @@ export class SqliteRankingRepository implements RankingRepository {
         archetype_id: number;
         title: string;
         guide_type: string;
-        created_at: number;
+        created_at: string;
         header_card_id: number | null;
         total_views: number;
+        total_likes: number;
+        total_favorites: number;
         archetype_name: string;
         user_name: string;
-        likes_count: number;
-        favorites_count: number;
+        monthly_likes_count: number;
+        monthly_favorites_count: number;
+        monthly_views_count: number;
       }>
     >(sql);
 
     // Filter to only guides that existed during this month
     const filteredGuides = guidesWithActivity.filter(
-      (g) => g.created_at <= endTs,
+      (g) => new Date(g.created_at).getTime() <= endTs,
     );
 
     // Fetch header card images for guides that have them
@@ -308,9 +326,14 @@ export class SqliteRankingRepository implements RankingRepository {
         title: g.title,
         guideType: g.guide_type,
         createdAt: new Date(g.created_at),
-        likes: Number(g.likes_count),
-        favorites: Number(g.favorites_count),
+        // Total accumulated stats (for display)
+        likes: g.total_likes,
+        favorites: g.total_favorites,
         views: g.total_views,
+        // Monthly stats (for scoring and filtering)
+        monthlyLikes: Number(g.monthly_likes_count),
+        monthlyFavorites: Number(g.monthly_favorites_count),
+        monthlyViews: Number(g.monthly_views_count),
         headerCard: headerCard
           ? {
               imageUrlCropped: headerCard.imageUrlCropped,
@@ -322,13 +345,14 @@ export class SqliteRankingRepository implements RankingRepository {
       };
     });
 
-    // Filter and sort
-    // Require: (likes OR favorites) OR views >= 50
+    // Filter and sort using MONTHLY stats only
+    // Require: (monthly likes OR monthly favorites) OR monthly views >= 50
     const guidesWithScores = guides
-      .filter((guide) => guide.likes > 0 || guide.favorites > 0 || guide.views >= 50)
+      .filter((guide) => guide.monthlyLikes > 0 || guide.monthlyFavorites > 0 || guide.monthlyViews >= 50)
       .sort((a, b) => {
-        const scoreB = this.guideScore(b.likes, b.favorites, b.views);
-        const scoreA = this.guideScore(a.likes, a.favorites, a.views);
+        // Score based on MONTHLY activity only
+        const scoreB = this.guideScore(b.monthlyLikes, b.monthlyFavorites, b.monthlyViews);
+        const scoreA = this.guideScore(a.monthlyLikes, a.monthlyFavorites, a.monthlyViews);
         if (scoreB !== scoreA) return scoreB - scoreA;
         return a.createdAt.getTime() - b.createdAt.getTime();
       });
@@ -392,9 +416,14 @@ export class SqliteRankingRepository implements RankingRepository {
             id: guide.id,
             archetypeId: guide.archetypeId,
             title: guide.title,
+            // Current total stats (for display)
             likes: guide.likes,
             views: guide.views,
             favorites: guide.favorites,
+            // Monthly stats from snapshot (what was earned that month)
+            monthlyLikes: s.likes,
+            monthlyViews: s.views,
+            monthlyFavorites: s.favorites,
             guideType: guide.guideType,
             headerImageUrl:
               guide.headerCard?.imageUrlCropped ??
@@ -416,7 +445,60 @@ export class SqliteRankingRepository implements RankingRepository {
     }
 
     // Otherwise, calculate live from current data
-    const sorted = await this.getTrendingGuidesForMonth(month);
+    let sorted = await this.getTrendingGuidesForMonth(month);
+
+    // For current month, derive monthly views from real total-view deltas so
+    // every counted view can be reflected in trending (not just unique fingerprints).
+    if (month === currentMonth && sorted.length > 0) {
+      const guideIds = sorted.map((g) => g.id);
+      const previousSnapshots = await this.prisma.monthlyGuideRanking.findMany({
+        where: {
+          guideId: { in: guideIds },
+          month: { lt: month },
+        },
+        select: {
+          guideId: true,
+          views: true,
+        },
+      });
+
+      const previousViewsByGuideId = new Map<number, number>();
+      for (const snapshotRow of previousSnapshots) {
+        const previous = previousViewsByGuideId.get(snapshotRow.guideId) ?? 0;
+        previousViewsByGuideId.set(snapshotRow.guideId, previous + snapshotRow.views);
+      }
+
+      sorted = sorted
+        .map((guide) => {
+          const previousViews = previousViewsByGuideId.get(guide.id) ?? 0;
+          const monthlyViews = Math.max(guide.views - previousViews, 0);
+          return {
+            ...guide,
+            monthlyViews,
+          };
+        })
+        .filter(
+          (guide) =>
+            guide.monthlyLikes > 0 ||
+            guide.monthlyFavorites > 0 ||
+            guide.monthlyViews >= 50,
+        )
+        .sort((a, b) => {
+          const scoreB = this.guideScore(
+            b.monthlyLikes,
+            b.monthlyFavorites,
+            b.monthlyViews,
+          );
+          const scoreA = this.guideScore(
+            a.monthlyLikes,
+            a.monthlyFavorites,
+            a.monthlyViews,
+          );
+          if (scoreB !== scoreA) return scoreB - scoreA;
+          return a.createdAt.getTime() - b.createdAt.getTime();
+        });
+    }
+
     // Limit to top 15 for current month (matches snapshot behavior)
     const limitedSorted = sorted.slice(0, 15);
     const total = limitedSorted.length;
@@ -428,6 +510,9 @@ export class SqliteRankingRepository implements RankingRepository {
       likes: guide.likes,
       views: guide.views,
       favorites: guide.favorites,
+      monthlyLikes: guide.monthlyLikes,
+      monthlyViews: guide.monthlyViews,
+      monthlyFavorites: guide.monthlyFavorites,
       guideType: guide.guideType,
       headerImageUrl:
         guide.headerCard?.imageUrlCropped ??
@@ -453,40 +538,52 @@ export class SqliteRankingRepository implements RankingRepository {
       totalLikes: number;
       totalViews: number;
       fulfilledRequests: number;
+      monthlyLikes: number;
+      monthlyViews: number;
+      monthlyFulfilledRequests: number;
       createdAt: Date;
     }>
   > {
-    // Parse month to get start and end dates as UTC timestamps (milliseconds)
+    // Parse month boundaries in UTC.
+    // SQLite DateTime columns are stored as ISO strings, so comparisons in raw SQL
+    // should use ISO strings rather than numeric timestamps.
     const [year, monthNum] = month.split("-").map(Number);
     const startTs = Date.UTC(year, monthNum - 1, 1, 0, 0, 0, 0);
     const endTs = Date.UTC(year, monthNum, 0, 23, 59, 59, 999);
+    const startIso = new Date(startTs).toISOString();
+    const nextMonthStartIso = new Date(
+      Date.UTC(year, monthNum, 1, 0, 0, 0, 0),
+    ).toISOString();
 
     // Use raw SQL to get users with activity in the target month
-    // NOTE: We don't filter by u.created_at in SQL because Prisma has issues
-    // with WHERE comparisons on DateTime fields with SQLite. We filter in JS instead.
+    // Monthly stats: only activity that occurred in this month
+    // Total stats: accumulated over all time
     const sql = `
       SELECT 
         u.id as user_id,
         u.namedb as user_name,
         p.profile_picture_url,
         u.created_at as user_created_at,
-        COUNT(DISTINCT il.id) as likes_count,
-        COUNT(DISTINCT if.id) as favorites_count,
-        COUNT(DISTINCT gr.id) as fulfilled_requests,
-        COALESCE(SUM(ai.views), 0) as total_views
+        COUNT(DISTINCT il.id) as monthly_likes_count,
+        COUNT(DISTINCT if.id) as monthly_favorites_count,
+        COUNT(DISTINCT gr.id) as monthly_fulfilled_requests,
+        COUNT(DISTINCT gvt.instance_id || '_' || gvt.viewer_fingerprint) as monthly_views_count
       FROM users u
       LEFT JOIN profiles p ON p.user_id = u.id
       LEFT JOIN archetype_instances ai ON ai.user_id = u.id
       LEFT JOIN instance_likes il ON il.instance_id = ai.id 
-        AND il.created_at >= ` + startTs + ` 
+        AND il.created_at >= ` + startTs + `
         AND il.created_at <= ` + endTs + `
       LEFT JOIN instance_favorites if ON if.instance_id = ai.id 
-        AND if.created_at >= ` + startTs + ` 
+        AND if.created_at >= ` + startTs + `
         AND if.created_at <= ` + endTs + `
       LEFT JOIN guide_requests gr ON gr.fulfilled_by_id = u.id 
         AND gr.status = 'COMPLETED'
-        AND gr.updated_at >= ` + startTs + ` 
+        AND gr.updated_at >= ` + startTs + `
         AND gr.updated_at <= ` + endTs + `
+      LEFT JOIN guide_view_tracking gvt ON gvt.instance_id = ai.id
+        AND gvt.last_viewed_at >= '` + startIso + `'
+        AND gvt.last_viewed_at < '` + nextMonthStartIso + `'
       GROUP BY u.id
     `;
 
@@ -495,48 +592,96 @@ export class SqliteRankingRepository implements RankingRepository {
         user_id: string;
         user_name: string;
         profile_picture_url: string | null;
-        user_created_at: number;
-        likes_count: number;
-        favorites_count: number;
-        fulfilled_requests: number;
-        total_views: number;
+        user_created_at: string;
+        monthly_likes_count: number;
+        monthly_favorites_count: number;
+        monthly_fulfilled_requests: number;
+        monthly_views_count: number;
       }>
     >(sql);
 
     // Filter to only users that existed during this month
     const filteredUsers = usersWithActivity.filter(
-      (u) => u.user_created_at <= endTs,
+      (u) => new Date(u.user_created_at).getTime() <= endTs,
+    );
+
+    // Fetch total stats for these users (all-time accumulated)
+    const userIds = filteredUsers.map((u) => u.user_id);
+    const totalStatsQuery = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: {
+        id: true,
+        archetypeInstances: {
+          select: {
+            likes: true,
+            favorites: true,
+            views: true,
+          },
+        },
+        guideRequestsFulfilled: {
+          where: { status: "COMPLETED" },
+          select: { id: true },
+        },
+      },
+    });
+
+    const totalStatsMap = new Map(
+      totalStatsQuery.map((u) => {
+        const totalLikes = u.archetypeInstances.reduce(
+          (sum, g) => sum + g.likes + g.favorites,
+          0,
+        );
+        const totalViews = u.archetypeInstances.reduce(
+          (sum, g) => sum + g.views,
+          0,
+        );
+        const fulfilledRequests = u.guideRequestsFulfilled.length;
+        return [u.id, { totalLikes, totalViews, fulfilledRequests }];
+      }),
     );
 
     // Map results to expected format
-    const users = filteredUsers.map((u) => ({
-      userId: u.user_id,
-      username: u.user_name,
-      profilePictureUrl: u.profile_picture_url,
-      createdAt: new Date(u.user_created_at),
-      totalLikes: Number(u.likes_count) + Number(u.favorites_count),
-      totalViews: Number(u.total_views),
-      fulfilledRequests: Number(u.fulfilled_requests),
-    }));
+    const users = filteredUsers.map((u) => {
+      const totals = totalStatsMap.get(u.user_id) || {
+        totalLikes: 0,
+        totalViews: 0,
+        fulfilledRequests: 0,
+      };
+      return {
+        userId: u.user_id,
+        username: u.user_name,
+        profilePictureUrl: u.profile_picture_url,
+        createdAt: new Date(u.user_created_at),
+        // Total accumulated stats (for display)
+        totalLikes: totals.totalLikes,
+        totalViews: totals.totalViews,
+        fulfilledRequests: totals.fulfilledRequests,
+        // Monthly stats (for scoring and filtering)
+        monthlyLikes: Number(u.monthly_likes_count) + Number(u.monthly_favorites_count),
+        monthlyViews: Number(u.monthly_views_count),
+        monthlyFulfilledRequests: Number(u.monthly_fulfilled_requests),
+      };
+    });
 
-    // Filter and sort
+    // Filter and sort using MONTHLY stats only
     const usersWithScores = users
       .filter(
         (user) =>
-          user.totalLikes > 0 ||
-          user.totalViews > 0 ||
-          user.fulfilledRequests > 0,
+          user.monthlyLikes > 0 ||
+          user.monthlyViews >= 25 ||
+          user.monthlyFulfilledRequests > 0,
       )
       .sort((a, b) => {
+        // Score based on MONTHLY activity only
         const scoreB = this.userScore(
-          b.totalLikes,
-          b.fulfilledRequests,
-          b.totalViews,
+          b.monthlyLikes,
+          b.monthlyFulfilledRequests,
+          b.monthlyViews,
         );
         const scoreA = this.userScore(
-          a.totalLikes,
-          a.fulfilledRequests,
-          a.totalViews,
+          a.monthlyLikes,
+          a.monthlyFulfilledRequests,
+          a.monthlyViews,
         );
         if (scoreB !== scoreA) return scoreB - scoreA;
         return a.createdAt.getTime() - b.createdAt.getTime();
@@ -578,28 +723,47 @@ export class SqliteRankingRepository implements RankingRepository {
           archetypeInstances: {
             select: {
               views: true,
+              likes: true,
+              favorites: true,
             },
+          },
+          guideRequestsFulfilled: {
+            where: { status: "COMPLETED" },
+            select: { id: true },
           },
         },
       });
 
-      const userMap = new Map(users.map((u) => [u.id, u]));
+      const userMap = new Map(users.map((u) => {
+        // Calculate current total stats
+        const totalViews = u.archetypeInstances.reduce(
+          (sum, guide) => sum + guide.views,
+          0,
+        );
+        const totalLikes = u.archetypeInstances.reduce(
+          (sum, guide) => sum + guide.likes + guide.favorites,
+          0,
+        );
+        const fulfilledRequests = u.guideRequestsFulfilled.length;
+        return [u.id, { ...u, totalViews, totalLikes, fulfilledRequests }];
+      }));
+      
       const ranking = snapshot
         .map((s) => {
           const user = userMap.get(s.userId);
           if (!user) return null;
-          // Calculate total views from all user's guides
-          const totalViews = user.archetypeInstances.reduce(
-            (sum, guide) => sum + guide.views,
-            0,
-          );
           return {
             userId: user.id,
             username: user.name,
             profilePictureUrl: user.profile?.profilePictureUrl ?? null,
-            totalLikes: s.totalLikes,
-            totalViews: totalViews,
-            fulfilledRequests: s.fulfilledRequests,
+            // Current total stats (for display)
+            totalLikes: user.totalLikes,
+            totalViews: user.totalViews,
+            fulfilledRequests: user.fulfilledRequests,
+            // Monthly stats from snapshot (what was earned that month)
+            monthlyLikes: s.totalLikes,
+            monthlyViews: s.totalViews,
+            monthlyFulfilledRequests: s.fulfilledRequests,
             rank: s.rank,
             month: s.month,
           };
@@ -614,7 +778,60 @@ export class SqliteRankingRepository implements RankingRepository {
     }
 
     // Otherwise, calculate live from current data
-    const sorted = await this.getTrendingUsersForMonth(month);
+    let sorted = await this.getTrendingUsersForMonth(month);
+
+    // For current month, derive monthly views from real total-view deltas so
+    // every counted view can be reflected in trending users as well.
+    if (month === currentMonth && sorted.length > 0) {
+      const userIds = sorted.map((u) => u.userId);
+      const previousSnapshots = await this.prisma.monthlyUserRanking.findMany({
+        where: {
+          userId: { in: userIds },
+          month: { lt: month },
+        },
+        select: {
+          userId: true,
+          totalViews: true,
+        },
+      });
+
+      const previousViewsByUserId = new Map<string, number>();
+      for (const snapshotRow of previousSnapshots) {
+        const previous = previousViewsByUserId.get(snapshotRow.userId) ?? 0;
+        previousViewsByUserId.set(snapshotRow.userId, previous + snapshotRow.totalViews);
+      }
+
+      sorted = sorted
+        .map((user) => {
+          const previousViews = previousViewsByUserId.get(user.userId) ?? 0;
+          const monthlyViews = Math.max(user.totalViews - previousViews, 0);
+          return {
+            ...user,
+            monthlyViews,
+          };
+        })
+        .filter(
+          (user) =>
+            user.monthlyLikes > 0 ||
+            user.monthlyViews >= 25 ||
+            user.monthlyFulfilledRequests > 0,
+        )
+        .sort((a, b) => {
+          const scoreB = this.userScore(
+            b.monthlyLikes,
+            b.monthlyFulfilledRequests,
+            b.monthlyViews,
+          );
+          const scoreA = this.userScore(
+            a.monthlyLikes,
+            a.monthlyFulfilledRequests,
+            a.monthlyViews,
+          );
+          if (scoreB !== scoreA) return scoreB - scoreA;
+          return a.createdAt.getTime() - b.createdAt.getTime();
+        });
+    }
+
     // Limit to top 10 for current month (matches snapshot behavior)
     const limitedSorted = sorted.slice(0, 10);
     const total = limitedSorted.length;
@@ -626,6 +843,9 @@ export class SqliteRankingRepository implements RankingRepository {
       totalLikes: user.totalLikes,
       totalViews: user.totalViews,
       fulfilledRequests: user.fulfilledRequests,
+      monthlyLikes: user.monthlyLikes,
+      monthlyViews: user.monthlyViews,
+      monthlyFulfilledRequests: user.monthlyFulfilledRequests,
       rank: skip + index + 1,
       month,
     }));
@@ -638,18 +858,124 @@ export class SqliteRankingRepository implements RankingRepository {
     console.log(`[RankingRepository] Saving trending snapshot for ${month}...`);
 
     // Calculate trending rankings for the month
-    const trendingGuides = await this.getTrendingGuidesForMonth(month);
-    const trendingUsers = await this.getTrendingUsersForMonth(month);
+    let trendingGuides = await this.getTrendingGuidesForMonth(month);
+    let trendingUsers = await this.getTrendingUsersForMonth(month);
+
+    // Normalize monthly views as real monthly deltas from total view counters.
+    // This keeps end-of-month snapshots aligned with live trending behavior.
+    if (trendingGuides.length > 0) {
+      const guideIds = trendingGuides.map((g) => g.id);
+      const previousGuideSnapshots = await this.prisma.monthlyGuideRanking.findMany({
+        where: {
+          guideId: { in: guideIds },
+          month: { lt: month },
+        },
+        select: {
+          guideId: true,
+          views: true,
+        },
+      });
+
+      const previousViewsByGuideId = new Map<number, number>();
+      for (const snapshotRow of previousGuideSnapshots) {
+        const previous = previousViewsByGuideId.get(snapshotRow.guideId) ?? 0;
+        previousViewsByGuideId.set(snapshotRow.guideId, previous + snapshotRow.views);
+      }
+
+      trendingGuides = trendingGuides
+        .map((guide) => {
+          const previousViews = previousViewsByGuideId.get(guide.id) ?? 0;
+          const monthlyViews = Math.max(guide.views - previousViews, 0);
+          return {
+            ...guide,
+            monthlyViews,
+          };
+        })
+        .filter(
+          (guide) =>
+            guide.monthlyLikes > 0 ||
+            guide.monthlyFavorites > 0 ||
+            guide.monthlyViews >= 50,
+        )
+        .sort((a, b) => {
+          const scoreB = this.guideScore(
+            b.monthlyLikes,
+            b.monthlyFavorites,
+            b.monthlyViews,
+          );
+          const scoreA = this.guideScore(
+            a.monthlyLikes,
+            a.monthlyFavorites,
+            a.monthlyViews,
+          );
+          if (scoreB !== scoreA) return scoreB - scoreA;
+          return a.createdAt.getTime() - b.createdAt.getTime();
+        });
+    }
+
+    if (trendingUsers.length > 0) {
+      const userIds = trendingUsers.map((u) => u.userId);
+      const previousUserSnapshots = await this.prisma.monthlyUserRanking.findMany({
+        where: {
+          userId: { in: userIds },
+          month: { lt: month },
+        },
+        select: {
+          userId: true,
+          totalViews: true,
+        },
+      });
+
+      const previousViewsByUserId = new Map<string, number>();
+      for (const snapshotRow of previousUserSnapshots) {
+        const previous = previousViewsByUserId.get(snapshotRow.userId) ?? 0;
+        previousViewsByUserId.set(snapshotRow.userId, previous + snapshotRow.totalViews);
+      }
+
+      trendingUsers = trendingUsers
+        .map((user) => {
+          const previousViews = previousViewsByUserId.get(user.userId) ?? 0;
+          const monthlyViews = Math.max(user.totalViews - previousViews, 0);
+          return {
+            ...user,
+            monthlyViews,
+          };
+        })
+        .filter(
+          (user) =>
+            user.monthlyLikes > 0 ||
+            user.monthlyViews >= 25 ||
+            user.monthlyFulfilledRequests > 0,
+        )
+        .sort((a, b) => {
+          const scoreB = this.userScore(
+            b.monthlyLikes,
+            b.monthlyFulfilledRequests,
+            b.monthlyViews,
+          );
+          const scoreA = this.userScore(
+            a.monthlyLikes,
+            a.monthlyFulfilledRequests,
+            a.monthlyViews,
+          );
+          if (scoreB !== scoreA) return scoreB - scoreA;
+          return a.createdAt.getTime() - b.createdAt.getTime();
+        });
+    }
 
     // Save top 15 guides
     const guideSnapshots = trendingGuides.slice(0, 15).map((guide, index) => ({
       guideId: guide.id,
       month,
       rank: index + 1,
-      score: this.guideScore(guide.likes, guide.favorites, guide.views),
-      likes: guide.likes,
-      views: guide.views,
-      favorites: guide.favorites,
+      score: this.guideScore(
+        guide.monthlyLikes,
+        guide.monthlyFavorites,
+        guide.monthlyViews,
+      ),
+      likes: guide.monthlyLikes,
+      views: guide.monthlyViews,
+      favorites: guide.monthlyFavorites,
     }));
 
     // Save top 10 users
@@ -658,13 +984,13 @@ export class SqliteRankingRepository implements RankingRepository {
       month,
       rank: index + 1,
       score: this.userScore(
-        user.totalLikes,
-        user.fulfilledRequests,
-        user.totalViews,
+        user.monthlyLikes,
+        user.monthlyFulfilledRequests,
+        user.monthlyViews,
       ),
-      totalLikes: user.totalLikes,
-      totalViews: user.totalViews,
-      fulfilledRequests: user.fulfilledRequests,
+      totalLikes: user.monthlyLikes,
+      totalViews: user.monthlyViews,
+      fulfilledRequests: user.monthlyFulfilledRequests,
     }));
 
     // Delete existing snapshots for this month (if any)
@@ -749,10 +1075,14 @@ export class SqliteRankingRepository implements RankingRepository {
         currentMonthRanking = {
           month: currentMonth,
           rank: guideIndex + 1,
-          score: this.guideScore(guide.likes, guide.favorites, guide.views),
-          likes: guide.likes,
-          favorites: guide.favorites,
-          views: guide.views,
+          score: this.guideScore(
+            guide.monthlyLikes,
+            guide.monthlyFavorites,
+            guide.monthlyViews,
+          ),
+          likes: guide.monthlyLikes,
+          favorites: guide.monthlyFavorites,
+          views: guide.monthlyViews,
         };
       }
     }
@@ -825,10 +1155,14 @@ export class SqliteRankingRepository implements RankingRepository {
           type: "user",
           month: currentMonth,
           rank: userIndex + 1,
-          score: this.userScore(user.totalLikes, user.fulfilledRequests, user.totalViews),
-          totalLikes: user.totalLikes,
-          fulfilledRequests: user.fulfilledRequests,
-          totalViews: user.totalViews,
+          score: this.userScore(
+            user.monthlyLikes,
+            user.monthlyFulfilledRequests,
+            user.monthlyViews,
+          ),
+          totalLikes: user.monthlyLikes,
+          fulfilledRequests: user.monthlyFulfilledRequests,
+          totalViews: user.monthlyViews,
         });
       }
     }
@@ -881,10 +1215,14 @@ export class SqliteRankingRepository implements RankingRepository {
             headerImageUrl: guide.headerCard?.imageUrlCropped || null,
             month: currentMonth,
             rank: guideIndex + 1,
-            score: this.guideScore(guideData.likes, guideData.favorites, guideData.views),
-            likes: guideData.likes,
-            favorites: guideData.favorites,
-            views: guideData.views,
+            score: this.guideScore(
+              guideData.monthlyLikes,
+              guideData.monthlyFavorites,
+              guideData.monthlyViews,
+            ),
+            likes: guideData.monthlyLikes,
+            favorites: guideData.monthlyFavorites,
+            views: guideData.monthlyViews,
           });
         }
       }

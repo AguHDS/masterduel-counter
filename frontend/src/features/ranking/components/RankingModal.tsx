@@ -428,12 +428,22 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           <Eye className="w-3.5 h-3.5 text-purple-400" />
                           <span className="text-sm text-purple-400 font-medium">
                             {user.totalViews.toLocaleString()}
+                            {isShowingTrending && 'monthlyViews' in user && (
+                              <span className="ml-1 text-[11px] text-purple-300/80">
+                                (+{user.monthlyViews.toLocaleString()})
+                              </span>
+                            )}
                           </span>
                         </span>
                         <span className="flex items-center gap-1">
                           <ThumbsUp className="w-3.5 h-3.5 text-emerald-500" />
                           <span className="text-sm text-emerald-400 font-medium">
                             {user.totalLikes.toLocaleString()}
+                            {isShowingTrending && 'monthlyLikes' in user && user.monthlyLikes > 0 && (
+                              <span className="ml-1 text-[11px] text-emerald-300/80">
+                                (+{user.monthlyLikes.toLocaleString()})
+                              </span>
+                            )}
                           </span>
                         </span>
                         {user.fulfilledRequests > 0 && (
@@ -441,6 +451,11 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                             <BookOpen className="w-3.5 h-3.5 text-orange-400" />
                             <span className="text-sm text-orange-400 font-medium">
                               {user.fulfilledRequests} Requests
+                              {isShowingTrending && 'monthlyFulfilledRequests' in user && user.monthlyFulfilledRequests > 0 && (
+                                <span className="ml-1 text-[11px] text-orange-300/80">
+                                  (+{user.monthlyFulfilledRequests})
+                                </span>
+                              )}
                             </span>
                           </span>
                         )}
@@ -574,14 +589,29 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           <span className="flex items-center gap-1 text-xs text-purple-400 font-medium">
                             <Eye className="w-3.5 h-3.5" />
                             {(guide.views ?? 0).toLocaleString()}
+                            {isShowingTrending && 'monthlyViews' in guide && (
+                              <span className="ml-1 text-[11px] text-purple-300/80">
+                                (+{guide.monthlyViews.toLocaleString()})
+                              </span>
+                            )}
                           </span>
                           <span className="flex items-center gap-1 text-xs text-emerald-400 font-medium">
                             <ThumbsUp className="w-3.5 h-3.5" />
                             {guide.likes.toLocaleString()}
+                            {isShowingTrending && 'monthlyLikes' in guide && guide.monthlyLikes > 0 && (
+                              <span className="ml-1 text-[11px] text-emerald-300/80">
+                                (+{guide.monthlyLikes.toLocaleString()})
+                              </span>
+                            )}
                           </span>
                           <span className="flex items-center gap-1 text-xs text-yellow-400 font-medium">
                             <Star className="w-3.5 h-3.5 fill-current" />
                             {(guide.favorites ?? 0).toLocaleString()}
+                            {isShowingTrending && 'monthlyFavorites' in guide && guide.monthlyFavorites > 0 && (
+                              <span className="ml-1 text-[11px] text-yellow-300/80">
+                                (+{guide.monthlyFavorites.toLocaleString()})
+                              </span>
+                            )}
                           </span>
                         </div>
                       </div>

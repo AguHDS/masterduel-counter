@@ -3,6 +3,7 @@
  * 
  * Manually triggers the monthly trending snapshot process for testing purposes.
  * This allows testing the snapshot functionality without waiting until the 1st of the month.
+ * Only run months that have already passed, not the actual month
  * 
  * Usage:
  * - npm run simulate-snapshot              (snapshots the previous month)
