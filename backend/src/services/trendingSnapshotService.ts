@@ -5,7 +5,7 @@ import { getDependencies } from "@/compositionRoot.js";
  * Trending Snapshot Service
  * 
  * Runs a cron job on the 1st of each month at 00:00 (midnight)
- * to snapshot the previous month's top 50 trending guides and users.
+ * to snapshot the previous month's top 15 trending guides and top 10 users.
  * 
  * The snapshots are saved to MonthlyGuideRanking and MonthlyUserRanking tables
  * for historical trending data and future badge features.

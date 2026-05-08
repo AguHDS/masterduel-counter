@@ -60,13 +60,13 @@ async function main(): Promise<void> {
     const guideRanking = await rankingRepository.getTrendingGuideRanking(
       targetMonth,
       1,
-      50, // Top 50
+      15, // Top 15
     );
 
     const userRanking = await rankingRepository.getTrendingUserRanking(
       targetMonth,
       1,
-      50, // Top 50
+      10, // Top 10
     );
 
     console.log(`✅ Found ${guideRanking.total} guides with activity`);

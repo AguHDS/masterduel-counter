@@ -637,8 +637,8 @@ export class SqliteRankingRepository implements RankingRepository {
     const trendingGuides = await this.getTrendingGuidesForMonth(month);
     const trendingUsers = await this.getTrendingUsersForMonth(month);
 
-    // Save top 50 guides
-    const guideSnapshots = trendingGuides.slice(0, 50).map((guide, index) => ({
+    // Save top 15 guides
+    const guideSnapshots = trendingGuides.slice(0, 15).map((guide, index) => ({
       guideId: guide.id,
       month,
       rank: index + 1,
@@ -648,8 +648,8 @@ export class SqliteRankingRepository implements RankingRepository {
       favorites: guide.favorites,
     }));
 
-    // Save top 50 users
-    const userSnapshots = trendingUsers.slice(0, 50).map((user, index) => ({
+    // Save top 10 users
+    const userSnapshots = trendingUsers.slice(0, 10).map((user, index) => ({
       userId: user.userId,
       month,
       rank: index + 1,
