@@ -1104,10 +1104,11 @@ export class SqliteRankingRepository implements RankingRepository {
 
   async getUserTrendingAchievements(userId: string): Promise<TrendingAchievement[]> {
     const currentMonth = new Date().toISOString().slice(0, 7);
-    
-    // Get user's trending history from snapshots (past months)
+
+    // Only include closed months (snapshots with month < currentMonth).
+    // The current month is shown live in RankingPopup/RankingModal, not here.
     const userHistory = await this.prisma.monthlyUserRanking.findMany({
-      where: { userId },
+      where: { userId, month: { lt: currentMonth } },
       orderBy: { month: "desc" },
       select: {
         month: true,
@@ -1140,34 +1141,7 @@ export class SqliteRankingRepository implements RankingRepository {
 
     const achievements: TrendingAchievement[] = [];
 
-    // Check if current month has snapshot
-    const hasCurrentMonthSnapshot = userHistory.some(h => h.month === currentMonth);
-
-    // If no snapshot for current month, calculate live ranking
-    if (!hasCurrentMonthSnapshot) {
-      const currentMonthUsers = await this.getTrendingUsersForMonth(currentMonth);
-      const userIndex = currentMonthUsers.findIndex(u => u.userId === userId);
-      
-      // Only include if user is in top 10
-      if (userIndex !== -1 && userIndex < 10) {
-        const user = currentMonthUsers[userIndex];
-        achievements.push({
-          type: "user",
-          month: currentMonth,
-          rank: userIndex + 1,
-          score: this.userScore(
-            user.monthlyLikes,
-            user.monthlyFulfilledRequests,
-            user.monthlyViews,
-          ),
-          totalLikes: user.monthlyLikes,
-          fulfilledRequests: user.monthlyFulfilledRequests,
-          totalViews: user.monthlyViews,
-        });
-      }
-    }
-
-    // Add user achievements from snapshots
+    // Add user achievements from closed-month snapshots
     for (const history of userHistory) {
       achievements.push({
         type: "user",
@@ -1180,11 +1154,10 @@ export class SqliteRankingRepository implements RankingRepository {
       });
     }
 
-    // Get guide rankings for each guide
+    // Get guide rankings for each guide (closed months only)
     for (const guide of guides) {
-      // Check for snapshot rankings
       const rankings = await this.prisma.monthlyGuideRanking.findMany({
-        where: { guideId: guide.id },
+        where: { guideId: guide.id, month: { lt: currentMonth } },
         orderBy: { month: "desc" },
         select: {
           month: true,
@@ -1196,38 +1169,6 @@ export class SqliteRankingRepository implements RankingRepository {
         },
       });
 
-      // Check if current month has snapshot for this guide
-      const hasCurrentMonthGuideSnapshot = rankings.some(r => r.month === currentMonth);
-
-      // If no snapshot for current month, calculate live ranking
-      if (!hasCurrentMonthGuideSnapshot) {
-        const currentMonthGuides = await this.getTrendingGuidesForMonth(currentMonth);
-        const guideIndex = currentMonthGuides.findIndex(g => g.id === guide.id);
-        
-        // Only include if guide is in top 15
-        if (guideIndex !== -1 && guideIndex < 15) {
-          const guideData = currentMonthGuides[guideIndex];
-          achievements.push({
-            type: "guide",
-            guideId: guide.id,
-            guideTitle: guide.title,
-            archetypeName: guide.archetype.name,
-            headerImageUrl: guide.headerCard?.imageUrlCropped || null,
-            month: currentMonth,
-            rank: guideIndex + 1,
-            score: this.guideScore(
-              guideData.monthlyLikes,
-              guideData.monthlyFavorites,
-              guideData.monthlyViews,
-            ),
-            likes: guideData.monthlyLikes,
-            favorites: guideData.monthlyFavorites,
-            views: guideData.monthlyViews,
-          });
-        }
-      }
-
-      // Add guide achievements from snapshots
       for (const ranking of rankings) {
         achievements.push({
           type: "guide",
