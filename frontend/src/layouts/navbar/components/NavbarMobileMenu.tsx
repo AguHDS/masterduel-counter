@@ -239,9 +239,9 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                               {rankUser.totalLikes} Likes
                               {mobileRankingType === "trending" &&
                                 isTrendingRankUser(rankUser) &&
-                                rankUser.monthlyLikes > 0 && (
+                                (rankUser.monthlyLikes ?? 0) > 0 && (
                                 <span className="ml-1 text-[10px] text-emerald-300/80">
-                                  (↑{rankUser.monthlyLikes})
+                                  (+{rankUser.monthlyLikes ?? 0})
                                 </span>
                               )}
                             </span>
