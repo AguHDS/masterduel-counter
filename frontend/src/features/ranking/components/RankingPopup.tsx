@@ -147,8 +147,8 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
     <div
       ref={popupRef}
       onMouseDown={(e) => e.stopPropagation()}
-      className={`absolute mt-2 w-[450px] max-w-[calc(100vw-2rem)] border border-[#c2901c]/40 rounded-xl shadow-2xl overflow-hidden z-50 ${
-        alignRight ? "right-0" : "left-0"
+      className={`absolute mt-2 w-[468px] max-w-[calc(100vw-2rem)] border border-[#c2901c]/40 rounded-xl overflow-hidden z-50 ${
+        alignRight ? "right-0" : "right-0"
       }`}
       style={{
         top: "100%",
