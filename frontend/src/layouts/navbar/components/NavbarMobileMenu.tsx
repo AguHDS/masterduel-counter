@@ -116,6 +116,12 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
 
   const monthLabel = getCurrentMonthLabel();
 
+  const isTrendingRankUser = (
+    rankUser: RankingUser | TrendingRankingUser,
+  ): rankUser is TrendingRankingUser => {
+    return "monthlyLikes" in rankUser;
+  };
+
   return (
     <div className="sm:hidden absolute top-full left-0 right-0 bg-[#1f1a24] border-b border-[#c2901c]/30 shadow-xl py-4 px-4 z-50">
       <div className="flex flex-col space-y-3">
@@ -231,6 +237,13 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                             </span>
                             <span className="text-xs text-emerald-400">
                               {rankUser.totalLikes} Likes
+                              {mobileRankingType === "trending" &&
+                                isTrendingRankUser(rankUser) &&
+                                rankUser.monthlyLikes > 0 && (
+                                <span className="ml-1 text-[10px] text-emerald-300/80">
+                                  (↑{rankUser.monthlyLikes})
+                                </span>
+                              )}
                             </span>
                           </div>
                           {rankUser.rank <= 3 && (

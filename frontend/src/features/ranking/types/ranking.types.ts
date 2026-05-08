@@ -24,10 +24,16 @@ export interface RankingGuide {
 
 export interface TrendingRankingUser extends RankingUser {
   month: string; // Format: YYYY-MM
+  monthlyLikes: number; // Likes gained in this month
+  monthlyViews: number; // Views gained in this month
+  monthlyFulfilledRequests: number; // Requests fulfilled in this month
 }
 
 export interface TrendingRankingGuide extends RankingGuide {
   month: string; // Format: YYYY-MM
+  monthlyLikes: number; // Likes gained in this month
+  monthlyFavorites: number; // Favorites gained in this month
+  monthlyViews: number; // Views gained in this month
 }
 
 export interface RankingResponse {

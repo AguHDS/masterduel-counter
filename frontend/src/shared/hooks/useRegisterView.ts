@@ -23,10 +23,16 @@ export const useRegisterView = (instanceId: number | undefined, archetypeId: num
         await guideInstancesApi.registerView(instanceId);
         hasRegisteredRef.current[instanceId] = true;
 
-        // Invalidate the query to refetch updated view count
+        // Invalidate guide detail query to refetch updated view count.
         queryClient.invalidateQueries({
           queryKey: ["userInstance", archetypeId, instanceId],
         });
+
+        // Invalidate ranking caches so trending/all-time views refresh when ranking UI opens.
+        queryClient.invalidateQueries({ queryKey: ["trending-guides"] });
+        queryClient.invalidateQueries({ queryKey: ["trending-users"] });
+        queryClient.invalidateQueries({ queryKey: ["ranking-guides"] });
+        queryClient.invalidateQueries({ queryKey: ["user-ranking"] });
       } catch (error) {
         console.error("Error registering view:", error);
       }

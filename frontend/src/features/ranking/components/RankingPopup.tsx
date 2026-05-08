@@ -7,6 +7,7 @@ import {
   MailWarning,
   Star,
   TrendingUp,
+  Info,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
@@ -145,7 +146,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
     <div
       ref={popupRef}
       onMouseDown={(e) => e.stopPropagation()}
-      className="absolute mt-2 w-[468px] max-w-[calc(100vw-2rem)] border border-[#c2901c]/40 rounded-xl overflow-hidden z-50 left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 lg:left-1/2 lg:-translate-x-1/2 lg:right-auto"
+      className="absolute mt-2 w-[500px] max-w-[calc(100vw-2rem)] border border-[#c2901c]/40 rounded-xl overflow-hidden z-50 left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 lg:left-1/2 lg:-translate-x-1/2 lg:right-auto"
       style={{
         top: "100%",
         background:
@@ -155,12 +156,26 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
       <div className="h-[1px] flex-shrink-0 bg-gradient-to-r from-transparent via-[#c2901c] to-transparent" />
 
       {/* Header with title */}
-      <div className="px-4 pt-4 pb-3">
+      <div className="px-4 pt-4 pb-3 relative">
         <div className="flex items-center justify-center gap-2">
           <Crown className="w-5 h-5 text-[#c2901c]" />
           <span className="text-white font-bold text-lg tracking-wide">
             Ranking
           </span>
+        </div>
+        
+        {/* Info tooltip */}
+        <div className="absolute top-4 right-4 group">
+          <Info className="w-4 h-4 text-[#c2901c]/60 hover:text-[#c2901c] cursor-help transition-colors" />
+          <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all absolute top-6 right-0 w-72 bg-[#1a1216] border border-[#c2901c]/40 rounded-lg p-3 text-xs text-gray-300 shadow-xl z-50">
+            <p className="font-bold text-[#c2901c] mb-2">Trending Ranking</p>
+            <p className="mb-2">
+              <span className="text-[#f4d68f] font-semibold">TRENDING:</span> Ranks guides/users by monthly activity. Only stats earned this month count for ranking. Numbers in parentheses show monthly gains.
+            </p>
+            <p>
+              <span className="text-[#f4d68f] font-semibold">ALL-TIME:</span> Ranks by total accumulated stats since creation.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -308,19 +323,34 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         <Eye className="w-3 h-3 text-purple-400" />
                         <span className="text-xs text-purple-400 font-medium">
                           {user.totalViews.toLocaleString()} Views
+                          {isShowingTrending && 'monthlyViews' in user && (
+                            <span className="ml-1 text-[10px] text-purple-300/80">
+                              (+{user.monthlyViews.toLocaleString()})
+                            </span>
+                          )}
                         </span>
                       </span>
                       <span className="flex items-center gap-0.5">
                         <ThumbsUp className="w-3 h-3 text-emerald-500" />
                         <span className="text-xs text-emerald-400 font-medium">
                           {user.totalLikes.toLocaleString()} Likes
+                          {isShowingTrending && 'monthlyLikes' in user && user.monthlyLikes > 0 && (
+                            <span className="ml-1 text-[10px] text-emerald-300/80">
+                              (+{user.monthlyLikes.toLocaleString()})
+                            </span>
+                          )}
                         </span>
                       </span>
                       {user.fulfilledRequests > 0 && (
                         <span className="flex items-center gap-0.5">
                           <MailWarning className="w-3 h-3 text-orange-400" />
                           <span className="text-xs text-orange-400 font-medium">
-                            {user.fulfilledRequests} Requests
+                            {user.fulfilledRequests} Req
+                            {isShowingTrending && 'monthlyFulfilledRequests' in user && user.monthlyFulfilledRequests > 0 && (
+                              <span className="ml-1 text-[10px] text-orange-300/80">
+                                (+{user.monthlyFulfilledRequests})
+                              </span>
+                            )}
                           </span>
                         </span>
                       )}
@@ -447,14 +477,29 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         <span className="flex items-center gap-1 text-xs text-purple-400 font-medium">
                           <Eye className="w-3 h-3" />
                           {(guide.views ?? 0).toLocaleString()} Views
+                          {isShowingTrending && 'monthlyViews' in guide && (
+                            <span className="ml-1 text-[10px] text-purple-300/80">
+                              (+{guide.monthlyViews.toLocaleString()})
+                            </span>
+                          )}
                         </span>
                         <span className="flex items-center gap-1 text-xs text-emerald-400 font-medium">
                           <ThumbsUp className="w-3 h-3" />
                           {guide.likes.toLocaleString()} Likes
+                          {isShowingTrending && 'monthlyLikes' in guide && guide.monthlyLikes > 0 && (
+                            <span className="ml-1 text-[10px] text-emerald-300/80">
+                              (+{guide.monthlyLikes.toLocaleString()})
+                            </span>
+                          )}
                         </span>
                         <span className="flex items-center gap-1 text-xs text-yellow-400 font-medium">
                           <Star className="w-3 h-3 fill-current" />
                           {(guide.favorites ?? 0).toLocaleString()} Favs
+                          {isShowingTrending && 'monthlyFavorites' in guide && guide.monthlyFavorites > 0 && (
+                            <span className="ml-1 text-[10px] text-yellow-300/80">
+                              (+{guide.monthlyFavorites.toLocaleString()})
+                            </span>
+                          )}
                         </span>
                       </div>
                     </div>
