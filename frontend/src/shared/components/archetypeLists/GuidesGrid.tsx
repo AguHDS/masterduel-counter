@@ -5,6 +5,8 @@ import { useAuth } from "@/features/auth";
 import { useNavigate } from "react-router-dom";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
+import { useTrendingGuideRanking } from "@/features/ranking/hooks/useRanking";
+import { TrendingRankBadge } from "@/shared/components/TrendingRankBadge";
 
 interface GuidesGridProps {
   instances: GuideListItem[];
@@ -26,6 +28,11 @@ export const GuidesGrid = ({
 }: GuidesGridProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const { data: trendingGuideData } = useTrendingGuideRanking(currentMonth, 1, 50);
+  const trendingRankByGuideId = new Map(
+    (trendingGuideData?.ranking ?? []).map((guide) => [guide.id, guide.rank]),
+  );
 
   const totalPages = Math.ceil(instances.length / itemsPerPage);
   const startIndex = currentPage * itemsPerPage;
@@ -111,6 +118,7 @@ export const GuidesGrid = ({
             userName: instance.userName,
             guideType: instance.guideType,
           });
+          const trendingRank = trendingRankByGuideId.get(instance.id);
 
           return (
             <a
@@ -175,34 +183,46 @@ export const GuidesGrid = ({
                     )}
                   </div>
 
-                  {instance.guideType === "COUNTER" && (instance.hasHandtraps || instance.hasBoardbreakers) && (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {instance.hasHandtraps && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-500/15 text-orange-300 border border-orange-500/30">
-                          Handtraps
-                        </span>
-                      )}
-                      {instance.hasBoardbreakers && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-500/15 text-red-300 border border-red-500/30">
-                          Board Breakers
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {instance.guideType === "DECK" && (instance.hasInitialHands || instance.hasRecommendedDeck) && (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {instance.hasInitialHands && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/30">
-                          Combos
-                        </span>
-                      )}
-                      {instance.hasRecommendedDeck && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                          Deck
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  {instance.guideType === "COUNTER" &&
+                    (instance.hasHandtraps || instance.hasBoardbreakers || typeof trendingRank === "number") && (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {instance.hasHandtraps && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-500/15 text-orange-300 border border-orange-500/30">
+                              Handtraps
+                            </span>
+                          )}
+                          {instance.hasBoardbreakers && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-500/15 text-red-300 border border-red-500/30">
+                              Board Breakers
+                            </span>
+                          )}
+                        </div>
+                        {typeof trendingRank === "number" && (
+                          <TrendingRankBadge rank={trendingRank} compact className="shrink-0" />
+                        )}
+                      </div>
+                    )}
+                  {instance.guideType === "DECK" &&
+                    (instance.hasInitialHands || instance.hasRecommendedDeck || typeof trendingRank === "number") && (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {instance.hasInitialHands && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                              Combos
+                            </span>
+                          )}
+                          {instance.hasRecommendedDeck && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                              Deck
+                            </span>
+                          )}
+                        </div>
+                        {typeof trendingRank === "number" && (
+                          <TrendingRankBadge rank={trendingRank} compact className="shrink-0" />
+                        )}
+                      </div>
+                    )}
                   {showArchetypeName && (
                     <div className="flex items-center gap-1 text-xs">
                       <span className="text-slate-400">Archetype:</span>

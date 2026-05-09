@@ -9,7 +9,10 @@ import { fileURLToPath } from "url";
 import { getDependencies } from "./compositionRoot.js";
 import { startCleanupJob } from "./services/cleanupService.js";
 import { startTrendingSnapshotService } from "./services/trendingSnapshotService.js";
-import { createGuideOgPreviewMiddleware } from "./http/middlewares/guideOgPreviewMiddleware.js";
+import {
+  createGuideOgPreviewMiddleware,
+  createSiteOgPreviewMiddleware,
+} from "./http/middlewares/guideOgPreviewMiddleware.js";
 import { createLegacyUrlRedirectMiddleware } from "./http/middlewares/legacyUrlRedirectMiddleware.js";
 import {
   authWriteRateLimiter,
@@ -263,6 +266,10 @@ app.use(sitemap);
 
 // Serve the React frontend (only if the build exists — production)
 if (existsSync(FRONTEND_DIST)) {
+  // OG tag injection for the shared domain/home URL (Discord, Slack, etc.)
+  // Must run before static/catch-all so crawlers get enriched HTML.
+  app.get("/", createSiteOgPreviewMiddleware());
+
   // OG tag injection for guide pages (MUST come BEFORE redirects so bots see meta tags)
   // Register as specific routes to have priority over redirect middleware
   const guideOgMiddleware = createGuideOgPreviewMiddleware(getDependencies());
