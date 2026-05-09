@@ -886,14 +886,21 @@ export class SqliteRankingRepository implements RankingRepository {
       ? [currentMonthRanking, ...snapshots]
       : snapshots;
 
-    // Return best ranking (lowest rank number)
+    // Return best ranking (lowest rank number).
+    // If rank ties across months, prefer the most recent month.
     if (allRankings.length === 0) {
       return null;
     }
 
-    return allRankings.reduce((best, current) => 
-      current.rank < best.rank ? current : best
-    );
+    return allRankings.reduce((best, current) => {
+      if (current.rank < best.rank) {
+        return current;
+      }
+      if (current.rank > best.rank) {
+        return best;
+      }
+      return current.month > best.month ? current : best;
+    });
   }
 
   async getUserTrendingAchievements(userId: string): Promise<TrendingAchievement[]> {
