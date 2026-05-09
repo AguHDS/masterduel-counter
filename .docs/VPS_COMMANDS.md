@@ -71,6 +71,9 @@ htop -> Ver uso de CPU, memoria y procesos en tiempo real
 -------------
 
 CFG NGINX:
+
+----
+
 # Redirect www to non-www
 server {
     server_name www.masterduelcounter.com;
@@ -83,7 +86,6 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/masterduelcounter.com/privkey.pem; # managed by Certbot
     include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-
 }
 
 # Main site
@@ -108,6 +110,18 @@ server {
         expires 1y;
         add_header Cache-Control "public, immutable";
         access_log off;
+    }
+
+    # Home OG dinámico (Discord/Twitter/Slack para dominio raíz)
+    # Debe ir antes de location /
+    location = / {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
     }
 
     # Sitemap dinámico desde backend
@@ -179,7 +193,6 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/masterduelcounter.com/privkey.pem; # managed by Certbot
     include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-
 }
 
 server {
@@ -192,18 +205,14 @@ server {
     listen 80;
     server_name masterduelcounter.com;
     return 404; # managed by Certbot
-
-
 }
+
 server {
     if ($host = www.masterduelcounter.com) {
         return 301 https://$host$request_uri;
     } # managed by Certbot
 
-
     listen 80;
     server_name www.masterduelcounter.com;
     return 404; # managed by Certbot
-
-
 }
