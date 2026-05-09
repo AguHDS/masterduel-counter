@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useLatestCreatedGuides } from "../hooks/useLatestCreatedGuides";
 import { buildGuidePath, buildArchetypePath } from "@/lib/config/urlHelpers";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
+import { useTrendingGuideRanking } from "@/features/ranking/hooks/useRanking";
+import { TrendingRankBadge } from "@/shared/components/TrendingRankBadge";
 
 const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
@@ -14,6 +16,11 @@ const formatDate = (dateStr: string): string => {
 
 export const DeckGuides = () => {
   const { data: guides, isLoading, error } = useLatestCreatedGuides(10, "DECK");
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const { data: trendingGuideData } = useTrendingGuideRanking(currentMonth, 1, 50);
+  const trendingRankByGuideId = new Map(
+    (trendingGuideData?.ranking ?? []).map((guide) => [guide.id, guide.rank]),
+  );
 
   if (isLoading) {
     return (
@@ -66,6 +73,7 @@ export const DeckGuides = () => {
           ) : (
             guides.map((guide) => {
               const timeAgo = formatDate(guide.updatedAt);
+              const trendingRank = trendingRankByGuideId.get(guide.id);
 
               return (
                 <Link
@@ -141,25 +149,30 @@ export const DeckGuides = () => {
                   </div>
 
                   {/* Stats in top right corner */}
-                  <div className="absolute top-2 right-2 flex items-center gap-2 text-sm">
-                    <div className="flex items-center gap-1 text-purple-400">
-                      <Eye className="w-3.5 h-3.5" />
-                      <span className="text-xs font-medium">
-                        {(guide.views ?? 0).toLocaleString()}
-                      </span>
+                  <div className="absolute top-2 right-2 flex flex-col items-end gap-1 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 text-purple-400">
+                        <Eye className="w-3.5 h-3.5" />
+                        <span className="text-xs font-medium">
+                          {(guide.views ?? 0).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-green-500">
+                        <ThumbsUp className="w-3.5 h-3.5" />
+                        <span className="text-xs font-medium">
+                          {(guide.likes ?? 0).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-yellow-400">
+                        <Star className="w-3.5 h-3.5" />
+                        <span className="text-xs font-medium">
+                          {(guide.favorites ?? 0).toLocaleString()}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 text-yellow-400">
-                      <Star className="w-3.5 h-3.5" />
-                      <span className="text-xs font-medium">
-                        {(guide.favorites ?? 0).toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 text-green-500">
-                      <ThumbsUp className="w-3.5 h-3.5" />
-                      <span className="text-xs font-medium">
-                        {(guide.likes ?? 0).toLocaleString()}
-                      </span>
-                    </div>
+                    {typeof trendingRank === "number" && (
+                      <TrendingRankBadge rank={trendingRank} compact applyRelativePosition />
+                    )}
                   </div>
 
                   {/* Time ago in bottom right corner */}
