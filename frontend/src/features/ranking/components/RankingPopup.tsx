@@ -475,13 +475,13 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         </span>{" "}
                         <span className="text-gray-600"> · </span>
                         <span
-                          className={`text-[10px] font-bold px-1.5 py-[2px] rounded-md border ${
+                          className={`text-[8px] uppercase px-1.5 py-[2px] rounded-md border ${
                             isCounter
                               ? "bg-amber-950/60 text-amber-500 border-amber-700/50"
                               : "bg-blue-950/60 text-blue-400 border-blue-800/50"
                           }`}
                         >
-                          {isCounter ? "Counter" : "Deck"}
+                          {isCounter ? "Counter Guide" : "Deck Guide"}
                         </span>
                       </p>
                       <div className="flex items-center gap-2 mt-1">
