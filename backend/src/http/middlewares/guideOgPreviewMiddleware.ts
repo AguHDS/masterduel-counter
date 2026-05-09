@@ -13,6 +13,7 @@ const FRONTEND_DIST = join(__dirname, "../../../../frontend/dist");
 const INDEX_HTML_PATH = join(FRONTEND_DIST, "index.html");
 
 const SITE_URL = process.env.SITE_URL ?? "https://masterduelcounter.com";
+const SOCIAL_BOT_UA_REGEX = /bot|crawler|spider|crawling|discordbot|twitterbot|facebookexternalhit|whatsapp|telegram|slack|linkedin|pinterest/i;
 
 function escapeHtml(text: string): string {
   return text
@@ -20,6 +21,84 @@ function escapeHtml(text: string): string {
     .replace(/"/g, "&quot;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+function isSocialBotRequest(req: Request): boolean {
+  const userAgent = req.headers["user-agent"] || "";
+  return SOCIAL_BOT_UA_REGEX.test(userAgent);
+}
+
+async function loadFrontendIndexHtml(): Promise<string | null> {
+  if (!existsSync(INDEX_HTML_PATH)) return null;
+  return readFile(INDEX_HTML_PATH, "utf-8");
+}
+
+function replaceTitleAndDescription(
+  html: string,
+  title: string,
+  description: string,
+): string {
+  let updated = html.replace(
+    /<title>[^<]*<\/title>/,
+    `<title>${escapeHtml(title)}</title>`,
+  );
+  updated = updated.replace(
+    /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/,
+    `<meta name="description" content="${escapeHtml(description)}" />`,
+  );
+
+  return updated;
+}
+
+function stripExistingOgAndTwitterTags(html: string): string {
+  let updated = html.replace(
+    /\s*<meta\s+property="og:[^"]+"\s+content="[^"]*"\s*\/?>/g,
+    "",
+  );
+  updated = updated.replace(
+    /\s*<meta\s+name="twitter:[^"]+"\s+content="[^"]*"\s*\/?>/g,
+    "",
+  );
+
+  return updated;
+}
+
+function withInjectedTagsBeforeHeadClose(html: string, tags: string): string {
+  return html.replace("</head>", `${tags}\n  </head>`);
+}
+
+function buildRuntimeBaseUrl(req: Request): string {
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const protocol =
+    typeof forwardedProto === "string"
+      ? forwardedProto.split(",")[0]
+      : req.protocol;
+  const host = req.get("host");
+  return protocol && host ? `${protocol}://${host}` : SITE_URL;
+}
+
+function buildSiteOgTags(params: {
+  title: string;
+  description: string;
+  imageUrl: string;
+  pageUrl: string;
+}): string {
+  const { title, description, imageUrl, pageUrl } = params;
+  const safeTitle = escapeHtml(title);
+  const safeDesc = escapeHtml(description);
+
+  return `
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Masterduel Counter" />
+    <meta property="og:title" content="${safeTitle}" />
+    <meta property="og:description" content="${safeDesc}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:image:secure_url" content="${imageUrl}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${safeTitle}" />
+    <meta name="twitter:description" content="${safeDesc}" />
+    <meta name="twitter:image" content="${imageUrl}" />`;
 }
 
 function buildOgTags(params: {
@@ -83,14 +162,8 @@ export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
     const instanceId = extractInstanceIdFromPath(req.path);
     if (!instanceId) return next();
 
-    // Skip if frontend dist doesn't exist
-    if (!existsSync(INDEX_HTML_PATH)) return next();
-
     // Only process for social media bots
-    const userAgent = req.headers["user-agent"] || "";
-    const isSocialBot = /bot|crawler|spider|crawling|discordbot|twitterbot|facebookexternalhit|whatsapp|telegram|slack|linkedin|pinterest/i.test(userAgent);
-    
-    if (!isSocialBot) return next(); // Let regular users be redirected
+    if (!isSocialBotRequest(req)) return next();
 
     try {
       const instanceRepository = dependencies.getInstanceRepository();
@@ -126,14 +199,7 @@ export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
       const description =
         instance.generalTip ||
         `${instance.guideType === "DECK" ? "Deck" : "Counter"} guide for ${archetypeName} in Yu-Gi-Oh!.`;
-      const forwardedProto = req.headers["x-forwarded-proto"];
-      const protocol =
-        typeof forwardedProto === "string"
-          ? forwardedProto.split(",")[0]
-          : req.protocol;
-      const host = req.get("host");
-      const runtimeBaseUrl =
-        protocol && host ? `${protocol}://${host}` : SITE_URL;
+      const runtimeBaseUrl = buildRuntimeBaseUrl(req);
       const pageUrl = `${runtimeBaseUrl}${req.originalUrl}`;
 
       const ogTags = buildOgTags({
@@ -144,24 +210,16 @@ export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
         guideType: instance.guideType,
       });
 
-      let html = await readFile(INDEX_HTML_PATH, "utf-8");
+      const htmlTemplate = await loadFrontendIndexHtml();
+      if (!htmlTemplate) return next();
 
-      // Replace the generic title and description with guide-specific ones
-      html = html.replace(
-        /<title>[^<]*<\/title>/,
-        `<title>${escapeHtml(title)} - Masterduel Counter</title>`,
+      let html = replaceTitleAndDescription(
+        htmlTemplate,
+        `${title} - Masterduel Counter`,
+        description.slice(0, 300),
       );
-      html = html.replace(
-        /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/,
-        `<meta name="description" content="${escapeHtml(description.slice(0, 300))}" />`,
-      );
-
-      // Remove any previously injected OG/Twitter tags to avoid duplicates
-      html = html.replace(/\s*<meta\s+property="og:[^"]+"\s+content="[^"]*"\s*\/?>/g, "");
-      html = html.replace(/\s*<meta\s+name="twitter:[^"]+"\s+content="[^"]*"\s*\/?>/g, "");
-
-      // Inject OG tags before </head>
-      html = html.replace("</head>", `${ogTags}\n  </head>`);
+      html = stripExistingOgAndTwitterTags(html);
+      html = withInjectedTagsBeforeHeadClose(html, ogTags);
 
       res.setHeader("Content-Type", "text/html");
       res.setHeader("X-Guide-OG-Preview", "hit");
@@ -173,6 +231,51 @@ export function createGuideOgPreviewMiddleware(dependencies: Dependencies) {
         error,
       });
       // On any error, fall through to serve the normal index.html
+      next();
+    }
+  };
+}
+
+/**
+ * Middleware that injects OG tags for the home/domain URL so Discord and other
+ * social previews show the site logo when sharing the base domain.
+ */
+export function createSiteOgPreviewMiddleware() {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    // Handle only the base domain URL variants
+    if (req.path !== "/" && req.path !== "") return next();
+    if (!isSocialBotRequest(req)) return next();
+
+    try {
+      const htmlTemplate = await loadFrontendIndexHtml();
+      if (!htmlTemplate) return next();
+
+      const title = "Masterduel Counter - Yu-Gi-Oh! TCG, OCG & Master Duel Guides";
+      const description =
+        "Find the best counter strategies and deck guides for all Yu-Gi-Oh! formats (TCG, OCG, Master Duel).";
+      const runtimeBaseUrl = buildRuntimeBaseUrl(req);
+      const pageUrl = `${runtimeBaseUrl}${req.originalUrl || "/"}`;
+      const logoUrl = `${SITE_URL}/logo.webp`;
+      const ogTags = buildSiteOgTags({
+        title,
+        description,
+        imageUrl: logoUrl,
+        pageUrl,
+      });
+
+      let html = replaceTitleAndDescription(htmlTemplate, title, description);
+      html = stripExistingOgAndTwitterTags(html);
+      html = withInjectedTagsBeforeHeadClose(html, ogTags);
+
+      res.setHeader("Content-Type", "text/html");
+      res.setHeader("X-Site-OG-Preview", "hit");
+      res.setHeader("Cache-Control", "no-store, max-age=0");
+      res.send(html);
+    } catch (error) {
+      console.error("[siteOgPreviewMiddleware] Failed to inject site OG tags", {
+        path: req.originalUrl,
+        error,
+      });
       next();
     }
   };
