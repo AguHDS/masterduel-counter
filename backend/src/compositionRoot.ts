@@ -23,9 +23,11 @@ import { ProfileApplicationPort } from "@/application/ports/ProfileApplicationPo
 import { CardApiService } from "@/domain/ports/externalServices/CardApiService.js";
 import { CardDetailsApiService } from "@/domain/ports/externalServices/CardDetailsApiService.js";
 import { ImageStorageService } from "@/domain/ports/externalServices/ImageStorageService.js";
+import { ArchetypeApiService } from "@/domain/ports/externalServices/ArchetypeApiService.js";
 import { YgoProDeckCardPreviewAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckCardPreviewAdapter.js";
 import { YgoProDeckCardDetailsAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckCardDetailsAdapter.js";
 import { CloudinaryAdapter } from "@/infrastructure/adapters/externalServices/CloudinaryAdapter.js";
+import { YgoProDeckArchetypeAdapter } from "@/infrastructure/adapters/externalServices/YgoProDeckArchetypeAdapter.js";
 import { CardImageStorageService } from "@/services/cardImageStorageService.js";
 import { GetCardDetailsApplicationService } from "@/application/services/GetCardDetailsApplicationService.js";
 import { getCardDetailsApplicationPort } from "@/application/ports/GetCardDetailsApplicationPort.js";
@@ -89,6 +91,7 @@ export class Dependencies {
   private recommendedDeckService: RecommendedDeckApplicationPort | null = null;
   private cardApiService: CardApiService | null = null;
   private cardDetailsApiService: CardDetailsApiService | null = null;
+  private archetypeApiService: ArchetypeApiService | null = null;
   private cardImageStorageService: CardImageStorageService | null = null;
   private getCardDetailsService: getCardDetailsApplicationPort | null = null;
   private imageStorageService: ImageStorageService | null = null;
@@ -202,6 +205,13 @@ export class Dependencies {
     return this.cardDetailsApiService;
   }
 
+  getArchetypeApiService(): ArchetypeApiService {
+    if (!this.archetypeApiService) {
+      this.archetypeApiService = new YgoProDeckArchetypeAdapter();
+    }
+    return this.archetypeApiService;
+  }
+
   getGetCardDetailsService(): getCardDetailsApplicationPort {
     if (!this.getCardDetailsService) {
       this.getCardDetailsService = new GetCardDetailsApplicationService(
@@ -216,6 +226,7 @@ export class Dependencies {
     if (!this.archetypeService) {
       this.archetypeService = new ArchetypeApplicationService(
         this.getArchetypeRepository(),
+        this.getArchetypeApiService(),
       );
     }
     return this.archetypeService;

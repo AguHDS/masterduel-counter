@@ -36,6 +36,8 @@ export interface ArchetypeRepository {
     id: number,
     archetypeData: ArchetypeUpdateDTO,
   ): Promise<Archetype | null>;
+  /** Create new archetype (used to add on demand) */
+  createArchetype(name: string): Promise<Archetype | null>;
   /** Get general statistics */
   getGuidesGeneralStats(limit?: number, guideType?: 'COUNTER' | 'DECK'): Promise<GeneralStats>;
 }

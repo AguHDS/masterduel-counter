@@ -172,6 +172,22 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     return result || null;
   }
 
+  async createArchetype(name: string): Promise<Archetype | null> {
+    try {
+      const stmt = this.db.prepare(`
+        INSERT INTO archetypes (name, registered)
+        VALUES (?, 0)
+        RETURNING id, name, registered, created_at, updated_at
+      `);
+
+      const result = stmt.get(name) as Archetype | undefined;
+      return result || null;
+    } catch {
+      // If archetype already exists (unique constraint), return null
+      return null;
+    }
+  }
+
   async getGuidesGeneralStats(limit: number = 15, guideType?: 'COUNTER' | 'DECK'): Promise<GeneralStats> {
     // Get total registered archetypes (with guides of the specified type if provided)
     let totalArchetypesQuery = `
