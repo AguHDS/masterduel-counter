@@ -13,7 +13,7 @@ const slugifySegment = (value: string): string => {
   return normalized || "unknown";
 };
 
-/** Fix for slugs like blue-eyes, red-eyes */
+/** Fix for slugs like blue-eyes, red-eyes, and special Unicode chars like Evil★Twin */
 const buildLookupCandidates = (rawIdentifier: string): string[] => {
   const variants = new Set<string>([
     rawIdentifier,
@@ -21,6 +21,7 @@ const buildLookupCandidates = (rawIdentifier: string): string[] => {
     rawIdentifier.replace(/-/g, "/"),
     rawIdentifier.replace(/-/g, "."),
     rawIdentifier.replace(/-/g, ""),
+    rawIdentifier.replace(/-/g, "%"), // Wildcard for special Unicode chars (★, ☆, etc.)
   ]);
 
   return Array.from(variants)
