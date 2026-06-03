@@ -4,6 +4,7 @@ import {
   GuideUpdateDTO,
   GuideListItem,
   RegisterGuideDTO,
+  SaveDraftDTO,
   GuideType,
 } from "@/domain/Guide.js";
 
@@ -62,6 +63,15 @@ export interface GuideInstanceServicePort {
 
   /** Gets all guides across all archetypes, optionally filtered by type and searched by title or archetype name */
   getAllGuides(sortBy?: 'likes' | 'updated' | 'views', guideType?: GuideType, search?: string): Promise<GuideListItem[]>;
+
+  /** Saves or updates a draft guide (max 3 drafts per user) */
+  saveDraft(data: SaveDraftDTO): Promise<Guide>;
+
+  /** Deletes a draft guide (only the owner can delete their own drafts) */
+  deleteDraft(instanceId: number, userId: string): Promise<void>;
+
+  /** Gets the number of draft guides a user currently has */
+  getUserDraftCount(userId: string): Promise<number>;
 
   /** Cleanup method for shutting down the service */
   shutdown(): Promise<void>;

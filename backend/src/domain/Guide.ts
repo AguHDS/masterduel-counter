@@ -10,6 +10,8 @@ export interface Guide {
   headerCardId: number | null;
   generalTip?: string | null;
   guideType: GuideType;
+  isDraft: boolean;
+  draftExpiresAt?: Date | null;
   likes: number;
   favorites: number;
   views: number;
@@ -24,6 +26,8 @@ export interface GuideCreateDTO {
   headerCardId: number | null;
   generalTip?: string | null;
   guideType: GuideType;
+  isDraft?: boolean;
+  draftExpiresAt?: Date | null;
 }
 
 export interface GuideUpdateDTO {
@@ -65,6 +69,46 @@ export interface RegisterGuideDTO {
     }>;
   }>;
   instanceId?: number;
+  /** If provided, the draft with this ID will be deleted after successful publish */
+  draftInstanceId?: number;
+}
+
+export interface SaveDraftDTO {
+  archetypeId: number;
+  userId: string;
+  guideType: GuideType;
+  title?: string;
+  headerCardId?: number | null;
+  generalTip?: string | null;
+  cardPairs?: Array<{
+    topCardIds: number[];
+    bottomCardIds: Array<{ cardId: number; effectiveness?: string | null }>;
+    pairSection?: "HANDTRAP" | "BOARD_BREAKER" | null;
+    comment?: string;
+  }>;
+  initialHands?: Array<{
+    cardIds: number[];
+    description?: string;
+    finalBoard?: FinalBoardPreview;
+  }>;
+  comboSteps?: Array<{
+    initialHandId: number;
+    steps: Array<{
+      mainCardIds: number[];
+      mainCardChains?: (number | null)[];
+      subCardIds: number[];
+      subCardChains?: (number | null)[];
+      leftSubCardIds: number[];
+      leftSubCardChains?: (number | null)[];
+      description?: string;
+      parentCanceledStepIndex?: number;
+      stepOrder: number;
+    }>;
+  }>;
+  /** If provided, update this existing draft instead of creating a new one */
+  draftInstanceId?: number;
+  /** If set, the draft will auto-expire at this date (used for guide-request drafts) */
+  draftExpiresAt?: Date | null;
 }
 
 export interface GuideListItem extends Guide {

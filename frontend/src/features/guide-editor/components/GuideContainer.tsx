@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   PenLine,
   MailWarning,
+  FileText,
 } from "lucide-react";
 import type { InitialHand } from "./deck-guides/InitialHandsEditor";
 import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
@@ -31,6 +32,7 @@ import { useModalOrchestration } from "../hooks/useModalOrchestration";
 import { useGuideEditorCancellation } from "../hooks/useGuideEditorCancellation";
 import { useGuideEditorDraftState } from "../hooks/useGuideEditorDraftState";
 import { useSaveInstanceGuide } from "../hooks/useSaveInstanceGuide";
+import { useSaveDraft, useDeleteDraft } from "../hooks/useArchetypeQueries";
 import { useAuth } from "@/features/auth";
 import { deleteArchetypeGuide } from "../api/guideEditorApi";
 import { ReportModal } from "@/features/report/components/ReportModal";
@@ -128,6 +130,14 @@ export const GuideContainer = ({
         : (typeFromSlug ?? typeFromState ?? "COUNTER");
   const [guideType, setGuideType] = useState<GuideType>(initialGuideType);
   const [isSourceRequestModalOpen, setIsSourceRequestModalOpen] = useState(false);
+
+  // Draft state — only relevant when creating a new guide (isCreatingNew)
+  const [draftInstanceId, setDraftInstanceId] = useState<number | undefined>(undefined);
+  const [draftMessage, setDraftMessage] = useState<string | null>(null);
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const saveDraftMutation = useSaveDraft();
+  const deleteDraftMutation = useDeleteDraft();
   const { data: guideInstanceData, isError } = useGetGuideInstance(
     legacyArchetypeIdNum,
     isCreatingNew ? undefined : instanceIdNum,
@@ -411,6 +421,78 @@ export const GuideContainer = ({
   const { handleCancel } = cancellationHook;
 
   /**
+   * Saves the current guide state as a draft (only when creating a new guide)
+   */
+  const handleSaveDraft = async () => {
+    if (!archetypeIdNum) return;
+    setSavingDraft(true);
+    setDraftMessage(null);
+    setDraftError(null);
+    try {
+      const cardPairsForDraft = guideType === "COUNTER"
+        ? pairs
+            .filter((p) => p.topCards.length > 0 || p.bottomCards.length > 0)
+            .map((pair) => ({
+              topCardIds: pair.topCards.map((c) => c.id),
+              bottomCardIds: pair.bottomCards.map((c) => ({
+                cardId: c.id,
+                effectiveness: c.effectiveness ?? undefined,
+              })),
+              pairSection: pair.section ?? null,
+              comment: pair.comment ?? undefined,
+            }))
+        : undefined;
+
+      const initialHandsForDraft = guideType === "DECK"
+        ? initialHands
+            .filter((h) => h.cards.length > 0)
+            .map((h) => ({
+              cardIds: h.cards.map((c) => c.id),
+              description: h.description || undefined,
+            }))
+        : undefined;
+
+      const result = await saveDraftMutation.mutateAsync({
+        archetypeId: archetypeIdNum,
+        guideType,
+        cardPairs: cardPairsForDraft,
+        initialHands: initialHandsForDraft,
+        title: editor.title || undefined,
+        headerCardId: editor.headerCard?.id ?? null,
+        generalTip: editor.generalTip || null,
+        draftInstanceId,
+        isGuideRequest: !!guideRequestId,
+      });
+
+      setDraftInstanceId(result.draft.id);
+      setDraftMessage(result.message);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Failed to save draft.";
+      setDraftError(msg);
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
+  /**
+   * Deletes the current draft guide
+   */
+  const handleDeleteDraft = async () => {
+    if (!draftInstanceId) return;
+    const confirmed = confirm("Are you sure you want to delete this draft?");
+    if (!confirmed) return;
+    try {
+      await deleteDraftMutation.mutateAsync({ draftId: draftInstanceId });
+      setDraftInstanceId(undefined);
+      setDraftMessage(null);
+      setDraftError(null);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Failed to delete draft.";
+      setDraftError(msg);
+    }
+  };
+
+  /**
    * Validates and saves the guide instance to the server
    * Handles both Counter and Deck guides
    */
@@ -660,14 +742,36 @@ export const GuideContainer = ({
 
               {editor.isEditMode && isOwner && (
                 <div className="flex flex-col items-center gap-4 relative top-10">
-                  <div className="flex justify-center gap-4  mt-8">
+                  <div className="flex flex-wrap justify-center gap-4 mt-8">
+                    {/* Draft button — only when creating a new guide */}
+                    {isCreatingNew && (
+                      <button
+                        onClick={handleSaveDraft}
+                        disabled={savingDraft || saving}
+                        className="flex items-center space-x-2 px-4 py-2 bg-slate-700/60 backdrop-blur-sm hover:bg-slate-700/90 active:bg-slate-700/30 text-slate-200 rounded-lg transition-colors shadow-md text-sm"
+                      >
+                        <FileText className="w-4 h-4" />
+                        <span>{savingDraft ? "Saving draft..." : draftInstanceId ? "Save Draft" : "Draft"}</span>
+                      </button>
+                    )}
+                    {/* Delete Draft button — only when a draft exists */}
+                    {isCreatingNew && draftInstanceId && (
+                      <button
+                        onClick={handleDeleteDraft}
+                        disabled={savingDraft || saving}
+                        className="flex items-center space-x-2 px-4 py-2 bg-red-900/40 backdrop-blur-sm hover:bg-red-900/70 active:bg-red-900/20 text-red-300 rounded-lg transition-colors shadow-md text-sm"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>Delete Draft</span>
+                      </button>
+                    )}
                     <button
                       onClick={validateAndSave}
                       disabled={saving}
                       className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
                     >
                       <Save className="w-4 h-4" />
-                      <span>{saving ? "Saving..." : "Save Changes"}</span>
+                      <span>{saving ? "Saving..." : "Publish"}</span>
                     </button>
                     <button
                       onClick={handleCancel}
@@ -678,6 +782,17 @@ export const GuideContainer = ({
                       <span>Cancel</span>
                     </button>
                   </div>
+                  {/* Draft feedback messages */}
+                  {draftMessage && (
+                    <p className="text-slate-300 text-sm text-center max-w-md bg-slate-800/60 px-4 py-2 rounded-lg">
+                      {draftMessage}
+                    </p>
+                  )}
+                  {draftError && (
+                    <p className="text-red-400 text-sm text-center max-w-md">
+                      {draftError}
+                    </p>
+                  )}
                   {validationError && (
                     <p className="text-red-400 text-sm text-center max-w-md">
                       {validationError}

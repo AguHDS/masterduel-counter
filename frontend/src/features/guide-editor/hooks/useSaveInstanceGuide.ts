@@ -37,6 +37,8 @@ interface SaveInstanceParams {
   hasDeckContent: boolean;
   existingDeck: boolean;
   comboSteps?: Map<string, ComboStep[]>;
+  /** If publishing from a draft, pass the draft ID so it gets deleted after publish */
+  draftInstanceId?: number;
   /** Optional callback invoked after saving but before redirect. Receives the new instance id */
   onAfterSave?: (instanceId: number) => Promise<void>;
 }

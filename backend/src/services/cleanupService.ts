@@ -146,6 +146,29 @@ export async function cleanupUnverifiedAccounts(): Promise<number> {
 }
 
 /**
+ * Deletes draft guides whose draftExpiresAt has passed (used for guide-request drafts).
+ * @returns Number of deleted drafts
+ */
+export async function cleanupExpiredDrafts(): Promise<number> {
+  try {
+    const deletedCount = await getDependencies()
+      .getInstanceRepository()
+      .deleteExpiredDrafts();
+
+    if (deletedCount > 0) {
+      console.log(
+        `[Cleanup Service] Deleted ${deletedCount} expired draft guide(s).`,
+      );
+    }
+
+    return deletedCount;
+  } catch (error) {
+    console.error(`[Cleanup Service] Error during expired draft cleanup:`, error);
+    return 0;
+  }
+}
+
+/**
  * Starts the periodic cleanup job
  */
 export function startCleanupJob(): void {
@@ -176,6 +199,12 @@ export function startCleanupJob(): void {
     await cleanupUnverifiedAccounts();
     await cleanupOldReadNotifications();
     await cleanupOldGuideViewTracking();
+    await cleanupExpiredDrafts();
+  });
+
+  // Schedule expired draft cleanup every hour (guide-request drafts expire in 24h)
+  cron.schedule("0 * * * *", async () => {
+    await cleanupExpiredDrafts();
   });
 
   console.log(`[Cleanup Service] Cleanup job scheduled successfully.`);
@@ -187,6 +216,7 @@ export function startCleanupJob(): void {
       cleanupUnverifiedAccounts();
       cleanupOldReadNotifications();
       cleanupOldGuideViewTracking();
+      cleanupExpiredDrafts();
     }, 5000); // Wait 5 seconds after startup
   }
 }

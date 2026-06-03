@@ -4,6 +4,7 @@ import {
   GuideUpdateDTO,
   GuideListItem,
   GuideType,
+  SaveDraftDTO,
 } from "../Guide.js";
 
 export type SortOrder = "likes" | "updated" | "views";
@@ -65,4 +66,12 @@ export interface GuideRepository {
   findLastestCreatedGuides(limit: number, guideType?: GuideType): Promise<GuideListItem[]>;
   /** Gets all guides across all archetypes, optionally filtered by type and searched by title or archetype name */
   findAllGuides(sortBy?: SortOrder, guideType?: GuideType, search?: string): Promise<GuideListItem[]>;
+  /** Find guides by user ID, optionally including drafts (only for the owner) */
+  findArchetypeGuidesByUserIdWithDrafts(userId: string, sortBy?: SortOrder, guideType?: GuideType): Promise<GuideListItem[]>;
+  /** Count how many draft guides a user currently has */
+  getUserDraftCount(userId: string): Promise<number>;
+  /** Save or update a draft guide */
+  saveDraft(data: SaveDraftDTO): Promise<Guide>;
+  /** Delete expired draft guides (where draftExpiresAt < now) */
+  deleteExpiredDrafts(): Promise<number>;
 }

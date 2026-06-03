@@ -201,6 +201,15 @@ export class ProfileApplicationService implements ProfileApplicationPort {
     return this.guideRepository.findArchetypeGuidesByUserId(userId, sortBy, guideType);
   }
 
+  /** Get all guides (including drafts) created by a specific user — only for the owner */
+  async getGuideListByUserIdWithDrafts(
+    userId: string,
+    sortBy: "likes" | "updated" = "updated",
+    guideType?: GuideType,
+  ): Promise<GuideListItem[]> {
+    return this.guideRepository.findArchetypeGuidesByUserIdWithDrafts(userId, sortBy, guideType);
+  }
+
   /** Search guides by user ID and title */
   async searchGuideItemListProfile(
     userId: string,
