@@ -116,6 +116,12 @@ El usuario que la tomo puede ir a la creacion de guia de esa request en el modal
 - en la lista de Guias y Favorites del perfil, tambien ordenar por views,likes. Updated (mas reciente, primero) debe ser default y creo que ya lo tiene puesto asi.
 
 bugs:
+- El ranking trending del mes actual no esta funcionando bien. Ahora estamos a 4 de junio, y en el trending del mes muestra en el top 15 guias que fueron publicadas en mayo y no deberian aparecer ahora en el trending del top de junio, porque para entrar al trending del mes actual se debe cumplir un requisito minimo de stats actuales (views, likes, etc) en cada nuevo especifico mes.
+Por ejemplo, hay una guia que se publico el 4 de mayo, tiene 62 vistias, y ahora en trending top 15 de junio esta como lugar #14 con estos datos: 62 views (+62) - 0 likes (+0) - 0 favorites (+0). Si te fijas esta tomando el total de visitas que tuvo desde que se publico y lo esta poniendo como si hubiera ganado de golpe esas 62 visitas en este mes, y no deberia ser asi. Deberia empezar a contar el requerimiento para entrar al trending a partir de este mes actual. Esto pasa con algunas guias, no todas.
+Luego, la que esta en puesto #1 tambien tiene el mismo problema, dice que tiene como stats 155 views (+155), y recien estamos a 4 de este mes y esas son las visitas que tuvo siempre. Por que pasa esto? investigar y arreglar.
+
+Nota: Si una guia no cumple con el requisito minimo de stats mensual, NO puede entrar al top 15 trending de este mes. Si se da el caso que no hay 15 guias totales, solo poner las que cumplen el requisito minimo, y no completar el top 15 con guias que no cumplen el requisito.
+
 - si modifico la carta favorita, se guarda incluso si cancelo, limpiar bien los estados de edicion
 - Si busco arquetipos y los selecciono en la search principal, a veces no muestra el resultado del ultimo buscado
 - Si clickeo el boton De Support Us se re-renderea 2 veces y me scrollea arriba de todo de la homepage.
