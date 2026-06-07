@@ -58,6 +58,8 @@ export const useDeckManagement = ({
   
   // Track whether initial auto-show has happened (prevents re-show after user deletion)
   const initialAutoShowDone = useRef(false);
+  // Track whether initial deck sync from server has happened in edit mode (prevents overwriting user edits)
+  const initialSyncDone = useRef(false);
 
   // Deck visibility and backup state
   const [showRecommendedDeck, setShowRecommendedDeck] = useState(false);
@@ -138,20 +140,30 @@ export const useDeckManagement = ({
     deckSideCards,
   ]);
 
-  // Sync deck state from server when not editing
+  // Sync deck state from server
   useEffect(() => {
     if (!isEditMode || !isOwner) {
+      // View mode: always sync from server
       setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
       setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
       setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
       setDeckSideCards(recommendedDeck.deck?.sideDeck || []);
+      initialSyncDone.current = false;
     } else if (recommendedDeck.deck === null) {
+      // No deck on server
       setDeckTitle("Recommended Deck");
       setDeckMainCards([]);
       setDeckExtraCards([]);
       setDeckSideCards([]);
+      initialSyncDone.current = false;
+    } else if (recommendedDeck.deck && !initialSyncDone.current) {
+      // Edit mode with loaded deck: populate from server ONCE
+      initialSyncDone.current = true;
+      setDeckTitle(recommendedDeck.deck.title || "Recommended Deck");
+      setDeckMainCards(recommendedDeck.deck.mainDeck || []);
+      setDeckExtraCards(recommendedDeck.deck.extraDeck || []);
+      setDeckSideCards(recommendedDeck.deck.sideDeck || []);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recommendedDeck.deck, isEditMode, isOwner]);
 
   // Show deck automatically in view mode if it exists
