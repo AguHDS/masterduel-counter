@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import type { Card } from "@/features/archetypes/types";
 
 interface DeckData {
@@ -56,6 +56,9 @@ export const useDeckManagement = ({
   const [deckExtraCards, setDeckExtraCards] = useState<Card[]>(memoizedExtraDeck);
   const [deckSideCards, setDeckSideCards] = useState<Card[]>(memoizedSideDeck);
   
+  // Track whether initial auto-show has happened (prevents re-show after user deletion)
+  const initialAutoShowDone = useRef(false);
+
   // Deck visibility and backup state
   const [showRecommendedDeck, setShowRecommendedDeck] = useState(false);
   const [originalDeckState, setOriginalDeckState] = useState<{
@@ -92,6 +95,7 @@ export const useDeckManagement = ({
    * - View mode: Actually deletes from server
    */
   const handleDeleteDeck = useCallback(async () => {
+    initialAutoShowDone.current = true;
     if (isEditMode && isOwner) {
       // In edit mode, only hide locally
       setShowRecommendedDeck(false);
@@ -147,6 +151,7 @@ export const useDeckManagement = ({
       setDeckExtraCards([]);
       setDeckSideCards([]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recommendedDeck.deck, isEditMode, isOwner]);
 
   // Show deck automatically in view mode if it exists
@@ -156,14 +161,16 @@ export const useDeckManagement = ({
     }
   }, [isEditMode, recommendedDeck.deck]);
 
-  // Show deck in edit mode if it exists
+  // Show deck in edit mode if it exists (only once, respects user deletion)
   useEffect(() => {
     if (
       isEditMode &&
       isOwner &&
       recommendedDeck.deck &&
-      !showRecommendedDeck
+      !showRecommendedDeck &&
+      !initialAutoShowDone.current
     ) {
+      initialAutoShowDone.current = true;
       setShowRecommendedDeck(true);
     }
   }, [recommendedDeck.deck, isEditMode, isOwner, showRecommendedDeck]);

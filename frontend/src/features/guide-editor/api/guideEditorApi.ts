@@ -257,10 +257,11 @@ export const getRecommendedDeck = async (
       `${API_BASE_URL}/api/instances/${instanceId}/recommended-deck`,
       { withCredentials: true },
     );
+    if (!response.data) return null;
     return response.data.deck;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return null; // No deck exists
+      return null;
     }
     throw error;
   }

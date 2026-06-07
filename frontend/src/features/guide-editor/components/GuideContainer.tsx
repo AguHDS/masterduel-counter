@@ -34,7 +34,9 @@ import { useGuideEditorDraftState } from "../hooks/useGuideEditorDraftState";
 import { useSaveInstanceGuide } from "../hooks/useSaveInstanceGuide";
 import { useSaveDraft, useDeleteDraft } from "../hooks/useArchetypeQueries";
 import { useAuth } from "@/features/auth";
-import { deleteArchetypeGuide } from "../api/guideEditorApi";
+import { deleteArchetypeGuide, saveRecommendedDeck, deleteRecommendedDeck } from "../api/guideEditorApi";
+import type { FinalBoardDTO } from "../api/guideEditorApi";
+import { confirmCards } from "@/features/archetypes/api/archetypesApi";
 import { ReportModal } from "@/features/report/components/ReportModal";
 import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
@@ -132,15 +134,20 @@ export const GuideContainer = ({
   const [isSourceRequestModalOpen, setIsSourceRequestModalOpen] = useState(false);
 
   // Draft state — only relevant when creating a new guide (isCreatingNew)
-  const [draftInstanceId, setDraftInstanceId] = useState<number | undefined>(undefined);
+  const initialDraftId = searchParams.get("draftId");
+  const [draftInstanceId, setDraftInstanceId] = useState<number | undefined>(
+    initialDraftId ? Number(initialDraftId) : undefined,
+  );
   const [draftMessage, setDraftMessage] = useState<string | null>(null);
   const [draftError, setDraftError] = useState<string | null>(null);
   const [savingDraft, setSavingDraft] = useState(false);
   const saveDraftMutation = useSaveDraft();
   const deleteDraftMutation = useDeleteDraft();
+  // When creating new but with a draftInstanceId, fetch the draft data to pre-populate the editor
+  const guideInstanceId = isCreatingNew ? draftInstanceId : instanceIdNum;
   const { data: guideInstanceData, isError } = useGetGuideInstance(
     legacyArchetypeIdNum,
-    isCreatingNew ? undefined : instanceIdNum,
+    guideInstanceId,
   );
 
   // Keep the guide type in sync with the loaded guide and notify parent changes
@@ -160,8 +167,11 @@ export const GuideContainer = ({
     legacyArchetypeIdNum ?? guideInstanceData?.instance.archetypeId;
   const resolvedArchetypeId = archetypeIdNum?.toString();
 
-  const { data: archetypeWithHeaderData } =
-    useArchetypeWithHeader(archetypeIdNum);
+  const {
+    data: archetypeWithHeaderData,
+    isLoading: archetypeLoading,
+    error: archetypeError,
+  } = useArchetypeWithHeader(archetypeIdNum);
 
   const isOwner =
     isAuthenticated &&
@@ -185,10 +195,9 @@ export const GuideContainer = ({
 
   useRegisterView(instanceIdNum, archetypeIdNum);
 
-  // Deck Management State (only for deck guides)
-  const recommendedDeck = useGuideRecommendedDeck(
-    guideType === "DECK" ? instanceIdNum : undefined
-  );
+  // Deck Management State (only for deck guides — use draft ID when editing drafts)
+  const deckInstanceId = guideType === "DECK" ? (instanceIdNum ?? (isCreatingNew ? draftInstanceId : undefined)) : undefined;
+  const recommendedDeck = useGuideRecommendedDeck(deckInstanceId);
 
   const deckManagement = useDeckManagement({
     recommendedDeck,
@@ -284,7 +293,16 @@ export const GuideContainer = ({
       editor.setHeaderCard(data.headerCard);
       likes.setLikeCount(data.likes);
       favorites.setFavoriteCount(data.favorites);
-      editor.setIsEditMode(false);
+      // If loading a draft, stay in edit mode; otherwise go to view mode
+      const loadedGuide = guideInstanceData?.instance;
+      if (loadedGuide?.isDraft) {
+        editor.setIsEditMode(true);
+      } else {
+        editor.setIsEditMode(false);
+      }
+
+      // Mark the loaded state as clean (no unsaved changes)
+      markClean();
 
       // Set Counter guide state (card pairs)
       const transformedPairs: CardPair[] = mapGuideCardPairsToEditorPairs(
@@ -392,7 +410,7 @@ export const GuideContainer = ({
     ],
   );
 
-  const { allowNavigation, blockNavigation, confirmDiscardIfDirty } =
+  const { allowNavigation, blockNavigation, confirmDiscardIfDirty, markClean } =
     useGuideEditorDraftState({
       isEditMode: editor.isEditMode,
       isOwner,
@@ -425,6 +443,8 @@ export const GuideContainer = ({
    */
   const handleSaveDraft = async () => {
     if (!archetypeIdNum) return;
+    // Prevent browser unsaved-changes warning during draft save
+    allowNavigation();
     setSavingDraft(true);
     setDraftMessage(null);
     setDraftError(null);
@@ -443,14 +463,125 @@ export const GuideContainer = ({
             }))
         : undefined;
 
+      const isFinalBoardEmpty = (hand: InitialHand): boolean => {
+        const board = hand.finalBoard;
+        if (!board) return true;
+        return (
+          board.fieldSpell === null &&
+          board.extraMonsters.every((card) => card === null) &&
+          board.monsters.every((card) => card === null) &&
+          board.spellTraps.every((card) => card === null) &&
+          board.hand.every((card) => card === null) &&
+          board.graveyard.length === 0 &&
+          board.banished.length === 0 &&
+          !board.description
+        );
+      };
+
+      const serializeFinalBoard = (hand: InitialHand): FinalBoardDTO | undefined => {
+        if (!hand.finalBoard || isFinalBoardEmpty(hand)) return undefined;
+        return {
+          fieldSpellCardId: hand.finalBoard.fieldSpell?.id || null,
+          extraMonsterCardIds: hand.finalBoard.extraMonsters.map((c) => c?.id || null),
+          monsterCardIds: hand.finalBoard.monsters.map((c) => c?.id || null),
+          spellTrapCardIds: hand.finalBoard.spellTraps.map((c) => c?.id || null),
+          handCardIds: hand.finalBoard.hand.map((c) => c?.id || null),
+          graveyardCardIds: hand.finalBoard.graveyard.map((c) => c.id),
+          banishedCardIds: hand.finalBoard.banished.map((c) => c.id),
+          description: hand.finalBoard.description || undefined,
+          monsterPositions: hand.finalBoard.monsterPositions?.some((p) => p === 'def')
+            ? hand.finalBoard.monsterPositions : undefined,
+          extraMonsterPositions: hand.finalBoard.extraMonsterPositions?.some((p) => p === 'def')
+            ? hand.finalBoard.extraMonsterPositions : undefined,
+        };
+      };
+
       const initialHandsForDraft = guideType === "DECK"
         ? initialHands
             .filter((h) => h.cards.length > 0)
             .map((h) => ({
               cardIds: h.cards.map((c) => c.id),
               description: h.description || undefined,
+              finalBoard: serializeFinalBoard(h),
             }))
         : undefined;
+
+      // Transform combo steps for API (handles main flow and canceled flow)
+      const comboStepsForDraft = guideType === "DECK" && comboSteps
+        ? initialHands
+            .filter((h) => h.cards.length > 0)
+            .map((hand, index) => {
+              const steps = comboSteps.get(hand.id) || [];
+              if (steps.length === 0) return null;
+              const validSteps = steps.filter((s) => s.mainCards.length > 0);
+              if (validSteps.length === 0) return null;
+              // Separate main flow and canceled flow steps, then sort each group
+              const mainFlowSteps = validSteps
+                .filter((s) => !s.parentCanceledStepId)
+                .sort((a, b) => a.stepOrder - b.stepOrder);
+              const canceledFlowSteps = validSteps
+                .filter((s) => s.parentCanceledStepId)
+                .sort((a, b) => {
+                  const parentComparison = (a.parentCanceledStepId || "").localeCompare(b.parentCanceledStepId || "");
+                  if (parentComparison !== 0) return parentComparison;
+                  return a.stepOrder - b.stepOrder;
+                });
+              // Combine: main flow first, then canceled flows
+              const orderedSteps = [...mainFlowSteps, ...canceledFlowSteps];
+              // Map temporary step IDs to their indices
+              const stepIdToIndex = new Map<string, number>();
+              orderedSteps.forEach((step, idx) => stepIdToIndex.set(step.id, idx));
+              return {
+                initialHandId: index,
+                steps: orderedSteps.map((step, stepIndex) => ({
+                  mainCardIds: step.mainCards.map((c) => c.id),
+                  mainCardChains: step.mainCards.map((c) => c.chainNumber ?? null),
+                  subCardIds: step.subCards.map((c) => c.id),
+                  subCardChains: step.subCards.map((c) => c.chainNumber ?? null),
+                  leftSubCardIds: step.leftSubCards.map((c) => c.id),
+                  leftSubCardChains: step.leftSubCards.map((c) => c.chainNumber ?? null),
+                  description: step.description || undefined,
+                  parentCanceledStepIndex: step.parentCanceledStepId
+                    ? stepIdToIndex.get(step.parentCanceledStepId)
+                    : undefined,
+                  stepOrder: stepIndex,
+                })),
+              };
+            })
+            .filter((item): item is NonNullable<typeof item> => item !== null)
+        : undefined;
+
+      // Confirm all referenced cards exist in the DB before saving draft
+      const allDraftCardIds: number[] = [];
+      if (editor.headerCard?.id) allDraftCardIds.push(editor.headerCard.id);
+      if (cardPairsForDraft) {
+        for (const pair of cardPairsForDraft) {
+          allDraftCardIds.push(...pair.topCardIds);
+          allDraftCardIds.push(...pair.bottomCardIds.map((bc) => bc.cardId));
+        }
+      }
+      if (initialHandsForDraft) {
+        for (const hand of initialHandsForDraft) {
+          allDraftCardIds.push(...hand.cardIds);
+        }
+      }
+      if (comboStepsForDraft) {
+        for (const handCombo of comboStepsForDraft) {
+          for (const step of handCombo.steps) {
+            allDraftCardIds.push(...step.mainCardIds, ...step.subCardIds, ...(step.leftSubCardIds ?? []));
+          }
+        }
+      }
+      if (guideType === "DECK") {
+        allDraftCardIds.push(
+          ...deckMainCards.map((c) => c.id),
+          ...deckExtraCards.map((c) => c.id),
+          ...deckSideCards.map((c) => c.id),
+        );
+      }
+      if (allDraftCardIds.length > 0) {
+        await confirmCards([...new Set(allDraftCardIds)]);
+      }
 
       const result = await saveDraftMutation.mutateAsync({
         archetypeId: archetypeIdNum,
@@ -460,14 +591,46 @@ export const GuideContainer = ({
         title: editor.title || undefined,
         headerCardId: editor.headerCard?.id ?? null,
         generalTip: editor.generalTip || null,
+        comboSteps: comboStepsForDraft,
         draftInstanceId,
         isGuideRequest: !!guideRequestId,
       });
 
       setDraftInstanceId(result.draft.id);
-      setDraftMessage(result.message);
+
+      // Save or delete recommended deck
+      if (guideType === "DECK") {
+        const mainDeckIds = deckMainCards.map((c) => c.id);
+        const extraDeckIds = deckExtraCards.map((c) => c.id);
+        const sideDeckIds = deckSideCards.map((c) => c.id);
+        const hasDeckContent = mainDeckIds.length > 0 || extraDeckIds.length > 0 || sideDeckIds.length > 0;
+        const draftId = result.draft.id;
+        const deckExistedBefore = hasRecommendedDeckFromServer;
+        if (hasDeckContent) {
+          try {
+            await saveRecommendedDeck(draftId, deckTitle, mainDeckIds, extraDeckIds, sideDeckIds);
+          } catch {
+            // Non-fatal
+          }
+        } else if (deckExistedBefore) {
+          try {
+            await deleteRecommendedDeck(draftId);
+          } catch {
+            // Non-fatal
+          }
+        }
+      }
+
+      if (user?.id) {
+        // Redirect to profile guides tab after saving draft
+        window.location.href = `/profile/${user.id}/guides`;
+      }
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Failed to save draft.";
+      const userMsg =
+        error && typeof error === "object" && "userMessage" in error
+          ? (error as { userMessage: string }).userMessage
+          : undefined;
+      const msg = userMsg ?? (error instanceof Error ? error.message : "Failed to save draft.");
       setDraftError(msg);
     } finally {
       setSavingDraft(false);
@@ -481,11 +644,10 @@ export const GuideContainer = ({
     if (!draftInstanceId) return;
     const confirmed = confirm("Are you sure you want to delete this draft?");
     if (!confirmed) return;
+    allowNavigation();
     try {
       await deleteDraftMutation.mutateAsync({ draftId: draftInstanceId });
-      setDraftInstanceId(undefined);
-      setDraftMessage(null);
-      setDraftError(null);
+      window.location.href = "/";
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Failed to delete draft.";
       setDraftError(msg);
@@ -521,6 +683,7 @@ export const GuideContainer = ({
         archetypeName: selectedArchetype.name,
         userName: user?.name ?? guideInstanceData?.userName,
         instanceId: isCreatingNew ? undefined : instanceIdNum,
+        draftInstanceId,
         deckTitle: guideType === "DECK" ? deckTitle : "",
         deckMainCards: guideType === "DECK" ? deckMainCards : [],
         deckExtraCards: guideType === "DECK" ? deckExtraCards : [],
@@ -614,7 +777,21 @@ export const GuideContainer = ({
 
   const sourceRequest = guideInstanceData?.sourceRequest ?? null;
 
-  if (!selectedArchetype) {
+  // If a draft ID is in the URL but the fetch failed, the draft was likely deleted
+  if (draftInstanceId && isError && !guideInstanceData) {
+    window.location.href = "/";
+    return null;
+  }
+
+  if (archetypeError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-red-400 text-lg">Archetype not found</div>
+      </div>
+    );
+  }
+
+  if (!selectedArchetype || archetypeLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-blue-300 text-lg">Loading...</div>
@@ -730,7 +907,6 @@ export const GuideContainer = ({
                 selectedHandComboSteps={getComboStepsForSelectedHand()}
                 setSelectedHandComboSteps={setComboStepsForSelectedHand}
                 showRecommendedDeck={showRecommendedDeck}
-                hasRecommendedDeckFromServer={hasRecommendedDeckFromServer}
                 onShowRecommendedDeck={() => setShowRecommendedDeck(true)}
                 displayTitle={deckTitle}
                 displayMainDeck={deckMainCards}
@@ -751,7 +927,7 @@ export const GuideContainer = ({
                         className="flex items-center space-x-2 px-4 py-2 bg-slate-700/60 backdrop-blur-sm hover:bg-slate-700/90 active:bg-slate-700/30 text-slate-200 rounded-lg transition-colors shadow-md text-sm"
                       >
                         <FileText className="w-4 h-4" />
-                        <span>{savingDraft ? "Saving draft..." : draftInstanceId ? "Save Draft" : "Draft"}</span>
+                        <span>{savingDraft ? "Saving draft..." : draftInstanceId ? "Update Draft" : "Draft"}</span>
                       </button>
                     )}
                     {/* Delete Draft button — only when a draft exists */}
@@ -771,7 +947,7 @@ export const GuideContainer = ({
                       className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
                     >
                       <Save className="w-4 h-4" />
-                      <span>{saving ? "Saving..." : "Publish"}</span>
+                      <span>{saving ? "Saving..." : isCreatingNew ? "Publish" : "Save Changes"}</span>
                     </button>
                     <button
                       onClick={handleCancel}
@@ -841,6 +1017,7 @@ export const GuideContainer = ({
                   )}
 
                 {isAuthenticated &&
+                  !draftInstanceId &&
                   !selectedArchetype.registered &&
                   !editor.isEditMode && (
                     <button

@@ -79,6 +79,10 @@ export const saveDraftController = async (
         return;
       }
     }
+    if (error instanceof Error && (error as Error & { code: string }).code === 'SQLITE_CONSTRAINT_FOREIGNKEY') {
+      res.status(400).json({ success: false, error: "Some cards selected do not exist in the database. Please remove and re-add them." });
+      return;
+    }
     console.error("Error saving draft:", error);
     res.status(500).json({ success: false, error: "Internal server error" });
   }

@@ -37,6 +37,7 @@ export interface GuideInstanceWithFullDetails {
     headerCardId: number | null;
     generalTip?: string | null;
     guideType: GuideType;
+    isDraft: boolean;
     likes: number;
     favorites: number;
     views: number;

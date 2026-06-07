@@ -200,10 +200,10 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
   ): Promise<GuideListItem[]> {
     const orderClause =
       sortBy === "likes"
-        ? "ORDER BY ai.is_draft ASC, ai.likes DESC, ai.updated_at DESC"
+        ? "ORDER BY ai.is_draft DESC, ai.likes DESC, ai.updated_at DESC"
         : sortBy === "views"
-          ? "ORDER BY ai.is_draft ASC, ai.views DESC, ai.updated_at DESC"
-          : "ORDER BY ai.is_draft ASC, ai.updated_at DESC, ai.likes DESC";
+          ? "ORDER BY ai.is_draft DESC, ai.views DESC, ai.updated_at DESC"
+          : "ORDER BY ai.is_draft DESC, ai.updated_at DESC, ai.likes DESC";
 
     const guideTypeFilter = guideType ? "AND ai.guide_type = ?" : "";
     const params = guideType ? [userId, guideType] : [userId];
@@ -446,8 +446,8 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     } else {
       // Create new draft
       const insertStmt = this.db.prepare(`
-        INSERT INTO archetype_instances (archetype_id, user_id, title, header_card_id, general_tip, guide_type, is_draft, draft_expires_at, likes, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, 1, ?, 0, CURRENT_TIMESTAMP)
+        INSERT INTO archetype_instances (archetype_id, user_id, title, header_card_id, general_tip, guide_type, is_draft, draft_expires_at, likes, favorites, views, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, 1, ?, 0, 0, 0, CURRENT_TIMESTAMP)
       `);
       const result = insertStmt.run(
         archetypeId,
@@ -482,14 +482,20 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       });
     }
 
-    // Persist initial hands for DECK drafts (combo steps are not saved in drafts for simplicity)
+    // Persist initial hands for DECK drafts
     if (guideType === "DECK" && initialHands && initialHands.length > 0) {
       const insertHand = this.db.prepare(`
-        INSERT INTO initial_hands (instance_id, card_ids, description, position)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO initial_hands (instance_id, card_ids, description, final_board_state, position)
+        VALUES (?, ?, ?, ?, ?)
       `);
       initialHands.forEach((hand, index) => {
-        insertHand.run(instanceId, JSON.stringify(hand.cardIds), hand.description ?? null, index);
+        insertHand.run(
+          instanceId,
+          JSON.stringify(hand.cardIds),
+          hand.description ?? null,
+          hand.finalBoard ? JSON.stringify(hand.finalBoard) : null,
+          index,
+        );
       });
 
       // Persist combo steps if provided

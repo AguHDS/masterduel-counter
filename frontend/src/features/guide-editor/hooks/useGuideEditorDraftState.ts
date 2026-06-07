@@ -144,10 +144,16 @@ export const useGuideEditorDraftState = ({
     [hasDirtyEdits],
   );
 
+  const markClean = useCallback(() => {
+    editStartSnapshotRef.current = snapshot;
+    setHasDirtyEdits(false);
+  }, [snapshot]);
+
   return {
     hasDirtyEdits,
     allowNavigation,
     blockNavigation,
     confirmDiscardIfDirty,
+    markClean,
   };
 };

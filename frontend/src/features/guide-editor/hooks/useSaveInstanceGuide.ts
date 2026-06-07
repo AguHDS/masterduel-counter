@@ -188,6 +188,7 @@ export const useSaveInstanceGuide = () => {
       hasDeckContent,
       existingDeck,
       comboSteps,
+      draftInstanceId,
       onAfterSave,
     } = params;
 
@@ -379,6 +380,7 @@ export const useSaveInstanceGuide = () => {
         generalTip: processedGeneralTip || undefined,
         instanceId: instanceId,
         comboSteps: comboStepsForApi,
+        draftInstanceId,
       });
 
       // Save or delete recommended deck based on content

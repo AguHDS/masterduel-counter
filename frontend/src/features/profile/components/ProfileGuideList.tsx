@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Star, ChevronLeft, ChevronRight, Eye, FileText } from "lucide-react";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import type { GuideListItem } from "@/lib/http/guideInstancesApi";
-import { buildGuidePath } from "@/lib/config/urlHelpers";
+import { buildGuideEditorPath, buildGuidePath } from "@/lib/config/urlHelpers";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
 interface FavoritedGuidesListProps {
@@ -83,8 +83,9 @@ export const ProfileGuideList = ({
 
   const handleGuideClick = (guide: GuideListItem) => {
     if (guide.isDraft) {
-      // Draft guides navigate to the creation page for that archetype
-      navigate(`/archetypes/${guide.archetypeId}/instances/new?type=${guide.guideType === "COUNTER" ? "counter" : "deck"}`);
+      // Draft guides navigate to the creation page for that archetype with the draft ID
+      const editorPath = buildGuideEditorPath({ archetypeId: guide.archetypeId, instanceId: "new" });
+      navigate(`${editorPath}?type=${guide.guideType === "COUNTER" ? "counter" : "deck"}&draftId=${guide.id}`);
       return;
     }
     navigate(

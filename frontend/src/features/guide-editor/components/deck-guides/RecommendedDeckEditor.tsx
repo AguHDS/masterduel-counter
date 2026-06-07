@@ -82,38 +82,21 @@ export const RecommendedDeckEditor = ({
     mainDeck.length > 0 || extraDeck.length > 0 || sideDeck.length > 0;
 
   useEffect(() => {
-    if (
-      !isEditMode ||
-      JSON.stringify(mainDeck) !== JSON.stringify(initialMainDeck)
-    ) {
-      setMainDeck(initialMainDeck);
-    }
-  }, [initialMainDeck, isEditMode, mainDeck]);
+    setMainDeck(initialMainDeck);
+  }, [initialMainDeck]);
 
   useEffect(() => {
-    if (
-      !isEditMode ||
-      JSON.stringify(extraDeck) !== JSON.stringify(initialExtraDeck)
-    ) {
-      setExtraDeck(initialExtraDeck);
-    }
-  }, [initialExtraDeck, isEditMode, extraDeck]);
+    setExtraDeck(initialExtraDeck);
+  }, [initialExtraDeck]);
 
   useEffect(() => {
-    if (
-      !isEditMode ||
-      JSON.stringify(sideDeck) !== JSON.stringify(initialSideDeck)
-    ) {
-      setSideDeck(initialSideDeck);
-      setShowSideDeck(initialSideDeck.length > 0);
-    }
-  }, [initialSideDeck, isEditMode, sideDeck]);
+    setSideDeck(initialSideDeck);
+    setShowSideDeck(initialSideDeck.length > 0);
+  }, [initialSideDeck]);
 
   useEffect(() => {
-    if (!isEditMode || title !== initialTitle) {
-      setTitle(initialTitle);
-    }
-  }, [initialTitle, isEditMode, title]);
+    setTitle(initialTitle);
+  }, [initialTitle]);
 
   const handleAddCard = (zone: DeckZone, _anchor: HTMLElement) => {
     setTargetZone(zone);
