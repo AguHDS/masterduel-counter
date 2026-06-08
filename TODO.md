@@ -100,13 +100,7 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 ---
 
 mejoras:
-- Mejorar MUCHO el responsive de las guias y la home, ya que gente viene de twitter.
 - GuideCOntainer necesita refactor, tiene logica de draft y cosas que podrian atomizarse en otros arhivos
-Cuando la vista sea para mobile (iPhone SE por ejemplo el mas importante), debemos hacer que la guia ya no use el contianer principal y ocupe toda la pantalla, para poder tener mas espacio para acomodar los combos y cosas.
-Una vez hecho eso, pensar como podemos darle veracidad en twitter, porque vi que las visitas masivas vinieron de ahi por mobile
-Podriamos usar mi cuenta vieja de twitter con muchos seguidores, o crear una de masterduelcounter, no se. La idea es hacer esto cuando
-el responsive para los de twitter ya funcione.
-- En los decks, ordenar las cartas por tipo, ahora se desordenan
 - Mostrar nivel de carta en numero en tooltip
 - Mejorar thumbnail para cuando comparten el logo de la web en twitter, ahora se ve incompleto y desproporcionado. Quiza deberiamos crear un thumbail para twitter?s
 - agregar title al perfil, ahora dice la url en la pestaña de navegador
@@ -134,35 +128,15 @@ EN EDIT MODE: cada vez que se va achicando la main card, se le va comiendo los b
 Esto SOLO pasa en modo edicion.Quiza hacer que el step se vaya achicando gradualmente y la maincard no se achique en cuanto a width? esto capaz va a requerir ir haciendo que entren los steps en cada vista gradual responsive para que no colisionen.
 
 
-resolviendo:
-- El recommended deck hace un re-render en cada zona si se agrega cartas, tanto en el container de cada zona como algunas de sus cartas a veces. Esto siempre pasa cuando se agrega una carta por primera vez, y aveces cuando se agregan algnuas otras.
-Archivos frontend\src\features\archetypes\components\DeckZoneSection.tsx, frontend\src\features\guide-editor\components\GuideContainer.tsx, frontend/src/features/guide-editor/hooks/deck-guides/useDeckManagement.ts
-Importante: pasar GuideContainer y los archivos relacionados al recommended deck para arreglarlo. Se agrego logica en este ultimo intento de fix en GuideContiane como:
-// Save or delete recommended deck
-      if (guideType === "DECK") {
-        const mainDeckIds = deckMainCards.map((c) => c.id);
-        const extraDeckIds = deckExtraCards.map((c) => c.id);
-        const sideDeckIds = deckSideCards.map((c) => c.id);
-        const hasDeckContent = mainDeckIds.length > 0 || extraDeckIds.length > 0 || sideDeckIds.length > 0;
-        const draftId = result.draft.id;
-        const deckExistedBefore = hasRecommendedDeckFromServer;
-        if (hasDeckContent) {
-          try {
-            await saveRecommendedDeck(draftId, deckTitle, mainDeckIds, extraDeckIds, sideDeckIds);
-          } catch {
-            // Non-fatal
-          }
-        } else if (deckExistedBefore) {
-          try {
-            await deleteRecommendedDeck(draftId);
-          } catch {
-            // Non-fatal
-          }
-        }
-      }
+Resolviendo :
+- Hacer responsive el frontend y las guias
+Cuando la vista sea para mobile (iPhone SE por ejemplo el mas importante), debemos hacer que la guia ya no use el contianer principal y ocupe toda la pantalla, para poder tener mas espacio para acomodar los combos y cosas.
+Una vez hecho eso, pensar como podemos darle veracidad en twitter, porque vi que las visitas masivas vinieron de ahi por mobile
+Podriamos usar mi cuenta vieja de twitter con muchos seguidores, o crear una de masterduelcounter, no se. La idea es hacer esto cuando
+el responsive para los de twitter ya funcione
 
-Pero para que se agrega eso? es logica necesaria o duplicada? da la impresion que es logica para borrar normalmente el recommended deck, lo cual ya se hacia desde siempre, investigar bien esto.
-Comparar ambos archivos GuideContainer (sobre todo) y tratar de encontrar la cuasa de este bug. Revisar los cambios que se hicieron en GudieContainer actualmente para ver que es necesario y que podria estar causando este re-render innecesario y como arreglarlo sin romper nada.
-Te voy a pasar las partes que hemos modificado en GuideContainer:
+- El ranking trending del mes actual no esta funcionando bien. Ahora estamos a 4 de junio, y en el trending del mes muestra en el top 15 guias que fueron publicadas en mayo y no deberian aparecer ahora en el trending del top de junio, porque para entrar al trending del mes actual se debe cumplir un requisito minimo de stats actuales (views, likes, etc) en cada nuevo especifico mes. Estan realmente sumando sus stats obtenidos al principio de cada nuevo mes? habria que chear esta logica tambien.
+Por ejemplo, hay una guia que se publico el 4 de mayo, tiene 62 vistias, y ahora en trending top 15 de junio esta como lugar #14 con estos datos: 62 views (+62) - 0 likes (+0) - 0 favorites (+0). Si te fijas esta tomando el total de visitas que tuvo desde que se publico y lo esta poniendo como si hubiera ganado de golpe esas 62 visitas en este mes, y no deberia ser asi. Deberia empezar a contar el requerimiento para entrar al trending a partir de este mes actual. Esto pasa con algunas guias, no todas.
+Luego, la que esta en puesto #1 tambien tiene el mismo problema, dice que tiene como stats 155 views (+155), y recien estamos a 4 de este mes y esas son las visitas que tuvo siempre. Por que pasa esto? investigar y arreglar.
 
-- Al intentar borrar una draft, el navegador advierte "Es posible que los cambios no se guarden", esto no deberia de pasar, al darle borrar la draft, deberia de preguntar si de verdad la quiero borrar y listo, esa deberia ser la unica confirmacion, no ambas.
+Nota: Si una guia no cumple con el requisito minimo de stats mensual, NO puede entrar al top 15 trending de este mes. Si se da el caso que no hay 15 guias totales, solo poner las que cumplen el requisito minimo, y no completar el top 15 con guias que no cumplen el requisito.

@@ -33,13 +33,13 @@ export const HomeAllComponents = ({
 
           <div className="absolute inset-0 bg-black/45 pointer-events-none border border-slate-500/20" />
 
-          <div className="relative z-10 p-8 py-1 pb-3">
+          <div className="relative z-10 p-8 max-[650px]:px-0 py-1 pb-3">
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="h-[650px] relative">
+              <div className="h-auto lg:h-[650px] relative">
                 <CounterGuides />
               </div>
 
-              <div className="h-[650px] relative">
+              <div className="h-auto lg:h-[650px] relative">
                 <DeckGuides />
               </div>
             </div>

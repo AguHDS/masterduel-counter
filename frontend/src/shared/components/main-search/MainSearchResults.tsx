@@ -162,7 +162,7 @@ export const MainSearchResults = memo(
     const actualTotal =
       totalResults !== undefined ? totalResults : results.length;
 
-    const baseWrapperClass = `absolute left-1/2 top-[calc(100%-13px)] z-50 w-[91%] sm:w-[90%] md:w-[92%] lg:w-[815px] -translate-x-1/2 ${
+    const baseWrapperClass = `absolute left-1/2 top-[calc(100%-13px)] z-50 w-[91%] max-[450px]:w-[82%] sm:w-[90%] md:w-[92%] lg:w-[815px] -translate-x-1/2 ${
       !isVisible ? "pointer-events-none" : ""
     }`;
 
@@ -220,7 +220,7 @@ export const MainSearchResults = memo(
                   : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-500/10 border border-[#201e2e]"
               }`}
             >
-              Counter Guides
+              Counter<span className="max-[468px]:hidden"> Guides</span>
             </button>
             <button
               onClick={() => handleTabChange("decks")}
@@ -230,7 +230,7 @@ export const MainSearchResults = memo(
                   : "text-slate-400 hover:text-yellow-300 hover:bg-yellow-500/10 border border-[#242231]"
               }`}
             >
-              Deck Guides
+              Deck<span className="max-[468px]:hidden"> Guides</span>
             </button>
           </div>
 

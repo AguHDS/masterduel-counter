@@ -129,7 +129,7 @@ export const HomePage = () => {
       <div className="min-h-screen flex flex-col">
         <Navbar />
 
-        <div className="scale-[0.92] origin-top">
+        <div className="lg:scale-[0.92] lg:origin-top">
           <MainLogo asHeading={true} />
 
           {/* Main Search Section - Prominent entry point */}
@@ -156,10 +156,7 @@ export const HomePage = () => {
             </div>
           </div>
 
-          <div
-            className="w-full mx-auto px-4 sm:px-6 lg:px-8"
-            style={{ maxWidth: "96rem" }}
-          >
+          <div className="w-full mx-auto max-[650px]:px-0 px-4 lg:px-8">
             <HomeAllComponents isSearchActive={shouldShowDropdown} />
           </div>
         </div>
