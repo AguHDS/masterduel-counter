@@ -74,7 +74,7 @@ export const Footer = () => {
                 className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
                 aria-label="Terms of Service"
               >
-                Terms of Service
+                Terms<span className="max-[450px]:hidden"> of Service</span>
               </button>
 
               <span className="text-blue-700" aria-hidden="true">
@@ -98,7 +98,7 @@ export const Footer = () => {
                 className="text-blue-400 hover:text-blue-300 transition-colors duration-200 flex items-center gap-1"
                 aria-label="Support us"
               >
-                Support us
+                Support<span className="max-[450px]:hidden"> us</span>
               </button>
             </nav>
 

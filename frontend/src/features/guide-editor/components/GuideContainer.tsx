@@ -804,7 +804,7 @@ export const GuideContainer = ({
       {/* Guide request banner */}
       {guideRequestId && isCreatingNew && (
         <div className="w-full flex justify-center px-4 sm:px-6 lg:px-8 mt-4">
-          <div className="w-full max-w-[2100px] bg-[#c2901c]/10 border border-[#c2901c]/40 rounded-lg px-4 py-3 flex items-center justify-center gap-3">
+          <div className="w-full lg:max-w-[2100px] bg-[#c2901c]/10 border border-[#c2901c]/40 rounded-lg px-4 py-3 flex items-center justify-center gap-3">
             <PenLine className="h-4 w-4 text-[#c2901c] shrink-0" />
             <p className="text-[#c2901c] text-sm text-center">
               You are creating a guide to complete a community request. Save the
@@ -815,7 +815,7 @@ export const GuideContainer = ({
       )}
 
       <section className="w-full relative flex justify-center top-2 px-4 sm:px-6 lg:px-6 xl:px-8 mt-2">
-        <div className="relative w-full max-w-[2100px]">
+        <div className="relative w-full lg:max-w-[2100px]">
           {/* Content container with game UI style matching ProfilePage */}
           <div
             className="relative flex flex-col w-full min-h-[600px] border-2 border-yellow-600/50 rounded-lg py-10 sm:py-12 px-4 sm:px-6 lg:px-6 xl:px-10 overflow-hidden"
