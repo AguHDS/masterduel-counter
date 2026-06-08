@@ -814,14 +814,14 @@ export const GuideContainer = ({
         </div>
       )}
 
-      <section className="w-full relative flex justify-center top-2 px-4 sm:px-6 lg:px-6 xl:px-8 mt-2">
+      <section className="w-full relative flex justify-center top-2 max-[1023px]:px-0 px-4 lg:px-6 xl:px-8 mt-2">
         <div className="relative w-full lg:max-w-[2100px]">
           {/* Content container with game UI style matching ProfilePage */}
           <div
             className="relative flex flex-col w-full min-h-[600px] border-2 border-yellow-600/50 rounded-lg py-10 sm:py-12 px-4 sm:px-6 lg:px-6 xl:px-10 overflow-hidden"
             style={{ background: 'linear-gradient(180deg, #0d0a25 0%, #08061a 100%)' }}
           >
-            {/* Corner decorators */}
+            {/* decorators */}
             <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />
             <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-yellow-500/50 rounded-tr-lg z-20 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-yellow-500/50 rounded-bl-lg z-20 pointer-events-none" />

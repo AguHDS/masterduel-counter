@@ -127,7 +127,7 @@ export const GuideHeader = ({
   return (
     <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 mb-8 w-full">
       {/* Archetype name above header card on sm-lg screens */}
-      <div className="hidden sm:block lg:hidden w-full text-center mb-4">
+      <div className="max-[639px]:block sm:block lg:hidden w-full text-center mb-4">
         <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           {archetypeName}
         </h2>
@@ -140,8 +140,8 @@ export const GuideHeader = ({
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row lg:flex-col gap-96 max-[950px]:gap-12 max-[750px]:gap-4 w-full lg:w-auto sm:items-center sm:justify-center">
-        <div className="flex-shrink-0 mb-5 max-[639px]:w-full w-auto lg:w-auto flex flex-col items-center gap-4">
+      <div className="flex flex-col sm:flex-row lg:flex-col gap-96 max-[950px]:gap-52 max-[750px]:gap-32 w-full lg:w-auto sm:items-center sm:justify-center">
+        <div className="flex-shrink-0 mb-5 max-[639px]:w-full w-auto lg:w-auto flex flex-col items-center gap-4 max-[639px]:gap-2">
         {headerCard ? (
           <div className="relative lg:top-8 w-48 sm:w-56 lg:w-64 h-auto">
             <CardTooltip
@@ -156,7 +156,7 @@ export const GuideHeader = ({
                   height: 300,
                 })}
                 alt={headerCard.name}
-                className="w-full border-2 relative bottom-7 sm:bottom-0 lg:bottom-7 border-amber-500/90 rounded-[3px] h-auto object-contain cursor-pointer"
+                className="w-full border-2 relative bottom-7 max-[639px]:bottom-0 sm:bottom-0 lg:bottom-7 border-amber-500/90 rounded-[3px] h-auto object-contain cursor-pointer"
                 loading="lazy"
               />
             </CardTooltip>
@@ -235,7 +235,7 @@ export const GuideHeader = ({
       </div>
 
         {!isCreatingNew && (
-          <div className="max-[639px]:hidden sm:block lg:hidden flex-shrink-0 sm:w-auto sm:max-w-[280px] relative sm:bottom-7">
+          <div className="max-[639px]:hidden sm:block lg:hidden flex-shrink-0 sm:w-56 relative sm:bottom-9">
             <GuideHeaderStats
               formattedCreatedDate={formattedCreatedDate}
               userName={userName}
@@ -257,7 +257,7 @@ export const GuideHeader = ({
       </div>
 
       <div className="flex-1 min-w-0 w-full lg:relative lg:bottom-12">
-        <div className="w-full flex flex-col items-start mb-2 sm:hidden lg:block">
+        <div className="w-full flex flex-col items-start mb-2 max-[639px]:hidden sm:hidden lg:block">
           <div className="w-full relative mb-3">
             {!isEditMode && bestTrending && (
               <div className="absolute left-1/2 max-[436px]:ml-10 -translate-x-1/2 top-7 -translate-y-1/2">
@@ -385,7 +385,7 @@ export const GuideHeader = ({
       </div>
 
       {!isCreatingNew && (
-        <div className="hidden max-[639px]:block lg:block flex-shrink-0 w-full max-w-[340px] lg:max-w-none mx-auto lg:mx-0 lg:w-56 lg:relative lg:bottom-11">
+        <div className="hidden max-[639px]:block lg:block flex-shrink-0 w-56 mx-auto lg:mx-0 lg:relative lg:bottom-11">
           <GuideHeaderStats
             formattedCreatedDate={formattedCreatedDate}
             userName={userName}

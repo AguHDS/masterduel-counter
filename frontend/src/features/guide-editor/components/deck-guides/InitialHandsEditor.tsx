@@ -342,7 +342,7 @@ export const InitialHandsEditor = ({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+          <div className="grid max-[450px]:grid-cols-[repeat(auto-fit,160px)] min-[349px]:max-[367px]:grid-cols-[repeat(auto-fit,140px)] max-[639px]:grid-cols-[repeat(auto-fit,170px)] sm:grid-cols-[repeat(auto-fit,190px)] md:grid-cols-[repeat(auto-fit,210px)] lg:grid-cols-[repeat(auto-fit,230px)] xl:grid-cols-[repeat(auto-fit,250px)] min-[1550px]:grid-cols-6 max-[639px]:gap-3 gap-8 min-[1550px]:gap-8 justify-center">
             {initialHands.map((hand, index) => {
               const hasFieldBoard = !!hand.finalBoard;
               const isPreviewSelected = selectedPreviewHandId === hand.id;
@@ -364,7 +364,7 @@ export const InitialHandsEditor = ({
                   onDragEnd={() => isEditMode && handleDragEnd()}
                 >
                   <div
-                    className={`relative bg-gray-900/50 border-blue-500/40 cursor-default border rounded-sm p-3 flex flex-col overflow-hidden transition-all ${
+                    className={`relative bg-gray-900/50 border-blue-500/40 cursor-default border rounded-sm p-3 max-[639px]:p-1.5 flex flex-col overflow-hidden transition-all ${
                       isPreviewSelected ? "ring-2 ring-green-500/50" : ""
                     } ${
                       isShowSelected
