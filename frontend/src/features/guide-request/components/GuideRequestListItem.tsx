@@ -93,14 +93,14 @@ export const GuideRequestListItem: React.FC<GuideRequestListItemProps> = ({
 
         {/* MOBILE */}
         <div className="hidden max-[650px]:flex items-center gap-1.5 mt-1 text-[10px] flex-wrap">
-          <span className="text-slate-400 shrink-0">Requester:</span>
+          <span className="max-[450px]:hidden text-slate-400 shrink-0">Requester:</span>
           <Avatar
             username={request.requesterAlias}
             profilePictureUrl={request.requesterProfilePictureUrl}
             size="sm"
-            className="!w-4 !h-4 !text-[9px] rounded-full"
+            className="max-[450px]:hidden !w-4 !h-4 !text-[9px] rounded-full"
           />
-          <span className="text-blue-200 truncate">
+          <span className="max-[450px]:hidden text-blue-200 truncate">
             {request.requesterAlias}
           </span>
           {showCompletedParticipants && request.status === "COMPLETED" && (

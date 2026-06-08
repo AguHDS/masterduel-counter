@@ -156,7 +156,7 @@ export const HomePage = () => {
             </div>
           </div>
 
-          <div className="w-full mx-auto max-[650px]:px-0 px-4 lg:px-8">
+          <div className="w-full mx-auto max-[650px]:px-0 px-4 lg:px-8 lg:max-w-[96rem]">
             <HomeAllComponents isSearchActive={shouldShowDropdown} />
           </div>
         </div>

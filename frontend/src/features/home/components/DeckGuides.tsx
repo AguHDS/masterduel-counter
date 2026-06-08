@@ -48,18 +48,18 @@ export const DeckGuides = () => {
         <div className="mb-6">
           <div className="flex items-center gap-4">
             <BookOpen className="w-7 h-7 text-blue-400" />
-            <h2 className="text-xl relative bottom-[2px] font-bold text-yellow-100">
+            <h2 className="text-xl lg:text-2xl relative bottom-[2px] font-bold text-yellow-100">
               Deck Guides
             </h2>
           </div>
 
-          <p className="text-gray-300 text-lg mb-1 relative top-1 left-11">
+          <p className="text-gray-300 text-lg lg:text-xl mb-1 relative top-1 left-11">
             Combo lines and deck builds
           </p>
         </div>
 
         <div className="mb-4">
-          <h3 className="text-blue-300 text-xl">Latest Deck Guides</h3>
+          <h3 className="text-blue-300 text-xl lg:text-2xl">Latest Deck Guides</h3>
         </div>
 
         <div className="flex-1 min-h-[320px] overflow-y-auto scrollbar-homeAllPages">

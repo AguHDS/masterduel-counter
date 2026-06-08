@@ -22,6 +22,8 @@ export const MainLogo = ({ asHeading = false }: MainLogoProps) => {
               className="
                 w-auto
                 h-24
+                lg:h-28
+                xl:h-32
                 max-w-full
                 object-contain
                 relative
