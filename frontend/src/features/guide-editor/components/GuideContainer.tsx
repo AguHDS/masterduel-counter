@@ -3,6 +3,7 @@ import {
   useNavigate,
   useLocation,
   useSearchParams,
+  Link,
 } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import {
@@ -15,6 +16,9 @@ import {
   PenLine,
   MailWarning,
   FileText,
+  Eye,
+  Star,
+  ThumbsUp,
 } from "lucide-react";
 import type { InitialHand } from "./deck-guides/InitialHandsEditor";
 import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
@@ -34,7 +38,11 @@ import { useGuideEditorDraftState } from "../hooks/useGuideEditorDraftState";
 import { useSaveInstanceGuide } from "../hooks/useSaveInstanceGuide";
 import { useSaveDraft, useDeleteDraft } from "../hooks/useArchetypeQueries";
 import { useAuth } from "@/features/auth";
-import { deleteArchetypeGuide, saveRecommendedDeck, deleteRecommendedDeck } from "../api/guideEditorApi";
+import {
+  deleteArchetypeGuide,
+  saveRecommendedDeck,
+  deleteRecommendedDeck,
+} from "../api/guideEditorApi";
 import type { FinalBoardDTO } from "../api/guideEditorApi";
 import { confirmCards } from "@/features/archetypes/api/archetypesApi";
 import { ReportModal } from "@/features/report/components/ReportModal";
@@ -57,6 +65,7 @@ import {
 } from "../utils/guideContainerTransforms";
 import {
   buildArchetypePath,
+  buildProfilePath,
   extractNumericIdFromSlug,
   inferGuideTypeFromSlug,
 } from "@/lib/config/urlHelpers";
@@ -131,7 +140,17 @@ export const GuideContainer = ({
         ? "DECK"
         : (typeFromSlug ?? typeFromState ?? "COUNTER");
   const [guideType, setGuideType] = useState<GuideType>(initialGuideType);
-  const [isSourceRequestModalOpen, setIsSourceRequestModalOpen] = useState(false);
+  const [isSourceRequestModalOpen, setIsSourceRequestModalOpen] =
+    useState(false);
+  const [isSmallWidth, setIsSmallWidth] = useState(
+    typeof window !== "undefined" && window.innerWidth <= 375,
+  );
+
+  useEffect(() => {
+    const handleResize = () => setIsSmallWidth(window.innerWidth <= 375);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Draft state — only relevant when creating a new guide (isCreatingNew)
   const initialDraftId = searchParams.get("draftId");
@@ -196,7 +215,10 @@ export const GuideContainer = ({
   useRegisterView(instanceIdNum, archetypeIdNum);
 
   // Deck Management State (only for deck guides — use draft ID when editing drafts)
-  const deckInstanceId = guideType === "DECK" ? (instanceIdNum ?? (isCreatingNew ? draftInstanceId : undefined)) : undefined;
+  const deckInstanceId =
+    guideType === "DECK"
+      ? (instanceIdNum ?? (isCreatingNew ? draftInstanceId : undefined))
+      : undefined;
   const recommendedDeck = useGuideRecommendedDeck(deckInstanceId);
 
   const deckManagement = useDeckManagement({
@@ -449,19 +471,20 @@ export const GuideContainer = ({
     setDraftMessage(null);
     setDraftError(null);
     try {
-      const cardPairsForDraft = guideType === "COUNTER"
-        ? pairs
-            .filter((p) => p.topCards.length > 0 || p.bottomCards.length > 0)
-            .map((pair) => ({
-              topCardIds: pair.topCards.map((c) => c.id),
-              bottomCardIds: pair.bottomCards.map((c) => ({
-                cardId: c.id,
-                effectiveness: c.effectiveness ?? undefined,
-              })),
-              pairSection: pair.section ?? null,
-              comment: pair.comment ?? undefined,
-            }))
-        : undefined;
+      const cardPairsForDraft =
+        guideType === "COUNTER"
+          ? pairs
+              .filter((p) => p.topCards.length > 0 || p.bottomCards.length > 0)
+              .map((pair) => ({
+                topCardIds: pair.topCards.map((c) => c.id),
+                bottomCardIds: pair.bottomCards.map((c) => ({
+                  cardId: c.id,
+                  effectiveness: c.effectiveness ?? undefined,
+                })),
+                pairSection: pair.section ?? null,
+                comment: pair.comment ?? undefined,
+              }))
+          : undefined;
 
       const isFinalBoardEmpty = (hand: InitialHand): boolean => {
         const board = hand.finalBoard;
@@ -478,78 +501,102 @@ export const GuideContainer = ({
         );
       };
 
-      const serializeFinalBoard = (hand: InitialHand): FinalBoardDTO | undefined => {
+      const serializeFinalBoard = (
+        hand: InitialHand,
+      ): FinalBoardDTO | undefined => {
         if (!hand.finalBoard || isFinalBoardEmpty(hand)) return undefined;
         return {
           fieldSpellCardId: hand.finalBoard.fieldSpell?.id || null,
-          extraMonsterCardIds: hand.finalBoard.extraMonsters.map((c) => c?.id || null),
+          extraMonsterCardIds: hand.finalBoard.extraMonsters.map(
+            (c) => c?.id || null,
+          ),
           monsterCardIds: hand.finalBoard.monsters.map((c) => c?.id || null),
-          spellTrapCardIds: hand.finalBoard.spellTraps.map((c) => c?.id || null),
+          spellTrapCardIds: hand.finalBoard.spellTraps.map(
+            (c) => c?.id || null,
+          ),
           handCardIds: hand.finalBoard.hand.map((c) => c?.id || null),
           graveyardCardIds: hand.finalBoard.graveyard.map((c) => c.id),
           banishedCardIds: hand.finalBoard.banished.map((c) => c.id),
           description: hand.finalBoard.description || undefined,
-          monsterPositions: hand.finalBoard.monsterPositions?.some((p) => p === 'def')
-            ? hand.finalBoard.monsterPositions : undefined,
-          extraMonsterPositions: hand.finalBoard.extraMonsterPositions?.some((p) => p === 'def')
-            ? hand.finalBoard.extraMonsterPositions : undefined,
+          monsterPositions: hand.finalBoard.monsterPositions?.some(
+            (p) => p === "def",
+          )
+            ? hand.finalBoard.monsterPositions
+            : undefined,
+          extraMonsterPositions: hand.finalBoard.extraMonsterPositions?.some(
+            (p) => p === "def",
+          )
+            ? hand.finalBoard.extraMonsterPositions
+            : undefined,
         };
       };
 
-      const initialHandsForDraft = guideType === "DECK"
-        ? initialHands
-            .filter((h) => h.cards.length > 0)
-            .map((h) => ({
-              cardIds: h.cards.map((c) => c.id),
-              description: h.description || undefined,
-              finalBoard: serializeFinalBoard(h),
-            }))
-        : undefined;
+      const initialHandsForDraft =
+        guideType === "DECK"
+          ? initialHands
+              .filter((h) => h.cards.length > 0)
+              .map((h) => ({
+                cardIds: h.cards.map((c) => c.id),
+                description: h.description || undefined,
+                finalBoard: serializeFinalBoard(h),
+              }))
+          : undefined;
 
       // Transform combo steps for API (handles main flow and canceled flow)
-      const comboStepsForDraft = guideType === "DECK" && comboSteps
-        ? initialHands
-            .filter((h) => h.cards.length > 0)
-            .map((hand, index) => {
-              const steps = comboSteps.get(hand.id) || [];
-              if (steps.length === 0) return null;
-              const validSteps = steps.filter((s) => s.mainCards.length > 0);
-              if (validSteps.length === 0) return null;
-              // Separate main flow and canceled flow steps, then sort each group
-              const mainFlowSteps = validSteps
-                .filter((s) => !s.parentCanceledStepId)
-                .sort((a, b) => a.stepOrder - b.stepOrder);
-              const canceledFlowSteps = validSteps
-                .filter((s) => s.parentCanceledStepId)
-                .sort((a, b) => {
-                  const parentComparison = (a.parentCanceledStepId || "").localeCompare(b.parentCanceledStepId || "");
-                  if (parentComparison !== 0) return parentComparison;
-                  return a.stepOrder - b.stepOrder;
-                });
-              // Combine: main flow first, then canceled flows
-              const orderedSteps = [...mainFlowSteps, ...canceledFlowSteps];
-              // Map temporary step IDs to their indices
-              const stepIdToIndex = new Map<string, number>();
-              orderedSteps.forEach((step, idx) => stepIdToIndex.set(step.id, idx));
-              return {
-                initialHandId: index,
-                steps: orderedSteps.map((step, stepIndex) => ({
-                  mainCardIds: step.mainCards.map((c) => c.id),
-                  mainCardChains: step.mainCards.map((c) => c.chainNumber ?? null),
-                  subCardIds: step.subCards.map((c) => c.id),
-                  subCardChains: step.subCards.map((c) => c.chainNumber ?? null),
-                  leftSubCardIds: step.leftSubCards.map((c) => c.id),
-                  leftSubCardChains: step.leftSubCards.map((c) => c.chainNumber ?? null),
-                  description: step.description || undefined,
-                  parentCanceledStepIndex: step.parentCanceledStepId
-                    ? stepIdToIndex.get(step.parentCanceledStepId)
-                    : undefined,
-                  stepOrder: stepIndex,
-                })),
-              };
-            })
-            .filter((item): item is NonNullable<typeof item> => item !== null)
-        : undefined;
+      const comboStepsForDraft =
+        guideType === "DECK" && comboSteps
+          ? initialHands
+              .filter((h) => h.cards.length > 0)
+              .map((hand, index) => {
+                const steps = comboSteps.get(hand.id) || [];
+                if (steps.length === 0) return null;
+                const validSteps = steps.filter((s) => s.mainCards.length > 0);
+                if (validSteps.length === 0) return null;
+                // Separate main flow and canceled flow steps, then sort each group
+                const mainFlowSteps = validSteps
+                  .filter((s) => !s.parentCanceledStepId)
+                  .sort((a, b) => a.stepOrder - b.stepOrder);
+                const canceledFlowSteps = validSteps
+                  .filter((s) => s.parentCanceledStepId)
+                  .sort((a, b) => {
+                    const parentComparison = (
+                      a.parentCanceledStepId || ""
+                    ).localeCompare(b.parentCanceledStepId || "");
+                    if (parentComparison !== 0) return parentComparison;
+                    return a.stepOrder - b.stepOrder;
+                  });
+                // Combine: main flow first, then canceled flows
+                const orderedSteps = [...mainFlowSteps, ...canceledFlowSteps];
+                // Map temporary step IDs to their indices
+                const stepIdToIndex = new Map<string, number>();
+                orderedSteps.forEach((step, idx) =>
+                  stepIdToIndex.set(step.id, idx),
+                );
+                return {
+                  initialHandId: index,
+                  steps: orderedSteps.map((step, stepIndex) => ({
+                    mainCardIds: step.mainCards.map((c) => c.id),
+                    mainCardChains: step.mainCards.map(
+                      (c) => c.chainNumber ?? null,
+                    ),
+                    subCardIds: step.subCards.map((c) => c.id),
+                    subCardChains: step.subCards.map(
+                      (c) => c.chainNumber ?? null,
+                    ),
+                    leftSubCardIds: step.leftSubCards.map((c) => c.id),
+                    leftSubCardChains: step.leftSubCards.map(
+                      (c) => c.chainNumber ?? null,
+                    ),
+                    description: step.description || undefined,
+                    parentCanceledStepIndex: step.parentCanceledStepId
+                      ? stepIdToIndex.get(step.parentCanceledStepId)
+                      : undefined,
+                    stepOrder: stepIndex,
+                  })),
+                };
+              })
+              .filter((item): item is NonNullable<typeof item> => item !== null)
+          : undefined;
 
       // Confirm all referenced cards exist in the DB before saving draft
       const allDraftCardIds: number[] = [];
@@ -568,7 +615,11 @@ export const GuideContainer = ({
       if (comboStepsForDraft) {
         for (const handCombo of comboStepsForDraft) {
           for (const step of handCombo.steps) {
-            allDraftCardIds.push(...step.mainCardIds, ...step.subCardIds, ...(step.leftSubCardIds ?? []));
+            allDraftCardIds.push(
+              ...step.mainCardIds,
+              ...step.subCardIds,
+              ...(step.leftSubCardIds ?? []),
+            );
           }
         }
       }
@@ -603,12 +654,21 @@ export const GuideContainer = ({
         const mainDeckIds = deckMainCards.map((c) => c.id);
         const extraDeckIds = deckExtraCards.map((c) => c.id);
         const sideDeckIds = deckSideCards.map((c) => c.id);
-        const hasDeckContent = mainDeckIds.length > 0 || extraDeckIds.length > 0 || sideDeckIds.length > 0;
+        const hasDeckContent =
+          mainDeckIds.length > 0 ||
+          extraDeckIds.length > 0 ||
+          sideDeckIds.length > 0;
         const draftId = result.draft.id;
         const deckExistedBefore = hasRecommendedDeckFromServer;
         if (hasDeckContent) {
           try {
-            await saveRecommendedDeck(draftId, deckTitle, mainDeckIds, extraDeckIds, sideDeckIds);
+            await saveRecommendedDeck(
+              draftId,
+              deckTitle,
+              mainDeckIds,
+              extraDeckIds,
+              sideDeckIds,
+            );
           } catch {
             // Non-fatal
           }
@@ -630,7 +690,9 @@ export const GuideContainer = ({
         error && typeof error === "object" && "userMessage" in error
           ? (error as { userMessage: string }).userMessage
           : undefined;
-      const msg = userMsg ?? (error instanceof Error ? error.message : "Failed to save draft.");
+      const msg =
+        userMsg ??
+        (error instanceof Error ? error.message : "Failed to save draft.");
       setDraftError(msg);
     } finally {
       setSavingDraft(false);
@@ -649,7 +711,8 @@ export const GuideContainer = ({
       await deleteDraftMutation.mutateAsync({ draftId: draftInstanceId });
       window.location.href = "/";
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Failed to delete draft.";
+      const msg =
+        error instanceof Error ? error.message : "Failed to delete draft.";
       setDraftError(msg);
     }
   };
@@ -663,9 +726,12 @@ export const GuideContainer = ({
 
     try {
       // Only process deck data for Deck guides
-      const mainDeckIds = guideType === "DECK" ? deckMainCards.map((c) => c.id) : [];
-      const extraDeckIds = guideType === "DECK" ? deckExtraCards.map((c) => c.id) : [];
-      const sideDeckIds = guideType === "DECK" ? deckSideCards.map((c) => c.id) : [];
+      const mainDeckIds =
+        guideType === "DECK" ? deckMainCards.map((c) => c.id) : [];
+      const extraDeckIds =
+        guideType === "DECK" ? deckExtraCards.map((c) => c.id) : [];
+      const sideDeckIds =
+        guideType === "DECK" ? deckSideCards.map((c) => c.id) : [];
       const hasDeckContent =
         mainDeckIds.length > 0 ||
         extraDeckIds.length > 0 ||
@@ -716,7 +782,7 @@ export const GuideContainer = ({
 
   /**
    * Deletes the guide instance from the server after confirmation
-  */
+   */
   const handleDeleteInstance = async () => {
     if (!selectedArchetype || !guideInstanceData?.instance.id) return;
 
@@ -737,7 +803,7 @@ export const GuideContainer = ({
 
   /**
    * Enters edit mode for creating a new guide or editing an existing guide if user is the owner
-  */
+   */
   const handleRegisterClick = () => {
     if (!isAuthenticated) {
       alert("You must be logged in to register archetypes.");
@@ -748,7 +814,7 @@ export const GuideContainer = ({
       /**
        * Navigates back to the archetype detail page or previous page
        * Confirms navigation if there are unsaved changes in edit mode
-      */
+       */
       editor.setIsEditMode(true);
     }
   };
@@ -818,8 +884,10 @@ export const GuideContainer = ({
         <div className="relative w-full lg:max-w-[2100px]">
           {/* Content container with game UI style matching ProfilePage */}
           <div
-            className="relative flex flex-col w-full min-h-[600px] border-2 border-yellow-600/50 rounded-lg py-10 sm:py-12 px-4 sm:px-6 lg:px-6 xl:px-10 overflow-hidden"
-            style={{ background: 'linear-gradient(180deg, #0d0a25 0%, #08061a 100%)' }}
+            className="relative flex flex-col w-full min-h-[600px] border-2 border-yellow-600/50 rounded-lg py-10 sm:py-12 pl-4 sm:pl-6 lg:pl-6 xl:pl-10 pr-4 lg:pr-6 xl:pr-10 overflow-hidden"
+            style={{
+              background: "linear-gradient(180deg, #0d0a25 0%, #08061a 100%)",
+            }}
           >
             {/* decorators */}
             <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />
@@ -828,17 +896,49 @@ export const GuideContainer = ({
             <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
 
             <div className="relative z-10 space-y-6">
-              <div className="absolute right-3 top-[-26px] flex items-center justify-between w-full px-4">
+              <div className="absolute right-3 top-[-21px] sm:top-[-24px] lg:top-[-26px] flex items-center justify-between w-full z-20">
                 <button
                   onClick={handleBackClick}
-                  className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 rounded-lg transition-colors shadow-lg text-sm"
+                  className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 transition-colors text-xs sm:text-xs sm:px-2 sm:py-0.5 lg:text-sm lg:px-3 lg:py-1"
                   aria-label="Go back"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back</span>
                 </button>
 
-                <div className="ml-auto flex items-center space-x-4"></div>
+                <div className="ml-auto flex items-center gap-2.5 max-[1023px]:flex lg:hidden">
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-3 h-3 text-purple-400" />
+                    <span className="text-purple-400 text-[11px]">{guideInstanceData?.instance.views ?? 0}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-3 h-3 text-yellow-400" />
+                    <span className="text-yellow-400 text-[11px]">{guideInstanceData?.instance.favorites ?? 0}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <ThumbsUp className="w-3 h-3 text-green-400" />
+                    <span className="text-green-400 text-[11px]">{guideInstanceData?.instance.likes ?? 0}</span>
+                  </div>
+                  {guideInstanceData?.userName && guideInstanceData?.instance.userId && (
+                    <>
+                      <span className="text-slate-500 text-[11px]">-</span>
+                      <Link
+                        to={buildProfilePath({ userName: guideInstanceData.userName, userId: guideInstanceData.instance.userId })}
+                        className="text-blue-400 hover:text-blue-300 text-[11px] truncate max-w-[80px]"
+                      >
+                        By {guideInstanceData.userName}
+                      </Link>
+                    </>
+                  )}
+                  {guideInstanceData?.instance.createdAt && !isSmallWidth && (
+                    <>
+                      <span className="text-slate-500 text-[11px]">-</span>
+                      <span className="text-slate-400 text-[11px] whitespace-nowrap">
+                        {new Date(guideInstanceData.instance.createdAt).toLocaleDateString()}
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
 
               <GuideHeader
@@ -872,7 +972,8 @@ export const GuideContainer = ({
                 guideType={guideType}
                 currentUserId={user?.id}
                 hasRecommendedDeck={
-                  guideType === "DECK" && (showRecommendedDeck || !!recommendedDeck.deck)
+                  guideType === "DECK" &&
+                  (showRecommendedDeck || !!recommendedDeck.deck)
                 }
                 hasHandtraps={pairs.some(
                   (pair) => pair.section === "HANDTRAP" || pair.section == null,
@@ -927,7 +1028,13 @@ export const GuideContainer = ({
                         className="flex items-center space-x-2 px-4 py-2 bg-slate-700/60 backdrop-blur-sm hover:bg-slate-700/90 active:bg-slate-700/30 text-slate-200 rounded-lg transition-colors shadow-md text-sm"
                       >
                         <FileText className="w-4 h-4" />
-                        <span>{savingDraft ? "Saving draft..." : draftInstanceId ? "Update Draft" : "Draft"}</span>
+                        <span>
+                          {savingDraft
+                            ? "Saving draft..."
+                            : draftInstanceId
+                              ? "Update Draft"
+                              : "Draft"}
+                        </span>
                       </button>
                     )}
                     {/* Delete Draft button — only when a draft exists */}
@@ -947,7 +1054,13 @@ export const GuideContainer = ({
                       className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
                     >
                       <Save className="w-4 h-4" />
-                      <span>{saving ? "Saving..." : isCreatingNew ? "Publish" : "Save Changes"}</span>
+                      <span>
+                        {saving
+                          ? "Saving..."
+                          : isCreatingNew
+                            ? "Publish"
+                            : "Save Changes"}
+                      </span>
                     </button>
                     <button
                       onClick={handleCancel}

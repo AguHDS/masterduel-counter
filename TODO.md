@@ -100,7 +100,7 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 ---
 
 mejoras:
-- GuideCOntainer necesita refactor, tiene logica de draft y cosas que podrian atomizarse en otros arhivos
+- GuideCOntainer necesita refactor, tiene logica de draft y cosas que podrian atomizarse en otros arhivos. Es un god-component.
 - Mostrar nivel de carta en numero en tooltip
 - Mejorar thumbnail para cuando comparten el logo de la web en twitter, ahora se ve incompleto y desproporcionado. Quiza deberiamos crear un thumbail para twitter?s
 - agregar title al perfil, ahora dice la url en la pestaña de navegador
@@ -129,11 +129,6 @@ Esto SOLO pasa en modo edicion.Quiza hacer que el step se vaya achicando gradual
 
 
 Resolviendo :
-- Hacer responsive el frontend y las guias
-Cuando la vista sea para mobile (iPhone SE por ejemplo el mas importante), debemos hacer que la guia ya no use el contianer principal y ocupe toda la pantalla, para poder tener mas espacio para acomodar los combos y cosas.
-Una vez hecho eso, pensar como podemos darle veracidad en twitter, porque vi que las visitas masivas vinieron de ahi por mobile
-Podriamos usar mi cuenta vieja de twitter con muchos seguidores, o crear una de masterduelcounter, no se. La idea es hacer esto cuando
-el responsive para los de twitter ya funcione
 
 - El ranking trending del mes actual no esta funcionando bien. Ahora estamos a 4 de junio, y en el trending del mes muestra en el top 15 guias que fueron publicadas en mayo y no deberian aparecer ahora en el trending del top de junio, porque para entrar al trending del mes actual se debe cumplir un requisito minimo de stats actuales (views, likes, etc) en cada nuevo especifico mes. Estan realmente sumando sus stats obtenidos al principio de cada nuevo mes? habria que chear esta logica tambien.
 Por ejemplo, hay una guia que se publico el 4 de mayo, tiene 62 vistias, y ahora en trending top 15 de junio esta como lugar #14 con estos datos: 62 views (+62) - 0 likes (+0) - 0 favorites (+0). Si te fijas esta tomando el total de visitas que tuvo desde que se publico y lo esta poniendo como si hubiera ganado de golpe esas 62 visitas en este mes, y no deberia ser asi. Deberia empezar a contar el requerimiento para entrar al trending a partir de este mes actual. Esto pasa con algunas guias, no todas.

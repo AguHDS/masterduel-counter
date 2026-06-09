@@ -5,10 +5,15 @@ import {
   Package,
   PackagePlus,
   PackageXIcon,
+  Eye,
+  Star,
+  ThumbsUp,
 } from "lucide-react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { buildProfilePath } from "@/lib/config/urlHelpers";
 import { GuideHeaderStats } from "./GuideHeaderStats";
 import { TrendingBadge } from "./TrendingBadge";
 import { useGuideBestTrending } from "@/features/ranking/hooks/useRanking";
@@ -125,13 +130,58 @@ export const GuideHeader = ({
     : null;
 
   return (
-    <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 mb-8 w-full">
+    <div className="flex flex-col lg:flex-row items-start gap-6 max-[639px]:gap-2 sm:gap-2 lg:gap-8 mb-8 w-full">
+      {/* Stats bar - visible 361-639px */}
+      {!isCreatingNew && (
+        <div className="hidden">
+          <div className="flex items-center gap-2.5 text-[11px] text-slate-300">
+            <div className="flex items-center gap-1">
+              <Eye className="w-3 h-3 text-purple-400" />
+              <span className="text-purple-400">{views}</span>
+            </div>
+            <button
+              onClick={isAuthenticated && !isEditMode ? onFavoriteToggle : undefined}
+              disabled={!isAuthenticated || isEditMode}
+              className={`bg-transparent border-none p-0 inline-flex items-center gap-1 ${!isAuthenticated || isEditMode ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-80'}`}
+            >
+              <Star className={`w-3 h-3 ${isFavorited ? 'fill-yellow-400 text-yellow-400' : 'text-yellow-400'}`} />
+              <span className="text-yellow-400">{favorites}</span>
+            </button>
+            <button
+              onClick={!isOwner && isAuthenticated && !isEditMode ? onLikeToggle : undefined}
+              disabled={!isAuthenticated || isOwner || isEditMode}
+              className={`bg-transparent border-none p-0 inline-flex items-center gap-1 ${!isAuthenticated || isOwner || isEditMode ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-80'}`}
+            >
+              <ThumbsUp className={`w-3 h-3 ${isLiked ? 'fill-green-400 text-green-400' : 'text-green-400'}`} />
+              <span className="text-green-400">{likes}</span>
+            </button>
+            {userName && userId && (
+              <>
+                <span className="text-slate-500">-</span>
+                <Link
+                  to={buildProfilePath({ userName, userId })}
+                  className="text-blue-400 hover:text-blue-300 truncate max-w-[100px]"
+                >
+                  By {userName}
+                </Link>
+              </>
+            )}
+            {formattedCreatedDate && (
+              <>
+                <span className="text-slate-500">-</span>
+                <span className="text-slate-400 whitespace-nowrap">{formattedCreatedDate}</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Archetype name above header card on sm-lg screens */}
-      <div className="max-[639px]:block sm:block lg:hidden w-full text-center mb-4">
+      <div className="max-[639px]:block sm:block lg:hidden w-full text-center mb-4 max-[639px]:mb-1 sm:mb-1">
         <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           {archetypeName}
         </h2>
-        <div className="flex w-full justify-center my-2">
+        <div className="flex w-full justify-center my-2 max-[639px]:hidden sm:hidden">
           <div className="w-48 h-[2px]" style={{
             background: guideType === "COUNTER"
               ? "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)"
@@ -141,9 +191,9 @@ export const GuideHeader = ({
       </div>
 
       <div className="flex flex-col sm:flex-row lg:flex-col gap-96 max-[950px]:gap-52 max-[750px]:gap-32 w-full lg:w-auto sm:items-center sm:justify-center">
-        <div className="flex-shrink-0 mb-5 max-[639px]:w-full w-auto lg:w-auto flex flex-col items-center gap-4 max-[639px]:gap-2">
+        <div className="flex-shrink-0 mb-5 max-[639px]:mb-3 max-[639px]:w-full w-auto lg:w-auto flex flex-col items-center gap-4 max-[639px]:gap-0">
         {headerCard ? (
-          <div className="relative lg:top-8 w-48 sm:w-56 lg:w-64 h-auto">
+          <div className="relative lg:top-8 w-48 sm:w-64 lg:w-64 h-auto">
             <CardTooltip
               imageUrl={headerCard.imageUrl}
               cardName={headerCard.name}
@@ -156,7 +206,7 @@ export const GuideHeader = ({
                   height: 300,
                 })}
                 alt={headerCard.name}
-                className="w-full border-2 relative bottom-7 max-[639px]:bottom-0 sm:bottom-0 lg:bottom-7 border-amber-500/90 rounded-[3px] h-auto object-contain cursor-pointer"
+                className="w-full border-2 relative bottom-7 max-[639px]:bottom-1 sm:bottom-0 lg:bottom-7 border-amber-500/90 rounded-[3px] h-auto object-contain cursor-pointer"
                 loading="lazy"
               />
             </CardTooltip>
@@ -174,7 +224,7 @@ export const GuideHeader = ({
           <button
             onClick={(e) => isEditMode && onSelectHeaderCard(e)}
             disabled={!isEditMode}
-            className={`bg-gradient-to-br from-blue-800 to-slate-800 w-48 h-64 rounded-lg flex items-center justify-center border-2 border-blue-500 ${
+            className={`bg-gradient-to-br from-blue-800 to-slate-800 w-48 sm:w-64 h-72 sm:h-80 rounded-lg flex items-center justify-center border-2 border-blue-500 ${
               isEditMode
                 ? "cursor-pointer hover:border-purple-500 transition-colors"
                 : "cursor-default"
@@ -235,9 +285,9 @@ export const GuideHeader = ({
       </div>
 
         {!isCreatingNew && (
-          <div className="max-[639px]:hidden sm:block lg:hidden flex-shrink-0 sm:w-56 relative sm:bottom-9">
+          <div className="hidden flex-shrink-0 sm:w-56 relative sm:bottom-9">
             <GuideHeaderStats
-              formattedCreatedDate={formattedCreatedDate}
+              formattedCreatedDate={null}
               userName={userName}
               userId={userId}
               userProfilePictureUrl={userProfilePictureUrl}
@@ -385,7 +435,7 @@ export const GuideHeader = ({
       </div>
 
       {!isCreatingNew && (
-        <div className="hidden max-[639px]:block lg:block flex-shrink-0 w-56 mx-auto lg:mx-0 lg:relative lg:bottom-11">
+        <div className="hidden lg:block flex-shrink-0 w-56 mx-auto lg:mx-0 lg:relative lg:bottom-11">
           <GuideHeaderStats
             formattedCreatedDate={formattedCreatedDate}
             userName={userName}
