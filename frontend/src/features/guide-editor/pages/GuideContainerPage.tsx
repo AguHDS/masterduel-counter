@@ -304,7 +304,7 @@ export const GuideContainerPage = () => {
           )}
 
           <main
-            className="flex-1 w-full mx-auto max-[1023px]:px-0 px-4 lg:px-8 mb-9 min-[1300px]:max-w-[93%]"
+            className="flex-1 w-full mx-auto max-[1023px]:px-0 px-4 mb-9 min-[1300px]:max-w-[93%] min-[1024px]:max-[1250px]:max-w-full min-[1300px]:max-[1600px]:max-w-full"
             role="main"
             aria-label="Main content"
           >
