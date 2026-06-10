@@ -16,19 +16,6 @@ interface CardPairEditorProps {
 
 type SelectingPosition = { pairId: string; position: "top" | "bottom" } | null;
 
-const DEFAULT_PAIR_WIDTH = 360;
-const RESPONSIVE_PAIR_BREAKPOINT = 956;
-
-const calculatePairWidth = (viewportWidth: number) => {
-  if (viewportWidth > RESPONSIVE_PAIR_BREAKPOINT) {
-    return DEFAULT_PAIR_WIDTH;
-  }
-
-  // Keep two pairs per row by reducing width progressively on smaller viewports.
-  const targetWidth = Math.floor((viewportWidth - 300) / 2);
-  return Math.max(170, Math.min(DEFAULT_PAIR_WIDTH, targetWidth));
-};
-
 /**
  * Editor component for managing Counter guide card pairs
  * Allows users to add, edit, reorder, and remove card pairs
@@ -46,20 +33,6 @@ export const CardPairEditor = ({
   const [selectingPosition, setSelectingPosition] =
     useState<SelectingPosition>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
-  const [viewportWidth, setViewportWidth] = useState<number>(
-    typeof window !== "undefined" ? window.innerWidth : 1200,
-  );
-
-  useEffect(() => {
-    const handleResize = () => {
-      setViewportWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const pairWidth = calculatePairWidth(viewportWidth);
 
   // Close modal when forced from parent
   useEffect(() => {
@@ -297,56 +270,50 @@ export const CardPairEditor = ({
       const pair = pairs[i];
 
       items.push(
-        <div
+        <CardPairItem
           key={pair.id}
-          className="flex justify-center"
-          style={{ width: `${pairWidth}px` }}
-        >
-          <CardPairItem
-            pairNumber={i + 1}
-            pairId={pair.id}
-            topCards={pair.topCards}
-            bottomCards={pair.bottomCards}
-            comment={pair.comment}
-            onSelectTop={(e?: React.MouseEvent<HTMLButtonElement>) => {
-              if (e?.currentTarget) setAnchorElement(e.currentTarget);
-              openCardSelection(pair.id, "top", e?.currentTarget || document.body);
-            }}
-            onSelectBottom={(e?: React.MouseEvent<HTMLButtonElement>) => {
-              if (e?.currentTarget) setAnchorElement(e.currentTarget);
-              openCardSelection(pair.id, "bottom", e?.currentTarget || document.body);
-            }}
-            onRemoveTopCard={(cardIndex) =>
-              removeCard(pair.id, "top", cardIndex)
-            }
-            onRemoveBottomCard={(cardIndex) =>
-              removeCard(pair.id, "bottom", cardIndex)
-            }
-            onReorderTopCards={(oldIndex, newIndex) =>
-              reorderTopCards(pair.id, oldIndex, newIndex)
-            }
-            onReorderBottomCards={(oldIndex, newIndex) =>
-              reorderBottomCards(pair.id, oldIndex, newIndex)
-            }
-            onMoveCardToTop={(bottomCardIndex, targetIndex) =>
-              moveCardToTop(pair.id, bottomCardIndex, targetIndex)
-            }
-            onMoveCardToBottom={(topCardIndex, targetIndex) =>
-              moveCardToBottom(pair.id, topCardIndex, targetIndex)
-            }
-            onBottomCardEffectivenessChange={(cardIndex, value) =>
-              handleBottomCardEffectivenessChange(pair.id, cardIndex, value)
-            }
-            onCommentChange={(value) => handleCommentChange(pair.id, value)}
-            onRemove={() => removePair(pair.id)}
-            onMoveLeft={() => movePairLeft(pair.id)}
-            onMoveRight={() => movePairRight(pair.id)}
-            canMoveLeft={i > 0}
-            canMoveRight={i < pairs.length - 1}
-            isEditMode={isEditMode}
-            pairWidth={pairWidth}
-          />
-        </div>,
+          pairNumber={i + 1}
+          pairId={pair.id}
+          topCards={pair.topCards}
+          bottomCards={pair.bottomCards}
+          comment={pair.comment}
+          onSelectTop={(e?: React.MouseEvent<HTMLButtonElement>) => {
+            if (e?.currentTarget) setAnchorElement(e.currentTarget);
+            openCardSelection(pair.id, "top", e?.currentTarget || document.body);
+          }}
+          onSelectBottom={(e?: React.MouseEvent<HTMLButtonElement>) => {
+            if (e?.currentTarget) setAnchorElement(e.currentTarget);
+            openCardSelection(pair.id, "bottom", e?.currentTarget || document.body);
+          }}
+          onRemoveTopCard={(cardIndex) =>
+            removeCard(pair.id, "top", cardIndex)
+          }
+          onRemoveBottomCard={(cardIndex) =>
+            removeCard(pair.id, "bottom", cardIndex)
+          }
+          onReorderTopCards={(oldIndex, newIndex) =>
+            reorderTopCards(pair.id, oldIndex, newIndex)
+          }
+          onReorderBottomCards={(oldIndex, newIndex) =>
+            reorderBottomCards(pair.id, oldIndex, newIndex)
+          }
+          onMoveCardToTop={(bottomCardIndex, targetIndex) =>
+            moveCardToTop(pair.id, bottomCardIndex, targetIndex)
+          }
+          onMoveCardToBottom={(topCardIndex, targetIndex) =>
+            moveCardToBottom(pair.id, topCardIndex, targetIndex)
+          }
+          onBottomCardEffectivenessChange={(cardIndex, value) =>
+            handleBottomCardEffectivenessChange(pair.id, cardIndex, value)
+          }
+          onCommentChange={(value) => handleCommentChange(pair.id, value)}
+          onRemove={() => removePair(pair.id)}
+          onMoveLeft={() => movePairLeft(pair.id)}
+          onMoveRight={() => movePairRight(pair.id)}
+          canMoveLeft={i > 0}
+          canMoveRight={i < pairs.length - 1}
+          isEditMode={isEditMode}
+        />,
       );
     }
 
@@ -355,13 +322,10 @@ export const CardPairEditor = ({
         <button
           key="add-pair-placeholder"
           onClick={onAddPair}
-          className="flex justify-center text-left"
-          style={{ width: `${pairWidth}px` }}
           aria-label={addPlaceholderLabel}
         >
           <div
             className="space-y-1.5"
-            style={{ width: `${pairWidth}px` }}
           >
             <div className="min-h-[28px]" />
             <div className="relative overflow-visible bg-gradient-to-br p-2 border border-dashed border-blue-500/50 hover:border-blue-400">
@@ -383,7 +347,7 @@ export const CardPairEditor = ({
     <div className="flex flex-col w-full">
       <div className="flex-1 w-full">
         {pairs.length > 0 ? (
-          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 lg:gap-5 xl:gap-6 2xl:gap-8">
+          <div className="grid grid-cols-2 min-[975px]:grid-cols-3 min-[1536px]:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 xl:gap-6 2xl:gap-8 place-items-center">
             {renderPairsWithSeparators()}
           </div>
         ) : (
