@@ -880,7 +880,7 @@ export const GuideContainer = ({
         </div>
       )}
 
-      <section className="w-full relative flex justify-center top-2 max-[1023px]:px-0 px-4 lg:px-6 xl:px-8 mt-2">
+      <section className="w-full relative flex justify-center top-2 max-[1023px]:px-0 px-4 lg:px-0 xl:px-8 mt-2">
         <div className="relative w-full lg:max-w-[2100px]">
           <div
             className="relative flex flex-col w-full min-h-[600px] border-2 border-yellow-600/50 rounded-lg py-10 sm:py-12 pl-4 sm:pl-6 lg:pl-6 xl:pl-10 pr-4 lg:pr-6 xl:pr-10 overflow-hidden"
