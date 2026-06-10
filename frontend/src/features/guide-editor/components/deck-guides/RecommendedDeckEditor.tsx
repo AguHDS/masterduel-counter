@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, ChevronDown } from "lucide-react";
 import { DeckBuilderCardSearchModal } from "@/features/archetypes/components/DeckBuilderCardSearchModal";
 import { DeckZoneSection } from "@/features/archetypes/components/DeckZoneSection";
 import { validateDeckCardAddition } from "@/features/archetypes/utils/deckValidation";
@@ -47,6 +47,7 @@ export const RecommendedDeckEditor = ({
   const [mainDeck, setMainDeck] = useState<Card[]>(initialMainDeck);
   const [extraDeck, setExtraDeck] = useState<Card[]>(initialExtraDeck);
   const [sideDeck, setSideDeck] = useState<Card[]>(initialSideDeck);
+  const [isSideDeckOpen, setIsSideDeckOpen] = useState(false);
   const [showSideDeck, setShowSideDeck] = useState<boolean>(
     initialSideDeck.length > 0,
   );
@@ -364,47 +365,66 @@ export const RecommendedDeckEditor = ({
                 draggedCardActive={!!draggedCard}
               />
             )}
-            {showSideDeck ? (
-              <DeckZoneSection
-                zone="side"
-                cards={sideDeck}
-                isEditMode={isEditMode}
-                canEdit={isEditMode}
-                emptyMessage={
-                  isEditMode
-                    ? `Click here to add cards to ${getDeckZoneLabel("side")}`
-                    : `No cards in ${getDeckZoneLabel("side")}`
-                }
-                cardKey={(card, index) => `side-${card.id}-${index}`}
-                onAddCard={handleAddCard}
-                onRemoveCard={handleRemoveCard}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onDragEnd={handleDragEnd}
-                draggedCardActive={!!draggedCard}
-                extraActions={
-                  <button
-                    onClick={handleRemoveSideDeck}
-                    className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition-colors hover:bg-red-500/18"
-                  >
-                    Remove Side Deck
-                  </button>
-                }
-              />
-            ) : (
-              isEditMode && (
-                  <div className="text-center">
-                    <button
-                      onClick={handleAddSideDeck}
-                      className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition-colors hover:bg-cyan-500/16"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span>Add Side Deck</span>
-                    </button>
+            {(!showSideDeck && !isEditMode) ? null : (
+              <div className="rounded-[22px] border border-cyan-400/20 bg-cyan-950/10 p-4 shadow-[0_18px_38px_rgba(2,6,23,0.32)]">
+                <button
+                  onClick={() => setIsSideDeckOpen(!isSideDeckOpen)}
+                  className="flex w-full items-center justify-between gap-3 py-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-semibold text-white">Side Deck</span>
+                    <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
+                      {sideDeck.length}
+                    </span>
                   </div>
-                )
-              )}
+                  <div className="flex items-center gap-2">
+                    {showSideDeck && isEditMode && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleRemoveSideDeck(); }}
+                        className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition-colors hover:bg-red-500/18"
+                      >
+                        Remove
+                      </button>
+                    )}
+                    <ChevronDown className={`w-5 h-5 text-cyan-300 transition-transform duration-200 ${isSideDeckOpen ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+                <div className={`overflow-hidden transition-all duration-300 ${isSideDeckOpen ? 'max-h-[2000px]' : 'max-h-0'}`}>
+                  {showSideDeck ? (
+                    <DeckZoneSection
+                      zone="side"
+                      cards={sideDeck}
+                      isEditMode={isEditMode}
+                      canEdit={isEditMode}
+                      hideTitle
+                      emptyMessage={
+                        isEditMode
+                          ? `Click here to add cards to ${getDeckZoneLabel("side")}`
+                          : `No cards in ${getDeckZoneLabel("side")}`
+                      }
+                      cardKey={(card, index) => `side-${card.id}-${index}`}
+                      onAddCard={handleAddCard}
+                      onRemoveCard={handleRemoveCard}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                      onDragEnd={handleDragEnd}
+                      draggedCardActive={!!draggedCard}
+                    />
+                  ) : (
+                    <div className="text-center pt-4">
+                      <button
+                        onClick={handleAddSideDeck}
+                        className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition-colors hover:bg-cyan-500/16"
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span>Add Side Deck</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {!hasDeck && isEditMode && (
               <div className="rounded-[18px] border border-dashed border-slate-700/70 bg-slate-950/25 px-5 py-10 text-center text-sm text-slate-400">

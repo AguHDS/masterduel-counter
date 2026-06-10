@@ -30,6 +30,7 @@ interface DeckZoneSectionProps<TCard extends DeckRenderableCard> {
   onDragEnd?: () => void;
   draggedCardActive?: boolean;
   extraActions?: ReactNode;
+  hideTitle?: boolean;
 }
 
 export const DeckZoneSection = <TCard extends DeckRenderableCard>({
@@ -47,6 +48,7 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
   onDragEnd,
   draggedCardActive = false,
   extraActions,
+  hideTitle = false,
 }: DeckZoneSectionProps<TCard>) => {
   const zoneStyle = DECK_ZONE_STYLES[zone];
   const titleLabel = getDeckZoneLabel(zone);
@@ -58,24 +60,26 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
       className={`rounded-[22px] border p-4 shadow-[0_18px_38px_rgba(2,6,23,0.32)] ${zoneStyle.panel}`}
     >
       <div
-        className={`mb-4 flex flex-wrap items-center justify-between gap-3  py-3 ${zoneStyle.header}`}
+        className={`mb-4 flex flex-wrap items-center justify-between gap-3 py-3 ${zoneStyle.header}`}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-base font-semibold text-white">{titleLabel}</span>
-          <span
-            className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${zoneStyle.badge}`}
-          >
-            {isEditMode ? `${cards.length}/${limit}` : cards.length}
-          </span>
-        </div>
+        {!hideTitle && (
+          <div className="flex items-center gap-2">
+            <span className="text-base font-semibold text-white">{titleLabel}</span>
+            <span
+              className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${zoneStyle.badge}`}
+            >
+              {isEditMode ? `${cards.length}/${limit}` : cards.length}
+            </span>
+          </div>
+        )}
 
         {canEdit && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-auto">
             {extraActions}
             <button
               onClick={(event) => onAddCard?.(zone, event.currentTarget)}
               disabled={isAddDisabled}
-              className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em]  disabled:cursor-not-allowed disabled:opacity-40 ${zoneStyle.addButton}`}
+              className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] disabled:cursor-not-allowed disabled:opacity-40 ${zoneStyle.addButton}`}
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Add Card</span>
