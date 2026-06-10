@@ -196,7 +196,7 @@ export const AllGuidesListPage = () => {
       <div className="min-h-screen flex flex-col">
         <Navbar />
 
-        <div className="flex-1 scale-[0.92] origin-top">
+        <div className="flex-1 scale-[0.92] origin-top max-[1023px]:scale-100">
           <MainLogo />
 
           {/* Main Search Section */}
@@ -223,7 +223,7 @@ export const AllGuidesListPage = () => {
             </div>
           </div>
 
-          <main className="container mx-auto px-4" role="main" aria-label="Main content">
+          <main className="container mx-auto px-4 max-[1023px]:px-0 max-[1023px]:max-w-full" role="main" aria-label="Main content">
             <FeatureErrorBoundary featureName="AllGuidesList">
               <AllGuidesListView
                 onSelectInstance={handleSelectInstance}

@@ -101,7 +101,7 @@ const ArchetypeGuideList = ({
   return (
     <div className="flex flex-col items-start w-full">
       <section className="w-full flex justify-center">
-        <div className="relative w-full max-w-[1456px]">
+        <div className="relative w-full max-w-[1456px] max-[1023px]:max-w-full">
           <div
             className="relative flex flex-col w-full border-2 border-yellow-600/50 rounded-lg px-3 sm:px-4 md:px-[3%] pt-2 pb-6 gap-4 overflow-hidden"
             style={{ background: 'linear-gradient(180deg, #0d0a25 0%, #08061a 100%)' }}
@@ -138,12 +138,12 @@ const ArchetypeGuideList = ({
 
         {/* Title section */}
         <div className="flex flex-col gap-1 mt-2">
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-baseline flex-wrap">
+          <h1 className="text-2xl sm:text-3xl max-[500px]:text-xl font-bold flex items-baseline flex-wrap max-[526px]:flex-col max-[526px]:items-center max-[526px]:text-center">
             <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              {archetypeName}:
+              {archetypeName}<span className="max-[526px]:hidden">:</span>
             </span>
 
-            <span className="text-white whitespace-nowrap ml-2 relative top-[2px]">
+            <span className="text-white whitespace-nowrap ml-2 max-[526px]:ml-0 relative top-[2px] max-[526px]:top-0">
               {pageTitle}
             </span>
           </h1>
@@ -155,7 +155,7 @@ const ArchetypeGuideList = ({
         </div>
 
         {/* Search, Sort, and Create button row */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center justify-between gap-3 flex-wrap max-[500px]:flex-col max-[500px]:items-stretch relative z-10">
           <div className="flex items-center gap-3 flex-1 min-w-[250px]">
             <div className="flex-1 max-w-56">
               <GuideSearch
@@ -170,7 +170,7 @@ const ArchetypeGuideList = ({
           {canCreateInstance && (
             <button
               onClick={onCreateInstance}
-              className="flex px-3 py-1.5 items-center gap-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors text-sm whitespace-nowrap"
+              className="flex px-3 py-1.5 items-center gap-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors text-sm whitespace-nowrap max-[500px]:w-fit max-[500px]:self-start"
             >
               <Plus className="w-4 h-4" />
               <span>Create</span>

@@ -64,7 +64,7 @@ const AllGuidesList = ({
   return (
     <div className="flex flex-col items-start w-full">
       <section className="w-full flex justify-center">
-        <div className="relative w-full max-w-[1456px]">
+        <div className="relative w-full max-w-[1456px] max-[1023px]:max-w-full">
           <div
             className="relative flex flex-col w-full border-2 border-yellow-600/50 rounded-lg px-3 sm:px-4 md:px-[3%] pt-2 pb-6 gap-4 overflow-hidden"
             style={{ background: 'linear-gradient(180deg, #0d0a25 0%, #08061a 100%)' }}
@@ -98,7 +98,7 @@ const AllGuidesList = ({
 
         {/* Title section */}
         <div className="flex flex-col gap-2 mt-2">
-          <h1 className="text-3xl font-bold text-white">{pageTitle}</h1>
+          <h1 className="text-3xl max-[500px]:text-xl font-bold text-white">{pageTitle}</h1>
           {!isLoading && !error && hasGuides && (
             <p className="text-sm text-blue-300">
               Showing {showingCount} of {data.length} guides
@@ -107,7 +107,7 @@ const AllGuidesList = ({
         </div>
 
         {/* Search, Sort, and Create button row */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center justify-between gap-3 flex-wrap max-[500px]:flex-col max-[500px]:items-stretch relative z-10">
           <div className="flex items-center gap-3 flex-1 min-w-[250px]">
             <div className="flex-1 max-w-56">
               <GuideSearch
@@ -125,7 +125,7 @@ const AllGuidesList = ({
           {canCreate && (
             <button
               onClick={onCreateGuide}
-              className="flex px-3 py-1.5 items-center gap-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors text-sm whitespace-nowrap"
+              className="flex px-3 py-1.5 items-center gap-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg transition-colors text-sm whitespace-nowrap max-[500px]:w-fit max-[500px]:self-start"
             >
               <Plus className="w-4 h-4" />
               Create

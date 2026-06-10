@@ -106,7 +106,7 @@ export const GuidesGrid = ({
   return (
     <div className="w-full h-full flex flex-col">
       {/* Grid of cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+      <div className="grid px-1 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 mb-6">
         {currentInstances.map((instance) => {
           const isCurrentUser = user?.id === instance.userId;
           const formattedDate = new Date(
@@ -131,7 +131,7 @@ export const GuidesGrid = ({
               className="group relative w-full overflow-hidden rounded-xl border border-blue-500/40 bg-[#0a0e2e]/90 hover:border-blue-400/60 transition-colors hover:shadow-lg hover:shadow-blue-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 block"
             >
               {/* Card image header */}
-              <div className="relative w-full h-48 bg-gradient-to-br from-slate-800/50 to-slate-900/50 overflow-hidden">
+              <div className="relative w-full h-48 max-[500px]:h-28 bg-gradient-to-br from-slate-800/50 to-slate-900/50 overflow-hidden">
                 {instance.headerCardImageUrl ? (
                   <img
                     src={getOptimizedCardImageUrl(instance.headerCardImageUrl, { 
@@ -153,7 +153,7 @@ export const GuidesGrid = ({
               </div>
 
               {/* Card content */}
-              <div className="p-4 space-y-3">
+              <div className="p-4 max-[500px]:p-2 max-[500px]:space-y-1 space-y-3">
                 {/* Title */}
                 <h3 className="text-white font-bold text-base leading-tight line-clamp-2 min-h-[2.5rem] text-left">
                   {instance.title}
@@ -185,7 +185,7 @@ export const GuidesGrid = ({
 
                   {instance.guideType === "COUNTER" &&
                     (instance.hasHandtraps || instance.hasBoardbreakers || typeof trendingRank === "number") && (
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start justify-between gap-2 max-[380px]:hidden">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {instance.hasHandtraps && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-500/15 text-orange-300 border border-orange-500/30">
@@ -205,7 +205,7 @@ export const GuidesGrid = ({
                     )}
                   {instance.guideType === "DECK" &&
                     (instance.hasInitialHands || instance.hasRecommendedDeck || typeof trendingRank === "number") && (
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start justify-between gap-2 max-[380px]:hidden">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {instance.hasInitialHands && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/30">
@@ -223,6 +223,24 @@ export const GuidesGrid = ({
                         )}
                       </div>
                     )}
+                  {/* Compact stats visible only at ≤380px, replaces labels */}
+                  <div className="hidden max-[380px]:flex items-center justify-between gap-2 text-[10px]">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 text-purple-400" title="Views">
+                        <Eye className="w-3 h-3" />
+                        <span className="font-semibold">{instance.views}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-green-400" title="Likes">
+                        <ThumbsUp className="w-3 h-3" />
+                        <span className="font-semibold">{instance.likes}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-yellow-400" title="Favorites">
+                        <Star className="w-3 h-3" />
+                        <span className="font-semibold">{instance.favorites}</span>
+                      </div>
+                    </div>
+                    <div className="text-slate-400">{formattedDate}</div>
+                  </div>
                   {showArchetypeName && (
                     <div className="flex items-center gap-1 text-xs">
                       <span className="text-slate-400">Archetype:</span>
@@ -234,7 +252,7 @@ export const GuidesGrid = ({
                 </div>
 
                 {/* Stats row */}
-                <div className="flex items-center justify-between gap-2 pt-2 border-t border-blue-500/20">
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-blue-500/20 max-[380px]:hidden">
                   <div className="flex items-center gap-3 text-xs">
                     <div
                       className="flex items-center gap-1 text-purple-400"
