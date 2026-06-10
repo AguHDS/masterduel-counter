@@ -64,7 +64,7 @@ export const ComboStepCard = ({
     <div
       className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : 'p-2 pt-6 max-[860px]:p-1.5 max-[860px]:pt-4'} ${
         isContext ? 'opacity-70' : ''
-      }`}
+      } ${hasSideCards ? 'max-[345px]:overflow-x-auto max-[345px]:overflow-y-hidden' : ''}`}
       style={{
         width: _isEditMode ? "370px" : fitToColumn ? "100%" : compactViewWidth,
         minWidth: _isEditMode ? "370px" : fitToColumn ? "0" : compactViewWidth,
@@ -104,7 +104,7 @@ export const ComboStepCard = ({
       )}
 
       {/* Layout: Left Sub Cards + Main Card + Right Sub Cards */}
-      <div className={`flex items-start ${_isEditMode ? 'max-h-[200px]' : 'max-h-[160px] max-[860px]:max-h-[124px]'} ${_isEditMode ? 'gap-2' : 'gap-1 max-[860px]:gap-0.5'} justify-center flex-shrink-0 ${hasSideCards ? 'max-[345px]:overflow-x-auto max-[345px]:overflow-y-hidden max-[345px]:justify-start' : ''}`}>
+      <div className={`flex items-start ${_isEditMode ? 'max-h-[200px]' : 'max-h-[160px] max-[860px]:max-h-[124px]'} ${_isEditMode ? 'gap-2' : 'gap-1 max-[860px]:gap-0.5'} justify-center flex-shrink-0 ${hasSideCards ? 'max-[345px]:justify-start' : ''}`}>
         {/* Left Sub Cards OR Invisible Placeholder for balance */}
         {step.leftSubCards.length > 0 ? (
           <>
