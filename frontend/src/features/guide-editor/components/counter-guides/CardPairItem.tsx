@@ -229,9 +229,9 @@ export const CardPairItem = ({
       isEditMode || isTopExpanded ? topCards : topCards.slice(0, maxVisible);
     const hasMoreCards = !isEditMode && topCards.length > maxVisible;
 
-    const calculateHeight = () => {
+    const calculateHeight = (minCards = 0) => {
       const cardsPerRow = calculateCardsPerRow(normalizedPairWidth, topCardWidth);
-      let totalElements = visibleCards.length;
+      let totalElements = Math.max(visibleCards.length, minCards);
       if (isEditMode && topCards.length < MAX_TOP_CARDS) {
         totalElements += 1;
       }
@@ -254,7 +254,7 @@ export const CardPairItem = ({
         <div
           className="relative overflow-visible"
           style={{
-            height: `${calculateHeight()}px`,
+            minHeight: `${calculateHeight(3)}px`,
           }}
         >
           <div
@@ -368,12 +368,12 @@ export const CardPairItem = ({
         : bottomCards.slice(0, maxVisible);
     const hasMoreCards = !isEditMode && bottomCards.length > maxVisible;
 
-    const calculateHeight = () => {
+    const calculateHeight = (minCards = 0) => {
       const cardsPerRow = calculateCardsPerRow(
         normalizedPairWidth,
         bottomCardWidth,
       );
-      let totalElements = visibleCards.length;
+      let totalElements = Math.max(visibleCards.length, minCards);
       if (isEditMode && bottomCards.length < MAX_BOTTOM_CARDS) {
         totalElements += 1;
       }
@@ -406,7 +406,7 @@ export const CardPairItem = ({
         <div
           className="relative transition-all duration-150 ease-in-out overflow-visible"
           style={{
-            height: `${calculateHeight()}px`,
+            minHeight: `${calculateHeight(3)}px`,
           }}
         >
           <div
