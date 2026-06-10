@@ -113,14 +113,9 @@ El usuario que la tomo puede ir a la creacion de guia de esa request en el modal
 - en la lista de Guias y Favorites del perfil, tambien ordenar por views,likes. Updated (mas reciente, primero) debe ser default y creo que ya lo tiene puesto asi.
 
 bugs:
-
 - si modifico la carta favorita, se guarda incluso si cancelo, limpiar bien los estados de edicion
 - Si busco arquetipos y los selecciono en la search principal, a veces no muestra el resultado del ultimo buscado
 - Si clickeo el boton De Support Us se re-renderea 2 veces y me scrollea arriba de todo de la homepage.
 - si edito la endboard de una initial hand que fue copiada, se edita la original.
-- Bug responsive en la maincard de los steps de las guias tipo deck:
-EN EDIT MODE: cada vez que se va achicando la main card, se le va comiendo los bordes derecho y izquierdo hasta que desaparece. Hay que acomodar el estilo de la maincard para que se achique sin desaparecer.
-Esto SOLO pasa en modo edicion.Quiza hacer que el step se vaya achicando gradualmente y la maincard no se achique en cuanto a width? esto capaz va a requerir ir haciendo que entren los steps en cada vista gradual responsive para que no colisionen.
-
 
 Resolviendo :
