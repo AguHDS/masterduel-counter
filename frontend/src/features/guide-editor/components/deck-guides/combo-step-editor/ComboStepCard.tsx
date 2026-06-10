@@ -62,7 +62,7 @@ export const ComboStepCard = ({
 
   return (
     <div
-      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : 'p-3 pt-8'} ${
+      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : 'p-2 pt-6 max-[860px]:p-1.5 max-[860px]:pt-4'} ${
         isContext ? 'opacity-70' : ''
       }`}
       style={{
@@ -75,8 +75,8 @@ export const ComboStepCard = ({
           : isDescriptionExpanded
             ? "auto"
             : compactMode
-              ? "300px"
-              : "320px",
+              ? "250px"
+              : "270px",
         height: isDescriptionExpanded ? "auto" : undefined,
         boxSizing: "border-box",
       }}
@@ -104,7 +104,7 @@ export const ComboStepCard = ({
       )}
 
       {/* Layout: Left Sub Cards + Main Card + Right Sub Cards */}
-      <div className={`flex items-start ${_isEditMode ? 'max-h-[200px]' : 'max-h-[160px] max-[860px]:max-h-[124px]'} ${_isEditMode ? 'gap-2' : 'gap-1.5 max-[860px]:gap-1'} justify-center flex-shrink-0`}>
+      <div className={`flex items-start ${_isEditMode ? 'max-h-[200px]' : 'max-h-[160px] max-[860px]:max-h-[124px]'} ${_isEditMode ? 'gap-2' : 'gap-1 max-[860px]:gap-0.5'} justify-center flex-shrink-0`}>
         {/* Left Sub Cards OR Invisible Placeholder for balance */}
         {step.leftSubCards.length > 0 ? (
           <>
@@ -126,7 +126,7 @@ export const ComboStepCard = ({
                           <img
                             src={card.imageUrlSmall}
                             alt={card.name}
-                            className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px] max-[860px]:top-[19px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                            className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8 max-[700px]:w-[18px] max-[700px]:h-[25px]'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px] max-[860px]:top-[19px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                           />
                         </CardTooltip>
                         {card.chainNumber != null && (
@@ -160,7 +160,7 @@ export const ComboStepCard = ({
                         <img
                           src={card.imageUrlSmall}
                           alt={card.name}
-                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8 max-[700px]:w-[18px] max-[700px]:h-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                         />
                       </CardTooltip>
                       {card.chainNumber != null && (
@@ -226,7 +226,7 @@ export const ComboStepCard = ({
                 <img
                   src={card.imageUrlSmall}
                   alt={card.name}
-                  className={`${_isEditMode ? 'w-32 h-44' : 'w-20 h-28 max-[860px]:w-14 max-[860px]:h-20'} object-cover hover:scale-105 transition-transform cursor-pointer`}
+                  className={`${_isEditMode ? 'w-32 h-44' : 'w-20 h-28 max-[860px]:w-14 max-[860px]:h-20 max-[700px]:w-12 max-[700px]:h-[72px]'} object-cover hover:scale-105 transition-transform cursor-pointer`}
                 />
               </CardTooltip>
               {card.chainNumber != null && (
@@ -272,7 +272,7 @@ export const ComboStepCard = ({
                         <img
                           src={card.imageUrlSmall}
                           alt={card.name}
-                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8 max-[700px]:w-[18px] max-[700px]:h-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                         />
                       </CardTooltip>
                       {card.chainNumber != null && (
@@ -319,7 +319,7 @@ export const ComboStepCard = ({
                           <img
                             src={card.imageUrlSmall}
                             alt={card.name}
-                            className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px] max-[860px]:top-[19px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                            className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8 max-[700px]:w-[18px] max-[700px]:h-[25px]'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px] max-[860px]:top-[19px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                           />
                         </CardTooltip>
                         {card.chainNumber != null && (
