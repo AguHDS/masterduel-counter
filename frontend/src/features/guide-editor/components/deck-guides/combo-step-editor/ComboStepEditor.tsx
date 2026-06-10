@@ -52,11 +52,11 @@ export const ComboStepEditor = ({
   }, []);
 
   const forcedColumns =
-    viewportWidth <= 550
-      ? 1
+    viewportWidth <= 450
+      ? 2
       : viewportWidth <= 860
         ? 2
-        : viewportWidth >= 1040 && viewportWidth <= 1187
+        : viewportWidth >= 1024 && viewportWidth <= 1187
           ? 3
           : viewportWidth >= 1396 && viewportWidth <= 1548
             ? 4
