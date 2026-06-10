@@ -330,7 +330,16 @@ export class SqliteRankingRepository implements RankingRepository {
         ? headerCardMap.get(g.header_card_id) || null
         : null;
       const previousViews = previousViewsByGuideId.get(g.id) ?? 0;
-      const monthlyViews = Math.max(g.total_views - previousViews, 0);
+      const guideCreatedMonth = new Date(g.created_at).toISOString().slice(0, 7);
+      const hasPriorSnapshot = previousViewsByGuideId.has(g.id);
+      // If guide existed before this month but has NO prior snapshot data,
+      // we can't determine how many views came from this month vs previous months.
+      // Set monthlyViews to 0 to prevent historical views from leaking into
+      // the current month's trending.
+      const monthlyViews =
+        guideCreatedMonth < month && !hasPriorSnapshot
+          ? 0
+          : Math.max(g.total_views - previousViews, 0);
 
       return {
         id: g.id,
