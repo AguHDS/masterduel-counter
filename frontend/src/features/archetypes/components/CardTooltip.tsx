@@ -79,6 +79,40 @@ export const CardTooltip = ({
     }
   }, [disabled, tooltipContext?.activeTooltipId, tooltipId]);
 
+  const calculatePosition = (mouseX: number, mouseY: number) => {
+    const tooltipWidth = 700;
+    const tooltipHeight = 420;
+    const offset = 20;
+    const edgeThreshold = 620;
+    const margin = 10;
+
+    let x = mouseX + offset;
+    let y = mouseY + offset;
+
+    if (mouseX > window.innerWidth - edgeThreshold) {
+      x = mouseX - tooltipWidth - offset;
+    } else if (x + tooltipWidth > window.innerWidth - margin) {
+      x = mouseX - tooltipWidth - offset;
+    }
+
+    if (y + tooltipHeight > window.innerHeight - margin) {
+      y = mouseY - tooltipHeight - offset;
+      if (y < margin) {
+        y = margin;
+      }
+    }
+
+    if (x < margin) {
+      x = margin;
+    }
+
+    if (y < margin) {
+      y = margin;
+    }
+
+    setPosition({ x, y });
+  };
+
   // For responsive tooltip
   const show = useCallback(
     (clientX: number, clientY: number) => {
@@ -144,50 +178,6 @@ export const CardTooltip = ({
       const rect = e.currentTarget.getBoundingClientRect();
       show(rect.left + rect.width / 2, rect.top + rect.height / 2);
     }
-  };
-
-  const calculatePosition = (mouseX: number, mouseY: number) => {
-    // Use estimated dimensions for initial positioning
-    const tooltipWidth = 700;
-    const tooltipHeight = 420;
-    const offset = 20;
-    const edgeThreshold = 620;
-    const margin = 10; // Additional margin from screen edges
-
-    let x = mouseX + offset;
-    let y = mouseY + offset;
-
-    // Check if we're near the right edge of the screen
-    if (mouseX > window.innerWidth - edgeThreshold) {
-      // Always show on the left when near right edge
-      x = mouseX - tooltipWidth - offset;
-    } else if (x + tooltipWidth > window.innerWidth - margin) {
-      // Otherwise, flip to left only if it would overflow
-      x = mouseX - tooltipWidth - offset;
-    }
-
-    // Check if tooltip would overflow bottom of screen
-    if (y + tooltipHeight > window.innerHeight - margin) {
-      // Try to position above the cursor
-      y = mouseY - tooltipHeight - offset;
-
-      // If still doesn't fit, position at the top of the screen
-      if (y < margin) {
-        y = margin;
-      }
-    }
-
-    // Ensure tooltip doesn't go off left edge
-    if (x < margin) {
-      x = margin;
-    }
-
-    // Ensure tooltip doesn't go off top edge
-    if (y < margin) {
-      y = margin;
-    }
-
-    setPosition({ x, y });
   };
 
   const schedulePositionUpdate = (mouseX: number, mouseY: number) => {

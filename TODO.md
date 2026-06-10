@@ -100,8 +100,10 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 ---
 
 mejoras:
-- GuideCOntainer necesita refactor, tiene logica de draft y cosas que podrian atomizarse en otros arhivos. Es un god-component.
 - Mostrar nivel de carta en numero en tooltip
+- El titulo Combo for Hand #1 Add combo steps to demonstrate the play sequence - Se rompe en responsive.
+- El search card modal no deberia mostrar el tooltip si se esta usando en una sidecard de un comboflow Solo hacerlo para este caso
+- el titulo de trending se superpone con el nombre del arquetipo cuando el width de pantalla es chico. Nota: Esto no pasa en la resolucion 1023 para abajo porque ahi ya cambia de posicion. Solo pasa de 1024 para arriba.
 - Mejorar thumbnail para cuando comparten el logo de la web en twitter, ahora se ve incompleto y desproporcionado. Quiza deberiamos crear un thumbail para twitter?s
 - agregar title al perfil, ahora dice la url en la pestaña de navegador
 - Agregar pequeña feature que deje poner Last Updates, en el panel de admin puedo poner nuevas updates que se muestran en la home, para que los usuarios sepan cuando hay cambios importantes, mantenimiento, etc.
