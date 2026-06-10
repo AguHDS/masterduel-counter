@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 interface SearchInputProps {
   searchQuery: string;
@@ -20,6 +20,16 @@ export const MainSearch = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [isSmallPlaceholder, setIsSmallPlaceholder] = useState(window.innerWidth <= 390);
+
+  const handleResize = useCallback(() => {
+    setIsSmallPlaceholder(window.innerWidth <= 390);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [handleResize]);
 
   useEffect(() => {
     if (!isDropdownOpen) return;
@@ -93,7 +103,7 @@ export const MainSearch = ({
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onClick={handleFocus}
-                placeholder="Search archetypes and find guides"
+                placeholder={isSmallPlaceholder ? "Search Archetypes..." : "Search archetypes and find guides"}
                 autoComplete="off"
                 aria-label="Search for Yu-Gi-Oh archetypes"
                 role="searchbox"

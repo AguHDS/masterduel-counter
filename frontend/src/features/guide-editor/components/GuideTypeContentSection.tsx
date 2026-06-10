@@ -47,7 +47,6 @@ interface GuideTypeContentSectionProps {
   selectedHandComboSteps: ComboStep[];
   setSelectedHandComboSteps: (value: SetStateAction<ComboStep[]>) => void;
   showRecommendedDeck: boolean;
-  hasRecommendedDeckFromServer: boolean;
   onShowRecommendedDeck: () => void;
   displayTitle?: string;
   displayMainDeck: Array<{
@@ -108,7 +107,6 @@ export const GuideTypeContentSection = ({
   selectedHandComboSteps,
   setSelectedHandComboSteps,
   showRecommendedDeck,
-  hasRecommendedDeckFromServer,
   onShowRecommendedDeck,
   displayTitle,
   displayMainDeck,
@@ -309,7 +307,7 @@ export const GuideTypeContentSection = ({
 
       {guideType === "DECK" && (
         <>
-          {(showRecommendedDeck || hasRecommendedDeckFromServer) && (
+          {(showRecommendedDeck) && (
             <div className="flex justify-center my-8">
               <div className="w-4/5 h-px bg-gradient-to-r my-4 from-transparent via-slate-600 to-transparent"></div>
             </div>
@@ -317,8 +315,7 @@ export const GuideTypeContentSection = ({
 
           {isEditMode &&
             isOwner &&
-            !showRecommendedDeck &&
-            !hasRecommendedDeckFromServer && (
+            !showRecommendedDeck && (
               <div className="flex justify-center my-8">
                 <button
                   onClick={onShowRecommendedDeck}

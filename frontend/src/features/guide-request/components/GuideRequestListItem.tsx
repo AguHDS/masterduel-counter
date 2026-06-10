@@ -22,7 +22,7 @@ export const GuideRequestListItem: React.FC<GuideRequestListItemProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-[#c2901c]/10 hover:bg-[#c2901c]/5 ${
+      className={`w-full text-left px-4 max-[650px]:px-3 py-3 max-[650px]:py-2 flex items-start gap-3 border-b border-[#c2901c]/10 hover:bg-[#c2901c]/5 ${
         isSelected ? "bg-[#c2901c]/10" : ""
       }`}
     >
@@ -45,9 +45,14 @@ export const GuideRequestListItem: React.FC<GuideRequestListItemProps> = ({
           >
             {guideTypeLabel}
           </span>
+          <span className="max-[650px]:inline-flex hidden">
+            <GuideRequestStatusBadge status={request.status} size="xs" />
+          </span>
         </p>
+
+        {/* DESKTOP participants */}
         {showCompletedParticipants && request.status === "COMPLETED" ? (
-          <div className="flex items-center gap-1.5 mt-1.5 min-w-0 text-[10px] max-[1346px]:flex-wrap">
+          <div className="max-[650px]:hidden flex items-center gap-1.5 mt-1.5 min-w-0 text-[10px] flex-wrap">
             <GuideRequestStatusBadge status={request.status} size="xs" />
             <span className="text-slate-400 shrink-0">Requester:</span>
             <Avatar
@@ -56,7 +61,7 @@ export const GuideRequestListItem: React.FC<GuideRequestListItemProps> = ({
               size="sm"
               className="!w-4 !h-4 !text-[9px] rounded-full"
             />
-            <span className="text-blue-200 truncate max-w-[80px] max-[1346px]:max-w-none">
+            <span className="text-blue-200 truncate max-w-[80px]">
               {request.requesterAlias}
             </span>
             <span className="text-slate-500 shrink-0">-</span>
@@ -67,12 +72,12 @@ export const GuideRequestListItem: React.FC<GuideRequestListItemProps> = ({
               size="sm"
               className="!w-4 !h-4 !text-[9px] rounded-full"
             />
-            <span className="text-cyan-200 truncate max-w-[90px] max-[1346px]:max-w-none">
+            <span className="text-cyan-200 truncate max-w-[90px]">
               {request.fulfilledByName ?? "Unknown"}
             </span>
           </div>
         ) : (
-          <div className="flex items-center gap-2 mt-1.5">
+          <div className="max-[650px]:hidden flex items-center gap-2 mt-1.5">
             <GuideRequestStatusBadge status={request.status} size="xs" />
             <Avatar
               username={request.requesterAlias}
@@ -85,6 +90,35 @@ export const GuideRequestListItem: React.FC<GuideRequestListItemProps> = ({
             </span>
           </div>
         )}
+
+        {/* MOBILE */}
+        <div className="hidden max-[650px]:flex items-center gap-1.5 mt-1 text-[10px] flex-wrap">
+          <span className="max-[450px]:hidden text-slate-400 shrink-0">Requester:</span>
+          <Avatar
+            username={request.requesterAlias}
+            profilePictureUrl={request.requesterProfilePictureUrl}
+            size="sm"
+            className="max-[450px]:hidden !w-4 !h-4 !text-[9px] rounded-full"
+          />
+          <span className="max-[450px]:hidden text-blue-200 truncate">
+            {request.requesterAlias}
+          </span>
+          {showCompletedParticipants && request.status === "COMPLETED" && (
+            <>
+              <span className="text-slate-500 shrink-0">-</span>
+              <span className="text-slate-400 shrink-0">Completed by:</span>
+              <Avatar
+                username={request.fulfilledByName ?? "Unknown"}
+                profilePictureUrl={request.fulfilledByProfilePictureUrl}
+                size="sm"
+                className="!w-4 !h-4 !text-[9px] rounded-full"
+              />
+              <span className="text-cyan-200 truncate">
+                {request.fulfilledByName ?? "Unknown"}
+              </span>
+            </>
+          )}
+        </div>
       </div>
     </button>
   );

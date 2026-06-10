@@ -1,20 +1,20 @@
 import {
   Plus,
-  Eye,
-  Star,
-  ThumbsUp,
   ChevronDown,
   ChevronUp,
   Package,
   PackagePlus,
   PackageXIcon,
+  Eye,
+  Star,
+  ThumbsUp,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
-import { Avatar } from "@/shared/components/DefaultAvatar";
-import { buildProfilePath } from "@/lib/config/urlHelpers";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { buildProfilePath } from "@/lib/config/urlHelpers";
+import { GuideHeaderStats } from "./GuideHeaderStats";
 import { TrendingBadge } from "./TrendingBadge";
 import { useGuideBestTrending } from "@/features/ranking/hooks/useRanking";
 
@@ -130,10 +130,75 @@ export const GuideHeader = ({
     : null;
 
   return (
-    <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 mb-8 w-full">
-      <div className="flex-shrink-0 mb-5 w-full lg:w-auto flex flex-col items-center gap-4">
+    <div className="flex flex-col lg:flex-row items-start gap-6 max-[639px]:gap-2 sm:gap-2 lg:gap-8 mb-8 w-full">
+      {/* Stats bar - visible 361-639px */}
+      {!isCreatingNew && (
+        <div className="hidden">
+          <div className="flex items-center gap-2.5 text-[11px] text-slate-300">
+            <div className="flex items-center gap-1">
+              <Eye className="w-3 h-3 text-purple-400" />
+              <span className="text-purple-400">{views}</span>
+            </div>
+            <button
+              onClick={isAuthenticated && !isEditMode ? onFavoriteToggle : undefined}
+              disabled={!isAuthenticated || isEditMode}
+              className={`bg-transparent border-none p-0 inline-flex items-center gap-1 ${!isAuthenticated || isEditMode ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-80'}`}
+            >
+              <Star className={`w-3 h-3 ${isFavorited ? 'fill-yellow-400 text-yellow-400' : 'text-yellow-400'}`} />
+              <span className="text-yellow-400">{favorites}</span>
+            </button>
+            <button
+              onClick={!isOwner && isAuthenticated && !isEditMode ? onLikeToggle : undefined}
+              disabled={!isAuthenticated || isOwner || isEditMode}
+              className={`bg-transparent border-none p-0 inline-flex items-center gap-1 ${!isAuthenticated || isOwner || isEditMode ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-80'}`}
+            >
+              <ThumbsUp className={`w-3 h-3 ${isLiked ? 'fill-green-400 text-green-400' : 'text-green-400'}`} />
+              <span className="text-green-400">{likes}</span>
+            </button>
+            {userName && userId && (
+              <>
+                <span className="text-slate-500">-</span>
+                <Link
+                  to={buildProfilePath({ userName, userId })}
+                  className="text-blue-400 hover:text-blue-300 truncate max-w-[100px]"
+                >
+                  By {userName}
+                </Link>
+              </>
+            )}
+            {formattedCreatedDate && (
+              <>
+                <span className="text-slate-500">-</span>
+                <span className="text-slate-400 whitespace-nowrap">{formattedCreatedDate}</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Archetype name above header card on sm-lg screens */}
+      <div className="max-[639px]:block sm:block lg:hidden w-full text-center mb-4 max-[639px]:mb-1 sm:mb-1">
+        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          {archetypeName}
+        </h2>
+        {!isEditMode && bestTrending && (
+          <div className="flex justify-center mt-1 max-[639px]:mb-0 mb-2">
+            <TrendingBadge bestTrending={bestTrending} />
+          </div>
+        )}
+        <div className="flex w-full justify-center my-2 max-[639px]:hidden sm:hidden">
+          <div className="w-48 h-[2px]" style={{
+            background: guideType === "COUNTER"
+              ? "linear-gradient(90deg, rgb(241 131 57) 20%, rgb(255 235 0) 100%)"
+              : "linear-gradient(90deg, rgb(59 130 246) 20%, rgb(147 51 234) 100%)",
+          }} />
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row lg:flex-col gap-96 max-[950px]:gap-52 max-[750px]:gap-32 w-full lg:w-auto sm:items-center sm:justify-center">
+        <div className="flex-shrink-0 mb-5 max-[639px]:mb-3 max-[639px]:w-full w-auto lg:w-auto flex flex-col items-center gap-4 max-[639px]:gap-0">
         {headerCard ? (
-          <div className="relative lg:top-8 w-48 sm:w-56 lg:w-64 h-auto">
+          <div className="relative lg:top-8 w-48 sm:w-64 lg:w-64 h-auto">
             <CardTooltip
               imageUrl={headerCard.imageUrl}
               cardName={headerCard.name}
@@ -146,7 +211,7 @@ export const GuideHeader = ({
                   height: 300,
                 })}
                 alt={headerCard.name}
-                className="w-full border-2 relative bottom-7 border-amber-500/90 rounded-[3px] h-auto object-contain cursor-pointer"
+                className="w-full border-2 relative bottom-7 max-[639px]:bottom-1 sm:bottom-0 lg:bottom-7 border-amber-500/90 rounded-[3px] h-auto object-contain cursor-pointer"
                 loading="lazy"
               />
             </CardTooltip>
@@ -164,7 +229,7 @@ export const GuideHeader = ({
           <button
             onClick={(e) => isEditMode && onSelectHeaderCard(e)}
             disabled={!isEditMode}
-            className={`bg-gradient-to-br from-blue-800 to-slate-800 w-48 h-64 rounded-lg flex items-center justify-center border-2 border-blue-500 ${
+            className={`bg-gradient-to-br from-blue-800 to-slate-800 w-48 sm:w-64 h-72 sm:h-80 rounded-lg flex items-center justify-center border-2 border-blue-500 ${
               isEditMode
                 ? "cursor-pointer hover:border-purple-500 transition-colors"
                 : "cursor-default"
@@ -224,8 +289,30 @@ export const GuideHeader = ({
           )}
       </div>
 
+        {!isCreatingNew && (
+          <div className="hidden flex-shrink-0 sm:w-56 relative sm:bottom-9">
+            <GuideHeaderStats
+              formattedCreatedDate={null}
+              userName={userName}
+              userId={userId}
+              userProfilePictureUrl={userProfilePictureUrl}
+              views={views}
+              favorites={favorites}
+              likes={likes}
+              isFavorited={isFavorited}
+              isLiked={isLiked}
+              isAuthenticated={isAuthenticated}
+              isEditMode={isEditMode}
+              isOwner={isOwner}
+              onFavoriteToggle={onFavoriteToggle}
+              onLikeToggle={onLikeToggle}
+            />
+          </div>
+        )}
+      </div>
+
       <div className="flex-1 min-w-0 w-full lg:relative lg:bottom-12">
-        <div className="w-full flex flex-col items-start mb-2">
+        <div className="w-full flex flex-col items-start mb-2 max-[639px]:hidden sm:hidden lg:block">
           <div className="w-full relative mb-3">
             {!isEditMode && bestTrending && (
               <div className="absolute left-1/2 max-[436px]:ml-10 -translate-x-1/2 top-7 -translate-y-1/2">
@@ -353,126 +440,23 @@ export const GuideHeader = ({
       </div>
 
       {!isCreatingNew && (
-        <div className="flex-shrink-0 w-full max-w-[340px] lg:max-w-none mx-auto lg:mx-0 lg:w-56 lg:relative lg:bottom-11">
-          {formattedCreatedDate && (
-            <div className="text-slate-500 text-xs mb-1 text-center lg:text-right lg:flex lg:justify-end">
-              {formattedCreatedDate}
-            </div>
-          )}
-          <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm p-3 sm:p-4 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
-            <div className="flex flex-col gap-2">
-              {userName && userId && (
-                <>
-                  <div className="flex flex-col py-1">
-                    <Link
-                      to={buildProfilePath({ userName, userId })}
-                      className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-                    >
-                      <Avatar
-                        username={userName}
-                        profilePictureUrl={userProfilePictureUrl}
-                        size="lg"
-                        className="w-16 h-16 border-blue-400/50"
-                      />
-                      <div className="flex flex-col relative bottom-3 min-w-0">
-                        <span className="text-slate-400 text-xs font-medium uppercase tracking-wide">
-                          Made by
-                        </span>
-                        <span className="text-blue-400 hover:text-blue-300 font-semibold text-base transition-colors break-all">
-                          {userName}
-                        </span>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent my-1"></div>
-                </>
-              )}
-
-              <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-slate-800/50">
-                <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-purple-400" />
-                  <span className="text-purple-400 text-sm font-medium">
-                    Views
-                  </span>
-                </div>
-                <span className="text-purple-400 font-semibold">{views}</span>
-              </div>
-
-              <button
-                onClick={
-                  isAuthenticated && !isEditMode ? onFavoriteToggle : undefined
-                }
-                disabled={!isAuthenticated || isEditMode}
-                className={`flex items-center justify-between px-2 py-1.5 rounded-lg w-full transition-colors ${
-                  isFavorited
-                    ? "bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30"
-                    : "bg-slate-800/50 hover:bg-slate-700/50 text-white"
-                } ${!isAuthenticated || isEditMode ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
-                title={
-                  !isAuthenticated
-                    ? "Log in to favorite this guide"
-                    : isEditMode
-                      ? "Cannot favorite while editing"
-                      : isFavorited
-                        ? "Remove from favorites"
-                        : "Add to favorites"
-                }
-              >
-                <div className="flex items-center gap-2">
-                  <Star
-                    className={`w-4 h-4 ${isFavorited ? "fill-yellow-400" : "text-yellow-400"}`}
-                  />
-                  <span className="text-sm font-medium text-yellow-400">
-                    Favorite
-                  </span>
-                </div>
-                <span
-                  className={`font-semibold ${isFavorited ? "text-yellow-400" : "text-yellow-400"}`}
-                >
-                  {favorites}
-                </span>
-              </button>
-
-              <button
-                onClick={
-                  !isOwner && isAuthenticated && !isEditMode
-                    ? onLikeToggle
-                    : undefined
-                }
-                disabled={!isAuthenticated || isOwner || isEditMode}
-                className={`flex items-center justify-between px-2 py-1.5 rounded-lg w-full transition-colors ${
-                  isLiked
-                    ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
-                    : "bg-slate-800/50 hover:bg-slate-700/50 text-white"
-                } ${!isAuthenticated || isOwner || isEditMode ? "cursor-not-allowed" : "cursor-pointer"}`}
-                title={
-                  !isAuthenticated
-                    ? "Log in to like this guide"
-                    : isOwner
-                      ? "You cannot like your own guide"
-                      : isEditMode
-                        ? "Cannot like while editing"
-                        : isLiked
-                          ? "Unlike this guide"
-                          : "Like this guide"
-                }
-              >
-                <div className="flex items-center gap-2">
-                  <ThumbsUp
-                    className={`w-4 h-4 ${isLiked ? "fill-green-400" : "text-green-400"}`}
-                  />
-                  <span className="text-sm font-medium text-green-400">
-                    Like
-                  </span>
-                </div>
-                <span
-                  className={`font-semibold ${isLiked ? "text-green-400" : "text-green-400"}`}
-                >
-                  {likes}
-                </span>
-              </button>
-            </div>
-          </div>
+        <div className="hidden lg:block flex-shrink-0 w-56 mx-auto lg:mx-0 lg:relative lg:bottom-11">
+          <GuideHeaderStats
+            formattedCreatedDate={formattedCreatedDate}
+            userName={userName}
+            userId={userId}
+            userProfilePictureUrl={userProfilePictureUrl}
+            views={views}
+            favorites={favorites}
+            likes={likes}
+            isFavorited={isFavorited}
+            isLiked={isLiked}
+            isAuthenticated={isAuthenticated}
+            isEditMode={isEditMode}
+            isOwner={isOwner}
+            onFavoriteToggle={onFavoriteToggle}
+            onLikeToggle={onLikeToggle}
+          />
         </div>
       )}
     </div>

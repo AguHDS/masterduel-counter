@@ -62,15 +62,17 @@ export const GeneralStats = () => {
       </div>
 
       <div className="bg-[#1c1f2e] rounded-xl border border-[#c2901c]/20 overflow-hidden flex-1 min-h-0 flex flex-col">
-        <div className="grid grid-cols-2 divide-x divide-[#c2901c]/10 flex-1 min-h-0">
+        <div className="grid grid-cols-2 max-[650px]:grid-cols-1 divide-x max-[650px]:divide-x-0 divide-[#c2901c]/10 max-[650px]:divide-y max-[650px]:divide-[#c2901c]/10 flex-1 min-h-0">
           {/* COUNTER GUIDES */}
           <div className="flex flex-col min-h-0">
             <div className="px-4 py-2.5 border-b border-[#c2901c]/10">
-              <span className="text-xs font-semibold text-[#c2901c]">Counter Guides</span>
+              <span className="text-xs font-semibold text-[#c2901c]">
+                Counter Guides <span className="max-[650px]:inline hidden font-normal text-[#c2901c]/60">({counterData.totalGuides})</span>
+              </span>
             </div>
 
-            <div className="flex flex-col flex-1 min-h-0 p-4">
-              <div className="mb-3">
+            <div className="flex flex-col flex-1 min-h-0 p-4 max-[650px]:p-3">
+              <div className="mb-3 max-[650px]:hidden">
                 <div className="p-3 rounded-lg bg-black/30 border border-[#c2901c]/20">
                   <p className="text-xs text-amber-500 font-semibold mb-1">
                     Total Counter Guides
@@ -118,11 +120,13 @@ export const GeneralStats = () => {
           {/* DECK GUIDES */}
           <div className="flex flex-col min-h-0">
             <div className="px-4 py-2.5 border-b border-[#c2901c]/10">
-              <span className="text-xs font-semibold text-purple-400">Deck Guides</span>
+              <span className="text-xs font-semibold text-purple-400">
+                Deck Guides <span className="max-[650px]:inline hidden font-normal text-purple-400/60">({deckData.totalGuides})</span>
+              </span>
             </div>
 
-            <div className="flex flex-col flex-1 min-h-0 p-4">
-              <div className="mb-3">
+            <div className="flex flex-col flex-1 min-h-0 p-4 max-[650px]:p-3">
+              <div className="mb-3 max-[650px]:hidden">
                 <div className="p-3 rounded-lg bg-black/30 border border-purple-500/20">
                   <p className="text-xs text-purple-400/90 font-semibold mb-1">
                     Total Deck Guides

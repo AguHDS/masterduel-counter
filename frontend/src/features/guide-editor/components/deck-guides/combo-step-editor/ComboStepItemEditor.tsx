@@ -68,7 +68,7 @@ export const ComboStepItemEditor = ({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`relative overflow-hidden bg-slate-800/50 border-2 rounded-lg p-8 pb-12 transition-all ${
+      className={`relative bg-slate-800/50 border-2 rounded-lg p-8 pb-12 max-[860px]:px-4 max-[860px]:pt-8 max-[860px]:pb-6 max-[450px]:pb-4 transition-all max-[550px]:overflow-x-auto max-[550px]:overflow-y-hidden ${
         isReadOnly ? "border-slate-600/40 opacity-70" : "border-blue-500/40"
       } ${isDragging ? "opacity-50 scale-95" : ""} ${
         isDragOver ? "border-yellow-400 scale-105 shadow-lg shadow-yellow-400/20" : ""
@@ -137,10 +137,8 @@ export const ComboStepItemEditor = ({
       )}
 
       <div className="relative z-10">
-        <div
-          className={`${isLeftExpanded || isRightExpanded ? "mb-6" : "mb-3"} ${isReadOnly ? "pointer-events-none" : ""}`}
-        >
-          <div className="flex justify-center m-auto items-center gap-3 w-fit">
+          <div className={`${isLeftExpanded || isRightExpanded ? "mb-6" : "mb-3"} ${isReadOnly ? "pointer-events-none" : ""} max-[450px]:!mb-1`}>
+          <div className="flex justify-center m-auto items-center gap-3 max-[450px]:gap-1 w-fit">
           {step.mainCards.length > 0 && (
             <ComboStepSideColumn
               label="MATERIAL"
@@ -165,7 +163,7 @@ export const ComboStepItemEditor = ({
             <span className="text-blue-400 text-2xl font-bold self-center">=</span>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0">
             {step.mainCards.length > 0 ? (
               step.mainCards.map((card, cardIndex) => (
                 <ComboStepCardSlot

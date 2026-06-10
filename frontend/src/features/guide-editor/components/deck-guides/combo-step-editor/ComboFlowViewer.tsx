@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { ComboStep } from "@/features/archetypes/types";
 import { ComboStepCard } from "./ComboStepCard";
 import { ComboStepSeparator } from "./ComboStepSeparator";
@@ -9,35 +9,12 @@ interface ComboFlowViewerProps {
 }
 
 /**
- * Read-only viewer for displaying combo steps in a responsive grid/flow layout
- * Adjusts column count based on viewport width and shows canceled flow branches when toggled
- * Used in view mode to display completed combos
+ * Read-only viewer for displaying combo steps in a responsive grid layout
+ * Grid automatically adjusts column count based on available width, preventing dead space
+ * Shows canceled flow branches when toggled
  */
 export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps) => {
   const [activeCanceledStepId, setActiveCanceledStepId] = useState<string | null>(null);
-  const [viewportWidth, setViewportWidth] = useState<number>(
-    typeof window !== "undefined" ? window.innerWidth : 1200,
-  );
-
-  // For responsive design
-  useEffect(() => {
-    const handleResize = () => setViewportWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const forcedColumns =
-    viewportWidth <= 550
-      ? 1
-      : viewportWidth <= 860
-        ? 2
-        : viewportWidth >= 1040 && viewportWidth <= 1187
-          ? 3
-          : viewportWidth >= 1396 && viewportWidth <= 1548
-            ? 4
-            : null;
-  const isCompactFlow = viewportWidth <= 860;
-  const isForcedGrid = forcedColumns !== null;
 
   if (!comboSteps || comboSteps.length === 0) {
     return (
@@ -92,18 +69,11 @@ export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps
   });
 
   return (
-    <div className="border-y-2 border-blue-500/30 bg-slate-900/40 p-4">
+    <div className="border-y-2 border-blue-500/30 bg-slate-900/40 p-4 max-[700px]:p-0 max-[700px]:-mx-4 max-[700px]:sm:-mx-6 max-[700px]:w-[calc(100%+2rem)] max-[700px]:sm:w-[calc(100%+3rem)]">
       <div className="relative overflow-hidden rounded-[18px] border border-blue-500/20 bg-slate-950/20 px-3 py-4 sm:px-4">
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.21)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:46px_46px] opacity-20" />
 
-        <div
-          className={`relative z-10 gap-2 sm:gap-5 ${isForcedGrid ? "grid" : "flex flex-wrap sm:ml-6"}`}
-          style={{
-            gridTemplateColumns: forcedColumns
-              ? `repeat(${forcedColumns}, minmax(0, 1fr))`
-              : undefined,
-          }}
-        >
+        <div className="relative z-10 grid grid-cols-2 max-[450px]:grid-cols-2 min-[500px]:grid-cols-3 min-[1200px]:grid-cols-4 gap-1 sm:gap-2 md:gap-3 xl:gap-4">
         {sortedSteps.map((step, index) => {
           const isMainFlowStep = !step.parentCanceledStepId;
           const isContext = !!(activeCanceledStepId && isMainFlowStep);
@@ -112,23 +82,20 @@ export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps
             <div
               key={step.id}
               className="flex items-start min-w-0"
-              style={{ width: isCompactFlow ? "100%" : undefined }}
             >
               <ComboStepCard 
                 step={step} 
                 stepNumber={index + 1} 
                 isEditMode={isEditMode}
-                compactMode={isCompactFlow}
-                fitToColumn={isForcedGrid}
+                compactMode={false}
+                fitToColumn={true}
                 hasCanceledFlow={stepHasCanceledFlow(step.id)}
                 isViewingCanceledFlow={activeCanceledStepId === step.id}
                 onToggleCanceledFlow={() => handleToggleCanceledFlow(step.id)}
                 isContext={isContext}
               />
               {index < sortedSteps.length - 1 && (
-                <div className={isForcedGrid ? "hidden" : ""}>
-                  <ComboStepSeparator isEditMode={isEditMode} />
-                </div>
+                <ComboStepSeparator isEditMode={isEditMode} />
               )}
             </div>
           );

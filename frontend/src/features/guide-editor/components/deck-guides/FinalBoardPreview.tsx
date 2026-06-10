@@ -63,16 +63,15 @@ export const FinalBoardPreview = ({
   >(null);
   const [isResponsive, setIsResponsive] = useState(false);
 
-  // Detectar el ancho de pantalla para el modo responsive
+  // Detect screen width for responsive layout
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsResponsive(window.innerWidth <= 1780);
+      setIsResponsive(window.innerWidth < 1024);
     };
 
-    // Verificar inicialmente
+    // Initial check
     checkScreenSize();
-
-    // Agregar listener para cambios de tamaño
+    // Add resize listener
     window.addEventListener("resize", checkScreenSize);
 
     return () => window.removeEventListener("resize", checkScreenSize);
@@ -264,11 +263,11 @@ export const FinalBoardPreview = ({
           } bg-slate-950/20`}
         />
         {card ? (
-          <div className="relative z-10 h-full w-full p-1.5">
+          <div className="relative z-10 h-full w-full p-1.5 max-[639px]:p-0.5">
             <div
-              className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[12px] border border-slate-700/30 bg-slate-950/90 shadow-[0_10px_20px_rgba(15,23,42,0.45)]"
+              className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[12px] border border-slate-700/30 bg-slate-950/90 "
             >
-              <span className="pointer-events-none absolute left-1.5 top-1.5 rounded-full border border-slate-400/15 bg-slate-950/80 px-1.5 py-0.5 text-[7px] font-semibold tracking-[0.24em] text-slate-300/70">
+              <span className="pointer-events-none absolute left-1.5 top-1.5 rounded-full border border-slate-400/15 bg-slate-950/80 px-1.5 py-0.5 text-[7px] max-[418px]:text-[6px] max-[418px]:px-1 max-[418px]:py-0 max-[370px]:text-[5px] max-[370px]:px-0.5 max-[370px]:py-0 font-semibold tracking-[0.24em] text-slate-300/70">
                 {zoneLabel}
               </span>
               <CardTooltip
@@ -316,7 +315,7 @@ export const FinalBoardPreview = ({
               {isEditMode && (
                 <Plus className="mb-0.5 h-3 w-3 text-slate-400 group-hover:text-blue-400 sm:mb-1 sm:h-4 sm:w-4" />
               )}
-              <span className="text-center tracking-[0.24em] text-slate-400/60 text-[8px]">
+              <span className="text-center tracking-[0.24em] text-slate-400/60 text-[8px] max-[370px]:text-[6px]">
                 {zoneLabel}
               </span>
             </div>
@@ -497,11 +496,11 @@ export const FinalBoardPreview = ({
     <div className="w-full mt-8">
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-5">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-bold text-blue-300">
+          <h3 className="text-lg font-bold text-blue-300 max-[500px]:text-sm">
             Final Board Preview for
           </h3>
           {selectedHandTitle && (
-            <span className="text-lg font-bold text-yellow-200">
+            <span className="text-lg font-bold text-yellow-200 max-[500px]:text-sm">
               {selectedHandTitle}
             </span>
           )}
@@ -509,7 +508,7 @@ export const FinalBoardPreview = ({
       </div>
 
       <div className="flex justify-center">
-        <div className="relative w-full min-w-[280px] max-w-[98%] rounded-[22px] border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.18)] sm:max-w-[90%] md:max-w-[80%] md:p-5 lg:max-w-[70%] xl:max-w-[65%]">
+        <div className="relative w-full min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-[22px] border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.18)] sm:max-w-[90%] md:max-w-[80%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-hidden">
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_35%)]" />
           <div className="pointer-events-none absolute inset-x-4 top-4 h-20 rounded-full bg-blue-500/10 blur-3xl" />
           <div className="pointer-events-none absolute inset-x-4 bottom-10 top-28 rounded-[18px] border border-slate-700/50 bg-gradient-to-b from-slate-950/20 via-slate-950/5 to-indigo-950/20 shadow-[inset_0_0_0_1px_rgba(30,41,59,0.55)]" />
@@ -598,13 +597,13 @@ export const FinalBoardPreview = ({
             <div className="relative">
               {/* Layout principal - Cambia según el modo responsive */}
               <div
-                className={`flex ${isResponsive ? "flex-col" : "flex-col lg:flex-row"} gap-4 sm:gap-6 lg:gap-8 justify-center items-center`}
+                className={`flex ${isResponsive ? "flex-col" : "flex-col lg:flex-row"} gap-4 sm:gap-6 lg:gap-8 min-[1024px]:max-[1100px]:gap-0 justify-center items-center`}
               >
                 {/* Field Spell Zone */}
                 <div
                   className={`flex-shrink-0 w-14 sm:w-16 md:w-20 lg:w-24 self-center ${isResponsive ? "order-1" : "order-1 lg:order-1"}`}
                 >
-                  <div className="w-full aspect-[5/7]">
+                  <div className="flex-shrink-0 w-full aspect-[5/7]">
                     {renderZone(fieldBoard.fieldSpell, "field", 0)}
                   </div>
                 </div>
@@ -614,15 +613,15 @@ export const FinalBoardPreview = ({
                   className={`space-y-4 sm:space-y-6 md:space-y-8 ${isResponsive ? "order-2 w-full" : "order-3 lg:order-2"}`}
                 >
                   {/* Extra Monster Zone */}
-                  <div className="flex justify-center gap-8 sm:gap-12 md:gap-16 lg:gap-24">
-                    <div className="w-16 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
+                  <div className="flex justify-center gap-8 max-[418px]:gap-4 max-[339px]:gap-2 sm:gap-12 md:gap-16 lg:gap-24">
+                    <div className="flex-shrink-0 w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
                     {fieldBoard.extraMonsters.slice(0, 2).map((card, index) => {
                       const isDef =
                         (fieldBoard.extraMonsterPositions?.[index] ?? 'atk') === 'def';
                       return (
                         <div
                           key={`extra-${index}`}
-                          className="relative w-16 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
+                          className="flex-shrink-0 relative w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
                         >
                           {isEditMode && (
                             <button
@@ -650,18 +649,18 @@ export const FinalBoardPreview = ({
                         </div>
                       );
                     })}
-                    <div className="w-16 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
+                    <div className="flex-shrink-0 w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
                   </div>
 
                   {/* Monster Zones */}
-                  <div className="flex justify-center gap-2 sm:gap-3 md:gap-6">
+                  <div className="flex justify-center gap-3 max-[418px]:gap-4 max-[339px]:gap-1 sm:gap-4 md:gap-6">
                     {fieldBoard.monsters.map((card, index) => {
                       const isDef =
                         (fieldBoard.monsterPositions?.[index] ?? 'atk') === 'def';
                       return (
                         <div
                           key={`monster-${index}`}
-                          className="relative w-16 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
+                          className="flex-shrink-0 relative w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
                         >
                           {isEditMode && (
                             <button
@@ -692,11 +691,11 @@ export const FinalBoardPreview = ({
                   </div>
 
                   {/* Spell/Trap Zones */}
-                  <div className="flex justify-center gap-2 sm:gap-3 md:gap-6">
+                  <div className="flex justify-center gap-3 max-[418px]:gap-4 max-[339px]:gap-1 sm:gap-4 md:gap-6">
                     {fieldBoard.spellTraps.map((card, index) => (
                       <div
                         key={`spell-${index}`}
-                        className="w-16 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
+                        className="flex-shrink-0 w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
                       >
                         {renderZone(card, "spellTrap", index)}
                       </div>
@@ -710,7 +709,7 @@ export const FinalBoardPreview = ({
                 ${
                   isResponsive
                     ? "flex flex-row justify-center items-center gap-6 w-full order-3 mt-4"
-                    : "flex flex-row lg:flex-col gap-4 sm:gap-6 items-center justify-center self-center order-2 lg:order-3"
+                    : "flex flex-row lg:flex-col gap-4 sm:gap-6 min-[1024px]:max-[1100px]:gap-4 items-center justify-center self-center order-2 lg:order-3"
                 }
               `}
                 >

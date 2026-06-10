@@ -16,7 +16,7 @@ export const TrendingBadge: React.FC<TrendingBadgeProps> = ({
   bestTrending,
 }) => {
   return (
-    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#c2901c]/20 to-[#a67615]/10 border border-[#c2901c]/40 mb-5">
+    <div className="inline-flex items-center gap-2 px-4 py-2 max-[1095px]:text-xs max-[1095px]:px-2 max-[1095px]:py-1 max-[1095px]:gap-1 max-[639px]:text-[10px] max-[639px]:px-1.5 max-[639px]:py-0.5 max-[639px]:gap-0.5 whitespace-nowrap rounded-lg bg-gradient-to-r from-[#c2901c]/20 to-[#a67615]/10 border border-[#c2901c]/40 mb-5 max-[1023px]:mb-1">
       <Trophy className="w-5 h-5 text-[#c2901c]" />
       <div className="flex items-center gap-2 text-sm font-semibold">
         <span className="bg-gradient-to-r from-[#f4d68f] to-[#c2901c] bg-clip-text text-transparent">

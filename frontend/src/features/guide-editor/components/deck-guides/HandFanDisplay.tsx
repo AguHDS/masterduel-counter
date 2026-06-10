@@ -69,7 +69,7 @@ export const HandFanDisplay = ({
   }
 
   return (
-    <div className="relative flex justify-center items-end h-full w-full scale-[0.85] sm:scale-90 md:scale-95 lg:scale-100">
+    <div className="relative flex justify-center items-end h-full w-full scale-[0.85] max-[500px]:scale-[0.70] sm:scale-90 md:scale-95 lg:scale-100">
       {cards.map((card, cardIndex) => {
         const rotation = getCardFanRotation(cardIndex, cards.length);
         const translateY = getCardFanTranslateY(cardIndex, cards.length);

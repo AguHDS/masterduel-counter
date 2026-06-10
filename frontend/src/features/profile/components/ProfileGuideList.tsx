@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Eye, FileText } from "lucide-react";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import type { GuideListItem } from "@/lib/http/guideInstancesApi";
-import { buildGuidePath } from "@/lib/config/urlHelpers";
+import { buildGuideEditorPath, buildGuidePath } from "@/lib/config/urlHelpers";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
 interface FavoritedGuidesListProps {
@@ -82,6 +82,12 @@ export const ProfileGuideList = ({
   };
 
   const handleGuideClick = (guide: GuideListItem) => {
+    if (guide.isDraft) {
+      // Draft guides navigate to the creation page for that archetype with the draft ID
+      const editorPath = buildGuideEditorPath({ archetypeId: guide.archetypeId, instanceId: "new" });
+      navigate(`${editorPath}?type=${guide.guideType === "COUNTER" ? "counter" : "deck"}&draftId=${guide.id}`);
+      return;
+    }
     navigate(
       buildGuidePath({
         guideId: guide.id,
@@ -181,8 +187,12 @@ export const ProfileGuideList = ({
                 {/* Glow border effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm" />
 
-                {/* Main row */}
-                <div className="relative bg-gradient-to-r from-[#1a1545]/95 via-purple-950/60 to-[#1a1545]/95 rounded-lg border-2 border-[#3d3470]/70 group-hover:border-blue-800/80 cursor-pointer overflow-hidden">
+                {/* Main row — draft guides get a grey/muted style */}
+                <div className={`relative rounded-lg border-2 cursor-pointer overflow-hidden ${
+                  guide.isDraft
+                    ? "bg-gradient-to-r from-slate-800/80 via-slate-700/50 to-slate-800/80 border-slate-600/60 group-hover:border-slate-500/80 opacity-80"
+                    : "bg-gradient-to-r from-[#1a1545]/95 via-purple-950/60 to-[#1a1545]/95 border-[#3d3470]/70 group-hover:border-blue-800/80"
+                }`}>
                   {/* Desktop Layout */}
                   <div className="hidden xl:flex items-center gap-4 p-3">
                     {/* ID Number */}
@@ -198,7 +208,7 @@ export const ProfileGuideList = ({
                         <img
                           src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
                           alt={guide.headerCardName || "Card"}
-                          className="h-[65px] w-[65px] object-cover rounded border-2 border-cyan-500/60 group-hover:border-cyan-400 shadow-lg"
+                          className={`h-[65px] w-[65px] object-cover rounded border-2 shadow-lg ${guide.isDraft ? "border-slate-500/60 grayscale" : "border-cyan-500/60 group-hover:border-cyan-400"}`}
                           loading="lazy"
                         />
                       ) : (
@@ -208,16 +218,22 @@ export const ProfileGuideList = ({
                       )}
                     </div>
 
-                    {/* Title */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-base font-bold text-white group-hover:text-cyan-300  truncate">
+                    {/* Title + Draft badge */}
+                    <div className="flex-1 min-w-0 flex items-center gap-2">
+                      <h4 className={`text-base font-bold truncate ${guide.isDraft ? "text-slate-300 group-hover:text-slate-100" : "text-white group-hover:text-cyan-300"}`}>
                         {guide.title}
                       </h4>
+                      {guide.isDraft && (
+                        <span className="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-600/70 border border-slate-500/60 text-slate-300 text-xs font-semibold">
+                          <FileText className="h-3 w-3" />
+                          Draft
+                        </span>
+                      )}
                     </div>
 
                     {/* Archetype */}
                     <div className="flex-shrink-0 w-40">
-                      <p className="text-sm font-semibold text-white truncate">
+                      <p className={`text-sm font-semibold truncate ${guide.isDraft ? "text-slate-400" : "text-white"}`}>
                         {guide.archetypeName}
                       </p>
                     </div>
@@ -233,23 +249,25 @@ export const ProfileGuideList = ({
                       </span>
                     </div>
 
-                    {/* Likes */}
-                    <div className="flex-shrink-0 w-[180px] text-right">
-                      <div className="inline-flex items-center gap-3 text-sm font-bold">
-                        <span className="inline-flex items-center gap-1 text-purple-400">
-                          <Eye className="h-4 w-4" /> {guide.views}
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-green-400">
-                          <span className="text-lg">↑</span> {guide.likes}
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-yellow-400">
-                          <Star className="h-4 w-4" /> {guide.favorites}
-                        </span>
+                    {/* Stats — hidden for drafts */}
+                    {!guide.isDraft && (
+                      <div className="flex-shrink-0 w-[180px] text-right">
+                        <div className="inline-flex items-center gap-3 text-sm font-bold">
+                          <span className="inline-flex items-center gap-1 text-purple-400">
+                            <Eye className="h-4 w-4" /> {guide.views}
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-green-400">
+                            <span className="text-lg">↑</span> {guide.likes}
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-yellow-400">
+                            <Star className="h-4 w-4" /> {guide.favorites}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Remove Favorite Button */}
-                    {showFavoriteButton && onRemoveFavorite && (
+                    {showFavoriteButton && onRemoveFavorite && !guide.isDraft && (
                       <div className="flex-shrink-0">
                         <button
                           onClick={(e) =>
@@ -277,7 +295,7 @@ export const ProfileGuideList = ({
                           <img
                             src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
                             alt={guide.headerCardName || "Card"}
-                            className="h-[55px] w-[55px] object-cover rounded border-2 border-cyan-500/60 group-hover:border-cyan-400  shadow-lg"
+                            className={`h-[55px] w-[55px] object-cover rounded border-2 shadow-lg ${guide.isDraft ? "border-slate-500/60 grayscale" : "border-cyan-500/60 group-hover:border-cyan-400"}`}
                             loading="lazy"
                           />
                         ) : (
@@ -291,13 +309,21 @@ export const ProfileGuideList = ({
 
                       {/* Content */}
                       <div className="flex-1 min-w-0 flex flex-col gap-2">
-                        {/* Title */}
-                        <h4 className="text-sm font-bold text-white group-hover:text-cyan-300  line-clamp-2">
-                          {guide.title}
-                        </h4>
+                        {/* Title + Draft badge */}
+                        <div className="flex items-center gap-2">
+                          <h4 className={`text-sm font-bold line-clamp-2 ${guide.isDraft ? "text-slate-300 group-hover:text-slate-100" : "text-white group-hover:text-cyan-300"}`}>
+                            {guide.title}
+                          </h4>
+                          {guide.isDraft && (
+                            <span className="flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-600/70 border border-slate-500/60 text-slate-300 text-xs font-semibold">
+                              <FileText className="h-2.5 w-2.5" />
+                              Draft
+                            </span>
+                          )}
+                        </div>
 
                         {/* Archetype */}
-                        <p className="text-xs font-semibold text-cyan-400/80 truncate">
+                        <p className={`text-xs font-semibold truncate ${guide.isDraft ? "text-slate-400" : "text-cyan-400/80"}`}>
                           {guide.archetypeName}
                         </p>
 
@@ -313,33 +339,35 @@ export const ProfileGuideList = ({
                               },
                             )}
                           </span>
-                          <div className="flex items-center gap-3">
-                            <span className="inline-flex items-center gap-1 text-green-400 font-bold">
-                              <span className="text-base">↑</span> {guide.likes}
-                            </span>
-                            <span className="inline-flex items-center gap-1 text-yellow-400 font-bold">
-                              <Star className="h-3.5 w-3.5" /> {guide.favorites}
-                            </span>
-                            <span className="inline-flex items-center gap-1 text-violet-300 font-bold">
-                              <Eye className="h-3.5 w-3.5" /> {guide.views}
-                            </span>
-                            {showFavoriteButton && onRemoveFavorite && (
-                              <button
-                                onClick={(e) =>
-                                  handleRemoveFavorite(
-                                    e,
-                                    guide.id,
-                                    guide.archetypeId,
-                                  )
-                                }
-                                disabled={removingId === guide.id}
-                                className="p-1 hover:bg-yellow-500/10 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Remove from favorites"
-                              >
-                                <Star className="w-4 h-4 text-yellow-400" />
-                              </button>
-                            )}
-                          </div>
+                          {!guide.isDraft && (
+                            <div className="flex items-center gap-3">
+                              <span className="inline-flex items-center gap-1 text-green-400 font-bold">
+                                <span className="text-base">↑</span> {guide.likes}
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-yellow-400 font-bold">
+                                <Star className="h-3.5 w-3.5" /> {guide.favorites}
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-violet-300 font-bold">
+                                <Eye className="h-3.5 w-3.5" /> {guide.views}
+                              </span>
+                              {showFavoriteButton && onRemoveFavorite && (
+                                <button
+                                  onClick={(e) =>
+                                    handleRemoveFavorite(
+                                      e,
+                                      guide.id,
+                                      guide.archetypeId,
+                                    )
+                                  }
+                                  disabled={removingId === guide.id}
+                                  className="p-1 hover:bg-yellow-500/10 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                                  title="Remove from favorites"
+                                >
+                                  <Star className="w-4 h-4 text-yellow-400" />
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

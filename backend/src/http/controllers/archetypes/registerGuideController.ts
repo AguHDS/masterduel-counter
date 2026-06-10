@@ -14,7 +14,7 @@ export const registerGuideController = async (
       return;
     }
     const archetypeId = parseInt(id);
-    const { guideType, cardPairs, initialHands, title, headerCardId, generalTip, instanceId, comboSteps } = req.body;
+    const { guideType, cardPairs, initialHands, title, headerCardId, generalTip, instanceId, comboSteps, draftInstanceId } = req.body;
     const userId = (req as AuthenticatedRequest).user?.id;
 
     if (!userId) {
@@ -41,6 +41,7 @@ export const registerGuideController = async (
       initialHands: guideType === "DECK" ? initialHands : undefined,
       instanceId,
       comboSteps: guideType === "DECK" ? comboSteps : undefined,
+      draftInstanceId: draftInstanceId ? parseInt(String(draftInstanceId), 10) : undefined,
     });
 
     res.status(200).json({

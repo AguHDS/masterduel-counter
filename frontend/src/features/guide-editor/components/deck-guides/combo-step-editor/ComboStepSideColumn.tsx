@@ -70,7 +70,7 @@ export const ComboStepSideColumn = ({
         {label}
       </span>
 
-      <div className="flex flex-col gap-1 items-center" style={{ minHeight: "232px" }}>
+      <div className="flex flex-col gap-1 items-center max-[450px]:!min-h-[120px]" style={{ minHeight: "232px" }}>
         {visibleSlotIndexes.map(renderSlot)}
 
         {isExpanded && extraSlotIndexes.map(renderSlot)}

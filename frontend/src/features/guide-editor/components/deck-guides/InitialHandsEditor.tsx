@@ -316,7 +316,7 @@ export const InitialHandsEditor = ({
     <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-bold text-blue-300">Initial Hands</h3>
+          <h3 className="text-xl font-bold text-blue-300 max-[500px]:text-sm">Initial Hands</h3>
           {isEditMode && (
             <p className="text-sm text-gray-400">
               Add sample starting hands (max 5 cards each)
@@ -342,7 +342,7 @@ export const InitialHandsEditor = ({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+          <div className="grid max-[450px]:grid-cols-[repeat(auto-fit,160px)] min-[349px]:max-[367px]:grid-cols-[repeat(auto-fit,140px)] max-[639px]:grid-cols-[repeat(auto-fit,170px)] sm:grid-cols-[repeat(auto-fit,190px)] md:grid-cols-[repeat(auto-fit,210px)] lg:grid-cols-[repeat(auto-fit,230px)] xl:grid-cols-[repeat(auto-fit,250px)] min-[1800px]:grid-cols-6 max-[639px]:gap-3 gap-8 justify-center">
             {initialHands.map((hand, index) => {
               const hasFieldBoard = !!hand.finalBoard;
               const isPreviewSelected = selectedPreviewHandId === hand.id;
@@ -358,13 +358,13 @@ export const InitialHandsEditor = ({
               return (
                 <div
                   key={hand.id}
-                  className={`space-y-3 transition-all ${isDragging ? "opacity-40 scale-95" : ""} ${isDragOver ? "ring-2 ring-blue-400/70 rounded-sm" : ""}`}
+                  className={`space-y-3 max-[500px]:space-y-2 transition-all ${isDragging ? "opacity-40 scale-95" : ""} ${isDragOver ? "ring-2 ring-blue-400/70 rounded-sm" : ""}`}
                   onDragOver={(e) => isEditMode && handleDragOver(e, index)}
                   onDrop={(e) => isEditMode && handleDrop(e, index)}
                   onDragEnd={() => isEditMode && handleDragEnd()}
                 >
                   <div
-                    className={`relative bg-gray-900/50 border-blue-500/40 cursor-default border rounded-sm p-3 flex flex-col overflow-hidden transition-all ${
+                    className={`relative bg-gray-900/50 border-blue-500/40 cursor-default border rounded-sm p-3 max-[639px]:p-1.5 max-[500px]:p-2 max-[500px]:max-h-[90%] flex flex-col overflow-hidden transition-all ${
                       isPreviewSelected ? "ring-2 ring-green-500/50" : ""
                     } ${
                       isShowSelected
@@ -457,7 +457,7 @@ export const InitialHandsEditor = ({
                       </div>
                     )}
 
-                    <div className="relative z-10 flex items-end justify-center h-24 px-2">
+                    <div className="relative z-10 flex items-end justify-center h-24 px-2 max-[500px]:top-3">
                       <HandFanDisplay
                         cards={hand.cards}
                         isEditing={isEditMode && isEditing}

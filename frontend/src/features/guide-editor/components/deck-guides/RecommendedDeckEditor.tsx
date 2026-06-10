@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, ChevronDown } from "lucide-react";
 import { DeckBuilderCardSearchModal } from "@/features/archetypes/components/DeckBuilderCardSearchModal";
 import { DeckZoneSection } from "@/features/archetypes/components/DeckZoneSection";
 import { validateDeckCardAddition } from "@/features/archetypes/utils/deckValidation";
@@ -47,6 +47,7 @@ export const RecommendedDeckEditor = ({
   const [mainDeck, setMainDeck] = useState<Card[]>(initialMainDeck);
   const [extraDeck, setExtraDeck] = useState<Card[]>(initialExtraDeck);
   const [sideDeck, setSideDeck] = useState<Card[]>(initialSideDeck);
+  const [isSideDeckOpen, setIsSideDeckOpen] = useState(false);
   const [showSideDeck, setShowSideDeck] = useState<boolean>(
     initialSideDeck.length > 0,
   );
@@ -82,38 +83,21 @@ export const RecommendedDeckEditor = ({
     mainDeck.length > 0 || extraDeck.length > 0 || sideDeck.length > 0;
 
   useEffect(() => {
-    if (
-      !isEditMode ||
-      JSON.stringify(mainDeck) !== JSON.stringify(initialMainDeck)
-    ) {
-      setMainDeck(initialMainDeck);
-    }
-  }, [initialMainDeck, isEditMode, mainDeck]);
+    setMainDeck(initialMainDeck);
+  }, [initialMainDeck]);
 
   useEffect(() => {
-    if (
-      !isEditMode ||
-      JSON.stringify(extraDeck) !== JSON.stringify(initialExtraDeck)
-    ) {
-      setExtraDeck(initialExtraDeck);
-    }
-  }, [initialExtraDeck, isEditMode, extraDeck]);
+    setExtraDeck(initialExtraDeck);
+  }, [initialExtraDeck]);
 
   useEffect(() => {
-    if (
-      !isEditMode ||
-      JSON.stringify(sideDeck) !== JSON.stringify(initialSideDeck)
-    ) {
-      setSideDeck(initialSideDeck);
-      setShowSideDeck(initialSideDeck.length > 0);
-    }
-  }, [initialSideDeck, isEditMode, sideDeck]);
+    setSideDeck(initialSideDeck);
+    setShowSideDeck(initialSideDeck.length > 0);
+  }, [initialSideDeck]);
 
   useEffect(() => {
-    if (!isEditMode || title !== initialTitle) {
-      setTitle(initialTitle);
-    }
-  }, [initialTitle, isEditMode, title]);
+    setTitle(initialTitle);
+  }, [initialTitle]);
 
   const handleAddCard = (zone: DeckZone, _anchor: HTMLElement) => {
     setTargetZone(zone);
@@ -269,24 +253,24 @@ export const RecommendedDeckEditor = ({
   }
 
   return (
-    <div className="mt-8 flex flex-wrap items-stretch justify-center gap-4">
-      <div className="relative w-[60%]  rounded-[26px] border border-blue-500/45 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-4 shadow-[0_0_44px_rgba(37,99,235,0.16)] sm:p-5 lg:max-w-[68%]">
+    <div className="mt-8 flex flex-wrap items-stretch justify-center gap-4 max-[700px]:-mx-4 max-[700px]:sm:-mx-6">
+      <div className="relative w-full min-[851px]:w-[75%] min-[1024px]:w-[85%] min-[1200px]:w-[62%] rounded-[26px] border border-blue-500/45 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-4 shadow-[0_0_44px_rgba(37,99,235,0.16)] sm:p-5 max-[400px]:p-3">
         <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_38%)]" />
         <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
 
         <div className="relative z-10">
           <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <h4 className="text-xl font-bold text-blue-200">{title}</h4>
-                <span className="rounded-full border border-sky-400/20 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-200/90">
+              <div className="flex flex-wrap items-center gap-2 max-[400px]:gap-1">
+                <h4 className="text-xl font-bold text-blue-200 break-words max-[500px]:text-lg max-[400px]:text-base">{title}</h4>
+                <span className="rounded-full border border-sky-400/20 bg-sky-500/10 px-2.5 py-1 text-[10px] max-[400px]:text-[8px] max-[400px]:px-1.5 max-[400px]:py-0.5 font-semibold uppercase tracking-[0.24em] text-sky-200/90">
                   {mainDeck.length} main
                 </span>
-                <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-violet-200/90">
+                <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[10px] max-[400px]:text-[8px] max-[400px]:px-1.5 max-[400px]:py-0.5 font-semibold uppercase tracking-[0.24em] text-violet-200/90">
                   {extraDeck.length} extra
                 </span>
                 {showSideDeck && (
-                  <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
+                  <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[10px] max-[400px]:text-[8px] max-[400px]:px-1.5 max-[400px]:py-0.5 font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
                     {sideDeck.length} side
                   </span>
                 )}
@@ -381,47 +365,66 @@ export const RecommendedDeckEditor = ({
                 draggedCardActive={!!draggedCard}
               />
             )}
-            {showSideDeck ? (
-              <DeckZoneSection
-                zone="side"
-                cards={sideDeck}
-                isEditMode={isEditMode}
-                canEdit={isEditMode}
-                emptyMessage={
-                  isEditMode
-                    ? `Click here to add cards to ${getDeckZoneLabel("side")}`
-                    : `No cards in ${getDeckZoneLabel("side")}`
-                }
-                cardKey={(card, index) => `side-${card.id}-${index}`}
-                onAddCard={handleAddCard}
-                onRemoveCard={handleRemoveCard}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onDragEnd={handleDragEnd}
-                draggedCardActive={!!draggedCard}
-                extraActions={
-                  <button
-                    onClick={handleRemoveSideDeck}
-                    className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition-colors hover:bg-red-500/18"
-                  >
-                    Remove Side Deck
-                  </button>
-                }
-              />
-            ) : (
-              isEditMode && (
-                  <div className="text-center">
-                    <button
-                      onClick={handleAddSideDeck}
-                      className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition-colors hover:bg-cyan-500/16"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span>Add Side Deck</span>
-                    </button>
+            {(!showSideDeck && !isEditMode) ? null : (
+              <div className="rounded-[22px] border border-cyan-400/20 bg-cyan-950/10 p-4 shadow-[0_18px_38px_rgba(2,6,23,0.32)]">
+                <button
+                  onClick={() => setIsSideDeckOpen(!isSideDeckOpen)}
+                  className="flex w-full items-center justify-between gap-3 py-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-semibold text-white">Side Deck</span>
+                    <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
+                      {sideDeck.length}
+                    </span>
                   </div>
-                )
-              )}
+                  <div className="flex items-center gap-2">
+                    {showSideDeck && isEditMode && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleRemoveSideDeck(); }}
+                        className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition-colors hover:bg-red-500/18"
+                      >
+                        Remove
+                      </button>
+                    )}
+                    <ChevronDown className={`w-5 h-5 text-cyan-300 transition-transform duration-200 ${isSideDeckOpen ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+                <div className={`overflow-hidden transition-all duration-300 ${isSideDeckOpen ? 'max-h-[2000px]' : 'max-h-0'}`}>
+                  {showSideDeck ? (
+                    <DeckZoneSection
+                      zone="side"
+                      cards={sideDeck}
+                      isEditMode={isEditMode}
+                      canEdit={isEditMode}
+                      hideTitle
+                      emptyMessage={
+                        isEditMode
+                          ? `Click here to add cards to ${getDeckZoneLabel("side")}`
+                          : `No cards in ${getDeckZoneLabel("side")}`
+                      }
+                      cardKey={(card, index) => `side-${card.id}-${index}`}
+                      onAddCard={handleAddCard}
+                      onRemoveCard={handleRemoveCard}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                      onDragEnd={handleDragEnd}
+                      draggedCardActive={!!draggedCard}
+                    />
+                  ) : (
+                    <div className="text-center pt-4">
+                      <button
+                        onClick={handleAddSideDeck}
+                        className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition-colors hover:bg-cyan-500/16"
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span>Add Side Deck</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {!hasDeck && isEditMode && (
               <div className="rounded-[18px] border border-dashed border-slate-700/70 bg-slate-950/25 px-5 py-10 text-center text-sm text-slate-400">

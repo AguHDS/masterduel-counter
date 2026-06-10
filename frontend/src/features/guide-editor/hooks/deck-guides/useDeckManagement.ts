@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import type { Card } from "@/features/archetypes/types";
 
 interface DeckData {
@@ -56,6 +56,11 @@ export const useDeckManagement = ({
   const [deckExtraCards, setDeckExtraCards] = useState<Card[]>(memoizedExtraDeck);
   const [deckSideCards, setDeckSideCards] = useState<Card[]>(memoizedSideDeck);
   
+  // Track whether initial auto-show has happened (prevents re-show after user deletion)
+  const initialAutoShowDone = useRef(false);
+  // Track whether initial deck sync from server has happened in edit mode (prevents overwriting user edits)
+  const initialSyncDone = useRef(false);
+
   // Deck visibility and backup state
   const [showRecommendedDeck, setShowRecommendedDeck] = useState(false);
   const [originalDeckState, setOriginalDeckState] = useState<{
@@ -92,6 +97,7 @@ export const useDeckManagement = ({
    * - View mode: Actually deletes from server
    */
   const handleDeleteDeck = useCallback(async () => {
+    initialAutoShowDone.current = true;
     if (isEditMode && isOwner) {
       // In edit mode, only hide locally
       setShowRecommendedDeck(false);
@@ -134,18 +140,29 @@ export const useDeckManagement = ({
     deckSideCards,
   ]);
 
-  // Sync deck state from server when not editing
+  // Sync deck state from server
   useEffect(() => {
     if (!isEditMode || !isOwner) {
+      // View mode: always sync from server
       setDeckTitle(recommendedDeck.deck?.title || "Recommended Deck");
       setDeckMainCards(recommendedDeck.deck?.mainDeck || []);
       setDeckExtraCards(recommendedDeck.deck?.extraDeck || []);
       setDeckSideCards(recommendedDeck.deck?.sideDeck || []);
+      initialSyncDone.current = false;
     } else if (recommendedDeck.deck === null) {
+      // No deck on server
       setDeckTitle("Recommended Deck");
       setDeckMainCards([]);
       setDeckExtraCards([]);
       setDeckSideCards([]);
+      initialSyncDone.current = false;
+    } else if (recommendedDeck.deck && !initialSyncDone.current) {
+      // Edit mode with loaded deck: populate from server ONCE
+      initialSyncDone.current = true;
+      setDeckTitle(recommendedDeck.deck.title || "Recommended Deck");
+      setDeckMainCards(recommendedDeck.deck.mainDeck || []);
+      setDeckExtraCards(recommendedDeck.deck.extraDeck || []);
+      setDeckSideCards(recommendedDeck.deck.sideDeck || []);
     }
   }, [recommendedDeck.deck, isEditMode, isOwner]);
 
@@ -156,14 +173,16 @@ export const useDeckManagement = ({
     }
   }, [isEditMode, recommendedDeck.deck]);
 
-  // Show deck in edit mode if it exists
+  // Show deck in edit mode if it exists (only once, respects user deletion)
   useEffect(() => {
     if (
       isEditMode &&
       isOwner &&
       recommendedDeck.deck &&
-      !showRecommendedDeck
+      !showRecommendedDeck &&
+      !initialAutoShowDone.current
     ) {
+      initialAutoShowDone.current = true;
       setShowRecommendedDeck(true);
     }
   }, [recommendedDeck.deck, isEditMode, isOwner, showRecommendedDeck]);

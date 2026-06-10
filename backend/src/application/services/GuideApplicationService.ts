@@ -4,6 +4,7 @@ import {
   GuideUpdateDTO,
   GuideListItem,
   RegisterGuideDTO,
+  SaveDraftDTO,
   GuideType,
 } from "@/domain/Guide.js";
 import { GuideInstanceServicePort } from "../ports/GuideApplicationPort.js";
@@ -87,6 +88,68 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     return this.instanceRepository.updateArchetypeGuide(id, data);
   }
 
+  /** Saves or updates a draft guide (max 3 drafts per user) */
+  async saveDraft(data: SaveDraftDTO): Promise<Guide> {
+    const MAX_DRAFTS = 3;
+    const {
+      archetypeId,
+      userId,
+      guideType,
+      title,
+      headerCardId,
+      generalTip,
+      cardPairs,
+      initialHands,
+      comboSteps,
+      draftInstanceId,
+      draftExpiresAt,
+    } = data;
+
+    if (draftInstanceId) {
+      // Update existing draft — verify ownership and that it is actually a draft
+      const existing = await this.instanceRepository.findArchetypeInstanceById(draftInstanceId);
+      if (!existing) throw new Error("Draft not found");
+      if (existing.userId !== userId) throw new Error("Unauthorized: You can only edit your own drafts");
+      if (!existing.isDraft) throw new Error("This guide is not a draft");
+    } else {
+      // Creating a new draft — enforce the 3-draft limit
+      const draftCount = await this.instanceRepository.getUserDraftCount(userId);
+      if (draftCount >= MAX_DRAFTS) {
+        throw new Error("You can't have more than three draft at a time");
+      }
+    }
+
+    const draft = await this.instanceRepository.saveDraft({
+      archetypeId,
+      userId,
+      guideType,
+      title,
+      headerCardId,
+      generalTip,
+      cardPairs,
+      initialHands,
+      comboSteps,
+      draftInstanceId,
+      draftExpiresAt,
+    });
+
+    return draft;
+  }
+
+  /** Deletes a draft guide (only the owner can delete their own drafts) */
+  async deleteDraft(instanceId: number, userId: string): Promise<void> {
+    const instance = await this.instanceRepository.findArchetypeInstanceById(instanceId);
+    if (!instance) throw new Error("Draft not found");
+    if (instance.userId !== userId) throw new Error("Unauthorized: You can only delete your own drafts");
+    if (!instance.isDraft) throw new Error("This guide is not a draft");
+    await this.instanceRepository.deleteArchetypeInstanceById(instanceId);
+  }
+
+  /** Gets the number of draft guides a user currently has */
+  async getUserDraftCount(userId: string): Promise<number> {
+    return this.instanceRepository.getUserDraftCount(userId);
+  }
+
   async registerGuide(
     data: RegisterGuideDTO,
   ): Promise<Guide> {
@@ -101,6 +164,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
       initialHands,
       instanceId,
       comboSteps,
+      draftInstanceId,
     } = data;
 
     // Validate title
@@ -248,6 +312,14 @@ export class GuideApplicationService implements GuideInstanceServicePort {
     const archetype = await this.archetypeRepository.findArchetypeById(archetypeId);
     if (archetype && !archetype.registered) {
       await this.archetypeRepository.updateExistingArchetype(archetypeId, { registered: true });
+    }
+
+    // If publishing from a draft, delete the draft
+    if (draftInstanceId) {
+      const draft = await this.instanceRepository.findArchetypeInstanceById(draftInstanceId);
+      if (draft && draft.userId === userId && draft.isDraft) {
+        await this.instanceRepository.deleteArchetypeInstanceById(draftInstanceId);
+      }
     }
 
     return instance;

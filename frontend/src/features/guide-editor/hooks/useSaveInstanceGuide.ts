@@ -37,6 +37,8 @@ interface SaveInstanceParams {
   hasDeckContent: boolean;
   existingDeck: boolean;
   comboSteps?: Map<string, ComboStep[]>;
+  /** If publishing from a draft, pass the draft ID so it gets deleted after publish */
+  draftInstanceId?: number;
   /** Optional callback invoked after saving but before redirect. Receives the new instance id */
   onAfterSave?: (instanceId: number) => Promise<void>;
 }
@@ -186,6 +188,7 @@ export const useSaveInstanceGuide = () => {
       hasDeckContent,
       existingDeck,
       comboSteps,
+      draftInstanceId,
       onAfterSave,
     } = params;
 
@@ -377,6 +380,7 @@ export const useSaveInstanceGuide = () => {
         generalTip: processedGeneralTip || undefined,
         instanceId: instanceId,
         comboSteps: comboStepsForApi,
+        draftInstanceId,
       });
 
       // Save or delete recommended deck based on content

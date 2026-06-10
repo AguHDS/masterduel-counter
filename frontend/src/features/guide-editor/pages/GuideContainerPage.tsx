@@ -143,8 +143,7 @@ export const GuideContainerPage = () => {
         <div className="min-h-screen bg-gradient-to-b flex flex-col">
           <Navbar />
           <main
-            className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 mb-9"
-            style={{ maxWidth: "87.5rem" }}
+            className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 mb-9 lg:max-w-[87.5rem]"
             role="main"
             aria-label="Main content"
           >
@@ -258,7 +257,7 @@ export const GuideContainerPage = () => {
       <div className="min-h-screen bg-gradient-to-b flex flex-col">
         <Navbar />
         
-        <div className="scale-[0.92] origin-top">
+        <div className="lg:origin-top xl:scale-[0.92]">
           <MainLogo />
 
           {/* Main Search Section */}
@@ -286,7 +285,7 @@ export const GuideContainerPage = () => {
           </div>
 
           {isEditMode && (
-            <div className="max-w-[98rem] mx-auto px-4 sm:px-14 lg:px-16 w-full z-20">
+            <div className="lg:max-w-[98rem] mx-auto px-4 sm:px-14 lg:px-16 w-full z-20">
               <div className="flex justify-center">
                 <button
                   onClick={() => setIsGuideHelpOpen(true)}
@@ -305,8 +304,7 @@ export const GuideContainerPage = () => {
           )}
 
           <main
-            className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 mb-9"
-            style={{ maxWidth: "93%" }}
+            className="flex-1 w-full mx-auto max-[1023px]:px-0 px-0 xl:px-4 mb-9 min-[1300px]:max-w-[93%] min-[1024px]:max-[1250px]:max-w-full min-[1300px]:max-[1600px]:max-w-full"
             role="main"
             aria-label="Main content"
           >
@@ -321,7 +319,7 @@ export const GuideContainerPage = () => {
           </main>
 
           {instanceIdNum && (
-            <div className="max-w-[84rem] mx-auto px-4 sm:px-14 lg:px-16 w-full mb-12">
+            <div className="lg:max-w-[84rem] mx-auto px-4 sm:px-14 lg:px-16 w-full mb-12">
               <CommentSection
                 instanceId={instanceIdNum}
                 title={"Comments"}

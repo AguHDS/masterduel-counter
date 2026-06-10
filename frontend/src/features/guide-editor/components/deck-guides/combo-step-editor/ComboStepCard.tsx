@@ -62,9 +62,9 @@ export const ComboStepCard = ({
 
   return (
     <div
-      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : 'p-3 pt-8'} ${
+      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : 'p-2 pt-6 max-[860px]:p-1.5 max-[860px]:pt-4'} ${
         isContext ? 'opacity-70' : ''
-      }`}
+      } ${hasSideCards ? 'max-[345px]:overflow-x-auto max-[345px]:overflow-y-hidden' : ''}`}
       style={{
         width: _isEditMode ? "370px" : fitToColumn ? "100%" : compactViewWidth,
         minWidth: _isEditMode ? "370px" : fitToColumn ? "0" : compactViewWidth,
@@ -75,8 +75,8 @@ export const ComboStepCard = ({
           : isDescriptionExpanded
             ? "auto"
             : compactMode
-              ? "300px"
-              : "320px",
+              ? "250px"
+              : "270px",
         height: isDescriptionExpanded ? "auto" : undefined,
         boxSizing: "border-box",
       }}
@@ -104,12 +104,12 @@ export const ComboStepCard = ({
       )}
 
       {/* Layout: Left Sub Cards + Main Card + Right Sub Cards */}
-      <div className={`flex items-start ${_isEditMode ? 'max-h-[200px]' : 'max-h-[160px] max-[860px]:max-h-[124px]'} ${_isEditMode ? 'gap-2' : 'gap-1.5 max-[860px]:gap-1'} justify-center flex-shrink-0`}>
+      <div className={`flex items-start ${_isEditMode ? 'max-h-[200px]' : 'max-h-[160px] max-[860px]:max-h-[124px]'} ${_isEditMode ? 'gap-2' : 'gap-1 max-[860px]:gap-0.5'} justify-center flex-shrink-0 ${hasSideCards ? 'max-[345px]:justify-start' : ''}`}>
         {/* Left Sub Cards OR Invisible Placeholder for balance */}
         {step.leftSubCards.length > 0 ? (
           <>
             <div className="flex flex-col items-center gap-1">
-              <span className={`${_isEditMode ? 'text-[10px]' : 'text-[8px] max-[860px]:text-[7px]'} font-bold text-gray-500 uppercase tracking-wide`}>
+              <span className={`${_isEditMode ? 'text-[10px]' : 'text-[8px] max-[860px]:text-[7px] max-[556px]:text-[6px]'} font-bold text-gray-500 uppercase tracking-wide`}>
                 MATERIAL
               </span>
               <div className="flex gap-1">
@@ -126,7 +126,7 @@ export const ComboStepCard = ({
                           <img
                             src={card.imageUrlSmall}
                             alt={card.name}
-                            className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px] max-[860px]:top-[19px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                            className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8 max-[700px]:w-[18px] max-[700px]:h-[25px]'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px] max-[860px]:top-[19px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                           />
                         </CardTooltip>
                         {card.chainNumber != null && (
@@ -160,7 +160,7 @@ export const ComboStepCard = ({
                         <img
                           src={card.imageUrlSmall}
                           alt={card.name}
-                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8 max-[700px]:w-[18px] max-[700px]:h-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                         />
                       </CardTooltip>
                       {card.chainNumber != null && (
@@ -199,7 +199,7 @@ export const ComboStepCard = ({
             </div>
 
             {/* Equals separator */}
-            <span className={`text-blue-400 ${_isEditMode ? 'text-lg' : 'text-base max-[860px]:text-sm'} font-bold self-center ${_isEditMode ? 'bottom-3' : 'bottom-2 max-[860px]:bottom-1'} relative`}>
+            <span className={`text-blue-400 ${_isEditMode ? 'text-lg' : 'text-base max-[860px]:text-sm max-[556px]:text-[8px]'} font-bold self-center ${_isEditMode ? 'bottom-3' : 'bottom-2 max-[860px]:bottom-1'} relative`}>
               =
             </span>
           </>
@@ -208,14 +208,14 @@ export const ComboStepCard = ({
           <div className="flex gap-1 opacity-0 pointer-events-none" aria-hidden="true">
             <div className="flex flex-col gap-1" style={{ minHeight: _isEditMode ? "232px" : "154px", width: _isEditMode ? "40px" : "24px" }}>
             </div>
-            <span className={`text-blue-400 ${_isEditMode ? 'text-lg' : 'text-base max-[860px]:text-sm'} font-bold self-center ${_isEditMode ? 'bottom-3' : 'bottom-2 max-[860px]:bottom-1'} relative`}>
+            <span className={`text-blue-400 ${_isEditMode ? 'text-lg' : 'text-base max-[860px]:text-sm max-[556px]:text-[8px]'} font-bold self-center ${_isEditMode ? 'bottom-3' : 'bottom-2 max-[860px]:bottom-1'} relative`}>
               =
             </span>
           </div>
         ) : null}
 
         {/* Main Card(s) - Always centered */}
-        <div className="flex gap-2 relative top-4">
+        <div className="flex gap-2 relative top-4 shrink-0">
           {step.mainCards.map((card, index) => (
             <div key={`${card.id}-${index}`} className="relative inline-block">
               <CardTooltip
@@ -226,7 +226,7 @@ export const ComboStepCard = ({
                 <img
                   src={card.imageUrlSmall}
                   alt={card.name}
-                  className={`${_isEditMode ? 'w-32 h-44' : 'w-20 h-28 max-[860px]:w-14 max-[860px]:h-20'} object-cover hover:scale-105 transition-transform cursor-pointer`}
+                  className={`${_isEditMode ? 'w-32 h-44' : 'w-20 h-28 max-[860px]:w-14 max-[860px]:h-20 max-[700px]:w-12 max-[700px]:h-[72px]'} object-cover hover:scale-105 transition-transform cursor-pointer`}
                 />
               </CardTooltip>
               {card.chainNumber != null && (
@@ -248,12 +248,12 @@ export const ComboStepCard = ({
         {step.subCards.length > 0 ? (
           <>
             {/* Plus separator */}
-            <span className={`text-blue-400 ${_isEditMode ? 'text-lg' : 'text-base max-[860px]:text-sm'} font-bold self-center ${_isEditMode ? 'bottom-3' : 'bottom-2 max-[860px]:bottom-1'} relative`}>
+            <span className={`text-blue-400 ${_isEditMode ? 'text-lg' : 'text-base max-[860px]:text-sm max-[556px]:text-[8px]'} font-bold self-center ${_isEditMode ? 'bottom-3' : 'bottom-2 max-[860px]:bottom-1'} relative`}>
               +
             </span>
 
             <div className="flex flex-col items-center gap-1">
-              <span className={`${_isEditMode ? 'text-[10px]' : 'text-[8px] max-[860px]:text-[7px]'} font-bold text-gray-500 uppercase tracking-wide`}>
+              <span className={`${_isEditMode ? 'text-[10px]' : 'text-[8px] max-[860px]:text-[7px] max-[556px]:text-[6px]'} font-bold text-gray-500 uppercase tracking-wide`}>
                 EFFECT
               </span>
               <div className="flex gap-1 z-50">
@@ -272,7 +272,7 @@ export const ComboStepCard = ({
                         <img
                           src={card.imageUrlSmall}
                           alt={card.name}
-                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8 max-[700px]:w-[18px] max-[700px]:h-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                         />
                       </CardTooltip>
                       {card.chainNumber != null && (
@@ -319,7 +319,7 @@ export const ComboStepCard = ({
                           <img
                             src={card.imageUrlSmall}
                             alt={card.name}
-                            className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px] max-[860px]:top-[19px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                            className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8 max-[700px]:w-[18px] max-[700px]:h-[25px]'} relative ${_isEditMode ? 'top-[31px]' : 'top-[25px] max-[860px]:top-[19px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                           />
                         </CardTooltip>
                         {card.chainNumber != null && (
@@ -343,7 +343,7 @@ export const ComboStepCard = ({
         ) : step.leftSubCards.length > 0 ? (
           // Invisible placeholder to balance when only left subcards exist
           <div className="flex gap-1 opacity-0 pointer-events-none" aria-hidden="true">
-            <span className={`text-blue-400 ${_isEditMode ? 'text-lg' : 'text-base max-[860px]:text-sm'} font-bold self-center ${_isEditMode ? 'bottom-3' : 'bottom-2 max-[860px]:bottom-1'} relative`}>
+            <span className={`text-blue-400 ${_isEditMode ? 'text-lg' : 'text-base max-[860px]:text-sm max-[556px]:text-[8px]'} font-bold self-center ${_isEditMode ? 'bottom-3' : 'bottom-2 max-[860px]:bottom-1'} relative`}>
               +
             </span>
             <div className="flex flex-col gap-1" style={{ minHeight: _isEditMode ? "232px" : "154px", width: _isEditMode ? "40px" : "24px" }}>

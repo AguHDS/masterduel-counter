@@ -128,6 +128,8 @@ model ArchetypeInstance {
   headerCardId     Int?      @map("header_card_id")
   generalTip       String?   @map("general_tip")
   guideType        String    @default("COUNTER") @map("guide_type")
+  isDraft          Boolean   @default(false) @map("is_draft")
+  draftExpiresAt   DateTime? @map("draft_expires_at")
   likes            Int       @default(0)
   favorites        Int       @default(0)
   views            Int       @default(0)

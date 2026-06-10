@@ -81,6 +81,24 @@ export interface SaveArchetypeGuideResponse {
   message: string;
 }
 
+export interface SaveDraftResponse {
+  success: boolean;
+  draft: {
+    id: number;
+    archetypeId: number;
+    userId: string;
+    title: string;
+    headerCardId: number | null;
+    generalTip: string | null;
+    guideType: string;
+    isDraft: boolean;
+    draftExpiresAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+  message: string;
+}
+
 /**
  * Save and register a guide for an archetype
  */
@@ -98,12 +116,61 @@ export const saveArchetypeGuide = async (
   generalTip?: string,
   instanceId?: number,
   comboSteps?: ComboStepsDTO[],
+  draftInstanceId?: number,
 ): Promise<SaveArchetypeGuideResponse> => {
   const response = await axiosClient.post<SaveArchetypeGuideResponse>(
     `/api/archetypes/${archetypeId}/register`,
-    { guideType, cardPairs, initialHands, title, headerCardId, generalTip, instanceId, comboSteps },
+    { guideType, cardPairs, initialHands, title, headerCardId, generalTip, instanceId, comboSteps, draftInstanceId },
   );
 
+  return response.data;
+};
+
+/**
+ * Save or update a draft guide
+ */
+export const saveDraftGuide = async (
+  archetypeId: number,
+  guideType: GuideType,
+  cardPairs?: CardPairDTO[],
+  initialHands?: Array<{
+    cardIds: number[];
+    description?: string;
+    finalBoard?: FinalBoardDTO;
+  }>,
+  title?: string,
+  headerCardId?: number | null,
+  generalTip?: string | null,
+  comboSteps?: ComboStepsDTO[],
+  draftInstanceId?: number,
+  isGuideRequest?: boolean,
+): Promise<SaveDraftResponse> => {
+  const response = await axiosClient.post<SaveDraftResponse>(
+    `/api/archetypes/${archetypeId}/draft`,
+    {
+      guideType,
+      cardPairs,
+      initialHands,
+      title,
+      headerCardId,
+      generalTip,
+      comboSteps,
+      draftInstanceId,
+      isGuideRequest,
+    },
+  );
+  return response.data;
+};
+
+/**
+ * Delete a draft guide
+ */
+export const deleteDraftGuide = async (
+  draftId: number,
+): Promise<{ success: boolean; message: string }> => {
+  const response = await axiosClient.delete<{ success: boolean; message: string }>(
+    `/api/archetypes/draft/${draftId}`,
+  );
   return response.data;
 };
 
@@ -190,10 +257,11 @@ export const getRecommendedDeck = async (
       `${API_BASE_URL}/api/instances/${instanceId}/recommended-deck`,
       { withCredentials: true },
     );
+    if (!response.data) return null;
     return response.data.deck;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return null; // No deck exists
+      return null;
     }
     throw error;
   }

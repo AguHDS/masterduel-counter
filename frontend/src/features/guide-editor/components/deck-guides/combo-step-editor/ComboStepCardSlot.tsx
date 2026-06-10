@@ -42,8 +42,8 @@ export const ComboStepCardSlot = ({
       <button
         onClick={(event) => onOpenSearch(event.currentTarget, cardType)}
         className={isMainCard
-          ? "w-20 h-28 border-2 border-dashed border-blue-500 rounded flex flex-col items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors"
-          : "w-10 h-14 border-2 border-dashed border-slate-600 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors opacity-50 hover:opacity-100"
+          ? "w-20 h-28 max-[450px]:w-16 max-[450px]:h-24 border-2 border-dashed border-blue-500 rounded flex flex-col items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors"
+          : "w-10 h-14 max-[450px]:w-7 max-[450px]:h-10 border-2 border-dashed border-slate-600 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-500/10 transition-colors opacity-50 hover:opacity-100"
         }
         title="Add card"
       >
@@ -64,8 +64,8 @@ export const ComboStepCardSlot = ({
           src={card.imageUrlSmall || card.imageUrl}
           alt={card.name}
           className={isMainCard
-            ? "w-20 h-28 object-cover hover:scale-105 transition-transform"
-            : "w-10 h-14 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
+            ? "w-20 h-28 max-[450px]:w-16 max-[450px]:h-24 object-cover hover:scale-105 transition-transform"
+            : "w-10 h-14 max-[450px]:w-7 max-[450px]:h-10 object-cover rounded border border-gray-500/50 shadow hover:scale-110 transition-transform"
           }
         />
       </CardTooltip>

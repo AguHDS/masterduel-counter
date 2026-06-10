@@ -39,6 +39,15 @@ export const FloatingCardSearchModal = ({
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [hasSearched, setHasSearched] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const actualWidth = Math.min(MODAL_WIDTH, windowWidth - 40);
 
   const tooltipContext = useOptionalTooltipContext();
 
@@ -67,13 +76,13 @@ export const FloatingCardSearchModal = ({
       let left = anchorRect.right + 10; // 10px gap from anchor
 
       // If modal would go off right edge, position to the left of anchor
-      if (left + MODAL_WIDTH > viewportWidth - 20) {
-        left = anchorRect.left - MODAL_WIDTH - 10;
+      if (left + actualWidth > viewportWidth - 20) {
+        left = anchorRect.left - actualWidth - 10;
       }
 
       // If still off screen (element too far left), position on right edge with padding
       if (left < 20) {
-        left = viewportWidth - MODAL_WIDTH - 20;
+        left = 20;
       }
 
       // Adjust vertical position to keep modal in viewport
@@ -282,7 +291,7 @@ export const FloatingCardSearchModal = ({
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
-          width: `${MODAL_WIDTH}px`,
+          width: `${actualWidth}px`,
           height: `${MODAL_HEIGHT}px`,
           maxHeight: "calc(100vh - 40px)",
         }}

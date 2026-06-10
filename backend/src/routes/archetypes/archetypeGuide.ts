@@ -3,6 +3,8 @@ import { registerGuideController } from "@/http/controllers/archetypes/registerG
 import { registerGuideMiddleware } from "@/http/middlewares/archetypes/registerGuideMiddleware.js";
 import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 import { getArchetypeWithHeaderController } from "@/http/controllers/archetypes/getArchetypeWithHeaderController.js";
+import { saveDraftController } from "@/http/controllers/archetypes/saveDraftController.js";
+import { deleteDraftController } from "@/http/controllers/archetypes/deleteDraftController.js";
 
 const router = Router();
 
@@ -12,6 +14,20 @@ router.post(
   requireAuth,
   registerGuideMiddleware,
   registerGuideController,
+);
+
+/** Save or update a draft guide (max 3 per user) */
+router.post(
+  "/:id/draft",
+  requireAuth,
+  saveDraftController,
+);
+
+/** Delete a draft guide */
+router.delete(
+  "/draft/:draftId",
+  requireAuth,
+  deleteDraftController,
 );
 
 /** Get archetype guide with its header card to display as list */

@@ -140,7 +140,7 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
           style={{ height: "min(90vh, 700px)" }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-[#c2901c]/20 shrink-0">
+          <div className="flex items-center justify-between max-[450px]:flex-col max-[450px]:items-start max-[450px]:gap-2 px-5 py-4 border-b border-[#c2901c]/20 shrink-0">
             <div className="flex items-center gap-3">
               <h2 className="text-white font-semibold text-lg">Guide Requests</h2>
               {total > 0 && (

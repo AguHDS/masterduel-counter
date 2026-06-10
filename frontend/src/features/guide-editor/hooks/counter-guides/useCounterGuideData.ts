@@ -81,11 +81,8 @@ export const useCounterGuideData = ({
   onReset,
 }: UseCounterGuideDataProps) => {
   useEffect(() => {
-    if (isCreatingNew) {
-      // Creating new Counter guide instance
-      onNewInstance();
-    } else if (guideInstanceData) {
-      // Load existing Counter guide instance data
+    if (guideInstanceData) {
+      // Load existing guide instance data (published or draft)
       const pairs: CardPair[] = guideInstanceData.cardPairs.map((pair) => ({
         id: pair.id.toString(),
         section: pair.pairSection ?? null,
@@ -111,8 +108,11 @@ export const useCounterGuideData = ({
         likes: guideInstanceData.instance.likes,
         favorites: guideInstanceData.instance.favorites,
       });
-    } else if (!isCreatingNew && isError) {
-      // Error loading existing Counter guide instance
+    } else if (isCreatingNew) {
+      // Creating new guide instance (no existing data)
+      onNewInstance();
+    } else if (isError) {
+      // Error loading existing guide instance
       onReset();
     }
   }, [isCreatingNew, guideInstanceData, isError]);

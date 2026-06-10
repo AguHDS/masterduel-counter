@@ -24,6 +24,8 @@ export interface GuideListItem {
   hasBoardbreakers?: boolean;
   hasInitialHands?: boolean;
   hasRecommendedDeck?: boolean;
+  /** True when this guide is saved as a draft (only visible to the owner) */
+  isDraft?: boolean;
 }
 
 export interface GuideInstanceWithFullDetails {
@@ -35,6 +37,7 @@ export interface GuideInstanceWithFullDetails {
     headerCardId: number | null;
     generalTip?: string | null;
     guideType: GuideType;
+    isDraft: boolean;
     likes: number;
     favorites: number;
     views: number;

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { axiosClient } from "@/lib/http";
 import { getBackendUrl } from "@/lib/config/urlHelpers";
 import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 
@@ -94,8 +95,8 @@ export const profileApi = {
     userId: string,
     sortBy: "likes" | "updated" = "updated",
   ): Promise<GuideListItem[]> => {
-    const response = await axios.get(
-      `${API_URL}/api/users/${userId}/instances`,
+    const response = await axiosClient.get(
+      `/api/users/${userId}/instances`,
       { params: { sortBy } },
     );
     return response.data;
