@@ -253,23 +253,23 @@ export const RecommendedDeckEditor = ({
 
   return (
     <div className="mt-8 flex flex-wrap items-stretch justify-center gap-4">
-      <div className="relative w-[60%]  rounded-[26px] border border-blue-500/45 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-4 shadow-[0_0_44px_rgba(37,99,235,0.16)] sm:p-5 lg:max-w-[68%]">
+      <div className="relative w-full min-[851px]:w-[75%] min-[1024px]:w-[85%] min-[1200px]:w-[62%] rounded-[26px] border border-blue-500/45 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-4 shadow-[0_0_44px_rgba(37,99,235,0.16)] sm:p-5 max-[400px]:p-3">
         <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_38%)]" />
         <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
 
         <div className="relative z-10">
           <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <h4 className="text-xl font-bold text-blue-200">{title}</h4>
-                <span className="rounded-full border border-sky-400/20 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-200/90">
+              <div className="flex flex-wrap items-center gap-2 max-[400px]:gap-1">
+                <h4 className="text-xl font-bold text-blue-200 break-words max-[500px]:text-lg max-[400px]:text-base">{title}</h4>
+                <span className="rounded-full border border-sky-400/20 bg-sky-500/10 px-2.5 py-1 text-[10px] max-[400px]:text-[8px] max-[400px]:px-1.5 max-[400px]:py-0.5 font-semibold uppercase tracking-[0.24em] text-sky-200/90">
                   {mainDeck.length} main
                 </span>
-                <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-violet-200/90">
+                <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[10px] max-[400px]:text-[8px] max-[400px]:px-1.5 max-[400px]:py-0.5 font-semibold uppercase tracking-[0.24em] text-violet-200/90">
                   {extraDeck.length} extra
                 </span>
                 {showSideDeck && (
-                  <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
+                  <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[10px] max-[400px]:text-[8px] max-[400px]:px-1.5 max-[400px]:py-0.5 font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
                     {sideDeck.length} side
                   </span>
                 )}
