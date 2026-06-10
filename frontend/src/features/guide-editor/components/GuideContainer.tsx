@@ -910,14 +910,22 @@ export const GuideContainer = ({
                     <Eye className="w-3 h-3 text-purple-400" />
                     <span className="text-purple-400 text-[11px]">{guideInstanceData?.instance.views ?? 0}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-3 h-3 text-yellow-400" />
-                    <span className="text-yellow-400 text-[11px]">{guideInstanceData?.instance.favorites ?? 0}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <ThumbsUp className="w-3 h-3 text-green-400" />
-                    <span className="text-green-400 text-[11px]">{guideInstanceData?.instance.likes ?? 0}</span>
-                  </div>
+                  <button
+                    onClick={isAuthenticated && !editor.isEditMode ? favorites.toggleFavorite : undefined}
+                    disabled={!isAuthenticated || editor.isEditMode}
+                    className={`bg-transparent border-none p-0 inline-flex items-center gap-1 ${!isAuthenticated || editor.isEditMode ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-80'}`}
+                  >
+                    <Star className={`w-3 h-3 ${favorites.favorited ? 'fill-yellow-400 text-yellow-400' : 'text-yellow-400'}`} />
+                    <span className="text-yellow-400 text-[11px]">{favorites.favoriteCount}</span>
+                  </button>
+                  <button
+                    onClick={!isOwner && isAuthenticated && !editor.isEditMode ? likes.toggleLike : undefined}
+                    disabled={!isAuthenticated || isOwner || editor.isEditMode}
+                    className={`bg-transparent border-none p-0 inline-flex items-center gap-1 ${!isAuthenticated || isOwner || editor.isEditMode ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-80'}`}
+                  >
+                    <ThumbsUp className={`w-3 h-3 ${likes.liked ? 'fill-green-400 text-green-400' : 'text-green-400'}`} />
+                    <span className="text-green-400 text-[11px]">{likes.likeCount}</span>
+                  </button>
                   {guideInstanceData?.userName && guideInstanceData?.instance.userId && (
                     <>
                       <span className="text-slate-500 text-[11px]">-</span>
@@ -1098,14 +1106,14 @@ export const GuideContainer = ({
                     <>
                       <button
                         onClick={() => editor.setIsEditMode(true)}
-                        className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
+                        className="flex items-center space-x-2 px-4 py-2 max-[500px]:px-3 max-[500px]:py-1.5 max-[500px]:text-sm max-[500px]:space-x-1 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
                       >
                         <Edit3 className="w-4 h-4" />
-                        <span>Edit Archetype</span>
+                        <span>Edit Guide</span>
                       </button>
                       <button
                         onClick={handleDeleteInstance}
-                        className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
+                        className="flex items-center space-x-2 px-4 py-2 max-[500px]:px-3 max-[500px]:py-1.5 max-[500px]:text-sm max-[500px]:space-x-1 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
                       >
                         <Trash2 className="w-4 h-4" />
                         <span>Delete guide</span>
@@ -1132,10 +1140,10 @@ export const GuideContainer = ({
                   !draftInstanceId &&
                   !selectedArchetype.registered &&
                   !editor.isEditMode && (
-                    <button
-                      onClick={handleRegisterClick}
-                      className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-                    >
+                      <button
+                        onClick={handleRegisterClick}
+                        className="flex items-center space-x-2 px-4 py-2 max-[500px]:px-3 max-[500px]:py-1.5 max-[500px]:text-sm max-[500px]:space-x-1 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                      >
                       <Edit3 className="w-4 h-4" />
                       <span>Register Archetype</span>
                     </button>

@@ -181,6 +181,11 @@ export const GuideHeader = ({
         <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           {archetypeName}
         </h2>
+        {!isEditMode && bestTrending && (
+          <div className="flex justify-center mt-1 max-[639px]:mb-0 mb-2">
+            <TrendingBadge bestTrending={bestTrending} />
+          </div>
+        )}
         <div className="flex w-full justify-center my-2 max-[639px]:hidden sm:hidden">
           <div className="w-48 h-[2px]" style={{
             background: guideType === "COUNTER"
