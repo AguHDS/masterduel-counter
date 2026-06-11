@@ -313,15 +313,20 @@ export const GuideHeader = ({
 
       <div className="flex-1 min-w-0 w-full lg:relative lg:bottom-12">
         <div className="w-full flex flex-col items-start mb-2 max-[639px]:hidden sm:hidden lg:block">
-          <div className="w-full relative mb-3">
-            {!isEditMode && bestTrending && (
-              <div className="absolute left-1/2 max-[436px]:ml-10 -translate-x-1/2 top-7 -translate-y-1/2">
-                <TrendingBadge bestTrending={bestTrending} />
-              </div>
-            )}
-            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              {archetypeName}
-            </h2>
+          <div className="w-full mb-3">
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                {archetypeName}
+              </h2>
+              {!isEditMode && bestTrending && (
+                <>
+                  <span className="hidden lg:inline text-slate-500">-</span>
+                  <div className="flex-shrink-0 lg:relative lg:top-3">
+                    <TrendingBadge bestTrending={bestTrending} />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="flex w-full my-2">

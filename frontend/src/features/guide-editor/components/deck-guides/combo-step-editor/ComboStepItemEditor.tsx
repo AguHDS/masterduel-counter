@@ -68,7 +68,7 @@ export const ComboStepItemEditor = ({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`relative bg-slate-800/50 border-2 rounded-lg p-8 pb-12 max-[860px]:px-4 max-[860px]:pt-8 max-[860px]:pb-6 max-[450px]:pb-4 transition-all max-[550px]:overflow-x-auto max-[550px]:overflow-y-hidden ${
+      className={`relative bg-slate-800/50 border-2 rounded-lg p-8 pb-12  max-[860px]:pt-8 max-[860px]:pb-6 max-[450px]:pb-3 max-[550px]:overflow-x-auto max-[550px]:overflow-y-hidden ${
         isReadOnly ? "border-slate-600/40 opacity-70" : "border-blue-500/40"
       } ${isDragging ? "opacity-50 scale-95" : ""} ${
         isDragOver ? "border-yellow-400 scale-105 shadow-lg shadow-yellow-400/20" : ""
@@ -82,7 +82,7 @@ export const ComboStepItemEditor = ({
           draggable
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
-          className="absolute top-1 left-1/2 transform -translate-x-1/2 cursor-grab active:cursor-grabbing py-1 px-3 rounded hover:bg-slate-700/30 transition-colors"
+          className="absolute top-1 left-1/2 transform -translate-x-1/2 cursor-grab active:cursor-grabbing py-1 px-3 rounded hover:bg-slate-700/30"
           title="Drag to reorder"
         >
           <div className="grid grid-cols-3 gap-[3px]">
@@ -105,7 +105,7 @@ export const ComboStepItemEditor = ({
       {isMainFlowStep && (hasCanceledFlow || isViewingCanceledFlow) && (
         <button
           onClick={onToggleCanceledFlow}
-          className={`absolute bottom-2 left-2 px-2 py-1 text-[11px] font-semibold rounded transition-colors ${
+          className={`absolute bottom-2 left-2 px-2 py-1 text-[11px] font-semibold rounded ${
             isViewingCanceledFlow
               ? "bg-slate-700 text-white hover:bg-slate-600"
               : "bg-red-600/80 text-white hover:bg-red-600"
@@ -119,7 +119,7 @@ export const ComboStepItemEditor = ({
       {!isViewingCanceledFlow && isMainFlowStep && !hasCanceledFlow && (
         <button
           onClick={onToggleCanceledFlow}
-          className="absolute bottom-2 left-2 px-2 py-1 text-[11px] font-semibold rounded transition-colors bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white"
+          className="absolute bottom-2 left-2 px-2 py-1 text-[11px] font-semibold rounded bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white"
           title="Add Canceled Flow"
         >
           Canceled?
@@ -129,7 +129,7 @@ export const ComboStepItemEditor = ({
       {!isReadOnly && (
         <button
           onClick={onRemoveStep}
-          className="absolute top-2 right-2 text-red-500 hover:text-red-400 transition-colors"
+          className="absolute top-2 right-2 text-red-500 hover:text-red-400"
           title="Remove step"
         >
           <Trash2 className="w-4 h-4" />
@@ -228,7 +228,7 @@ export const ComboStepItemEditor = ({
         </div>
 
         <div className="flex flex-col items-center">
-          <label className="text-blue-400 font-semibold text-xs mb-2">
+          <label className="text-blue-400 font-semibold text-xs mb-2 text-nowrap">
             Description (Optional)
           </label>
           <textarea
