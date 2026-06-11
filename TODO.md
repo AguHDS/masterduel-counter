@@ -31,6 +31,7 @@ chown -R masterduel:masterduel /var/www/masterduel-counter
 pm2 delete masterduel-backend
 pm2 start dist/index.js --name masterduel-backend --user masterduel
 Chequear si esto es todo lo que hay que hacer y si puedo llegar a tener probelmas como romper cosas, que algo deje de funcionar, duplicar cosas que no quiero duplicar, etc.
+
 ---
 
 es raro que en el perfil se haga busqueda de cartas como en las guias pero no esten reutilizando la misma busqueda de cartas, no? chequear esto
@@ -48,10 +49,6 @@ Asi evitamos crear archivos de rutas multiples para una misma api. Chequea ruta 
 
 ---
 
-cuando se usa el search de cartas el tooltip al hacer hover se ve lagero, hay que evitar eso. Es como que trata de acomodar la posicion y eso lagea.
-
----
-
 Evaluar si los useCallbacks estan bien usados. Estan optimizacion y evitando problemas correctamente? o estan siendo usados innecesariamente lo cual hace que el codigo sea mas complejo y gaste recursos sin necesidad? evaluar casos
 
 ---
@@ -64,9 +61,6 @@ copiar la tierlist como la hacen en el honkai
 
 ---
 
-El badge en las guias se superpone con el titulo de la Guia....
-
----
 Solo he puesto rate limiter al login y reporte, porque me daba problemas cuando le ponia rate limiter a cosas como visitas en las guias y cosas repetitivas. Si es riesgoso no hacerlo fijarse de implementarlo cuidadosamente en cada operacion que sea un target facil de ataques.
 
 ---
