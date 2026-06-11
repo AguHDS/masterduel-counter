@@ -278,7 +278,7 @@ export const PersonalDeckList = ({
                       Public
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-300/80 border border-amber-500/25 backdrop-blur-sm">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-500/70 text-slate-300 border border-slate-600/40 backdrop-blur-sm">
                       Private
                     </span>
                   )}
