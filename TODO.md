@@ -37,10 +37,6 @@ es raro que en el perfil se haga busqueda de cartas como en las guias pero no es
 
 ---
 
-al cancelar en el perfil la edicion, la favorite card no limpia su estado.
-
----
-
 Prisma mejora:
 Cambiar nombres como ArchetypeInstance a GuideInstance, y cosas que tengan sentido si tienen que ver con las guias, tener cuidado porque se pueden perder los datos de produccion si se ejecuta el comando erroneo.
 Hacerlo con la ayuda de un agente y pedirle que no ejecute el comandos para que no crashee vscode, decirle que me diga paso a paso que hacer
@@ -100,12 +96,7 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 ---
 
 mejoras:
-- En el perfil, lo relacionado a los personal decks no esta responsive, creo que se rompio cuando tocamos cosas del recommended deck. ASegurarse que sea responsive sin romper el otro.
-- Cuando cancelamos una take en el modal de requests, el render no refleja que se cancelo correctamente. Sigue mmostrando el boton de Cancel my take. Deberia de volver a mostrar el boton de Take this request. Esto es un bug visual (porque en realidad si se cancela si refrescas la pagina).
-- Mostrar nivel de carta en numero en tooltip.
-Las cartas en posición de defensa deben renderizarse con una rotación de -90° (sentido antihorario).
 - agregar title al perfil, ahora dice la url en la pestaña de navegador.
-
 - En reddit un usuario me dijo que el comboflow tiene espacio muerto, ver como arreglar esto, fijarse el chat.
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
 - en la lista de Guias y Favorites del perfil, tambien ordenar por views,likes. Updated (mas reciente, primero) debe ser default y creo que ya lo tiene puesto asi.

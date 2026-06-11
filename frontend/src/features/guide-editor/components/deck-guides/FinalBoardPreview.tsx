@@ -641,7 +641,7 @@ export const FinalBoardPreview = ({
                           )}
                           <div
                             className={`w-full h-full transition-transform duration-300 origin-center ${
-                              isDef ? 'rotate-90' : ''
+                              isDef ? '-rotate-90' : ''
                             }`}
                           >
                             {renderZone(card, "extraMonster", index)}
@@ -680,7 +680,7 @@ export const FinalBoardPreview = ({
                           )}
                           <div
                             className={`w-full h-full transition-transform duration-300 origin-center ${
-                              isDef ? 'rotate-90' : ''
+                              isDef ? '-rotate-90' : ''
                             }`}
                           >
                             {renderZone(card, "monster", index)}
