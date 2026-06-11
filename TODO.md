@@ -31,6 +31,7 @@ chown -R masterduel:masterduel /var/www/masterduel-counter
 pm2 delete masterduel-backend
 pm2 start dist/index.js --name masterduel-backend --user masterduel
 Chequear si esto es todo lo que hay que hacer y si puedo llegar a tener probelmas como romper cosas, que algo deje de funcionar, duplicar cosas que no quiero duplicar, etc.
+
 ---
 
 es raro que en el perfil se haga busqueda de cartas como en las guias pero no esten reutilizando la misma busqueda de cartas, no? chequear esto
@@ -48,10 +49,6 @@ Asi evitamos crear archivos de rutas multiples para una misma api. Chequea ruta 
 
 ---
 
-cuando se usa el search de cartas el tooltip al hacer hover se ve lagero, hay que evitar eso. Es como que trata de acomodar la posicion y eso lagea.
-
----
-
 Evaluar si los useCallbacks estan bien usados. Estan optimizacion y evitando problemas correctamente? o estan siendo usados innecesariamente lo cual hace que el codigo sea mas complejo y gaste recursos sin necesidad? evaluar casos
 
 ---
@@ -64,9 +61,6 @@ copiar la tierlist como la hacen en el honkai
 
 ---
 
-El badge en las guias se superpone con el titulo de la Guia....
-
----
 Solo he puesto rate limiter al login y reporte, porque me daba problemas cuando le ponia rate limiter a cosas como visitas en las guias y cosas repetitivas. Si es riesgoso no hacerlo fijarse de implementarlo cuidadosamente en cada operacion que sea un target facil de ataques.
 
 ---
@@ -87,7 +81,7 @@ tests
 
 ---
 
-crear .mds explicando cosas clave quew no recordaria de las features,c mo las request por ejemplo,, que tienen 24 hs para compeltarse, o las guias guardadas como draft a partir de una request, etc
+crear .mds explicando cosas clave quew no recordaria de las features,c mo las request por ejemplo, que tienen 24 hs para compeltarse, o las guias guardadas como draft a partir de una request, etc
 
 ---
 
@@ -96,7 +90,6 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 ---
 
 mejoras:
-- En reddit un usuario me dijo que el comboflow tiene espacio muerto, ver como arreglar esto, fijarse el chat.
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
 - en la lista de Guias y Favorites del perfil, tambien ordenar por views,likes. Updated (mas reciente, primero) debe ser default y creo que ya lo tiene puesto asi.
 

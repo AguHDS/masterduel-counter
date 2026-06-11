@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Plus, Info } from "lucide-react";
+import { Plus, Info, Layers } from "lucide-react";
 import { useCustomDecks } from "../hooks/useCustomDecks";
 import { PersonalDeckModal } from "./PersonalDeckModal";
 import type { CustomDeck } from "../api/customDeckApi";
@@ -204,8 +204,9 @@ export const PersonalDeckList = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-cyan-400 text-lg">Loading decks...</div>
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <div className="w-8 h-8 border-2 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin" />
+        <div className="text-cyan-400/70 text-sm">Loading decks...</div>
       </div>
     );
   }
@@ -221,7 +222,7 @@ export const PersonalDeckList = ({
       )}
 
       {(sortedDecks.length > 0 || (isOwner && !isCreatingNew)) && (
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 min-[1200px]:grid-cols-3 min-[1420px]:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
           {sortedDecks.map((deck, index) => {
             const canView = isOwner || deck.isPublic;
             
@@ -247,159 +248,143 @@ export const PersonalDeckList = ({
                 onDragOver={handleDragOver}
                 onDragEnter={(e) => handleDragEnter(e, index)}
                 onDrop={(e) => handleDrop(e, index)}
-                className={`relative group transition-all duration-200 ${
-                  isOwner ? 'cursor-move' : 'cursor-pointer'
-                } ${isDragOver ? 'scale-105' : ''} ${isDragging ? 'opacity-40' : ''}`}
                 onClick={() => !isDragging && handleDeckClick(deck)}
+                className={`relative rounded-lg overflow-hidden shadow-[0_4px_30px_2px_rgba(0,0,0,0.7)] group transition-all duration-300 ${
+                  isOwner ? 'cursor-move' : 'cursor-pointer'
+                } ${isDragging ? 'opacity-40 scale-95' : ''} ${
+                  isDragOver ? 'ring-2 ring-cyan-400 scale-[1.03]' : 'hover:-translate-y-1'
+                }`}
               >
-                {canView && (
-                  <div className={`absolute -inset-0.5 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 ${isDragOver ? 'opacity-100' : ''}`} />
-                )}
-
-                <div className={`relative bg-gradient-to-b from-blue-900/90 via-slate-900 to-blue-900/90 rounded-lg border-2 transition-all duration-100 overflow-hidden ${
-                  isDragOver ? 'border-cyan-400' : 'border-[#3d3470]/70 group-hover:border-cyan-400/80'
-                }`}>
-                  {/* Public/Private label */}
-                  <div className="mb-1 flex justify-end">
-                    {deck.isPublic ? (
-                      <div className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold text-slate-300 shadow-lg">
-                        <span>Public</span>
-                      </div>
-                    ) : (
-                      <div className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold text-slate-300 shadow-lg">
-                        <span>Private</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-3 pt-0 relative">
-                    {/* Preview Image */}
-                    <div className="flex justify-center mb-3">
-                      {previewCard ? (
-                        <img
-                          src={getOptimizedCardImageUrl(previewCard.imageUrlCropped, { size: 'thumbnail' })}
-                          alt={previewCard.name}
-                          className={`h-[80px] w-[80px] object-cover rounded border-2 border-[#4a5866] shadow-lg ${
-                            !canView ? "opacity-60" : ""
-                          }`}
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-[80px] h-[80px] bg-[#6a7888] rounded border-2 border-[#4a5866] flex items-center justify-center">
-                          <span className="text-gray-700 text-xs font-semibold">
-                            Empty
-                          </span>
-                        </div>
-                      )}
+                <div className="w-full aspect-[4/3.75] overflow-hidden relative">
+                  {previewCard ? (
+                    <img
+                      src={getOptimizedCardImageUrl(previewCard.imageUrlCropped, { size: 'thumbnail', width: 400, height: 400 })}
+                      alt={previewCard.name}
+                      className={`w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105 ${
+                        !canView ? "opacity-50 grayscale" : ""
+                      }`}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-slate-800/60 flex items-center justify-center">
+                      <Layers className="w-6 h-6 text-slate-600" />
                     </div>
-
-                    {/* Deck title */}
-                    <div className="text-center mb-2">
-                      <div className="flex items-center justify-center">
-                        <h3
-                          className={`text-sm font-bold truncate ${
-                            canView ? "text-white" : "text-[#4a5866]"
-                          }`}
-                        >
-                          {deck.title}
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
-                {canView && (
-                  <div className="flex items-center justify-start gap-3 mt-2 px-1">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-cyan-400 font-semibold">
-                        Main:
+                <div className="absolute top-0.5 right-2 z-10">
+                  {deck.isPublic ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 backdrop-blur-sm">
+                      Public
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-300/80 border border-amber-500/25 backdrop-blur-sm">
+                      Private
+                    </span>
+                  )}
+                </div>
+
+                <div
+                  className="absolute bottom-0 left-0 right-0 px-2 py-1.5"
+                  style={{
+                    background: "linear-gradient(to top, rgba(8,10,25,0.92) 50%, rgba(8,10,20,0.0) 100%)",
+                    WebkitBackdropFilter: "blur(6px)",
+                  }}
+                >
+                  <p className={`text-slate-100 font-bold text-xs truncate ${!canView ? "text-slate-500" : ""}`}>
+                    {deck.title}
+                  </p>
+                  {canView && (
+                    <div className="text-[10px] mt-0.5 flex flex-wrap items-center gap-1">
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-cyan-500/15 border border-cyan-500/25">
+                        <span className="text-cyan-400 font-semibold">Main</span>
+                        <span className="text-slate-200 font-bold">{deck.mainDeck.length}</span>
                       </span>
-                      <span className="text-xs text-white font-bold">
-                        {deck.mainDeck.length}
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-purple-500/15 border border-purple-500/25">
+                        <span className="text-purple-400 font-semibold">Extra</span>
+                        <span className="text-slate-200 font-bold">{deck.extraDeck.length}</span>
                       </span>
+                      {deck.sideDeck.length > 0 && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/25">
+                          <span className="text-amber-400 font-semibold">Side</span>
+                          <span className="text-slate-200 font-bold">{deck.sideDeck.length}</span>
+                        </span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-purple-400 font-semibold">
-                        Extra Deck:
-                      </span>
-                      <span className="text-xs text-white font-bold">
-                        {deck.extraDeck.length}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}
 
           {isOwner && !isCreatingNew && (
-            <div className="relative group">
-              {canCreateMore && (
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
-              )}
+            <div
+              className={`relative group transition-all duration-300 ${
+                canCreateMore ? 'cursor-pointer hover:-translate-y-1' : 'cursor-not-allowed'
+              }`}
+              onClick={() => canCreateMore && setIsCreatingNew(true)}
+            >
+              <div className={`relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all duration-300 aspect-[4/3.75] shadow-[0_4px_30px_2px_rgba(0,0,0,0.7)] ${
+                canCreateMore
+                  ? "border-cyan-500/40 hover:border-cyan-400/70 bg-gradient-to-b from-[#1a1545]/50 to-[#1e1850]/50 hover:from-[#1a1545]/70 hover:to-[#1e1850]/70 hover:shadow-[0_6px_35px_4px_rgba(0,0,0,0.75)]"
+                  : "border-[#3d3470]/40 bg-gradient-to-b from-[#1a1545]/20 to-[#1e1850]/20"
+              }`}>
+                <Plus className={`transition-all duration-300 w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 mb-1.5 ${
+                  canCreateMore ? "text-cyan-400 group-hover:text-cyan-300 group-hover:scale-110" : "text-slate-600"
+                }`} />
 
-              <button
-                onClick={() => canCreateMore && setIsCreatingNew(true)}
-                disabled={!canCreateMore}
-                className={`relative w-full h-full min-h-[160px] rounded-lg border-2 transition-all duration-200 ${
-                  canCreateMore
-                    ? "border-dashed border-cyan-500/50 hover:border-cyan-400/70 bg-gradient-to-b from-[#1a1545]/60 to-[#1e1850]/60 hover:from-[#1a1545]/80 hover:to-[#1e1850]/80 cursor-pointer"
-                    : "border-dashed border-[#3d3470]/50 bg-gradient-to-b from-[#1a1545]/30 to-[#1e1850]/30 cursor-not-allowed"
-                }`}
-              >
-                <div className="flex flex-col items-center justify-center h-full p-4">
-                  <Plus
-                    className={`w-10 h-10 mb-2 ${
-                      canCreateMore
-                        ? "text-cyan-400 group-hover:text-cyan-300"
-                        : "text-slate-600"
-                    }`}
-                  />
+                <h3 className={`text-xs font-bold text-center mb-0.5 px-2 ${
+                  canCreateMore ? "text-cyan-300 group-hover:text-cyan-200" : "text-slate-500"
+                }`}>
+                  Create New Deck
+                </h3>
 
-                  <h3
-                    className={`text-sm font-bold text-center mb-1 ${
-                      canCreateMore
-                        ? "text-cyan-300 group-hover:text-cyan-200"
-                        : "text-slate-500"
-                    }`}
-                  >
-                    Create New Deck
-                  </h3>
+                <p className={`text-[10px] text-center ${
+                  canCreateMore ? "text-slate-400" : "text-slate-600"
+                }`}>
+                  {isAdmin ? `${sortedDecks.length}/\u221E` : `${sortedDecks.length}/${maxDecks}`}
+                </p>
 
-                  <p
-                    className={`text-xs text-center ${
-                      canCreateMore ? "text-slate-400" : "text-slate-600"
-                    }`}
-                  >
-                    {isAdmin ? `${sortedDecks.length}/∞` : `${sortedDecks.length}/${maxDecks}`}
-                  </p>
-                </div>
-              </button>
-
-              {!canCreateMore && (
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[10]">
-                  <div className="bg-slate-900/95 border border-yellow-500/50 rounded-lg px-3 py-2 mx-2">
-                    <div className="flex items-start gap-2">
+                {!canCreateMore && (
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/95 rounded-lg pointer-events-none">
+                    <div className="flex items-start gap-2 px-3 py-2">
                       <Info className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-xs text-yellow-300">
-                        Maximum deck limit reached
-                      </span>
+                      <span className="text-xs text-yellow-300">Maximum deck limit reached</span>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
         </div>
       )}
 
       {sortedDecks.length === 0 && !isCreatingNew && (
-        <div className="text-center py-20">
-          <p className="text-slate-400 text-lg mb-4">
-            {isOwner
-              ? "No decks yet. Create your first custom deck!"
-              : "This user hasn't created any decks yet."}
-          </p>
+        <div className="relative overflow-hidden rounded-xl border-2 border-dashed border-[#3d3470]/50 bg-gradient-to-b from-[#1a1545]/30 to-[#1e1850]/30 p-8 max-[399px]:p-6">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-4">
+              <Layers className="w-8 h-8 text-cyan-400/60" />
+            </div>
+            <p className="text-slate-400 text-base max-[399px]:text-sm font-medium mb-2">
+              {isOwner
+                ? "No decks yet"
+                : "No decks created"}
+            </p>
+            <p className="text-slate-500 text-sm max-[399px]:text-xs">
+              {isOwner
+                ? "Create your first custom deck to get started!"
+                : "This user hasn't created any decks yet."}
+            </p>
+            {isOwner && (
+              <button
+                onClick={() => setIsCreatingNew(true)}
+                className="mt-4 inline-flex items-center px-4 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-sm font-semibold hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-all"
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                Create First Deck
+              </button>
+            )}
+          </div>
         </div>
       )}
 
