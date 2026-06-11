@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { latestUpdatesApi } from "../api/latestUpdatesApi";
 import { useAllLatestUpdates } from "../hooks/useAllLatestUpdates";
 import type { LatestUpdate } from "../types/latestUpdatesTypes";
+import { renderContent } from "../lastestUpdatesUtils";
 
 const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
@@ -110,8 +111,8 @@ export const AdminLatestUpdatesTab = () => {
                   {post.title}
                 </h3>
                 <div
-                  className="text-gray-400 text-sm line-clamp-2 mt-1"
-                  dangerouslySetInnerHTML={{ __html: post.content }}
+                  className="text-gray-400 text-sm line-clamp-2 mt-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-1 [&_li]:mb-0.5"
+                  dangerouslySetInnerHTML={{ __html: renderContent(post.content) }}
                 />
                 <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
                   <Calendar className="w-3 h-3" />

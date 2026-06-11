@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useAllLatestUpdates } from "../hooks/useAllLatestUpdates";
 import type { LatestUpdate } from "../types/latestUpdatesTypes";
+import { renderContent } from "../lastestUpdatesUtils";
 
 interface LatestUpdatesModalProps {
   isOpen: boolean;
@@ -225,7 +226,7 @@ export const LatestUpdatesModal = ({
                 <div className="px-6 py-5">
                   <div
                     className="text-slate-300 text-sm leading-relaxed [&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-[#c2901c] [&_h1]:mt-6 [&_h1]:mb-3 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-[#c2901c] [&_h2]:mt-5 [&_h2]:mb-2 [&_h3]:text-base [&_h3]:font-medium [&_h3]:text-[#c2901c] [&_h3]:mt-4 [&_h3]:mb-2 [&_b]:text-white [&_strong]:text-white [&_i]:text-slate-300 [&_em]:text-slate-300 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-3 [&_li]:mb-1.5 [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:text-[#c2901c] [&_a]:hover:text-[#d4a534] [&_a]:underline [&_a]:underline-offset-2 [&_code]:bg-slate-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[#c2901c] [&_code]:text-xs [&_pre]:bg-slate-900 [&_pre]:border [&_pre]:border-slate-700/50 [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:my-4 [&_pre]:overflow-x-auto [&_pre]:text-sm [&_blockquote]:border-l-4 [&_blockquote]:border-[#c2901c]/40 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:my-4 [&_blockquote]:bg-[#c2901c]/5 [&_blockquote]:rounded-r-lg [&_blockquote]:text-slate-400 [&_blockquote]:italic"
-                    dangerouslySetInnerHTML={{ __html: currentPost.content }}
+                    dangerouslySetInnerHTML={{ __html: renderContent(currentPost.content) }}
                   />
                 </div>
               </div>

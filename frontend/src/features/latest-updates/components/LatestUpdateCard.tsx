@@ -1,5 +1,6 @@
 import { Calendar } from "lucide-react";
 import type { LatestUpdate } from "../types/latestUpdatesTypes";
+import { renderContent } from "../lastestUpdatesUtils";
 
 interface LatestUpdateCardProps {
   post: LatestUpdate;
@@ -29,8 +30,8 @@ export const LatestUpdateCard = ({ post, onSeeMore }: LatestUpdateCardProps) => 
       </div>
 
       <div
-        className="text-gray-300 text-sm line-clamp-3 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_b]:text-yellow-100 [&_strong]:text-yellow-100 [&_i]:text-gray-300 [&_em]:text-gray-300"
-        dangerouslySetInnerHTML={{ __html: post.content }}
+        className="text-gray-300 text-sm line-clamp-3 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_b]:text-yellow-100 [&_strong]:text-yellow-100 [&_i]:text-gray-300 [&_em]:text-gray-300 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-1 [&_li]:mb-0.5"
+        dangerouslySetInnerHTML={{ __html: renderContent(post.content) }}
       />
 
       <button
