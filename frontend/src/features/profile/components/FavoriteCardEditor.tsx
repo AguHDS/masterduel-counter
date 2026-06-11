@@ -27,6 +27,13 @@ export const FavoriteCardEditor = ({
 
   const displayCard = selectedCard || favoriteCard;
 
+  // Reset selected card when cancelling edit mode
+  useEffect(() => {
+    if (!isEditMode) {
+      setSelectedCard(null);
+    }
+  }, [isEditMode]);
+
   // Load persisted crop preference when card resolves
   useEffect(() => {
     if (displayCard) {

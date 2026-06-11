@@ -56,9 +56,9 @@ export const GeneralStats = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-3 mb-3">
         <TrendingUp className="h-5 w-5 text-[#c2901c]" />
-        <h2 className="text-white font-semibold text-base">General Stats</h2>
+        <h2 className="text-white font-semibold text-lg">General Stats</h2>
       </div>
 
       <div className="bg-[#1c1f2e] rounded-xl border border-[#c2901c]/20 overflow-hidden flex-1 min-h-0 flex flex-col">

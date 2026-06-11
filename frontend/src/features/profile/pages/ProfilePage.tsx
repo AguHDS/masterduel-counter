@@ -1,5 +1,4 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import {
   Flag,
@@ -33,7 +32,7 @@ import { useUserTrendingAchievements } from "@/features/ranking/hooks/useRanking
 import { getOptimizedCardImageUrl, getOptimizedProfilePictureUrl } from "@/lib/utils/imageOptimization";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import {
   guideInstancesApi,
   type GuideListItem,
@@ -224,12 +223,9 @@ export const ProfilePage = () => {
   const isOwner = !!resolvedUserId && session?.user?.id === resolvedUserId;
 
   if (!userId) {
+    document.title = "Profile - Masterduel Counter";
     return (
-      <>
-        <Helmet>
-          <title>Profile - Masterduel Counter</title>
-        </Helmet>
-        <div
+      <div
           className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex flex-col"
           style={{
             backgroundImage: `url(${profile_background})`,
@@ -244,9 +240,14 @@ export const ProfilePage = () => {
           </main>
           <Footer />
         </div>
-      </>
     );
   }
+
+  useEffect(() => {
+    document.title = profile?.userName
+      ? `${profile.userName} - Masterduel Counter`
+      : "User - Masterduel Counter";
+  }, [profile?.userName]);
 
   const displayPhotoUrl = previewUrl || profile?.profilePictureUrl;
   const totalCreatedGuides = userGuides?.length ?? 0;
@@ -254,10 +255,6 @@ export const ProfilePage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{profile?.userName || "User"} - Profile</title>
-      </Helmet>
-
       <div
         className="min-h-screen flex flex-col"
         style={{

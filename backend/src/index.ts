@@ -64,6 +64,7 @@ import {
   comments,
   ranking,
   notifications,
+  latestUpdates,
 } from "./routes/index.js";
 import auth from "./routes/auth/auth.js";
 import getGuideCardPairs from "./routes/guides/getGuideCardPairs.js";
@@ -260,6 +261,9 @@ app.use("/api/reports", report);
 
 // Guide Requests
 app.use("/api/guide-requests", guideRequests);
+
+// Latest Updates
+app.use("/api/latest-updates", latestUpdates);
 
 // Sitemap for SEO
 app.use(sitemap);

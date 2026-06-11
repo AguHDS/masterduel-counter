@@ -25,6 +25,7 @@ import notifications from "./notifications/notifications.js";
 import getLatestGuides from "./guides/getLatestGuides.js";
 import getAllGuides from "./guides/getAllGuides.js";
 import getGuidesGeneralStats from "./archetypes/getGuidesGeneralStats.js";
+import latestUpdates from "./latest-updates.js";
 
 export {
   searchArchetype,
@@ -54,4 +55,5 @@ export {
   getLatestGuides,
   getAllGuides,
   getGuidesGeneralStats,
+  latestUpdates,
 };

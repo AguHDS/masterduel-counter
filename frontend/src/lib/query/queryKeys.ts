@@ -86,4 +86,10 @@ export const queryKeys = {
     detail: (id: number) => ["guideRequests", "detail", id] as const,
     counts: ["guideRequests", "counts"] as const,
   },
+
+  latestUpdates: {
+    all: ["latestUpdates"] as const,
+    list: () => [...queryKeys.latestUpdates.all, "list"] as const,
+    detail: (id: number) => [...queryKeys.latestUpdates.all, "detail", id] as const,
+  },
 } as const;

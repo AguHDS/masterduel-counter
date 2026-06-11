@@ -37,10 +37,6 @@ es raro que en el perfil se haga busqueda de cartas como en las guias pero no es
 
 ---
 
-al cancelar en el perfil la edicion, la favorite card no limpia su estado.
-
----
-
 Prisma mejora:
 Cambiar nombres como ArchetypeInstance a GuideInstance, y cosas que tengan sentido si tienen que ver con las guias, tener cuidado porque se pueden perder los datos de produccion si se ejecuta el comando erroneo.
 Hacerlo con la ayuda de un agente y pedirle que no ejecute el comandos para que no crashee vscode, decirle que me diga paso a paso que hacer
@@ -100,20 +96,11 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 ---
 
 mejoras:
-- Mostrar nivel de carta en numero en tooltip
-- agregar title al perfil, ahora dice la url en la pestaña de navegador
-- Agregar pequeña feature que deje poner Last Updates, en el panel de admin puedo poner nuevas updates que se muestran en la home, para que los usuarios sepan cuando hay cambios importantes, mantenimiento, etc.
 - En reddit un usuario me dijo que el comboflow tiene espacio muerto, ver como arreglar esto, fijarse el chat.
-- Que pasa si se guarda como draft una de estas, ya que las guias tomadas de una request tienen 24hs para completarse
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
-- Hacer que al tomar una request, en lugar de llevarte directo a la creacion de la misma, se ponga como "Pending". El usuario que la tomo tiene 24hs para cumplir esta request. Si no le cumple, vuelve a estar OPEN.
-El usuario que la tomo puede ir a la creacion de guia de esa request en el modal donde muestra la informacion de esta que esta in progress.
 - en la lista de Guias y Favorites del perfil, tambien ordenar por views,likes. Updated (mas reciente, primero) debe ser default y creo que ya lo tiene puesto asi.
 
 bugs:
-- si modifico la carta favorita, se guarda incluso si cancelo, limpiar bien los estados de edicion
 - Si busco arquetipos y los selecciono en la search principal, a veces no muestra el resultado del ultimo buscado
-- Si clickeo el boton De Support Us se re-renderea 2 veces y me scrollea arriba de todo de la homepage.
-- si edito la endboard de una initial hand que fue copiada, se edita la original.
 
 Resolviendo:

@@ -7,6 +7,7 @@ import { TabNavigation } from "../components/TabNavigation";
 import { ManageAccountsTab } from "../components/ManageAccountsTab";
 import { ReportsTab } from "../components/ReportsTab";
 import { TrackingTab } from "../components/TrackingTab";
+import { AdminLatestUpdatesTab } from "@/features/latest-updates/components/AdminLatestUpdatesTab";
 import type { AdminTab } from "../types/adminPanelTypes";
 
 export const AdminPanelPage = () => {
@@ -78,6 +79,7 @@ export const AdminPanelPage = () => {
                     onRefetchReports={refetchReports}
                   />
                 )}                {activeTab === "tracking" && <TrackingTab />}
+                {activeTab === "latest-updates" && <AdminLatestUpdatesTab />}
               </>
             )}
           </div>

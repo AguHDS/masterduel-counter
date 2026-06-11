@@ -76,7 +76,8 @@ export const GuideRequestDetailPanel: React.FC<
   const handleCancelTake = async () => {
     setError("");
     try {
-      await cancelMutation.mutateAsync(request.id);
+      const updated = await cancelMutation.mutateAsync(request.id);
+      onTakeSuccess?.(updated);
     } catch (err) {
       const msg =
         (err as { response?: { data?: { error?: string } } })?.response?.data

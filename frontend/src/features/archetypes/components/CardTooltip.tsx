@@ -347,6 +347,7 @@ export const CardTooltip = ({
                                   aria-hidden="true"
                                 />
                               ))}
+                              <span className="text-sm font-semibold text-yellow-400 ml-1">({cardDetails.level})</span>
                             </div>
                           )}
                           {cardDetails.linkval !== undefined && (

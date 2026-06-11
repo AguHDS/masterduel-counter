@@ -3,6 +3,7 @@ import { DeckGuides } from "./DeckGuides";
 import { GeneralStats } from "./GeneralStats";
 import MDCBackground from "@/assets/HomeAllPages_Background2.webp";
 import { GuideRequestsSection } from "@/features/guide-request";
+import { LatestUpdatesContainer } from "@/features/latest-updates/components/LatestUpdatesContainer";
 
 interface HomeAllComponentsProps {
   isSearchActive?: boolean;
@@ -60,22 +61,14 @@ export const HomeAllComponents = ({
           </div>
         </div>
 
+        <div className="h-px mx-8 bg-slate-600/40" />
+
+        <LatestUpdatesContainer />
+
+        <div className="h-px mx-8 bg-slate-600/40" />
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div className="lg:col-span-2" aria-hidden="true" />
-
-          {/**Legacy containers */}
-          {/* <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-3">
-            <div
-              className="lg:col-span-2 h-[420px]"
-              aria-label="Latest updates section"
-            >
-              <LatestUpdates />
-            </div>
-
-            <div className="h-[420px]" aria-label="Main features section">
-              <MainFeatures />
-            </div>
-          </div> */}
         </div>
       </div>
     </div>
