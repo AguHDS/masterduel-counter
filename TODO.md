@@ -96,15 +96,11 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 ---
 
 mejoras:
-- agregar title al perfil, ahora dice la url en la pestaña de navegador.
 - En reddit un usuario me dijo que el comboflow tiene espacio muerto, ver como arreglar esto, fijarse el chat.
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
 - en la lista de Guias y Favorites del perfil, tambien ordenar por views,likes. Updated (mas reciente, primero) debe ser default y creo que ya lo tiene puesto asi.
 
 bugs:
-- si modifico la carta favorita, se guarda incluso si cancelo, limpiar bien los estados de edicion
 - Si busco arquetipos y los selecciono en la search principal, a veces no muestra el resultado del ultimo buscado
-- Si clickeo el boton De Support Us se re-renderea 2 veces y me scrollea arriba de todo de la homepage.
-- si edito la endboard de una initial hand que fue copiada, se edita la original.
 
 Resolviendo:

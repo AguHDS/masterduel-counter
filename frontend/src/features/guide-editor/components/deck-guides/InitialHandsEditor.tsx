@@ -30,12 +30,14 @@ interface InitialHandsEditorProps {
 // Module-level helper so Date.now() is not called directly inside the component body
 const makeDuplicatedHand = (original: InitialHand): InitialHand => {
   const ts = Date.now();
+  const clonedBoard = original.finalBoard
+    ? JSON.parse(JSON.stringify(original.finalBoard)) as FieldBoard
+    : undefined;
+  if (clonedBoard) clonedBoard.id = `field-${ts}`;
   return {
     ...original,
     id: `hand-${ts}`,
-    finalBoard: original.finalBoard
-      ? { ...original.finalBoard, id: `field-${ts}` }
-      : undefined,
+    finalBoard: clonedBoard,
   };
 };
 
