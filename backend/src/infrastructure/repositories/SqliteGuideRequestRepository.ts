@@ -182,7 +182,7 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
   }
 
   public async releaseStaleRequests(): Promise<number> {
-    const staleThreshold = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const staleThreshold = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const result = await this.prisma.guideRequest.updateMany({
       where: {
         status: "TAKEN",
@@ -195,6 +195,17 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
       },
     });
     return result.count;
+  }
+
+  public async releaseRequestById(requestId: number): Promise<void> {
+    await this.prisma.guideRequest.update({
+      where: { id: requestId },
+      data: {
+        status: "OPEN",
+        takenById: null,
+        takenAt: null,
+      },
+    });
   }
 
   public async getRequestCounts(): Promise<GuideRequestCounts> {

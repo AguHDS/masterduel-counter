@@ -12,9 +12,15 @@ import type {
   TakeGuideRequestResult,
 } from "@/application/ports/GuideRequestApplicationPort.js";
 import type { NotificationApplicationPort } from "@/application/ports/NotificationApplicationPort.js";
+import { cleanupExpiredDrafts } from "@/services/cleanupService.js";
 
 export class GuideRequestApplicationService implements GuideRequestApplicationPort {
   constructor(private guideRequestRepository: GuideRequestRepository) {}
+
+  private async syncAndCleanup(): Promise<void> {
+    await this.guideRequestRepository.releaseStaleRequests();
+    await cleanupExpiredDrafts();
+  }
 
   async createRequest(params: CreateGuideRequestParams): Promise<GuideRequest> {
     const {
@@ -51,27 +57,27 @@ export class GuideRequestApplicationService implements GuideRequestApplicationPo
     limit: number,
     status?: string,
   ): Promise<GuideRequestListResult> {
-    // Auto-release stale TAKEN requests before returning list
-    await this.guideRequestRepository.releaseStaleRequests();
+    // Auto-release stale TAKEN requests and clean up expired drafts before returning list
+    await this.syncAndCleanup();
     return this.guideRequestRepository.findManyGuideRequests(page, limit, status);
   }
 
   async getRecentOpenRequests(
     limit: number,
   ): Promise<GuideRequestWithDetails[]> {
-    await this.guideRequestRepository.releaseStaleRequests();
+    await this.syncAndCleanup();
     return this.guideRequestRepository.findRecentOpenRequest(limit);
   }
 
   async getRequestById(id: number): Promise<GuideRequestWithDetails | null> {
-    await this.guideRequestRepository.releaseStaleRequests();
+    await this.syncAndCleanup();
     return this.guideRequestRepository.findGuideRequestById(id);
   }
 
   async getRequestByFulfilledInstanceId(
     instanceId: number,
   ): Promise<GuideSourceRequestSummary | null> {
-    await this.guideRequestRepository.releaseStaleRequests();
+    await this.syncAndCleanup();
     return this.guideRequestRepository.findGuideRequestByFulfilledInstanceId(
       instanceId,
     );

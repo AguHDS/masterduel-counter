@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import type { CardPair, Card, ComboStep, GuideType } from "@/features/archetypes/types";
 import type { GuideInstanceWithFullDetails } from "@/lib/http/guideInstancesApi";
 import type { InitialHand } from "../components/deck-guides/InitialHandsEditor";
+import { useCancelTakeGuideRequest } from "@/features/guide-request";
 import {
   mapGuideCardPairsToEditorPairs,
   mapInitialHandsAndComboStepsFromInstance,
@@ -41,6 +42,8 @@ interface UseGuideEditorCancellationParams {
   confirmDiscardIfDirty: (message: string) => boolean;
   clearValidationError: () => void;
   navigate: (delta: number) => void;
+  guideRequestId: number | null;
+  draftInstanceId?: number;
   
   // Editor state setters
   setIsEditMode: (value: boolean) => void;
@@ -114,7 +117,11 @@ export const useGuideEditorCancellation = ({
   setShowComboFlow,
   deckManagement,
   recommendedDeck,
+  guideRequestId,
+  draftInstanceId,
 }: UseGuideEditorCancellationParams) => {
+  const cancelTakeMutation = useCancelTakeGuideRequest();
+
   const handleCancel = useCallback(() => {
     if (!confirmDiscardIfDirty(UNSAVED_CHANGES_WARNING)) {
       return;
@@ -199,6 +206,10 @@ export const useGuideEditorCancellation = ({
         setSelectedHandId(null);
       }
     } else {
+      // If creating a new guide from a request with no draft saved yet, release the request
+      if (guideRequestId && !draftInstanceId) {
+        cancelTakeMutation.mutate(guideRequestId);
+      }
       // New guide that hasn't been saved yet - navigate back
       navigate(-1);
     }
@@ -218,6 +229,9 @@ export const useGuideEditorCancellation = ({
     setShowComboFlow,
     deckManagement,
     recommendedDeck,
+    guideRequestId,
+    draftInstanceId,
+    cancelTakeMutation,
   ]);
 
   return {

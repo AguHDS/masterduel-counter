@@ -494,7 +494,7 @@ export const FinalBoardPreview = ({
 
   return (
     <div className="w-full mt-8">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-bold text-blue-300 max-[500px]:text-sm">
             Final Board Preview for

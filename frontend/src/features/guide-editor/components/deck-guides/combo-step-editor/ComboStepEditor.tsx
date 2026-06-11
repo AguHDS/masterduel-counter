@@ -282,7 +282,7 @@ export const ComboStepEditor = ({
       ) : (
         <>
           <div
-            className={`grid gap-4 max-w-7xl mx-auto ${forcedColumns ? "" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"}`}
+            className={`grid gap-3 max-w-7xl mx-auto ${forcedColumns ? "" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"}`}
             style={{
               gridTemplateColumns: forcedColumns
                 ? `repeat(${forcedColumns}, minmax(0, 1fr))`
@@ -329,7 +329,7 @@ export const ComboStepEditor = ({
                 />
               );
             })}
-            {/* Add Step Placeholder */}
+            {/* Placeholder */}
             <button
               onClick={handleAddStep}
               className="relative bg-slate-800/30 border-2 border-dashed border-blue-500/50 w-full rounded-lg p-4 pt-8 hover:border-blue-400 hover:bg-blue-500/10 transition-colors group flex items-center justify-center"

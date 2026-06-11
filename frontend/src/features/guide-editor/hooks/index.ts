@@ -7,6 +7,7 @@ export { useInstanceGuideFavorites } from "./useInstanceGuideFavorites";
 export { useGuideEditorDraftState } from "./useGuideEditorDraftState";
 export { useSaveInstanceGuide } from "./useSaveInstanceGuide";
 export { useGetGuideInstance, useSaveGuide } from "./useArchetypeQueries";
+export { useGuideEditorRouteParams } from "./useGuideEditorRouteParams";
 
 // Counter guide hooks
 export * from "./counter-guides";

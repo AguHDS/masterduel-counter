@@ -1,33 +1,18 @@
-import {
-  useParams,
-  useNavigate,
-  useLocation,
-  useSearchParams,
-  Link,
-} from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import {
-  CreditCard as Edit3,
-  Trash2,
-  Save,
-  X,
-  Flag,
   ArrowLeft,
   PenLine,
   MailWarning,
-  FileText,
-  Eye,
-  Star,
-  ThumbsUp,
 } from "lucide-react";
 import type { InitialHand } from "./deck-guides/InitialHandsEditor";
-import { FloatingCardSearchModal } from "../../archetypes/components/FloatingCardSearchModal";
 import { GuideHeader } from "./GuideHeader";
 import { GuideTypeContentSection } from "./GuideTypeContentSection";
+import { GuideMobileStatsBar } from "./GuideMobileStatsBar";
+import { GuideActionButtons } from "./GuideActionButtons";
+import { GuideModals } from "./GuideModals";
 import { useSharedGuideEditor } from "../hooks/useSharedGuideEditor";
 import { useInstanceGuideLikes } from "../hooks/useInstanceGuideLikes";
 import { useInstanceGuideFavorites } from "../hooks/useInstanceGuideFavorites";
-import { useCounterGuideData } from "../hooks/counter-guides/useCounterGuideData";
 import { useCounterGuideHandlers } from "../hooks/counter-guides/useCounterGuideHandlers";
 import { useDeckGuideHandlers } from "../hooks/deck-guides/useDeckGuideHandlers";
 import { useDeckManagement } from "../hooks/deck-guides/useDeckManagement";
@@ -36,21 +21,17 @@ import { useModalOrchestration } from "../hooks/useModalOrchestration";
 import { useGuideEditorCancellation } from "../hooks/useGuideEditorCancellation";
 import { useGuideEditorDraftState } from "../hooks/useGuideEditorDraftState";
 import { useSaveInstanceGuide } from "../hooks/useSaveInstanceGuide";
-import { useSaveDraft, useDeleteDraft } from "../hooks/useArchetypeQueries";
+import { useGuideDraft } from "../hooks/useGuideDraft";
+import { useGuideDataSync } from "../hooks/useGuideDataSync";
+import { useGuideEditorRouteParams } from "../hooks/useGuideEditorRouteParams";
 import { useAuth } from "@/features/auth";
 import {
   deleteArchetypeGuide,
-  saveRecommendedDeck,
-  deleteRecommendedDeck,
 } from "../api/guideEditorApi";
-import type { FinalBoardDTO } from "../api/guideEditorApi";
-import { confirmCards } from "@/features/archetypes/api/archetypesApi";
-import { ReportModal } from "@/features/report/components/ReportModal";
 import { useGetGuideInstance } from "../hooks/useArchetypeQueries";
 import { useArchetypeWithHeader } from "@/features/archetypes/hooks/useArchetypes";
 import { useRegisterView } from "@/shared/hooks/useRegisterView";
 import {
-  GuideRequestFullModal,
   useFulfillGuideRequest,
 } from "@/features/guide-request";
 import type {
@@ -60,14 +41,9 @@ import type {
 } from "@/features/archetypes/types";
 import {
   buildGuideEditSnapshot,
-  mapGuideCardPairsToEditorPairs,
-  mapInitialHandsAndComboStepsFromInstance,
 } from "../utils/guideContainerTransforms";
 import {
   buildArchetypePath,
-  buildProfilePath,
-  extractNumericIdFromSlug,
-  inferGuideTypeFromSlug,
 } from "@/lib/config/urlHelpers";
 
 interface GuideContainerProps {
@@ -75,37 +51,26 @@ interface GuideContainerProps {
   onGuideTypeChange?: (guideType: GuideType) => void;
 }
 
-/**
- * Orchestrates guide creation, editing, and viewing for both Counter and Deck guides
- *
- * Responsibilities:
- * - Route parameter parsing and guide type detection
- * - Authentication and ownership verification
- * - Data loading and state synchronization from server
- * - Edit mode management and draft state persistence
- * - Save/delete operations and navigation
- * - Likes, favorites, and view tracking
- * - Type-specific logic delegation to specialized hooks
- *
- * Guide Types:
- * - Counter guides: Card pairs (handtraps/board breakers matchup system)
- * - Deck guides: Initial hands, combo steps, final board preview, recommended deck (optional)
- *
- * Both types share: title, description, header card, guide metadata (likes, favorites, views, etc)
- */
 export const GuideContainer = ({
   onEditModeChange,
   onGuideTypeChange,
 }: GuideContainerProps) => {
-  const { archetypeId, instanceId, guideSlug } = useParams<{
-    archetypeId?: string;
-    instanceId?: string;
-    guideSlug?: string;
-  }>();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
   const { isAuthenticated, user } = useAuth();
+
+  const {
+    navigate,
+    legacyArchetypeIdNum,
+    isCreatingNew,
+    instanceIdNum,
+    guideType,
+    setGuideType,
+    guideRequestId: guideRequestIdFromRoute,
+    initialDraftId,
+  } = useGuideEditorRouteParams();
+
+  // Local state so we can restore guideRequestId from loaded draft data
+  const [guideRequestId, setGuideRequestId] = useState<number | null>(guideRequestIdFromRoute);
+
   const editor = useSharedGuideEditor();
   const { saving, validationError, saveInstance, clearValidationError } =
     useSaveInstanceGuide();
@@ -113,33 +78,7 @@ export const GuideContainer = ({
   const modalOrchestration = useModalOrchestration();
   const { headerAnchor, setHeaderAnchor, isReportModalOpen } =
     modalOrchestration;
-  const legacyArchetypeIdNum = archetypeId
-    ? Number.parseInt(archetypeId, 10)
-    : undefined;
-  const isCreatingNew = instanceId === "new";
-  const parsedInstanceId = !isCreatingNew
-    ? instanceId
-      ? Number.parseInt(instanceId, 10)
-      : extractNumericIdFromSlug(guideSlug)
-    : undefined;
-  const instanceIdNum =
-    parsedInstanceId !== undefined && !Number.isNaN(parsedInstanceId)
-      ? parsedInstanceId
-      : undefined;
-  const typeFromUrl = searchParams.get("type");
-  const typeFromState = (
-    location.state as { guideType?: GuideType; guideRequestId?: number }
-  )?.guideType;
-  const guideRequestId =
-    (location.state as { guideRequestId?: number })?.guideRequestId ?? null;
-  const typeFromSlug = inferGuideTypeFromSlug(guideSlug);
-  const initialGuideType: GuideType =
-    typeFromUrl === "counter"
-      ? "COUNTER"
-      : typeFromUrl === "deck"
-        ? "DECK"
-        : (typeFromSlug ?? typeFromState ?? "COUNTER");
-  const [guideType, setGuideType] = useState<GuideType>(initialGuideType);
+
   const [isSourceRequestModalOpen, setIsSourceRequestModalOpen] =
     useState(false);
   const [isSmallWidth, setIsSmallWidth] = useState(
@@ -152,16 +91,11 @@ export const GuideContainer = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Draft state — only relevant when creating a new guide (isCreatingNew)
-  const initialDraftId = searchParams.get("draftId");
+  // Draft instance ID is managed here because it's needed early for the query
   const [draftInstanceId, setDraftInstanceId] = useState<number | undefined>(
     initialDraftId ? Number(initialDraftId) : undefined,
   );
-  const [draftMessage, setDraftMessage] = useState<string | null>(null);
-  const [draftError, setDraftError] = useState<string | null>(null);
-  const [savingDraft, setSavingDraft] = useState(false);
-  const saveDraftMutation = useSaveDraft();
-  const deleteDraftMutation = useDeleteDraft();
+
   // When creating new but with a draftInstanceId, fetch the draft data to pre-populate the editor
   const guideInstanceId = isCreatingNew ? draftInstanceId : instanceIdNum;
   const { data: guideInstanceData, isError } = useGetGuideInstance(
@@ -174,7 +108,14 @@ export const GuideContainer = ({
     if (guideInstanceData?.instance.guideType) {
       setGuideType(guideInstanceData.instance.guideType);
     }
-  }, [guideInstanceData?.instance.guideType]);
+  }, [guideInstanceData?.instance.guideType, setGuideType]);
+
+  // Restore guideRequestId from loaded draft data when accessing from profile
+  useEffect(() => {
+    if (!guideRequestId && guideInstanceData?.instance?.guideRequestId) {
+      setGuideRequestId(guideInstanceData.instance.guideRequestId);
+    }
+  }, [guideRequestId, guideInstanceData?.instance?.guideRequestId]);
 
   useEffect(() => {
     if (onGuideTypeChange) {
@@ -214,7 +155,7 @@ export const GuideContainer = ({
 
   useRegisterView(instanceIdNum, archetypeIdNum);
 
-  // Deck Management State (only for deck guides — use draft ID when editing drafts)
+  // Deck Management State
   const deckInstanceId =
     guideType === "DECK"
       ? (instanceIdNum ?? (isCreatingNew ? draftInstanceId : undefined))
@@ -239,10 +180,10 @@ export const GuideContainer = ({
     hasRecommendedDeckFromServer,
   } = deckManagement;
 
-  // Counter Guide State (card pairs)
+  // Counter Guide State
   const [pairs, setPairs] = useState<CardPair[]>([]);
 
-  // Deck Guide State (initial hands, combo steps, final board)
+  // Deck Guide State
   const [initialHands, setInitialHands] = useState<InitialHand[]>([]);
   const [comboSteps, setComboSteps] = useState<Map<string, ComboStep[]>>(
     new Map(),
@@ -275,7 +216,7 @@ export const GuideContainer = ({
     handleDuplicateInitialHand,
   } = deckHandlers;
 
-  // === Notify parent of edit mode changes ===
+  // Notify parent of edit mode changes
   useEffect(() => {
     onEditModeChange?.(editor.isEditMode && isOwner);
   }, [editor.isEditMode, isOwner, onEditModeChange]);
@@ -294,112 +235,6 @@ export const GuideContainer = ({
     }
   }, [initialHands, guideType, selectedHandId]);
 
-  // Load Counter Guide Data from Server
-  useCounterGuideData({
-    isCreatingNew,
-    guideInstanceData,
-    isError,
-    isOwner,
-    onDataLoaded: (data) => {
-      const sanitizedTitle = data.title.replace(/\s+/g, " ").trim();
-      const generalTip = data.generalTip || "";
-
-      // Set guide type from loaded data (counter or deck)
-      if (guideInstanceData?.instance.guideType) {
-        setGuideType(guideInstanceData.instance.guideType as GuideType);
-      }
-
-      // Set shared editor state
-      editor.setTitle(sanitizedTitle);
-      editor.setGeneralTip(generalTip);
-      editor.setHeaderCard(data.headerCard);
-      likes.setLikeCount(data.likes);
-      favorites.setFavoriteCount(data.favorites);
-      // If loading a draft, stay in edit mode; otherwise go to view mode
-      const loadedGuide = guideInstanceData?.instance;
-      if (loadedGuide?.isDraft) {
-        editor.setIsEditMode(true);
-      } else {
-        editor.setIsEditMode(false);
-      }
-
-      // Mark the loaded state as clean (no unsaved changes)
-      markClean();
-
-      // Set Counter guide state (card pairs)
-      const transformedPairs: CardPair[] = mapGuideCardPairsToEditorPairs(
-        data.pairs,
-      );
-      setPairs(transformedPairs);
-
-      // Load initial hands if this is a DECK guide
-      if (
-        guideInstanceData?.instance.guideType === "DECK" &&
-        guideInstanceData.initialHands
-      ) {
-        const { initialHands: transformedHands, comboSteps: comboStepsMap } =
-          mapInitialHandsAndComboStepsFromInstance(
-            guideInstanceData.initialHands,
-          );
-
-        setInitialHands(transformedHands);
-        setComboSteps(comboStepsMap);
-
-        // Select first hand by default and show combo flow if it has steps
-        if (transformedHands.length > 0) {
-          setSelectedHandId(transformedHands[0].id);
-          if (
-            comboStepsMap.has(transformedHands[0].id.toString()) &&
-            comboStepsMap.get(transformedHands[0].id.toString())!.length > 0
-          ) {
-            setShowComboFlow(true);
-          }
-        }
-      } else {
-        setInitialHands([]);
-        setComboSteps(new Map());
-        setSelectedHandId(null);
-      }
-
-      // Load likes/favorites status if authenticated
-      if (isAuthenticated && !isOwner) {
-        likes.loadLikeStatus();
-      } else {
-        likes.setLiked(false);
-      }
-
-      if (isAuthenticated) {
-        favorites.loadFavoriteStatus();
-      } else {
-        favorites.setFavorited(false);
-      }
-    },
-    onNewInstance: () => {
-      editor.setIsEditMode(true);
-      editor.setHeaderCard(null);
-      editor.setTitle("Title");
-      editor.setGeneralTip("");
-      likes.setLiked(false);
-      likes.setLikeCount(0);
-      favorites.setFavorited(false);
-      setPairs([]);
-      setInitialHands([]);
-    },
-    onReset: () => {
-      editor.setHeaderCard(null);
-      editor.setTitle("Title");
-      editor.setGeneralTip("");
-      likes.setLiked(false);
-      likes.setLikeCount(0);
-      favorites.setFavorited(false);
-      setPairs([]);
-      setInitialHands([]);
-      if (guideType === "DECK") {
-        setShowRecommendedDeck(false);
-      }
-    },
-  });
-
   const latestEditSnapshot = useMemo(
     () =>
       buildGuideEditSnapshot({
@@ -409,7 +244,6 @@ export const GuideContainer = ({
         pairs,
         initialHands,
         comboSteps,
-        // Only include deck data for Deck guides
         deckTitle: guideType === "DECK" ? deckTitle : "",
         deckMainCards: guideType === "DECK" ? deckMainCards : [],
         deckExtraCards: guideType === "DECK" ? deckExtraCards : [],
@@ -440,7 +274,7 @@ export const GuideContainer = ({
     });
 
   // Handle Edit Cancellation
-  const cancellationHook = useGuideEditorCancellation({
+  const { handleCancel } = useGuideEditorCancellation({
     isCreatingNew,
     guideInstanceData,
     confirmDiscardIfDirty,
@@ -456,276 +290,63 @@ export const GuideContainer = ({
     setShowComboFlow,
     deckManagement,
     recommendedDeck,
+    guideRequestId,
+    draftInstanceId,
   });
 
-  const { handleCancel } = cancellationHook;
+  // Sync guide data from server to local state
+  useGuideDataSync({
+    isCreatingNew,
+    guideInstanceData,
+    isError,
+    isOwner,
+    isAuthenticated,
+    setTitle: editor.setTitle,
+    setGeneralTip: editor.setGeneralTip,
+    setHeaderCard: editor.setHeaderCard,
+    setIsEditMode: editor.setIsEditMode,
+    setLikeCount: likes.setLikeCount,
+    setLiked: likes.setLiked,
+    setFavoriteCount: favorites.setFavoriteCount,
+    setFavorited: favorites.setFavorited,
+    setGuideType,
+    setPairs,
+    setInitialHands,
+    setComboSteps,
+    setSelectedHandId,
+    setShowComboFlow,
+    setShowRecommendedDeck,
+    loadLikeStatus: likes.loadLikeStatus,
+    loadFavoriteStatus: favorites.loadFavoriteStatus,
+    markClean,
+  });
 
-  /**
-   * Saves the current guide state as a draft (only when creating a new guide)
-   */
-  const handleSaveDraft = async () => {
-    if (!archetypeIdNum) return;
-    // Prevent browser unsaved-changes warning during draft save
-    allowNavigation();
-    setSavingDraft(true);
-    setDraftMessage(null);
-    setDraftError(null);
-    try {
-      const cardPairsForDraft =
-        guideType === "COUNTER"
-          ? pairs
-              .filter((p) => p.topCards.length > 0 || p.bottomCards.length > 0)
-              .map((pair) => ({
-                topCardIds: pair.topCards.map((c) => c.id),
-                bottomCardIds: pair.bottomCards.map((c) => ({
-                  cardId: c.id,
-                  effectiveness: c.effectiveness ?? undefined,
-                })),
-                pairSection: pair.section ?? null,
-                comment: pair.comment ?? undefined,
-              }))
-          : undefined;
+  // Draft management
+  const draft = useGuideDraft({
+    archetypeIdNum,
+    guideType,
+    title: editor.title,
+    generalTip: editor.generalTip,
+    headerCard: editor.headerCard,
+    pairs,
+    initialHands,
+    comboSteps,
+    deckTitle,
+    deckMainCards,
+    deckExtraCards,
+    deckSideCards,
+    hasRecommendedDeckFromServer,
+    userId: user?.id,
+    guideRequestId,
+    allowNavigation,
+    draftInstanceId,
+    onDraftSaved: setDraftInstanceId,
+  });
 
-      const isFinalBoardEmpty = (hand: InitialHand): boolean => {
-        const board = hand.finalBoard;
-        if (!board) return true;
-        return (
-          board.fieldSpell === null &&
-          board.extraMonsters.every((card) => card === null) &&
-          board.monsters.every((card) => card === null) &&
-          board.spellTraps.every((card) => card === null) &&
-          board.hand.every((card) => card === null) &&
-          board.graveyard.length === 0 &&
-          board.banished.length === 0 &&
-          !board.description
-        );
-      };
-
-      const serializeFinalBoard = (
-        hand: InitialHand,
-      ): FinalBoardDTO | undefined => {
-        if (!hand.finalBoard || isFinalBoardEmpty(hand)) return undefined;
-        return {
-          fieldSpellCardId: hand.finalBoard.fieldSpell?.id || null,
-          extraMonsterCardIds: hand.finalBoard.extraMonsters.map(
-            (c) => c?.id || null,
-          ),
-          monsterCardIds: hand.finalBoard.monsters.map((c) => c?.id || null),
-          spellTrapCardIds: hand.finalBoard.spellTraps.map(
-            (c) => c?.id || null,
-          ),
-          handCardIds: hand.finalBoard.hand.map((c) => c?.id || null),
-          graveyardCardIds: hand.finalBoard.graveyard.map((c) => c.id),
-          banishedCardIds: hand.finalBoard.banished.map((c) => c.id),
-          description: hand.finalBoard.description || undefined,
-          monsterPositions: hand.finalBoard.monsterPositions?.some(
-            (p) => p === "def",
-          )
-            ? hand.finalBoard.monsterPositions
-            : undefined,
-          extraMonsterPositions: hand.finalBoard.extraMonsterPositions?.some(
-            (p) => p === "def",
-          )
-            ? hand.finalBoard.extraMonsterPositions
-            : undefined,
-        };
-      };
-
-      const initialHandsForDraft =
-        guideType === "DECK"
-          ? initialHands
-              .filter((h) => h.cards.length > 0)
-              .map((h) => ({
-                cardIds: h.cards.map((c) => c.id),
-                description: h.description || undefined,
-                finalBoard: serializeFinalBoard(h),
-              }))
-          : undefined;
-
-      // Transform combo steps for API (handles main flow and canceled flow)
-      const comboStepsForDraft =
-        guideType === "DECK" && comboSteps
-          ? initialHands
-              .filter((h) => h.cards.length > 0)
-              .map((hand, index) => {
-                const steps = comboSteps.get(hand.id) || [];
-                if (steps.length === 0) return null;
-                const validSteps = steps.filter((s) => s.mainCards.length > 0);
-                if (validSteps.length === 0) return null;
-                // Separate main flow and canceled flow steps, then sort each group
-                const mainFlowSteps = validSteps
-                  .filter((s) => !s.parentCanceledStepId)
-                  .sort((a, b) => a.stepOrder - b.stepOrder);
-                const canceledFlowSteps = validSteps
-                  .filter((s) => s.parentCanceledStepId)
-                  .sort((a, b) => {
-                    const parentComparison = (
-                      a.parentCanceledStepId || ""
-                    ).localeCompare(b.parentCanceledStepId || "");
-                    if (parentComparison !== 0) return parentComparison;
-                    return a.stepOrder - b.stepOrder;
-                  });
-                // Combine: main flow first, then canceled flows
-                const orderedSteps = [...mainFlowSteps, ...canceledFlowSteps];
-                // Map temporary step IDs to their indices
-                const stepIdToIndex = new Map<string, number>();
-                orderedSteps.forEach((step, idx) =>
-                  stepIdToIndex.set(step.id, idx),
-                );
-                return {
-                  initialHandId: index,
-                  steps: orderedSteps.map((step, stepIndex) => ({
-                    mainCardIds: step.mainCards.map((c) => c.id),
-                    mainCardChains: step.mainCards.map(
-                      (c) => c.chainNumber ?? null,
-                    ),
-                    subCardIds: step.subCards.map((c) => c.id),
-                    subCardChains: step.subCards.map(
-                      (c) => c.chainNumber ?? null,
-                    ),
-                    leftSubCardIds: step.leftSubCards.map((c) => c.id),
-                    leftSubCardChains: step.leftSubCards.map(
-                      (c) => c.chainNumber ?? null,
-                    ),
-                    description: step.description || undefined,
-                    parentCanceledStepIndex: step.parentCanceledStepId
-                      ? stepIdToIndex.get(step.parentCanceledStepId)
-                      : undefined,
-                    stepOrder: stepIndex,
-                  })),
-                };
-              })
-              .filter((item): item is NonNullable<typeof item> => item !== null)
-          : undefined;
-
-      // Confirm all referenced cards exist in the DB before saving draft
-      const allDraftCardIds: number[] = [];
-      if (editor.headerCard?.id) allDraftCardIds.push(editor.headerCard.id);
-      if (cardPairsForDraft) {
-        for (const pair of cardPairsForDraft) {
-          allDraftCardIds.push(...pair.topCardIds);
-          allDraftCardIds.push(...pair.bottomCardIds.map((bc) => bc.cardId));
-        }
-      }
-      if (initialHandsForDraft) {
-        for (const hand of initialHandsForDraft) {
-          allDraftCardIds.push(...hand.cardIds);
-        }
-      }
-      if (comboStepsForDraft) {
-        for (const handCombo of comboStepsForDraft) {
-          for (const step of handCombo.steps) {
-            allDraftCardIds.push(
-              ...step.mainCardIds,
-              ...step.subCardIds,
-              ...(step.leftSubCardIds ?? []),
-            );
-          }
-        }
-      }
-      if (guideType === "DECK") {
-        allDraftCardIds.push(
-          ...deckMainCards.map((c) => c.id),
-          ...deckExtraCards.map((c) => c.id),
-          ...deckSideCards.map((c) => c.id),
-        );
-      }
-      if (allDraftCardIds.length > 0) {
-        await confirmCards([...new Set(allDraftCardIds)]);
-      }
-
-      const result = await saveDraftMutation.mutateAsync({
-        archetypeId: archetypeIdNum,
-        guideType,
-        cardPairs: cardPairsForDraft,
-        initialHands: initialHandsForDraft,
-        title: editor.title || undefined,
-        headerCardId: editor.headerCard?.id ?? null,
-        generalTip: editor.generalTip || null,
-        comboSteps: comboStepsForDraft,
-        draftInstanceId,
-        isGuideRequest: !!guideRequestId,
-      });
-
-      setDraftInstanceId(result.draft.id);
-
-      // Save or delete recommended deck
-      if (guideType === "DECK") {
-        const mainDeckIds = deckMainCards.map((c) => c.id);
-        const extraDeckIds = deckExtraCards.map((c) => c.id);
-        const sideDeckIds = deckSideCards.map((c) => c.id);
-        const hasDeckContent =
-          mainDeckIds.length > 0 ||
-          extraDeckIds.length > 0 ||
-          sideDeckIds.length > 0;
-        const draftId = result.draft.id;
-        const deckExistedBefore = hasRecommendedDeckFromServer;
-        if (hasDeckContent) {
-          try {
-            await saveRecommendedDeck(
-              draftId,
-              deckTitle,
-              mainDeckIds,
-              extraDeckIds,
-              sideDeckIds,
-            );
-          } catch {
-            // Non-fatal
-          }
-        } else if (deckExistedBefore) {
-          try {
-            await deleteRecommendedDeck(draftId);
-          } catch {
-            // Non-fatal
-          }
-        }
-      }
-
-      if (user?.id) {
-        // Redirect to profile guides tab after saving draft
-        window.location.href = `/profile/${user.id}/guides`;
-      }
-    } catch (error) {
-      const userMsg =
-        error && typeof error === "object" && "userMessage" in error
-          ? (error as { userMessage: string }).userMessage
-          : undefined;
-      const msg =
-        userMsg ??
-        (error instanceof Error ? error.message : "Failed to save draft.");
-      setDraftError(msg);
-    } finally {
-      setSavingDraft(false);
-    }
-  };
-
-  /**
-   * Deletes the current draft guide
-   */
-  const handleDeleteDraft = async () => {
-    if (!draftInstanceId) return;
-    const confirmed = confirm("Are you sure you want to delete this draft?");
-    if (!confirmed) return;
-    allowNavigation();
-    try {
-      await deleteDraftMutation.mutateAsync({ draftId: draftInstanceId });
-      window.location.href = "/";
-    } catch (error) {
-      const msg =
-        error instanceof Error ? error.message : "Failed to delete draft.";
-      setDraftError(msg);
-    }
-  };
-
-  /**
-   * Validates and saves the guide instance to the server
-   * Handles both Counter and Deck guides
-   */
   const validateAndSave = async () => {
     if (!selectedArchetype) return;
 
     try {
-      // Only process deck data for Deck guides
       const mainDeckIds =
         guideType === "DECK" ? deckMainCards.map((c) => c.id) : [];
       const extraDeckIds =
@@ -765,7 +386,7 @@ export const GuideContainer = ({
                   instanceId: newInstanceId,
                 });
               } catch {
-                // Non-fatal: guide was saved successfully; fulfill can fail silently
+                // Non-fatal
               }
             }
           : undefined,
@@ -780,9 +401,6 @@ export const GuideContainer = ({
     }
   };
 
-  /**
-   * Deletes the guide instance from the server after confirmation
-   */
   const handleDeleteInstance = async () => {
     if (!selectedArchetype || !guideInstanceData?.instance.id) return;
 
@@ -801,9 +419,6 @@ export const GuideContainer = ({
     }
   };
 
-  /**
-   * Enters edit mode for creating a new guide or editing an existing guide if user is the owner
-   */
   const handleRegisterClick = () => {
     if (!isAuthenticated) {
       alert("You must be logged in to register archetypes.");
@@ -811,10 +426,6 @@ export const GuideContainer = ({
     }
 
     if (!selectedArchetype?.registered || isOwner) {
-      /**
-       * Navigates back to the archetype detail page or previous page
-       * Confirms navigation if there are unsaved changes in edit mode
-       */
       editor.setIsEditMode(true);
     }
   };
@@ -843,9 +454,14 @@ export const GuideContainer = ({
 
   const sourceRequest = guideInstanceData?.sourceRequest ?? null;
 
-  // If a draft ID is in the URL but the fetch failed, the draft was likely deleted
+  // If a draft ID is in the URL but the fetch failed, redirect to home
+  useEffect(() => {
+    if (draftInstanceId && isError && !guideInstanceData) {
+      window.location.href = "/";
+    }
+  }, [draftInstanceId, isError, guideInstanceData]);
+
   if (draftInstanceId && isError && !guideInstanceData) {
-    window.location.href = "/";
     return null;
   }
 
@@ -873,8 +489,8 @@ export const GuideContainer = ({
           <div className="w-full lg:max-w-[2100px] bg-[#c2901c]/10 border border-[#c2901c]/40 rounded-lg px-4 py-3 flex items-center justify-center gap-3">
             <PenLine className="h-4 w-4 text-[#c2901c] shrink-0" />
             <p className="text-[#c2901c] text-sm text-center">
-              You are creating a guide to complete a community request. Save the
-              guide to mark it as fulfilled.
+              You have 7 days to complete this community request. Save the
+              guide to mark it as fulfilled or as draft to continue working on it later.
             </p>
           </div>
         </div>
@@ -905,47 +521,22 @@ export const GuideContainer = ({
                   <span>Back</span>
                 </button>
 
-                <div className="ml-auto flex items-center gap-2.5 max-[1023px]:flex lg:hidden">
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-3 h-3 text-purple-400" />
-                    <span className="text-purple-400 text-[11px]">{guideInstanceData?.instance.views ?? 0}</span>
-                  </div>
-                  <button
-                    onClick={isAuthenticated && !editor.isEditMode ? favorites.toggleFavorite : undefined}
-                    disabled={!isAuthenticated || editor.isEditMode}
-                    className={`bg-transparent border-none p-0 inline-flex items-center gap-1 ${!isAuthenticated || editor.isEditMode ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-80'}`}
-                  >
-                    <Star className={`w-3 h-3 ${favorites.favorited ? 'fill-yellow-400 text-yellow-400' : 'text-yellow-400'}`} />
-                    <span className="text-yellow-400 text-[11px]">{favorites.favoriteCount}</span>
-                  </button>
-                  <button
-                    onClick={!isOwner && isAuthenticated && !editor.isEditMode ? likes.toggleLike : undefined}
-                    disabled={!isAuthenticated || isOwner || editor.isEditMode}
-                    className={`bg-transparent border-none p-0 inline-flex items-center gap-1 ${!isAuthenticated || isOwner || editor.isEditMode ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-80'}`}
-                  >
-                    <ThumbsUp className={`w-3 h-3 ${likes.liked ? 'fill-green-400 text-green-400' : 'text-green-400'}`} />
-                    <span className="text-green-400 text-[11px]">{likes.likeCount}</span>
-                  </button>
-                  {guideInstanceData?.userName && guideInstanceData?.instance.userId && (
-                    <>
-                      <span className="text-slate-500 text-[11px]">-</span>
-                      <Link
-                        to={buildProfilePath({ userName: guideInstanceData.userName, userId: guideInstanceData.instance.userId })}
-                        className="text-blue-400 hover:text-blue-300 text-[11px] truncate max-w-[80px]"
-                      >
-                        By {guideInstanceData.userName}
-                      </Link>
-                    </>
-                  )}
-                  {guideInstanceData?.instance.createdAt && !isSmallWidth && (
-                    <>
-                      <span className="text-slate-500 text-[11px]">-</span>
-                      <span className="text-slate-400 text-[11px] whitespace-nowrap">
-                        {new Date(guideInstanceData.instance.createdAt).toLocaleDateString()}
-                      </span>
-                    </>
-                  )}
-                </div>
+                <GuideMobileStatsBar
+                  views={guideInstanceData?.instance.views ?? 0}
+                  favoriteCount={favorites.favoriteCount}
+                  favorited={favorites.favorited}
+                  likeCount={likes.likeCount}
+                  liked={likes.liked}
+                  isAuthenticated={isAuthenticated}
+                  isOwner={isOwner}
+                  isEditMode={editor.isEditMode}
+                  userName={guideInstanceData?.userName}
+                  userId={guideInstanceData?.instance.userId}
+                  createdAt={guideInstanceData?.instance.createdAt}
+                  isSmallWidth={isSmallWidth}
+                  onToggleFavorite={favorites.toggleFavorite}
+                  onToggleLike={likes.toggleLike}
+                />
               </div>
 
               <GuideHeader
@@ -1024,131 +615,27 @@ export const GuideContainer = ({
                 onDeleteDeck={handleDeleteDeck}
               />
 
-              {editor.isEditMode && isOwner && (
-                <div className="flex flex-col items-center gap-4 relative top-10">
-                  <div className="flex flex-wrap justify-center gap-4 mt-8">
-                    {/* Draft button — only when creating a new guide */}
-                    {isCreatingNew && (
-                      <button
-                        onClick={handleSaveDraft}
-                        disabled={savingDraft || saving}
-                        className="flex items-center space-x-2 px-4 py-2 bg-slate-700/60 backdrop-blur-sm hover:bg-slate-700/90 active:bg-slate-700/30 text-slate-200 rounded-lg transition-colors shadow-md text-sm"
-                      >
-                        <FileText className="w-4 h-4" />
-                        <span>
-                          {savingDraft
-                            ? "Saving draft..."
-                            : draftInstanceId
-                              ? "Update Draft"
-                              : "Draft"}
-                        </span>
-                      </button>
-                    )}
-                    {/* Delete Draft button — only when a draft exists */}
-                    {isCreatingNew && draftInstanceId && (
-                      <button
-                        onClick={handleDeleteDraft}
-                        disabled={savingDraft || saving}
-                        className="flex items-center space-x-2 px-4 py-2 bg-red-900/40 backdrop-blur-sm hover:bg-red-900/70 active:bg-red-900/20 text-red-300 rounded-lg transition-colors shadow-md text-sm"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span>Delete Draft</span>
-                      </button>
-                    )}
-                    <button
-                      onClick={validateAndSave}
-                      disabled={saving}
-                      className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
-                    >
-                      <Save className="w-4 h-4" />
-                      <span>
-                        {saving
-                          ? "Saving..."
-                          : isCreatingNew
-                            ? "Publish"
-                            : "Save Changes"}
-                      </span>
-                    </button>
-                    <button
-                      onClick={handleCancel}
-                      disabled={saving}
-                      className="flex items-center space-x-2 px-4 py-2 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md text-sm"
-                    >
-                      <X className="w-4 h-4" />
-                      <span>Cancel</span>
-                    </button>
-                  </div>
-                  {/* Draft feedback messages */}
-                  {draftMessage && (
-                    <p className="text-slate-300 text-sm text-center max-w-md bg-slate-800/60 px-4 py-2 rounded-lg">
-                      {draftMessage}
-                    </p>
-                  )}
-                  {draftError && (
-                    <p className="text-red-400 text-sm text-center max-w-md">
-                      {draftError}
-                    </p>
-                  )}
-                  {validationError && (
-                    <p className="text-red-400 text-sm text-center max-w-md">
-                      {validationError}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div className="flex items-center justify-center space-x-4 relative top-3">
-                {isAuthenticated &&
-                  selectedArchetype.registered &&
-                  !editor.isEditMode &&
-                  !isCreatingNew &&
-                  isOwner && (
-                    <>
-                      <button
-                        onClick={() => editor.setIsEditMode(true)}
-                        className="flex items-center space-x-2 px-4 py-2 max-[500px]:px-3 max-[500px]:py-1.5 max-[500px]:text-sm max-[500px]:space-x-1 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        <span>Edit Guide</span>
-                      </button>
-                      <button
-                        onClick={handleDeleteInstance}
-                        className="flex items-center space-x-2 px-4 py-2 max-[500px]:px-3 max-[500px]:py-1.5 max-[500px]:text-sm max-[500px]:space-x-1 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span>Delete guide</span>
-                      </button>
-                    </>
-                  )}
-
-                {isAuthenticated &&
-                  selectedArchetype.registered &&
-                  !editor.isEditMode &&
-                  !isCreatingNew &&
-                  !isOwner && (
-                    <button
-                      onClick={() =>
-                        modalOrchestration.setIsReportModalOpen(true)
-                      }
-                      className="hover:text-red-800/80 text-white"
-                    >
-                      <Flag className="w-5 h-5" />
-                    </button>
-                  )}
-
-                {isAuthenticated &&
-                  !draftInstanceId &&
-                  !selectedArchetype.registered &&
-                  !editor.isEditMode && (
-                      <button
-                        onClick={handleRegisterClick}
-                        className="flex items-center space-x-2 px-4 py-2 max-[500px]:px-3 max-[500px]:py-1.5 max-[500px]:text-sm max-[500px]:space-x-1 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-                      >
-                      <Edit3 className="w-4 h-4" />
-                      <span>Register Archetype</span>
-                    </button>
-                  )}
-              </div>
+              <GuideActionButtons
+                isEditMode={editor.isEditMode}
+                isOwner={isOwner}
+                isCreatingNew={isCreatingNew}
+                isAuthenticated={isAuthenticated}
+                draftInstanceId={draftInstanceId}
+                isArchetypeRegistered={!!selectedArchetype.registered}
+                saving={saving}
+                savingDraft={draft.savingDraft}
+                draftMessage={draft.draftMessage}
+                draftError={draft.draftError}
+                validationError={validationError}
+                onSave={validateAndSave}
+                onCancel={handleCancel}
+                onSaveDraft={draft.handleSaveDraft}
+                onDeleteDraft={draft.handleDeleteDraft}
+                onEdit={() => editor.setIsEditMode(true)}
+                onDelete={handleDeleteInstance}
+                onReport={() => modalOrchestration.setIsReportModalOpen(true)}
+                onRegister={handleRegisterClick}
+              />
 
               {!editor.isEditMode && !isCreatingNew && sourceRequest && (
                 <div className="flex justify-center relative top-4">
@@ -1170,39 +657,27 @@ export const GuideContainer = ({
         </div>
       </section>
 
-      {editor.isSelectingHeader && (
-        <FloatingCardSearchModal
-          isOpen={true}
-          onClose={() => {
-            editor.setIsSelectingHeader(false);
-            setHeaderAnchor(null);
-          }}
-          onSelectCard={editor.handleHeaderCardSelected}
-          title="Select Header Card"
-          anchorElement={headerAnchor}
-          autoCloseAfterSelect={true}
-        />
-      )}
-
-      {isReportModalOpen && guideInstanceData && (
-        <ReportModal
-          isOpen={isReportModalOpen}
-          onClose={() => modalOrchestration.setIsReportModalOpen(false)}
-          targetType="instance"
-          targetId={guideInstanceData.instance.id}
-          targetName={guideInstanceData.instance.title}
-        />
-      )}
-
-      {sourceRequest && (
-        <GuideRequestFullModal
-          isOpen={isSourceRequestModalOpen}
-          onClose={() => setIsSourceRequestModalOpen(false)}
-          currentUser={user ?? null}
-          initialTab="COMPLETED"
-          initialRequestId={sourceRequest.id}
-        />
-      )}
+      <GuideModals
+        isSelectingHeader={editor.isSelectingHeader}
+        headerAnchor={headerAnchor}
+        isReportModalOpen={isReportModalOpen}
+        isSourceRequestModalOpen={isSourceRequestModalOpen}
+        guideInstanceId={guideInstanceData?.instance.id}
+        guideInstanceTitle={guideInstanceData?.instance.title}
+        sourceRequest={sourceRequest}
+        currentUser={user ?? null}
+        onCloseHeaderModal={() => {
+          editor.setIsSelectingHeader(false);
+          setHeaderAnchor(null);
+        }}
+        onSelectHeaderCard={editor.handleHeaderCardSelected}
+        onCloseReportModal={() =>
+          modalOrchestration.setIsReportModalOpen(false)
+        }
+        onCloseSourceRequestModal={() =>
+          setIsSourceRequestModalOpen(false)
+        }
+      />
     </>
   );
 };

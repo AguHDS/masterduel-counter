@@ -411,6 +411,7 @@ export const FloatingCardSearchModal = ({
                           cardId={result.id}
                           imageUrl={tooltipImage}
                           cardName={result.name}
+                          disabled={windowWidth <= 750}
                         >
                           <div
                             className="flex-shrink-0 animate-in fade-in slide-in-from-bottom-3 duration-300"
