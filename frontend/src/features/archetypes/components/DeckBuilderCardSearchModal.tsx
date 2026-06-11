@@ -53,6 +53,7 @@ export const DeckBuilderCardSearchModal = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [hasSearched, setHasSearched] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(() => window.innerWidth);
 
   const tooltipContext = useOptionalTooltipContext();
 
@@ -67,6 +68,13 @@ export const DeckBuilderCardSearchModal = ({
       inputRef.current.focus({ preventScroll: true });
     }
   }, [isOpen]);
+
+  // Track window width for responsive behavior (e.g. disable tooltips on small screens)
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Debounce search query
   useEffect(() => {
@@ -335,6 +343,7 @@ export const DeckBuilderCardSearchModal = ({
                         cardId={result.id}
                         imageUrl={tooltipImage}
                         cardName={result.name}
+                        disabled={windowWidth <= 700}
                       >
                         <div
                           className="flex-shrink-0 animate-in fade-in slide-in-from-bottom-3 duration-300"

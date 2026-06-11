@@ -70,7 +70,7 @@ export const PersonalDeckModal = ({
     };
   }, []);
 
-  const isFloating = windowWidth <= 1175;
+  const isFloating = windowWidth <= 900;
   
   // Reset decks when deck prop changes (only in edit mode)
   useEffect(() => {
@@ -298,16 +298,16 @@ export const PersonalDeckModal = ({
       onClick={handleBackdropClick}
     >
       {/* Flex row: deck builder on the left, search panel on the right */}
-      <div className="flex items-stretch gap-4 flex-wrap justify-center">
+      <div className="flex items-stretch gap-4 flex-wrap justify-center w-full">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative max-h-[90vh] w-full min-[850px]:max-w-[75%] min-[1024px]:max-w-[85%] min-[1200px]:max-w-[62%] overflow-auto rounded-[26px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.16)] scrollbar-cardpair"
+        className="relative max-h-[90vh] w-full min-[640px]:max-w-[95%] min-[768px]:max-w-[90%] min-[1024px]:max-w-[88%] min-[1280px]:max-w-5xl overflow-auto rounded-[26px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.16)] scrollbar-cardpair"
       >
         <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_38%)]" />
         <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
 
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-slate-700/70 bg-slate-950/85 px-4 py-3 backdrop-blur-xl">
-          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 border-b border-slate-700/70 bg-slate-950/85 px-4 py-3 backdrop-blur-xl">
+          <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
             {isOwner && isEditMode ? (
               <input
                 type="text"
@@ -325,7 +325,7 @@ export const PersonalDeckModal = ({
               </h2>
             )}
             {isOwner && (
-              <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
                 <button
                   onClick={handleTogglePublic}
                   disabled={isUpdating}
@@ -387,7 +387,7 @@ export const PersonalDeckModal = ({
                 {isUpdating ? "Saving..." : "Save Changes"}
               </button>
             )}
-            {isOwner && (
+            {isOwner && deck && (
               <button
                 onClick={handleDelete}
                 disabled={isDeleting || isUpdating}
@@ -539,6 +539,7 @@ export const PersonalDeckModal = ({
                 </button>
                 <div className={`overflow-hidden transition-all duration-300 ${isSideDeckOpen ? 'max-h-[2000px]' : 'max-h-0'}`}>
                   {showSideDeck ? (
+                    <div className="max-h-[40vh] overflow-y-auto">
                     <DeckZoneSection
                       zone="side"
                       cards={sideDeck}
@@ -559,6 +560,7 @@ export const PersonalDeckModal = ({
                       onDragEnd={handleDragEnd}
                       draggedCardActive={!!draggedCard}
                     />
+                    </div>
                   ) : (
                     isOwner && isEditMode && (
                       <div className="text-center pt-4">
