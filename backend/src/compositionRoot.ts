@@ -69,6 +69,10 @@ import { RankingApplicationPort } from "@/application/ports/RankingApplicationPo
 import { SqliteRankingRepository } from "@/infrastructure/repositories/SqliteRankingRepository.js";
 import { RankingApplicationService } from "@/application/services/RankingApplicationService.js";
 import { GuideRequestRepository } from "@/domain/ports/GuideRequestRepository.js";
+import { LatestUpdateRepository } from "@/domain/ports/LatestUpdateRepository.js";
+import { LatestUpdateApplicationPort } from "@/application/ports/LatestUpdateApplicationPort.js";
+import { PrismaLatestUpdateRepository } from "@/infrastructure/repositories/PrismaLatestUpdateRepository.js";
+import { LatestUpdateApplicationService } from "@/application/services/LatestUpdateApplicationService.js";
 import { GuideRequestApplicationPort } from "@/application/ports/GuideRequestApplicationPort.js";
 import { SqliteGuideRequestRepository } from "@/infrastructure/repositories/SqliteGuideRequestRepository.js";
 import { GuideRequestApplicationService } from "@/application/services/GuideRequestApplicationService.js";
@@ -113,6 +117,8 @@ export class Dependencies {
   private rankingService: RankingApplicationPort | null = null;
   private guideRequestRepository: GuideRequestRepository | null = null;
   private guideRequestService: GuideRequestApplicationPort | null = null;
+  private latestUpdateRepository: LatestUpdateRepository | null = null;
+  private latestUpdateService: LatestUpdateApplicationPort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -447,6 +453,24 @@ export class Dependencies {
       );
     }
     return this.guideRequestService;
+  }
+
+  getLatestUpdateRepository(): LatestUpdateRepository {
+    if (!this.latestUpdateRepository) {
+      this.latestUpdateRepository = new PrismaLatestUpdateRepository(
+        this.prisma,
+      );
+    }
+    return this.latestUpdateRepository;
+  }
+
+  getLatestUpdateService(): LatestUpdateApplicationPort {
+    if (!this.latestUpdateService) {
+      this.latestUpdateService = new LatestUpdateApplicationService(
+        this.getLatestUpdateRepository(),
+      );
+    }
+    return this.latestUpdateService;
   }
 
   getPrismaClient(): PrismaClient {

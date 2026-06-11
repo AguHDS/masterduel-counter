@@ -51,7 +51,7 @@ export const NavbarTabletNav: React.FC<NavbarTabletNavProps> = ({
   const rankingButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="hidden sm:flex lg:hidden items-center gap-3 absolute right-8 top-1/2 -translate-y-1/2">
+    <div className="hidden sm:flex min-[1100px]:hidden items-center gap-3 absolute right-8 top-1/2 -translate-y-1/2">
       <Link
         to="/cards"
         className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"

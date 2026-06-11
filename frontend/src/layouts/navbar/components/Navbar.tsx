@@ -45,7 +45,7 @@ export const Navbar = () => {
 
   return (
     <header className="relative top-0 z-[350] bg-[#18121a]/90 border-b-4 border-[#c2901c] shadow-[0_10px_50px_-5px_rgba(0,0,0,0.7)]">
-      <nav className="px-4 sm:px-6 lg:px-8 py-4" aria-label="Main navigation">
+      <nav className="px-4 sm:px-6 min-[1100px]:px-8 py-4" aria-label="Main navigation">
         <NavbarLogo />
 
         <div className="max-w-7xl mx-auto">

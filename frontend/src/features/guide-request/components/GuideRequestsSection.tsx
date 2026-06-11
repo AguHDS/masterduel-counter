@@ -60,9 +60,9 @@ export const GuideRequestsSection: React.FC = () => {
   return (
     <section className="w-full">
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <MessagesSquare className="h-5 w-5 text-[#c2901c]" />
-          <h2 className="text-white font-semibold text-base">Guide Requests</h2>
+          <h2 className="text-white font-semibold text-lg">Guide Requests</h2>
         </div>
         <div className="flex items-center gap-2">
           <button

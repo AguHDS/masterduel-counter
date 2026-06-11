@@ -34,6 +34,7 @@ model User {
   guideRequestsCreated  GuideRequest[] @relation("RequestCreator")
   guideRequestsFulfilled GuideRequest[] @relation("RequestFulfiller")
   guideRequestsTaken    GuideRequest[] @relation("RequestTaker")
+  latestUpdates         LatestUpdate[]
 
   banned     Boolean?  @default(false)
   banReason  String?   @map("ban_reason")
@@ -534,4 +535,19 @@ model MonthlyUserRanking {
   @@index([month])
   @@index([month, rank])
   @@map("monthly_user_rankings")
+}
+
+model LatestUpdate {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   // Rich text (HTML)
+  authorId  String   @map("author_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("latest_updates")
 }

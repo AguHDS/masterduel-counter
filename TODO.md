@@ -100,14 +100,14 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 ---
 
 mejoras:
-- Mostrar nivel de carta en numero en tooltip
-- agregar title al perfil, ahora dice la url en la pestaña de navegador
-- Agregar pequeña feature que deje poner Last Updates, en el panel de admin puedo poner nuevas updates que se muestran en la home, para que los usuarios sepan cuando hay cambios importantes, mantenimiento, etc.
+- En el perfil, lo relacionado a los personal decks no esta responsive, creo que se rompio cuando tocamos cosas del recommended deck. ASegurarse que sea responsive sin romper el otro.
+- Cuando cancelamos una take en el modal de requests, el render no refleja que se cancelo correctamente. Sigue mmostrando el boton de Cancel my take. Deberia de volver a mostrar el boton de Take this request. Esto es un bug visual (porque en realidad si se cancela si refrescas la pagina).
+- Mostrar nivel de carta en numero en tooltip.
+Las cartas en posición de defensa deben renderizarse con una rotación de -90° (sentido antihorario).
+- agregar title al perfil, ahora dice la url en la pestaña de navegador.
+
 - En reddit un usuario me dijo que el comboflow tiene espacio muerto, ver como arreglar esto, fijarse el chat.
-- Que pasa si se guarda como draft una de estas, ya que las guias tomadas de una request tienen 24hs para completarse
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
-- Hacer que al tomar una request, en lugar de llevarte directo a la creacion de la misma, se ponga como "Pending". El usuario que la tomo tiene 24hs para cumplir esta request. Si no le cumple, vuelve a estar OPEN.
-El usuario que la tomo puede ir a la creacion de guia de esa request en el modal donde muestra la informacion de esta que esta in progress.
 - en la lista de Guias y Favorites del perfil, tambien ordenar por views,likes. Updated (mas reciente, primero) debe ser default y creo que ya lo tiene puesto asi.
 
 bugs:
