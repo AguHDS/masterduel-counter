@@ -104,7 +104,7 @@ mejoras:
 - agregar title al perfil, ahora dice la url en la pestaña de navegador
 - Agregar pequeña feature que deje poner Last Updates, en el panel de admin puedo poner nuevas updates que se muestran en la home, para que los usuarios sepan cuando hay cambios importantes, mantenimiento, etc.
 - En reddit un usuario me dijo que el comboflow tiene espacio muerto, ver como arreglar esto, fijarse el chat.
-- sistema de draft para guias guardadas. Cambiar el boton save changes a publish, pensar en que hacer con las guias que son creadas a partir de una request, que pasa si se guarda como draft una de estas, ya que las guias tomadas de una request tienen 24hs para completarse
+- Que pasa si se guarda como draft una de estas, ya que las guias tomadas de una request tienen 24hs para completarse
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
 - Hacer que al tomar una request, en lugar de llevarte directo a la creacion de la misma, se ponga como "Pending". El usuario que la tomo tiene 24hs para cumplir esta request. Si no le cumple, vuelve a estar OPEN.
 El usuario que la tomo puede ir a la creacion de guia de esa request en el modal donde muestra la informacion de esta que esta in progress.
@@ -116,4 +116,4 @@ bugs:
 - Si clickeo el boton De Support Us se re-renderea 2 veces y me scrollea arriba de todo de la homepage.
 - si edito la endboard de una initial hand que fue copiada, se edita la original.
 
-Resolviendo :
+Resolviendo:

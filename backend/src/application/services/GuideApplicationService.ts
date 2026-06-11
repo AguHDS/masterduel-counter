@@ -103,6 +103,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
       comboSteps,
       draftInstanceId,
       draftExpiresAt,
+      guideRequestId,
     } = data;
 
     if (draftInstanceId) {
@@ -131,6 +132,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
       comboSteps,
       draftInstanceId,
       draftExpiresAt,
+      guideRequestId,
     });
 
     return draft;

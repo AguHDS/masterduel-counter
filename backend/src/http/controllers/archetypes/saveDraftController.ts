@@ -29,18 +29,12 @@ export const saveDraftController = async (
       initialHands,
       comboSteps,
       draftInstanceId,
-      isGuideRequest,
+      guideRequestId,
     } = req.body;
 
     if (!guideType || (guideType !== "COUNTER" && guideType !== "DECK")) {
       res.status(400).json({ success: false, error: "Invalid guide type" });
       return;
-    }
-
-    // If this draft is for a guide request, set expiry to 24h from now
-    let draftExpiresAt: Date | null = null;
-    if (isGuideRequest) {
-      draftExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     }
 
     const instanceService = getDependencies().getInstanceService();
@@ -56,7 +50,7 @@ export const saveDraftController = async (
       initialHands: guideType === "DECK" ? initialHands : undefined,
       comboSteps: guideType === "DECK" ? comboSteps : undefined,
       draftInstanceId: draftInstanceId ? parseInt(String(draftInstanceId), 10) : undefined,
-      draftExpiresAt,
+      guideRequestId: guideRequestId ? parseInt(String(guideRequestId), 10) : undefined,
     });
 
     res.status(200).json({

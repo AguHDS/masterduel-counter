@@ -147,7 +147,7 @@ export const useGuideDraft = ({
         generalTip: generalTip || null,
         comboSteps: comboStepsForDraft,
         draftInstanceId,
-        isGuideRequest: !!guideRequestId,
+        guideRequestId: guideRequestId || undefined,
       });
 
       onDraftSaved(result.draft.id);

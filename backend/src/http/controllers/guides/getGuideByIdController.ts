@@ -146,6 +146,7 @@ export const createGetGuideByIdController = (
           generalTip: instance.generalTip,
           guideType: instance.guideType,
           isDraft: instance.isDraft,
+          guideRequestId: instance.guideRequestId ?? null,
           likes: instance.likes,
           favorites: instance.favorites,
           views: instance.views,

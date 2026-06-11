@@ -146,18 +146,36 @@ export async function cleanupUnverifiedAccounts(): Promise<number> {
 }
 
 /**
- * Deletes draft guides whose draftExpiresAt has passed (used for guide-request drafts).
+ * Deletes draft guides whose draftExpiresAt has passed (used for guide-request drafts)
+ * and releases the linked guide requests back to OPEN
+ * Also releases any stale TAKEN requests that passed their deadline
  * @returns Number of deleted drafts
  */
 export async function cleanupExpiredDrafts(): Promise<number> {
   try {
-    const deletedCount = await getDependencies()
-      .getInstanceRepository()
-      .deleteExpiredDrafts();
+    const deps = getDependencies();
+    const instanceRepo = deps.getInstanceRepository();
+    const guideRequestRepo = deps.getGuideRequestRepository();
 
-    if (deletedCount > 0) {
+    // Release stale TAKEN requests first
+    const staleReleased = await guideRequestRepo.releaseStaleRequests();
+
+    // Release linked guide requests before deleting the drafts
+    const expiredGuideRequestIds = await instanceRepo.getExpiredDraftGuideRequestIds();
+    for (const requestId of expiredGuideRequestIds) {
+      try {
+        await guideRequestRepo.releaseRequestById(requestId);
+      } catch {
+        // Non-fatal — continue with other requests
+      }
+    }
+
+    // Now delete the expired drafts
+    const deletedCount = await instanceRepo.deleteExpiredDrafts();
+
+    if (deletedCount > 0 || expiredGuideRequestIds.length > 0 || staleReleased > 0) {
       console.log(
-        `[Cleanup Service] Deleted ${deletedCount} expired draft guide(s).`,
+        `[Cleanup Service] Deleted ${deletedCount} expired draft(s), released ${expiredGuideRequestIds.length} linked request(s), released ${staleReleased} stale request(s).`,
       );
     }
 
@@ -202,7 +220,7 @@ export function startCleanupJob(): void {
     await cleanupExpiredDrafts();
   });
 
-  // Schedule expired draft cleanup every hour (guide-request drafts expire in 24h)
+  // Schedule expired draft cleanup every hour (guide-request drafts expire in 7 days)
   cron.schedule("0 * * * *", async () => {
     await cleanupExpiredDrafts();
   });

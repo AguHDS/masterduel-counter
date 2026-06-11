@@ -64,9 +64,12 @@ export const GuideContainer = ({
     instanceIdNum,
     guideType,
     setGuideType,
-    guideRequestId,
+    guideRequestId: guideRequestIdFromRoute,
     initialDraftId,
   } = useGuideEditorRouteParams();
+
+  // Local state so we can restore guideRequestId from loaded draft data
+  const [guideRequestId, setGuideRequestId] = useState<number | null>(guideRequestIdFromRoute);
 
   const editor = useSharedGuideEditor();
   const { saving, validationError, saveInstance, clearValidationError } =
@@ -106,6 +109,13 @@ export const GuideContainer = ({
       setGuideType(guideInstanceData.instance.guideType);
     }
   }, [guideInstanceData?.instance.guideType, setGuideType]);
+
+  // Restore guideRequestId from loaded draft data when accessing from profile
+  useEffect(() => {
+    if (!guideRequestId && guideInstanceData?.instance?.guideRequestId) {
+      setGuideRequestId(guideInstanceData.instance.guideRequestId);
+    }
+  }, [guideRequestId, guideInstanceData?.instance?.guideRequestId]);
 
   useEffect(() => {
     if (onGuideTypeChange) {
@@ -280,6 +290,8 @@ export const GuideContainer = ({
     setShowComboFlow,
     deckManagement,
     recommendedDeck,
+    guideRequestId,
+    draftInstanceId,
   });
 
   // Sync guide data from server to local state
@@ -477,8 +489,8 @@ export const GuideContainer = ({
           <div className="w-full lg:max-w-[2100px] bg-[#c2901c]/10 border border-[#c2901c]/40 rounded-lg px-4 py-3 flex items-center justify-center gap-3">
             <PenLine className="h-4 w-4 text-[#c2901c] shrink-0" />
             <p className="text-[#c2901c] text-sm text-center">
-              You are creating a guide to complete a community request. Save the
-              guide to mark it as fulfilled.
+              You have 7 days to complete this community request. Save the
+              guide to mark it as fulfilled or as draft to continue working on it later.
             </p>
           </div>
         </div>

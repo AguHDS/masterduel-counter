@@ -143,7 +143,7 @@ export const saveDraftGuide = async (
   generalTip?: string | null,
   comboSteps?: ComboStepsDTO[],
   draftInstanceId?: number,
-  isGuideRequest?: boolean,
+  guideRequestId?: number,
 ): Promise<SaveDraftResponse> => {
   const response = await axiosClient.post<SaveDraftResponse>(
     `/api/archetypes/${archetypeId}/draft`,
@@ -156,7 +156,7 @@ export const saveDraftGuide = async (
       generalTip,
       comboSteps,
       draftInstanceId,
-      isGuideRequest,
+      guideRequestId,
     },
   );
   return response.data;

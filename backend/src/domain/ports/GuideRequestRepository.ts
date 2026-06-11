@@ -55,8 +55,11 @@ export interface GuideRequestRepository {
   /** Count anonymous requests (where requesterId IS NULL) */
   countAnonymousRequest(): Promise<number>;
 
-  /** Release TAKEN requests that have been taken for more than 24h back to OPEN */
+  /** Release TAKEN requests that have been taken for more than 7 days back to OPEN */
   releaseStaleRequests(): Promise<number>;
+
+  /** Release a specific request by ID back to OPEN (system action, bypasses user checks) */
+  releaseRequestById(requestId: number): Promise<void>;
 
   /** Count requests grouped by status */
   getRequestCounts(): Promise<{ OPEN: number; TAKEN: number; COMPLETED: number }>;

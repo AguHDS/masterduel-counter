@@ -74,4 +74,6 @@ export interface GuideRepository {
   saveDraft(data: SaveDraftDTO): Promise<Guide>;
   /** Delete expired draft guides (where draftExpiresAt < now) */
   deleteExpiredDrafts(): Promise<number>;
+  /** Get guide_request_id values of drafts that will expire, for releasing linked requests */
+  getExpiredDraftGuideRequestIds(): Promise<number[]>;
 }

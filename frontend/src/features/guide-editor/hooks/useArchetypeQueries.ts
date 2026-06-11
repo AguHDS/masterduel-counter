@@ -124,7 +124,7 @@ export const useSaveDraft = () => {
       generalTip?: string | null;
       comboSteps?: ComboStepsDTO[];
       draftInstanceId?: number;
-      isGuideRequest?: boolean;
+      guideRequestId?: number;
     }
   >({
     mutationFn: ({
@@ -137,7 +137,7 @@ export const useSaveDraft = () => {
       generalTip,
       comboSteps,
       draftInstanceId,
-      isGuideRequest,
+      guideRequestId,
     }) =>
       saveDraftGuide(
         archetypeId,
@@ -149,7 +149,7 @@ export const useSaveDraft = () => {
         generalTip,
         comboSteps,
         draftInstanceId,
-        isGuideRequest,
+        guideRequestId,
       ),
   });
 };

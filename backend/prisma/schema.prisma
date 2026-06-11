@@ -130,6 +130,7 @@ model ArchetypeInstance {
   guideType        String    @default("COUNTER") @map("guide_type")
   isDraft          Boolean   @default(false) @map("is_draft")
   draftExpiresAt   DateTime? @map("draft_expires_at")
+  guideRequestId   Int?      @map("guide_request_id")
   likes            Int       @default(0)
   favorites        Int       @default(0)
   views            Int       @default(0)
@@ -144,6 +145,7 @@ model ArchetypeInstance {
   reports          Report[]
   likeRecords      InstanceLike[]
   favoriteRecords  InstanceFavorite[]
+  guideRequest     GuideRequest? @relation(fields: [guideRequestId], references: [id])
   recommendedDeck  RecommendedDeck?
   comments         Comment[]
   notifications    Notification[]
@@ -489,6 +491,8 @@ model GuideRequest {
   requester   User?     @relation("RequestCreator", fields: [requesterId], references: [id], onDelete: SetNull)
   fulfilledBy User?     @relation("RequestFulfiller", fields: [fulfilledById], references: [id], onDelete: SetNull)
   takenBy     User?     @relation("RequestTaker", fields: [takenById], references: [id], onDelete: SetNull)
+
+  draftInstances ArchetypeInstance[]
 
   @@index([status])
   @@index([archetypeId])

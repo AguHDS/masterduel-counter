@@ -38,6 +38,7 @@ export interface GuideInstanceWithFullDetails {
     generalTip?: string | null;
     guideType: GuideType;
     isDraft: boolean;
+    guideRequestId?: number | null;
     likes: number;
     favorites: number;
     views: number;

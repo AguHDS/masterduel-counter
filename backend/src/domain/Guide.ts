@@ -12,6 +12,7 @@ export interface Guide {
   guideType: GuideType;
   isDraft: boolean;
   draftExpiresAt?: Date | null;
+  guideRequestId?: number | null;
   likes: number;
   favorites: number;
   views: number;
@@ -109,6 +110,8 @@ export interface SaveDraftDTO {
   draftInstanceId?: number;
   /** If set, the draft will auto-expire at this date (used for guide-request drafts) */
   draftExpiresAt?: Date | null;
+  /** If provided, links this draft to a guide request being fulfilled */
+  guideRequestId?: number | null;
 }
 
 export interface GuideListItem extends Guide {

@@ -23,6 +23,7 @@ interface BaseInstanceRow {
   guide_type: string;
   is_draft: number;
   draft_expires_at: string | null;
+  guide_request_id: number | null;
   likes: number;
   favorites: number;
   views: number;
@@ -47,6 +48,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       guideType: row.guide_type as GuideType,
       isDraft: Boolean(row.is_draft),
       draftExpiresAt: row.draft_expires_at ? new Date(row.draft_expires_at) : null,
+      guideRequestId: row.guide_request_id ?? null,
       likes: row.likes,
       favorites: row.favorites,
       views: row.views,
@@ -415,8 +417,13 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       initialHands,
       comboSteps,
       draftInstanceId,
-      draftExpiresAt,
+      guideRequestId,
     } = data;
+
+    // If this draft is for a guide request, set expiry to 7 days from now
+    const draftExpiresAt = guideRequestId
+      ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      : data.draftExpiresAt ?? null;
 
     let instanceId: number;
 
@@ -424,7 +431,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       // Update existing draft metadata
       const updateStmt = this.db.prepare(`
         UPDATE archetype_instances
-        SET title = ?, header_card_id = ?, general_tip = ?, draft_expires_at = ?, updated_at = CURRENT_TIMESTAMP
+        SET title = ?, header_card_id = ?, general_tip = ?, draft_expires_at = ?, guide_request_id = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND is_draft = 1
       `);
       updateStmt.run(
@@ -432,6 +439,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
         headerCardId ?? null,
         generalTip ?? null,
         draftExpiresAt ? draftExpiresAt.toISOString() : null,
+        guideRequestId ?? null,
         draftInstanceId,
       );
       instanceId = draftInstanceId;
@@ -446,8 +454,8 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     } else {
       // Create new draft
       const insertStmt = this.db.prepare(`
-        INSERT INTO archetype_instances (archetype_id, user_id, title, header_card_id, general_tip, guide_type, is_draft, draft_expires_at, likes, favorites, views, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, 1, ?, 0, 0, 0, CURRENT_TIMESTAMP)
+        INSERT INTO archetype_instances (archetype_id, user_id, title, header_card_id, general_tip, guide_type, is_draft, draft_expires_at, guide_request_id, likes, favorites, views, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, 0, 0, 0, CURRENT_TIMESTAMP)
       `);
       const result = insertStmt.run(
         archetypeId,
@@ -457,6 +465,7 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
         generalTip ?? null,
         guideType,
         draftExpiresAt ? draftExpiresAt.toISOString() : null,
+        guideRequestId ?? null,
       );
       instanceId = result.lastInsertRowid as number;
     }
@@ -555,6 +564,16 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     `);
     const result = stmt.run(now);
     return result.changes;
+  }
+
+  async getExpiredDraftGuideRequestIds(): Promise<number[]> {
+    const now = new Date().toISOString();
+    const stmt = this.db.prepare(`
+      SELECT guide_request_id FROM archetype_instances
+      WHERE is_draft = 1 AND draft_expires_at IS NOT NULL AND draft_expires_at < ? AND guide_request_id IS NOT NULL
+    `);
+    const rows = stmt.all(now) as { guide_request_id: number }[];
+    return rows.map((r) => r.guide_request_id);
   }
 
   async toggleLikeGuide(instanceId: number, userId: string): Promise<LikeToggleResult> {
