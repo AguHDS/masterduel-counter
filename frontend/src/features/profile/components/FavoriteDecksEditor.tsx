@@ -81,7 +81,7 @@ export const FavoriteDecksEditor = ({
         <div className="flex-1 border-t border-yellow-600"></div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 min-[1376px]:grid-cols-3 gap-3">{slots.map((slotIndex) => {
+      <div className="grid grid-cols-2 min-[1376px]:grid-cols-3 gap-3">{slots.map((slotIndex) => {
           const savedDeck = favoriteDecks[slotIndex];
           // Live-resolve deck data from customDecks so edits are reflected immediately
           const liveDeck = savedDeck

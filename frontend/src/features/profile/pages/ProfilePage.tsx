@@ -514,8 +514,8 @@ export const ProfilePage = () => {
                     <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
                     {/* Tabs inside container */}
                     <div className="relative z-10 border-b border-yellow-600/30 bg-slate-900/40 backdrop-blur-sm">
-                      <div className="flex flex-col gap-2 sm:gap-3 p-3 lg:flex-row lg:items-center lg:justify-between overflow-visible">
-                        <div className="grid grid-cols-2 gap-1.5 lg:flex lg:flex-wrap lg:gap-2">
+                      <div className="flex flex-col gap-2 sm:gap-3 p-3 min-[1553px]:flex-row min-[1553px]:items-center min-[1553px]:gap-4 overflow-visible">
+                        <div className="grid grid-cols-2 gap-1.5 min-[1553px]:flex min-[1553px]:flex-nowrap min-[1553px]:gap-1.5">
                           {[
                             { id: "profile", label: "Profile", path: "" },
                             {
@@ -550,7 +550,7 @@ export const ProfilePage = () => {
                           ))}
                         </div>
                         {/* Edit Profile / Report Buttons + Search */}
-                        <div className="flex gap-2 items-center flex-wrap justify-end">
+                        <div className="flex gap-2 items-center flex-wrap min-[1553px]:ml-auto justify-end">
                           <UserSearchDropdown />
                           <div className="flex gap-2 items-center">
                             {!isOwner && session && (
