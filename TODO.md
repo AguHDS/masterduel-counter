@@ -92,4 +92,3 @@ bugs:
 Esto solo pasa si selecciono un arquetipo pero tipo de guia diferente.
 
 Resolviendo:
-testear el flujo de draft de las guides. Explicar su relacion con las request
