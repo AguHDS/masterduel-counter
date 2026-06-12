@@ -1,25 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Flag,
-  Edit,
-  Eye,
-  Crown,
-  Trophy,
-  ThumbsUp,
-  MailWarning,
-  Camera,
-  Flame,
-} from "lucide-react";
 import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { Footer } from "@/layouts/Footer";
-import { FavoriteCardEditor } from "../components/FavoriteCardEditor";
 import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
 import { ProfileGuideList } from "../components/ProfileGuideList";
 import { PersonalDeckList } from "../components/PersonalDeckList";
-import { UserSearchDropdown } from "../components/UserSearchDropdown";
-import { TrendingSection } from "../components/TrendingSection";
-import { TrendingHistoryModal } from "../components/TrendingHistoryModal";
+import { ProfileLeftSidebar } from "../components/ProfileLeftSidebar";
+import { ProfileTabBar } from "../components/ProfileTabBar";
+import { ProfileRightSidebar } from "../components/ProfileRightSidebar";
 import { profileApi } from "../api/profileApi";
 import { useProfileEditor } from "../hooks/useProfileEditor";
 import {
@@ -29,17 +17,15 @@ import {
 import { useCustomDecks } from "../hooks/useCustomDecks";
 import { useSession } from "@/lib/auth-client";
 import { useUserTrendingAchievements } from "@/features/ranking/hooks/useRanking";
-import { getOptimizedCardImageUrl, getOptimizedProfilePictureUrl } from "@/lib/utils/imageOptimization";
 import { FeatureErrorBoundary } from "@/shared/components";
 import { ReportModal } from "@/features/report/components/ReportModal";
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   guideInstancesApi,
   type GuideListItem,
 } from "@/lib/http/guideInstancesApi";
 import { buildGuidePath, buildProfilePath } from "@/lib/config/urlHelpers";
 import profile_background from "@/assets/Profile_Backgroundnew.webp";
-import { formatCompactNumber } from "@/shared/utils/formatNumber";
 import { useCanonicalPathRedirect } from "@/shared/hooks/useCanonicalPathRedirect";
 import type { TabType } from "../types/profileTypes";
 import type { Card } from "@/features/archetypes/types";
@@ -48,12 +34,9 @@ export const ProfilePage = () => {
   const { userId, tab } = useParams<{ userId: string; tab?: string }>();
   const navigate = useNavigate();
   const { data: session } = useSession();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [isTrendingModalOpen, setIsTrendingModalOpen] = useState(false);
   const [autoSelectDeckId, setAutoSelectDeckId] = useState<number | null>(null);
 
-  // Determine active tab from URL or default to "profile"
   const getActiveTab = (): TabType => {
     if (!tab) return "profile";
     if (tab === "my-decks") return "decks";
@@ -136,7 +119,6 @@ export const ProfilePage = () => {
 
   const getProfilePath = useCallback(
     (nextTab?: string) => {
-      // Build the public profile URL when enough metadata is available.
       return buildProfilePath({
         userName: profile?.userName,
         profileId: profile?.id,
@@ -220,10 +202,50 @@ export const ProfilePage = () => {
     }
   };
 
+  const handleTabClick = useCallback(
+    (tabId: TabType) => {
+      const tabToPath: Record<TabType, string | undefined> = {
+        profile: undefined,
+        decks: "my-decks",
+        guides: "guides",
+        favorites: "favorites",
+      };
+      navigate(getProfilePath(tabToPath[tabId]));
+    },
+    [navigate, getProfilePath],
+  );
+
+  const onGuideClick = useCallback(
+    (guideId: number) => {
+      const guide = userGuides?.find((g: GuideListItem) => g.id === guideId);
+      if (guide) {
+        navigate(
+          buildGuidePath({
+            guideId: guide.id,
+            archetypeId: guide.archetypeId,
+            archetypeName: guide.archetypeName,
+            userName: guide.userName,
+            guideType: guide.guideType,
+          }),
+        );
+      }
+    },
+    [navigate, userGuides],
+  );
+
   const isOwner = !!resolvedUserId && session?.user?.id === resolvedUserId;
 
+  useEffect(() => {
+    if (!userId) {
+      document.title = "Profile - Masterduel Counter";
+      return;
+    }
+    document.title = profile?.userName
+      ? `${profile.userName} - Masterduel Counter`
+      : "User - Masterduel Counter";
+  }, [userId, profile?.userName]);
+
   if (!userId) {
-    document.title = "Profile - Masterduel Counter";
     return (
       <div
           className="min-h-screen bg-gradient-to-b from-slate-950 to-blue-950 flex flex-col"
@@ -243,15 +265,25 @@ export const ProfilePage = () => {
     );
   }
 
-  useEffect(() => {
-    document.title = profile?.userName
-      ? `${profile.userName} - Masterduel Counter`
-      : "User - Masterduel Counter";
-  }, [profile?.userName]);
-
   const displayPhotoUrl = previewUrl || profile?.profilePictureUrl;
   const totalCreatedGuides = userGuides?.length ?? 0;
   const totalFavoritedGuides = favoritedGuidesData?.guides.length ?? 0;
+
+  const tabs = [
+    { id: "profile" as TabType, label: "Profile" },
+    {
+      id: "decks" as TabType,
+      label: `My Decks (${customDecks?.length ?? 0})`,
+    },
+    {
+      id: "guides" as TabType,
+      label: `Guides (${totalCreatedGuides})`,
+    },
+    {
+      id: "favorites" as TabType,
+      label: `Favorites (${totalFavoritedGuides})`,
+    },
+  ];
 
   return (
     <>
@@ -271,236 +303,25 @@ export const ProfilePage = () => {
             <div className="max-w-[1600px] mx-auto">
               <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
                 {/* Left Sidebar */}
-                <aside className="w-full lg:w-[280px] xl:w-[320px] flex-shrink-0 lg:sticky lg:top-8">
-                  <div
-                    className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]"
-                    style={{ background: 'radial-gradient(ellipse at 50% 30%, #1a1235 0%, #08061a 65%)' }}
-                  >
-                    <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />
-                    <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-yellow-500/50 rounded-tr-lg z-20 pointer-events-none" />
-                    <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-yellow-500/50 rounded-bl-lg z-20 pointer-events-none" />
-                    <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
-                    <div className="relative z-10 p-4 sm:p-5 space-y-4 h-full">
-                      {/* Username and Profile Photo Square */}
-                      <div className="flex flex-col items-center">
-                        <h1 className="text-xl sm:text-2xl font-semibold text-yellow-400 mb-3">
-                          {profile?.userName}
-                        </h1>
-                        <div className="relative w-32 h-32 sm:w-44 sm:h-44">
-                          <div
-                            className={`absolute inset-0 rounded-lg border-2 ${
-                              fileError && previewUrl && !selectedFile
-                                ? "border-red-500 shadow-red-500/30"
-                                : "border-yellow-500/90 shadow-amber-500/30"
-                            }`}
-                          ></div>
-                          <div
-                            className={`absolute inset-1 overflow-hidden border-2 ${
-                              fileError && previewUrl && !selectedFile
-                                ? "border-red-400/40"
-                                : "border-yellow-400/40"
-                            } bg-slate-900`}
-                          >
-                            {displayPhotoUrl ? (
-                              <img
-                                src={getOptimizedProfilePictureUrl(displayPhotoUrl, { size: 'medium' }) || displayPhotoUrl}
-                                alt={`${profile?.userName}'s profile`}
-                                className={`w-full h-full object-cover ${
-                                  fileError && previewUrl && !selectedFile
-                                    ? "opacity-50"
-                                    : ""
-                                }`}
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-blue-300 text-4xl font-semibold bg-gradient-to-br from-slate-800 to-slate-900">
-                                {profile?.userName?.charAt(0).toUpperCase() ||
-                                  "U"}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Error message directly below the photo */}
-                        {isEditMode && isOwner && fileError && (
-                          <div className="mt-3 w-full p-2 bg-red-900/50 border border-red-500 rounded text-xs text-red-200">
-                            <p>{fileError}</p>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col">
-                        {/* Stats with Icons */}
-                        <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
-                          <div className="flex items-center gap-2">
-                            <Trophy className="w-5 h-5 text-yellow-400" />
-                            <span className="text-amber-200 font-semibold text-sm">
-                              Rank
-                            </span>
-                          </div>
-                          <span className="text-base font-semibold text-yellow-400">
-                            {userRank ? `#${userRank}` : "Unranked"}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
-                          <div className="flex items-center gap-2">
-                            <ThumbsUp className="w-5 h-5 text-green-500" />
-                            <span className="text-amber-200 font-semibold text-sm">
-                              Guide Likes
-                            </span>
-                          </div>
-                          <span className="text-base font-semibold text-green-500">
-                            {profile?.totalLikes ?? 0}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
-                          <div className="flex items-center gap-2">
-                            <Eye className="w-5 h-5 text-purple-400" />
-                            <span className="text-amber-200 font-semibold text-sm">
-                              Guide Views
-                            </span>
-                          </div>
-                          <span className="text-base font-semibold text-purple-300">
-                            {formatCompactNumber(totalViews)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
-                          <div className="flex items-center gap-2">
-                            <MailWarning className="w-5 h-5 text-orange-400" />
-                            <span className="text-amber-200 font-semibold text-sm">
-                              Completed Requests
-                            </span>
-                          </div>
-                          <span className="text-base font-semibold text-orange-400">
-                            {profileData?.fulfilledRequestsCount ?? 0}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
-                          <div className="flex items-center gap-2">
-                            <Crown className="w-5 h-5 text-yellow-400" />
-                            <span className="text-amber-200 font-semibold text-sm">
-                              Role
-                            </span>
-                          </div>
-                          <span
-                            className={`text-base font-semibold ${
-                              profile?.role === "admin"
-                                ? "text-red-600"
-                                : profile?.role === "supporter"
-                                  ? "text-pink-500"
-                                  : "text-green-400"
-                            }`}
-                          >
-                            {profile?.role}
-                          </span>
-                        </div>
-                      </div>
-
-                      {isEditMode && isOwner && (
-                        <div className="space-y-2">
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileInputChange}
-                            className="hidden"
-                          />
-                          <button
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={isSaving}
-                            className="relative w-full py-2 group overflow-hidden rounded disabled:opacity-50"
-                          >
-                            <div className="absolute inset-0 border border-amber-600/40 rounded group-hover:border-amber-500/60 transition-colors" />
-                            <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
-                            <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
-                            <span className="relative flex items-center justify-center gap-1.5 text-amber-300/80 font-bold text-[10px] tracking-[0.18em] uppercase group-hover:text-amber-300 transition-colors">
-                              <Camera className="w-3.5 h-3.5" />
-                              Change Photo
-                            </span>
-                          </button>
-
-                          {profile?.profilePictureUrl && (
-                            <button
-                              onClick={handleDeletePhoto}
-                              disabled={isDeletingPhoto || isSaving}
-                              className="relative w-full py-2 group overflow-hidden rounded disabled:opacity-50"
-                            >
-                              <div className="absolute inset-0 border border-red-700/40 rounded group-hover:border-red-600/60 transition-colors" />
-                              <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
-                              <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
-                              <span className="relative flex items-center justify-center gap-1.5 text-red-400/80 font-bold text-[10px] tracking-[0.18em] uppercase group-hover:text-red-400 transition-colors">
-                                <Flame className="w-3.5 h-3.5" />
-                                {isDeletingPhoto ? "Deleting..." : "Delete Photo"}
-                              </span>
-                            </button>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Best Guides */}
-                      <div className="space-y-3">
-                        <h3 className="text-yellow-500 font-bold text-sm flex items-center gap-2 border-t border-yellow-600/30 pt-4">
-                          <span className="text-lg">♦</span> Best Guides
-                        </h3>
-                        {userGuides && userGuides.length > 0 ? (
-                          <>
-                            <div className="space-y-1 mb-4">
-                              {userGuides.slice(0, 3).map((guide) => (
-                                <div
-                                  key={guide.id}
-                                  className="flex items-center gap-3 p-2 bg-purple-950/30 rounded hover:bg-purple-950/50 transition-colors cursor-pointer"
-                                  onClick={() => handleSelectGuide(guide)}
-                                >
-                                  {guide.headerCardImageUrl ? (
-                                    <img
-                                      src={getOptimizedCardImageUrl(
-                                        guide.headerCardImageUrl,
-                                        { size: "thumbnail" },
-                                      )}
-                                      alt={
-                                        guide.headerCardName || "Header card"
-                                      }
-                                      className="h-[50px] w-[50px] border-2 border-yellow-500/80 shadow-sm object-cover flex-shrink-0"
-                                      loading="lazy"
-                                    />
-                                  ) : (
-                                    <div className="w-[50px] h-[50px] bg-slate-700 rounded border border-slate-600 flex items-center justify-center flex-shrink-0">
-                                      <span className="text-slate-400 text-xs">
-                                        -
-                                      </span>
-                                    </div>
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between gap-2">
-                                      <p className="text-white text-sm font-semibold truncate flex-1">
-                                        {guide.title}
-                                      </p>
-                                      <span className="text-green-400 text-xs font-semibold flex-shrink-0">
-                                        ↑ {guide.likes}
-                                      </span>
-                                    </div>
-                                    <p className="text-amber-200/70 text-xs truncate">
-                                      {guide.archetypeName}
-                                    </p>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                            <button
-                              onClick={handleViewAllGuides}
-                              className="w-full px-4 hover:text-yellow-400 text-yellow-500 font-semibold rounded transition-colors"
-                            >
-                              View all ({userGuides.length})
-                            </button>
-                          </>
-                        ) : (
-                          <div className="text-center text-gray-400 py-4">
-                            <p className="text-sm">No guides yet</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </aside>
+                <ProfileLeftSidebar
+                  profile={profile}
+                  isEditMode={isEditMode}
+                  isOwner={isOwner}
+                  isSaving={isSaving}
+                  isDeletingPhoto={isDeletingPhoto}
+                  selectedFile={selectedFile}
+                  fileError={fileError}
+                  previewUrl={previewUrl}
+                  displayPhotoUrl={displayPhotoUrl}
+                  userRank={userRank}
+                  totalViews={totalViews}
+                  fulfilledRequestsCount={profileData?.fulfilledRequestsCount}
+                  userGuides={userGuides}
+                  onSelectGuide={handleSelectGuide}
+                  onViewAllGuides={handleViewAllGuides}
+                  onFileInputChange={handleFileInputChange}
+                  onDeletePhoto={handleDeletePhoto}
+                />
 
                 <div className="flex-1 min-w-0">
                   {/* Main Content Container */}
@@ -512,97 +333,23 @@ export const ProfilePage = () => {
                     <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-yellow-500/50 rounded-tr-lg z-20 pointer-events-none" />
                     <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-yellow-500/50 rounded-bl-lg z-20 pointer-events-none" />
                     <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
-                    {/* Tabs inside container */}
-                    <div className="relative z-10 border-b border-yellow-600/30 bg-slate-900/40 backdrop-blur-sm">
-                      <div className="flex flex-col gap-2 sm:gap-3 p-3 min-[1553px]:flex-row min-[1553px]:items-center min-[1553px]:gap-4 overflow-visible">
-                        <div className="grid grid-cols-2 gap-1.5 min-[1553px]:flex min-[1553px]:flex-nowrap min-[1553px]:gap-1.5">
-                          {[
-                            { id: "profile", label: "Profile", path: "" },
-                            {
-                              id: "decks",
-                              label: `My Decks (${customDecks?.length ?? 0})`,
-                              path: "my-decks",
-                            },
-                            {
-                              id: "guides",
-                              label: `Guides (${totalCreatedGuides})`,
-                              path: "guides",
-                            },
-                            {
-                              id: "favorites",
-                              label: `Favorites (${totalFavoritedGuides})`,
-                              path: "favorites",
-                            },
-                          ].map((tab) => (
-                            <button
-                              key={tab.id}
-                              onClick={() =>
-                                navigate(getProfilePath(tab.path || undefined))
-                              }
-                              className={`px-4 py-2.5 text-sm font-bold transition-all relative overflow-hidden rounded border whitespace-nowrap ${
-                                activeTab === tab.id
-                                  ? "text-yellow-400 border-yellow-500/60 bg-yellow-600/10"
-                                  : "text-gray-300 hover:text-yellow-300 border-yellow-600/30 hover:border-yellow-500/40 hover:bg-yellow-600/5"
-                              }`}
-                            >
-                              {tab.label}
-                            </button>
-                          ))}
-                        </div>
-                        {/* Edit Profile / Report Buttons + Search */}
-                        <div className="flex gap-2 items-center flex-wrap min-[1553px]:ml-auto justify-end">
-                          <UserSearchDropdown />
-                          <div className="flex gap-2 items-center">
-                            {!isOwner && session && (
-                              <button
-                                onClick={() => setIsReportModalOpen(true)}
-                                className="hover:text-red-700/80 text-white transition-colors p-2"
-                              >
-                                <Flag className="w-5 h-5" />
-                              </button>
-                            )}
-                            {isOwner && (
-                              <div className="flex gap-2 flex-shrink-0">
-                                {!isEditMode ? (
-                                  <button
-                                    onClick={() =>
-                                      toggleEditMode(profile?.bio || "")
-                                    }
-                                    className="flex items-center gap-2 py-2 px-4 bg-yellow-600/80 hover:bg-yellow-600 text-white rounded transition-colors border border-yellow-500 text-sm"
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                    <span>Edit Profile</span>
-                                  </button>
-                                ) : (
-                                  <>
-                                    <button
-                                      onClick={handleSaveProfile}
-                                      disabled={
-                                        isSaving ||
-                                        isSavingFavorites ||
-                                        !!fileError
-                                      }
-                                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-sm"
-                                    >
-                                      {isSaving || isSavingFavorites
-                                        ? "Saving..."
-                                        : "Save"}
-                                    </button>
-                                    <button
-                                      onClick={handleCancelEdit}
-                                      disabled={isSaving || isSavingFavorites}
-                                      className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50 font-semibold text-sm"
-                                    >
-                                      Cancel
-                                    </button>
-                                  </>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+
+                    <ProfileTabBar
+                      tabs={tabs}
+                      activeTab={activeTab}
+                      onTabChange={handleTabClick}
+                      isOwner={isOwner}
+                      hasSession={!!session}
+                      isEditMode={isEditMode}
+                      isSaving={isSaving}
+                      isSavingFavorites={isSavingFavorites}
+                      fileError={fileError}
+                      onEditClick={() => toggleEditMode(profile?.bio || "")}
+                      onSave={handleSaveProfile}
+                      onCancel={handleCancelEdit}
+                      onReportClick={() => setIsReportModalOpen(true)}
+                    />
+
                     <div className="flex-1 p-4 sm:p-6 overflow-auto scrollbar-cardpair relative">
                       {activeTab === "profile" && (
                         <div className="space-y-8 sm:space-y-12">
@@ -711,68 +458,16 @@ export const ProfilePage = () => {
                 </div>
 
                 {/* Right Sidebar */}
-                <aside className="w-full lg:w-[280px] xl:w-[320px] flex-shrink-0 lg:sticky lg:top-8">
-                  <div
-                    className="relative overflow-hidden rounded-lg border-2 border-yellow-600/40 h-auto lg:h-[800px]"
-                    style={{ background: 'radial-gradient(ellipse at 50% 38%, #1a1235 0%, #08061a 65%)' }}
-                  >
-                    {/* Subtle corner accents */}
-                    <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-yellow-500/50 rounded-tl-lg z-20 pointer-events-none" />
-                    <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-yellow-500/50 rounded-tr-lg z-20 pointer-events-none" />
-                    <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-yellow-500/50 rounded-bl-lg z-20 pointer-events-none" />
-                    <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-yellow-500/50 rounded-br-lg z-20 pointer-events-none" />
-
-                    <div className="relative z-10 flex flex-col">
-                      {/* Decorative title */}
-                      <div className="pt-6 pb-5 px-5">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-yellow-500/55" />
-                          <span className="text-yellow-500/55 text-[9px] leading-none">◆</span>
-                          <h2 className="text-yellow-400 font-bold text-sm tracking-[0.22em] uppercase px-1">
-                            Favorite Card
-                          </h2>
-                          <span className="text-yellow-500/55 text-[9px] leading-none">◆</span>
-                          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-yellow-500/55" />
-                        </div>
-                        <div className="mt-2 h-px bg-gradient-to-r from-transparent via-yellow-600/15 to-transparent" />
-                      </div>
-
-                      {/* Card content */}
-                      <div className="flex-1 flex flex-col items-center justify-start overflow-y-auto overflow-x-hidden scrollbar-homeAllPages px-5 pt-4">
-                        <FavoriteCardEditor
-                          cardId={favoriteCardId}
-                          isEditMode={isEditMode && isOwner}
-                          onCardSelect={handleFavoriteCardSelect}
-                        />
-                        
-                        {/* Trending Section */}
-                        <div className="w-full mt-7 overflow-hidden">
-                          <TrendingSection
-                            achievements={trendingAchievements}
-                            profilePictureUrl={profile?.profilePictureUrl ?? undefined}
-                            onShowAll={() => setIsTrendingModalOpen(true)}
-                            onGuideClick={(guideId) => {
-                              const guide = userGuides?.find((g: GuideListItem) => g.id === guideId);
-                              if (guide) {
-                                const path = buildGuidePath({
-                                  guideId: guide.id,
-                                  archetypeId: guide.archetypeId,
-                                  archetypeName: guide.archetypeName,
-                                  userName: guide.userName,
-                                  guideType: guide.guideType,
-                                });
-                                navigate(path);
-                              }
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Bottom accent */}
-                      <div className="mx-6 mb-5 h-px bg-gradient-to-r from-transparent via-yellow-600/25 to-transparent" />
-                    </div>
-                  </div>
-                </aside>
+                <ProfileRightSidebar
+                  favoriteCardId={favoriteCardId}
+                  isEditMode={isEditMode}
+                  isOwner={isOwner}
+                  onCardSelect={handleFavoriteCardSelect}
+                  trendingAchievements={trendingAchievements}
+                  profilePictureUrl={profile?.profilePictureUrl ?? undefined}
+                  userName={profile?.userName}
+                  onGuideClick={onGuideClick}
+                />
               </div>
             </div>
           </FeatureErrorBoundary>
@@ -788,29 +483,6 @@ export const ProfilePage = () => {
           targetType="user"
           targetId={resolvedUserId || userId}
           targetName={profile?.userName || userId}
-        />
-      )}
-
-      {isTrendingModalOpen && (
-        <TrendingHistoryModal
-          isOpen={isTrendingModalOpen}
-          onClose={() => setIsTrendingModalOpen(false)}
-          achievements={trendingAchievements}
-          username={profile?.userName || "User"}
-          profilePictureUrl={profile?.profilePictureUrl ?? undefined}
-          onGuideClick={(guideId) => {
-            const guide = userGuides?.find((g: GuideListItem) => g.id === guideId);
-            if (guide) {
-              const path = buildGuidePath({
-                guideId: guide.id,
-                archetypeId: guide.archetypeId,
-                archetypeName: guide.archetypeName,
-                userName: guide.userName,
-                guideType: guide.guideType,
-              });
-              navigate(path);
-            }
-          }}
         />
       )}
     </>
