@@ -92,5 +92,4 @@ bugs:
 Esto solo pasa si selecciono un arquetipo pero tipo de guia diferente.
 
 Resolviendo:
-falta que haga interactions.test.ts y listening.test.ts
 testear el flujo de draft de las guides. Explicar su relacion con las request

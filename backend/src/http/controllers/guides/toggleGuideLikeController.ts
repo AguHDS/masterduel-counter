@@ -47,7 +47,7 @@ export const toggleGuideLikeController = async (
         res.status(404).json({ success: false, error: error.message });
         return;
       }
-      if (error.message === "You cannot like your own Guide") {
+      if (error.message === "You cannot like your own guide") {
         res.status(403).json({ success: false, error: error.message });
         return;
       }
