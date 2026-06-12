@@ -15,7 +15,9 @@ export class YugiohDatabase implements DatabasePort {
   private db: Database.Database;
 
   constructor(dbPath?: string) {
-    const defaultPath = path.join(__dirname, "../../prisma/src/data/database.db");
+    const defaultPath = process.env.NODE_ENV === "test"
+      ? path.join(__dirname, "../../prisma/src/data/test.db")
+      : path.join(__dirname, "../../prisma/src/data/database.db");
     const finalPath = dbPath ?? defaultPath;
     const dbDir = path.dirname(finalPath);
     

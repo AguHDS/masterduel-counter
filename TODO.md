@@ -88,7 +88,9 @@ Dependiendo de la feature, va a usar E2E, unit test, integracion, etc. Investiga
 - en la lista de Guias y Favorites del perfil, tambien ordenar por views,likes. Updated (mas reciente, primero) debe ser default y creo que ya lo tiene puesto asi.
 
 bugs:
-- Si busco arquetipos y los selecciono en la search principal, a veces no muestra el resultado del ultimo buscado
+- Si busco una deck en la search, y luego busco otro y lo selecciono, no renderiza correctamente el resultado.
+Esto solo pasa si selecciono un arquetipo pero tipo de guia diferente.
 
 Resolviendo:
-auth tests -> V
+falta que haga interactions.test.ts y listening.test.ts
+testear el flujo de draft de las guides. Explicar su relacion con las request

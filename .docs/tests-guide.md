@@ -126,12 +126,20 @@ npx vitest run src/features/profile/hooks/__tests__/useProfileEditor.test.ts
 
 ### El problema: dos bases de datos, un mismo schema
 
+Por que usamos dos capas de base de datos?:
+porque better-auth requiere Prisma (su adaptador oficial es prismaAdapter). El resto del proyecto usa better-sqlite3 (mas rapido para queries directas, probablemente heredado del inicio del proyecto)
+
 El proyecto usa SQLite. Si los tests corrieran contra `database.db`, ensuciarian los datos reales. Para evitarlo, usamos **dos archivos de base de datos separados**:
 
-| Archivo                       | Proposito               | DATABASE_URL                                      | Se commitea?               |
-| ----------------------------- | ----------------------- | ------------------------------------------------- | -------------------------- |
-| `prisma/src/data/database.db` | Produccion y desarrollo | `file:./prisma/src/data/database.db` (en `.env`)  | No (gitignored)            |
-| `prisma/src/data/test.db`     | Solo tests              | `file:./prisma/src/data/test.db` (en `.env.test`) | No (gitignored por `*.db`) |
+prisma/src/data/database.db
+- Propósito: Producción y desarrollo
+- DATABASE_URL: file:./prisma/src/data/database.db (en .env)
+- Se commitea: No (gitignored)
+
+prisma/src/data/test.db
+- Propósito: Solo tests
+- DATABASE_URL: file:./prisma/src/data/test.db (en .env.test)
+- Se commitea: No (gitignored por *.db)
 
 ### Como se asegura que los tests NUNCA toquen la BD de produccion
 
