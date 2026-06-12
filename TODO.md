@@ -91,3 +91,4 @@ bugs:
 - Si busco arquetipos y los selecciono en la search principal, a veces no muestra el resultado del ultimo buscado
 
 Resolviendo:
+auth tests -> V

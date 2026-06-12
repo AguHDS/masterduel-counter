@@ -185,22 +185,25 @@ app.use("/api/uploads", express.static(UPLOADS_DIR));
 
 // RATE LIMITING - MINIMAL APPROACH
 // Only protect real attack vectors, let everything else run freely
+// Disabled in test mode to allow rapid requests during test suites
 
-// Rate limiting helper: Only apply to write operations (POST, PUT, PATCH, DELETE)
-const onlyWriteOperations = (limiter: express.RequestHandler) => {
-  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
-      return limiter(req, res, next);
-    }
-    next();   
+if (process.env.NODE_ENV !== "test") {
+  // Rate limiting helper: Only apply to write operations (POST, PUT, PATCH, DELETE)
+  const onlyWriteOperations = (limiter: express.RequestHandler) => {
+    return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+      if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
+        return limiter(req, res, next);
+      }
+      next();   
+    };
   };
-};
 
-// 1. AUTHENTICATION - Prevent brute force attacks (login/register only)
-app.use("/api/auth", onlyWriteOperations(authWriteRateLimiter));
+  // 1. AUTHENTICATION - Prevent brute force attacks (login/register only)
+  app.use("/api/auth", onlyWriteOperations(authWriteRateLimiter));
 
-// 2. REPORT SPAM - Prevent malicious report flooding
-app.use("/api/reports", onlyWriteOperations(dynamicContentCreationRateLimiter));
+  // 2. REPORT SPAM - Prevent malicious report flooding
+  app.use("/api/reports", onlyWriteOperations(dynamicContentCreationRateLimiter));
+}
 
 // ROUTES WITHOUT RATE LIMITING
 
@@ -301,7 +304,13 @@ if (existsSync(FRONTEND_DIST)) {
   });
 }
 
-app.listen(PORT, () => {
-  startCleanupJob();
-  startTrendingSnapshotService();
-});
+// Start server only in non-test environments
+// In tests, supertest uses the exported app directly without listening on a port
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    startCleanupJob();
+    startTrendingSnapshotService();
+  });
+}
+
+export { app };

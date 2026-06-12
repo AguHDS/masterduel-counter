@@ -8,11 +8,11 @@ Este documento explica el setup de testing del proyecto, como funciona el aislam
 
 El proyecto tiene 3 niveles de testing:
 
-| Nivel | Herramienta | Ubicacion | Que prueba |
-|---|---|---|---|
-| **E2E** | Playwright | `tests/` (raiz) | Flujos de usuario completos: login, crear guia, ver perfil, buscar arquetipos. El frontend y backend corren como en produccion. |
-| **Backend Unit/Integration** | Vitest + Supertest | `backend/src/**/__tests__/` | Logica de negocio (application services), repositorios con BD de prueba, endpoints HTTP. |
-| **Frontend Unit/Component** | Vitest + Testing Library | `frontend/src/**/__tests__/` | Hooks con logica de estado/mutaciones, componentes interactivos complejos, utilidades puras. |
+| Nivel                        | Herramienta              | Ubicacion                    | Que prueba                                                                                                                      |
+| ---------------------------- | ------------------------ | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **E2E**                      | Playwright               | `tests/` (raiz)              | Flujos de usuario completos: login, crear guia, ver perfil, buscar arquetipos. El frontend y backend corren como en produccion. |
+| **Backend Unit/Integration** | Vitest + Supertest       | `backend/src/**/__tests__/`  | Logica de negocio (application services), repositorios con BD de prueba, endpoints HTTP.                                        |
+| **Frontend Unit/Component**  | Vitest + Testing Library | `frontend/src/**/__tests__/` | Hooks con logica de estado/mutaciones, componentes interactivos complejos, utilidades puras.                                    |
 
 ---
 
@@ -98,6 +98,7 @@ npx vitest run src/application/services/__tests__/ProfileApplicationService.test
 ```
 
 **Al correr `npm test` en backend:**
+
 - Vitest ejecuta `backend/src/test-setup.ts` PRIMERO
 - Ese archivo carga `backend/.env.test` con `dotenv` usando `override: true`
 - Esto sobreescribe `DATABASE_URL` para que apunte a `test.db` en lugar de `database.db`
@@ -127,48 +128,59 @@ npx vitest run src/features/profile/hooks/__tests__/useProfileEditor.test.ts
 
 El proyecto usa SQLite. Si los tests corrieran contra `database.db`, ensuciarian los datos reales. Para evitarlo, usamos **dos archivos de base de datos separados**:
 
-| Archivo | Proposito | DATABASE_URL | Se commitea? |
-|---|---|---|---|
-| `prisma/src/data/database.db` | Produccion y desarrollo | `file:./prisma/src/data/database.db` (en `.env`) | No (gitignored) |
-| `prisma/src/data/test.db` | Solo tests | `file:./prisma/src/data/test.db` (en `.env.test`) | No (gitignored por `*.db`) |
+| Archivo                       | Proposito               | DATABASE_URL                                      | Se commitea?               |
+| ----------------------------- | ----------------------- | ------------------------------------------------- | -------------------------- |
+| `prisma/src/data/database.db` | Produccion y desarrollo | `file:./prisma/src/data/database.db` (en `.env`)  | No (gitignored)            |
+| `prisma/src/data/test.db`     | Solo tests              | `file:./prisma/src/data/test.db` (en `.env.test`) | No (gitignored por `*.db`) |
 
 ### Como se asegura que los tests NUNCA toquen la BD de produccion
 
 **Capa 1 - Vitest setup (`backend/src/test-setup.ts`):**
+
 ```typescript
 dotenv.config({ path: "../.env.test", override: true });
 ```
+
 - Se ejecuta antes que cualquier test
 - `override: true` garantiza que aunque `index.ts` haya cargado `.env` antes, `.env.test` gana
 - Cambia `process.env.DATABASE_URL` → apunta a `test.db`
 
 **Capa 2 - better-sqlite3 (`database.ts`):**
+
 ```typescript
 const db = createYugiohDatabase("ruta/temporal/test.db");
 ```
+
 - `createYugiohDatabase()` acepta un path opcional
 - En tests, explicitamente pasas un path temporal o `:memory:`
 - En produccion, no pasas nada y usa el default
 
 ### Paso unico inicial: crear las tablas en test.db
 
-Antes de correr tests por primera vez (y cada vez que cambies el schema), necesitas crear las tablas en `test.db`. Esto se hace con el mismo comando que ya usas normalmente, pero apuntando al test.db:
+Antes de correr tests POR PRIMERA VEZ (y cada vez que cambies el schema), necesitas crear las tablas en `test.db`. Esto se hace con el mismo comando que ya usas normalmente, pero apuntando al test.db:
 
-**En Windows (PowerShell/CMD):**
+**En Windows (PowerShell):**
+
 ```powershell
 cd backend
-$env:DATABASE_URL="file:./prisma/src/data/test.db"
-npx prisma db push
-```
-
-**O en una sola linea (CMD):**
-```cmd
-cd backend && set DATABASE_URL=file:./prisma/src/data/test.db && npx prisma db push
+$env:DATABASE_URL="file:./src/data/test.db"; npx prisma db push
 ```
 
 Esto es literalmente lo mismo que haces con `npx prisma db push` para tu BD normal. La unica diferencia es que temporalmente `DATABASE_URL` apunta a `test.db`. Luego de correrlo, `DATABASE_URL` vuelve a su valor normal del `.env`.
 
+**Importante:** El path es `file:./src/data/test.db` (no `file:./prisma/src/data/test.db`). Prisma resuelve rutas relativas desde donde esta `schema.prisma` (que ya esta en `backend/prisma/`), asi que `./src/data/` = `backend/prisma/src/data/`.
+
 **No necesitas correr `npx prisma generate` de nuevo** porque el cliente de Prisma ya esta generado (el schema no cambia, solo la BD a la que apunta).
+
+### Como funciona NODE_ENV en tests (automatico)
+
+Vitest establece `process.env.NODE_ENV = "test"` automaticamente al arrancar. Ademas, `.env.test` lo declara explicitamente con `NODE_ENV=test`. Esto tiene dos efectos:
+
+1. **El servidor no arranca:** `backend/src/index.ts` tiene `if (process.env.NODE_ENV !== "test") { app.listen(...) }`. En tests, `app.listen()` no se ejecuta, evitando que el servidor ocupe un puerto.
+
+2. **Rate limiting deshabilitado:** Los rate limiters de auth y reports se saltan en modo test para permitir requests rapidas.
+
+3. **Cron jobs no se inician:** `startCleanupJob()` y `startTrendingSnapshotService()` estan dentro del bloque `app.listen()`, asi que no corren en tests.
 
 ### Limpieza entre tests
 
@@ -260,23 +272,25 @@ describe("ProfileApplicationService", () => {
 ## Convenciones
 
 ### Nomenclatura:
+
 - Archivos de test: `*.test.ts` (backend/frontend unit), `*.spec.ts` (E2E)
 - `describe`: nombre del modulo/clase/feature que se testea
 - `it` / `test`: debe describir el comportamiento esperado ("should save bio when user clicks save")
 
 ### Donde poner cada test:
 
-| Si estas testeando... | Va en... |
-|---|---|
-| Un flujo de usuario (ej: crear guia desde cero) | `tests/*.spec.ts` |
-| Un application service | `backend/src/application/services/__tests__/` |
-| Un repositorio SQLite | `backend/src/infrastructure/repositories/__tests__/` |
-| Un endpoint HTTP | `backend/src/http/controllers/__tests__/` |
-| Un hook de React | `frontend/src/features/<feature>/hooks/__tests__/` |
-| Un componente con logica interna | `frontend/src/features/<feature>/components/__tests__/` |
-| Una funcion utilitaria pura | `__tests__/` junto al archivo que la exporta |
+| Si estas testeando...                           | Va en...                                                |
+| ----------------------------------------------- | ------------------------------------------------------- |
+| Un flujo de usuario (ej: crear guia desde cero) | `tests/*.spec.ts`                                       |
+| Un application service                          | `backend/src/application/services/__tests__/`           |
+| Un repositorio SQLite                           | `backend/src/infrastructure/repositories/__tests__/`    |
+| Un endpoint HTTP                                | `backend/src/http/controllers/__tests__/`               |
+| Un hook de React                                | `frontend/src/features/<feature>/hooks/__tests__/`      |
+| Un componente con logica interna                | `frontend/src/features/<feature>/components/__tests__/` |
+| Una funcion utilitaria pura                     | `__tests__/` junto al archivo que la exporta            |
 
 ### Lo que NO necesita test:
+
 - Componentes puramente presentacionales (solo JSX + Tailwind, sin logica de estado)
 - Funciones triviales de una linea
 - Codigo generado automaticamente (Prisma client, etc.)
@@ -293,6 +307,8 @@ cd tests && npm test
 
 # Backend unit
 cd backend && npm test
+
+$env:DATABASE_URL="file:./src/data/test.db"; npx prisma studio -> ver datos en db de tests (va a estar vacio si beforeEach borra todo)
 
 # Frontend unit
 cd frontend && npm test
