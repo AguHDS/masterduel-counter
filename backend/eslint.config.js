@@ -11,6 +11,6 @@ export default [
     },
   },
   {
-    ignores: ["dist/**"],
+    ignores: ["dist/**", "vitest.config.ts"],
   },
 ];

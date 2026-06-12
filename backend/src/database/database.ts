@@ -14,15 +14,16 @@ export interface DatabasePort {
 export class YugiohDatabase implements DatabasePort {
   private db: Database.Database;
 
-  constructor() {
-    const dbPath = path.join(__dirname, "../../prisma/src/data/database.db");
-    const dbDir = path.dirname(dbPath);
+  constructor(dbPath?: string) {
+    const defaultPath = path.join(__dirname, "../../prisma/src/data/database.db");
+    const finalPath = dbPath ?? defaultPath;
+    const dbDir = path.dirname(finalPath);
     
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
     }
     
-    this.db = new Database(dbPath);
+    this.db = new Database(finalPath);
     // No initialization needed - tables are managed by Prisma now
   }
 
@@ -35,8 +36,8 @@ export class YugiohDatabase implements DatabasePort {
   }
 }
 
-export const createYugiohDatabase = (): DatabasePort => {
-  return new YugiohDatabase();
+export const createYugiohDatabase = (dbPath?: string): DatabasePort => {
+  return new YugiohDatabase(dbPath);
 };
 
 export type DatabaseConnection = Database.Database;
