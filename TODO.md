@@ -73,27 +73,22 @@ panel de adminimplementar un sistema que permita poner mensajes ed que va a habe
 
 ---
 
-Refactorizar las features que no esten teniendo buenas practicas. Por ejemplo la feature de profile, la pagina de ProfilePage deberia separarse por responsabildiades. Deberia tener objetos en la carpeta type (interfaces/types bien definidos) representando las partes importantes del perfil para facilitar tests, etc.
-
----
-
-tests
-
----
-
 crear .mds explicando cosas clave quew no recordaria de las features,c mo las request por ejemplo, que tienen 24 hs para compeltarse, o las guias guardadas como draft a partir de una request, etc
 
 ---
 
-las notifications no se borran y han pasado 3 dias ya desde que estan mark as read, chequear cuanto es el timepo de limpieza para dar un diagnostico, y si el cron job esta bien hecho.
+las notifications no se borran y han pasado 3 dias ya desde que estan mark as read, chequear cuanto es el timepo de limpieza, y si el cron job esta bien hecho.
 
 ---
 
 mejoras:
+- tests E2E para las cosas importantes. Investigar como setearlo, que usar, configurar, como evitar ensuciar mi local con datos de testing cuando corren estos tests, etc...
+Dependiendo de la feature, va a usar E2E, unit test, integracion, etc. Investigar tambien como ordenarnos para esto en arquitectura.
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
 - en la lista de Guias y Favorites del perfil, tambien ordenar por views,likes. Updated (mas reciente, primero) debe ser default y creo que ya lo tiene puesto asi.
 
 bugs:
-- Si busco arquetipos y los selecciono en la search principal, a veces no muestra el resultado del ultimo buscado
+- Si busco una deck en la search, y luego busco otro y lo selecciono, no renderiza correctamente el resultado.
+Esto solo pasa si selecciono un arquetipo pero tipo de guia diferente.
 
 Resolviendo:

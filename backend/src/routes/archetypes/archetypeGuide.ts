@@ -3,8 +3,8 @@ import { registerGuideController } from "@/http/controllers/archetypes/registerG
 import { registerGuideMiddleware } from "@/http/middlewares/archetypes/registerGuideMiddleware.js";
 import { requireAuth } from "@/http/middlewares/auth/authMiddleware.js";
 import { getArchetypeWithHeaderController } from "@/http/controllers/archetypes/getArchetypeWithHeaderController.js";
-import { saveDraftController } from "@/http/controllers/archetypes/saveDraftController.js";
-import { deleteDraftController } from "@/http/controllers/archetypes/deleteDraftController.js";
+import { saveDraftController } from "@/http/controllers/guides/saveDraftController.js";
+import { deleteDraftController } from "@/http/controllers/guides/deleteDraftController.js";
 
 const router = Router();
 

@@ -84,6 +84,35 @@ export const FinalBoardPreview = ({
   }, [forceCloseModal, selectingZone]);
 
   useEffect(() => {
+    if (!fieldBoard) return;
+
+    let changed = false;
+    const newMonsterPositions = [...(fieldBoard.monsterPositions ?? ['atk', 'atk', 'atk', 'atk', 'atk'])];
+    fieldBoard.monsters.forEach((card, i) => {
+      if (!card && newMonsterPositions[i] === 'def') {
+        newMonsterPositions[i] = 'atk';
+        changed = true;
+      }
+    });
+
+    const newExtraMonsterPositions = [...(fieldBoard.extraMonsterPositions ?? ['atk', 'atk'])];
+    fieldBoard.extraMonsters.forEach((card, i) => {
+      if (!card && newExtraMonsterPositions[i] === 'def') {
+        newExtraMonsterPositions[i] = 'atk';
+        changed = true;
+      }
+    });
+
+    if (changed) {
+      onFieldBoardChange({
+        ...fieldBoard,
+        monsterPositions: newMonsterPositions,
+        extraMonsterPositions: newExtraMonsterPositions,
+      });
+    }
+  }, [fieldBoard]);
+
+  useEffect(() => {
     if (onModalStateChange) {
       onModalStateChange(!!selectingZone);
     }
@@ -256,12 +285,16 @@ export const FinalBoardPreview = ({
 
     return (
       <div className="relative group w-full h-full">
-        <div className="pointer-events-none absolute inset-0 rounded-[16px] border border-slate-700/70 bg-gradient-to-b from-slate-950/95 via-slate-900/90 to-[#140f26] shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_28px_rgba(2,6,23,0.4)]" />
-        <div
-          className={`pointer-events-none absolute inset-[5px] rounded-[12px] border ${
-            card ? "border-slate-700/40" : isEditMode ? borderColor : "border-slate-700/60"
-          } bg-slate-950/20`}
-        />
+        {!card && (
+          <div className="pointer-events-none absolute inset-0 rounded-[16px] border border-slate-700/70 bg-gradient-to-b from-slate-950/95 via-slate-900/90 to-[#140f26] shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_28px_rgba(2,6,23,0.4)]" />
+        )}
+        {!card && (
+          <div
+            className={`pointer-events-none absolute inset-[5px] rounded-[12px] border ${
+              isEditMode ? borderColor : "border-slate-700/60"
+            } bg-slate-950/20`}
+          />
+        )}
         {card ? (
           <div className="relative z-10 h-full w-full p-1.5 max-[639px]:p-0.5">
             <div
@@ -396,17 +429,17 @@ export const FinalBoardPreview = ({
           </div>
 
           {hoveringZone === type && count > 0 && (
-            <div className="absolute left-full ml-2 top-0 z-50 bg-slate-800 border-2 border-slate-600 rounded-lg p-3 shadow-xl min-w-[200px]">
+            <div className="absolute left-full ml-2 top-0 min-[1024px]:max-[1448px]:right-full min-[1024px]:max-[1448px]:mr-2 min-[1024px]:max-[1448px]:left-auto min-[1024px]:max-[1448px]:ml-0 max-[580px]:fixed max-[580px]:left-1/2 max-[580px]:top-1/2 max-[580px]:-translate-x-1/2 max-[580px]:-translate-y-1/2 max-[580px]:ml-0 z-50 bg-slate-800 border-2 border-slate-600 rounded-lg p-3 shadow-xl min-w-[200px] max-[580px]:min-w-[260px] max-h-[300px] overflow-y-auto">
               <div className="text-xs font-bold text-slate-300 mb-2">
                 {label}
               </div>
-              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              <div className="space-y-2">
                 {cards.map((card, index) => (
                   <div
                     key={`${type}-hover-${index}`}
                     className="relative group/card"
                   >
-                    <div className="flex items-center gap-2 bg-slate-700/50 p-2 rounded">
+                    <div className="flex items-center gap-2 bg-slate-700/50 p-2 rounded overflow-hidden">
                       <img
                         src={card.imageUrlSmall}
                         alt={card.name}
@@ -507,11 +540,12 @@ export const FinalBoardPreview = ({
         </div>
       </div>
 
-      <div className="flex justify-center">
-        <div className="relative w-full min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-[22px] border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.18)] sm:max-w-[90%] md:max-w-[80%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-hidden">
+      <div className="max-[450px]:-mx-4">
+        <div className="flex justify-center">
+        <div className="relative w-full min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-[22px] border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.18)] sm:max-w-[90%] md:max-w-[80%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-visible">
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_35%)]" />
           <div className="pointer-events-none absolute inset-x-4 top-4 h-20 rounded-full bg-blue-500/10 blur-3xl" />
-          <div className="pointer-events-none absolute inset-x-4 bottom-10 top-28 rounded-[18px] border border-slate-700/50 bg-gradient-to-b from-slate-950/20 via-slate-950/5 to-indigo-950/20 shadow-[inset_0_0_0_1px_rgba(30,41,59,0.55)]" />
+          <div className="pointer-events-none absolute inset-x-4 max-[450px]:inset-x-0 bottom-10 top-28 max-[450px]:rounded-none rounded-[18px] border border-slate-700/50 bg-gradient-to-b from-slate-950/20 via-slate-950/5 to-indigo-950/20 shadow-[inset_0_0_0_1px_rgba(30,41,59,0.55)]" />
           <div className="pointer-events-none absolute inset-x-10 top-[38%] h-px bg-gradient-to-r from-transparent via-sky-400/15 to-transparent" />
           <div className="pointer-events-none absolute inset-y-28 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-violet-400/10 to-transparent lg:block" />
           <div className="relative z-10">
@@ -597,7 +631,7 @@ export const FinalBoardPreview = ({
             <div className="relative">
               {/* Layout principal - Cambia según el modo responsive */}
               <div
-                className={`flex ${isResponsive ? "flex-col" : "flex-col lg:flex-row"} gap-4 sm:gap-6 lg:gap-8 min-[1024px]:max-[1100px]:gap-0 justify-center items-center`}
+                className={`flex ${isResponsive ? "flex-col" : "flex-col lg:flex-row"} gap-4 max-[425px]:gap-2 sm:gap-6 lg:gap-8 min-[1024px]:max-[1100px]:gap-0 justify-center items-center`}
               >
                 {/* Field Spell Zone */}
                 <div
@@ -610,10 +644,10 @@ export const FinalBoardPreview = ({
 
                 {/* Main Board Zones (Extra, Monsters, Spell/Trap) */}
                 <div
-                  className={`space-y-4 sm:space-y-6 md:space-y-8 ${isResponsive ? "order-2 w-full" : "order-3 lg:order-2"}`}
+                  className={`space-y-4 sm:space-y-6 md:space-y-8 ${isResponsive ? "order-2 w-full" : "order-3 lg:order-2"} max-[450px]:w-full`}
                 >
                   {/* Extra Monster Zone */}
-                  <div className="flex justify-center gap-8 max-[418px]:gap-4 max-[339px]:gap-2 sm:gap-12 md:gap-16 lg:gap-24">
+                  <div className="flex justify-center gap-8 max-[450px]:gap-8 max-[418px]:gap-6 max-[339px]:gap-4 sm:gap-12 md:gap-16 lg:gap-24">
                     <div className="flex-shrink-0 w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
                     {fieldBoard.extraMonsters.slice(0, 2).map((card, index) => {
                       const isDef =
@@ -623,7 +657,7 @@ export const FinalBoardPreview = ({
                           key={`extra-${index}`}
                           className="flex-shrink-0 relative w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
                         >
-                          {isEditMode && (
+                          {isEditMode && card && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -653,7 +687,7 @@ export const FinalBoardPreview = ({
                   </div>
 
                   {/* Monster Zones */}
-                  <div className="flex justify-center gap-3 max-[418px]:gap-4 max-[339px]:gap-1 sm:gap-4 md:gap-6">
+                  <div className="flex justify-center gap-3 max-[450px]:gap-3 max-[418px]:gap-6 max-[385px]:gap-[18px] max-[339px]:gap-4 sm:gap-4 md:gap-6">
                     {fieldBoard.monsters.map((card, index) => {
                       const isDef =
                         (fieldBoard.monsterPositions?.[index] ?? 'atk') === 'def';
@@ -662,7 +696,7 @@ export const FinalBoardPreview = ({
                           key={`monster-${index}`}
                           className="flex-shrink-0 relative w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
                         >
-                          {isEditMode && (
+                          {isEditMode && card && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -691,7 +725,7 @@ export const FinalBoardPreview = ({
                   </div>
 
                   {/* Spell/Trap Zones */}
-                  <div className="flex justify-center gap-3 max-[418px]:gap-4 max-[339px]:gap-1 sm:gap-4 md:gap-6">
+                  <div className="flex justify-center gap-3 max-[450px]:gap-3 max-[418px]:gap-6 max-[385px]:gap-[18px] max-[339px]:gap-4 sm:gap-4 md:gap-6">
                     {fieldBoard.spellTraps.map((card, index) => (
                       <div
                         key={`spell-${index}`}
@@ -844,6 +878,7 @@ export const FinalBoardPreview = ({
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       <FloatingCardSearchModal

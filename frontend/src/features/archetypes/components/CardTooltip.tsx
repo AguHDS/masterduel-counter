@@ -287,7 +287,7 @@ export const CardTooltip = ({
         createPortal(
           <div
             ref={tooltipRef}
-            className="fixed pointer-events-none z-[9999]"
+            className="fixed pointer-events-none z-[9999] max-[620px]:!left-1/2 max-[620px]:!-translate-x-1/2 max-[620px]:!top-[15vh]"
             style={{
               left: `${position.x}px`,
               top: `${position.y}px`,
@@ -295,7 +295,7 @@ export const CardTooltip = ({
             role="tooltip"
             aria-label={`Card preview: ${cardName}`}
           >
-            <div className="relative w-[680px] max-w-[calc(100vw-20px)] max-[620px]:max-w-[calc(100vw-16px)] overflow-hidden rounded-[24px] max-[620px]:rounded-[16px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.16)]">
+            <div className="relative w-[680px] max-w-[calc(100vw-20px)] max-[620px]:w-[70vw] max-[620px]:max-w-[70vw] overflow-hidden rounded-[24px] max-[620px]:rounded-[16px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.16)]">
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_36%)]" />
               <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:28px_28px] opacity-30" />
