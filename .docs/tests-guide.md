@@ -6,13 +6,12 @@ Este documento explica el setup de testing del proyecto, como funciona el aislam
 
 ## Tipos de Tests
 
-El proyecto tiene 3 niveles de testing:
+El proyecto tiene 2 niveles de testing (E2E no implementado, ver seccion de Filosofia):
 
-| Nivel                        | Herramienta              | Ubicacion                    | Que prueba                                                                                                                      |
-| ---------------------------- | ------------------------ | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| **E2E**                      | Playwright               | `tests/` (raiz)              | Flujos de usuario completos: login, crear guia, ver perfil, buscar arquetipos. El frontend y backend corren como en produccion. |
-| **Backend Unit/Integration** | Vitest + Supertest       | `backend/src/**/__tests__/`  | Logica de negocio (application services), repositorios con BD de prueba, endpoints HTTP.                                        |
-| **Frontend Unit/Component**  | Vitest + Testing Library | `frontend/src/**/__tests__/` | Hooks con logica de estado/mutaciones, componentes interactivos complejos, utilidades puras.                                    |
+| Nivel | Herramienta | Ubicacion | Que prueba |
+|---|---|---|---|
+| **Backend Integration** | Vitest + Supertest | `backend/src/**/__tests__/` | Logica de negocio, repositorios con BD de prueba, endpoints HTTP. |
+| **Frontend Unit/Component** | Vitest + Testing Library | `frontend/src/**/__tests__/` | Hooks con logica de estado/mutaciones, componentes interactivos complejos, utilidades puras. |
 
 ---
 
@@ -20,17 +19,6 @@ El proyecto tiene 3 niveles de testing:
 
 ```
 raiz/
-├── tests/                              # E2E (Playwright)
-│   ├── package.json                    # Solo @playwright/test
-│   ├── playwright.config.ts            # Config: webServer, baseURL, browsers
-│   ├── fixtures/                       # Helpers para crear datos de prueba
-│   │   ├── auth.ts                     #   createTestUser(), loginAs()
-│   │   └── guides.ts                   #   createTestGuide()
-│   ├── auth.spec.ts                    # Register, login, logout
-│   ├── homepage.spec.ts                # Homepage rendering
-│   ├── profile.spec.ts                 # Ver/editar perfil
-│   └── guides.spec.ts                  # Crear/ver counter y deck guides
-│
 ├── backend/
 │   ├── .env                            # Produccion/dev (NO se commitea, tiene secrets)
 │   ├── .env.test                       # Tests (SI se commitea, solo tiene DATABASE_URL)
@@ -60,28 +48,6 @@ raiz/
 
 ## Como Ejecutar los Tests
 
-### E2E (Playwright) - Cubre backend + frontend
-
-```bash
-# Ejecutar todos los E2E tests (headless)
-cd tests
-npm test
-
-# UI mode (ver tests ejecutandose en navegador)
-npm run test:ui
-
-# Debug mode (paso a paso)
-npm run test:debug
-
-# Un archivo especifico
-npx playwright test profile.spec.ts
-
-# Con trace para debugging
-npx playwright test --trace on
-```
-
-**Importante:** Playwright arranca automaticamente el backend (puerto 3001) y frontend (puerto 5173) segun `playwright.config.ts`. Si ya estan corriendo, los reutiliza.
-
 ### Backend Tests (Vitest)
 
 ```bash
@@ -94,11 +60,10 @@ npm test
 npm run test:watch
 
 # Un archivo especifico
-npx vitest run src/application/services/__tests__/ProfileApplicationService.test.ts
+npx vitest run src/http/controllers/__tests__/auth.test.ts
 ```
 
 **Al correr `npm test` en backend:**
-
 - Vitest ejecuta `backend/src/test-setup.ts` PRIMERO
 - Ese archivo carga `backend/.env.test` con `dotenv` usando `override: true`
 - Esto sobreescribe `DATABASE_URL` para que apunte a `test.db` en lugar de `database.db`
@@ -126,55 +91,42 @@ npx vitest run src/features/profile/hooks/__tests__/useProfileEditor.test.ts
 
 ### El problema: dos bases de datos, un mismo schema
 
-Por que usamos dos capas de base de datos?:
-porque better-auth requiere Prisma (su adaptador oficial es prismaAdapter). El resto del proyecto usa better-sqlite3 (mas rapido para queries directas, probablemente heredado del inicio del proyecto)
-
 El proyecto usa SQLite. Si los tests corrieran contra `database.db`, ensuciarian los datos reales. Para evitarlo, usamos **dos archivos de base de datos separados**:
 
-prisma/src/data/database.db
-- Propósito: Producción y desarrollo
-- DATABASE_URL: file:./prisma/src/data/database.db (en .env)
-- Se commitea: No (gitignored)
-
-prisma/src/data/test.db
-- Propósito: Solo tests
-- DATABASE_URL: file:./prisma/src/data/test.db (en .env.test)
-- Se commitea: No (gitignored por *.db)
+| Archivo | Proposito | DATABASE_URL | Se commitea? |
+|---|---|---|---|
+| `prisma/src/data/database.db` | Produccion y desarrollo | `file:./prisma/src/data/database.db` (en `.env`) | No (gitignored) |
+| `prisma/src/data/test.db` | Solo tests | `file:./prisma/src/data/test.db` (en `.env.test`) | No (gitignored por `*.db`) |
 
 ### Como se asegura que los tests NUNCA toquen la BD de produccion
 
 **Capa 1 - Vitest setup (`backend/src/test-setup.ts`):**
-
 ```typescript
-dotenv.config({ path: "../.env.test", override: true });
+dotenv.config({ path: "../.env.test", override: true, quiet: true });
 ```
-
 - Se ejecuta antes que cualquier test
 - `override: true` garantiza que aunque `index.ts` haya cargado `.env` antes, `.env.test` gana
 - Cambia `process.env.DATABASE_URL` → apunta a `test.db`
+- Filtra ruido de consola (Turnstile no configurado, emails de Brevo fallando en test)
 
 **Capa 2 - better-sqlite3 (`database.ts`):**
-
 ```typescript
 const db = createYugiohDatabase("ruta/temporal/test.db");
 ```
-
 - `createYugiohDatabase()` acepta un path opcional
 - En tests, explicitamente pasas un path temporal o `:memory:`
 - En produccion, no pasas nada y usa el default
+- Ademas, cuando `NODE_ENV=test` el constructor automaticamente usa `test.db`
 
 ### Paso unico inicial: crear las tablas en test.db
 
-Antes de correr tests POR PRIMERA VEZ (y cada vez que cambies el schema), necesitas crear las tablas en `test.db`. Esto se hace con el mismo comando que ya usas normalmente, pero apuntando al test.db:
+Antes de correr tests por primera vez (y cada vez que cambies el schema), necesitas crear las tablas en `test.db`. Esto se hace con el mismo comando que ya usas normalmente, pero apuntando al test.db:
 
 **En Windows (PowerShell):**
-
 ```powershell
 cd backend
 $env:DATABASE_URL="file:./src/data/test.db"; npx prisma db push
 ```
-
-Esto es literalmente lo mismo que haces con `npx prisma db push` para tu BD normal. La unica diferencia es que temporalmente `DATABASE_URL` apunta a `test.db`. Luego de correrlo, `DATABASE_URL` vuelve a su valor normal del `.env`.
 
 **Importante:** El path es `file:./src/data/test.db` (no `file:./prisma/src/data/test.db`). Prisma resuelve rutas relativas desde donde esta `schema.prisma` (que ya esta en `backend/prisma/`), asi que `./src/data/` = `backend/prisma/src/data/`.
 
@@ -218,7 +170,7 @@ beforeEach(async () => {
 ### Por que `.env.test` SI se commitea pero `.env` NO?
 
 - `.env` contiene secrets reales (JWT_SECRET, BETTER_AUTH_SECRET, Cloudinary keys, etc.) → NO se commitea
-- `.env.test` solo contiene `DATABASE_URL=file:./prisma/src/data/test.db` → sin secrets → SI se commitea para que el setup sea consistente
+- `.env.test` solo contiene `DATABASE_URL=file:./prisma/src/data/test.db` y `NODE_ENV=test` → sin secrets → SI se commitea para que el setup sea consistente
 - `test.db` en si NO se commitea porque el `.gitignore` ya tiene `*.db`
 
 ### Si corro `npm test` en backend, ¿se carga el `.env` de produccion tambien?
@@ -231,74 +183,25 @@ No. El `dotenv.config()` en `index.ts` solo se ejecuta cuando levantas el servid
 
 ---
 
-## Fixtures de Datos de Prueba
-
-Los fixtures son funciones helper que crean datos de prueba de forma consistente.
-
-### Ejemplo de uso en E2E:
-
-```typescript
-// tests/profile.spec.ts
-import { test, expect } from "@playwright/test";
-import { createTestUser, loginAs } from "./fixtures/auth";
-
-test("should display user profile", async ({ page }) => {
-  const { user, cleanup } = await createTestUser({
-    username: "testuser",
-    bio: "Hello world",
-  });
-
-  await page.goto(`/profile/${user.username}-${user.id}`);
-  await expect(page.getByText("Hello world")).toBeVisible();
-
-  await cleanup();
-});
-```
-
-### Ejemplo de uso en backend tests:
-
-```typescript
-// backend/src/application/services/__tests__/ProfileApplicationService.test.ts
-import { describe, it, expect, afterAll } from "vitest";
-import { createYugiohDatabase } from "@/database/database";
-
-describe("ProfileApplicationService", () => {
-  const db = createYugiohDatabase(":memory:"); // BD en memoria para este test
-
-  afterAll(() => {
-    db.close();
-  });
-
-  it("should create a profile", async () => {
-    // ...
-  });
-});
-```
-
----
-
 ## Convenciones
 
 ### Nomenclatura:
-
 - Archivos de test: `*.test.ts` (backend/frontend unit), `*.spec.ts` (E2E)
 - `describe`: nombre del modulo/clase/feature que se testea
 - `it` / `test`: debe describir el comportamiento esperado ("should save bio when user clicks save")
 
 ### Donde poner cada test:
 
-| Si estas testeando...                           | Va en...                                                |
-| ----------------------------------------------- | ------------------------------------------------------- |
-| Un flujo de usuario (ej: crear guia desde cero) | `tests/*.spec.ts`                                       |
-| Un application service                          | `backend/src/application/services/__tests__/`           |
-| Un repositorio SQLite                           | `backend/src/infrastructure/repositories/__tests__/`    |
-| Un endpoint HTTP                                | `backend/src/http/controllers/__tests__/`               |
-| Un hook de React                                | `frontend/src/features/<feature>/hooks/__tests__/`      |
-| Un componente con logica interna                | `frontend/src/features/<feature>/components/__tests__/` |
-| Una funcion utilitaria pura                     | `__tests__/` junto al archivo que la exporta            |
+| Si estas testeando... | Va en... |
+|---|---|
+| Un application service | `backend/src/application/services/__tests__/` |
+| Un repositorio SQLite | `backend/src/infrastructure/repositories/__tests__/` |
+| Un endpoint HTTP | `backend/src/http/controllers/__tests__/` |
+| Un hook de React | `frontend/src/features/<feature>/hooks/__tests__/` |
+| Un componente con logica interna | `frontend/src/features/<feature>/components/__tests__/` |
+| Una funcion utilitaria pura | `__tests__/` junto al archivo que la exporta |
 
 ### Lo que NO necesita test:
-
 - Componentes puramente presentacionales (solo JSX + Tailwind, sin logica de estado)
 - Funciones triviales de una linea
 - Codigo generado automaticamente (Prisma client, etc.)
@@ -310,30 +213,112 @@ describe("ProfileApplicationService", () => {
 Cuando se configure CI en el futuro:
 
 ```bash
-# E2E
-cd tests && npm test
-
-# Backend unit
+# Backend unit + integration
 cd backend && npm test
-
-$env:DATABASE_URL="file:./src/data/test.db"; npx prisma studio -> ver datos en db de tests (va a estar vacio si beforeEach borra todo)
 
 # Frontend unit
 cd frontend && npm test
 ```
 
-En CI, Playwright usara `forbidOnly: true` y `retries: 2` (configurado en `playwright.config.ts`).
+---
+
+## Coverage (Cobertura de Tests)
+
+### Como ver el coverage
+
+```bash
+cd backend
+npm run coverage
+```
+
+Esto ejecuta todos los tests y genera un reporte en `backend/coverage/index.html`. Abrirlo en el navegador para ver:
+
+- **% Lines**: Que porcentaje de lineas de codigo fueron ejecutadas por los tests
+- **% Branches**: Que porcentaje de ramas condicionales (if/else, switch) fueron cubiertas
+- **Uncovered Lines**: Lineas especificas que ningun test ejecuto
+
+Tambien muestra la cobertura **por archivo**, agrupado por carpeta (`src/application/services/`, `src/infrastructure/repositories/`, etc.).
+
+### Como interpretar el coverage
+
+El coverage NO es un objetivo en si mismo. Un 100% de coverage no significa que los tests sean buenos. Lo importante es:
+
+- **Controllers con logica de negocio** deben tener alta cobertura (auth, guides)
+- **Repositorios** tendran baja cobertura si no se testearon aisladamente (lo cual es esperado — los tests HTTP los ejercitan indirectamente)
+- **Routes** deben tener 100% (son simples definiciones de endpoints)
+- **Servicios externos** (adapters de YGOProDeck, Cloudinary) tendran 0% y esta bien
+
+### Coverage en frontend
+
+```bash
+cd frontend
+npm run coverage
+```
+
+---
+
+## Filosofia de Testing del Proyecto
+
+### Por que testeamos a nivel HTTP (controllers) y no repositorios aislados
+
+En este proyecto, **testear la capa HTTP (supertest) indirectamente cubre las capas inferiores**:
+
+```
+TEST HTTP (supertest)
+  → controller
+    → application service (logica de negocio)
+      → repository (acceso a datos)
+        → SQLite / Prisma
+```
+
+Cuando testeamos `POST /api/auth/register`, estamos ejercitando:
+- El middleware de validacion
+- El controller
+- El application service (`RegisterUserWithBetterAuthApplicationService`)
+- El repository (`SqliteUserRepository`)
+- La base de datos
+
+**Si testearamos repositorios aisladamente**, estariamos:
+- Mockeando SQLite (complejo, bajo valor)
+- Testeando queries SQL simples (SELECT, INSERT)
+- Duplicando cobertura que ya dan los tests HTTP
+
+**Excepcion**: servicios con logica propia compleja (como `ChangeUsernameWithBetterAuthApplicationService` con cooldown de 7 dias, o `GuideApplicationService` con limite de 20 favoritos) si ameritarian tests unitarios si no estuvieran ya cubiertos por los tests HTTP.
+
+### Por que no tenemos tests E2E
+
+Los tests de integracion HTTP (supertest) son la **primera linea de defensa** porque:
+
+1. **Mas rapidos**: 66 tests en ~60s (sin coverage) vs E2E que tomarian 5-10s cada uno
+2. **Mas precisos**: Podemos testear codigos de error exactos (400, 401, 403, 404)
+3. **Mas confiables**: Sin dependencia del frontend, sin flakiness del navegador
+4. **Mejor ROI**: Cubren toda la logica de negocio del backend
+
+Los E2E se consideraran en el futuro para verificar **flujos completos frontend→backend** (registro → redireccion → ver nombre en UI), pero actualmente no son necesarios dado que la mayoria de la logica de negocio esta en el backend.
+
+### Que NO necesita tests
+
+- **Repositorios individuales**: Son wrappers finos sobre SQL. Ya cubiertos por tests HTTP.
+- **BetterAuth nativo**: Es una libreria externa ya testeada por sus autores.
+- **Componentes puramente presentacionales**: Solo JSX + Tailwind, sin logica.
+- **Codigo generado**: Prisma client, tipos auto-generados.
 
 ---
 
 ## Notas Importantes
 
 1. **NUNCA** ejecutes tests sin que `.env.test` este cargado. Vitest lo carga automaticamente via `src/test-setup.ts` al correr `npm test` en `backend/`.
+
 2. **El primer setup requiere** crear las tablas en `test.db`:
    ```bash
    cd backend
-   set DATABASE_URL=file:./prisma/src/data/test.db && npx prisma db push
+   $env:DATABASE_URL="file:./src/data/test.db"; npx prisma db push
    ```
+
 3. **Cada vez que cambies el schema de Prisma**, vuelve a correr el paso 2 para `test.db`.
-4. **Variables de entorno:** No hardcodees secrets en tests. `.env.test` solo tiene `DATABASE_URL`.
+
+4. **Variables de entorno:** No hardcodees secrets en tests. `.env.test` solo tiene `DATABASE_URL` y `NODE_ENV`.
+
 5. **Mocks vs Real:** Prefiere integracion real para repositorios (usando `test.db`) y mocks para servicios externos (YGOProDeck API, Cloudinary, etc.).
+
+6. **Coverage se genera** con `npm run coverage`. El reporte HTML esta en `backend/coverage/index.html`.

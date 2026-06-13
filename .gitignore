@@ -46,3 +46,6 @@ OG_PREVIEW_TESTING_GUIDE.md
 *.njsproj
 *.sln
 *.sw?
+
+# Coverage reports
+coverage/
