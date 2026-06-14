@@ -37,22 +37,23 @@ export function useCanonicalPathRedirect(
       return;
     }
 
-    // 3. User is navigating to a completely different route (not just a variant of current archetype)
-    // e.g., don't redirect /archetype/129/instance/new back to /archetype/dark-tuner/counter-guides
+    // 3. Archetype paths: prevent redirect when canonical data is stale
+    // When navigating between different archetypes via search, the canonicalPath
+    // may briefly use the previous archetype's data with the new guideType.
+    // If the guideType differs between current and canonical, skip redirect.
     if (currentPath.includes('/archetype/') && canonicalPath.includes('/archetype/')) {
       const currentArchetype = currentPath.match(/\/archetype\/([^/]+)/)?.[1];
       const canonicalArchetype = canonicalPath.match(/\/archetype\/([^/]+)/)?.[1];
-      
-      // If the archetype IDs/slugs don't match, don't redirect
-      // This happens when navigating from slug to ID or vice versa during navigation
+
       if (currentArchetype !== canonicalArchetype) {
-        // Only redirect if both are slugs (string) or both are IDs (number)
-        const currentIsNumeric = /^\d+$/.test(currentArchetype || '');
-        const canonicalIsNumeric = /^\d+$/.test(canonicalArchetype || '');
-        
-        if (currentIsNumeric !== canonicalIsNumeric) {
-          return; // Don't redirect when one is slug and other is ID during navigation
-        }
+        return; // Don't redirect when archetypes differ (transitioning between pages)
+      }
+
+      // Same archetype but different guideType — canonical data may be stale
+      const currentGuideType = currentPath.match(/\/(deck-guides|counter-guides)(?:\/|$)/)?.[1];
+      const canonicalGuideType = canonicalPath.match(/\/(deck-guides|counter-guides)(?:\/|$)/)?.[1];
+      if (currentGuideType && canonicalGuideType && currentGuideType !== canonicalGuideType) {
+        return;
       }
     }
 
