@@ -216,6 +216,8 @@ export const FloatingCardSearchModal = ({
 
   const getColumnCount = useCallback(() => {
     if (containerSize.width >= 400) return 5;
+    if (containerSize.width >= 340) return 4;
+    if (containerSize.width >= 250) return 3;
     return 2;
   }, [containerSize.width]);
 

@@ -88,4 +88,5 @@ mejoras:
 
 bugs:
 Resolviendo:
+1347 guide requests
 439 cuando el width sea este, las cartas en el card search modal deberian ser mas chicas y estar limitadas a 3 antes de salto de linea
