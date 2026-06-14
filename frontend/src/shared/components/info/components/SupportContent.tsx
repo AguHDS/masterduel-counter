@@ -101,7 +101,7 @@ export const SupportContent = () => {
 
       <div className="flex flex-col items-center gap-4 pt-4">
         <a
-          href="https://paypal.me/ponyrosa?locale.x=es_XC&country.x=AR"
+          href="https://paypal.me/masterduelcounter"
           target="_blank"
           rel="noopener noreferrer"
           className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#0070ba] to-[#1546a0] hover:from-[#1546a0] hover:to-[#0070ba] text-white font-bold text-lg rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 border border-white/20"
