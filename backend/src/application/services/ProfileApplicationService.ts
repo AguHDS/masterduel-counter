@@ -176,7 +176,7 @@ export class ProfileApplicationService implements ProfileApplicationPort {
     return await this.profileRepository.deleteProfilePicture(userId);
   }
 
-  async updateFavoriteCardAndDecks(userId: string, favoriteCardId: number | null, favoriteDecks: string | null): Promise<Profile> {
+  async updateFavoriteCardAndDecks(userId: string, favoriteCardId: number | null, favoriteDecks: string | null, favoriteCardCropped?: boolean): Promise<Profile> {
     // Ensure profile exists
     let profile = await this.profileRepository.findProfileByUserId(userId);
     if (!profile) {
@@ -188,6 +188,7 @@ export class ProfileApplicationService implements ProfileApplicationPort {
     // Update favorites
     return await this.profileRepository.updateProfile(userId, {
       favoriteCardId,
+      favoriteCardCropped,
       favoriteDecks: normalizedFavoriteDecks,
     });
   }

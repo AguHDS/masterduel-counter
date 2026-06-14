@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { profileApi } from '../api/profileApi';
 import type { FavoriteDeck } from '../types/profileTypes';
@@ -38,6 +38,7 @@ export const normalizeFavoriteDeckSlots = (
 /** Hook to manage favorite card and favorite decks in user profile */
 export const useFavoriteCardAndDecks = (userId: string, profile: Profile | undefined) => {
   const [favoriteCardId, setFavoriteCardId] = useState<number | null>(null);
+  const [favoriteCardCropped, setFavoriteCardCropped] = useState(false);
   const [favoriteDecks, setFavoriteDecks] = useState<(FavoriteDeck | null)[]>(
     EMPTY_FAVORITE_DECK_SLOTS,
   );
@@ -48,6 +49,7 @@ export const useFavoriteCardAndDecks = (userId: string, profile: Profile | undef
   useEffect(() => {
     if (profile) {
       setFavoriteCardId(profile.favoriteCardId || null);
+      setFavoriteCardCropped(profile.favoriteCardCropped ?? false);
       if (profile.favoriteDecks) {
         try {
           const decks = JSON.parse(profile.favoriteDecks) as unknown;
@@ -62,14 +64,14 @@ export const useFavoriteCardAndDecks = (userId: string, profile: Profile | undef
   }, [profile]);
 
   const updateFavoritesMutation = useMutation({
-    mutationFn: (data: { favoriteCardId: number | null; favoriteDecks: string | null }) =>
+    mutationFn: (data: { favoriteCardId: number | null; favoriteDecks: string | null; favoriteCardCropped?: boolean }) =>
       profileApi.updateFavorites(userId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
   });
 
-  const saveFavoriteCardAndDecks = useCallback(async () => {
+  const saveFavoriteCardAndDecks = async () => {
     try {
       const canonicalDecks = normalizeFavoriteDeckSlots(favoriteDecks);
       // Filter out null values before saving but keep the positions
@@ -77,15 +79,18 @@ export const useFavoriteCardAndDecks = (userId: string, profile: Profile | undef
       await updateFavoritesMutation.mutateAsync({
         favoriteCardId,
         favoriteDecks: hasAnyDeck ? JSON.stringify(canonicalDecks) : null,
+        favoriteCardCropped,
       });
     } catch (error) {
       console.error('Error saving favorites:', error);
       throw error;
     }
-  }, [favoriteCardId, favoriteDecks, updateFavoritesMutation]);
+  };
 
   return {
     favoriteCardId,
+    favoriteCardCropped,
+    setFavoriteCardCropped,
     favoriteDecks,
     setFavoriteCardId,
     setFavoriteDecks,

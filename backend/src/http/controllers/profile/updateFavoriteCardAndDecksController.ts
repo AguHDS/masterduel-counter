@@ -15,6 +15,7 @@ export const updateFavoriteCardAndDecksController = async (req: Request, res: Re
     }
 
     const favoriteCardId = validateNumberParam(req.body.favoriteCardId);
+    const favoriteCardCropped = req.body.favoriteCardCropped === true;
     
     const { favoriteDecks } = req.body;
     
@@ -23,7 +24,8 @@ export const updateFavoriteCardAndDecksController = async (req: Request, res: Re
     const profile = await profileService.updateFavoriteCardAndDecks(
       userId,
       favoriteCardId,
-      favoriteDecks ?? null
+      favoriteDecks ?? null,
+      favoriteCardCropped,
     );
 
     return res.status(200).json({

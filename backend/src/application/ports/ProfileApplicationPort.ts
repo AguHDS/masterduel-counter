@@ -19,7 +19,7 @@ export interface ProfileApplicationPort {
   /** Delete the profile picture */
   deleteProfilePicture(userId: string): Promise<Profile>;
   /** Update favorite card and decks */
-  updateFavoriteCardAndDecks(userId: string, favoriteCardId: number | null, favoriteDecks: string | null): Promise<Profile>;
+  updateFavoriteCardAndDecks(userId: string, favoriteCardId: number | null, favoriteDecks: string | null, favoriteCardCropped?: boolean): Promise<Profile>;
   /** Get all guides created by a specific user */
   getGuideListByUserId(userId: string, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
   /** Get all guides (including drafts) created by a specific user — only for the owner */

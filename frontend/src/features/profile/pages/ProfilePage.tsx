@@ -106,6 +106,8 @@ export const ProfilePage = () => {
   // Use favoriteCardAndDecks hook
   const {
     favoriteCardId,
+    favoriteCardCropped,
+    setFavoriteCardCropped,
     favoriteDecks,
     setFavoriteCardId,
     setFavoriteDecks,
@@ -180,6 +182,7 @@ export const ProfilePage = () => {
     // Reset favorites to original values
     if (profile) {
       setFavoriteCardId(profile.favoriteCardId || null);
+      setFavoriteCardCropped(profile.favoriteCardCropped ?? false);
       if (profile.favoriteDecks) {
         try {
           const decks = JSON.parse(profile.favoriteDecks) as unknown;
@@ -191,7 +194,7 @@ export const ProfilePage = () => {
         setFavoriteDecks([null, null, null, null, null, null]);
       }
     }
-  }, [cancelEdit, profile, setFavoriteCardId, setFavoriteDecks]);
+  }, [cancelEdit, profile, setFavoriteCardId, setFavoriteCardCropped, setFavoriteDecks]);
 
   const handleSaveProfile = async () => {
     try {
@@ -460,9 +463,11 @@ export const ProfilePage = () => {
                 {/* Right Sidebar */}
                 <ProfileRightSidebar
                   favoriteCardId={favoriteCardId}
+                  favoriteCardCropped={favoriteCardCropped}
                   isEditMode={isEditMode}
                   isOwner={isOwner}
                   onCardSelect={handleFavoriteCardSelect}
+                  onCroppedToggle={() => setFavoriteCardCropped(!favoriteCardCropped)}
                   trendingAchievements={trendingAchievements}
                   profilePictureUrl={profile?.profilePictureUrl ?? undefined}
                   userName={profile?.userName}

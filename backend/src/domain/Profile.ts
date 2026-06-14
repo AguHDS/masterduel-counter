@@ -6,6 +6,7 @@ export interface Profile {
   profilePictureUrl: string | null;
   cloudinaryPublicId: string | null;
   favoriteCardId: number | null;
+  favoriteCardCropped: boolean;
   favoriteDecks: string | null;
   role: string;
   totalLikes: number;
@@ -25,5 +26,6 @@ export interface UpdateProfileData {
   profilePictureUrl?: string;
   cloudinaryPublicId?: string;
   favoriteCardId?: number | null;
+  favoriteCardCropped?: boolean;
   favoriteDecks?: string | null;
 }

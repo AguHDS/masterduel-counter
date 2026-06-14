@@ -13,6 +13,7 @@ export interface Profile {
   profilePictureUrl: string | null;
   cloudinaryPublicId: string | null;
   favoriteCardId: number | null;
+  favoriteCardCropped: boolean;
   favoriteDecks: string | null;
   role: string;
   totalLikes: number;
@@ -73,6 +74,7 @@ export const profileApi = {
     data: {
       favoriteCardId?: number | null;
       favoriteDecks?: string | null;
+      favoriteCardCropped?: boolean;
     }
   ): Promise<ProfileResponse> {
     const response = await axios.put(
