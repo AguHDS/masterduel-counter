@@ -92,3 +92,7 @@ bugs:
 Esto solo pasa si selecciono un arquetipo pero tipo de guia diferente.
 
 Resolviendo:
+este error aparece a veces en la devtool cuando miro una guia:
+index-BAeOn93h.js:29  POST https://o4510806190981120.ingest.us.sentry.io/api/4510806207365120/envelope/?sentry_version=7&sentry_key=a649728cf32dde1a2d725c3ea3ee3196&sentry_client=sentry.javascript.react%2F10.38.0 net::ERR_BLOCKED_BY_CLIENT
+
+Que es? deberia preocuparme?

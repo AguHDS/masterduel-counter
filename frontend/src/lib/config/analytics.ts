@@ -1,20 +1,20 @@
 /**
  * Google Analytics Configuration
- * 
+ *
  * Este archivo centraliza la configuración de Google Analytics 4.
  * Se trackean automáticamente page views en cada cambio de ruta.
  */
 
 // ID de medición de Google Analytics
-export const GA_MEASUREMENT_ID = 'G-P57LFNSW84';
+export const GA_MEASUREMENT_ID = "G-P57LFNSW84";
 
 // Declaración de tipos para gtag
 declare global {
   interface Window {
     gtag?: (
-      command: 'config' | 'event' | 'js' | 'set' | 'consent',
-      targetId: string | Date | 'default' | 'update',
-      config?: Record<string, unknown>
+      command: "config" | "event" | "js" | "set" | "consent",
+      targetId: string | Date | "default" | "update",
+      config?: Record<string, unknown>,
     ) => void;
     dataLayer?: unknown[];
   }
@@ -25,9 +25,9 @@ declare global {
  */
 export function isGAAvailable(): boolean {
   return (
-    typeof window !== 'undefined' &&
-    typeof window.gtag === 'function' &&
-    import.meta.env.VITE_QUERY_ENV === 'production' // Solo en producción
+    typeof window !== "undefined" &&
+    typeof window.gtag === "function" &&
+    import.meta.env.VITE_QUERY_ENV === "production" // Solo en producción
   );
 }
 
@@ -40,19 +40,17 @@ export function trackPageView(path: string, title?: string) {
   if (!isGAAvailable()) return;
 
   // Enviar page_path actualizado a la configuración
-  window.gtag!('config', GA_MEASUREMENT_ID, {
+  window.gtag!("config", GA_MEASUREMENT_ID, {
     page_path: path,
     page_title: title || document.title,
   });
 
   // También enviar evento explícito de page_view
-  window.gtag!('event', 'page_view', {
+  window.gtag!("event", "page_view", {
     page_path: path,
     page_title: title || document.title,
     page_location: window.location.href,
   });
-
-  console.log('[GA] Page view tracked:', path);
 }
 
 /**
@@ -62,12 +60,12 @@ export function trackPageView(path: string, title?: string) {
  */
 export function trackEvent(
   eventName: string,
-  eventParams?: Record<string, unknown>
+  eventParams?: Record<string, unknown>,
 ) {
   if (!isGAAvailable()) return;
 
-  window.gtag!('event', eventName, eventParams);
-  console.log('[GA] Event tracked:', eventName, eventParams);
+  window.gtag!("event", eventName, eventParams);
+  console.log("[GA] Event tracked:", eventName, eventParams);
 }
 
 /**
@@ -78,7 +76,7 @@ export function trackEvent(
 export function trackError(error: Error, fatal = false) {
   if (!isGAAvailable()) return;
 
-  window.gtag!('event', 'exception', {
+  window.gtag!("event", "exception", {
     description: error.message,
     fatal: fatal,
   });
