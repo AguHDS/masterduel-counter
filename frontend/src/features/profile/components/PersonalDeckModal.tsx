@@ -18,6 +18,7 @@ import {
 import { DeckBuilderCardSearchModal } from "@/features/archetypes/components/DeckBuilderCardSearchModal";
 import type { CustomDeck } from "../api/customDeckApi";
 import { sortDeckCards } from "@/shared/utils/sortDeckCards";
+import { reorderCardsInZone } from "@/features/archetypes/utils/deckDragDrop";
 import type { Card } from "@/features/archetypes/types";
 
 interface DeckCard extends Card {
@@ -245,22 +246,14 @@ export const PersonalDeckModal = ({
         return;
       }
 
-      const updateDeck = (deck: DeckCard[]) => {
-        const newDeck = [...deck];
-        const temp = newDeck[draggedCard.index];
-        newDeck[draggedCard.index] = newDeck[dropIndex];
-        newDeck[dropIndex] = temp;
-        return newDeck;
-      };
-
       if (zone === "main") {
-        setMainDeck(updateDeck);
+        setMainDeck((prev) => reorderCardsInZone(prev, draggedCard!.index, dropIndex));
         setHasChanges(true);
       } else if (zone === "extra") {
-        setExtraDeck(updateDeck);
+        setExtraDeck((prev) => reorderCardsInZone(prev, draggedCard!.index, dropIndex));
         setHasChanges(true);
       } else if (zone === "side") {
-        setSideDeck(updateDeck);
+        setSideDeck((prev) => reorderCardsInZone(prev, draggedCard!.index, dropIndex));
         setHasChanges(true);
       }
 

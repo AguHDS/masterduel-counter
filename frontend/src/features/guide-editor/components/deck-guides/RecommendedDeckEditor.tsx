@@ -8,6 +8,7 @@ import {
   type DeckDisplayZone,
 } from "@/features/archetypes/utils/deckZonePresentation";
 import { sortDeckCards } from "@/shared/utils/sortDeckCards";
+import { reorderCardsInZone } from "@/features/archetypes/utils/deckDragDrop";
 import type { Card } from "@/features/archetypes/types";
 
 interface RecommendedDeckEditorProps {
@@ -182,24 +183,15 @@ export const RecommendedDeckEditor = ({
     }
 
     if (zone === "main") {
-      const newMainDeck = [...mainDeck];
-      const temp = newMainDeck[draggedCard.index];
-      newMainDeck[draggedCard.index] = newMainDeck[dropIndex];
-      newMainDeck[dropIndex] = temp;
+      const newMainDeck = reorderCardsInZone(mainDeck, draggedCard.index, dropIndex);
       setMainDeck(newMainDeck);
       onDeckChange?.(title, newMainDeck, extraDeck, sideDeck);
     } else if (zone === "extra") {
-      const newExtraDeck = [...extraDeck];
-      const temp = newExtraDeck[draggedCard.index];
-      newExtraDeck[draggedCard.index] = newExtraDeck[dropIndex];
-      newExtraDeck[dropIndex] = temp;
+      const newExtraDeck = reorderCardsInZone(extraDeck, draggedCard.index, dropIndex);
       setExtraDeck(newExtraDeck);
       onDeckChange?.(title, mainDeck, newExtraDeck, sideDeck);
     } else {
-      const newSideDeck = [...sideDeck];
-      const temp = newSideDeck[draggedCard.index];
-      newSideDeck[draggedCard.index] = newSideDeck[dropIndex];
-      newSideDeck[dropIndex] = temp;
+      const newSideDeck = reorderCardsInZone(sideDeck, draggedCard.index, dropIndex);
       setSideDeck(newSideDeck);
       onDeckChange?.(title, mainDeck, extraDeck, newSideDeck);
     }
