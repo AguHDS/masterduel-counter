@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { AlertTriangle, X } from "lucide-react";
 import { useCreateReport } from "../hooks/useReport";
 
@@ -68,7 +69,7 @@ export const ReportModal = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-slate-800 rounded-lg shadow-xl max-w-md w-full border border-blue-800/30">
         <div className="flex items-center justify-between p-4 border-b border-blue-800/30">
@@ -144,6 +145,7 @@ export const ReportModal = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

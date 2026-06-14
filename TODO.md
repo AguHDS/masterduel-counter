@@ -82,9 +82,9 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 ---
 
 mejoras:
-- tests E2E para las cosas importantes. Investigar como setearlo, que usar, configurar, como evitar ensuciar mi local con datos de testing cuando corren estos tests, etc...
-Dependiendo de la feature, va a usar E2E, unit test, integracion, etc. Investigar tambien como ordenarnos para esto en arquitectura.
+- arreglar lints frontend sin romper nada
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
+- favorites y guides perfil mejor diseño.
 - en la lista de Guias y Favorites del perfil, tambien ordenar por views,likes. Updated (mas reciente, primero) debe ser default y creo que ya lo tiene puesto asi.
 
 bugs:
