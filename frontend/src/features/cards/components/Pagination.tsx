@@ -6,6 +6,7 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
+/** Pagination component for searching cards */
 export const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
   if (totalPages <= 1) return null;
 

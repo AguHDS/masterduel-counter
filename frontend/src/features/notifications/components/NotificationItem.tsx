@@ -7,7 +7,7 @@ import {
   formatNotificationMessage,
   getNotificationLink,
   formatTimeAgo,
-} from "../types/notification.types";
+} from "../utils/formatting";
 
 interface NotificationItemProps {
   notification: Notification;
