@@ -90,10 +90,10 @@ export const CreateGuideRequestModal: React.FC<CreateGuideRequestModalProps> = (
     }
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setError("");
     onClose();
-  };
+  }, [onClose]);
 
   // Lock body scroll while open
   useEffect(() => {
@@ -108,7 +108,7 @@ export const CreateGuideRequestModal: React.FC<CreateGuideRequestModalProps> = (
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") handleClose(); };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, handleClose]);
 
   if (!isOpen) return null;
 

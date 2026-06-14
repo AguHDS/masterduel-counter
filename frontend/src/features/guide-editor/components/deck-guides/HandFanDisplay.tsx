@@ -10,7 +10,7 @@ interface HandFanDisplayProps {
 }
 
 /** Returns the rotation angle (degrees) for a card at a given index in a fan of totalCards. */
-export const getCardFanRotation = (
+const getCardFanRotation = (
   index: number,
   totalCards: number,
 ): number => {
@@ -32,7 +32,7 @@ export const getCardFanRotation = (
  * Displays a hand of cards in a fan layout with rotation and elevation
  * Used in initial hands and final board preview to show cards held in hand
  */
-export const getCardFanTranslateY = (
+const getCardFanTranslateY = (
   index: number,
   totalCards: number,
 ): number => {

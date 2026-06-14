@@ -104,7 +104,7 @@ export const FloatingCardSearchModal = ({
       window.removeEventListener("scroll", handleUpdate, true);
       window.removeEventListener("resize", handleUpdate);
     };
-  }, [isOpen, anchorElement]);
+  }, [isOpen, anchorElement, actualWidth]);
 
   // Debounce search query
   useEffect(() => {

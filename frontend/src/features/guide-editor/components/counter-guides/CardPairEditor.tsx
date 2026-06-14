@@ -39,7 +39,7 @@ export const CardPairEditor = ({
     if (forceCloseModal && selectingPosition) {
       setSelectingPosition(null);
     }
-  }, [forceCloseModal]);
+  }, [forceCloseModal, selectingPosition]);
 
   // Notify parent when modal state changes
   useEffect(() => {

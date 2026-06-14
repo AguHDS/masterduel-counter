@@ -40,7 +40,7 @@ export const FavoriteCardEditor = ({
       const saved = localStorage.getItem(`card_cropped_${displayCard.id}`);
       setUseCropped(saved === 'true');
     }
-  }, [displayCard?.id]);
+  }, [displayCard?.id, displayCard]);
 
   const toggleCropped = () => {
     const next = !useCropped;
