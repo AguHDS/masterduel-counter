@@ -46,6 +46,7 @@ declare module "express" {
     validatedDeleteGuideData?: {
       instanceId: number;
       userId: UserId;
+      userRole?: string;
     };
 
     validatedCommentData?: {

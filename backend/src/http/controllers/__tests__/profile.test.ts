@@ -35,12 +35,26 @@ beforeAll(async () => {
   };
   await prisma.card.upsert({
     where: { id: card1Id },
-    create: { id: card1Id, name: "Profile Card 1", type: "Spell Card", desc: "Test", race: "Normal", ...cardBase },
+    create: {
+      id: card1Id,
+      name: "Profile Card 1",
+      type: "Spell Card",
+      desc: "Test",
+      race: "Normal",
+      ...cardBase,
+    },
     update: {},
   });
   await prisma.card.upsert({
     where: { id: card2Id },
-    create: { id: card2Id, name: "Profile Card 2", type: "Spell Card", desc: "Test", race: "Normal", ...cardBase },
+    create: {
+      id: card2Id,
+      name: "Profile Card 2",
+      type: "Spell Card",
+      desc: "Test",
+      race: "Normal",
+      ...cardBase,
+    },
     update: {},
   });
   await prisma.$disconnect();
@@ -73,13 +87,23 @@ beforeEach(async () => {
   await prisma.session.deleteMany();
   await prisma.account.deleteMany();
   await prisma.user.deleteMany();
-  await prisma.archetype.update({ where: { id: archetypeId }, data: { registered: false } });
+  await prisma.archetype.update({
+    where: { id: archetypeId },
+    data: { registered: false },
+  });
   await prisma.$disconnect();
 });
 
 async function registerAndLogin(user = TEST_USER, email = TEST_EMAIL) {
   const agent = request.agent(app);
-  await agent.post("/api/auth/register").send({ user, email, password: TEST_PASSWORD, turnstileToken: FAKE_TURNSTILE });
+  await agent
+    .post("/api/auth/register")
+    .send({
+      user,
+      email,
+      password: TEST_PASSWORD,
+      turnstileToken: FAKE_TURNSTILE,
+    });
   await agent.post("/api/auth/login").send({ user, password: TEST_PASSWORD });
 
   const { PrismaClient } = await import("@prisma/client");
@@ -94,7 +118,9 @@ async function createGuide(agent: request.Agent, title: string) {
     guideType: "COUNTER",
     title,
     headerCardId: card1Id,
-    cardPairs: [{ topCardIds: [card1Id], bottomCardIds: [{ cardId: card2Id }] }],
+    cardPairs: [
+      { topCardIds: [card1Id], bottomCardIds: [{ cardId: card2Id }] },
+    ],
   });
   return res.body.instance;
 }
@@ -137,7 +163,9 @@ describe("GET /api/profile/:userId", () => {
   });
 
   it("should return null profile for non-existent userId", async () => {
-    const res = await request(app).get("/api/profile/nonexistent-user-id-123456");
+    const res = await request(app).get(
+      "/api/profile/nonexistent-user-id-123456",
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.profile).toBeNull();
@@ -190,7 +218,14 @@ describe("PUT /api/profile/:userId/favorites", () => {
       .put(`/api/profile/${userId}/favorites`)
       .send({
         favoriteCardId: card1Id,
-        favoriteDecks: JSON.stringify([{ deckId: 1 }, { deckId: 2 }, null, null, null, null]),
+        favoriteDecks: JSON.stringify([
+          { deckId: 1 },
+          { deckId: 2 },
+          null,
+          null,
+          null,
+          null,
+        ]),
       });
 
     expect(res.status).toBe(200);
@@ -235,7 +270,9 @@ describe("GET /api/profile/:userId/favoritedGuides", () => {
   it("should return empty array for user with no favorites", async () => {
     const { userId } = await registerAndLogin();
 
-    const res = await request(app).get(`/api/profile/${userId}/favoritedGuides`);
+    const res = await request(app).get(
+      `/api/profile/${userId}/favoritedGuides`,
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -244,15 +281,25 @@ describe("GET /api/profile/:userId/favoritedGuides", () => {
   });
 
   it("should return favorited guides", async () => {
-    const { agent: authorAgent } = await registerAndLogin("authorprof", "authorprof@ex.com");
+    const { agent: authorAgent } = await registerAndLogin(
+      "authorprof",
+      "authorprof@ex.com",
+    );
     const guide = await createGuide(authorAgent, "Favorited Profile Guide");
 
-    const { agent: likerAgent, userId } = await registerAndLogin("likerprof", "likerprof@ex.com");
+    const { agent: likerAgent, userId } = await registerAndLogin(
+      "likerprof",
+      "likerprof@ex.com",
+    );
 
     // Favorite the guide
-    await likerAgent.post(`/api/archetypes/${archetypeId}/instances/${guide.id}/favorite`);
+    await likerAgent.post(
+      `/api/archetypes/${archetypeId}/instances/${guide.id}/favorite`,
+    );
 
-    const res = await request(app).get(`/api/profile/${userId}/favoritedGuides`);
+    const res = await request(app).get(
+      `/api/profile/${userId}/favoritedGuides`,
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.guides.length).toBeGreaterThanOrEqual(1);
@@ -280,8 +327,7 @@ describe("GET /api/users/:userId/instances/search", () => {
   it("should reject missing title", async () => {
     const { userId } = await registerAndLogin();
 
-    const res = await request(app)
-      .get(`/api/users/${userId}/instances/search`);
+    const res = await request(app).get(`/api/users/${userId}/instances/search`);
 
     expect(res.status).toBe(400);
   });
@@ -293,5 +339,81 @@ describe("GET /api/users/:userId/instances/search", () => {
 
     // Express handles double-slash differently; this matches no route
     expect(res.status).toBe(404);
+  });
+});
+
+// ADMIN DRAFT VISIBILITY
+
+describe("Admin draft visibility", () => {
+  it("should allow admin to see drafts on other user's profile", async () => {
+    // User A creates a draft
+    const { userId: userIdA } = await registerAndLogin(
+      "userAprof",
+      "usera@ex.com",
+    );
+    const { PrismaClient } = await import("@prisma/client");
+    const prisma = new PrismaClient();
+
+    // Create a draft for user A directly
+    await prisma.archetypeInstance.create({
+      data: {
+        archetypeId,
+        userId: userIdA,
+        title: "User A Draft",
+        guideType: "COUNTER",
+        headerCardId: card1Id,
+        isDraft: true,
+      },
+    });
+
+    // Create admin user
+    await registerAndLogin("adminprof", "adminprof@ex.com");
+    const adminUser = await prisma.user.findFirstOrThrow({
+      where: { name: "adminprof" },
+    });
+    await prisma.user.update({
+      where: { id: adminUser.id },
+      data: { role: "admin" },
+    });
+
+    // Login as admin
+    const { agent: adminAgent } = await registerAndLogin(
+      "adminprof",
+      "adminprof@ex.com",
+    );
+
+    const res = await adminAgent.get(`/api/users/${userIdA}/instances`);
+
+    expect(res.status).toBe(200);
+    const titles = res.body.map((g: { title: string }) => g.title);
+    expect(titles).toContain("User A Draft");
+    await prisma.$disconnect();
+  });
+
+  it("should NOT show drafts to non-owner non-admin users", async () => {
+    const { userId: userIdA } = await registerAndLogin(
+      "userAprof2",
+      "usera2@ex.com",
+    );
+    const { PrismaClient } = await import("@prisma/client");
+    const prisma = new PrismaClient();
+
+    await prisma.archetypeInstance.create({
+      data: {
+        archetypeId,
+        userId: userIdA,
+        title: "User A Draft 2",
+        guideType: "COUNTER",
+        headerCardId: card1Id,
+        isDraft: true,
+      },
+    });
+
+    const res = await request(app).get(`/api/users/${userIdA}/instances`);
+
+    expect(res.status).toBe(200);
+    const titles = res.body.map((g: { title: string }) => g.title);
+    expect(titles).not.toContain("User A Draft 2");
+    await prisma.$disconnect();
   });
 });

@@ -253,4 +253,74 @@ describe("Drafts", () => {
       expect(get.status).toBe(404);
     });
   });
+
+  // ADMIN CANNOT DELETE OTHERS' DRAFTS
+
+  describe("Admin draft restrictions", () => {
+    it("should reject admin deleting another user's draft", async () => {
+      const user1 = await registerAndLogin("draftowner", "draftowner@ex.com");
+      const draft = await saveDraft(user1);
+      const draftId = draft.body.draft.id;
+
+      // Create admin user
+      await registerAndLogin("draftadmin", "draftadmin@ex.com");
+      const { PrismaClient } = await import("@prisma/client");
+      const prisma = new PrismaClient();
+      const adminUser = await prisma.user.findFirstOrThrow({ where: { name: "draftadmin" } });
+      await prisma.user.update({ where: { id: adminUser.id }, data: { role: "admin" } });
+      await prisma.$disconnect();
+
+      const admin = await registerAndLogin("draftadmin", "draftadmin@ex.com");
+      const res = await admin.delete(`/api/archetypes/draft/${draftId}`);
+
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // DELETE DRAFT REVERTS GUIDE REQUEST
+
+  describe("Delete draft reverts guide request to OPEN", () => {
+    it("should revert request to OPEN when draft is deleted", async () => {
+      const agent = await registerAndLogin("reqdrafter", "reqdrafter@ex.com");
+
+      // Get user ID from DB
+      const { PrismaClient } = await import("@prisma/client");
+      const prisma = new PrismaClient();
+      const dbUser = await prisma.user.findFirstOrThrow({ where: { name: "reqdrafter" } });
+
+      // Create a guide request
+      const creq = await request(app).post("/api/guide-requests").send({
+        title: "Request for Draft Test",
+        archetypeId,
+        guideType: "COUNTER",
+      });
+      const reqId = creq.body.data.id;
+
+      // Take the request
+      await agent.post(`/api/guide-requests/${reqId}/take`);
+
+      // Save a draft linked to the request
+      const draft = await prisma.archetypeInstance.create({
+        data: {
+          archetypeId,
+          userId: dbUser.id,
+          title: "Draft for Request",
+          guideType: "COUNTER",
+          headerCardId: card1Id,
+          isDraft: true,
+          guideRequestId: reqId,
+        },
+      });
+
+      // Delete the draft via API
+      const res = await agent.delete(`/api/archetypes/draft/${draft.id}`);
+
+      expect(res.status).toBe(200);
+
+      // Verify request is back to OPEN
+      const getReq = await request(app).get(`/api/guide-requests/${reqId}`);
+      expect(getReq.body.data.status).toBe("OPEN");
+      await prisma.$disconnect();
+    });
+  });
 });

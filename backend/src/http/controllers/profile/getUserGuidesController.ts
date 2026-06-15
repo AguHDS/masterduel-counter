@@ -20,13 +20,14 @@ export const createGetUserGuidesController =
         return;
       }
 
-      // Check if the requesting user is the owner of the profile
-      const requestingUserId = (req as AuthenticatedRequest).user?.id;
-      const isOwner = requestingUserId === userId;
+      // Check if the requesting user is the profile owner or an admin
+      const requestingUser = (req as AuthenticatedRequest).user;
+      const isOwner = requestingUser?.id === userId;
+      const isAdmin = requestingUser?.role === "admin";
 
       let instances;
-      if (isOwner) {
-        // Owner sees their own guides including drafts
+      if (isOwner || isAdmin) {
+        // Owner and admins see guides including drafts
         instances = await profileService.getGuideListByUserIdWithDrafts(
           userId,
           sortBy || 'updated'

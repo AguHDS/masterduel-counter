@@ -25,7 +25,21 @@ export const deleteDraftController = async (
     }
 
     const instanceService = getDependencies().getInstanceService();
+
+    // Look up the draft before deleting to check for linked guide request
+    const instance = await instanceService.getGuideById(instanceId);
     await instanceService.deleteDraft(instanceId, userId);
+
+    // If the draft was linked to a guide request, revert the request to OPEN
+    if (instance?.guideRequestId) {
+      try {
+        const guideRequestService = getDependencies().getGuideRequestService();
+        await guideRequestService.cancelTakeRequest(instance.guideRequestId, userId);
+      } catch (err) {
+        // Non-fatal: the draft was deleted; just log the error
+        console.error("Error reverting guide request after draft deletion:", err);
+      }
+    }
 
     res.status(200).json({ success: true, message: "Draft deleted successfully" });
   } catch (error) {

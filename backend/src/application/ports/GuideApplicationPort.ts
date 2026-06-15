@@ -33,7 +33,7 @@ export interface GuideInstanceServicePort {
   registerGuide(data: RegisterGuideDTO): Promise<Guide>;
   
   /** Deletes a user's guide */
-  deleteGuide(id: number, userId: string): Promise<void>;
+  deleteGuide(id: number, userId: string, userRole?: string): Promise<void>;
 
   /** Toggles a like on a guide (add if not exists, remove if exists) */
   toggleLikeGuide(instanceId: number, userId: string): Promise<{ liked: boolean; likes: number }>;

@@ -22,7 +22,7 @@ export interface ProfileApplicationPort {
   updateFavoriteCardAndDecks(userId: string, favoriteCardId: number | null, favoriteDecks: string | null, favoriteCardCropped?: boolean): Promise<Profile>;
   /** Get all guides created by a specific user */
   getGuideListByUserId(userId: string, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
-  /** Get all guides (including drafts) created by a specific user — only for the owner */
+  /** Get all guides (including drafts) created by a specific user */
   getGuideListByUserIdWithDrafts(userId: string, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;
   /** Search guides by user ID and title */
   searchGuideItemListProfile(userId: string, title: string, sortBy?: 'likes' | 'updated', guideType?: GuideType): Promise<GuideListItem[]>;

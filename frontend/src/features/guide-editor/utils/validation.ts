@@ -17,8 +17,6 @@ interface ValidationResult {
 // Validation and confirmation messages
 export const UNSAVED_CHANGES_WARNING =
   "You have unsaved changes. Are you sure you want to cancel?";
-export const UNSAVED_CHANGES_NAVIGATION_WARNING =
-  "You have unsaved changes. Are you sure you want to leave?";
 
 export const validateInstanceData = (
   pairs: CardPair[],

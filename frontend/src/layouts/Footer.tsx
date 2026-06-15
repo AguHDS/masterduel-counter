@@ -85,9 +85,9 @@ export const Footer = () => {
               <button
                 onClick={handleOpenModal("support")}
                 className="text-blue-400 hover:text-blue-300 transition-colors duration-200 flex items-center gap-1"
-                aria-label="Support us"
+                aria-label="Support me"
               >
-                Support<span className="max-[450px]:hidden"> us</span>
+                <span className="max-[450px]:hidden">Support me</span>
               </button>
             </nav>
 

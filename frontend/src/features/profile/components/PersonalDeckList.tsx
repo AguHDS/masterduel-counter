@@ -396,7 +396,7 @@ export const PersonalDeckList = ({
               onClick={() => window.dispatchEvent(new CustomEvent("open-support"))}
               className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
             >
-              Support us
+              Support me
             </button>{" "}
             and gain +20 additional space!
           </p>
