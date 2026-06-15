@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Search, User, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -23,7 +23,7 @@ export const UserSearchDropdown = () => {
     gcTime: 60000,
   });
 
-  const results = searchResults?.users || [];
+  const results = useMemo(() => searchResults?.users || [], [searchResults?.users]);
 
   // Calculate dropdown position
   const updateDropdownPosition = () => {

@@ -9,6 +9,7 @@ export const validateDeleteGuide = async (
   try {
     const instanceIdParam = req.params.instanceId;
     const userId = (req as AuthenticatedRequest).user?.id;
+    const userRole = (req as AuthenticatedRequest).user?.role;
 
     // Check authentication
     if (!userId) {
@@ -32,6 +33,7 @@ export const validateDeleteGuide = async (
     req.validatedDeleteGuideData = {
       instanceId,
       userId,
+      userRole,
     };
 
     next();

@@ -16,7 +16,7 @@ export const ContactContent = () => {
 
       {/* Contenedor centrado */}
       <div className="flex justify-center">
-        <div className="bg-gradient-to-br from-purple-950/50 to-blue-950/50 rounded-lg border border-purple-600/30 p-5 hover:border-purple-500/50 transition-all duration-200 max-w-md w-full">
+        <div className="bg-gradient-to-br from-purple-950/50 to-blue-950/50 rounded-lg border border-purple-600/30 p-5 hover:border-purple-500/50 max-w-md w-full">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-purple-600/20 rounded-lg">
               <MessageCircle
@@ -32,7 +32,7 @@ export const ContactContent = () => {
             Join our{" "}
             <a
               href="https://discord.gg/wzkGb4Zgnw"
-              className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
+              className="text-blue-400 hover:text-blue-300"
               target="_blank"
               aria-label="Discord server"
             >

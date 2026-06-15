@@ -11,18 +11,21 @@ interface FavoriteCardEditorProps {
   cardId: number | null;
   isEditMode: boolean;
   onCardSelect: (card: Card) => void;
+  isCropped: boolean;
+  onCroppedToggle: () => void;
 }
 
 export const FavoriteCardEditor = ({
   cardId,
   isEditMode,
   onCardSelect,
+  isCropped,
+  onCroppedToggle,
 }: FavoriteCardEditorProps) => {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [viewingCardUrl, setViewingCardUrl] = useState<string | null>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
-  const [useCropped, setUseCropped] = useState(false);
   const { favoriteCard, isLoading } = useFavoriteCards(cardId);
 
   const displayCard = selectedCard || favoriteCard;
@@ -33,22 +36,6 @@ export const FavoriteCardEditor = ({
       setSelectedCard(null);
     }
   }, [isEditMode]);
-
-  // Load persisted crop preference when card resolves
-  useEffect(() => {
-    if (displayCard) {
-      const saved = localStorage.getItem(`card_cropped_${displayCard.id}`);
-      setUseCropped(saved === 'true');
-    }
-  }, [displayCard?.id]);
-
-  const toggleCropped = () => {
-    const next = !useCropped;
-    setUseCropped(next);
-    if (displayCard) {
-      localStorage.setItem(`card_cropped_${displayCard.id}`, String(next));
-    }
-  };
 
   const handleCardSelect = (card: Card) => {
     setSelectedCard(card);
@@ -74,7 +61,7 @@ export const FavoriteCardEditor = ({
                 className="p-[2px] rounded-sm shadow-2xl shadow-amber-700/30"
                 style={{ background: 'linear-gradient(175deg, rgba(234,179,8,0.90) 0%, rgba(210,145,0,0.78) 50%, rgba(180,115,0,0.58) 80%, rgba(100,65,0,0.12) 100%)' }}
               >
-                <div className={`w-[230px] overflow-hidden rounded-[2px] bg-[#050310] ${useCropped ? 'aspect-square' : 'aspect-[10/14]'}`}>
+                <div className={`w-[230px] overflow-hidden rounded-[2px] bg-[#050310] ${isCropped ? 'aspect-square' : 'aspect-[10/14]'}`}>
                   {isLoading ? (
                     <div className="w-full h-full bg-slate-700 flex items-center justify-center">
                       <span className="text-slate-400 text-sm">Loading...</span>
@@ -86,13 +73,13 @@ export const FavoriteCardEditor = ({
                       cardName={displayCard.name}
                     >
                       <img
-                        src={useCropped
+                        src={isCropped
                           ? (getOptimizedCardImageUrl(displayCard.imageUrlCropped, { size: 'thumbnail', width: 700, height: 700 }) ?? displayCard.imageUrlCropped)
                           : displayCard.imageUrl
                         }
                         alt="Favorite card"
                         className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity duration-300"
-                        onClick={() => handleImageView(useCropped ? displayCard.imageUrlCropped : displayCard.imageUrl)}
+                        onClick={() => handleImageView(isCropped ? displayCard.imageUrlCropped : displayCard.imageUrl)}
                       />
                     </CardTooltip>
                   )}
@@ -127,19 +114,19 @@ export const FavoriteCardEditor = ({
             {/* Art mode toggle — only in edit mode */}
             {isEditMode && (
               <button
-                onClick={toggleCropped}
+                onClick={onCroppedToggle}
                 className="relative mt-3 group flex items-center gap-1.5 px-3 py-1.5 overflow-hidden rounded"
               >
                 <div className="absolute inset-0 border border-amber-600/35 rounded group-hover:border-amber-500/55 transition-colors" />
                 <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/35 to-transparent" />
                 <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-500/35 to-transparent" />
-                {useCropped ? (
+                {isCropped ? (
                   <Layers className="relative w-3 h-3 text-amber-400/80" />
                 ) : (
                   <ScanSearch className="relative w-3 h-3 text-amber-400/80" />
                 )}
                 <span className="relative text-amber-300/75 text-[10px] tracking-[0.18em] uppercase font-bold group-hover:text-amber-300 transition-colors">
-                  {useCropped ? "Full Art" : "Art Crop"}
+                  {isCropped ? "Full Art" : "Art Crop"}
                 </span>
               </button>
             )}

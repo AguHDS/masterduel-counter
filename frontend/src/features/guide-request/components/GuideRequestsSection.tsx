@@ -93,7 +93,7 @@ export const GuideRequestsSection: React.FC = () => {
 
           return (
             <div key={status} className="flex-1 min-w-0 flex flex-col max-[1346px]:w-full">
-              <div className="px-3 py-2 border-b border-[#c2901c]/10 flex items-center gap-1.5 min-w-0">
+              <div className="px-3 py-2 border-b border-[#c2901c]/10 flex items-center gap-1.5 min-w-0 max-[1346px]:bg-[#252a3e]">
                 <span className="text-xs font-semibold text-[#c2901c] truncate">
                   {label}
                 </span>

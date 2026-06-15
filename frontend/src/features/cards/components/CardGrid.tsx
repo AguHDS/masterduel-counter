@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { CardTooltip } from "@/features/archetypes/components/CardTooltip";
 import type { Card } from "../types";
 
@@ -8,9 +9,19 @@ interface CardGridProps {
 }
 
 export const CardGrid = ({ cards, isLoading, onCardClick }: CardGridProps) => {
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1200,
+  );
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4">
         {Array.from({ length: 30 }).map((_, index) => (
           <div
             key={index}
@@ -30,7 +41,7 @@ export const CardGrid = ({ cards, isLoading, onCardClick }: CardGridProps) => {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4">
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4">
       {cards.map((card) => {
         const imageUrl = card.imageUrlExternal || "";
         const imageUrlSmall = card.imageUrlSmallExternal || imageUrl;
@@ -40,7 +51,7 @@ export const CardGrid = ({ cards, isLoading, onCardClick }: CardGridProps) => {
             key={card.id}
             className="aspect-[59/86] group cursor-pointer transition-transform hover:scale-105"
           >
-            <CardTooltip cardId={card.id} imageUrl={imageUrl} cardName={card.name}>
+            <CardTooltip cardId={card.id} imageUrl={imageUrl} cardName={card.name} disabled={windowWidth <= 768}>
               <button
                 type="button"
                 onClick={() => onCardClick?.(card)}

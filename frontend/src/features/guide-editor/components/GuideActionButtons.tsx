@@ -10,6 +10,8 @@ import {
 interface GuideActionButtonsProps {
   isEditMode: boolean;
   isOwner: boolean;
+  isAdmin: boolean;
+  isDraft: boolean;
   isCreatingNew: boolean;
   isAuthenticated: boolean;
   draftInstanceId: number | undefined;
@@ -33,6 +35,8 @@ interface GuideActionButtonsProps {
 export const GuideActionButtons = ({
   isEditMode,
   isOwner,
+  isAdmin,
+  isDraft,
   isCreatingNew,
   isAuthenticated,
   draftInstanceId,
@@ -53,7 +57,7 @@ export const GuideActionButtons = ({
 }: GuideActionButtonsProps) => {
   return (
     <>
-      {isEditMode && isOwner && (
+      {isEditMode && isOwner && !(isAdmin && isDraft) && (
         <div className="flex flex-col items-center gap-4 relative top-10">
           <div className="flex flex-wrap justify-center gap-4 mt-8">
             {isCreatingNew && (
@@ -129,29 +133,35 @@ export const GuideActionButtons = ({
           !isEditMode &&
           !isCreatingNew &&
           isOwner && (
-            <>
-              <button
-                onClick={onEdit}
-                className="flex items-center space-x-2 px-4 py-2 max-[500px]:px-3 max-[500px]:py-1.5 max-[500px]:text-sm max-[500px]:space-x-1 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
-              >
-                <Edit3 className="w-4 h-4" />
-                <span>Edit Guide</span>
-              </button>
-              <button
-                onClick={onDelete}
-                className="flex items-center space-x-2 px-4 py-2 max-[500px]:px-3 max-[500px]:py-1.5 max-[500px]:text-sm max-[500px]:space-x-1 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>Delete guide</span>
-              </button>
-            </>
+            <button
+              onClick={onEdit}
+              className="flex items-center space-x-2 px-4 py-2 max-[500px]:px-3 max-[500px]:py-1.5 max-[500px]:text-sm max-[500px]:space-x-1 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
+            >
+              <Edit3 className="w-4 h-4" />
+              <span>Edit Guide</span>
+            </button>
           )}
 
         {isAuthenticated &&
           isArchetypeRegistered &&
           !isEditMode &&
           !isCreatingNew &&
-          !isOwner && (
+          (isOwner || (isAdmin && !isDraft)) && (
+            <button
+              onClick={onDelete}
+              className="flex items-center space-x-2 px-4 py-2 max-[500px]:px-3 max-[500px]:py-1.5 max-[500px]:text-sm max-[500px]:space-x-1 bg-blue-950/60 backdrop-blur-sm hover:bg-blue-950/90 active:bg-blue-950/10 text-white rounded-lg transition-colors shadow-md"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Delete guide</span>
+            </button>
+          )}
+
+        {isAuthenticated &&
+          isArchetypeRegistered &&
+          !isEditMode &&
+          !isCreatingNew &&
+          !isOwner &&
+          !isAdmin && (
             <button onClick={onReport} className="hover:text-red-800/80 text-white">
               <Flag className="w-5 h-5" />
             </button>

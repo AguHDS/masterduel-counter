@@ -137,6 +137,9 @@ export const GuideContainer = ({
     isAuthenticated &&
     (isCreatingNew || user?.id === guideInstanceData?.instance.userId);
 
+  const isAdmin = user?.role === "admin";
+  const isDraft = guideInstanceData?.instance.isDraft ?? false;
+
   const selectedArchetype = archetypeWithHeaderData?.archetype;
 
   const likes = useInstanceGuideLikes({
@@ -528,8 +531,8 @@ export const GuideContainer = ({
                   likeCount={likes.likeCount}
                   liked={likes.liked}
                   isAuthenticated={isAuthenticated}
-                  isOwner={isOwner}
-                  isEditMode={editor.isEditMode}
+                isOwner={isOwner}
+                isEditMode={editor.isEditMode}
                   userName={guideInstanceData?.userName}
                   userId={guideInstanceData?.instance.userId}
                   createdAt={guideInstanceData?.instance.createdAt}
@@ -618,6 +621,8 @@ export const GuideContainer = ({
               <GuideActionButtons
                 isEditMode={editor.isEditMode}
                 isOwner={isOwner}
+                isAdmin={isAdmin}
+                isDraft={isDraft}
                 isCreatingNew={isCreatingNew}
                 isAuthenticated={isAuthenticated}
                 draftInstanceId={draftInstanceId}

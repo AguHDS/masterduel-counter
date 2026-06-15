@@ -63,10 +63,11 @@ export const CardPreviewModal = ({
 
   const modalContent = (
     <>
-      <div className="fixed inset-0 bg-black/70 z-[500]" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/70 z-[500]" />
 
       <div
         className="fixed inset-0 z-[501] flex items-center justify-center p-4"
+        onClick={onClose}
         aria-modal="true"
         role="dialog"
       >

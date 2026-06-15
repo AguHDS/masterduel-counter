@@ -8,4 +8,4 @@
 
 **Quick tip:**
 When editing database Schema or using `reset-db`:
-`\backend >  > npx prisma db push` -> `\backend >  > npx prisma generate` ->
+`\backend >  > npx prisma db push` -> `\backend >  > npx prisma generate` -> para tests: `$env:DATABASE_URL="file:./src/data/test.db"; npx prisma db push` -> `$env:DATABASE_URL="file:./src/data/test.db"; npx prisma generate`

@@ -128,8 +128,3 @@ export const MainSearch = ({
     </div>
   );
 };
-
-// Export a function to focus the input from parent components
-export const focusSearchInput = (ref: React.RefObject<HTMLInputElement>) => {
-  ref.current?.focus();
-};

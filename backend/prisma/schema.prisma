@@ -50,6 +50,7 @@ model Profile {
   profilePictureUrl     String?   @map("profile_picture_url")
   cloudinaryPublicId    String?   @map("cloudinary_public_id")
   favoriteCardId        Int?      @map("favorite_card_id")
+  favoriteCardCropped    Boolean   @default(false) @map("favorite_card_cropped")
   favoriteDecks         String?   @map("favorite_decks") // JSON: [{ archetypeId, archetypeName, cardId }]
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")

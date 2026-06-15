@@ -20,6 +20,19 @@ export const cancelTakeGuideRequestController = async (
     const service = getDependencies().getGuideRequestService();
     const request = await service.cancelTakeRequest(id, user.id);
 
+    // Delete any drafts linked to this request
+    try {
+      const prisma = getDependencies().getPrismaClient();
+      const drafts = await prisma.archetypeInstance.findMany({
+        where: { guideRequestId: id, isDraft: true },
+      });
+      for (const draft of drafts) {
+        await prisma.archetypeInstance.delete({ where: { id: draft.id } });
+      }
+    } catch (err) {
+      console.error("Error cleaning up drafts after cancel take:", err);
+    }
+
     res.json({ success: true, data: request });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to cancel take.";

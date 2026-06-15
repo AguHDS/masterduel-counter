@@ -109,8 +109,8 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
     setPage(1);
     setSelectedRequest(null);
   };
-  const items = data?.items ?? [];
   const displayItems = useMemo(() => {
+    const items = data?.items ?? [];
     if (statusFilter !== "COMPLETED") {
       return items;
     }
@@ -119,7 +119,7 @@ export const GuideRequestFullModal: React.FC<GuideRequestFullModalProps> = ({
       (a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
     );
-  }, [items, statusFilter]);
+  }, [data?.items, statusFilter]);
   const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / LIMIT);
 

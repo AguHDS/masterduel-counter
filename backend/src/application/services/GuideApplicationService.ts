@@ -328,15 +328,20 @@ export class GuideApplicationService implements GuideInstanceServicePort {
   }
 
   /** Deletes a guide */
-  async deleteGuide(id: number, userId: string): Promise<void> {
-    // Verify ownership
+  async deleteGuide(id: number, userId: string, userRole?: string): Promise<void> {
+    // Verify ownership (admins bypass)
     const instance = await this.instanceRepository.findArchetypeInstanceById(id);
     if (!instance) {
       throw new Error("Guide not found");
     }
 
-    if (instance.userId !== userId) {
+    if (instance.userId !== userId && userRole !== "admin") {
       throw new Error("Unauthorized: You can only delete your own guides");
+    }
+
+    // Admins can only delete published guides
+    if (userRole === "admin" && instance.userId !== userId && instance.isDraft) {
+      throw new Error("Admins cannot delete draft guides belonging to other users");
     }
 
     await this.instanceRepository.deleteArchetypeInstanceById(id);

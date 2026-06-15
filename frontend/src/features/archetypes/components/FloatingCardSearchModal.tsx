@@ -104,7 +104,7 @@ export const FloatingCardSearchModal = ({
       window.removeEventListener("scroll", handleUpdate, true);
       window.removeEventListener("resize", handleUpdate);
     };
-  }, [isOpen, anchorElement]);
+  }, [isOpen, anchorElement, actualWidth]);
 
   // Debounce search query
   useEffect(() => {
@@ -216,6 +216,8 @@ export const FloatingCardSearchModal = ({
 
   const getColumnCount = useCallback(() => {
     if (containerSize.width >= 400) return 5;
+    if (containerSize.width >= 340) return 4;
+    if (containerSize.width >= 250) return 3;
     return 2;
   }, [containerSize.width]);
 

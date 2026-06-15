@@ -26,6 +26,8 @@ jobs:
 
             cd /var/www/masterduel-counter/backend
             npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+            npx prisma db push
+            npx prisma generate
             npm run build
             pm2 restart masterduel-backend || pm2 start npm --name "masterduel-backend" -- start
 

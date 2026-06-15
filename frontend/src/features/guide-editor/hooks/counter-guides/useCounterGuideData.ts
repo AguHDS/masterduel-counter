@@ -115,5 +115,6 @@ export const useCounterGuideData = ({
       // Error loading existing guide instance
       onReset();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCreatingNew, guideInstanceData, isError]);
 };

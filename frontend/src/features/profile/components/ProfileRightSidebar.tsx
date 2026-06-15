@@ -7,9 +7,11 @@ import type { Card } from "@/features/archetypes/types";
 
 interface ProfileRightSidebarProps {
   favoriteCardId: number | null;
+  favoriteCardCropped: boolean;
   isEditMode: boolean;
   isOwner: boolean;
   onCardSelect: (card: Card) => void;
+  onCroppedToggle: () => void;
   trendingAchievements: TrendingAchievement[];
   profilePictureUrl: string | null | undefined;
   userName: string | undefined;
@@ -18,9 +20,11 @@ interface ProfileRightSidebarProps {
 
 export const ProfileRightSidebar = ({
   favoriteCardId,
+  favoriteCardCropped,
   isEditMode,
   isOwner,
   onCardSelect,
+  onCroppedToggle,
   trendingAchievements,
   profilePictureUrl,
   userName,
@@ -62,6 +66,8 @@ export const ProfileRightSidebar = ({
                 cardId={favoriteCardId}
                 isEditMode={isEditMode && isOwner}
                 onCardSelect={onCardSelect}
+                isCropped={favoriteCardCropped}
+                onCroppedToggle={onCroppedToggle}
               />
 
               {/* Trending Section */}

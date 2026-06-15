@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, ChevronLeft, ChevronRight, Eye, FileText } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Eye, FileText, ThumbsUp } from "lucide-react";
 import { GuideSearch } from "@/shared/components/GuideSearch";
 import type { GuideListItem } from "@/lib/http/guideInstancesApi";
 import { buildGuideEditorPath, buildGuidePath } from "@/lib/config/urlHelpers";
@@ -143,7 +143,7 @@ export const ProfileGuideList = ({
                   event.target.value as "all" | "counter" | "deck",
                 )
               }
-              className="h-[32px] w-full sm:w-auto sm:min-w-[102px] rounded-md border border-[#4a4070]/70 bg-[#1a1545]/90 px-3 text-sm font-semibold text-blue-200 outline-none  focus:border-cyan-400"
+              className="h-[32px] w-full sm:w-auto sm:min-w-[102px] rounded-md border border-blue-500/30 bg-[#0d1123]/90 px-3 text-sm font-semibold text-blue-200 outline-none focus:border-cyan-400"
               aria-label="Filter guides by type"
             >
               <option value="all">All</option>
@@ -162,7 +162,7 @@ export const ProfileGuideList = ({
       </div>
 
       {filteredGuides.length === 0 ? (
-        <div className="text-center text-gray-400 py-20 bg-[#1a1530]/60 rounded-lg border border-[#4a4070]/40">
+        <div className="text-center text-gray-400 py-20 bg-[#0d1123]/60 rounded-lg border border-blue-500/20">
           <p className="text-lg font-semibold text-gray-300">
             {searchQuery
               ? "No favorites match your search"
@@ -178,69 +178,71 @@ export const ProfileGuideList = ({
         <>
           {/* List of guides - Table style */}
           <div className="space-y-1">
-            {currentGuides.map((guide, index) => (
+            {currentGuides.map((guide, _index) => (
               <div
                 key={guide.id}
                 className="relative group"
                 onClick={() => handleGuideClick(guide)}
               >
                 {/* Glow border effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-purple-500/40 rounded-lg opacity-0 group-hover:opacity-100 blur-sm" />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-sky-500/20 to-blue-500/20 rounded-[14px] opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-200" />
 
                 {/* Main row — draft guides get a grey/muted style */}
-                <div className={`relative rounded-lg border-2 cursor-pointer overflow-hidden ${
+                <div className={`relative rounded-[14px] border cursor-pointer overflow-hidden transition-all duration-200 ${
                   guide.isDraft
-                    ? "bg-gradient-to-r from-slate-800/80 via-slate-700/50 to-slate-800/80 border-slate-600/60 group-hover:border-slate-500/80 opacity-80"
-                    : "bg-gradient-to-r from-[#1a1545]/95 via-purple-950/60 to-[#1a1545]/95 border-[#3d3470]/70 group-hover:border-blue-800/80"
+                    ? "bg-gradient-to-br from-slate-800/60 via-slate-800/30 to-slate-900/60 border-slate-700/50 opacity-75"
+                    : "bg-gradient-to-br from-[#0d1123] via-[#141a32] to-[#1a0f30] border-blue-500/25 hover:border-blue-400/50 hover:shadow-[0_0_24px_rgba(59,130,246,0.12)]"
                 }`}>
                   {/* Desktop Layout */}
-                  <div className="hidden xl:flex items-center gap-4 p-3">
-                    {/* ID Number */}
-                    <div className="flex-shrink-0 w-10 text-center">
-                      <span className="text-2xl font-bold text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">
-                        {startIndex + index + 1}
-                      </span>
-                    </div>
-
+                  <div className="hidden xl:flex items-center gap-3 p-3">
                     {/* Card Image */}
                     <div className="flex-shrink-0">
                       {guide.headerCardImageUrl ? (
                         <img
                           src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
                           alt={guide.headerCardName || "Card"}
-                          className={`h-[65px] w-[65px] object-cover rounded border-2 shadow-lg ${guide.isDraft ? "border-slate-500/60 grayscale" : "border-cyan-500/60 group-hover:border-cyan-400"}`}
+                          className={`h-[65px] w-[65px] object-cover rounded-lg border shadow-lg ${guide.isDraft ? "border-slate-600/60 grayscale brightness-75" : "border-blue-500/40 shadow-blue-500/10 group-hover:border-blue-400/70"}`}
                           loading="lazy"
                         />
                       ) : (
-                        <div className="w-[65px] h-[65px] bg-[#2a2550] rounded border-2 border-[#4a4070] flex items-center justify-center">
-                          <span className="text-gray-500 text-xs">No Card</span>
+                        <div className="w-[65px] h-[65px] bg-slate-800/80 rounded-lg border border-slate-700/50 flex items-center justify-center">
+                          <span className="text-slate-500 text-xs">No Card</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Title + Draft badge */}
-                    <div className="flex-1 min-w-0 flex items-center gap-2">
-                      <h4 className={`text-base font-bold truncate ${guide.isDraft ? "text-slate-300 group-hover:text-slate-100" : "text-white group-hover:text-cyan-300"}`}>
-                        {guide.title}
-                      </h4>
-                      {guide.isDraft && (
-                        <span className="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-600/70 border border-slate-500/60 text-slate-300 text-xs font-semibold">
-                          <FileText className="h-3 w-3" />
-                          Draft
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Archetype */}
-                    <div className="flex-shrink-0 w-40">
-                      <p className={`text-sm font-semibold truncate ${guide.isDraft ? "text-slate-400" : "text-white"}`}>
+                    {/* Title + Archetype + Badges */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <h4 className={`flex-1 min-w-0 text-base font-bold truncate ${guide.isDraft ? "text-slate-300" : "text-white group-hover:text-cyan-300"}`}>
+                          {guide.title}
+                        </h4>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {guide.isDraft && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-700/70 border border-slate-600/50 text-slate-300 text-[10px] font-semibold">
+                              <FileText className="h-3 w-3" />
+                              Draft
+                            </span>
+                          )}
+                          {guide.guideType === "COUNTER" ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                              COUNTER
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-[10px] font-bold uppercase tracking-wider">
+                              DECK
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <p className={`text-xs truncate mt-0.5 ${guide.isDraft ? "text-slate-500" : "text-slate-400"}`}>
                         {guide.archetypeName}
                       </p>
                     </div>
 
                     {/* Last Update */}
-                    <div className="flex-shrink-0 w-28 text-center hidden lg:block">
-                      <span className="text-sm text-gray-300">
+                    <div className="flex-shrink-0 w-24 text-center hidden max-[1580px]:hidden lg:block">
+                      <span className="text-xs text-slate-400">
                         {new Date(guide.createdAt).toLocaleDateString("en-US", {
                           day: "numeric",
                           month: "numeric",
@@ -251,16 +253,16 @@ export const ProfileGuideList = ({
 
                     {/* Stats — hidden for drafts */}
                     {!guide.isDraft && (
-                      <div className="flex-shrink-0 w-[180px] text-right">
-                        <div className="inline-flex items-center gap-3 text-sm font-bold">
-                          <span className="inline-flex items-center gap-1 text-purple-400">
-                            <Eye className="h-4 w-4" /> {guide.views}
+                      <div className="flex-shrink-0">
+                        <div className="inline-flex items-center gap-1.5 text-xs">
+                          <span className="inline-flex items-center gap-1 max-[1580px]:px-0 max-[1580px]:py-0 max-[1580px]:bg-transparent max-[1580px]:border-0 px-2.5 py-1 rounded-md bg-slate-800/40 border border-slate-700/40 text-slate-400">
+                            <Eye className="h-3.5 w-3.5 text-purple-400/80" /> {guide.views}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-green-400">
-                            <span className="text-lg">↑</span> {guide.likes}
+                          <span className="inline-flex items-center gap-1 max-[1580px]:px-0 max-[1580px]:py-0 max-[1580px]:bg-transparent max-[1580px]:border-0 px-2.5 py-1 rounded-md bg-slate-800/40 border border-slate-700/40 text-slate-400">
+                            <ThumbsUp className="h-3.5 w-3.5 text-green-400/80 text-sm font-bold" /> {guide.likes}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-yellow-400">
-                            <Star className="h-4 w-4" /> {guide.favorites}
+                          <span className="inline-flex items-center gap-1 max-[1580px]:px-0 max-[1580px]:py-0 max-[1580px]:bg-transparent max-[1580px]:border-0 px-2.5 py-1 rounded-md bg-slate-800/40 border border-slate-700/40 text-slate-400">
+                            <Star className="h-3.5 w-3.5 text-yellow-400/80" /> {guide.favorites}
                           </span>
                         </div>
                       </div>
@@ -274,10 +276,10 @@ export const ProfileGuideList = ({
                             handleRemoveFavorite(e, guide.id, guide.archetypeId)
                           }
                           disabled={removingId === guide.id}
-                          className="p-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-2.5 py-1 text-[11px] text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-md border border-transparent hover:border-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Remove from favorites"
                         >
-                          <span className="text-yellow-600 hover:text-yellow-500">Remove</span>
+                          Remove
                         </button>
                       </div>
                     )}
@@ -286,21 +288,18 @@ export const ProfileGuideList = ({
                   {/* Mobile Layout */}
                   <div className="xl:hidden p-3">
                     <div className="flex gap-3">
-                      {/* ID Number + Card Image */}
-                      <div className="flex flex-col items-center gap-2 flex-shrink-0">
-                        <span className="text-xl font-bold text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">
-                          {startIndex + index + 1}
-                        </span>
+                      {/* Card Image */}
+                      <div className="flex flex-col items-center flex-shrink-0">
                         {guide.headerCardImageUrl ? (
                           <img
                             src={getOptimizedCardImageUrl(guide.headerCardImageUrl, { size: 'thumbnail' })}
                             alt={guide.headerCardName || "Card"}
-                            className={`h-[55px] w-[55px] object-cover rounded border-2 shadow-lg ${guide.isDraft ? "border-slate-500/60 grayscale" : "border-cyan-500/60 group-hover:border-cyan-400"}`}
+                            className={`h-[55px] w-[55px] object-cover rounded-lg border shadow-lg ${guide.isDraft ? "border-slate-600/60 grayscale brightness-75" : "border-blue-500/40 shadow-blue-500/10"}`}
                             loading="lazy"
                           />
                         ) : (
-                          <div className="w-[55px] h-[55px] bg-[#2a2550] rounded border-2 border-[#4a4070] flex items-center justify-center">
-                            <span className="text-gray-500 text-xs">
+                          <div className="w-[55px] h-[55px] bg-slate-800/80 rounded-lg border border-slate-700/50 flex items-center justify-center">
+                            <span className="text-slate-500 text-xs">
                               No Card
                             </span>
                           </div>
@@ -308,28 +307,39 @@ export const ProfileGuideList = ({
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 min-w-0 flex flex-col gap-2">
-                        {/* Title + Draft badge */}
-                        <div className="flex items-center gap-2">
-                          <h4 className={`text-sm font-bold line-clamp-2 ${guide.isDraft ? "text-slate-300 group-hover:text-slate-100" : "text-white group-hover:text-cyan-300"}`}>
+                      <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                        {/* Title + Badges */}
+                        <div className="flex items-center gap-1.5">
+                          <h4 className={`flex-1 min-w-0 text-sm font-bold line-clamp-2 ${guide.isDraft ? "text-slate-300" : "text-white group-hover:text-cyan-300"}`}>
                             {guide.title}
                           </h4>
-                          {guide.isDraft && (
-                            <span className="flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-600/70 border border-slate-500/60 text-slate-300 text-xs font-semibold">
-                              <FileText className="h-2.5 w-2.5" />
-                              Draft
-                            </span>
-                          )}
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {guide.isDraft && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-700/70 border border-slate-600/50 text-slate-300 text-[10px] font-semibold">
+                                <FileText className="h-2.5 w-2.5" />
+                                Draft
+                              </span>
+                            )}
+                            {guide.guideType === "COUNTER" ? (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                                COUNTER
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-[10px] font-bold uppercase tracking-wider">
+                                DECK
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         {/* Archetype */}
-                        <p className={`text-xs font-semibold truncate ${guide.isDraft ? "text-slate-400" : "text-cyan-400/80"}`}>
+                        <p className={`text-xs truncate ${guide.isDraft ? "text-slate-500" : "text-slate-400"}`}>
                           {guide.archetypeName}
                         </p>
 
                         {/* Bottom Info */}
                         <div className="flex items-center justify-between gap-2 text-xs">
-                          <span className="text-gray-400">
+                          <span className="text-slate-500">
                             {new Date(guide.createdAt).toLocaleDateString(
                               "en-US",
                               {
@@ -340,15 +350,15 @@ export const ProfileGuideList = ({
                             )}
                           </span>
                           {!guide.isDraft && (
-                            <div className="flex items-center gap-3">
-                              <span className="inline-flex items-center gap-1 text-green-400 font-bold">
-                                <span className="text-base">↑</span> {guide.likes}
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex items-center gap-1 text-slate-400">
+                                <Eye className="h-3 w-3 text-purple-400/70" /> {guide.views}
                               </span>
-                              <span className="inline-flex items-center gap-1 text-yellow-400 font-bold">
-                                <Star className="h-3.5 w-3.5" /> {guide.favorites}
+                              <span className="inline-flex items-center gap-1 text-slate-400">
+                                <ThumbsUp className="h-3 w-3 text-green-400/70 text-xs font-bold"></ThumbsUp> {guide.likes}
                               </span>
-                              <span className="inline-flex items-center gap-1 text-violet-300 font-bold">
-                                <Eye className="h-3.5 w-3.5" /> {guide.views}
+                              <span className="inline-flex items-center gap-1 text-slate-400">
+                                <Star className="h-3 w-3 text-yellow-400/70" /> {guide.favorites}
                               </span>
                               {showFavoriteButton && onRemoveFavorite && (
                                 <button
@@ -363,7 +373,7 @@ export const ProfileGuideList = ({
                                   className="p-1 hover:bg-yellow-500/10 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                                   title="Remove from favorites"
                                 >
-                                  <Star className="w-4 h-4 text-yellow-400" />
+                                  <Star className="w-3.5 h-3.5 text-yellow-400/60 hover:text-yellow-400" />
                                 </button>
                               )}
                             </div>
@@ -411,14 +421,14 @@ export const ProfileGuideList = ({
 
       {/* Support Message - Only for role "user" */}
       {onRemoveFavorite && userRole === "user" && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-[#1a1545]/60 via-[#1e1850]/60 to-[#1a1545]/60 rounded-lg border-2 border-[#3d3470]/50 text-center">
+        <div className="mt-6 p-4 bg-gradient-to-br from-[#0d1123]/60 via-[#141a32]/60 to-[#0d1123]/60 rounded-lg border border-blue-500/20 text-center">
           <p className="text-sm text-gray-300">
             Need more space?{" "}
             <button
               onClick={() => window.dispatchEvent(new CustomEvent("open-support"))}
               className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
             >
-              Support us
+              Support me
             </button>{" "}
             and gain unlimited favorite guides space!
           </p>
