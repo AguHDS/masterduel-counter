@@ -7,24 +7,25 @@ interface TierCardProps {
   entry: TierListEntry;
 }
 
-const tierColors: Record<number, { border: string; glow: string; badge: string }> = {
+const tierColors: Record<number, { border: string; glow: string; bg: string }> = {
   1: {
     border: "border-amber-500/40 hover:border-amber-400/70",
     glow: "hover:shadow-[0_0_20px_-5px_rgba(245,158,11,0.4)]",
-    badge: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+    bg: "from-amber-950/50 via-amber-900/20 to-slate-950/80",
   },
   2: {
     border: "border-slate-400/40 hover:border-slate-300/60",
     glow: "hover:shadow-[0_0_20px_-5px_rgba(148,163,184,0.35)]",
-    badge: "bg-slate-400/20 text-slate-300 border-slate-400/40",
+    bg: "from-slate-800/40 via-slate-900/20 to-slate-950/80",
   },
   3: {
     border: "border-orange-700/40 hover:border-orange-600/60",
     glow: "hover:shadow-[0_0_20px_-5px_rgba(194,65,12,0.35)]",
-    badge: "bg-orange-700/20 text-orange-300 border-orange-700/40",
+    bg: "from-orange-950/50 via-orange-900/20 to-slate-950/80",
   },
 };
 
+// Clickable deck card with tier-colored styling and card-art background
 export const TierCard = ({ entry }: TierCardProps) => {
   const navigate = useNavigate();
   const colors = tierColors[entry.tier] ?? tierColors[3];
@@ -37,8 +38,7 @@ export const TierCard = ({ entry }: TierCardProps) => {
   return (
     <div
       onClick={handleClick}
-      className={`relative rounded-lg overflow-hidden shadow-lg shadow-black/50 cursor-pointer group border ${colors.border} transition-all duration-300 ${colors.glow}`}
-      style={{ background: "linear-gradient(to bottom, #111827, #0b0d14)" }}
+      className={`relative rounded-lg overflow-hidden shadow-lg shadow-black/50 cursor-pointer group border ${colors.border} transition-all duration-300 ${colors.glow} bg-gradient-to-b ${colors.bg}`}
     >
       <div className="w-full aspect-[16/10] overflow-hidden relative">
         {entry.imageUrl ? (

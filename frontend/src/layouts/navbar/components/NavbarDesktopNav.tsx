@@ -55,7 +55,7 @@ export const NavbarDesktopNav: React.FC<NavbarDesktopNavProps> = ({
   const rankingButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="hidden min-[1138px]:flex items-center flex-nowrap absolute right-8 top-1/2 -translate-y-1/2 divide-x divide-[#c2901c]/20">
+    <div className="hidden min-[1390px]:flex items-center flex-nowrap absolute right-8 top-1/2 -translate-y-1/2 divide-x divide-[#c2901c]/20">
       <div className="relative flex items-center px-4">
         <Link
           to="/tierlist"

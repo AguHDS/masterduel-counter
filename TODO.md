@@ -82,9 +82,6 @@ mejoras:
 
 bugs:
 resolviendo:
-- Poner comentarios de 1 linea explicando que hace cada parte clave (especialmente arriba de las funciones) en backend\src\application\ports\TierListApplicationPort.ts, backend\src\services\tierListScraperService.ts, backend\src\application\services\TierListApplicationService.ts, backend\src\domain\ports\TierListRepository.ts, backend\src\infrastructure\adapters\externalServices\MasterDuelMetaScraper.ts, backend\src\infrastructure\repositories\SqliteTierListRepository.ts, backend\src\routes\tier-list.ts, backend\src\services\tierListScraperService.ts, frontend\src\features\tier-list\api\tierListApi.ts, frontend\src\features\tier-list\components\TierCard.tsx, frontend\src\features\tier-list\hooks\useTierList.ts, 
-- Cuando el width esa 1207, pasar al modo sin texto en los items de la navbar (actuamente se hace a 1137)
-- El color de la tier 1 debe ser mas dorado, el de la tier. Agregar una especie de background (no tan notorio) de su color de tier en el background donde esta cada item.
 - Hacer que cambiar una imagen siempre por default quede vinculada permanentemente al arquetipo. No hay que poner "scarpped" o "Manual" para esto, se puede cambiar su imagen permanentemente incluso si tenemos "scrapped" seleccionado. De esta forma, el select "Manual" solo va a ser usado para cuando se guarde su ranking (tier 1,2, etc). Otro problema: Si cambio el N de tier de un item seleccionado como manual, y scrapeo, se vuelve a poner como estaba originalmente antes de editarlo. Si esta en manual, debe guardar su posicion de ranking que yo habia elegido.
 - Actualmente si borramos una entrada de la tierlist, que hace? vuelve a aparecer en la siguiente scrapeada?
 Necesitamos una nueva tab en el panel de admin para borar/agregar, arquetipos cmo habiamos dicho mas abajo.

@@ -5,6 +5,7 @@ import type Database from "better-sqlite3";
 export class SqliteTierListRepository implements TierListRepository {
   constructor(private db: Database.Database) {}
 
+  /** Returns active entries ordered by tier then position */
   getEntries(format: string): Promise<TierListEntry[]> {
     const stmt = this.db.prepare(
       `SELECT * FROM tier_list_entries WHERE format = ? AND is_active = 1 ORDER BY tier ASC, position ASC`,
@@ -13,8 +14,23 @@ export class SqliteTierListRepository implements TierListRepository {
     return Promise.resolve(rows.map(this.mapRowToEntry));
   }
 
-  saveEntries(format: string, input: { entries: { id?: number; deckName: string; tier: number; position: number; imageUrl: string | null; source: string }[] }): Promise<void> {
-    const deleteStmt = this.db.prepare(`DELETE FROM tier_list_entries WHERE format = ?`);
+  /** Full replacement: DELETE all entries for format, then INSERT provided entries (admin save) */
+  saveEntries(
+    format: string,
+    input: {
+      entries: {
+        id?: number;
+        deckName: string;
+        tier: number;
+        position: number;
+        imageUrl: string | null;
+        source: string;
+      }[];
+    },
+  ): Promise<void> {
+    const deleteStmt = this.db.prepare(
+      `DELETE FROM tier_list_entries WHERE format = ?`,
+    );
     const insertStmt = this.db.prepare(
       `INSERT INTO tier_list_entries (deck_name, tier, format, position, image_url, source, is_active, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`,
@@ -38,7 +54,10 @@ export class SqliteTierListRepository implements TierListRepository {
     return Promise.resolve();
   }
 
-  updatePositions(_format: string, positions: { id: number; position: number }[]): Promise<void> {
+  updatePositions(
+    _format: string,
+    positions: { id: number; position: number }[],
+  ): Promise<void> {
     const stmt = this.db.prepare(
       `UPDATE tier_list_entries SET position = ?, updated_at = datetime('now') WHERE id = ?`,
     );
@@ -60,7 +79,9 @@ export class SqliteTierListRepository implements TierListRepository {
     lastScrapedAt: string | null;
     updatedAt: string;
   } | null> {
-    const stmt = this.db.prepare(`SELECT * FROM tier_list_config WHERE format = ?`);
+    const stmt = this.db.prepare(
+      `SELECT * FROM tier_list_config WHERE format = ?`,
+    );
     const row = stmt.get(format) as Record<string, unknown> | undefined;
     if (!row) return Promise.resolve(null);
     return Promise.resolve({
@@ -72,7 +93,10 @@ export class SqliteTierListRepository implements TierListRepository {
     });
   }
 
-  async upsertConfig(format: string, scrapingEnabled: boolean): Promise<{
+  async upsertConfig(
+    format: string,
+    scrapingEnabled: boolean,
+  ): Promise<{
     id: number;
     format: string;
     scrapingEnabled: boolean;
@@ -99,20 +123,27 @@ export class SqliteTierListRepository implements TierListRepository {
     return Promise.resolve();
   }
 
+  /** Scraper merge: deletes old scraped entries, updates manual entries' tiers, inserts new scraped entries */
   replaceScrapedEntries(
     format: string,
-    entries: Omit<TierListEntry, "id" | "createdAt" | "updatedAt" | "isActive" | "source" | "scrapedAt">[],
+    entries: Omit<
+      TierListEntry,
+      "id" | "createdAt" | "updatedAt" | "isActive" | "source" | "scrapedAt"
+    >[],
   ): Promise<void> {
     // 1. Get existing manual entries (to preserve their imageUrl)
     const getManualStmt = this.db.prepare(
       `SELECT LOWER(deck_name) as key, deck_name, image_url FROM tier_list_entries WHERE format = ? AND source = 'manual' AND is_active = 1`,
     );
-    const manualRows = getManualStmt.all(format) as Array<{ key: string; deck_name: string; image_url: string | null }>;
+    const manualRows = getManualStmt.all(format) as Array<{
+      key: string;
+      deck_name: string;
+      image_url: string | null;
+    }>;
     const manualMap = new Map<string, string | null>();
     for (const row of manualRows) {
       manualMap.set(row.key, row.image_url);
     }
-    console.log(`[TierList] Found ${manualMap.size} manual entries to preserve`);
 
     // 2. Delete scraped entries
     const deleteScrapedStmt = this.db.prepare(
@@ -124,7 +155,7 @@ export class SqliteTierListRepository implements TierListRepository {
        WHERE format = ? AND LOWER(deck_name) = ? AND source = 'manual'`,
     );
     // 4. Delete manual entries that fell off the meta
-    const scrapedNames = new Set(entries.map(e => e.deckName.toLowerCase()));
+    const scrapedNames = new Set(entries.map((e) => e.deckName.toLowerCase()));
     const deleteFallenStmt = this.db.prepare(
       `DELETE FROM tier_list_entries WHERE format = ? AND source = 'manual' AND is_active = 1`,
     );
@@ -171,8 +202,6 @@ export class SqliteTierListRepository implements TierListRepository {
           );
         }
       }
-
-      console.log(`[TierList] Preserved ${preservedCount} manual entries, removed ${fallenCount} fallen entries`);
     });
 
     transaction();
@@ -187,7 +216,7 @@ export class SqliteTierListRepository implements TierListRepository {
       format: row.format as string,
       position: row.position as number,
       imageUrl: row.image_url as string | null,
-      source: (row.source as string) as "scraped" | "manual",
+      source: row.source as string as "scraped" | "manual",
       isActive: (row.is_active as number) === 1,
       scrapedAt: row.scraped_at as string | null,
       createdAt: row.created_at as string,

@@ -9,6 +9,7 @@ import type {
   TierListReorderInput,
 } from "../types/tierList.types";
 
+/** Public: fetch tier list entries for display */
 export const fetchTierList = async (format = "masterduel"): Promise<TierListEntry[]> => {
   const res = await axiosClient.get<TierListResponse>("/api/tier-list", {
     params: { format },
@@ -34,6 +35,7 @@ export const updateTierListConfig = async (
   return res.data.config!;
 };
 
+/** Admin: trigger a full scrape (fetch + parse + save images) */
 export const triggerScrape = async (): Promise<TierListEntry[]> => {
   const res = await axiosClient.post<TierListResponse>("/api/tier-list/scrape");
   return res.data.entries ?? [];

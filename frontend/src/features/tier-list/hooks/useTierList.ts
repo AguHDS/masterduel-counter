@@ -8,6 +8,7 @@ import {
   saveTierList,
 } from "../api/tierListApi";
 
+/** Public: fetch tier list with 5min stale time */
 export function useTierList(format = "masterduel") {
   return useQuery({
     queryKey: queryKeys.tierList.entries(format),
@@ -35,6 +36,7 @@ export function useToggleScraping() {
   });
 }
 
+/** Admin: trigger scrape via POST /api/tier-list/scrape */
 export function useTriggerScrape() {
   const queryClient = useQueryClient();
   return useMutation({

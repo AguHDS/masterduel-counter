@@ -140,24 +140,28 @@ export const TierListAdminTab = () => {
     bgGradient: string;
     border: string;
     textColor: string;
+    cardBg: string;
   }> = {
     1: {
       label: "T1",
-      bgGradient: "from-amber-600/40 via-amber-700/30 to-amber-900/40",
-      border: "border-amber-500/30",
-      textColor: "text-amber-300",
+      bgGradient: "from-amber-400/50 via-amber-500/35 to-amber-700/50",
+      border: "border-amber-400/30",
+      textColor: "text-amber-200",
+      cardBg: "from-amber-950/50 via-amber-900/20 to-slate-950/80",
     },
     2: {
       label: "T2",
       bgGradient: "from-slate-500/30 via-slate-600/25 to-slate-800/35",
       border: "border-slate-400/25",
       textColor: "text-slate-300",
+      cardBg: "from-slate-800/40 via-slate-900/20 to-slate-950/80",
     },
     3: {
       label: "T3",
       bgGradient: "from-orange-700/35 via-orange-800/30 to-orange-950/40",
       border: "border-orange-600/25",
       textColor: "text-orange-300",
+      cardBg: "from-orange-950/50 via-orange-900/20 to-slate-950/80",
     },
   };
 
@@ -248,8 +252,7 @@ export const TierListAdminTab = () => {
                     {tierEntries.map((entry) => (
                       <div
                         key={entry.id}
-                        className="relative rounded-lg overflow-hidden shadow-lg shadow-black/50 group border border-slate-600/30"
-                        style={{ background: "linear-gradient(to bottom, #111827, #0b0d14)" }}
+                        className={`relative rounded-lg overflow-hidden shadow-lg shadow-black/50 group border border-slate-600/30 bg-gradient-to-b ${cfg.cardBg}`}
                       >
                         {sourceBadge(entry.source)}
 

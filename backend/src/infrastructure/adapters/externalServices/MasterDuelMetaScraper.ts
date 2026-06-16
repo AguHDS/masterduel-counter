@@ -4,9 +4,11 @@ export interface ScrapedDeck {
   imageUrl: string | null;
 }
 
+/** Parses masterduelmeta.com/tier-list HTML into deck names + tiers */
 export class MasterDuelMetaScraper {
   private readonly url = "https://www.masterduelmeta.com/tier-list";
 
+  // Fetches HTML and returns list of { deckName, tier }
   async scrapeTierList(): Promise<ScrapedDeck[]> {
     const response = await fetch(this.url, {
       headers: {
@@ -27,6 +29,7 @@ export class MasterDuelMetaScraper {
     return decks;
   }
 
+  // Primary parser: splits HTML by <hr> separators within the Power Rankings section
   private parseTierList(html: string): ScrapedDeck[] {
     const decks: ScrapedDeck[] = [];
     const seen = new Set<string>();
@@ -89,6 +92,7 @@ export class MasterDuelMetaScraper {
     return decks;
   }
 
+  // Fallback: finds tier-img-container elements when <hr> separators are absent
   private parseByTierContainers(html: string): ScrapedDeck[] {
     const decks: ScrapedDeck[] = [];
     const seen = new Set<string>();

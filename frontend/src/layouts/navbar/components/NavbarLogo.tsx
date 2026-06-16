@@ -23,7 +23,7 @@ export const NavbarLogo: React.FC = () => {
           onMouseEnter={() => setShowBetaTooltip(true)}
           onMouseLeave={() => setShowBetaTooltip(false)}
         >
-          <span className="max-[420px]:hidden min-[640px]:max-[787px]:hidden px-1.5 py-0.5 text-[0.6rem] sm:text-[0.65rem] font-bold bg-gradient-to-r from-blue-600 to-purple-600/70 text-white rounded-full border border-white/20 tracking-wider whitespace-nowrap">
+          <span className="max-[420px]:hidden min-[640px]:max-[830px]:hidden px-1.5 py-0.5 text-[0.6rem] sm:text-[0.65rem] font-bold bg-gradient-to-r from-blue-600 to-purple-600/70 text-white rounded-full border border-white/20 tracking-wider whitespace-nowrap">
             EARLY ACCESS
           </span>
 

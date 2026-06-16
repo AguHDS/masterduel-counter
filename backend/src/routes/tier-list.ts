@@ -8,11 +8,17 @@ import { reorderTierListController } from "@/http/controllers/tier-list/reorderT
 
 const router = express.Router();
 
+// Public: get the current tier list for display
 router.get("/", getTierListController);
+// Admin: read scraping config (enabled, last scrape time)
 router.get("/config", getTierListConfigController);
+// Admin: toggle auto-scraping on/off
 router.put("/config", updateTierListConfigController);
+// Admin: trigger an immediate scrape
 router.post("/scrape", triggerScrapeController);
+// Admin: bulk-save all entries (full replacement)
 router.post("/save", saveTierListController);
+// Admin: reorder entries within tiers
 router.put("/entries/reorder", reorderTierListController);
 
 export default router;

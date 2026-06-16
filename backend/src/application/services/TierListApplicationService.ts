@@ -33,6 +33,7 @@ export class TierListApplicationService implements TierListApplicationPort {
     return this.tierListRepository.upsertConfig(format, scrapingEnabled);
   }
 
+  /** Scrapes masterduelmeta.com, resolves images (DB-first, then YGOProDeck), syncs manual entries */
   async scrapeAndSave(format: string): Promise<TierListEntry[]> {
     const { MasterDuelMetaScraper } = await import(
       "@/infrastructure/adapters/externalServices/MasterDuelMetaScraper.js"
@@ -65,6 +66,7 @@ export class TierListApplicationService implements TierListApplicationPort {
     return this.tierListRepository.getEntries(format);
   }
 
+  /** Resolves a deck image: findCardsByArchetype -> selectCard (local)-> YGOProDeck API -> selectCard (hotlink save) */
   async resolveImageForDeck(deckName: string): Promise<string | null> {
     try {
       const parts = deckName.split(" ");
