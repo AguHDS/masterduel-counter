@@ -82,8 +82,6 @@ mejoras:
 
 bugs:
 resolviendo:
-- Hacer que cambiar una imagen siempre por default quede vinculada permanentemente al arquetipo. No hay que poner "scarpped" o "Manual" para esto, se puede cambiar su imagen permanentemente incluso si tenemos "scrapped" seleccionado. De esta forma, el select "Manual" solo va a ser usado para cuando se guarde su ranking (tier 1,2, etc). Otro problema: Si cambio el N de tier de un item seleccionado como manual, y scrapeo, se vuelve a poner como estaba originalmente antes de editarlo. Si esta en manual, debe guardar su posicion de ranking que yo habia elegido.
-- Actualmente si borramos una entrada de la tierlist, que hace? vuelve a aparecer en la siguiente scrapeada?
 Necesitamos una nueva tab en el panel de admin para borar/agregar, arquetipos cmo habiamos dicho mas abajo.
 - poner metadata Counter: N Deck: N en cada item de la tierlist
 - En la tierlist, en el caso de Gem-Knights y HERO, no tienen imagenes y es por esta razon:

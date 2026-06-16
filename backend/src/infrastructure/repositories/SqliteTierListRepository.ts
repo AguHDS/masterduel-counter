@@ -123,7 +123,7 @@ export class SqliteTierListRepository implements TierListRepository {
     return Promise.resolve();
   }
 
-  /** Scraper merge: deletes old scraped entries, updates manual entries' tiers, inserts new scraped entries */
+  // Scraper merge: updates scraped entries, skips manual entries, deletes fallen entries (both types)
   replaceScrapedEntries(
     format: string,
     entries: Omit<
@@ -131,68 +131,50 @@ export class SqliteTierListRepository implements TierListRepository {
       "id" | "createdAt" | "updatedAt" | "isActive" | "source" | "scrapedAt"
     >[],
   ): Promise<void> {
-    // 1. Get existing manual entries (to preserve their imageUrl)
-    const getManualStmt = this.db.prepare(
-      `SELECT LOWER(deck_name) as key, deck_name, image_url FROM tier_list_entries WHERE format = ? AND source = 'manual' AND is_active = 1`,
+    const scrapedNames = new Set(entries.map((e) => e.deckName.toLowerCase()));
+
+    const existingStmt = this.db.prepare(
+      `SELECT id, LOWER(deck_name) as key, source FROM tier_list_entries WHERE format = ? AND is_active = 1`,
     );
-    const manualRows = getManualStmt.all(format) as Array<{
+    const existingRows = existingStmt.all(format) as Array<{
+      id: number;
       key: string;
-      deck_name: string;
-      image_url: string | null;
+      source: string;
     }>;
-    const manualMap = new Map<string, string | null>();
-    for (const row of manualRows) {
-      manualMap.set(row.key, row.image_url);
+    const existingMap = new Map<string, { id: number; source: string }>();
+    for (const row of existingRows) {
+      existingMap.set(row.key, { id: row.id, source: row.source });
     }
 
-    // 2. Delete scraped entries
-    const deleteScrapedStmt = this.db.prepare(
-      `DELETE FROM tier_list_entries WHERE format = ? AND source = 'scraped'`,
-    );
-    // 3. Update manual entries that match scraped decks (tier follows meta, image preserved)
-    const updateManualStmt = this.db.prepare(
+    const updateScrapedStmt = this.db.prepare(
       `UPDATE tier_list_entries SET tier = ?, position = ?, scraped_at = datetime('now'), updated_at = datetime('now')
-       WHERE format = ? AND LOWER(deck_name) = ? AND source = 'manual'`,
+       WHERE format = ? AND LOWER(deck_name) = ? AND source = 'scraped'`,
     );
-    // 4. Delete manual entries that fell off the meta
-    const scrapedNames = new Set(entries.map((e) => e.deckName.toLowerCase()));
-    const deleteFallenStmt = this.db.prepare(
-      `DELETE FROM tier_list_entries WHERE format = ? AND source = 'manual' AND is_active = 1`,
-    );
-    // 5. Insert new scraped entries
     const insertStmt = this.db.prepare(
       `INSERT INTO tier_list_entries (deck_name, tier, format, position, image_url, source, is_active, scraped_at, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, 'scraped', 1, datetime('now'), datetime('now'), datetime('now'))`,
     );
+    const deleteFallenStmt = this.db.prepare(
+      `DELETE FROM tier_list_entries WHERE format = ? AND is_active = 1 AND LOWER(deck_name) = ?`,
+    );
 
     const transaction = this.db.transaction(() => {
-      deleteScrapedStmt.run(format);
+      let updatedCount = 0;
+      let insertedCount = 0;
+      let skippedManual = 0;
 
-      let preservedCount = 0;
-      let fallenCount = 0;
-
-      // Update manual entries that still exist in the scrape
       for (const entry of entries) {
         const key = entry.deckName.toLowerCase();
-        if (manualMap.has(key)) {
-          updateManualStmt.run(entry.tier, entry.position, format, key);
-          preservedCount++;
-        }
-      }
+        const existing = existingMap.get(key);
 
-      // Delete manual entries not in this scrape (fell off meta)
-      const manualKeys = Array.from(manualMap.keys());
-      for (const manualKey of manualKeys) {
-        if (!scrapedNames.has(manualKey)) {
-          deleteFallenStmt.run(format, manualKey);
-          fallenCount++;
-        }
-      }
-
-      // Insert new scraped entries (including those that were manual — manual entries are UPDATE, not INSERT)
-      for (const entry of entries) {
-        // Only insert as scraped if NOT already handled as manual
-        if (!manualMap.has(entry.deckName.toLowerCase())) {
+        if (existing) {
+          if (existing.source === "manual") {
+            skippedManual++;
+          } else {
+            updateScrapedStmt.run(entry.tier, entry.position, format, key);
+            updatedCount++;
+          }
+        } else {
           insertStmt.run(
             entry.deckName,
             entry.tier,
@@ -200,6 +182,15 @@ export class SqliteTierListRepository implements TierListRepository {
             entry.position,
             entry.imageUrl ?? null,
           );
+          insertedCount++;
+        }
+      }
+
+      let fallenCount = 0;
+      for (const [key] of existingMap) {
+        if (!scrapedNames.has(key)) {
+          deleteFallenStmt.run(format, key);
+          fallenCount++;
         }
       }
     });
