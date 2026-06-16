@@ -92,4 +92,10 @@ export const queryKeys = {
     list: () => [...queryKeys.latestUpdates.all, "list"] as const,
     detail: (id: number) => [...queryKeys.latestUpdates.all, "detail", id] as const,
   },
+
+  tierList: {
+    all: ["tierList"] as const,
+    entries: (format: string) => [...queryKeys.tierList.all, "entries", format] as const,
+    config: (format: string) => [...queryKeys.tierList.all, "config", format] as const,
+  },
 } as const;

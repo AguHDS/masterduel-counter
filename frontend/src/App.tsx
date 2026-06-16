@@ -16,6 +16,7 @@ import NotFound from "./shared/components/NotFound";
 import { SupportPage } from "./pages/SupportPage";
 import { useAnalyticsPageTracking } from "./shared/hooks/useAnalyticsPageTracking";
 import { CardsPage } from "./features/cards";
+import { TierListPage } from "./features/tier-list/components/TierListPage";
 
 /**
  * Component that renders all routes and tracks automatically
@@ -28,6 +29,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/tierlist" element={<TierListPage />} />
       <Route path="/support" element={<SupportPage />} />
       <Route path="/cards" element={<CardsPage />} />
       {/** Global guide lists with specific types */}

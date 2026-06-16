@@ -76,6 +76,10 @@ import { LatestUpdateApplicationService } from "@/application/services/LatestUpd
 import { GuideRequestApplicationPort } from "@/application/ports/GuideRequestApplicationPort.js";
 import { SqliteGuideRequestRepository } from "@/infrastructure/repositories/SqliteGuideRequestRepository.js";
 import { GuideRequestApplicationService } from "@/application/services/GuideRequestApplicationService.js";
+import { TierListApplicationPort } from "@/application/ports/TierListApplicationPort.js";
+import { TierListApplicationService } from "@/application/services/TierListApplicationService.js";
+import { TierListRepository } from "@/domain/ports/TierListRepository.js";
+import { SqliteTierListRepository } from "@/infrastructure/repositories/SqliteTierListRepository.js";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -119,6 +123,8 @@ export class Dependencies {
   private guideRequestService: GuideRequestApplicationPort | null = null;
   private latestUpdateRepository: LatestUpdateRepository | null = null;
   private latestUpdateService: LatestUpdateApplicationPort | null = null;
+  private tierListRepository: TierListRepository | null = null;
+  private tierListService: TierListApplicationPort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -471,6 +477,27 @@ export class Dependencies {
       );
     }
     return this.latestUpdateService;
+  }
+
+  getTierListRepository(): TierListRepository {
+    if (!this.tierListRepository) {
+      this.tierListRepository = new SqliteTierListRepository(
+        this.database.getConnection(),
+      );
+    }
+    return this.tierListRepository;
+  }
+
+  getTierListService(): TierListApplicationPort {
+    if (!this.tierListService) {
+      this.tierListService = new TierListApplicationService(
+        this.getTierListRepository(),
+        this.getCardRepository(),
+        this.getCardApiService(),
+        this.getCardService(),
+      );
+    }
+    return this.tierListService;
   }
 
   getPrismaClient(): PrismaClient {

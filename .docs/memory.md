@@ -61,7 +61,7 @@ Cada usuario tiene un perfil público que muestra su información y sus guías c
 # Stack:
 betterauth, better-sqlite3, prisma, cloudinary (para fotos de perfil), react, tanstack query, axios, node y typescript. (leer package.json en /frontend y /backend para mas detalles)
 
-# Arquitectura de mi monorepo:
+# Arquitectura del monorepo (Puede estar un poco desactualizada, pero el contexto se entiende):
 Backend - Hexagonal Architecture:
 backend\src\index.ts - punto de entrada del backend
 backend\prisma\schema.prisma - prisma schema (guideType: COUNTER/DECK, InitialHand model)
@@ -156,12 +156,28 @@ frontend\src\features\guide-request -> usuarios pueden crear solicitudes de guí
 - Modo resiliente: continúa si alguna imagen falla (tokens sin _cropped.jpg)
 - NO guarda en DB, solo archivos físicos
 - Ejecutar en VPS antes de producción (detener backend con `pm2 stop all`)
+- Flag `--delay <ms>`: delay entre cartas. Default 0ms (local). Usar `--delay 250` en VPS con poca RAM.
+- Flag `--limit <n>`: descargar solo N cartas para testing.
 
 **Lazy-loading** (`selectCard()`):
 - Cuando usuario selecciona cartas al crear una guia y guarda la guia → descarga imágenes + guarda en DB
 - Cartas nuevas se descargan automáticamente on-demand
 
 **Resultado:** ~98-99% de búsquedas usan VPS, 1-2% usan hotlinks (cartas nuevas), latencia reducida 3-5x.
+
+## Hotlinking vs Storage Local
+
+**Filosofia**: Siempre que sea posible, las imagenes de cartas deben servirse desde nuestro storage local (DB + filesystem). El hotlinking directo a YGOProDeck (`https://images.ygoprodeck.com/...`) es un **fallback de ultimo recurso**.
+
+**Orden de prioridad para cualquier feature que necesite imagenes de cartas:**
+
+1. **Buscar en DB local** (`cards` table via `CardRepository`): Si la carta existe en nuestra DB, usar `imageUrlCropped` local. Esto cubre todas las cartas que alguna vez se usaron en guias.
+2. **Buscar en filesystem** (`uploads/cards/`): Si la carta no esta en DB pero fue descargada por el script masivo (~14,000 cartas), verificar existencia del archivo y usar URL local.
+3. **Hotlink a YGOProDeck**: Solo si la carta no existe localmente ni en DB ni en filesystem, usar la URL externa de YGOProDeck como fallback.
+
+**Nuevas features deben seguir esta prioridad**: DB local → filesystem -> hotlink. No se debe hacer hotlinking directo sin antes verificar nuestro storage.
+
+**Ejemplo - Tier List feature**: `resolveImageForDeck()` busca en DB via `findCardsByArchetype()`, llama a `selectCard()` para garantizar que las imagenes existan en disco, y solo hace hotlink como ultimo recurso.
 
 ## Rate limiting
 Usamos rate limiting en el backend de nuestro proyecto (mas flexible, no con nginx), y usamos memory store (se reinicia cada vez que se reinicia el backend). Puedes ver parte de la implementacion en backend\src\index.ts si necesitas trabajar con esto.
@@ -272,7 +288,8 @@ Esto crea las tablas en `test.db`. Repetir si cambia el schema de Prisma.
 - No dejar codigo muerto
 - No exportar cosas que no se usen fuera
 - Correr npm run lint en backend y frontend para ver si hay errores a arreglar
-- No hacer unit test de repositorios aislados (capa HTTP ya los cubre indirectamente)
+- No hacer unit test de repositorios aislados (backend) (capa HTTP ya los cubre indirectamente)
+- No correr tests, los hago yo manualmente.
 - No correr comandos tipo npx prisma generate o npx prisma db push, lo hare yo manualmente para evitar crasheos.
 - No crear migraciones, ya que soy un unico deb y me manejo con npx prisma db push o npx prisma generate.
 - Si agregas nuevos tests de integración, seguí el patrón de los existentes: beforeAll crea fixtures (arquetipos, cards), beforeEach limpia en orden FK-safe, helpers registerAndLogin + createGuide.

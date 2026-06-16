@@ -32,7 +32,23 @@ cd /var/www/masterduel-counter/backend
 pm2 stop masterduel-backend
 npm run generate-thumbnails:prod
 pm2 start masterduel-backend
-# Nota: Los thumbnails se generan automáticamente on-demand si no se pre-generan
+# Nota: Los thumbnails se generan automaticamente on-demand si no se pre-generan
+
+## Descargar imagenes de cartas (Opcional)
+# Descarga ~14,000 imagenes de YGOProDeck al filesystem (uploads/cards/)
+# Sin delay (local PC): npm run download-all-cards
+# Con delay 250ms (VPS con poca RAM): usar --delay 250
+# Con limite para testear: --limit 100
+cd /var/www/masterduel-counter/backend
+pm2 stop masterduel-backend
+npm run download-all-cards -- --delay 250
+pm2 start masterduel-backend
+# Tiempo estimado sin delay: ~30-60 min (depende de internet)
+# Tiempo estimado con delay 250ms: ~3-4 horas
+# Importante: Este comando solo guarda archivos en disco (uploads/cards/).
+# No guarda metadata en la tabla "cards" de la DB.
+# Las cartas se agregan a la DB automaticamente cuando un usuario
+# las usa en una guia (via selectCard/confirmCards).
 
 ## Reiniciar DB
 

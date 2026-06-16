@@ -57,10 +57,6 @@ en la guias del lista de perfil, hacer borders y background azul para guias deck
 
 ---
 
-copiar la tierlist como la hacen en el honkai
-
----
-
 Solo he puesto rate limiter al login y reporte, porque me daba problemas cuando le ponia rate limiter a cosas como visitas en las guias y cosas repetitivas. Si es riesgoso no hacerlo fijarse de implementarlo cuidadosamente en cada operacion que sea un target facil de ataques.
 
 ---
@@ -85,4 +81,19 @@ mejoras:
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
 
 bugs:
-Resolviendo:
+resolviendo:
+- Poner comentarios de 1 linea explicando que hace cada parte clave (especialmente arriba de las funciones) en backend\src\application\ports\TierListApplicationPort.ts, backend\src\services\tierListScraperService.ts, backend\src\application\services\TierListApplicationService.ts, backend\src\domain\ports\TierListRepository.ts, backend\src\infrastructure\adapters\externalServices\MasterDuelMetaScraper.ts, backend\src\infrastructure\repositories\SqliteTierListRepository.ts, backend\src\routes\tier-list.ts, backend\src\services\tierListScraperService.ts, frontend\src\features\tier-list\api\tierListApi.ts, frontend\src\features\tier-list\components\TierCard.tsx, frontend\src\features\tier-list\hooks\useTierList.ts, 
+- Cuando el width esa 1207, pasar al modo sin texto en los items de la navbar (actuamente se hace a 1137)
+- El color de la tier 1 debe ser mas dorado, el de la tier. Agregar una especie de background (no tan notorio) de su color de tier en el background donde esta cada item.
+- Hacer que cambiar una imagen siempre por default quede vinculada permanentemente al arquetipo. No hay que poner "scarpped" o "Manual" para esto, se puede cambiar su imagen permanentemente incluso si tenemos "scrapped" seleccionado. De esta forma, el select "Manual" solo va a ser usado para cuando se guarde su ranking (tier 1,2, etc). Otro problema: Si cambio el N de tier de un item seleccionado como manual, y scrapeo, se vuelve a poner como estaba originalmente antes de editarlo. Si esta en manual, debe guardar su posicion de ranking que yo habia elegido.
+- Actualmente si borramos una entrada de la tierlist, que hace? vuelve a aparecer en la siguiente scrapeada?
+Necesitamos una nueva tab en el panel de admin para borar/agregar, arquetipos cmo habiamos dicho mas abajo.
+- poner metadata Counter: N Deck: N en cada item de la tierlist
+- En la tierlist, en el caso de Gem-Knights y HERO, no tienen imagenes y es por esta razon:
+Al clickear esos items, dice "Archetype not found". Con respecto a HERO, es porque el item aparece como HEROS, pero en mi app el arquetipo se llama HERO. Fijarse que hacer en este caso.
+- El arquetipo Gem-Knights, no existe en mi app, por que? quiza no se descargo de ygoprodeck? o no lo tienen a ese arquetipo?
+- Funcionalidad para eliminar de mi app un arquetipo especifico, porque por ejemplo el arquetipo HERO tiene varias variantes de arquetipos: Destiny Hero, Evil Hero, etc... Solo deberia haber un arquetipo y sus variantes no debrian ser otras instancias de este.
+Quiza, con una funcionalidad de remover arquetipos especificos desde el admin pannel, pueda solucionar este problema, y extendiendo esta funcionalidad para agregar arquetipos, puedo agregar el que falta y solucionar el problema de Gem-Knights.
+Nota: He corrido el comando npm run populate-archetypes pero aun asi no agrega los faltantes. O el script esta mal, o por alguna razon la api de ygoprodeck no me consigue este arquetipo.
+- Agregar un info help de como funciona el scrapper y manual de la tierlist, y el sistema de scrapping en el admin panel asi los admins saben como editar la tierlist en el admin pannel. Debe ser una explicacion breve y directa, ya que no es demasiada informaicon.
+- Una vez funcione todo bien, agregar tierlist TCG y OCG. El titulo Tierlist debe cambiar dinamicamente a Tierlist Masterduel/TCG/OCG dependiendo de cual este seleccionada. Por default es Masterduel 

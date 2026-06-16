@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   Crown,
   Inbox,
-  Layers,
   LogIn,
   UserPlus,
   LogOut,
@@ -127,11 +126,18 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
       <div className="flex flex-col space-y-3">
         <div className="space-y-2">
           <Link
+            to="/tierlist"
+            onClick={onClose}
+            className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 py-2 w-full text-left"
+          >
+            <span>TIER LIST</span>
+          </Link>
+
+          <Link
             to="/cards"
             onClick={onClose}
             className="flex items-center gap-2 text-[#c2901c] text-sm font-medium hover:opacity-80 py-2 w-full text-left"
           >
-            <Layers className="h-4 w-4" />
             <span>CARDS</span>
           </Link>
 

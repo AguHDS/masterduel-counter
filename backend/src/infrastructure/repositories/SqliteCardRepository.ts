@@ -92,6 +92,15 @@ export class SqliteCardRepository implements CardRepository {
     return rows.map(this.mapRowToCard);
   }
 
+  /** Find cards by archetype name */
+  async findCardsByArchetype(archetype: string): Promise<Card[]> {
+    const stmt = this.db.prepare(
+      `SELECT * FROM cards WHERE archetype LIKE ? LIMIT 5`,
+    );
+    const rows = stmt.all(`%${archetype}%`) as unknown[];
+    return rows.map(this.mapRowToCard);
+  }
+
   private mapRowToCard(row: unknown): Card {
     const r = row as {
       id: number;

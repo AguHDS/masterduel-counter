@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
-import { Crown, Inbox, Layers, LogIn, UserPlus, Shield } from "lucide-react";
+import { Crown, Inbox, Layers, LogIn, UserPlus, Shield, Swords } from "lucide-react";
 import { GuideRequestNavbarPopup } from "@/features/guide-request";
 import { NotificationBell, NotificationPopup } from "@/features/notifications";
 import { RankingPopup } from "@/features/ranking/components/RankingPopup";
@@ -51,7 +51,15 @@ export const NavbarTabletNav: React.FC<NavbarTabletNavProps> = ({
   const rankingButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="hidden sm:flex min-[1100px]:hidden items-center gap-3 absolute right-8 top-1/2 -translate-y-1/2">
+    <div className="hidden sm:flex min-[1138px]:hidden items-center gap-3 absolute right-8 top-1/2 -translate-y-1/2">
+      <Link
+        to="/tierlist"
+        className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"
+        aria-label="View tier list"
+      >
+        <Swords className="w-5 h-5 text-[#c2901c]" />
+      </Link>
+
       <Link
         to="/cards"
         className="p-2 hover:bg-[#c2901c]/10 rounded-lg transition-colors group relative"
