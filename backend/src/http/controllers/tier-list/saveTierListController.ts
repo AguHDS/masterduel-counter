@@ -15,10 +15,10 @@ export const saveTierListController = async (req: Request, res: Response) => {
     }
 
     for (const entry of entries) {
-      if (!entry.deckName || typeof entry.tier !== "number" || entry.tier < 1 || entry.tier > 3) {
+      if (!entry.deckName || typeof entry.tier !== "number" || entry.tier < 0) {
         res.status(400).json({
           success: false,
-          message: "Each entry must have deckName and tier (1-3)",
+          message: "Each entry must have deckName and tier (>= 0)",
         });
         return;
       }
@@ -27,13 +27,15 @@ export const saveTierListController = async (req: Request, res: Response) => {
     const deps = getDependencies();
     const service = deps.getTierListService();
     await service.saveEntries(format, {
-      entries: entries.map((e: { id?: number; deckName: string; tier: number; position: number; imageUrl: string | null; source: string }, index: number) => ({
+      entries: entries.map((e: { id?: number; deckName: string; tier: number; position: number; imageUrl: string | null; source: string; linkedArchetypeId?: number | null; linkedArchetypeName?: string | null }, index: number) => ({
         id: e.id,
         deckName: e.deckName,
         tier: e.tier,
         position: e.position ?? index,
         imageUrl: e.imageUrl ?? null,
         source: (e.source === "scraped" || e.source === "manual" ? e.source : "manual"),
+        linkedArchetypeId: e.linkedArchetypeId ?? null,
+        linkedArchetypeName: e.linkedArchetypeName ?? null,
       })),
     });
 

@@ -1,4 +1,4 @@
-import { Users, AlertCircle, BarChart, Newspaper, Swords } from "lucide-react";
+import { Users, AlertCircle, BarChart, Newspaper, Swords, Library } from "lucide-react";
 import type { AdminTab } from "../types/adminPanelTypes";
 
 interface TabNavigationProps {
@@ -16,6 +16,7 @@ export const TabNavigation = ({
     { id: "tracking" as AdminTab, label: "Tracking", icon: BarChart },
     { id: "latest-updates" as AdminTab, label: "Latest Updates", icon: Newspaper },
     { id: "tier-list" as AdminTab, label: "Tier List", icon: Swords },
+    { id: "archetypes" as AdminTab, label: "Archetypes", icon: Library },
   ];
 
   return (

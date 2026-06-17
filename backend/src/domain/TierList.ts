@@ -7,6 +7,10 @@ export interface TierListEntry {
   imageUrl: string | null;
   source: "scraped" | "manual";
   isActive: boolean;
+  linkedArchetypeId: number | null;
+  linkedArchetypeName: string | null;
+  counterGuideCount: number;
+  deckGuideCount: number;
   scrapedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -28,5 +32,7 @@ export interface TierListSaveInput {
     position: number;
     imageUrl: string | null;
     source: "scraped" | "manual";
+    linkedArchetypeId?: number | null;
+    linkedArchetypeName?: string | null;
   }[];
 }

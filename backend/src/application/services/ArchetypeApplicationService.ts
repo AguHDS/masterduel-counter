@@ -84,4 +84,22 @@ export class ArchetypeApplicationService implements ArchetypeApplicationPort {
   async getGuidesGeneralStats(limit: number = 15, guideType?: 'COUNTER' | 'DECK'): Promise<import("@/domain/ports/ArchetypeRepository.js").GeneralStats> {
     return this.repository.getGuidesGeneralStats(limit, guideType);
   }
+
+  /** Get all archetypes for admin pannel */
+  async getAllArchetypes(search?: string): Promise<Archetype[]> {
+    if (search && search.trim()) {
+      return this.repository.searchArchetypeByName(search.trim(), 100);
+    }
+    return this.repository.findAllRegisteredArchetypes("recent");
+  }
+
+  /** Create a new archetype - for admin pannel */
+  async createArchetype(name: string): Promise<Archetype | null> {
+    return this.repository.createArchetype(name);
+  }
+
+  /** Deletes an archetype from our system - Admin Pannel */
+  async deleteArchetype(id: number): Promise<boolean> {
+    return this.repository.deleteArchetype(id);
+  }
 }

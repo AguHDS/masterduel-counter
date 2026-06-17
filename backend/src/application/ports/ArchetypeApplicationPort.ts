@@ -18,4 +18,10 @@ export interface ArchetypeApplicationPort {
    * @returns General statistics including total archetypes, guides, and top archetypes
    */
   getGuidesGeneralStats(limit?: number, guideType?: 'COUNTER' | 'DECK'): Promise<GeneralStats>;
+  /** For adin pannel */
+  getAllArchetypes(search?: string): Promise<Archetype[]>;
+  /** For adin pannel */
+  createArchetype(name: string): Promise<Archetype | null>;
+  /** For adin pannel */
+  deleteArchetype(id: number): Promise<boolean>;
 }

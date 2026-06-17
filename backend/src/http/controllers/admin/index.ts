@@ -12,3 +12,6 @@ export { searchUsersController } from "./searchUsersController.js";
 export { unbanUserController } from "./unbanUserController.js";
 export { getTotalUsersController } from "./getTotalUsersController.js";
 export { getAllUsersController } from "./getAllUsersController.js";
+export { getArchetypesAdminController } from "./getArchetypesAdminController.js";
+export { createArchetypeAdminController } from "./createArchetypeAdminController.js";
+export { deleteArchetypeAdminController } from "./deleteArchetypeAdminController.js";

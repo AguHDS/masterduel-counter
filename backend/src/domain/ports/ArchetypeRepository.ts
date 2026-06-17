@@ -38,6 +38,8 @@ export interface ArchetypeRepository {
   ): Promise<Archetype | null>;
   /** Create new archetype (used to add on demand) */
   createArchetype(name: string): Promise<Archetype | null>;
+  /** Delete archetype by ID. Returns false if archetype has guides. */
+  deleteArchetype(id: number): Promise<boolean>;
   /** Get general statistics */
   getGuidesGeneralStats(limit?: number, guideType?: 'COUNTER' | 'DECK'): Promise<GeneralStats>;
 }

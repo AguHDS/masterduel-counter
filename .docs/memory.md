@@ -118,6 +118,8 @@ frontend\src\features\registered-archetypes -> lista de arquetipos con al menos 
 frontend\src\features\profile -> perfil de usuario. Refactorizada en junio 2026: componentes separados en ProfileLeftSidebar, ProfileTabBar, ProfileRightSidebar. ProfilePage.tsx es el orquestador (~490 líneas).
 frontend\src\features\ranking -> trending mensual y all-time de guías y usuarios. Muestra top 15 guías y top 15 usuarios.
 frontend\src\features\guide-request -> usuarios pueden crear solicitudes de guías. Otros usuarios pueden tomarlas y cumplirlas (+1 en Completed Requests stat).
+frontend\src\features\tier-list -> tier list de decks meta (Master Duel). Ver `.docs/tierlist.md`.
+frontend\src\features\admin-panel -> panel de administracion con tabs: Manage Accounts, Reports, Tracking, Latest Updates, Tier List, Archetypes.
 
 # Features del backend importantes:
 - **Guides**: CRUD de guías COUNTER/DECK. Drafts (máx 3 por usuario). Likes/favorites (máx 20 para rol user, ilimitado admin/supporter). Views con cooldown 12h.
@@ -127,7 +129,8 @@ frontend\src\features\guide-request -> usuarios pueden crear solicitudes de guí
 - **Guide Requests**: Usuarios (anónimos o autenticados) crean requests. Otros las toman (7 días para cumplir) y las cumplen linkeando una guía. +1 al stat de Completed Requests del cumplidor.
 - **Ranking**: All-time (stats totales) y Trending (stats del mes actual). Snapshots mensuales guardados en MonthlyGuideRanking y MonthlyUserRanking. Score = likes*10 + favs*7 + views*0.1. Requisitos mínimos para trending: guías necesitan 1 like/fav o 50 views; usuarios 1 like/fav o 25 views o 1 request cumplida.
 - **Cards**: Búsqueda, selección, confirmación, detalles. Cache local (DB + filesystem) con fallback a YGOProDeck API.
-- **Archetypes**: Búsqueda, registro (marcados como registered cuando tienen guías), stats.
+- **Archetypes**: Búsqueda, registro (marcados como registered cuando tienen guías), stats. Admin puede crear/eliminar archetypes (tab Archetypes en admin panel).
+- **Tier List**: Scraping de masterduelmeta.com cada 12h. Muestra decks meta en tiers 1/2/3. Linking de entries a archetypes de la DB. Soft-delete + auto-reset. Imagenes resueltas via selectCard (DB local) → YGOProDeck (hotlink fallback). Ver `.docs/tierlist.md`.
 
 # Como funciona nuestro sistema de almacenamiento de imágenes de cartas:
 

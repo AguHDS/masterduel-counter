@@ -12,6 +12,12 @@ const tierConfig: Record<number, {
   borderColor: string;
   textColor: string;
 }> = {
+  0: {
+    label: "T0",
+    bgGradient: "from-sky-400/50 via-violet-400/35 to-violet-700/50",
+    borderColor: "border-sky-400/30",
+    textColor: "text-sky-200",
+  },
   1: {
     label: "T1",
     bgGradient: "from-amber-400/50 via-amber-500/35 to-amber-700/50",

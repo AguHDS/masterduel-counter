@@ -57,16 +57,19 @@ export class MasterDuelMetaScraper {
       hrPositions.push(hrMatch.index);
     }
 
-    if (hrPositions.length < 2) {
+    if (hrPositions.length < 1) {
       return this.parseByTierContainers(html);
     }
 
-    // Define segments: before first hr = Tier 1, between hr[0] and hr[1] = Tier 2, after hr[1] = Tier 3
-    const segments = [
-      { start: 0, end: hrPositions[0], tier: 1 },
-      { start: hrPositions[0], end: hrPositions[1], tier: 2 },
-      { start: hrPositions[1], end: scopeHtml.length, tier: 3 },
-    ];
+    // Dynamic segments: each <hr> separates a tier (first section = Tier 0, etc.)
+    const segments: { start: number; end: number; tier: number }[] = [];
+    for (let i = 0; i <= hrPositions.length; i++) {
+      segments.push({
+        start: i === 0 ? 0 : hrPositions[i - 1],
+        end: i < hrPositions.length ? hrPositions[i] : scopeHtml.length,
+        tier: i + 1,
+      });
+    }
 
     const deckLinkRegex = /\/tier-list\/deck-types\/([^"]+)/gi;
 
@@ -111,7 +114,7 @@ export class MasterDuelMetaScraper {
 
     const deckLinkRegex = /\/tier-list\/deck-types\/([^"]+)/gi;
 
-    for (let i = 0; i < containerPositions.length && i < 3; i++) {
+    for (let i = 0; i < containerPositions.length; i++) {
       const tier = i + 1;
       const startPos = containerPositions[i];
       const endPos =

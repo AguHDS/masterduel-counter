@@ -1,20 +1,40 @@
+import { useState, useRef, useEffect } from "react";
 import { useTierList, useTriggerScrape } from "../hooks/useTierList";
 import { TierSection } from "../components/TierSection";
 import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { useAuth } from "@/features/auth";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ChevronDown } from "lucide-react";
 import MDCBackground from "@/assets/HomeAllPages_Background2.webp";
 
-/** Page to display Tierlist */
+type TierListFormat = "masterduel" | "tcg" | "ocg";
+
+const FORMATS: { key: TierListFormat; label: string }[] = [
+  { key: "masterduel", label: "Master Duel" },
+  { key: "tcg", label: "TCG" },
+  { key: "ocg", label: "OCG" },
+];
+
 export const TierListPage = () => {
-  const { data: entries = [], isLoading, isError } = useTierList("masterduel");
+  const [format, setFormat] = useState<TierListFormat>("masterduel");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { data: entries = [], isLoading, isError } = useTierList(format);
   const { user } = useAuth();
   const triggerScrape = useTriggerScrape();
   const isAdmin = user?.role === "admin";
 
-  const tier1 = entries.filter((e) => e.tier === 1 && e.isActive);
-  const tier2 = entries.filter((e) => e.tier === 2 && e.isActive);
-  const tier3 = entries.filter((e) => e.tier === 3 && e.isActive);
+  const tiers = [...new Set(entries.map((e) => e.tier))].sort((a, b) => a - b);
+  const currentLabel = FORMATS.find((f) => f.key === format)?.label ?? "Master Duel";
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleScrape = () => {
     triggerScrape.mutate();
@@ -44,9 +64,44 @@ export const TierListPage = () => {
             <div className="mb-8">
               <div className="flex items-center gap-4 mb-1">
                 <div className="flex-1 hidden sm:block h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-                <h1 className="text-3xl sm:text-4xl font-black tracking-[0.15em] uppercase bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent whitespace-nowrap">
-                  Tier List
-                </h1>
+                <div ref={dropdownRef} className="relative">
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="flex items-center gap-2 group"
+                  >
+                    <h1 className="text-3xl sm:text-4xl font-black tracking-[0.15em] uppercase bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent whitespace-nowrap">
+                      {currentLabel}
+                    </h1>
+                    <ChevronDown
+                      className={`w-5 h-5 text-amber-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  <div
+                    className={`absolute top-full mt-2 right-0 z-50 min-w-[160px] bg-[#1f1a24] border border-amber-500/30 rounded-lg shadow-xl shadow-black/50 overflow-hidden transition-all duration-200 origin-top ${
+                      dropdownOpen
+                        ? "opacity-100 scale-y-100"
+                        : "opacity-0 scale-y-95 pointer-events-none"
+                    }`}
+                  >
+                    {FORMATS.map((f) => (
+                      <button
+                        key={f.key}
+                        onClick={() => {
+                          setFormat(f.key);
+                          setDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                          format === f.key
+                            ? "bg-amber-500/15 text-amber-300 font-semibold"
+                            : "text-slate-300 hover:bg-slate-700/50 hover:text-amber-200"
+                        }`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div className="flex-1 hidden sm:block h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
               </div>
             </div>
@@ -65,28 +120,37 @@ export const TierListPage = () => {
 
             {!isLoading && !isError && entries.length === 0 && (
               <div className="bg-slate-800/40 border border-slate-600/30 rounded-lg p-12 text-center">
-                <p className="text-slate-400 text-lg">No tier list data available yet.</p>
-                {scrapeError && (
-                  <p className="text-red-400 text-sm mt-2">Error: {scrapeError}</p>
-                )}
-                {isAdmin && (
-                  <button
-                    onClick={handleScrape}
-                    disabled={triggerScrape.isPending}
-                    className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600/80 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors"
-                  >
-                    <RefreshCw className={`w-4 h-4 ${triggerScrape.isPending ? "animate-spin" : ""}`} />
-                    {triggerScrape.isPending ? "Scraping..." : "Scrape Now"}
-                  </button>
+                {format === "masterduel" ? (
+                  <>
+                    <p className="text-slate-400 text-lg">No tier list data available yet.</p>
+                    {scrapeError && (
+                      <p className="text-red-400 text-sm mt-2">Error: {scrapeError}</p>
+                    )}
+                    {isAdmin && (
+                      <button
+                        onClick={handleScrape}
+                        disabled={triggerScrape.isPending}
+                        className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600/80 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${triggerScrape.isPending ? "animate-spin" : ""}`} />
+                        {triggerScrape.isPending ? "Scraping..." : "Scrape Now"}
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-slate-400 text-lg">
+                    No data available yet for {currentLabel}.
+                  </p>
                 )}
               </div>
             )}
 
             {!isLoading && !isError && entries.length > 0 && (
               <div className="border border-slate-500/20 rounded-xl overflow-hidden bg-black/30">
-                <TierSection tier={1} entries={tier1} />
-                <TierSection tier={2} entries={tier2} />
-                <TierSection tier={3} entries={tier3} />
+                {tiers.map((tier) => {
+                  const tierEntries = entries.filter((e) => e.tier === tier && e.isActive);
+                  return <TierSection key={tier} tier={tier} entries={tierEntries} />;
+                })}
               </div>
             )}
           </div>

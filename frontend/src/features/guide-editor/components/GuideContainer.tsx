@@ -135,7 +135,9 @@ export const GuideContainer = ({
 
   const isOwner =
     isAuthenticated &&
-    (isCreatingNew || user?.id === guideInstanceData?.instance.userId);
+    (isCreatingNew
+      ? !guideInstanceData || user?.id === guideInstanceData?.instance.userId
+      : user?.id === guideInstanceData?.instance.userId);
 
   const isAdmin = user?.role === "admin";
   const isDraft = guideInstanceData?.instance.isDraft ?? false;

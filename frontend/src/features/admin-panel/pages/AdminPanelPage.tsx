@@ -9,6 +9,7 @@ import { ReportsTab } from "../components/ReportsTab";
 import { TrackingTab } from "../components/TrackingTab";
 import { AdminLatestUpdatesTab } from "@/features/latest-updates/components/AdminLatestUpdatesTab";
 import { TierListAdminTab } from "@/features/tier-list/components/TierListAdminTab";
+import { AdminArchetypesTab } from "../components/AdminArchetypesTab";
 import type { AdminTab } from "../types/adminPanelTypes";
 
 export const AdminPanelPage = () => {
@@ -82,6 +83,7 @@ export const AdminPanelPage = () => {
                 )}                {activeTab === "tracking" && <TrackingTab />}
                 {activeTab === "latest-updates" && <AdminLatestUpdatesTab />}
                 {activeTab === "tier-list" && <TierListAdminTab />}
+                {activeTab === "archetypes" && <AdminArchetypesTab />}
               </>
             )}
           </div>

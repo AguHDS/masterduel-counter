@@ -188,6 +188,20 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
     }
   }
 
+  /** Delete archetype from the system (admin pannel) */
+  async deleteArchetype(id: number): Promise<boolean> {
+    // Check for associated guides first
+    const checkStmt = this.db.prepare(
+      `SELECT COUNT(*) as count FROM archetype_instances WHERE archetype_id = ?`,
+    );
+    const { count } = checkStmt.get(id) as { count: number };
+    if (count > 0) return false;
+
+    const stmt = this.db.prepare(`DELETE FROM archetypes WHERE id = ?`);
+    const result = stmt.run(id);
+    return result.changes > 0;
+  }
+
   async getGuidesGeneralStats(limit: number = 15, guideType?: 'COUNTER' | 'DECK'): Promise<GeneralStats> {
     // Get total registered archetypes (with guides of the specified type if provided)
     let totalArchetypesQuery = `

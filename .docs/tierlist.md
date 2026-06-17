@@ -8,20 +8,26 @@ Feature que muestra una tier list de decks meta del momento para Yu-Gi-Oh! Maste
 
 ### Scraping
 
-Un cron job (cada 12h) ejecuta `MasterDuelMetaScraper` que:
-1. Fetch HTML de `https://www.masterduelmeta.com/tier-list#power-rankings`
-2. Parsea las secciones de tier usando `<hr>` tags como separadores entre tier 1/2/3
-3. Extrae nombres de decks de los links `/tier-list/deck-types/...`
-4. Reemplaza entries con `source="scraped"` en la DB
-5. Sincroniza el tier de entries con `source="manual"` (solo protege la imagen, el tier sigue al meta)
-6. Elimina entries manuales que desaparecieron del meta
+Un cron job (cada 12h) ejecuta `MasterDuelMetaScraper`. El scraper y la persistencia siguen estas reglas:
+
+**Scraper merge (`replaceScrapedEntries`):**
+
+| Source | Sin link | Con link (`linkedArchetypeId`) |
+|--------|---------|-------------------------------|
+| Scraped | Tier sigue al meta. Imagen NUNCA se pisa. | Tier siempre sigue al meta. Link + imagen nunca se tocan. |
+| Manual | Tier e imagen **congelados**. | Tier siempre sigue al meta. Link + imagen nunca se tocan. |
+| Inactiva (`is_active=0`, admin la borró) | **Skipped**. No se re-inserta. Se reactiva si el deck sale del meta. | Igual. |
+
+**Auto-reset**: Si una entry fue soft-deleteada por admin y el deck NO aparece en el nuevo scrape, se reactiva (`is_active=1`). Cuando el deck vuelva al meta, reaparece automaticamente.
+
+**Fallen**: Entradas activas (scraped o manual) cuyo deck no aparece en el scrape → DELETE.
 
 El admin puede:
-- **Prender/apagar** el scraping desde el admin panel (toggle `scrapingEnabled` en `TierListConfig`)
-- **Disparar scrape manual** con un boton "Scrape Now"
-- **Editar manualmente** cualquier entry (nombre, tier, imagen, source)
-- **Cambiar source** a "manual" para proteger entries de ser sobrescritas por futuros scrapes
-- **Seleccionar imagen** via `FloatingCardSearchModal` (mismo modal que el editor de guias)
+- **Prender/apagar** el scraping desde el admin panel (toggle `scrapingEnabled`)
+- **Disparar scrape manual** con boton "Scrape Now"
+- **Editar** nombre, tier, imagen, source de cualquier entry
+- **Linkear** una entry a un archetype de la DB via el boton "Link" (corrige nombres inconsistentes)
+- **Agregar/eliminar** entries manualmente
 
 ### Resolucion de imagenes
 
@@ -32,13 +38,6 @@ Cuando se scrapea un nuevo deck, el `resolveImageForDeck` intenta obtener una im
 3. **Admin manual**: si todo falla, el admin puede seleccionar una imagen via `FloatingCardSearchModal`
 
 Esto respeta el sistema de storage del proyecto: prioriza URLs locales (DB + filesystem) antes de hacer hotlinking a YGOProDeck.
-
-### Persistencia de imagenes
-
-- Entries con `source="manual"`: **Solo la imagen esta protegida**. El tier y la existencia siguen al scraper automaticamente. Si el deck sube/baja de tier, la entry manual tambien. Si desaparece del meta, se elimina.
-- Entries con `source="scraped"`: Todo se reemplaza en cada scrape (imagen, tier, posicion).
-- El admin puede cambiar `source` desde el admin panel (dropdown Scraped/Manual).
-- Al seleccionar una imagen via `FloatingCardSearchModal`, se llama a `POST /api/cards/confirm` para guardar la carta en nuestro storage (mismo flujo que las guias).
 
 ### Resolucion de imagenes con selectCard()
 
@@ -53,7 +52,9 @@ Cuando se resuelve una imagen para un deck, se usa `CardApplicationService.selec
 ```
 TierListEntry:
   id, deckName, tier (1|2|3), format ("masterduel"), position, imageUrl?
-  source ("scraped"|"manual"), isActive, scrapedAt?, createdAt, updatedAt
+  source ("scraped"|"manual"), isActive, linkedArchetypeId?, linkedArchetypeName?
+  counterGuideCount, deckGuideCount
+  scrapedAt?, createdAt, updatedAt
 
 TierListConfig:
   id, format (unique), scrapingEnabled (default: true), lastScrapedAt?, updatedAt
@@ -78,8 +79,9 @@ Diseno inspirado en prydwen.gg/star-rail/tier-list:
 - Tiers apilados en un contenedor unico con `rounded-xl`
 - Label lateral (T1/T2/T3) en columna izquierda con gradiente del color del tier
 - Grid de cards a la derecha (responsive: 2→3→4→5 columnas)
-- Cada `TierCard`: imagen de fondo con overlay frosted glass + nombre del deck
-- Click → navega a `/archetype/:slug/counter-guides`
+- Cada `TierCard`: imagen de fondo con overlay frosted glass + nombre del deck + conteo de guias (Counter en rojo, Deck en cian). Fondo sutil con color del tier.
+- Muestra `linkedArchetypeName` si tiene link, sino `deckName`.
+- Click → si tiene `linkedArchetypeId` navega a `/archetype/{id}/counter-guides`, sino navega por slug.
 
 Colores por tier: T1 (amber/gold), T2 (slate/silver), T3 (orange/bronze)
 
@@ -93,8 +95,33 @@ Replica exacta visual de la pagina publica, con:
 - Badge de source en cada card ("scraped"/"manual") - solo visible aca
 - Cards editables (nombre, tier, source, imagen via `FloatingCardSearchModal`)
 - Boton "+" para agregar decks manuales, boton "X" para eliminar
-- Boton "Scrape Now" + toggle de scraping
-- Save bar fija abajo: "Save Changes" → `POST /api/tier-list/save`
+- Boton "🔗 Link" en cada card para asociar a un archetype de nuestra DB (corrige nombres inconsistentes como HEROs → HERO)
+- Source toggle (Scraped/Manual): Manual congela tier + imagen. Scraped sigue al meta pero mantiene imagen custom.
+- Save bar fija abajo: "Save Changes" → `POST /api/tier-list/save` (soft-delete para entradas removidas)
+
+## Linking de archetypes
+
+Los nombres de decks en MasterDuelMeta pueden diferir de los archetypes en nuestra DB (ej: HEROs vs HERO, Gem-Knight no existe). Para resolverlo:
+
+- **Admin**: clickea el boton "Link" en una card → busca y selecciona un archetype de nuestra DB
+- **Efecto**: `linkedArchetypeId` + `linkedArchetypeName` se guardan. TierCard publico muestra el nombre linkeado y navega al archetype correcto.
+- **Scraper**: las entradas linkeadas siempre siguen al meta (tier se actualiza), sin importar source. Link + imagen nunca se tocan.
+- **Unlink**: boton "Remove link" en el modal para desvincular.
+
+## Soft-delete y auto-reset
+
+- **Soft-delete**: Al borrar una entry en admin (boton "X" + save), se marca `is_active=0` en vez de DELETE hard.
+- **Auto-reset**: Si el deck sale del meta (no aparece en el scrape), la entry inactiva se reactiva automaticamente. Cuando el deck vuelva al meta meses despues, reaparece sin intervencion.
+- **Respeto**: Si el deck SIGUE en el meta pero el admin lo borro, se respeta el soft-delete (no se re-inserta).
+
+## Admin Archetypes Tab
+
+Nueva tab en Admin Panel para gestionar archetypes de la DB:
+
+- **Listar/Search**: Muestra todos los archetypes con busqueda.
+- **Agregar**: Crea un archetype custom (ej: Gem-Knight). Funciona en MainSearch y permite crear guias.
+- **Eliminar**: Borra archetype si no tiene guias asociadas.
+- API: `GET/POST /api/admin/archetypes`, `DELETE /api/admin/archetypes/:id`
 
 ## Stack
 
@@ -103,6 +130,7 @@ Replica exacta visual de la pagina publica, con:
 - **DB**: better-sqlite3 via `SqliteTierListRepository`
 - **Cron**: `setInterval` cada 12h en `tierListScraperService.ts`. En desarrollo, auto-scrapea 10s post-startup.
 - **Frontend**: `FloatingCardSearchModal` para seleccion de imagenes en admin. `confirmCards()` al seleccionar para guardar en storage.
+- **Guide counts**: `enrichWithGuideCounts` hace batch query de `archetype_instances` agrupada por `archetype_id` + `guide_type`. Usa `linkedArchetypeId` cuando existe, o matchea por `deckName` en `archetypes`.
 
 ## Flujo verificado de scraping
 
@@ -153,5 +181,8 @@ Click "Scrape Now" (admin)
 - [x] Sin referencias a power en todo el codigo
 - [x] download-all-cards con flag --delay
 - [x] Imagenes locales via selectCard + confirmCards
+- [x] Linking de archetypes (linkedArchetypeId/Name)
+- [x] Soft-delete + auto-reset de entradas borradas
+- [x] Admin Archetypes Tab (CRUD de archetypes en DB)
 - [x] `npx prisma db push` (manual)
 - [ ] Deploy y pruebas

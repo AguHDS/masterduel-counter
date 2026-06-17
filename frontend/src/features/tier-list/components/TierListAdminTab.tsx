@@ -6,12 +6,18 @@ import {
   X,
   Save,
   RefreshCw,
+  Link,
+  Search,
+  HelpCircle,
 } from "lucide-react";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import { FloatingCardSearchModal } from "@/features/archetypes/components/FloatingCardSearchModal";
+import { InfoModal } from "@/shared/components/info/components/InfoModal";
 import { confirmCards } from "@/features/archetypes/api/archetypesApi";
+import { useSearchArchetypes } from "@/features/archetypes/hooks/useArchetypes";
 import type { TierListEntry } from "../types/tierList.types";
 import type { Card } from "@/features/archetypes/types";
+import type { Archetype } from "@/features/archetypes/types";
 
 interface EditableEntry {
   id: number;
@@ -20,6 +26,8 @@ interface EditableEntry {
   position: number;
   imageUrl: string | null;
   source: "scraped" | "manual";
+  linkedArchetypeId: number | null;
+  linkedArchetypeName: string | null;
   _isNew?: boolean;
   _isDeleted?: boolean;
 }
@@ -34,6 +42,12 @@ export const TierListAdminTab = () => {
   const [isCardSearchOpen, setIsCardSearchOpen] = useState(false);
   const [cardSearchAnchor, setCardSearchAnchor] = useState<HTMLElement | null>(null);
   const [cardSearchTargetId, setCardSearchTargetId] = useState<number | null>(null);
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [linkTargetId, setLinkTargetId] = useState<number | null>(null);
+  const [archetypeSearchQuery, setArchetypeSearchQuery] = useState("");
+  const { data: archetypeResponse, isLoading: archetypeLoading } = useSearchArchetypes(archetypeSearchQuery, 20);
+  const archetypeResults = archetypeResponse?.data?.archetypes ?? [];
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   useEffect(() => {
     if (entries.data && !hasChanges) {
@@ -44,6 +58,8 @@ export const TierListAdminTab = () => {
         position: e.position,
         imageUrl: e.imageUrl,
         source: e.source,
+        linkedArchetypeId: e.linkedArchetypeId,
+        linkedArchetypeName: e.linkedArchetypeName,
       }));
       setEditedEntries(existing);
     }
@@ -75,9 +91,11 @@ export const TierListAdminTab = () => {
         deckName: "New Deck",
         tier,
         position: prev.filter((e) => e.tier === tier).length,
-        imageUrl: null,
-        source: "manual",
-        _isNew: true,
+      imageUrl: null,
+      source: "manual",
+      linkedArchetypeId: null,
+      linkedArchetypeName: null,
+      _isNew: true,
       },
     ]);
     markChanged();
@@ -93,6 +111,8 @@ export const TierListAdminTab = () => {
         position: index,
         imageUrl: e.imageUrl,
         source: e.source,
+        linkedArchetypeId: e.linkedArchetypeId,
+        linkedArchetypeName: e.linkedArchetypeName,
       }));
 
     saveTierList.mutate(
@@ -133,6 +153,28 @@ export const TierListAdminTab = () => {
     setCardSearchAnchor(null);
   };
 
+  const handleOpenLinkModal = (entryId: number) => {
+    setLinkTargetId(entryId);
+    setArchetypeSearchQuery("");
+    setIsLinkModalOpen(true);
+  };
+
+  const handleSelectArchetype = (archetype: Archetype) => {
+    if (linkTargetId !== null) {
+      updateEntry(linkTargetId, {
+        linkedArchetypeId: archetype.id,
+        linkedArchetypeName: archetype.name,
+      });
+    }
+    setIsLinkModalOpen(false);
+    setLinkTargetId(null);
+    setArchetypeSearchQuery("");
+  };
+
+  const handleRemoveLink = (entryId: number) => {
+    updateEntry(entryId, { linkedArchetypeId: null, linkedArchetypeName: null });
+  };
+
   const displayEntries = editedEntries.filter((e) => !e._isDeleted);
 
   const tierConfig: Record<number, {
@@ -142,6 +184,13 @@ export const TierListAdminTab = () => {
     textColor: string;
     cardBg: string;
   }> = {
+    0: {
+      label: "T0",
+      bgGradient: "from-sky-400/50 via-violet-400/35 to-violet-700/50",
+      border: "border-sky-400/30",
+      textColor: "text-sky-200",
+      cardBg: "from-sky-950/50 via-violet-900/25 to-slate-950/80",
+    },
     1: {
       label: "T1",
       bgGradient: "from-amber-400/50 via-amber-500/35 to-amber-700/50",
@@ -210,6 +259,14 @@ export const TierListAdminTab = () => {
             Last scrape: {new Date(config.data.lastScrapedAt).toLocaleDateString()}
           </span>
         )}
+
+        <button
+          onClick={() => setIsHelpOpen(true)}
+          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-lg text-xs font-semibold transition-colors"
+        >
+          <HelpCircle className="w-4 h-4" />
+          Help
+        </button>
       </div>
 
       {/* Loading */}
@@ -222,7 +279,7 @@ export const TierListAdminTab = () => {
       {/* Tier sections */}
       {!entries.isLoading && (
         <div className="border border-slate-500/20 rounded-xl overflow-hidden bg-black/30">
-          {[1, 2, 3].map((tier, tierIndex, arr) => {
+          {[...new Set(displayEntries.map((e) => e.tier))].sort((a, b) => a - b).map((tier, tierIndex, arr) => {
             const tierEntries = displayEntries.filter((e) => e.tier === tier);
             const cfg = tierConfig[tier];
             const isLast = tierIndex === arr.length - 1;
@@ -255,6 +312,20 @@ export const TierListAdminTab = () => {
                         className={`relative rounded-lg overflow-hidden shadow-lg shadow-black/50 group border border-slate-600/30 bg-gradient-to-b ${cfg.cardBg}`}
                       >
                         {sourceBadge(entry.source)}
+
+                        {/* Link Archetype button */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleOpenLinkModal(entry.id); }}
+                          className={`absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                            entry.linkedArchetypeId
+                              ? "bg-green-500/20 text-green-300 border border-green-500/40 hover:bg-green-500/30"
+                              : "bg-slate-500/20 text-slate-400 border border-slate-500/30 hover:bg-slate-500/30"
+                          }`}
+                          title={entry.linkedArchetypeId ? `Linked to: ${entry.linkedArchetypeName}` : "Link to archetype"}
+                        >
+                          <Link className="w-3 h-3 inline mr-1" />
+                          {entry.linkedArchetypeName || "Link"}
+                        </button>
 
                         <div className="w-full aspect-[16/10] overflow-hidden relative">
                           {entry.imageUrl ? (
@@ -298,7 +369,8 @@ export const TierListAdminTab = () => {
                               onChange={(e) => updateEntry(entry.id, { tier: parseInt(e.target.value) })}
                               className="bg-slate-800 border border-slate-600/50 text-slate-300 text-xs rounded px-2 py-1 outline-none focus:border-amber-500/70"
                             >
-                              <option value={1}>Tier 1</option>
+                              <option value={0}>Tier 0</option>
+                            <option value={1}>Tier 1</option>
                               <option value={2}>Tier 2</option>
                               <option value={3}>Tier 3</option>
                             </select>
@@ -342,6 +414,74 @@ export const TierListAdminTab = () => {
         autoCloseAfterSelect={true}
       />
 
+      {/* Link Archetype Modal */}
+      {isLinkModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={() => { setIsLinkModalOpen(false); setLinkTargetId(null); }}
+        >
+          <div
+            className="relative w-full max-w-md max-h-[80vh] flex flex-col rounded-xl border border-yellow-600/40 bg-[#0d1020] shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-yellow-600/20">
+              <h3 className="text-yellow-400 font-bold text-base">Link to Archetype</h3>
+              <button
+                onClick={() => { setIsLinkModalOpen(false); setLinkTargetId(null); }}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4">
+              <div className="relative mb-3">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <input
+                  type="text"
+                  value={archetypeSearchQuery}
+                  onChange={(e) => setArchetypeSearchQuery(e.target.value)}
+                  placeholder="Search archetypes..."
+                  className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 text-slate-200 text-sm rounded-lg outline-none focus:border-amber-500/70"
+                  autoFocus
+                />
+              </div>
+
+              <div className="max-h-[50vh] overflow-y-auto">
+                {archetypeLoading && (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-400" />
+                  </div>
+                )}
+
+                {linkTargetId !== null && (
+                  <button
+                    onClick={() => handleRemoveLink(linkTargetId)}
+                    className="w-full text-left px-4 py-2.5 text-red-400 hover:bg-red-500/10 rounded-lg text-sm mb-2 border border-red-500/20"
+                  >
+                    Remove link
+                  </button>
+                )}
+
+                {!archetypeLoading && archetypeResults.map((archetype) => (
+                  <button
+                    key={archetype.id}
+                    onClick={() => handleSelectArchetype(archetype)}
+                    className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-amber-500/10 rounded-lg text-sm transition-colors"
+                  >
+                    {archetype.name}
+                  </button>
+                ))}
+
+                {!archetypeLoading && archetypeSearchQuery && archetypeResults.length === 0 && (
+                  <p className="text-slate-500 text-sm text-center py-4">No archetypes found</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Save bar */}
       {hasChanges && (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0d1020] border-t border-yellow-600/40 shadow-[0_-10px_50px_-5px_rgba(0,0,0,0.5)] px-6 py-4">
@@ -360,6 +500,34 @@ export const TierListAdminTab = () => {
           </div>
         </div>
       )}
+
+      {/* Help Modal */}
+      <InfoModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} title="Tier List Help">
+        <div className="space-y-5 text-sm">
+          <div>
+            <h3 className="text-amber-400 font-bold text-base mb-2">Scraping</h3>
+            <p>Data comes from <strong>masterduelmeta.com/tier-list</strong>. The scraper fetches the page, parses deck names and tiers, and resolves card images from our storage (or YGOProDeck as fallback).</p>
+            <p className="mt-1 text-slate-400">Auto-scrapes every 12h. Click <strong>"Scrape Now"</strong> to trigger manually.</p>
+          </div>
+          <div>
+            <h3 className="text-amber-400 font-bold text-base mb-2">Source: Scraped vs Manual</h3>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><strong className="text-blue-300">Scraped</strong>: Tier follows the meta (updates on each scrape). Image is never overwritten once set by admin.</li>
+              <li><strong className="text-amber-300">Manual</strong>: Tier and image are <strong>frozen</strong>. The scraper skips this entry entirely. Use this when you want to lock a deck's position.</li>
+              <li>Entries with a <strong>linked archetype</strong> always follow the meta regardless of source.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-amber-400 font-bold text-base mb-2">Linking to Archetype</h3>
+            <p>Some deck names from MasterDuelMeta don't match our database (e.g., "HEROs" vs "HERO"). Click the <strong>"Link"</strong> button on a card to associate it with the correct archetype from your system. The public tier list will show the linked name and navigate to the correct guide page.</p>
+            <p className="mt-1 text-slate-400">The link persists across scrapes — it's never overwritten.</p>
+          </div>
+          <div>
+            <h3 className="text-amber-400 font-bold text-base mb-2">Deleting Entries</h3>
+            <p>Click <strong>"X"</strong> on a card and save. The entry is soft-deleted (<code>is_active=0</code>). If the deck later falls out of the meta and then returns, it will <strong>auto-reactivate</strong>. If the deck is still in the meta, the soft-delete is respected and it won't reappear.</p>
+          </div>
+        </div>
+      </InfoModal>
 
       {hasChanges && <div className="h-20" />}
     </div>

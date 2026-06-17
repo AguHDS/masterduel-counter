@@ -17,7 +17,10 @@ import {
   searchUsersController,
   unbanUserController,
   getTotalUsersController,
-  getAllUsersController
+  getAllUsersController,
+  getArchetypesAdminController,
+  createArchetypeAdminController,
+  deleteArchetypeAdminController,
 } from "@/http/controllers/admin/index.js";
 import {
   deleteUserMiddleware,
@@ -91,5 +94,10 @@ router.get(
   getTotalUsersController,
 );
 router.get("/tracking/users", verifyAdminMiddleware, getAllUsersController);
+
+// Archetypes management
+router.get("/archetypes", verifyAdminMiddleware, getArchetypesAdminController);
+router.post("/archetypes", verifyAdminMiddleware, createArchetypeAdminController);
+router.delete("/archetypes/:id", verifyAdminMiddleware, deleteArchetypeAdminController);
 
 export default router;

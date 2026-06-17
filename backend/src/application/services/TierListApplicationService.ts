@@ -13,10 +13,14 @@ export class TierListApplicationService implements TierListApplicationPort {
     private readonly cardApplicationService: CardApplicationPort,
   ) {}
 
+  /** Get entries for tierlist puposes */
   async getEntries(format: string): Promise<TierListEntry[]> {
-    return this.tierListRepository.getEntries(format);
+    const entries = await this.tierListRepository.getEntries(format);
+    await this.tierListRepository.enrichWithGuideCounts(entries);
+    return entries;
   }
 
+  /** Save tierlist for entry purposes */
   async saveEntries(format: string, input: TierListSaveInput): Promise<void> {
     await this.tierListRepository.saveEntries(format, input);
   }
@@ -57,6 +61,8 @@ export class TierListApplicationService implements TierListApplicationPort {
         format,
         position: i,
         imageUrl,
+        linkedArchetypeId: null,
+        linkedArchetypeName: null,
       });
     }
 

@@ -8,18 +8,23 @@ interface TierCardProps {
 }
 
 const tierColors: Record<number, { border: string; glow: string; bg: string }> = {
+  0: {
+    border: "border-none",
+    glow: "hover:shadow-[0_0_20px_-5px_rgba(56,189,248,0.5)]",
+    bg: "from-sky-950/50 via-violet-900/25 to-slate-950/80",
+  },
   1: {
-    border: "border-amber-500/40 hover:border-amber-400/70",
+    border: "border-none",
     glow: "hover:shadow-[0_0_20px_-5px_rgba(245,158,11,0.4)]",
     bg: "from-amber-950/50 via-amber-900/20 to-slate-950/80",
   },
   2: {
-    border: "border-slate-400/40 hover:border-slate-300/60",
+    border: "border-none",
     glow: "hover:shadow-[0_0_20px_-5px_rgba(148,163,184,0.35)]",
     bg: "from-slate-800/40 via-slate-900/20 to-slate-950/80",
   },
   3: {
-    border: "border-orange-700/40 hover:border-orange-600/60",
+    border: "border-none",
     glow: "hover:shadow-[0_0_20px_-5px_rgba(194,65,12,0.35)]",
     bg: "from-orange-950/50 via-orange-900/20 to-slate-950/80",
   },
@@ -30,9 +35,15 @@ export const TierCard = ({ entry }: TierCardProps) => {
   const navigate = useNavigate();
   const colors = tierColors[entry.tier] ?? tierColors[3];
 
+  const displayName = entry.linkedArchetypeName || entry.deckName;
+
   const handleClick = () => {
-    const slug = entry.deckName.toLowerCase().replace(/\s+/g, "-");
-    navigate(`/archetype/${slug}/counter-guides`);
+    if (entry.linkedArchetypeId) {
+      navigate(`/archetype/${entry.linkedArchetypeId}/counter-guides`);
+    } else {
+      const slug = entry.deckName.toLowerCase().replace(/\s+/g, "-");
+      navigate(`/archetype/${slug}/counter-guides`);
+    }
   };
 
   return (
@@ -63,7 +74,12 @@ export const TierCard = ({ entry }: TierCardProps) => {
         }}
       >
         <p className="text-slate-100 font-bold text-sm truncate">
-          {entry.deckName}
+          {displayName}
+        </p>
+        <p className="text-[11px] mt-0.5">
+          <span className="text-amber-600">Counter: {entry.counterGuideCount}</span>
+          <span className="text-slate-600">{" "}·{" "}</span>
+          <span className="text-cyan-400">Deck: {entry.deckGuideCount}</span>
         </p>
       </div>
     </div>

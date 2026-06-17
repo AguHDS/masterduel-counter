@@ -10,5 +10,7 @@ export interface TierListRepository {
   upsertConfig(format: string, scrapingEnabled: boolean): Promise<TierListConfig>;
   updateLastScrapedAt(format: string): Promise<void>;
   /** Scrape-time merge: deletes scraped entries, updates manual entries' tiers, removes fallen manual entries */
-  replaceScrapedEntries(format: string, entries: Omit<TierListEntry, "id" | "createdAt" | "updatedAt" | "isActive" | "source" | "scrapedAt">[]): Promise<void>;
+  replaceScrapedEntries(format: string, entries: Omit<TierListEntry, "id" | "createdAt" | "updatedAt" | "isActive" | "source" | "scrapedAt" | "counterGuideCount" | "deckGuideCount">[]): Promise<void>;
+  /** Get guide counts of guide types (counter & deck) to display in each item of the tierlist */
+  enrichWithGuideCounts(entries: TierListEntry[]): Promise<void>;
 }

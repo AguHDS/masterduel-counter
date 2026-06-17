@@ -82,13 +82,6 @@ mejoras:
 
 bugs:
 resolviendo:
-Necesitamos una nueva tab en el panel de admin para borar/agregar, arquetipos cmo habiamos dicho mas abajo.
-- poner metadata Counter: N Deck: N en cada item de la tierlist
-- En la tierlist, en el caso de Gem-Knights y HERO, no tienen imagenes y es por esta razon:
-Al clickear esos items, dice "Archetype not found". Con respecto a HERO, es porque el item aparece como HEROS, pero en mi app el arquetipo se llama HERO. Fijarse que hacer en este caso.
-- El arquetipo Gem-Knights, no existe en mi app, por que? quiza no se descargo de ygoprodeck? o no lo tienen a ese arquetipo?
-- Funcionalidad para eliminar de mi app un arquetipo especifico, porque por ejemplo el arquetipo HERO tiene varias variantes de arquetipos: Destiny Hero, Evil Hero, etc... Solo deberia haber un arquetipo y sus variantes no debrian ser otras instancias de este.
-Quiza, con una funcionalidad de remover arquetipos especificos desde el admin pannel, pueda solucionar este problema, y extendiendo esta funcionalidad para agregar arquetipos, puedo agregar el que falta y solucionar el problema de Gem-Knights.
-Nota: He corrido el comando npm run populate-archetypes pero aun asi no agrega los faltantes. O el script esta mal, o por alguna razon la api de ygoprodeck no me consigue este arquetipo.
-- Agregar un info help de como funciona el scrapper y manual de la tierlist, y el sistema de scrapping en el admin panel asi los admins saben como editar la tierlist en el admin pannel. Debe ser una explicacion breve y directa, ya que no es demasiada informaicon.
-- Una vez funcione todo bien, agregar tierlist TCG y OCG. El titulo Tierlist debe cambiar dinamicamente a Tierlist Masterduel/TCG/OCG dependiendo de cual este seleccionada. Por default es Masterduel 
+- Una vez funcione todo bien, agregar tierlist TCG y OCG. El titulo Tierlist debe cambiar dinamicamente a Tierlist Masterduel/TCG/OCG dependiendo de cual este seleccionada. Por default es Masterduel
+- Agregar titulo a la pestaña de tierlist.
+- hacer tests.
