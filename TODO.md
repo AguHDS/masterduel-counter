@@ -82,5 +82,6 @@ mejoras:
 
 bugs:
 resolviendo:
-- hacer tests
+- mejorar diseño? quiza tierlist mas ancha
 - aniamciones dropdown perfil y demas
+- Opcion en el admin panel panel de arquetipos, de reemplazar/cambiar nombre de un arquetipo existente. Actualmente no existe D/D/D, existe D/D. DEbe llamarse D/D/D, pero en prod ya hay guias y draft creadas para D/D. Debemos cambiar el nombre de D/D a D/D/D sin romper las guias y draft existentes. Como hacemos esto?

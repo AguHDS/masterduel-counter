@@ -98,16 +98,15 @@ frontend\src\shared\components - componentes compartidos (GuidesTable, FeatureEr
 frontend\src\shared\hooks - hooks compartidos (useDebounce, useAnalyticsPageTracking, etc...)
 frontend\src\lib\config\urlHelpers.ts - Get base URL based on environment and also helpers for redirection 301
 
-# Sobre redirect 301:
-- Si en el futuro cambiamos otra vez:
-- URLs de guías
-- URLs de perfil
-- URLs públicas indexables por Google
-Entonces sí debes revisar:
+# Sobre redirect 301 / URL legacy -> SEO-friendly:
+- **Archetype guide lists**: Las URLs basadas en ID (`/archetype/42/counter-guides`) son redirigidas a su versión SEO-friendly (`/archetype/abyss-script/counter-guides`) mediante el componente `LegacyArchetypeRedirect` en el frontend (React Router). Detecta si el parámetro es numérico (ID legacy) o no (slug SEO-friendly ya correcto). Si es numérico, fetchea el nombre del archetype via API y hace `<Navigate replace />`. Si no es numérico, simplemente renderiza la página normalmente.
+- URLs de guías individuales (author/guide slugs)
+- URLs de perfil (user slugs)
+Si en el futuro cambiamos otra vez estas URLs, revisar:
 - urlHelpers.ts
 - App.tsx
-- legacyUrlRedirectMiddleware.ts
-Si no cambias una ruta pública ya existente, no necesitas volver a tocar esta implementación.
+- LegacyArchetypeRedirect.tsx
+- legacyUrlRedirectMiddleware.ts (backend, solo cubre `/archetype/:id` pelado)
 
 # Resumen de features importantes:
 frontend\src\features\archetypes -> feature para cosas reutilizables por otras features que tengan que ver con archetype. CardTooltip.tsx, CardSearchModal.tsx.

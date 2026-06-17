@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Swords } from "lucide-react";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
+import { slugifySegment } from "@/lib/config/urlHelpers";
 import type { TierListEntry } from "../types/tierList.types";
 
 interface TierCardProps {
@@ -38,12 +39,8 @@ export const TierCard = ({ entry }: TierCardProps) => {
   const displayName = entry.linkedArchetypeName || entry.deckName;
 
   const handleClick = () => {
-    if (entry.linkedArchetypeId) {
-      navigate(`/archetype/${entry.linkedArchetypeId}/counter-guides`);
-    } else {
-      const slug = entry.deckName.toLowerCase().replace(/\s+/g, "-");
-      navigate(`/archetype/${slug}/counter-guides`);
-    }
+    const slug = slugifySegment(displayName);
+    navigate(`/archetype/${slug}/deck-guides`);
   };
 
   return (
