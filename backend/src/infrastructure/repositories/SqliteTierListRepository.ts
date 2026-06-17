@@ -210,9 +210,11 @@ export class SqliteTierListRepository implements TierListRepository {
           if (!existing.isActive) {
             reactivateStmt.run(format, key);
             reactivatedCount++;
-          } else {
+          } else if (existing.source !== "manual") {
             deleteFallenStmt.run(format, key);
             fallenCount++;
+          } else {
+            skippedManual++;
           }
         }
       }

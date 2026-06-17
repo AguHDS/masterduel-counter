@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { useTierList, useTriggerScrape } from "../hooks/useTierList";
+import { useTierList, useTriggerScrape, useTierListConfig } from "../hooks/useTierList";
 import { TierSection } from "../components/TierSection";
 import { Navbar } from "@/layouts/navbar/components/Navbar";
 import { useAuth } from "@/features/auth";
@@ -20,12 +20,17 @@ export const TierListPage = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { data: entries = [], isLoading, isError } = useTierList(format);
+  const { data: config } = useTierListConfig(format);
   const { user } = useAuth();
   const triggerScrape = useTriggerScrape();
   const isAdmin = user?.role === "admin";
 
   const tiers = [...new Set(entries.map((e) => e.tier))].sort((a, b) => a - b);
   const currentLabel = FORMATS.find((f) => f.key === format)?.label ?? "Master Duel";
+
+  const monthLabel = config?.lastScrapedAt
+    ? new Date(config.lastScrapedAt).toLocaleDateString("en-US", { month: "long", year: "numeric" }).toUpperCase()
+    : null;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -91,7 +96,7 @@ export const TierListPage = () => {
                   </button>
 
                   <div
-                    className={`absolute top-full mt-2 right-0 z-50 min-w-[160px] bg-[#1f1a24] border border-amber-500/30 rounded-lg shadow-xl shadow-black/50 overflow-hidden transition-all duration-200 origin-top ${
+                    className={`absolute top-full mt-2 left-0 sm:left-auto sm:right-[-7rem] z-50 min-w-[160px] bg-[#1f1a24] border border-amber-500/30 rounded-lg shadow-xl shadow-black/50 overflow-hidden transition-all duration-200 origin-top ${
                       dropdownOpen
                         ? "opacity-100 scale-y-100"
                         : "opacity-0 scale-y-95 pointer-events-none"
@@ -117,6 +122,10 @@ export const TierListPage = () => {
                 </div>
                 <div className="flex-1 hidden sm:block h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
               </div>
+
+              {monthLabel && (
+                <p className={`text-yellow-500 font-bold text-md text-left sm:text-center ${format !== "masterduel" ? "sm:-ml-8" : ""}`}>{monthLabel}</p>
+              )}
             </div>
 
             {isLoading && (
