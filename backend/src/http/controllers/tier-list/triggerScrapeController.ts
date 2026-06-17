@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { getDependencies } from "@/compositionRoot.js";
 
 /** Controller to trigger the scrape for the tierlist */
-export const triggerScrapeController = async (_req: Request, res: Response) => {
+export const triggerScrapeController = async (req: Request, res: Response) => {
   try {
-    const format = "masterduel";
+    const format = (req.body?.format as string) || (req.query.format as string) || "masterduel";
     const deps = getDependencies();
     const service = deps.getTierListService();
     const entries = await service.scrapeAndSave(format);

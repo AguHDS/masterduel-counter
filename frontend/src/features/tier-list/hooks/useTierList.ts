@@ -37,10 +37,10 @@ export function useToggleScraping() {
 }
 
 /** Admin: trigger scrape via POST /api/tier-list/scrape */
-export function useTriggerScrape() {
+export function useTriggerScrape(format = "masterduel") {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: triggerScrape,
+    mutationFn: () => triggerScrape(format),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tierList.all });
     },
@@ -61,7 +61,7 @@ export function useTierListAdmin(format = "masterduel") {
   const entries = useTierList(format);
   const config = useTierListConfig(format);
   const toggleScraping = useToggleScraping();
-  const triggerScrapeMutation = useTriggerScrape();
+  const triggerScrapeMutation = useTriggerScrape(format);
   const saveMutation = useSaveTierList();
 
   return {

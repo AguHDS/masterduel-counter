@@ -36,8 +36,8 @@ export const updateTierListConfig = async (
 };
 
 /** Admin: trigger a full scrape (fetch + parse + save images) */
-export const triggerScrape = async (): Promise<TierListEntry[]> => {
-  const res = await axiosClient.post<TierListResponse>("/api/tier-list/scrape");
+export const triggerScrape = async (format = "masterduel"): Promise<TierListEntry[]> => {
+  const res = await axiosClient.post<TierListResponse>("/api/tier-list/scrape", { format });
   return res.data.entries ?? [];
 };
 

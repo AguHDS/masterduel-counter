@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTierListAdmin } from "../hooks/useTierList";
 import {
   Swords,
@@ -9,6 +9,7 @@ import {
   Link,
   Search,
   HelpCircle,
+  ChevronDown,
 } from "lucide-react";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import { FloatingCardSearchModal } from "@/features/archetypes/components/FloatingCardSearchModal";
@@ -34,8 +35,11 @@ interface EditableEntry {
 
 /** Tab for managing the tierslist in Admin Panel */
 export const TierListAdminTab = () => {
+  const [format, setFormat] = useState<"masterduel" | "tcg" | "ocg">("masterduel");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { entries, config, toggleScraping, triggerScrape, saveTierList, isSaving, isScraping } =
-    useTierListAdmin("masterduel");
+    useTierListAdmin(format);
 
   const [editedEntries, setEditedEntries] = useState<EditableEntry[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
@@ -48,6 +52,22 @@ export const TierListAdminTab = () => {
   const { data: archetypeResponse, isLoading: archetypeLoading } = useSearchArchetypes(archetypeSearchQuery, 20);
   const archetypeResults = archetypeResponse?.data?.archetypes ?? [];
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+  const FORMATS: { key: "masterduel" | "tcg" | "ocg"; label: string }[] = [
+    { key: "masterduel", label: "Master Duel" },
+    { key: "tcg", label: "TCG" },
+    { key: "ocg", label: "OCG" },
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (entries.data && !hasChanges) {
@@ -116,7 +136,7 @@ export const TierListAdminTab = () => {
       }));
 
     saveTierList.mutate(
-      { format: "masterduel", entries: activeEntries as TierListEntry[] },
+      { format, entries: activeEntries as TierListEntry[] },
       {
         onSuccess: () => setHasChanges(false),
       },
@@ -230,6 +250,36 @@ export const TierListAdminTab = () => {
     <div>
       {/* Controls bar */}
       <div className="flex items-center gap-4 mb-6 flex-wrap">
+        {/* Format selector */}
+        <div ref={dropdownRef} className="relative">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 border border-slate-600 hover:border-amber-500/40 rounded-lg text-sm font-semibold text-slate-200 transition-colors"
+          >
+            {FORMATS.find((f) => f.key === format)?.label ?? "Master Duel"}
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
+          </button>
+          <div
+            className={`absolute top-full mt-1 left-0 z-50 min-w-[160px] bg-[#1f1a24] border border-amber-500/30 rounded-lg shadow-xl shadow-black/50 overflow-hidden transition-all duration-200 origin-top ${
+              dropdownOpen ? "opacity-100 scale-y-100" : "opacity-0 scale-y-95 pointer-events-none"
+            }`}
+          >
+            {FORMATS.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => { setFormat(f.key); setDropdownOpen(false); }}
+                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                  format === f.key
+                    ? "bg-amber-500/15 text-amber-300 font-semibold"
+                    : "text-slate-300 hover:bg-slate-700/50 hover:text-amber-200"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <button
           onClick={handleScrape}
           disabled={isScraping}
@@ -245,7 +295,7 @@ export const TierListAdminTab = () => {
             checked={config.data?.scrapingEnabled ?? false}
             onChange={(e) =>
               toggleScraping.mutate({
-                format: "masterduel",
+                format,
                 enabled: e.target.checked,
               })
             }

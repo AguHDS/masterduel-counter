@@ -88,3 +88,4 @@ resolviendo:
 - protegerme contra scraping masivo en la pagina de la tierlist. Tambien en los Terms.
 - Admin panel deberia poder editar TCG y OCG.
 - Usar playwright para OCG switch masterduelmeta
+- panil admin debe dejar arrastrar items tier
