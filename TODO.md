@@ -85,3 +85,6 @@ resolviendo:
 - Una vez funcione todo bien, agregar tierlist TCG y OCG. El titulo Tierlist debe cambiar dinamicamente a Tierlist Masterduel/TCG/OCG dependiendo de cual este seleccionada. Por default es Masterduel
 - Agregar titulo a la pestaña de tierlist.
 - hacer tests.
+- protegerme contra scraping masivo en la pagina de la tierlist. Tambien en los Terms.
+- Admin panel deberia poder editar TCG y OCG.
+- Usar playwright para OCG switch masterduelmeta

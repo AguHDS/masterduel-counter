@@ -125,11 +125,13 @@ Nueva tab en Admin Panel para gestionar archetypes de la DB:
 
 ## Stack
 
-- **Scraping**: `MasterDuelMetaScraper` (HTML parsing via `<hr>` separators + fallback `tier-img-container`)
+- **Scraping MD**: `MasterDuelMetaScraper` (HTML parsing via `<hr>` separators + fallback `tier-img-container`)
+- **Scraping TCG**: `YgoMetaTcgScraper` (yugiohmeta.com — top 3 decks = T1, rest: ≥2% = T2, <2% = T3)
 - **Imagenes**: `resolveImageForDeck` → `findCardsByArchetype` (DB local) → `selectCard` (descarga + storage) → YGOProDeck hotlink (ultimo recurso)
 - **DB**: better-sqlite3 via `SqliteTierListRepository`
-- **Cron**: `setInterval` cada 12h en `tierListScraperService.ts`. En desarrollo, auto-scrapea 10s post-startup.
+- **Cron**: `setInterval` cada 12h en `tierListScraperService.ts`. Scrapea ambos formatos (masterduel + tcg). En desarrollo, auto-scrapea 10s post-startup.
 - **Frontend**: `FloatingCardSearchModal` para seleccion de imagenes en admin. `confirmCards()` al seleccionar para guardar en storage.
+- **Guide counts**: `enrichWithGuideCounts` batch-query `archetype_instances` por `archetype_id` + `guide_type`. Usa `linkedArchetypeId` o matchea `deckName` contra `archetypes`.
 - **Guide counts**: `enrichWithGuideCounts` hace batch query de `archetype_instances` agrupada por `archetype_id` + `guide_type`. Usa `linkedArchetypeId` cuando existe, o matchea por `deckName` en `archetypes`.
 
 ## Flujo verificado de scraping
@@ -154,7 +156,15 @@ F5 en /tierlist
 Click "Scrape Now" (admin)
   └─ POST /api/tier-list/scrape → mismo flujo que el cron
        └─ onSuccess: invalidateQueries → refetch automatico de datos
-```
+
+### TCG scraping (yugiohmeta.com)
+  ├─ Fetch HTML de yugiohmeta.com/tier-list (default: Deck-Types, Last 1 month, TCG)
+  ├─ Extraer todos los decks con nombre + percentage
+  ├─ Top 3 decks (hero section) → Tier 1
+  ├─ Decks con ≥ 2% → Tier 2
+  └─ Decks con < 2% → Tier 3
+
+Nota: OCG no soportado aún (toggle JavaScript sin cambio de URL). Requiere headless browser o encontrar API subyacente.
 
 ## URLs en produccion
 

@@ -37,12 +37,20 @@ export class TierListApplicationService implements TierListApplicationPort {
     return this.tierListRepository.upsertConfig(format, scrapingEnabled);
   }
 
-  /** Scrapes masterduelmeta.com, resolves images (DB-first, then YGOProDeck), syncs manual entries */
+  /** Scrapes external source based on format, resolves images, syncs manual entries */
   async scrapeAndSave(format: string): Promise<TierListEntry[]> {
-    const { MasterDuelMetaScraper } = await import(
-      "@/infrastructure/adapters/externalServices/MasterDuelMetaScraper.js"
-    );
-    const scraper = new MasterDuelMetaScraper();
+    let scraper;
+    if (format === "tcg") {
+      const { YgoMetaTcgScraper } = await import(
+        "@/infrastructure/adapters/externalServices/YgoMetaTcgScraper.js"
+      );
+      scraper = new YgoMetaTcgScraper();
+    } else {
+      const { MasterDuelMetaScraper } = await import(
+        "@/infrastructure/adapters/externalServices/MasterDuelMetaScraper.js"
+      );
+      scraper = new MasterDuelMetaScraper();
+    }
     const scrapedDecks = await scraper.scrapeTierList();
 
     const entries = [];
