@@ -32,7 +32,7 @@ export class YgoMetaTcgScraper {
     return this.parseTierList(html);
   }
 
-  private parseTierList(html: string): ScrapedDeck[] {
+  protected parseTierList(html: string): ScrapedDeck[] {
     const plainText = html.replace(/<[^>]+>/g, " ");
 
     // Find all stat matches: (tops) percentage%

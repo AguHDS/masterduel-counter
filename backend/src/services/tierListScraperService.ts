@@ -1,7 +1,7 @@
 import { getDependencies } from "@/compositionRoot.js";
 
 const SCRAPE_INTERVAL_MS = 12 * 60 * 60 * 1000; // 12 hours
-const FORMATS = ["masterduel", "tcg"];
+const FORMATS = ["masterduel", "tcg", "ocg"];
 
 export function startTierListScraperService(): void {
   console.log(`Tierlist scraper service started. Interval: 12h. Formats: ${FORMATS.join(", ")}`);

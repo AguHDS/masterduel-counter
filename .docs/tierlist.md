@@ -159,12 +159,25 @@ Click "Scrape Now" (admin)
 
 ### TCG scraping (yugiohmeta.com)
   ├─ Fetch HTML de yugiohmeta.com/tier-list (default: Deck-Types, Last 1 month, TCG)
-  ├─ Extraer todos los decks con nombre + percentage
+  ├─ Stripear tags HTML → texto plano
+  ├─ Buscar stats `(NNN) PP.PP%` → extraer nombres entre matches
   ├─ Top 3 decks (hero section) → Tier 1
   ├─ Decks con ≥ 2% → Tier 2
   └─ Decks con < 2% → Tier 3
 
-Nota: OCG no soportado aún (toggle JavaScript sin cambio de URL). Requiere headless browser o encontrar API subyacente.
+### OCG scraping (yugiohmeta.com via Playwright)
+  ├─ Script independiente `scrape-ocg.ts` usa Playwright para:
+  │    ├─ Abrir chromium headless (~100-120MB RAM pico, 5s)
+  │    ├─ Navegar a yugiohmeta.com/tier-list
+  │    ├─ Clickear botón "OCG"
+  │    └─ Devolver HTML renderizado
+  ├─ `YgoMetaOcgScraper` extiende `YgoMetaTcgScraper`
+  │    └─ Llama al script via `execSync`, reusa el parser
+  └─ Solo corre en el cron (cada 12h) o scrape manual admin. Nunca por usuario.
+
+Nota: Playwright requiere instalación manual:
+  npm install playwright
+  npx playwright install chromium
 
 ## URLs en produccion
 
@@ -172,27 +185,3 @@ Nota: OCG no soportado aún (toggle JavaScript sin cambio de URL). Requiere head
 - En local: `http://localhost:3001/api/uploads/cards/{id}_cropped.jpg`
 - En VPS: seteando `BACKEND_URL=https://masterduelcounter.com` en `.env` → URLs con dominio real
 - Si se copia la DB local al VPS, las URLs `localhost` se regeneran en el primer scrape automatico
-
-## Progreso
-
-- [x] Planificacion y diseno
-- [x] Modelo de datos (Prisma)
-- [x] Backend: Domain + Application + Infrastructure
-- [x] Backend: Controllers + Routes
-- [x] Backend: Scraper (<hr>-based parsing)
-- [x] Backend: Image resolver (selectCard + DB-first + YGOProDeck fallback)
-- [x] Backend: Manual entries sync (imagen protegida, tier sigue meta)
-- [x] Backend: Cron job 12h + DI wiring
-- [x] Frontend: Types + API + Hooks
-- [x] Frontend: TierCard + TierSection + TierListPage (prydwen-style)
-- [x] Frontend: Admin tab + FloatingCardSearchModal + source toggle
-- [x] Frontend: Navbar + App routing + AdminPanel integration
-- [x] UI responsive (2→3→4→5 columnas)
-- [x] Sin referencias a power en todo el codigo
-- [x] download-all-cards con flag --delay
-- [x] Imagenes locales via selectCard + confirmCards
-- [x] Linking de archetypes (linkedArchetypeId/Name)
-- [x] Soft-delete + auto-reset de entradas borradas
-- [x] Admin Archetypes Tab (CRUD de archetypes en DB)
-- [x] `npx prisma db push` (manual)
-- [ ] Deploy y pruebas

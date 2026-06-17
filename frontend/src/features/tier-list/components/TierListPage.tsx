@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useTierList, useTriggerScrape } from "../hooks/useTierList";
 import { TierSection } from "../components/TierSection";
 import { Navbar } from "@/layouts/navbar/components/Navbar";
@@ -46,6 +47,18 @@ export const TierListPage = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Tier List - Masterduel Counter</title>
+        <meta name="description" content="Yu-Gi-Oh! meta deck tier list for Master Duel, TCG and OCG. See the top competitive decks ranked by tournament performance. Updated regularly." />
+        <meta name="keywords" content="Yu-Gi-Oh tier list, meta decks, Master Duel tier list, TCG tier list, OCG tier list, competitive decks, tournament decks" />
+        <meta property="og:title" content="Tier List - Masterduel Counter" />
+        <meta property="og:description" content="Meta deck tier list for Master Duel, TCG and OCG. Top competitive decks ranked by tournament performance." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Tier List - Masterduel Counter" />
+        <meta name="twitter:description" content="Meta deck tier list for Master Duel, TCG and OCG." />
+        <link rel="canonical" href="https://masterduelcounter.com/tierlist" />
+      </Helmet>
       <Navbar />
       <div className="min-h-screen bg-black/70">
         <div className="relative overflow-hidden">

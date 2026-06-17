@@ -52,6 +52,8 @@ export const TierListAdminTab = () => {
   const { data: archetypeResponse, isLoading: archetypeLoading } = useSearchArchetypes(archetypeSearchQuery, 20);
   const archetypeResults = archetypeResponse?.data?.archetypes ?? [];
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [dragSourceId, setDragSourceId] = useState<number | null>(null);
+  const [dragOverId, setDragOverId] = useState<number | null>(null);
 
   const FORMATS: { key: "masterduel" | "tcg" | "ocg"; label: string }[] = [
     { key: "masterduel", label: "Master Duel" },
@@ -193,6 +195,50 @@ export const TierListAdminTab = () => {
 
   const handleRemoveLink = (entryId: number) => {
     updateEntry(entryId, { linkedArchetypeId: null, linkedArchetypeName: null });
+  };
+
+  const handleDragStart = (e: React.DragEvent, entryId: number) => {
+    setDragSourceId(entryId);
+    e.dataTransfer.effectAllowed = "move";
+    (e.currentTarget as HTMLElement).classList.add("opacity-50");
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    setDragSourceId(null);
+    setDragOverId(null);
+    (e.currentTarget as HTMLElement).classList.remove("opacity-50");
+  };
+
+  const handleDragOver = (e: React.DragEvent, entryId: number) => {
+    e.preventDefault();
+    if (dragSourceId !== entryId) {
+      setDragOverId(entryId);
+    }
+  };
+
+  // For drag
+  const handleDrop = (e: React.DragEvent, targetId: number) => {
+    e.preventDefault();
+    if (dragSourceId === null || dragSourceId === targetId) return;
+
+    const reordered = [...editedEntries];
+    const sourceIdx = reordered.findIndex((en) => en.id === dragSourceId);
+    const targetIdx = reordered.findIndex((en) => en.id === targetId);
+
+    if (sourceIdx === -1 || targetIdx === -1) return;
+
+    const sourceEntry = reordered[sourceIdx];
+    const targetEntry = reordered[targetIdx];
+    if (sourceEntry.tier !== targetEntry.tier) return;
+
+    const [removed] = reordered.splice(sourceIdx, 1);
+    reordered.splice(targetIdx, 0, removed);
+    reordered.forEach((en, i) => { en.position = i; });
+
+    setEditedEntries(reordered);
+    setDragSourceId(null);
+    setDragOverId(null);
+    markChanged();
   };
 
   const displayEntries = editedEntries.filter((e) => !e._isDeleted);
@@ -359,7 +405,14 @@ export const TierListAdminTab = () => {
                     {tierEntries.map((entry) => (
                       <div
                         key={entry.id}
-                        className={`relative rounded-lg overflow-hidden shadow-lg shadow-black/50 group border border-slate-600/30 bg-gradient-to-b ${cfg.cardBg}`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, entry.id)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={(e) => handleDragOver(e, entry.id)}
+                        onDrop={(e) => handleDrop(e, entry.id)}
+                        className={`relative rounded-lg overflow-hidden shadow-lg shadow-black/50 group border transition-all duration-200 bg-gradient-to-b ${cfg.cardBg} ${
+                          dragOverId === entry.id ? "border-amber-400/60 shadow-[0_0_15px_-3px_rgba(245,158,11,0.3)]" : "border-slate-600/30"
+                        }`}
                       >
                         {sourceBadge(entry.source)}
 

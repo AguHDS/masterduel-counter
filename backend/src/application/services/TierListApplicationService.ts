@@ -45,6 +45,11 @@ export class TierListApplicationService implements TierListApplicationPort {
         "@/infrastructure/adapters/externalServices/YgoMetaTcgScraper.js"
       );
       scraper = new YgoMetaTcgScraper();
+    } else if (format === "ocg") {
+      const { YgoMetaOcgScraper } = await import(
+        "@/infrastructure/adapters/externalServices/YgoMetaOcgScraper.js"
+      );
+      scraper = new YgoMetaOcgScraper();
     } else {
       const { MasterDuelMetaScraper } = await import(
         "@/infrastructure/adapters/externalServices/MasterDuelMetaScraper.js"
