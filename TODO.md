@@ -82,6 +82,7 @@ mejoras:
 
 bugs:
 resolviendo:
+- Agregar fecha de cada mes en las tierlist. Como identificamos dominios ajenos que scrapean nuestra tierlsit? sabemos sobre las ip que no se distingue,pero para distinguir dominios????
 - mejorar diseño? quiza tierlist mas ancha
 - aniamciones dropdown perfil y demas
-- Opcion en el admin panel panel de arquetipos, de reemplazar/cambiar nombre de un arquetipo existente. Actualmente no existe D/D/D, existe D/D. DEbe llamarse D/D/D, pero en prod ya hay guias y draft creadas para D/D. Debemos cambiar el nombre de D/D a D/D/D sin romper las guias y draft existentes. Como hacemos esto?
+- Si tenemos una draft de un arquetipo, se marca como "has guides" en la main search. Solo tienen que contar las publicadas.

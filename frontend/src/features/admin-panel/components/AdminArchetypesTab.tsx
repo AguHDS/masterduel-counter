@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { axiosClient } from "@/lib/http/axiosClient";
-import { Search, Plus, X, HelpCircle } from "lucide-react";
+import { Search, Plus, X, HelpCircle, Pencil, Check } from "lucide-react";
 import { InfoModal } from "@/shared/components/info/components/InfoModal";
 import type { Archetype } from "@/features/archetypes/types";
 
@@ -10,12 +10,14 @@ interface ArchetypesResponse {
   archetypes: Archetype[];
 }
 
-/** Search, delete and add archetypes to the system */
+/** Search, rename, delete and add archetypes to the system */
 export const AdminArchetypesTab = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "archetypes", search],
@@ -44,6 +46,17 @@ export const AdminArchetypesTab = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "archetypes"] });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: number; name: string }) => {
+      await axiosClient.put(`/api/admin/archetypes/${id}`, { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "archetypes"] });
+      setEditId(null);
+      setEditName("");
     },
   });
 
@@ -102,6 +115,12 @@ export const AdminArchetypesTab = () => {
         </div>
       )}
 
+      {updateMutation.isError && (
+        <div className="mb-4 bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+          <p className="text-red-300 text-sm">{(updateMutation.error as Error)?.message || "Failed to rename archetype"}</p>
+        </div>
+      )}
+
       {isLoading && (
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400" />
@@ -114,15 +133,54 @@ export const AdminArchetypesTab = () => {
             key={archetype.id}
             className="flex items-center justify-between px-4 py-2.5 bg-slate-800/60 border border-slate-600/30 rounded-lg group hover:border-slate-500/50 transition-colors"
           >
-            <span className="text-slate-200 text-sm">{archetype.name}</span>
-            <button
-              onClick={() => deleteMutation.mutate(archetype.id)}
-              disabled={deleteMutation.isPending}
-              className="p-1 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-              title="Delete archetype"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            {editId === archetype.id ? (
+              <div className="flex items-center gap-1.5 flex-1">
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && editName.trim()) {
+                      updateMutation.mutate({ id: archetype.id, name: editName.trim() });
+                    } else if (e.key === "Escape") {
+                      setEditId(null);
+                    }
+                  }}
+                  className="flex-1 bg-slate-700 border border-amber-500/40 text-slate-200 text-sm rounded px-2 py-1 outline-none"
+                  autoFocus
+                />
+                <button
+                  onClick={() => editName.trim() && updateMutation.mutate({ id: archetype.id, name: editName.trim() })}
+                  className="p-1 text-green-400 hover:text-green-300"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
+                <button onClick={() => setEditId(null)} className="p-1 text-slate-500 hover:text-slate-400">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <span className="text-slate-200 text-sm">{archetype.name}</span>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => { setEditId(archetype.id); setEditName(archetype.name); }}
+                    className="p-1 text-slate-500 hover:text-amber-400 opacity-0 group-hover:opacity-100 transition-all"
+                    title="Rename archetype"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => deleteMutation.mutate(archetype.id)}
+                    disabled={deleteMutation.isPending}
+                    className="p-1 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                    title="Delete archetype"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ))}
 
@@ -142,17 +200,20 @@ export const AdminArchetypesTab = () => {
           </div>
           <div>
             <h3 className="text-amber-400 font-bold text-base mb-2">Adding an Archetype</h3>
-            <p>Use the <strong>"Add"</strong> button to create an archetype that doesn't exist in YGOProDeck (e.g., "Gem-Knight"). Once added, it appears in the MainSearch and users can create guides for it.</p>
-            <p className="mt-1 text-slate-400">This is useful when the tier list scrapes a deck name that doesn't match any existing archetype in our system.</p>
+            <p>Use the <strong>"Add"</strong> button to create an archetype that doesn't exist in YGOProDeck. Once added, it appears in the MainSearch and users can create guides for it.</p>
+          </div>
+          <div>
+            <h3 className="text-amber-400 font-bold text-base mb-2">Renaming an Archetype</h3>
+            <p>Hover over an archetype and click the <strong>pencil icon</strong> to rename it. Guides, drafts, and guide requests still work — they reference the archetype by numeric ID. The tier list linked entries are automatically updated.</p>
+            <p className="mt-1 text-slate-400">You cannot rename to a name that already exists.</p>
           </div>
           <div>
             <h3 className="text-amber-400 font-bold text-base mb-2">Deleting an Archetype</h3>
-            <p>Hover over an archetype and click <strong>"X"</strong> to delete it. <strong>Only works if the archetype has no guides associated.</strong> If guides exist, you must delete them first.</p>
-            <p className="mt-1 text-slate-400">Use this to clean up duplicate or variant entries (e.g., remove "Destiny HERO" and keep just "HERO").</p>
+            <p>Hover over an archetype and click <strong>"X"</strong> to delete it. <strong>Only works if the archetype has no guides associated.</strong></p>
           </div>
           <div>
             <h3 className="text-amber-400 font-bold text-base mb-2">Relationship with Tier List</h3>
-            <p>In the Tier List admin tab, you can <strong>link</strong> a deck entry to an archetype from this list. This corrects naming inconsistencies between MasterDuelMeta and our database.</p>
+            <p>In the Tier List admin tab, you can <strong>link</strong> a deck entry to an archetype from this list.</p>
           </div>
         </div>
       </InfoModal>

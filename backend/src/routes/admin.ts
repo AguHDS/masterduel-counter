@@ -21,6 +21,7 @@ import {
   getArchetypesAdminController,
   createArchetypeAdminController,
   deleteArchetypeAdminController,
+  updateArchetypeAdminController,
 } from "@/http/controllers/admin/index.js";
 import {
   deleteUserMiddleware,
@@ -99,5 +100,6 @@ router.get("/tracking/users", verifyAdminMiddleware, getAllUsersController);
 router.get("/archetypes", verifyAdminMiddleware, getArchetypesAdminController);
 router.post("/archetypes", verifyAdminMiddleware, createArchetypeAdminController);
 router.delete("/archetypes/:id", verifyAdminMiddleware, deleteArchetypeAdminController);
+router.put("/archetypes/:id", verifyAdminMiddleware, updateArchetypeAdminController);
 
 export default router;

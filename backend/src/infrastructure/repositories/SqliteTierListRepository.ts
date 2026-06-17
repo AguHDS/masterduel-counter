@@ -298,4 +298,13 @@ export class SqliteTierListRepository implements TierListRepository {
       updatedAt: row.updated_at as string,
     };
   }
+
+  updateLinkedArchetypeName(archetypeId: number, newName: string): Promise<void> {
+    const stmt = this.db.prepare(
+      `UPDATE tier_list_entries SET linked_archetype_name = ?, updated_at = datetime('now')
+       WHERE linked_archetype_id = ?`,
+    );
+    stmt.run(newName, archetypeId);
+    return Promise.resolve();
+  }
 }

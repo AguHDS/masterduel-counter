@@ -13,4 +13,6 @@ export interface TierListRepository {
   replaceScrapedEntries(format: string, entries: Omit<TierListEntry, "id" | "createdAt" | "updatedAt" | "isActive" | "source" | "scrapedAt" | "counterGuideCount" | "deckGuideCount">[]): Promise<void>;
   /** Get guide counts of guide types (counter & deck) to display in each item of the tierlist */
   enrichWithGuideCounts(entries: TierListEntry[]): Promise<void>;
+  /** Cascade rename: update linked_archetype_name for all entries linked to an archetype */
+  updateLinkedArchetypeName(archetypeId: number, newName: string): Promise<void>;
 }

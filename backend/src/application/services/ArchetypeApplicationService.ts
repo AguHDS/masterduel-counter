@@ -102,4 +102,11 @@ export class ArchetypeApplicationService implements ArchetypeApplicationPort {
   async deleteArchetype(id: number): Promise<boolean> {
     return this.repository.deleteArchetype(id);
   }
+
+  /** Renames an archetype — Admin Panel */
+  async updateArchetype(id: number, name: string): Promise<Archetype | null> {
+    const existing = await this.repository.findArchetypeByName(name);
+    if (existing && existing.id !== id) return null;
+    return this.repository.updateExistingArchetype(id, { name });
+  }
 }

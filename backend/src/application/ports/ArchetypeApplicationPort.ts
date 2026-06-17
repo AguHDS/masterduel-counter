@@ -24,4 +24,6 @@ export interface ArchetypeApplicationPort {
   createArchetype(name: string): Promise<Archetype | null>;
   /** For adin pannel */
   deleteArchetype(id: number): Promise<boolean>;
+  /** Admin Panel rename archetype */
+  updateArchetype(id: number, name: string): Promise<Archetype | null>;
 }
