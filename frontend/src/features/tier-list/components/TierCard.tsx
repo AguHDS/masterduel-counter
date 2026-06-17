@@ -9,26 +9,10 @@ interface TierCardProps {
 }
 
 const tierColors: Record<number, { border: string; glow: string; bg: string }> = {
-  0: {
-    border: "border-none",
-    glow: "hover:shadow-[0_0_20px_-5px_rgba(56,189,248,0.5)]",
-    bg: "from-sky-950/50 via-violet-900/25 to-slate-950/80",
-  },
-  1: {
-    border: "border-none",
-    glow: "hover:shadow-[0_0_20px_-5px_rgba(245,158,11,0.4)]",
-    bg: "from-amber-950/50 via-amber-900/20 to-slate-950/80",
-  },
-  2: {
-    border: "border-none",
-    glow: "hover:shadow-[0_0_20px_-5px_rgba(148,163,184,0.35)]",
-    bg: "from-slate-800/40 via-slate-900/20 to-slate-950/80",
-  },
-  3: {
-    border: "border-none",
-    glow: "hover:shadow-[0_0_20px_-5px_rgba(194,65,12,0.35)]",
-    bg: "from-orange-950/50 via-orange-900/20 to-slate-950/80",
-  },
+  0: { border: "border-none", glow: "", bg: "from-sky-950/50 via-violet-900/25 to-slate-950/80" },
+  1: { border: "border-none", glow: "", bg: "from-amber-950/50 via-amber-900/20 to-slate-950/80" },
+  2: { border: "border-none", glow: "", bg: "from-slate-800/40 via-slate-900/20 to-slate-950/80" },
+  3: { border: "border-none", glow: "", bg: "from-orange-950/50 via-orange-900/20 to-slate-950/80" },
 };
 
 // Clickable deck card with tier-colored styling and card-art background
@@ -46,7 +30,7 @@ export const TierCard = ({ entry }: TierCardProps) => {
   return (
     <div
       onClick={handleClick}
-      className={`relative rounded-lg overflow-hidden shadow-lg shadow-black/50 cursor-pointer group border ${colors.border} transition-all duration-300 ${colors.glow} bg-gradient-to-b ${colors.bg}`}
+      className={`relative rounded-lg overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.08)] min-[501px]:shadow-none group border ${colors.border} transition-all duration-300 bg-gradient-to-b ${colors.bg}`}
     >
       <div className="w-full aspect-[16/10] overflow-hidden relative">
         {entry.imageUrl ? (
@@ -64,16 +48,16 @@ export const TierCard = ({ entry }: TierCardProps) => {
       </div>
 
       <div
-        className="absolute bottom-0 left-0 right-0 px-3 py-2.5"
+        className="absolute bottom-0 left-0 right-0 px-3 pt-2.5"
         style={{
-          background: "linear-gradient(to top, rgba(8,10,25,0.94) 50%, rgba(8,10,20,0.0) 100%)",
+          background: "linear-gradient(to top, rgba(8,10,25,0.80) 25%, rgba(8,10,20,0.0) 100%)",
           WebkitBackdropFilter: "blur(8px)",
         }}
       >
         <p className="text-slate-100 font-bold text-sm truncate">
           {displayName}
         </p>
-        <p className="text-[11px] mt-0.5">
+        <p className="text-[11px] mt-0.5 max-[500px]:hidden">
           <span className="text-amber-600">Counter: {entry.counterGuideCount}</span>
           <span className="text-slate-600">{" "}·{" "}</span>
           <span className="text-cyan-400">Deck: {entry.deckGuideCount}</span>

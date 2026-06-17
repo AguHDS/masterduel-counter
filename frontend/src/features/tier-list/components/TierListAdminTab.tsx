@@ -383,9 +383,9 @@ export const TierListAdminTab = () => {
             return (
               <div key={tier} className={`flex ${isLast ? "" : "border-b border-slate-500/15"}`}>
                 <div
-                  className={`w-[60px] sm:w-[72px] flex-shrink-0 flex flex-col items-center justify-center py-4 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.border}`}
+                  className={`w-[44px] sm:w-[60px] md:w-[72px] flex-shrink-0 flex flex-col items-center justify-center py-4 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.border}`}
                 >
-                  <span className={`text-2xl sm:text-3xl font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_8px_rgba(0,0,0,0.6)]`}>
+                  <span className={`text-2xl sm:text-3xl font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_4px_rgba(0,0,0,0.4)]`}>
                     {cfg.label}
                   </span>
                 </div>
@@ -410,8 +410,8 @@ export const TierListAdminTab = () => {
                         onDragEnd={handleDragEnd}
                         onDragOver={(e) => handleDragOver(e, entry.id)}
                         onDrop={(e) => handleDrop(e, entry.id)}
-                        className={`relative rounded-lg overflow-hidden shadow-lg shadow-black/50 group border transition-all duration-200 bg-gradient-to-b ${cfg.cardBg} ${
-                          dragOverId === entry.id ? "border-amber-400/60 shadow-[0_0_15px_-3px_rgba(245,158,11,0.3)]" : "border-slate-600/30"
+                        className={`relative rounded-lg overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.08)] min-[501px]:shadow-none group border transition-all duration-200 bg-gradient-to-b ${cfg.cardBg} ${
+                          dragOverId === entry.id ? "border-amber-400/60 shadow-[0_0_6px_-1px_rgba(245,158,11,0.12)]" : "border-slate-600/30"
                         }`}
                       >
                         {sourceBadge(entry.source)}
@@ -453,7 +453,7 @@ export const TierListAdminTab = () => {
                         </div>
 
                         <div
-                          className="px-3 py-2.5 flex flex-col gap-1.5"
+                          className="px-3 pt-2.5 flex flex-col gap-1.5"
                           style={{
                             background: "linear-gradient(to top, rgba(8,10,25,0.94) 50%, rgba(8,10,20,0.0) 100%)",
                             WebkitBackdropFilter: "blur(8px)",
@@ -587,7 +587,7 @@ export const TierListAdminTab = () => {
 
       {/* Save bar */}
       {hasChanges && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0d1020] border-t border-yellow-600/40 shadow-[0_-10px_50px_-5px_rgba(0,0,0,0.5)] px-6 py-4">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0d1020] border-t border-yellow-600/40 shadow-[0_-4px_12px_-3px_rgba(0,0,0,0.3)] px-6 py-4">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <p className="text-amber-300 text-sm font-medium">
               You have unsaved changes
@@ -595,7 +595,7 @@ export const TierListAdminTab = () => {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-2.5 bg-yellow-600/90 hover:bg-yellow-600 text-white rounded-lg text-sm font-bold disabled:opacity-50 transition-colors shadow-lg shadow-yellow-600/20"
+              className="flex items-center gap-2 px-6 py-2.5 bg-yellow-600/90 hover:bg-yellow-600 text-white rounded-lg text-sm font-bold disabled:opacity-50 transition-colors shadow shadow-yellow-600/10"
             >
               <Save className="w-4 h-4" />
               {isSaving ? "Saving..." : "Save Changes"}

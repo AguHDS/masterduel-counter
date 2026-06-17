@@ -47,15 +47,15 @@ export const TierSection = ({ tier, entries }: TierSectionProps) => {
   return (
     <div className="flex border-b border-slate-500/15 last:border-b-0">
       <div
-        className={`w-[60px] sm:w-[72px] flex-shrink-0 flex flex-col items-center justify-center py-4 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.borderColor}`}
+        className={`w-[44px] sm:w-[60px] md:w-[72px] flex-shrink-0 flex flex-col items-center justify-center py-4 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.borderColor}`}
       >
-        <span className={`text-2xl sm:text-3xl font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_8px_rgba(0,0,0,0.6)]`}>
+        <span className={`text-2xl sm:text-3xl font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_4px_rgba(0,0,0,0.4)]`}>
           {cfg.label}
         </span>
       </div>
 
-      <div className="flex-1 min-w-0 p-4 sm:p-5">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div className="flex-1 min-w-0 p-3 sm:p-3 sm:pb-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
           {entries.map((entry) => (
             <TierCard key={entry.id} entry={entry} />
           ))}
