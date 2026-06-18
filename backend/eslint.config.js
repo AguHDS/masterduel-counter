@@ -11,6 +11,6 @@ export default [
     },
   },
   {
-    ignores: ["dist/**", "coverage/**", "vitest.config.ts", "src/scripts/scrape-ocg.ts"],
+    ignores: ["dist/**", "coverage/**", "vitest.config.ts"],
   },
 ];

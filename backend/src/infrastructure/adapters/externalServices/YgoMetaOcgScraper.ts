@@ -1,27 +1,72 @@
-import { execSync } from "child_process";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
-import { ScrapedDeck, YgoMetaTcgScraper } from "./YgoMetaTcgScraper.js";
+import { ScrapedDeck } from "./YgoMetaTcgScraper.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const OCG_API_URL = "https://www.yugiohmeta.com/api/v1/deck-types/rankings?ocg=true&t3Only=false&range=Last%201%20month&limit=200";
+const TIER_2_THRESHOLD = 2.0;
 
-const SCRAPE_SCRIPT = resolve(__dirname, "../../../scripts/scrape-ocg.ts");
-const TIMEOUT_MS = 45000;
+interface ApiDeckEntry {
+  deckType: { name?: string };
+  decksCount: number;
+}
+
+interface ApiResponse {
+  deckTypes?: ApiDeckEntry[];
+  totalDecks?: number;
+}
 
 /**
- * OCG scraper. Extends the TCG parser but fetches HTML via Playwright
- * (clicks the OCG toggle, which is js-only)
+ * OCG scraper -> calls yugiohmeta.com's JSON API directly
+ * Top 3 = Tier 1, >= 2% = Tier 2, < 2% = Tier 3
  */
-export class YgoMetaOcgScraper extends YgoMetaTcgScraper {
+export class YgoMetaOcgScraper {
   async scrapeTierList(): Promise<ScrapedDeck[]> {
-    const html = execSync(`npx tsx "${SCRAPE_SCRIPT}"`, {
-      encoding: "utf-8",
-      timeout: TIMEOUT_MS,
-      stdio: ["ignore", "pipe", "pipe"],
+    console.log("OCG Scraper Fetching tier list from API:", OCG_API_URL);
+
+    const response = await fetch(OCG_API_URL, {
+      headers: {
+        "User-Agent": "MasterDuelCounter/1.0 (tier-list-scraper)",
+        "Accept": "application/json",
+      },
     });
 
-    console.log("OCG-Scrapper Got HTML from Playwright, length:", html.length);
-    return this.parseTierList(html);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch OCG tier list: ${response.status} ${response.statusText}`);
+    }
+
+    const raw = await response.json() as ApiResponse | ApiResponse[];
+    const root = Array.isArray(raw) ? raw[0] : raw;
+    const entries = root?.deckTypes ?? [];
+
+    console.log(`OCG Scraper Got ${entries.length} deck types from API`);
+
+    const totalDecks = root?.totalDecks ?? entries.reduce((sum: number, e: ApiDeckEntry) => sum + e.decksCount, 0);
+    const decks: ScrapedDeck[] = [];
+    const seen = new Set<string>();
+
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const deckName = (entry.deckType?.name || "").trim();
+
+      if (!deckName || seen.has(deckName.toLowerCase())) continue;
+      seen.add(deckName.toLowerCase());
+
+      const percentage = totalDecks > 0 ? (entry.decksCount / totalDecks) * 100 : 0;
+
+      let tier: number;
+      if (i < 3) {
+        tier = 1;
+      } else if (percentage >= TIER_2_THRESHOLD) {
+        tier = 2;
+      } else {
+        tier = 3;
+      }
+
+      decks.push({ deckName, tier, imageUrl: null });
+    }
+
+    console.log(
+      `OCG Scraper Parsed: T1=${decks.filter((d) => d.tier === 1).length}, T2=${decks.filter((d) => d.tier === 2).length}, T3=${decks.filter((d) => d.tier === 3).length}`,
+    );
+
+    return decks;
   }
 }

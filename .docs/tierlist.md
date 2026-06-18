@@ -165,19 +165,12 @@ Click "Scrape Now" (admin)
   ├─ Decks con ≥ 2% → Tier 2
   └─ Decks con < 2% → Tier 3
 
-### OCG scraping (yugiohmeta.com via Playwright)
-  ├─ Script independiente `scrape-ocg.ts` usa Playwright para:
-  │    ├─ Abrir chromium headless (~100-120MB RAM pico, 5s)
-  │    ├─ Navegar a yugiohmeta.com/tier-list
-  │    ├─ Clickear botón "OCG"
-  │    └─ Devolver HTML renderizado
-  ├─ `YgoMetaOcgScraper` extiende `YgoMetaTcgScraper`
-  │    └─ Llama al script via `execSync`, reusa el parser
-  └─ Solo corre en el cron (cada 12h) o scrape manual admin. Nunca por usuario.
-
-Nota: Playwright requiere instalación manual:
-  npm install playwright
-  npx playwright install chromium
+### OCG scraping (yugiohmeta.com via JSON API)
+  ├─ Llama a /api/v1/deck-types/rankings?ocg=true&limit=200
+  ├─ API devuelve JSON (objeto o array con un objeto) → extrae deckType.name + decksCount
+  ├─ Calcula percentage = decksCount / totalDecks * 100
+  ├─ Top 3 → Tier 1, ≥ 2% → Tier 2, < 2% → Tier 3
+  └─ Sin Playwright. Sin dependencias extra. fetch() nativo.
 
 ## URLs en produccion
 

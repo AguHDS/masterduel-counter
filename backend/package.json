@@ -22,8 +22,7 @@
     "generate-thumbnails": "tsx src/scripts/generate-thumbnails.ts",
     "generate-thumbnails:prod": "node dist/scripts/generate-thumbnails.js",
     "simulate-snapshot": "tsx src/scripts/simulate-monthly-snapshot.ts",
-    "clear-snapshots": "tsx src/scripts/clear-monthly-snapshots.ts",
-    "scrape-ocg": "tsx src/scripts/scrape-ocg.ts"
+    "clear-snapshots": "tsx src/scripts/clear-monthly-snapshots.ts"
   },
   "keywords": [],
   "author": "",
@@ -70,7 +69,6 @@
     "multer": "^2.0.0",
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.1",
-    "playwright": "^1.61.0",
     "sharp": "^0.34.5",
     "streamifier": "^0.1.1",
     "tsconfig-paths": "^4.2.0"

@@ -84,4 +84,11 @@ bugs:
 resolviendo:
 - Como identificamos dominios ajenos que scrapean nuestra tierlsit? sabemos sobre las ip que no se distingue,pero para distinguir dominios????
 - aniamciones dropdown perfil y demas
-- Si tenemos una draft de un arquetipo, se marca como "has guides" en la main search. Solo tienen que contar las publicadas.
+- En los archivos scraper como YgometaOcgScraper.ts, no es arriesgado delatarnos dando nuestor nombre de dominio y la palabra scraper asi?:
+const response = await fetch(OCG_API_URL, {
+      headers: {
+        "User-Agent": "MasterDuelCounter/1.0 (tier-list-scraper)",
+        "Accept": "application/json",
+      },
+    });
+Esto no aumenta el riesgo que de los admin de ese lugar nos identifiquen y bloqueen? Cambiar el nombre del user-agent mitigaria esto? habria que hacer modificaicones extra en nuestro codigo si cambiamos ese string o no afecta en nada al resto de cosas?
