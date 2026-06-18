@@ -82,5 +82,45 @@ mejoras:
 
 bugs:
 resolviendo:
-- Modificacion en un step de combo para hacer pend summon. Requeriria poner dos scales y los bichos a summonear x pendulo
+La ultima vez, estabamos resolviendo esta task pero me quede sin quota, asi que se corto justo cuando estabas revisando los lints del frontend y backend.
+Mi duda es, has terminado esta implementacion?:
+
+Perfecto, ahora vamos a mejorar las guias tipo DECK. Es agregar una mejora no muy compleja pero necesaria.
+Los steps de la guia tipo deck, necesitan un boton que diga "Pend summon" cuando se esta en modo edicion. Este boton debe estar ubicado al extremo derecho en el mismo nivel que el boton "Canceled?" de cada step.
+
+Que va a hacer al clickearlo? Va a transformar ese step para tener otra estructura:
+- En lugar de tener una main card al medio, y 5 placeholders para los sidecards a la derecha e izquierda, va a tener un placeholder en la izquierda y un placeholder en la derecha para poner cartas.
+- El label "Material" en el lazo izquierdo pasa a decir "Scale", y el label "Effect" pasa a decir "Scale".
+- Ademas, las cartas de la izquierda y derecha seleccionadas van a tener numeros del 1 al 15 para elegir (el de la izquierda azul y el de la derecha rojo) que al elegir un numero, va a mostrarse en el bottom-centro de esa carta seleccionada
+- En el medio, en vez de tener la main card, va a tener 6 placeholders para poner cartas.Estos 6 placeholders en el medio deben estar ubicados tres arriba y tres abajo en estructura, y cuando el width de pantalla sea muy chico deben ubicarse dos como mucho antes de hacer salto de linea. Respeta la responsibidad para dispositivos pequeños
+
+Una vez publicada la guia, en modo view se debe ver bien como step de pendulo.
+
+Archivos relacionados:
+frontend\src\features\guide-editor\components\deck-guides\combo-step-editor\ComboStepItemEditor.tsx
+frontend\src\features\guide-editor\components\deck-guides\combo-step-editor\ComboStepEditor.tsx
+frontend\src\features\guide-editor\components\deck-guides\combo-step-editor\ComboStepCard.tsx
+frontend\src\features\guide-editor\components\deck-guides\combo-step-editor\ComboStepCardSlot.tsx
+frontend\src\features\guide-editor\components\deck-guides\combo-step-editor\ComboStepSideColumn.tsx
+frontend\src\features\guide-editor\components\deck-guides\combo-step-editor\ComboFlowViewer.tsx
+frontend\src\features\guide-editor\components\deck-guides\combo-step-editor\ComboFlowSection.tsx
+frontend\src\features\guide-editor\hooks\deck-guides\useDeckGuideHandlers.ts
+frontend\src\features\guide-editor\components\GuideContainer.tsx
+frontend\src\features\guide-editor\hooks\useGuideDataSync.ts
+frontend\src\features\guide-editor\hooks\useSaveInstanceGuide.ts
+frontend\src\features\guide-editor\utils\comboStepEditorUtils.ts
+frontend\src\features\guide-editor\utils\guideContainerTransforms.ts
+frontend\src\features\guide-editor\utils\idGeneration.ts
+frontend\src\features\guide-editor\utils\serialization.ts
+frontend\src\features\guide-editor\utils\validation.ts
+frontend\src\features\guide-editor\api\guideEditorApi.ts
+
+En cuanto al backend, ve indagando desde los controllers para ver sus capas de dominio, application, infraestructura, composition root, etc.
+backend\src\http\controllers\guides\registerGuideViewController.ts
+backend\src\http\controllers\guides\getComboStepsController.ts
+
+backend\src\http\controllers\guides\saveDraftController.ts -> quiza las guias guardadas como draft y su flujo hay que tener en cuenta tambien? no estoy seguro.
+
+- Preguntar si deberiamos crear tests por haber agregado el pendulum a los combo steps. Mostrar los tests de las guias frontend y backend
+
 - Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas 2 estan en OCG y TCG pero no deberian estar en masterduel.

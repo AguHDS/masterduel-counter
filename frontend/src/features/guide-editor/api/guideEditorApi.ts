@@ -23,6 +23,9 @@ export interface ComboStepDTO {
   description?: string;
   parentCanceledStepIndex?: number;
   stepOrder: number;
+  stepType?: string | null;
+  leftScaleValue?: number | null;
+  rightScaleValue?: number | null;
 }
 
 export interface ComboStepsDTO {

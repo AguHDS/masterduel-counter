@@ -73,6 +73,9 @@ export interface ComboStep {
   stepOrder: number;
   description?: string | null;
   parentCanceledStepId?: string | null;
+  stepType?: "NORMAL" | "PENDULUM" | null;
+  leftScaleValue?: number | null;
+  rightScaleValue?: number | null;
   mainCards: Card[];
   subCards: Card[];
   leftSubCards: Card[];

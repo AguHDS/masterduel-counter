@@ -99,6 +99,9 @@ export const transformComboStepsForApi = (
             ? stepIdToIndex.get(step.parentCanceledStepId)
             : undefined,
           stepOrder: stepIndex,
+          stepType: step.stepType || undefined,
+          leftScaleValue: step.leftScaleValue ?? undefined,
+          rightScaleValue: step.rightScaleValue ?? undefined,
         })),
       };
     })

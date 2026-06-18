@@ -2,6 +2,7 @@ import { Trash2 } from "lucide-react";
 import type { ComboStep } from "@/features/archetypes/types";
 import type { ChainPickerState, ComboCardType } from "../../../utils/comboStepEditorUtils";
 import { ComboStepCardSlot } from "./ComboStepCardSlot";
+import { ComboStepPendulumLayout } from "./ComboStepPendulumLayout";
 import { ComboStepSideColumn } from "./ComboStepSideColumn";
 
 interface ComboStepItemEditorProps {
@@ -16,6 +17,8 @@ interface ComboStepItemEditorProps {
   isRightExpanded: boolean;
   chainPickerOpen: ChainPickerState | null;
   onToggleCanceledFlow: () => void;
+  onToggleStepType: () => void;
+  onUpdateScaleValue: (side: "left" | "right", value: number | null) => void;
   onRemoveStep: () => void;
   onDescriptionChange: (description: string) => void;
   onToggleExpanded: (cardType: Extract<ComboCardType, "sub" | "leftSub">) => void;
@@ -48,6 +51,8 @@ export const ComboStepItemEditor = ({
   isRightExpanded,
   chainPickerOpen,
   onToggleCanceledFlow,
+  onToggleStepType,
+  onUpdateScaleValue,
   onRemoveStep,
   onDescriptionChange,
   onToggleExpanded,
@@ -136,7 +141,37 @@ export const ComboStepItemEditor = ({
         </button>
       )}
 
+      {/* Pendulum Summon Toggle Button */}
+      {!isReadOnly && (
+        <button
+          onClick={onToggleStepType}
+          className={`absolute bottom-2 right-2 px-2 py-1 text-[11px] font-semibold rounded ${
+            step.stepType === "PENDULUM"
+              ? "bg-violet-600/80 text-white hover:bg-violet-600"
+              : "bg-slate-700/50 text-slate-400 hover:bg-violet-700 hover:text-violet-200"
+          }`}
+          title={step.stepType === "PENDULUM" ? "Switch to Normal Step" : "Switch to Pendulum Summon Step"}
+        >
+          Pend summon
+        </button>
+      )}
+
       <div className="relative z-10">
+          {step.stepType === "PENDULUM" ? (
+            <div className="mb-3">
+              <ComboStepPendulumLayout
+                step={step}
+                isReadOnly={isReadOnly}
+                chainPickerOpen={chainPickerOpen}
+                onOpenSearch={onOpenSearch}
+                onRemoveCard={onRemoveCard}
+                onToggleChainPicker={onToggleChainPicker}
+                onUpdateChainNumber={onUpdateChainNumber}
+                onCloseChainPicker={onCloseChainPicker}
+                onUpdateScaleValue={onUpdateScaleValue}
+              />
+          </div>
+          ) : (
           <div className={`${isLeftExpanded || isRightExpanded ? "mb-6" : "mb-3"} ${isReadOnly ? "pointer-events-none" : ""} max-[450px]:!mb-1`}>
           <div className="flex justify-center m-auto items-center gap-3 max-[450px]:gap-1 w-fit">
           {step.mainCards.length > 0 && (
@@ -226,6 +261,7 @@ export const ComboStepItemEditor = ({
           )}
           </div>
         </div>
+        )}
 
         <div className="flex flex-col items-center">
           <label className="text-blue-400 font-semibold text-xs mb-2 text-nowrap">
@@ -247,8 +283,9 @@ export const ComboStepItemEditor = ({
           <div className="text-xs text-slate-400 mt-0.5 text-right w-full max-w-[280px]">
             {(step.description || "").length}/500
           </div>
-        </div>
-      </div>
+           </div>
+          </div>
+
     </div>
   );
 };

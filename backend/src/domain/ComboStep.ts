@@ -5,6 +5,9 @@ export interface ComboStep {
   stepOrder: number;
   description: string | null;
   parentCanceledStepId: number | null;
+  stepType: string | null;
+  leftScaleValue: number | null;
+  rightScaleValue: number | null;
   createdAt: string;
   mainCardIds: number[];
   subCardIds: number[];
@@ -22,9 +25,15 @@ export interface ComboStepCreateDTO {
   subCardChains?: (number | null)[];
   leftSubCardIds: number[];
   leftSubCardChains?: (number | null)[];
+  stepType?: string | null;
+  leftScaleValue?: number | null;
+  rightScaleValue?: number | null;
 }
 
 export interface ComboStepWithCards extends Omit<ComboStep, 'mainCardIds' | 'subCardIds' | 'leftSubCardIds'> {
+  stepType: string | null;
+  leftScaleValue: number | null;
+  rightScaleValue: number | null;
   mainCards: Array<{
     id: number;
     name: string;

@@ -232,13 +232,30 @@ export const ComboStepEditor = ({
   };
 
   const toggleCanceledFlow = (stepId: string) => {
-    // If clicking the same step, toggle back to main flow
     if (activeCanceledStepId === stepId) {
       setActiveCanceledStepId(null);
     } else {
-      // Switch to this step's canceled flow
       setActiveCanceledStepId(stepId);
     }
+  };
+
+  const handleToggleStepType = (stepId: string) => {
+    updateCardsForStep(stepId, (step) => ({
+      ...step,
+      stepType: step.stepType === "PENDULUM" ? "NORMAL" : "PENDULUM",
+      mainCards: [],
+      subCards: [],
+      leftSubCards: [],
+      leftScaleValue: null,
+      rightScaleValue: null,
+    }));
+  };
+
+  const handleUpdateScaleValue = (stepId: string, side: "left" | "right", value: number | null) => {
+    updateCardsForStep(stepId, (step) => ({
+      ...step,
+      [side === "left" ? "leftScaleValue" : "rightScaleValue"]: value,
+    }));
   };
 
   const handleOpenSearch = (stepId: string, cardType: ComboCardType, nextAnchorElement: HTMLElement) => {
@@ -307,6 +324,8 @@ export const ComboStepEditor = ({
                   isRightExpanded={expandedRightSteps.has(step.id)}
                   chainPickerOpen={chainPickerOpen}
                   onToggleCanceledFlow={() => toggleCanceledFlow(step.id)}
+                  onToggleStepType={() => handleToggleStepType(step.id)}
+                  onUpdateScaleValue={(side, value) => handleUpdateScaleValue(step.id, side, value)}
                   onRemoveStep={() => handleRemoveStep(step.id)}
                   onDescriptionChange={(description) => handleDescriptionChange(step.id, description)}
                   onToggleExpanded={(cardType) => toggleExpandedSteps(cardType, step.id)}
