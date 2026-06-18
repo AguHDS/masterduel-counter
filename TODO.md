@@ -82,5 +82,5 @@ mejoras:
 
 bugs:
 resolviendo:
-- rate limiter
+- Modificacion en un step de combo para hacer pend summon. Requeriria poner dos scales y los bichos a summonear x pendulo
 - Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas 2 estan en OCG y TCG pero no deberian estar en masterduel.

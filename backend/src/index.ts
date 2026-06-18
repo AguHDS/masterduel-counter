@@ -18,6 +18,7 @@ import { createLegacyUrlRedirectMiddleware } from "./http/middlewares/legacyUrlR
 import {
   authWriteRateLimiter,
   dynamicContentCreationRateLimiter,
+  generalWriteRateLimiter,
 } from "./http/middlewares/rateLimitMiddleware.js";
 dotenv.config();
 const app = express();
@@ -205,6 +206,15 @@ if (process.env.NODE_ENV !== "test") {
 
   // 2. REPORT SPAM - Prevent malicious report flooding
   app.use("/api/reports", onlyWriteOperations(dynamicContentCreationRateLimiter));
+
+  // 3. GENERAL WRITE - Protect against spam on user operations
+  app.use("/api/archetypes", onlyWriteOperations(generalWriteRateLimiter));
+  app.use("/api/comments", onlyWriteOperations(generalWriteRateLimiter));
+  app.use("/api/profile", onlyWriteOperations(generalWriteRateLimiter));
+  app.use("/api/cards", onlyWriteOperations(generalWriteRateLimiter));
+  app.use("/api/custom-decks", onlyWriteOperations(generalWriteRateLimiter));
+  app.use("/api/guide-requests", onlyWriteOperations(generalWriteRateLimiter));
+  app.use("/api/tier-list", onlyWriteOperations(generalWriteRateLimiter));
 }
 
 // ROUTES WITHOUT RATE LIMITING

@@ -182,8 +182,13 @@ frontend\src\features\admin-panel -> panel de administracion con tabs: Manage Ac
 **Ejemplo - Tier List feature**: `resolveImageForDeck()` busca en DB via `findCardsByArchetype()`, llama a `selectCard()` para garantizar que las imagenes existan en disco, y solo hace hotlink como ultimo recurso.
 
 ## Rate limiting
-Usamos rate limiting en el backend de nuestro proyecto (mas flexible, no con nginx), y usamos memory store (se reinicia cada vez que se reinicia el backend). Puedes ver parte de la implementacion en backend\src\index.ts si necesitas trabajar con esto.
-**Importante**: En modo test (`NODE_ENV=test`), los rate limiters se deshabilitan automáticamente (ver index.ts).
+
+- **Auth** (login/register): 30 req/15min
+- **Reports**: 50/h auth, 20/h anon
+- **General write** (guides, comments, profile, cards, custom-decks, guide-requests, tier-list): 600/2h auth, 30/h anon
+- Solo aplica a POST/PUT/DELETE. GET no se limita (Google, usuarios, todo OK).
+- Sliding window: cualquier ventana de X min hacia atrás no puede superar N requests.
+- Deshabilitado en modo test (`NODE_ENV=test`).
 
 # Sistema de base de datos (dual layer):
 
