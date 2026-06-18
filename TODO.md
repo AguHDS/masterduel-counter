@@ -84,5 +84,3 @@ bugs:
 resolviendo:
 - rate limiter
 - Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas 2 estan en OCG y TCG pero no deberian estar en masterduel.
-- hacer la tierlist mas separada, estan los tiers muy juntos. Hay que dividir su zona por color o darle mas altura a cada tier de modo que los items dentro de su tier no esten pegados al top o bottom de su tier y este muy cerca de otro tier.
-- aniamciones dropdown perfil y demas
