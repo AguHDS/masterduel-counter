@@ -83,6 +83,5 @@ mejoras:
 bugs:
 resolviendo:
 - Como identificamos dominios ajenos que scrapean nuestra tierlsit? sabemos sobre las ip que no se distingue,pero para distinguir dominios????
-- mejorar diseño? quiza tierlist mas ancha
 - aniamciones dropdown perfil y demas
 - Si tenemos una draft de un arquetipo, se marca como "has guides" en la main search. Solo tienen que contar las publicadas.

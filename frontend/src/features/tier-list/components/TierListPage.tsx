@@ -78,7 +78,7 @@ export const TierListPage = () => {
           />
           <div className="absolute inset-0 bg-black/45 pointer-events-none" />
 
-          <div className="relative z-10 max-w-7xl mx-auto py-10">
+          <div className="relative z-10 max-w-[1400px] mx-auto py-10">
             <div className="px-4 sm:px-6 lg:px-8 mb-8">
               <div className="flex items-center gap-4 mb-1">
                 <div className="flex-1 hidden sm:block h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
@@ -124,7 +124,7 @@ export const TierListPage = () => {
               </div>
 
               {monthLabel && (
-                <p className={`text-yellow-500 font-bold text-md text-left sm:text-center ${format !== "masterduel" ? "sm:-ml-8" : ""}`}>{monthLabel}</p>
+                <p className={`text-yellow-500 font-bold text-md text-left sm:text-center ${format === "masterduel" ? "sm:-ml-4" : "sm:-ml-8"}`}>{monthLabel}</p>
               )}
             </div>
 
