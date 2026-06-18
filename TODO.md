@@ -57,10 +57,6 @@ en la guias del lista de perfil, hacer borders y background azul para guias deck
 
 ---
 
-copiar la tierlist como la hacen en el honkai
-
----
-
 Solo he puesto rate limiter al login y reporte, porque me daba problemas cuando le ponia rate limiter a cosas como visitas en las guias y cosas repetitivas. Si es riesgoso no hacerlo fijarse de implementarlo cuidadosamente en cada operacion que sea un target facil de ataques.
 
 ---
@@ -85,4 +81,5 @@ mejoras:
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
 
 bugs:
-Resolviendo:
+resolviendo:
+- aniamciones dropdown perfil y demas

@@ -136,7 +136,7 @@ export const Navbar = () => {
             {/* Mobile menu toggle */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="sm:hidden p-2 text-[#c2901c] hover:text-[#d4a534] transition-colors"
+              className="min-[695px]:hidden p-2 text-[#c2901c] hover:text-[#d4a534] transition-colors"
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMenuOpen ? (

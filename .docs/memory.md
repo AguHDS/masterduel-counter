@@ -61,7 +61,7 @@ Cada usuario tiene un perfil público que muestra su información y sus guías c
 # Stack:
 betterauth, better-sqlite3, prisma, cloudinary (para fotos de perfil), react, tanstack query, axios, node y typescript. (leer package.json en /frontend y /backend para mas detalles)
 
-# Arquitectura de mi monorepo:
+# Arquitectura del monorepo (Puede estar un poco desactualizada, pero el contexto se entiende):
 Backend - Hexagonal Architecture:
 backend\src\index.ts - punto de entrada del backend
 backend\prisma\schema.prisma - prisma schema (guideType: COUNTER/DECK, InitialHand model)
@@ -98,16 +98,15 @@ frontend\src\shared\components - componentes compartidos (GuidesTable, FeatureEr
 frontend\src\shared\hooks - hooks compartidos (useDebounce, useAnalyticsPageTracking, etc...)
 frontend\src\lib\config\urlHelpers.ts - Get base URL based on environment and also helpers for redirection 301
 
-# Sobre redirect 301:
-- Si en el futuro cambiamos otra vez:
-- URLs de guías
-- URLs de perfil
-- URLs públicas indexables por Google
-Entonces sí debes revisar:
+# Sobre redirect 301 / URL legacy -> SEO-friendly:
+- **Archetype guide lists**: Las URLs basadas en ID (`/archetype/42/counter-guides`) son redirigidas a su versión SEO-friendly (`/archetype/abyss-script/counter-guides`) mediante el componente `LegacyArchetypeRedirect` en el frontend (React Router). Detecta si el parámetro es numérico (ID legacy) o no (slug SEO-friendly ya correcto). Si es numérico, fetchea el nombre del archetype via API y hace `<Navigate replace />`. Si no es numérico, simplemente renderiza la página normalmente.
+- URLs de guías individuales (author/guide slugs)
+- URLs de perfil (user slugs)
+Si en el futuro cambiamos otra vez estas URLs, revisar:
 - urlHelpers.ts
 - App.tsx
-- legacyUrlRedirectMiddleware.ts
-Si no cambias una ruta pública ya existente, no necesitas volver a tocar esta implementación.
+- LegacyArchetypeRedirect.tsx
+- legacyUrlRedirectMiddleware.ts (backend, solo cubre `/archetype/:id` pelado)
 
 # Resumen de features importantes:
 frontend\src\features\archetypes -> feature para cosas reutilizables por otras features que tengan que ver con archetype. CardTooltip.tsx, CardSearchModal.tsx.
@@ -118,6 +117,8 @@ frontend\src\features\registered-archetypes -> lista de arquetipos con al menos 
 frontend\src\features\profile -> perfil de usuario. Refactorizada en junio 2026: componentes separados en ProfileLeftSidebar, ProfileTabBar, ProfileRightSidebar. ProfilePage.tsx es el orquestador (~490 líneas).
 frontend\src\features\ranking -> trending mensual y all-time de guías y usuarios. Muestra top 15 guías y top 15 usuarios.
 frontend\src\features\guide-request -> usuarios pueden crear solicitudes de guías. Otros usuarios pueden tomarlas y cumplirlas (+1 en Completed Requests stat).
+frontend\src\features\tier-list -> tier list de decks meta (Master Duel). Ver `.docs/tierlist.md`.
+frontend\src\features\admin-panel -> panel de administracion con tabs: Manage Accounts, Reports, Tracking, Latest Updates, Tier List, Archetypes.
 
 # Features del backend importantes:
 - **Guides**: CRUD de guías COUNTER/DECK. Drafts (máx 3 por usuario). Likes/favorites (máx 20 para rol user, ilimitado admin/supporter). Views con cooldown 12h.
@@ -127,7 +128,8 @@ frontend\src\features\guide-request -> usuarios pueden crear solicitudes de guí
 - **Guide Requests**: Usuarios (anónimos o autenticados) crean requests. Otros las toman (7 días para cumplir) y las cumplen linkeando una guía. +1 al stat de Completed Requests del cumplidor.
 - **Ranking**: All-time (stats totales) y Trending (stats del mes actual). Snapshots mensuales guardados en MonthlyGuideRanking y MonthlyUserRanking. Score = likes*10 + favs*7 + views*0.1. Requisitos mínimos para trending: guías necesitan 1 like/fav o 50 views; usuarios 1 like/fav o 25 views o 1 request cumplida.
 - **Cards**: Búsqueda, selección, confirmación, detalles. Cache local (DB + filesystem) con fallback a YGOProDeck API.
-- **Archetypes**: Búsqueda, registro (marcados como registered cuando tienen guías), stats.
+- **Archetypes**: Búsqueda, registro (marcados como registered cuando tienen guías), stats. Admin puede crear/eliminar archetypes (tab Archetypes en admin panel).
+- **Tier List**: Scraping de masterduelmeta.com cada 12h. Muestra decks meta en tiers 1/2/3. Linking de entries a archetypes de la DB. Soft-delete + auto-reset. Imagenes resueltas via selectCard (DB local) → YGOProDeck (hotlink fallback). Ver `.docs/tierlist.md`.
 
 # Como funciona nuestro sistema de almacenamiento de imágenes de cartas:
 
@@ -156,12 +158,28 @@ frontend\src\features\guide-request -> usuarios pueden crear solicitudes de guí
 - Modo resiliente: continúa si alguna imagen falla (tokens sin _cropped.jpg)
 - NO guarda en DB, solo archivos físicos
 - Ejecutar en VPS antes de producción (detener backend con `pm2 stop all`)
+- Flag `--delay <ms>`: delay entre cartas. Default 0ms (local). Usar `--delay 250` en VPS con poca RAM.
+- Flag `--limit <n>`: descargar solo N cartas para testing.
 
 **Lazy-loading** (`selectCard()`):
 - Cuando usuario selecciona cartas al crear una guia y guarda la guia → descarga imágenes + guarda en DB
 - Cartas nuevas se descargan automáticamente on-demand
 
 **Resultado:** ~98-99% de búsquedas usan VPS, 1-2% usan hotlinks (cartas nuevas), latencia reducida 3-5x.
+
+## Hotlinking vs Storage Local
+
+**Filosofia**: Siempre que sea posible, las imagenes de cartas deben servirse desde nuestro storage local (DB + filesystem). El hotlinking directo a YGOProDeck (`https://images.ygoprodeck.com/...`) es un **fallback de ultimo recurso**.
+
+**Orden de prioridad para cualquier feature que necesite imagenes de cartas:**
+
+1. **Buscar en DB local** (`cards` table via `CardRepository`): Si la carta existe en nuestra DB, usar `imageUrlCropped` local. Esto cubre todas las cartas que alguna vez se usaron en guias.
+2. **Buscar en filesystem** (`uploads/cards/`): Si la carta no esta en DB pero fue descargada por el script masivo (~14,000 cartas), verificar existencia del archivo y usar URL local.
+3. **Hotlink a YGOProDeck**: Solo si la carta no existe localmente ni en DB ni en filesystem, usar la URL externa de YGOProDeck como fallback.
+
+**Nuevas features deben seguir esta prioridad**: DB local → filesystem -> hotlink. No se debe hacer hotlinking directo sin antes verificar nuestro storage.
+
+**Ejemplo - Tier List feature**: `resolveImageForDeck()` busca en DB via `findCardsByArchetype()`, llama a `selectCard()` para garantizar que las imagenes existan en disco, y solo hace hotlink como ultimo recurso.
 
 ## Rate limiting
 Usamos rate limiting en el backend de nuestro proyecto (mas flexible, no con nginx), y usamos memory store (se reinicia cada vez que se reinicia el backend). Puedes ver parte de la implementacion en backend\src\index.ts si necesitas trabajar con esto.
@@ -272,7 +290,8 @@ Esto crea las tablas en `test.db`. Repetir si cambia el schema de Prisma.
 - No dejar codigo muerto
 - No exportar cosas que no se usen fuera
 - Correr npm run lint en backend y frontend para ver si hay errores a arreglar
-- No hacer unit test de repositorios aislados (capa HTTP ya los cubre indirectamente)
+- No hacer unit test de repositorios aislados (backend) (capa HTTP ya los cubre indirectamente)
+- No correr tests, los hago yo manualmente.
 - No correr comandos tipo npx prisma generate o npx prisma db push, lo hare yo manualmente para evitar crasheos.
 - No crear migraciones, ya que soy un unico deb y me manejo con npx prisma db push o npx prisma generate.
 - Si agregas nuevos tests de integración, seguí el patrón de los existentes: beforeAll crea fixtures (arquetipos, cards), beforeEach limpia en orden FK-safe, helpers registerAndLogin + createGuide.

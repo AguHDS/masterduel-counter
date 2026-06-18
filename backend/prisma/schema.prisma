@@ -552,3 +552,31 @@ model LatestUpdate {
   @@index([createdAt])
   @@map("latest_updates")
 }
+
+model TierListEntry {
+  id          Int      @id @default(autoincrement())
+  deckName    String   @map("deck_name")
+  tier        Int
+  format      String   @default("masterduel")
+  position    Int      @default(0)
+  imageUrl    String?  @map("image_url")
+  source      String   @default("scraped")
+  isActive    Boolean  @default(true) @map("is_active")
+  linkedArchetypeId   Int?    @map("linked_archetype_id")
+  linkedArchetypeName String? @map("linked_archetype_name")
+  scrapedAt   DateTime? @map("scraped_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("tier_list_entries")
+}
+
+model TierListConfig {
+  id              Int      @id @default(autoincrement())
+  format          String   @unique
+  scrapingEnabled Boolean  @default(true) @map("scraping_enabled")
+  lastScrapedAt   DateTime? @map("last_scraped_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@map("tier_list_config")
+}

@@ -11,4 +11,6 @@ export interface CardRepository {
   deleteCardById(id: number): Promise<void>;
   /** Get all cards from database */
   getAllCards(): Promise<Card[]>;
+  /** Find cards by archetype name (case-insensitive LIKE match) */
+  findCardsByArchetype(archetype: string): Promise<Card[]>;
 }

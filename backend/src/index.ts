@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import { getDependencies } from "./compositionRoot.js";
 import { startCleanupJob } from "./services/cleanupService.js";
 import { startTrendingSnapshotService } from "./services/trendingSnapshotService.js";
+import { startTierListScraperService } from "./services/tierListScraperService.js";
 import {
   createGuideOgPreviewMiddleware,
   createSiteOgPreviewMiddleware,
@@ -65,6 +66,7 @@ import {
   ranking,
   notifications,
   latestUpdates,
+  tierList,
 } from "./routes/index.js";
 import auth from "./routes/auth/auth.js";
 import getGuideCardPairs from "./routes/guides/getGuideCardPairs.js";
@@ -268,6 +270,9 @@ app.use("/api/guide-requests", guideRequests);
 // Latest Updates
 app.use("/api/latest-updates", latestUpdates);
 
+// Tier List
+app.use("/api/tier-list", tierList);
+
 // Sitemap for SEO
 app.use(sitemap);
 
@@ -310,6 +315,7 @@ if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () => {
     startCleanupJob();
     startTrendingSnapshotService();
+    startTierListScraperService();
   });
 }
 

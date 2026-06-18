@@ -29,11 +29,11 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
              created_at, updated_at,
              CASE WHEN EXISTS (
                SELECT 1 FROM archetype_instances
-               WHERE archetype_id = archetypes.id AND guide_type = 'COUNTER'
+               WHERE archetype_id = archetypes.id AND guide_type = 'COUNTER' AND is_draft = 0
              ) THEN 1 ELSE 0 END as has_counter_guide,
              CASE WHEN EXISTS (
                SELECT 1 FROM archetype_instances
-               WHERE archetype_id = archetypes.id AND guide_type = 'DECK'
+               WHERE archetype_id = archetypes.id AND guide_type = 'DECK' AND is_draft = 0
              ) THEN 1 ELSE 0 END as has_deck_guide
       FROM archetypes 
       WHERE LOWER(name) LIKE LOWER(?) 
@@ -53,11 +53,11 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
              created_at, updated_at,
              CASE WHEN EXISTS (
                SELECT 1 FROM archetype_instances
-               WHERE archetype_id = archetypes.id AND guide_type = 'COUNTER'
+               WHERE archetype_id = archetypes.id AND guide_type = 'COUNTER' AND is_draft = 0
              ) THEN 1 ELSE 0 END as has_counter_guide,
              CASE WHEN EXISTS (
                SELECT 1 FROM archetype_instances
-               WHERE archetype_id = archetypes.id AND guide_type = 'DECK'
+               WHERE archetype_id = archetypes.id AND guide_type = 'DECK' AND is_draft = 0
              ) THEN 1 ELSE 0 END as has_deck_guide
       FROM archetypes 
       WHERE LOWER(name) LIKE LOWER(?) 
@@ -186,6 +186,20 @@ export class SqliteArchetypeRepository implements ArchetypeRepository {
       // If archetype already exists (unique constraint), return null
       return null;
     }
+  }
+
+  /** Delete archetype from the system (admin pannel) */
+  async deleteArchetype(id: number): Promise<boolean> {
+    // Check for associated guides first
+    const checkStmt = this.db.prepare(
+      `SELECT COUNT(*) as count FROM archetype_instances WHERE archetype_id = ?`,
+    );
+    const { count } = checkStmt.get(id) as { count: number };
+    if (count > 0) return false;
+
+    const stmt = this.db.prepare(`DELETE FROM archetypes WHERE id = ?`);
+    const result = stmt.run(id);
+    return result.changes > 0;
   }
 
   async getGuidesGeneralStats(limit: number = 15, guideType?: 'COUNTER' | 'DECK'): Promise<GeneralStats> {

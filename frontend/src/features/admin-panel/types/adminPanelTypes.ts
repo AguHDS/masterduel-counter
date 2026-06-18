@@ -79,4 +79,4 @@ export interface PaginatedUsersResponse {
   totalPages: number;
 }
 
-export type AdminTab = "accounts" | "reports" | "tracking" | "latest-updates";
+export type AdminTab = "accounts" | "reports" | "tracking" | "latest-updates" | "tier-list" | "archetypes";

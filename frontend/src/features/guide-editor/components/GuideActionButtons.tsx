@@ -57,7 +57,7 @@ export const GuideActionButtons = ({
 }: GuideActionButtonsProps) => {
   return (
     <>
-      {isEditMode && isOwner && !(isAdmin && isDraft) && (
+      {isEditMode && isOwner && (
         <div className="flex flex-col items-center gap-4 relative top-10">
           <div className="flex flex-wrap justify-center gap-4 mt-8">
             {isCreatingNew && (

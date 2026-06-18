@@ -17,8 +17,9 @@
  * - CLI argument: --limit N (for testing, downloads only first N cards)
  * 
  * Usage:
- *   npm run download-all-cards              # Download all cards
+ *   npm run download-all-cards              # Download all cards (no delay)
  *   npm run download-all-cards -- --limit 100   # Download only first 100 (testing)
+ *   npm run download-all-cards -- --delay 250    # 250ms delay between cards (VPS)
  * 
  * VPS Prerequisites:
  *   - Stop backend first: pm2 stop all (to free RAM)
@@ -52,18 +53,29 @@ interface DownloadStats {
 /**
  * Parse CLI arguments
  */
-function parseArgs(): { limit: number | null } {
+function parseArgs(): { limit: number | null; delay: number } {
   const args = process.argv.slice(2);
   const limitIndex = args.indexOf("--limit");
-  
+  const delayIndex = args.indexOf("--delay");
+
+  let limit: number | null = null;
+  let delay = 0;
+
   if (limitIndex !== -1 && args[limitIndex + 1]) {
-    const limit = parseInt(args[limitIndex + 1], 10);
-    if (!isNaN(limit) && limit > 0) {
-      return { limit };
+    const parsed = parseInt(args[limitIndex + 1], 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      limit = parsed;
     }
   }
-  
-  return { limit: null };
+
+  if (delayIndex !== -1 && args[delayIndex + 1]) {
+    const parsed = parseInt(args[delayIndex + 1], 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+      delay = parsed;
+    }
+  }
+
+  return { limit, delay };
 }
 
 /**
@@ -255,7 +267,7 @@ async function downloadAllCards() {
   console.log(" Starting YGOProDeck Card Download Script\n");
   console.log("=" .repeat(70));
   
-  const { limit } = parseArgs();
+  const { limit, delay } = parseArgs();
   
   if (limit) {
     console.log(`TEST MODE: Downloading only first ${limit} cards`);
@@ -287,10 +299,11 @@ async function downloadAllCards() {
     
     stats.total = allCards.length;
     
-    console.log("Download Plan:");
+    console.log(`Download Plan:`);
     console.log(`Total cards to process: ${stats.total}`);
+    console.log(`Delay between cards: ${delay}ms`);
     console.log(`Initial memory usage: ${getMemoryUsageMB()} MB`);
-    console.log(`Estimated time: ${formatDuration(stats.total * 250)} (sequential with 250ms delays)`);
+    console.log(`Estimated time: ${formatDuration(stats.total * delay)} (sequential with ${delay}ms delays)`);
     console.log(`Estimated size: ${formatBytes(stats.total * 230 * 1024)}\n`);
     
     console.log("🔄 Starting downloads...\n");
@@ -350,9 +363,9 @@ async function downloadAllCards() {
         console.log();
       }
       
-      // Delay between downloads (250ms to reduce memory pressure and respect API)
-      if (i < allCards.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 250));
+      // Delay between downloads (configurable, default 0ms)
+      if (i < allCards.length - 1 && delay > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
     
