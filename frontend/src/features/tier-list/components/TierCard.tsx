@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Swords } from "lucide-react";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import { slugifySegment } from "@/lib/config/urlHelpers";
@@ -15,22 +15,17 @@ const tierColors: Record<number, { border: string; glow: string; bg: string }> =
   3: { border: "border-none", glow: "", bg: "from-orange-950/50 via-orange-900/20 to-slate-950/80" },
 };
 
-// Clickable deck card with tier-colored styling and card-art background
 export const TierCard = ({ entry }: TierCardProps) => {
-  const navigate = useNavigate();
   const colors = tierColors[entry.tier] ?? tierColors[3];
 
-  const displayName = entry.linkedArchetypeName || entry.deckName;
-
-  const handleClick = () => {
-    const slug = slugifySegment(displayName);
-    navigate(`/archetype/${slug}/deck-guides`);
-  };
+  const displayName = entry.displayName || entry.deckName;
+  const nameForSlug = entry.linkedArchetypeName || entry.displayName || entry.deckName;
+  const targetPath = `/archetype/${slugifySegment(nameForSlug)}/deck-guides`;
 
   return (
-    <div
-      onClick={handleClick}
-      className={`relative rounded-lg overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.08)] min-[501px]:shadow-none group border ${colors.border} transition-all duration-300 bg-gradient-to-b ${colors.bg}`}
+    <Link
+      to={targetPath}
+      className={`relative rounded-lg overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.08)] min-[501px]:shadow-none cursor-pointer group border ${colors.border} transition-all duration-300 bg-gradient-to-b ${colors.bg}`}
     >
       <div className="w-full aspect-[16/10] overflow-hidden relative">
         {entry.imageUrl ? (
@@ -63,6 +58,6 @@ export const TierCard = ({ entry }: TierCardProps) => {
           <span className="text-cyan-400">Deck: {entry.deckGuideCount}</span>
         </p>
       </div>
-    </div>
+    </Link>
   );
 };

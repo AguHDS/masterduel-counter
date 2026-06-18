@@ -556,6 +556,7 @@ model LatestUpdate {
 model TierListEntry {
   id          Int      @id @default(autoincrement())
   deckName    String   @map("deck_name")
+  displayName String?  @map("display_name")
   tier        Int
   format      String   @default("masterduel")
   position    Int      @default(0)

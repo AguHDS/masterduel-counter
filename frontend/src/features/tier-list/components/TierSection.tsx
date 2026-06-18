@@ -45,7 +45,7 @@ export const TierSection = ({ tier, entries }: TierSectionProps) => {
   if (entries.length === 0) return null;
 
   return (
-    <div className="flex border-b border-slate-500/15 last:border-b-0">
+    <div className="flex border-b border-slate-500/25 last:border-b-0">
       <div
         className={`w-[44px] sm:w-[60px] md:w-[72px] flex-shrink-0 flex flex-col items-center justify-center py-4 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.borderColor}`}
       >

@@ -82,4 +82,5 @@ mejoras:
 
 bugs:
 resolviendo:
-- aniamciones dropdown perfil y demas
+- rate limiter
+- Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas 2 estan en OCG y TCG pero no deberian estar en masterduel.

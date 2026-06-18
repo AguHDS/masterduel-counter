@@ -21,6 +21,7 @@ export class SqliteTierListRepository implements TierListRepository {
       entries: {
         id?: number;
         deckName: string;
+        displayName?: string | null;
         tier: number;
         position: number;
         imageUrl: string | null;
@@ -37,10 +38,11 @@ export class SqliteTierListRepository implements TierListRepository {
        WHERE format = ? AND is_active = 1 AND LOWER(deck_name) = ?`,
     );
     const upsertStmt = this.db.prepare(
-      `INSERT INTO tier_list_entries (id, deck_name, tier, format, position, image_url, source, linked_archetype_id, linked_archetype_name, is_active, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))
+      `INSERT INTO tier_list_entries (id, deck_name, display_name, tier, format, position, image_url, source, linked_archetype_id, linked_archetype_name, is_active, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))
        ON CONFLICT(id) DO UPDATE SET
          deck_name = excluded.deck_name,
+         display_name = excluded.display_name,
          tier = excluded.tier,
          position = excluded.position,
          image_url = excluded.image_url,
@@ -66,6 +68,7 @@ export class SqliteTierListRepository implements TierListRepository {
         upsertStmt.run(
           entry.id ?? null,
           entry.deckName,
+          entry.displayName ?? null,
           entry.tier,
           format,
           entry.position,
@@ -208,8 +211,10 @@ export class SqliteTierListRepository implements TierListRepository {
       for (const [key, existing] of existingMap) {
         if (!scrapedNames.has(key)) {
           if (!existing.isActive) {
-            reactivateStmt.run(format, key);
-            reactivatedCount++;
+            if (existing.source === "scraped") {
+              reactivateStmt.run(format, key);
+              reactivatedCount++;
+            }
           } else if (existing.source !== "manual") {
             deleteFallenStmt.run(format, key);
             fallenCount++;
@@ -285,6 +290,7 @@ export class SqliteTierListRepository implements TierListRepository {
     return {
       id: row.id as number,
       deckName: row.deck_name as string,
+      displayName: row.display_name as string | null,
       tier: row.tier as number,
       format: row.format as string,
       position: row.position as number,

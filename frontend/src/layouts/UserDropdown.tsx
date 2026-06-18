@@ -73,8 +73,11 @@ export const UserDropdown = ({ onOpen }: { onOpen?: () => void } = {}) => {
         />
       </button>
 
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-[#1f1a24] border-2 border-[#c2901c]/40 rounded-lg shadow-2xl overflow-hidden z-50">
+      <div className={`absolute right-0 mt-2 w-56 bg-[#1f1a24] border-2 border-[#c2901c]/40 rounded-lg shadow-2xl z-50 transition-all duration-200 origin-top ${
+        isOpen
+          ? "opacity-100 scale-y-100"
+          : "opacity-0 scale-y-95 pointer-events-none"
+      }`}>
           <div className="px-4 py-3 border-b border-[#c2901c]/20 bg-gradient-to-r from-[#1f1a24] to-[#2a2430]">
             <p className="text-sm font-medium text-white truncate">
               {user.name}
@@ -114,8 +117,7 @@ export const UserDropdown = ({ onOpen }: { onOpen?: () => void } = {}) => {
               <span>Logout</span>
             </button>
           </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };

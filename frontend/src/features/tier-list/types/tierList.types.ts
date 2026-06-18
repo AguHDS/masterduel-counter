@@ -1,6 +1,7 @@
 export interface TierListEntry {
   id: number;
   deckName: string;
+  displayName: string | null;
   tier: number;
   format: string;
   position: number;
@@ -39,6 +40,7 @@ export interface TierListSaveInput {
   entries: {
     id?: number;
     deckName: string;
+    displayName?: string | null;
     tier: number;
     position: number;
     imageUrl: string | null;

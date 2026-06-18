@@ -170,7 +170,7 @@ export const TierListPage = () => {
             )}
 
             {!isLoading && !isError && entries.length > 0 && (
-              <div className="border border-slate-500/10 rounded-xl overflow-hidden bg-slate-800/15">
+              <div className="border border-slate-500/10 rounded-xl overflow-hidden bg-slate-800/15 flex flex-col gap-2">
                 {tiers.map((tier) => {
                   const tierEntries = entries.filter((e) => e.tier === tier && e.isActive);
                   return <TierSection key={tier} tier={tier} entries={tierEntries} />;
