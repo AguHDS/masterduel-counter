@@ -27,9 +27,10 @@ export const saveTierListController = async (req: Request, res: Response) => {
     const deps = getDependencies();
     const service = deps.getTierListService();
     await service.saveEntries(format, {
-      entries: entries.map((e: { id?: number; deckName: string; tier: number; position: number; imageUrl: string | null; source: string; linkedArchetypeId?: number | null; linkedArchetypeName?: string | null }, index: number) => ({
+      entries: entries.map((e: { id?: number; deckName: string; displayName?: string | null; tier: number; position: number; imageUrl: string | null; source: string; linkedArchetypeId?: number | null; linkedArchetypeName?: string | null }, index: number) => ({
         id: e.id,
         deckName: e.deckName,
+        displayName: e.displayName ?? null,
         tier: e.tier,
         position: e.position ?? index,
         imageUrl: e.imageUrl ?? null,

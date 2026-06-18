@@ -23,6 +23,7 @@ import type { Archetype } from "@/features/archetypes/types";
 interface EditableEntry {
   id: number;
   deckName: string;
+  displayName: string | null;
   tier: number;
   position: number;
   imageUrl: string | null;
@@ -76,6 +77,7 @@ export const TierListAdminTab = () => {
       const existing = entries.data.filter((e) => e.isActive).map((e) => ({
         id: e.id,
         deckName: e.deckName,
+        displayName: e.displayName,
         tier: e.tier,
         position: e.position,
         imageUrl: e.imageUrl,
@@ -111,6 +113,7 @@ export const TierListAdminTab = () => {
       {
         id: newId,
         deckName: "New Deck",
+        displayName: null,
         tier,
         position: prev.filter((e) => e.tier === tier).length,
       imageUrl: null,
@@ -129,6 +132,7 @@ export const TierListAdminTab = () => {
       .map((e, index) => ({
         id: e._isNew ? undefined : e.id,
         deckName: e.deckName,
+        displayName: e.displayName,
         tier: e.tier,
         position: index,
         imageUrl: e.imageUrl,
@@ -459,10 +463,14 @@ export const TierListAdminTab = () => {
                             WebkitBackdropFilter: "blur(8px)",
                           }}
                         >
+                          <p className="text-slate-500 text-[10px] truncate" title={entry.deckName}>
+                            Scraper name: {entry.deckName}
+                          </p>
                           <input
                             type="text"
-                            value={entry.deckName}
-                            onChange={(e) => updateEntry(entry.id, { deckName: e.target.value })}
+                            value={entry.displayName ?? ""}
+                            onChange={(e) => updateEntry(entry.id, { displayName: e.target.value || null })}
+                            placeholder={entry.deckName}
                             className="w-full bg-transparent text-slate-100 font-bold text-sm border-b border-slate-600/50 focus:border-amber-500/70 outline-none pb-0.5"
                           />
 

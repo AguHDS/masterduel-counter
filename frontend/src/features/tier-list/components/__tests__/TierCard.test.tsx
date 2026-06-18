@@ -4,16 +4,6 @@ import { MemoryRouter } from "react-router-dom";
 import { TierCard } from "../TierCard";
 import type { TierListEntry } from "../../types/tierList.types";
 
-const mockNavigate = vi.fn();
-
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom");
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
-});
-
 vi.mock("@/lib/utils/imageOptimization", () => ({
   getOptimizedCardImageUrl: (url: string | null) => url,
 }));
@@ -22,6 +12,7 @@ function makeEntry(overrides: Partial<TierListEntry> = {}): TierListEntry {
   return {
     id: 1,
     deckName: "Test Deck",
+    displayName: null,
     tier: 1,
     format: "masterduel",
     position: 0,
@@ -44,8 +35,8 @@ describe("TierCard", () => {
     vi.clearAllMocks();
   });
 
-  it("should display linkedArchetypeName when set", () => {
-    const entry = makeEntry({ linkedArchetypeName: "HERO", deckName: "HEROs" });
+  it("should display displayName when set", () => {
+    const entry = makeEntry({ displayName: "HERO", deckName: "HEROs" });
     render(
       <MemoryRouter>
         <TierCard entry={entry} />
@@ -55,8 +46,8 @@ describe("TierCard", () => {
     expect(screen.queryByText("HEROs")).toBeNull();
   });
 
-  it("should display deckName when linkedArchetypeName is null", () => {
-    const entry = makeEntry({ linkedArchetypeName: null, deckName: "Branded" });
+  it("should display deckName when displayName is null", () => {
+    const entry = makeEntry({ displayName: null, deckName: "Branded" });
     render(
       <MemoryRouter>
         <TierCard entry={entry} />
@@ -65,34 +56,30 @@ describe("TierCard", () => {
     expect(screen.getByText("Branded")).toBeDefined();
   });
 
-  it("should navigate by slug when linkedArchetypeId is set", () => {
-    const entry = makeEntry({ linkedArchetypeId: 42, linkedArchetypeName: "HERO" });
+  it("should link to linkedArchetypeName slug when set", () => {
+    const entry = makeEntry({ linkedArchetypeId: 42, linkedArchetypeName: "HERO", deckName: "HEROs" });
     render(
       <MemoryRouter>
         <TierCard entry={entry} />
       </MemoryRouter>,
     );
 
-    const card = screen.getByText("HERO").closest("div[class*='cursor-pointer']") as HTMLElement;
-    expect(card).toBeDefined();
-    card.click();
-
-    expect(mockNavigate).toHaveBeenCalledWith("/archetype/hero/deck-guides");
+    const link = screen.getByRole("link");
+    expect(link).toBeDefined();
+    expect(link.getAttribute("href")).toBe("/archetype/hero/deck-guides");
   });
 
-  it("should navigate by slug when linkedArchetypeId is null", () => {
-    const entry = makeEntry({ linkedArchetypeId: null, deckName: "Sky Striker" });
+  it("should link to deckName slug when no linkedArchetypeName", () => {
+    const entry = makeEntry({ linkedArchetypeId: null, displayName: null, deckName: "Sky Striker" });
     render(
       <MemoryRouter>
         <TierCard entry={entry} />
       </MemoryRouter>,
     );
 
-    const card = screen.getByText("Sky Striker").closest("div[class*='cursor-pointer']") as HTMLElement;
-    expect(card).toBeDefined();
-    card.click();
-
-    expect(mockNavigate).toHaveBeenCalledWith("/archetype/sky-striker/deck-guides");
+    const link = screen.getByRole("link");
+    expect(link).toBeDefined();
+    expect(link.getAttribute("href")).toBe("/archetype/sky-striker/deck-guides");
   });
 
   it("should display guide counts in correct colors", () => {
