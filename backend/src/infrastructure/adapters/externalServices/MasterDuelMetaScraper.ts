@@ -12,7 +12,7 @@ export class MasterDuelMetaScraper {
   async scrapeTierList(): Promise<ScrapedDeck[]> {
     const response = await fetch(this.url, {
       headers: {
-        "User-Agent": "MasterDuelCounter/1.0 (tier-list-scraper)",
+        "User-Agent": "Mozilla/5.0 (compatible; MDCBot/1.0)",
         Accept: "text/html",
       },
     });

@@ -17,7 +17,7 @@ export class YgoMetaTcgScraper {
 
     const response = await fetch(TCG_URL, {
       headers: {
-        "User-Agent": "MasterDuelCounter/1.0 (tier-list-scraper)",
+        "User-Agent": "Mozilla/5.0 (compatible; MDCBot/1.0)",
         "Accept": "text/html",
       },
     });
