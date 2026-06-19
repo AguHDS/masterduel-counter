@@ -141,8 +141,8 @@ export interface GuideInstanceWithFullDetails {
         imageUrlCropped: string;
       }>;
       description?: string;
-      monsterPositions?: Array<'atk' | 'def'>;
-      extraMonsterPositions?: Array<'atk' | 'def'>;
+      monsterPositions?: Array<"atk" | "def">;
+      extraMonsterPositions?: Array<"atk" | "def">;
     };
     position: number;
     comboSteps?: Array<{
@@ -150,6 +150,9 @@ export interface GuideInstanceWithFullDetails {
       stepOrder: number;
       description?: string | null;
       parentCanceledStepId?: number | null;
+      stepType?: string | null;
+      leftScaleValue?: number | null;
+      rightScaleValue?: number | null;
       mainCards: Array<{
         id: number;
         name: string;
@@ -189,10 +192,7 @@ export const guideInstancesApi = {
       success: boolean;
       favorited: boolean;
       favorites: number;
-    }>(
-      `/api/archetypes/${archetypeId}/instances/${instanceId}/favorite`,
-      {},
-    );
+    }>(`/api/archetypes/${archetypeId}/instances/${instanceId}/favorite`, {});
     return response.data;
   },
 
@@ -202,10 +202,10 @@ export const guideInstancesApi = {
   registerView: async (
     instanceId: number,
   ): Promise<{ success: boolean; message: string }> => {
-    const response = await axiosClient.post<{ success: boolean; message: string }>(
-      `/api/instances/${instanceId}/view`,
-      {},
-    );
+    const response = await axiosClient.post<{
+      success: boolean;
+      message: string;
+    }>(`/api/instances/${instanceId}/view`, {});
     return response.data;
   },
 
@@ -232,9 +232,7 @@ export const guideInstancesApi = {
   /**
    * Get initial hands for a deck guide instance
    */
-  getInitialHands: async (
-    instanceId: number,
-  ): Promise<InitialHand[]> => {
+  getInitialHands: async (instanceId: number): Promise<InitialHand[]> => {
     const response = await axiosClient.get<InitialHand[]>(
       `/api/instances/${instanceId}/initial-hands`,
     );

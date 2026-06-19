@@ -1,12 +1,13 @@
 import { ComboStepCardSlot } from "./ComboStepCardSlot";
 import type { ComboStep, Card } from "@/features/archetypes/types";
+import type { ChainPickerState } from "@/features/guide-editor/utils/comboStepEditorUtils"
 
 type ComboCardType = "main" | "sub" | "leftSub";
 
 interface ComboStepPendulumLayoutProps {
   step: ComboStep;
   isReadOnly: boolean;
-  chainPickerOpen: { stepId: string; type: ComboCardType; cardIndex: number } | null;
+  chainPickerOpen: ChainPickerState | null;
   onOpenSearch: (anchorElement: HTMLElement, cardType: ComboCardType) => void;
   onRemoveCard: (cardIndex: number, cardType: ComboCardType) => void;
   onToggleChainPicker: (cardType: ComboCardType, cardIndex: number) => void;
