@@ -94,6 +94,11 @@ Mi duda es, has terminado esta implementacion? He resuelto personalmente errores
 Ademas en algunas resoluciones los placeholders del medio se empiezan a superponer con el de la derecha scale.
 Tenes que editar bien el layout, porque parece que no lo adaptaste para que este listo para funcionar bien con este modo de pendulum.
 Ademas, los placeholders de los costados scale deberian estar posicionados en el centro (mas al bottom), y su label scale justo arriba de ellos.
+Otro problema grave, cuando selecciono una carta en uno de los 6 placeholders del medio, desaparecen los demas placeholders. Es como que esta asumiendo que solo se puede elegir una carta en el medio como si fuera una main card del modo NORMAL, pero te explique literalmente que necesitamos 6 placeholders para poner un maximo de 6 cartas si se quiere, no obligatoriamente una.
+Encima, cada scale de los costados admite hasta un maximo de 5 cartas, esto esta MAL. los scale de los costados son una carta individual, no mas de una por scale. Los placeholders del medio deben permitir un maximo de 6 cartas.
+
+Ademas, al guardar la guia, no se guarda con el layout de pendulo, se guarda como si fuera un step normal de los que siempre hubo.
+Otro problema, el option para darle un numero al scale debe estar por encima de la carta como hace el "Chain?". Copiale su forma de funcionar. Y el numero del scale debe aparecer encima de la carta igual que lo hace el chain number.
 
 - Preguntar si deberiamos crear tests por haber agregado el pendulum a los combo steps. Mostrar los tests de las guias frontend y backend
 
