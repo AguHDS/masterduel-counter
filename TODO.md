@@ -81,19 +81,21 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 
 ---
 
+Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas 2 estan en OCG y TCG pero no deberian estar en masterduel.
+
+---
+
 mejoras:
 
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
 - Enumerar cada item del tier con numero atractivo
-- bloquear scroll cuando tenemos abierto el buscador de cartas en guias o deck. Ademas el modal flotante de busuqeda de cartas se mueve para la izquierda cuando selecciono una carta en el comboflow y empiezo a escribir. Es molesto
 - fijarse si el screenshot de los stats del trending de usuario se calcula correctamente para cad mes individual y no acarrea cosas del mes anterior. Hay un caso donde un usuario de este mes tiene 2 likes, pero en su unica guia que tiene solo tiene un like, esto es raro.
 Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
 
 bugs:
 resolviendo:
-Cosas a mejorar/arreglar:
 
 
 - Preguntar si deberiamos crear tests por haber agregado el pendulum a los combo steps. Mostrar los tests de las guias frontend y backend
 
-- Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas 2 estan en OCG y TCG pero no deberian estar en masterduel.
+

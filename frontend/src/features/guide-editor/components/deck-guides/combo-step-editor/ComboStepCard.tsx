@@ -166,7 +166,7 @@ export const ComboStepCard = ({
                 MATERIAL
               </span>
               <div className="flex gap-1">
-                {/* Hidden cards column (shown on left when expanded) */}
+                  {/* Hidden cards column (shown on left when expanded) */}
                 {showAllLeftSubCards && step.leftSubCards.length > 3 && (
                   <div className="flex flex-col gap-1">
                     {step.leftSubCards.slice(3, 5).map((card, index) => (
@@ -325,7 +325,7 @@ export const ComboStepCard = ({
                         <img
                           src={card.imageUrlSmall}
                           alt={card.name}
-                          className={`${_isEditMode ? 'w-10 h-14' : 'w-8 h-11 max-[860px]:w-6 max-[860px]:h-8 max-[700px]:w-[18px] max-[700px]:h-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
+                          className={`${_isEditMode ? 'w-10 h-14' : 'w-9 h-12 max-[860px]:w-6 max-[860px]:h-8 max-[700px]:w-[18px] max-[700px]:h-[25px]'} object-cover hover:scale-110 transition-transform cursor-pointer`}
                         />
                       </CardTooltip>
                       {card.chainNumber != null && (

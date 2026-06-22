@@ -42,6 +42,17 @@ export const FloatingCardSearchModal = ({
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
 
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -69,6 +80,7 @@ export const FloatingCardSearchModal = ({
 
     const calculatePosition = () => {
       const anchorRect = anchorElement.getBoundingClientRect();
+      if (!document.body.contains(anchorElement)) return;
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 

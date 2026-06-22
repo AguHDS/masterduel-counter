@@ -266,7 +266,7 @@ export const ComboStepItemEditor = ({
             }`}
             rows={3}
           />
-          <div className="text-xs text-slate-400 mt-0.5 text-right w-full max-w-[280px]">
+          <div className="text-xs text-slate-400 max-[450px]:mb-5 text-right w-full max-w-[280px]">
             {(step.description || "").length}/500
           </div>
         </div>
