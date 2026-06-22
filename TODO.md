@@ -84,21 +84,15 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 mejoras:
 
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
+- Enumerar cada item del tier con numero atractivo
+- bloquear scroll cuando tenemos abierto el buscador de cartas en guias o deck. Ademas el modal flotante de busuqeda de cartas se mueve para la izquierda cuando selecciono una carta en el comboflow y empiezo a escribir. Es molesto
+- fijarse si el screenshot de los stats del trending de usuario se calcula correctamente para cad mes individual y no acarrea cosas del mes anterior. Hay un caso donde un usuario de este mes tiene 2 likes, pero en su unica guia que tiene solo tiene un like, esto es raro.
+Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
 
 bugs:
 resolviendo:
-La ultima vez, estabamos resolviendo esta task pero me quede sin quota, asi que se corto justo cuando estabas revisando los lints del frontend y backend.
-Mi duda es, has terminado esta implementacion? He resuelto personalmente errores de build relacionado a tipos. Fijate si esta ya terminada la implementacion completa.
+Cosas a mejorar/arreglar:
 
-- Problemas en el layout de pendulum. Esta mal funcionando. Los 6 placeholders se ven todos pegados en vista desktop. Deberian ser mas pequeños. Y en vista mobile esta demasiado roto, inusable.
-Ademas en algunas resoluciones los placeholders del medio se empiezan a superponer con el de la derecha scale.
-Tenes que editar bien el layout, porque parece que no lo adaptaste para que este listo para funcionar bien con este modo de pendulum.
-Ademas, los placeholders de los costados scale deberian estar posicionados en el centro (mas al bottom), y su label scale justo arriba de ellos.
-Otro problema grave, cuando selecciono una carta en uno de los 6 placeholders del medio, desaparecen los demas placeholders. Es como que esta asumiendo que solo se puede elegir una carta en el medio como si fuera una main card del modo NORMAL, pero te explique literalmente que necesitamos 6 placeholders para poner un maximo de 6 cartas si se quiere, no obligatoriamente una.
-Encima, cada scale de los costados admite hasta un maximo de 5 cartas, esto esta MAL. los scale de los costados son una carta individual, no mas de una por scale. Los placeholders del medio deben permitir un maximo de 6 cartas.
-
-Ademas, al guardar la guia, no se guarda con el layout de pendulo, se guarda como si fuera un step normal de los que siempre hubo.
-Otro problema, el option para darle un numero al scale debe estar por encima de la carta como hace el "Chain?". Copiale su forma de funcionar. Y el numero del scale debe aparecer encima de la carta igual que lo hace el chain number.
 
 - Preguntar si deberiamos crear tests por haber agregado el pendulum a los combo steps. Mostrar los tests de las guias frontend y backend
 

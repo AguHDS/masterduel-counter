@@ -67,6 +67,9 @@ export interface RegisterGuideDTO {
       description?: string;
       parentCanceledStepIndex?: number;
       stepOrder: number;
+      stepType?: string | null;
+      leftScaleValue?: number | null;
+      rightScaleValue?: number | null;
     }>;
   }>;
   instanceId?: number;
@@ -104,6 +107,9 @@ export interface SaveDraftDTO {
       description?: string;
       parentCanceledStepIndex?: number;
       stepOrder: number;
+      stepType?: string | null;
+      leftScaleValue?: number | null;
+      rightScaleValue?: number | null;
     }>;
   }>;
   /** If provided, update this existing draft instead of creating a new one */

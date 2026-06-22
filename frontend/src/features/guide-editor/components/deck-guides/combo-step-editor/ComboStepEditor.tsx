@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import type { Card, ComboStep } from "@/features/archetypes/types";
 import { FloatingCardSearchModal } from "../../../../archetypes/components/FloatingCardSearchModal";
 import { ComboStepItemEditor } from "./ComboStepItemEditor";
+import { PendulumStepEditor } from "./PendulumStepEditor";
 import { useComboStepDragDrop } from "../../../hooks/deck-guides/useComboStepDragDrop";
 import {
   createComboStep,
@@ -163,30 +164,33 @@ export const ComboStepEditor = ({
     let shouldClose = false;
 
     updateCardsForStep(selectingCards.stepId, (step) => {
+      const isPendulum = step.stepType === "PENDULUM";
+      const mainMax = isPendulum ? 6 : 1;
+      const sideMax = isPendulum ? 1 : 5;
+
       if (selectingCards.type === "main") {
-        if (step.mainCards.length >= 1) {
-          alert("Maximum 1 main card per step");
+        if (step.mainCards.length >= mainMax) {
+          alert(`Maximum ${mainMax} main card${mainMax > 1 ? "s" : ""} per step`);
           return step;
         }
-
-        shouldClose = true;
-        return { ...step, mainCards: [card] };
+        if (!isPendulum) shouldClose = true;
+        return { ...step, mainCards: [...step.mainCards, card] };
       }
 
       if (selectingCards.type === "leftSub") {
-        if (step.leftSubCards.length >= 5) {
-          alert("Maximum 5 sub cards per step");
+        if (step.leftSubCards.length >= sideMax) {
+          alert(`Maximum ${sideMax} card${sideMax > 1 ? "s" : ""} per side`);
           return step;
         }
-
+        if (isPendulum) shouldClose = true;
         return { ...step, leftSubCards: [...step.leftSubCards, card] };
       }
 
-      if (step.subCards.length >= 5) {
-        alert("Maximum 5 sub cards per step");
+      if (step.subCards.length >= sideMax) {
+        alert(`Maximum ${sideMax} card${sideMax > 1 ? "s" : ""} per side`);
         return step;
       }
-
+      if (isPendulum) shouldClose = true;
       return { ...step, subCards: [...step.subCards, card] };
     });
 
@@ -197,7 +201,14 @@ export const ComboStepEditor = ({
 
   const handleRemoveCard = (stepId: string, cardIndex: number, cardType: ComboCardType) => {
     updateCardsForStep(stepId, (step) => {
+      const isPendulum = step.stepType === "PENDULUM";
+
       if (cardType === "main") {
+        if (isPendulum) {
+          const newMain = [...step.mainCards];
+          newMain.splice(cardIndex, 1);
+          return { ...step, mainCards: newMain };
+        }
         return { ...step, mainCards: [], subCards: [], leftSubCards: [] };
       }
 
@@ -310,41 +321,53 @@ export const ComboStepEditor = ({
               const isMainFlowStep = !step.parentCanceledStepId;
               const isReadOnly = !!(activeCanceledStepId && isMainFlowStep);
 
+              const isPendulum = step.stepType === "PENDULUM";
+
+              const commonProps = {
+                step,
+                isReadOnly,
+                isDragging: draggedStepId === step.id,
+                isDragOver: dragOverStepId === step.id,
+                isMainFlowStep,
+                isViewingCanceledFlow: activeCanceledStepId === step.id,
+                hasCanceledFlow: hasCanceledFlow(comboSteps, step.id),
+                chainPickerOpen,
+                onToggleCanceledFlow: () => toggleCanceledFlow(step.id),
+                onRemoveStep: () => handleRemoveStep(step.id),
+                onToggleStepType: () => handleToggleStepType(step.id),
+                onDescriptionChange: (description: string) => handleDescriptionChange(step.id, description),
+                onOpenSearch: (nextAnchorElement: HTMLElement, cardType: ComboCardType) =>
+                  handleOpenSearch(step.id, cardType, nextAnchorElement),
+                onRemoveCard: (cardIndex: number, cardType: ComboCardType) => handleRemoveCard(step.id, cardIndex, cardType),
+                onToggleChainPicker: (cardType: ComboCardType, cardIndex: number) =>
+                  toggleChainPicker(step.id, cardType, cardIndex),
+                onUpdateChainNumber: (cardType: ComboCardType, cardIndex: number, chainNumber: number | null) =>
+                  updateChainNumber(step.id, cardType, cardIndex, chainNumber),
+                onCloseChainPicker: () => setChainPickerOpen(null),
+                onDragStart: (event: React.DragEvent<HTMLDivElement>) => handleDragStart(event, step.id),
+                onDragEnd: handleDragEnd,
+                onDragOver: (event: React.DragEvent<HTMLDivElement>) => handleDragOver(event, step.id),
+                onDragLeave: handleDragLeave,
+                onDrop: (event: React.DragEvent<HTMLDivElement>) => handleDrop(event, step.id),
+              };
+
+              if (isPendulum) {
+                return (
+                  <PendulumStepEditor
+                    key={step.id}
+                    {...commonProps}
+                    onUpdateScaleValue={(side, value) => handleUpdateScaleValue(step.id, side, value)}
+                  />
+                );
+              }
+
               return (
                 <ComboStepItemEditor
                   key={step.id}
-                  step={step}
-                  isReadOnly={isReadOnly}
-                  isDragging={draggedStepId === step.id}
-                  isDragOver={dragOverStepId === step.id}
-                  isMainFlowStep={isMainFlowStep}
-                  isViewingCanceledFlow={activeCanceledStepId === step.id}
-                  hasCanceledFlow={hasCanceledFlow(comboSteps, step.id)}
+                  {...commonProps}
                   isLeftExpanded={expandedLeftSteps.has(step.id)}
                   isRightExpanded={expandedRightSteps.has(step.id)}
-                  chainPickerOpen={chainPickerOpen}
-                  onToggleCanceledFlow={() => toggleCanceledFlow(step.id)}
-                  onToggleStepType={() => handleToggleStepType(step.id)}
-                  onUpdateScaleValue={(side, value) => handleUpdateScaleValue(step.id, side, value)}
-                  onRemoveStep={() => handleRemoveStep(step.id)}
-                  onDescriptionChange={(description) => handleDescriptionChange(step.id, description)}
                   onToggleExpanded={(cardType) => toggleExpandedSteps(cardType, step.id)}
-                  onOpenSearch={(nextAnchorElement, cardType) =>
-                    handleOpenSearch(step.id, cardType, nextAnchorElement)
-                  }
-                  onRemoveCard={(cardIndex, cardType) => handleRemoveCard(step.id, cardIndex, cardType)}
-                  onToggleChainPicker={(cardType, cardIndex) =>
-                    toggleChainPicker(step.id, cardType, cardIndex)
-                  }
-                  onUpdateChainNumber={(cardType, cardIndex, chainNumber) =>
-                    updateChainNumber(step.id, cardType, cardIndex, chainNumber)
-                  }
-                  onCloseChainPicker={() => setChainPickerOpen(null)}
-                  onDragStart={(event) => handleDragStart(event, step.id)}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={(event) => handleDragOver(event, step.id)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={(event) => handleDrop(event, step.id)}
                 />
               );
             })}
