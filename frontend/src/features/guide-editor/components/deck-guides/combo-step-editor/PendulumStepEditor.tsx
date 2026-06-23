@@ -138,6 +138,7 @@ function ScaleSlot({
   );
 }
 
+/** Editor UI for a pendulum-themed combo step with scale card slots, scale picker and a 6-card grid */
 export const PendulumStepEditor = ({
   step,
   isReadOnly,
