@@ -200,7 +200,7 @@ export const ComboStepCard = ({
 
                 {/* First 3 cards column (always visible) */}
                 <div
-                  className="flex flex-col gap-1 z-50 items-center"
+                  className="flex flex-col gap-1.5 z-50 items-center"
                   style={{ minHeight: _isEditMode ? "232px" : "154px" }}
                 >
                   {visibleLeftSubCards.slice(0, 3).map((card, index) => (
@@ -312,7 +312,7 @@ export const ComboStepCard = ({
               <div className="flex gap-1 z-50">
                 {/* First 3 cards column (always visible) */}
                 <div
-                  className="flex flex-col gap-1 items-center"
+                  className="flex flex-col gap-1.5 items-center"
                   style={{ minHeight: _isEditMode ? "232px" : "154px" }}
                 >
                   {visibleSubCards.slice(0, 3).map((card, index) => (

@@ -97,5 +97,4 @@ resolviendo:
 
 
 - Preguntar si deberiamos crear tests por haber agregado el pendulum a los combo steps. Mostrar los tests de las guias frontend y backend
-
-
+- preguntar si la invocacion pendulum hace que el modo edit sea mas lagero, ya que lo es en local.
