@@ -113,9 +113,7 @@ export const ComboStepCard = ({
               <span className="text-[8px] max-[860px]:text-[7px] max-[500px]:text-[6px] font-bold text-gray-500 uppercase tracking-wide">SCALE</span>
               {step.subCards[0] && (
                 <div className="relative">
-                  {step.rightScaleValue != null && (
-                    <span className="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-red-400 text-sm max-[700px]:text-xs max-[500px]:text-[11px] font-bold z-10">{step.rightScaleValue}</span>
-                  )}
+                    <span className="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-red-400 text-sm max-[700px]:text-xs max-[500px]:text-[11px] font-bold z-10">{step.rightScaleValue ?? 0}</span>
                   <CardTooltip cardId={step.subCards[0].id} imageUrl={step.subCards[0].imageUrl} cardName={step.subCards[0].name}>
                     <img src={step.subCards[0].imageUrlSmall} alt={step.subCards[0].name} className="w-12 h-16 max-[915px]:w-8 max-[915px]:h-11 max-[700px]:w-7 max-[700px]:h-10 max-[500px]:w-5 max-[500px]:h-7 object-cover rounded border border-gray-500/50 shadow" />
                   </CardTooltip>
@@ -127,14 +125,19 @@ export const ComboStepCard = ({
               <h3 className="text-[11px] font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent uppercase tracking-wide mb-1 text-nowrap">
                 Pendulum Summon
               </h3>
-            <div className="grid place-items-center gap-0 min-[390px]:gap-0.5 min-[1030px]:gap-1 min-[1530px]:gap-1.5 translate-y-2.5" style={(() => { const n = step.mainCards.slice(0, 6).length; return { gridTemplateColumns: `repeat(${n >= 3 ? 3 : n}, auto)`, justifyContent: 'center' }; })()}>
-              {step.mainCards.slice(0, 6).map((card, i) => (
+            <div className="grid grid-cols-3 place-items-center gap-0 min-[390px]:gap-0.5 min-[1030px]:gap-1 min-[1530px]:gap-1.5 translate-y-2.5">
+              {Array.from({ length: 6 }, (_, i) => {
+                const card = step.mainCards[i];
+                return card ? (
                   <div key={`${card.id}-${i}`}>
                   <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name}>
-                    <img src={card.imageUrlSmall} alt={card.name} className="w-6 h-8 min-[390px]:w-8 min-[390px]:h-11 min-[860px]:w-10 min-[860px]:h-14 min-[1030px]:w-11 min-[1030px]:h-15 min-[1530px]:w-12 min-[1530px]:h-16 object-cover rounded border border-gray-500/50 shadow" />
+                    <img src={card.imageUrlSmall} alt={card.name} className="w-7 h-10 min-[390px]:w-9 min-[390px]:h-12 min-[860px]:w-12 min-[860px]:h-16 min-[1030px]:w-[3.25rem] min-[1030px]:h-[4.5rem] min-[1530px]:w-14 min-[1530px]:h-[5rem] object-cover rounded border border-gray-500/50 shadow" />
                   </CardTooltip>
                   </div>
-              ))}
+                ) : (
+                  <div key={`empty-${i}`} className="w-7 h-10 min-[390px]:w-9 min-[390px]:h-12 min-[860px]:w-12 min-[860px]:h-16 min-[1030px]:w-[3.25rem] min-[1030px]:h-[4.5rem] min-[1530px]:w-14 min-[1530px]:h-[5rem] invisible" />
+                );
+              })}
             </div>
             </div>
             {/* Right Scale */}
@@ -142,9 +145,7 @@ export const ComboStepCard = ({
               <span className="text-[8px] max-[860px]:text-[7px] max-[500px]:text-[6px] font-bold text-gray-500 uppercase tracking-wide">SCALE</span>
               {step.leftSubCards[0] && (
                 <div className="relative">
-                  {step.leftScaleValue != null && (
-                    <span className="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-blue-400 text-sm max-[700px]:text-xs max-[500px]:text-[11px] font-bold z-10">{step.leftScaleValue}</span>
-                  )}
+                    <span className="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-blue-400 text-sm max-[700px]:text-xs max-[500px]:text-[11px] font-bold z-10">{step.leftScaleValue ?? 0}</span>
                   <CardTooltip cardId={step.leftSubCards[0].id} imageUrl={step.leftSubCards[0].imageUrl} cardName={step.leftSubCards[0].name}>
                     <img src={step.leftSubCards[0].imageUrlSmall} alt={step.leftSubCards[0].name} className="w-12 h-16 max-[915px]:w-8 max-[915px]:h-11 max-[700px]:w-7 max-[700px]:h-10 max-[500px]:w-5 max-[500px]:h-7 object-cover rounded border border-gray-500/50 shadow" />
                   </CardTooltip>
@@ -275,7 +276,7 @@ export const ComboStepCard = ({
                 <img
                   src={card.imageUrlSmall}
                   alt={card.name}
-                  className={`${_isEditMode ? 'w-32 h-44' : 'w-20 h-28 max-[860px]:w-14 max-[860px]:h-20 max-[700px]:w-12 max-[700px]:h-[72px]'} object-cover hover:scale-105 transition-transform cursor-pointer`}
+                  className={`${_isEditMode ? 'w-32 h-44' : 'w-[84px] h-[125px] max-[860px]:w-14 max-[860px]:h-20 max-[700px]:w-12 max-[700px]:h-[72px]'} object-cover hover:scale-105 transition-transform cursor-pointer`}
                 />
               </CardTooltip>
               {card.chainNumber != null && (
@@ -404,19 +405,18 @@ export const ComboStepCard = ({
       </div>
 
       {/* Description - Always centered regardless of card layout */}
-      <div className={`w-full flex flex-col items-center flex-1 ${!hasSideCards && step.stepType !== "PENDULUM" ? 'relative top-12' : ''} ${step.stepType === "PENDULUM" ? 'mt-10' : ''} ${step.subCards.length > 0 && step.leftSubCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[10px]' : ''} ${step.leftSubCards.length > 0 && step.subCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:-translate-x-[6px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length > 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[4px]' : ''}`}>
+      <div className={`w-full flex flex-col items-center ${!hasSideCards && step.stepType !== "PENDULUM" ? 'mt-12' : ''} ${step.stepType === "PENDULUM" ? 'mt-10' : ''} ${step.subCards.length > 0 && step.leftSubCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[10px]' : ''} ${step.leftSubCards.length > 0 && step.subCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:-translate-x-[6px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length > 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[4px]' : ''}`}>
         <span className={`${_isEditMode ? 'text-xs' : 'text-[10px]'} font-semibold text-blue-400 uppercase tracking-wide`}>
           Description
         </span>
         <div
-          className={`text-center py-1 px-2 text-slate-300 ${_isEditMode ? 'text-[13px]' : 'text-[11px]'} mx-auto`}
+          className={`text-center py-1 px-2 text-slate-300 ${_isEditMode ? 'text-[13px]' : 'text-[11px]'} mx-auto ${isDescriptionExpanded ? 'max-h-[200px] overflow-y-auto scrollbar-homeAllPages' : 'overflow-hidden'}`}
           style={{
             overflowWrap: "break-word",
             wordBreak: "break-word",
             whiteSpace: "pre-wrap",
             lineHeight: "1.3em",
             maxHeight: !isDescriptionExpanded ? "4rem" : "none",
-            overflow: "hidden",
             transition: "max-height 0.3s ease-in-out",
             width: "100%",
             maxWidth: _isEditMode ? "340px" : "calc(100% - 8px)",
