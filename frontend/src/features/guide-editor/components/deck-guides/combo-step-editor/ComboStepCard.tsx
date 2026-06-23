@@ -62,7 +62,7 @@ export const ComboStepCard = ({
 
   return (
     <div
-      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : 'p-2 pt-6 max-[860px]:p-1.5 max-[860px]:pt-4'} ${
+      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : step.stepType !== "PENDULUM" ? 'p-2 pt-[44px] max-[860px]:p-1.5 max-[860px]:pt-[24px]' : 'p-2 pt-6 max-[860px]:p-1.5 max-[860px]:pt-4'} ${
         isContext ? 'opacity-70' : ''
       } ${hasSideCards || step.stepType === "PENDULUM" ? 'max-[345px]:overflow-x-auto max-[345px]:overflow-y-hidden' : ''}`}
       style={{
@@ -404,7 +404,7 @@ export const ComboStepCard = ({
       </div>
 
       {/* Description - Always centered regardless of card layout */}
-      <div className={`w-full flex flex-col items-center flex-1 ${!hasSideCards && step.stepType !== "PENDULUM" ? 'relative top-12' : ''} ${step.stepType === "PENDULUM" ? 'mt-10' : ''} ${step.subCards.length > 0 && step.leftSubCards.length === 0 && step.stepType !== "PENDULUM" ? 'translate-x-[0px]' : ''} ${step.leftSubCards.length > 0 && step.subCards.length === 0 && step.stepType !== "PENDULUM" ? 'translate-x-[0px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length > 0 && step.stepType !== "PENDULUM" ? 'translate-x-[3px]' : ''}`}>
+      <div className={`w-full flex flex-col items-center flex-1 ${!hasSideCards && step.stepType !== "PENDULUM" ? 'relative top-12' : ''} ${step.stepType === "PENDULUM" ? 'mt-10' : ''} ${step.subCards.length > 0 && step.leftSubCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[10px]' : ''} ${step.leftSubCards.length > 0 && step.subCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:-translate-x-[6px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length > 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[4px]' : ''}`}>
         <span className={`${_isEditMode ? 'text-xs' : 'text-[10px]'} font-semibold text-blue-400 uppercase tracking-wide`}>
           Description
         </span>
