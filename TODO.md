@@ -21,13 +21,17 @@ ejecutar Node.js como root es un riesgo de seguridad. Te recomendaría (después
 Crear un usuario dedicado
 Cambiar el owner de los archivos
 Reiniciar pm2 con ese usuario
+
 # Crear usuario sin privilegios
+
 useradd -r -s /bin/false masterduel
 
 # Cambiar owner de archivos
+
 chown -R masterduel:masterduel /var/www/masterduel-counter
 
 # Reiniciar pm2 con ese usuario
+
 pm2 delete masterduel-backend
 pm2 start dist/index.js --name masterduel-backend --user masterduel
 Chequear si esto es todo lo que hay que hacer y si puedo llegar a tener probelmas como romper cosas, que algo deje de funcionar, duplicar cosas que no quiero duplicar, etc.
@@ -45,7 +49,7 @@ Hacerlo con la ayuda de un agente y pedirle que no ejecute el comandos para que 
 ---
 
 - Centralizar las peticiones http de las rutas. Mirar ejemplos como backend\src\routes\registerArchetype.ts.
-Asi evitamos crear archivos de rutas multiples para una misma api. Chequea ruta por ruta.
+  Asi evitamos crear archivos de rutas multiples para una misma api. Chequea ruta por ruta.
 
 ---
 
@@ -77,10 +81,16 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 
 ---
 
+Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas 2 estan en OCG y TCG pero no deberian estar en masterduel.
+
+---
+
 mejoras:
+- Preguntar si deberiamos crear tests por haber agregado el pendulum a los combo steps. Mostrar los tests de las guias frontend y backend
+- preguntar si la invocacion pendulum hace que el modo edit sea mas lagero, ya que lo es en local.
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
+- fijarse si el screenshot de los stats del trending de usuario se calcula correctamente para cad mes individual y no acarrea cosas del mes anterior. Hay un caso donde un usuario de este mes tiene 2 likes, pero en su unica guia que tiene solo tiene un like, esto es raro.
+Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
 
 bugs:
 resolviendo:
-- rate limiter
-- Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas 2 estan en OCG y TCG pero no deberian estar en masterduel.

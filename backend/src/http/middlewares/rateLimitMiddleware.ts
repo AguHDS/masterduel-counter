@@ -68,8 +68,24 @@ const createRateLimiter = (
  */
 export const authWriteRateLimiter = createRateLimiter(
   15 * 60 * 1000, // 15 minutes
-  10,
-  "Too many authentication attempts. Please try again in 15 minutes.",
+  30,
+  "Too many authentication attempts. Try again in 15 minutes.",
+);
+
+/**
+ * General write operations (guides, comments, profile, cards, tier list, etc.)
+ * Higher limits for authenticated users, restrictive for anonymous
+ * 600 per 2 hours for auth (-5/min), 30 per hour for anonymous
+ */
+const generalAuthWriteLimiter = createRateLimiter(
+  2 * 60 * 60 * 1000, // 2 hours
+  600,
+  "Too many requests. Slow down and try again.",
+);
+const generalAnonWriteLimiter = createRateLimiter(
+  60 * 60 * 1000, // 1 hour
+  30,
+  "Too many requests. Log in for higher limits or try again later.",
 );
 
 /**
@@ -129,4 +145,12 @@ const createDynamicRateLimiter = (
 export const dynamicContentCreationRateLimiter = createDynamicRateLimiter(
   contentCreationAuthRateLimiter,
   contentCreationAnonRateLimiter,
+);
+
+/**
+ * General write rate limiter for most user operations
+ */
+export const generalWriteRateLimiter = createDynamicRateLimiter(
+  generalAuthWriteLimiter,
+  generalAnonWriteLimiter,
 );

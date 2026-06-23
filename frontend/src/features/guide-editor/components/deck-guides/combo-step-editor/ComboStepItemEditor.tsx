@@ -1,4 +1,5 @@
 import { Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import type { ComboStep } from "@/features/archetypes/types";
 import type { ChainPickerState, ComboCardType } from "../../../utils/comboStepEditorUtils";
 import { ComboStepCardSlot } from "./ComboStepCardSlot";
@@ -17,6 +18,7 @@ interface ComboStepItemEditorProps {
   chainPickerOpen: ChainPickerState | null;
   onToggleCanceledFlow: () => void;
   onRemoveStep: () => void;
+  onToggleStepType: () => void;
   onDescriptionChange: (description: string) => void;
   onToggleExpanded: (cardType: Extract<ComboCardType, "sub" | "leftSub">) => void;
   onOpenSearch: (anchorElement: HTMLElement, cardType: ComboCardType) => void;
@@ -49,6 +51,7 @@ export const ComboStepItemEditor = ({
   chainPickerOpen,
   onToggleCanceledFlow,
   onRemoveStep,
+  onToggleStepType,
   onDescriptionChange,
   onToggleExpanded,
   onOpenSearch,
@@ -62,13 +65,21 @@ export const ComboStepItemEditor = ({
   onDragLeave,
   onDrop,
 }: ComboStepItemEditorProps) => {
+  const [isNarrow, setIsNarrow] = useState(() => typeof window !== "undefined" && window.innerWidth <= 450);
+
+  useEffect(() => {
+    const handleResize = () => setIsNarrow(window.innerWidth <= 450);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div
       data-step-container
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`relative bg-slate-800/50 border-2 rounded-lg p-8 pb-12  max-[860px]:pt-8 max-[860px]:pb-6 max-[450px]:pb-3 max-[550px]:overflow-x-auto max-[550px]:overflow-y-hidden ${
+      className={`relative bg-slate-800/50 border-2 rounded-lg px-4 py-8 pb-12  max-[860px]:pt-8 max-[860px]:pb-10 max-[450px]:pb-3 max-[550px]:overflow-x-scroll max-[550px]:overflow-y-hidden ${
         isReadOnly ? "border-slate-600/40 opacity-70" : "border-blue-500/40"
       } ${isDragging ? "opacity-50 scale-95" : ""} ${
         isDragOver ? "border-yellow-400 scale-105 shadow-lg shadow-yellow-400/20" : ""
@@ -105,7 +116,7 @@ export const ComboStepItemEditor = ({
       {isMainFlowStep && (hasCanceledFlow || isViewingCanceledFlow) && (
         <button
           onClick={onToggleCanceledFlow}
-          className={`absolute bottom-2 left-2 px-2 py-1 text-[11px] font-semibold rounded ${
+          className={`absolute bottom-2 left-2 px-2 py-1 text-[11px] max-[450px]:text-[9px] max-[450px]:mt-0.5 font-semibold rounded ${
             isViewingCanceledFlow
               ? "bg-slate-700 text-white hover:bg-slate-600"
               : "bg-red-600/80 text-white hover:bg-red-600"
@@ -119,7 +130,7 @@ export const ComboStepItemEditor = ({
       {!isViewingCanceledFlow && isMainFlowStep && !hasCanceledFlow && (
         <button
           onClick={onToggleCanceledFlow}
-          className="absolute bottom-2 left-2 px-2 py-1 text-[11px] font-semibold rounded bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white"
+          className="absolute bottom-2 left-2 px-2 py-1 text-[11px] max-[450px]:text-[9px] max-[450px]:mt-0.5 font-semibold rounded bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white"
           title="Add Canceled Flow"
         >
           Canceled?
@@ -133,6 +144,16 @@ export const ComboStepItemEditor = ({
           title="Remove step"
         >
           <Trash2 className="w-4 h-4" />
+        </button>
+      )}
+
+      {!isReadOnly && (
+        <button
+          onClick={onToggleStepType}
+          className="absolute bottom-2 right-2 px-2 py-1 text-[11px] max-[450px]:text-[9px] max-[450px]:mt-0.5 font-semibold rounded bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white"
+          title="Switch to Pendulum Step"
+        >
+          Pendulum
         </button>
       )}
 
@@ -226,6 +247,7 @@ export const ComboStepItemEditor = ({
           )}
           </div>
         </div>
+        </div>
 
         <div className="flex flex-col items-center">
           <label className="text-blue-400 font-semibold text-xs mb-2 text-nowrap">
@@ -236,19 +258,19 @@ export const ComboStepItemEditor = ({
             onChange={(event) => onDescriptionChange(event.target.value)}
             maxLength={500}
             disabled={isReadOnly}
-            placeholder="Describe this step (Max. 500 characters)..."
-            className={`w-full max-w-[280px] px-2 py-1.5 text-white text-xs rounded border focus:outline-none resize-y min-h-[60px] scrollbar-homeAllPages mx-auto ${
+            placeholder={isNarrow ? "Describe this step (Max. 500)" : "Describe this step (Max. 500 characters)..."}
+            className={`w-full max-w-[280px] px-2 py-1.5 text-white text-xs rounded border focus:outline-none resize-y min-h-[60px] max-[450px]:min-h-[40px] scrollbar-homeAllPages mx-auto ${
               isReadOnly
                 ? "bg-slate-800/50 border-slate-700 cursor-not-allowed"
                 : "bg-slate-700/50 border-slate-600 focus:border-blue-500"
             }`}
             rows={3}
           />
-          <div className="text-xs text-slate-400 mt-0.5 text-right w-full max-w-[280px]">
+          <div className="text-xs text-slate-400 max-[450px]:mb-5 text-right w-full max-w-[280px]">
             {(step.description || "").length}/500
           </div>
         </div>
-      </div>
+
     </div>
   );
 };

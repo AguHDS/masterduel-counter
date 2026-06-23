@@ -79,6 +79,12 @@ export const mapInitialHandsAndComboStepsFromInstance = (
       stepOrder: step.stepOrder,
       description: step.description,
       parentCanceledStepId: step.parentCanceledStepId?.toString() || null,
+      stepType:
+        step.stepType === "NORMAL" || step.stepType === "PENDULUM"
+          ? step.stepType
+          : null,
+      leftScaleValue: step.leftScaleValue ?? null,
+      rightScaleValue: step.rightScaleValue ?? null,
       mainCards: step.mainCards.map((card) => ({
         ...card,
         chainNumber: card.chain_number,
@@ -141,6 +147,9 @@ export const buildGuideEditSnapshot = ({
         stepOrder: step.stepOrder,
         description: step.description ?? null,
         parentCanceledStepId: step.parentCanceledStepId ?? null,
+        stepType: step.stepType ?? null,
+        leftScaleValue: step.leftScaleValue ?? null,
+        rightScaleValue: step.rightScaleValue ?? null,
         mainCardIds: step.mainCards.map((card) => card.id),
         mainCardChains: step.mainCards.map((card) => card.chainNumber ?? null),
         subCardIds: step.subCards.map((card) => card.id),

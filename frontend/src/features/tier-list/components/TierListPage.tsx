@@ -26,6 +26,7 @@ export const TierListPage = () => {
   const isAdmin = user?.role === "admin";
 
   const tiers = [...new Set(entries.map((e) => e.tier))].sort((a, b) => a - b);
+  const globalRank = new Map(entries.map((e, i) => [e.id, i + 1]));
   const currentLabel = FORMATS.find((f) => f.key === format)?.label ?? "Master Duel";
 
   const monthLabel = config?.lastScrapedAt
@@ -173,7 +174,7 @@ export const TierListPage = () => {
               <div className="border border-slate-500/10 rounded-xl overflow-hidden bg-slate-800/15 flex flex-col gap-2">
                 {tiers.map((tier) => {
                   const tierEntries = entries.filter((e) => e.tier === tier && e.isActive);
-                  return <TierSection key={tier} tier={tier} entries={tierEntries} />;
+                  return <TierSection key={tier} tier={tier} entries={tierEntries} globalRank={globalRank} />;
                 })}
               </div>
             )}

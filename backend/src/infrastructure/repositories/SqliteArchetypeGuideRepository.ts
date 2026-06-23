@@ -527,9 +527,9 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
             }
 
             const stepResult = this.db.prepare(`
-              INSERT INTO combo_steps (initial_hand_id, step_order, description, parent_canceled_step_id)
-              VALUES (?, ?, ?, ?)
-            `).run(realHandId, step.stepOrder, step.description ?? null, parentCanceledStepId);
+              INSERT INTO combo_steps (initial_hand_id, step_order, description, parent_canceled_step_id, step_type, left_scale_value, right_scale_value)
+              VALUES (?, ?, ?, ?, ?, ?, ?)
+            `).run(realHandId, step.stepOrder, step.description ?? null, parentCanceledStepId, step.stepType ?? null, step.leftScaleValue ?? null, step.rightScaleValue ?? null);
             const stepId = stepResult.lastInsertRowid as number;
             createdStepsMap.set(i, stepId);
 

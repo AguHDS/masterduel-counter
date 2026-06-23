@@ -319,7 +319,7 @@ export const FinalBoardPreview = ({
               {isEditMode && (
                 <button
                   onClick={() => handleRemoveCard(type, index)}
-                  className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                  className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
                   title="Remove card"
                 >
                   <X className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
@@ -342,7 +342,7 @@ export const FinalBoardPreview = ({
                 isEditMode ? borderColor : "border-slate-700/60"
               } bg-gradient-to-b from-slate-900/85 via-slate-950/90 to-[#16102a] px-1 transition-all ${
                 isEditMode
-                  ? "hover:bg-slate-900/95 hover:shadow-[0_0_0_1px_rgba(96,165,250,0.18)] cursor-pointer"
+                  ? "hover:bg-slate-900/95 cursor-pointer"
                   : "cursor-default"
               }`}
             >
@@ -396,7 +396,7 @@ export const FinalBoardPreview = ({
                 />
                 {isEditMode && (
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/card-image:opacity-100 transition-opacity duration-200 pointer-events-none">
-                    <Plus className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white drop-shadow-lg" />
+                    <Plus className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white" />
                   </div>
                 )}
                 {count > 1 && (
@@ -410,7 +410,7 @@ export const FinalBoardPreview = ({
                       e.stopPropagation();
                       handleRemoveCard(type, 0);
                     }}
-                    className="absolute top-2 right-3 w-5 h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                    className="absolute top-2 right-3 w-5 h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 z-10"
                     title="Remove card"
                   >
                     <X className="w-3 h-3 text-white" />
@@ -543,7 +543,7 @@ export const FinalBoardPreview = ({
 
       <div className="max-[450px]:-mx-4">
         <div className="flex justify-center">
-        <div className="relative w-full min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-[22px] border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.18)] sm:max-w-[90%] md:max-w-[80%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-visible">
+        <div className="relative w-full min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-[22px] border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.1)] sm:max-w-[90%] md:max-w-[80%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-visible">
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_35%)]" />
           <div className="pointer-events-none absolute inset-x-4 top-4 h-20 rounded-full bg-blue-500/10 blur-3xl" />
           <div className="pointer-events-none absolute inset-x-4 max-[450px]:inset-x-0 bottom-10 top-28 max-[450px]:rounded-none rounded-[18px] border border-slate-700/50 bg-gradient-to-b from-slate-950/20 via-slate-950/5 to-indigo-950/20 shadow-[inset_0_0_0_1px_rgba(30,41,59,0.55)]" />

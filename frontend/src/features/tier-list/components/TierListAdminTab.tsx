@@ -381,7 +381,7 @@ export const TierListAdminTab = () => {
         <div className="border border-slate-500/20 rounded-xl overflow-hidden bg-black/30">
           {[...new Set(displayEntries.map((e) => e.tier))].sort((a, b) => a - b).map((tier, tierIndex, arr) => {
             const tierEntries = displayEntries.filter((e) => e.tier === tier);
-            const cfg = tierConfig[tier];
+            const cfg = tierConfig[tier] ?? tierConfig[3];
             const isLast = tierIndex === arr.length - 1;
 
             return (
@@ -392,6 +392,9 @@ export const TierListAdminTab = () => {
                   <span className={`text-2xl sm:text-3xl font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_4px_rgba(0,0,0,0.4)]`}>
                     {cfg.label}
                   </span>
+                  {tier > 3 && (
+                    <span className="text-[10px] text-red-400 font-bold">(tier {tier})</span>
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0 p-4 sm:p-5">

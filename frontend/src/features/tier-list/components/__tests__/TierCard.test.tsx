@@ -39,7 +39,7 @@ describe("TierCard", () => {
     const entry = makeEntry({ displayName: "HERO", deckName: "HEROs" });
     render(
       <MemoryRouter>
-        <TierCard entry={entry} />
+        <TierCard entry={entry} rank={1} />
       </MemoryRouter>,
     );
     expect(screen.getByText("HERO")).toBeDefined();
@@ -50,7 +50,7 @@ describe("TierCard", () => {
     const entry = makeEntry({ displayName: null, deckName: "Branded" });
     render(
       <MemoryRouter>
-        <TierCard entry={entry} />
+        <TierCard entry={entry} rank={1} />
       </MemoryRouter>,
     );
     expect(screen.getByText("Branded")).toBeDefined();
@@ -60,7 +60,7 @@ describe("TierCard", () => {
     const entry = makeEntry({ linkedArchetypeId: 42, linkedArchetypeName: "HERO", deckName: "HEROs" });
     render(
       <MemoryRouter>
-        <TierCard entry={entry} />
+        <TierCard entry={entry} rank={1} />
       </MemoryRouter>,
     );
 
@@ -73,7 +73,7 @@ describe("TierCard", () => {
     const entry = makeEntry({ linkedArchetypeId: null, displayName: null, deckName: "Sky Striker" });
     render(
       <MemoryRouter>
-        <TierCard entry={entry} />
+        <TierCard entry={entry} rank={1} />
       </MemoryRouter>,
     );
 
@@ -86,7 +86,7 @@ describe("TierCard", () => {
     const entry = makeEntry({ counterGuideCount: 7, deckGuideCount: 2 });
     render(
       <MemoryRouter>
-        <TierCard entry={entry} />
+        <TierCard entry={entry} rank={1} />
       </MemoryRouter>,
     );
 
@@ -102,7 +102,7 @@ describe("TierCard", () => {
     const entry = makeEntry({ imageUrl: null });
     render(
       <MemoryRouter>
-        <TierCard entry={entry} />
+        <TierCard entry={entry} rank={1} />
       </MemoryRouter>,
     );
 

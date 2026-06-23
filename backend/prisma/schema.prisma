@@ -300,6 +300,9 @@ model ComboStep {
   stepOrder             Int       @map("step_order")
   description           String?
   parentCanceledStepId  Int?      @map("parent_canceled_step_id")
+  stepType              String?   @map("step_type")
+  leftScaleValue        Int?      @map("left_scale_value")
+  rightScaleValue       Int?      @map("right_scale_value")
   createdAt             DateTime  @default(now()) @map("created_at")
 
   initialHand           InitialHand @relation(fields: [initialHandId], references: [id], onDelete: Cascade)
