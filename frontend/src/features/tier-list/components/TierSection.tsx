@@ -4,6 +4,7 @@ import type { TierListEntry } from "../types/tierList.types";
 interface TierSectionProps {
   tier: number;
   entries: TierListEntry[];
+  globalRank: Map<number, number>;
 }
 
 const tierConfig: Record<number, {
@@ -39,7 +40,7 @@ const tierConfig: Record<number, {
 };
 
 /** Section displaying the Tier number at the side */
-export const TierSection = ({ tier, entries }: TierSectionProps) => {
+export const TierSection = ({ tier, entries, globalRank }: TierSectionProps) => {
   const cfg = tierConfig[tier] ?? tierConfig[3];
 
   if (entries.length === 0) return null;
@@ -57,7 +58,7 @@ export const TierSection = ({ tier, entries }: TierSectionProps) => {
       <div className="flex-1 min-w-0 p-3 sm:p-3 sm:pb-2">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
           {entries.map((entry) => (
-            <TierCard key={entry.id} entry={entry} />
+            <TierCard key={entry.id} entry={entry} rank={globalRank.get(entry.id) ?? 0} />
           ))}
         </div>
       </div>

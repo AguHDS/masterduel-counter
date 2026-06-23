@@ -6,6 +6,7 @@ import type { TierListEntry } from "../types/tierList.types";
 
 interface TierCardProps {
   entry: TierListEntry;
+  rank: number;
 }
 
 const tierColors: Record<number, { border: string; glow: string; bg: string }> = {
@@ -15,7 +16,7 @@ const tierColors: Record<number, { border: string; glow: string; bg: string }> =
   3: { border: "border-none", glow: "", bg: "from-orange-950/50 via-orange-900/20 to-slate-950/80" },
 };
 
-export const TierCard = ({ entry }: TierCardProps) => {
+export const TierCard = ({ entry, rank }: TierCardProps) => {
   const colors = tierColors[entry.tier] ?? tierColors[3];
 
   const displayName = entry.displayName || entry.deckName;
@@ -28,6 +29,9 @@ export const TierCard = ({ entry }: TierCardProps) => {
       className={`relative rounded-lg overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.08)] min-[501px]:shadow-none cursor-pointer group border ${colors.border} transition-all duration-300 bg-gradient-to-b ${colors.bg}`}
     >
       <div className="w-full aspect-[16/10] overflow-hidden relative">
+        <span className="absolute top-1.5 left-1.5 z-10 text-amber-400 text-sm font-black leading-none pointer-events-none select-none">
+          #{rank}
+        </span>
         {entry.imageUrl ? (
           <img
             src={getOptimizedCardImageUrl(entry.imageUrl, { size: "full" })}
