@@ -195,7 +195,7 @@ export const PendulumStepEditor = ({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`relative bg-slate-800/50 border-2 rounded-lg px-4 max-[420px]:px-0 py-8 pb-12 max-[860px]:pt-8 max-[860px]:pb-10 max-[450px]:pb-3 max-[550px]:overflow-x-auto max-[550px]:overflow-y-hidden ${
+      className={`relative bg-slate-800/50 border-2 rounded-lg px-4 max-[420px]:px-0 py-8 pb-12 max-[860px]:pt-8 max-[860px]:pb-10 max-[450px]:pb-3 max-[550px]:overflow-x-scroll max-[550px]:overflow-y-hidden ${
         isReadOnly ? "border-slate-600/40 opacity-70" : "border-violet-500/40"
       } ${isDragging ? "opacity-50 scale-95" : ""} ${
         isDragOver
@@ -245,7 +245,7 @@ export const PendulumStepEditor = ({
       {!isReadOnly && (
         <button
           onClick={onToggleStepType}
-          className="absolute bottom-2 right-2 max-[450px]:left-2 max-[450px]:right-auto max-[450px]:text-[9px] max-[450px]:mt-0.5 px-2 py-1 text-[11px] font-semibold rounded bg-violet-600/80 text-white hover:bg-violet-600"
+          className="absolute bottom-2 right-2 max-[450px]:left-2 max-[450px]:right-auto max-[450px]:py-0.5 max-[450px]:text-[9px] max-[450px]:mt-0.5 px-2 py-1 text-[11px] font-semibold rounded bg-violet-600/80 text-white hover:bg-violet-600"
           title="Switch to Normal Step"
         >
           Pend summon
@@ -256,7 +256,7 @@ export const PendulumStepEditor = ({
         <div className="mb-3">
           <div className="flex justify-between items-center gap-1.5 max-[450px]:gap-0.5 w-full mt-4 min-h-[160px]">
             {/* LEFT SCALE */}
-            <div className="flex flex-col items-center gap-1 min-w-[36px]">
+            <div className="flex flex-col items-center gap-1 mt-2.5 min-w-[36px]">
               <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
                 SCALE
               </span>
@@ -324,7 +324,7 @@ export const PendulumStepEditor = ({
             </div>
 
             {/* RIGHT SCALE */}
-            <div className="flex flex-col items-center gap-1 min-w-[36px]">
+            <div className="flex flex-col items-center gap-1 mt-2.5 min-w-[36px]">
               <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
                 SCALE
               </span>
