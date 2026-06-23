@@ -95,5 +95,3 @@ Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi 
 
 bugs:
 resolviendo:
-
-
