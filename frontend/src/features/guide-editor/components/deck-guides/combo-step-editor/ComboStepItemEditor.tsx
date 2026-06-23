@@ -79,7 +79,7 @@ export const ComboStepItemEditor = ({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`relative bg-slate-800/50 border-2 rounded-lg p-8 pb-12  max-[860px]:pt-8 max-[860px]:pb-10 max-[450px]:pb-3 max-[550px]:overflow-x-scroll max-[550px]:overflow-y-hidden ${
+      className={`relative bg-slate-800/50 border-2 rounded-lg px-4 py-8 pb-12  max-[860px]:pt-8 max-[860px]:pb-10 max-[450px]:pb-3 max-[550px]:overflow-x-scroll max-[550px]:overflow-y-hidden ${
         isReadOnly ? "border-slate-600/40 opacity-70" : "border-blue-500/40"
       } ${isDragging ? "opacity-50 scale-95" : ""} ${
         isDragOver ? "border-yellow-400 scale-105 shadow-lg shadow-yellow-400/20" : ""

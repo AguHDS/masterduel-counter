@@ -67,8 +67,6 @@ function ScalePicker({
 
 function ScaleSlot({
   card,
-  value,
-  color,
   cardType,
   stepId,
   cardIndex,
@@ -81,8 +79,6 @@ function ScaleSlot({
   onCloseChainPicker,
 }: {
   card: Card | null;
-  value: number | null;
-  color: "blue" | "red";
   cardType: ComboCardType;
   stepId: string;
   cardIndex: number;
@@ -101,13 +97,6 @@ function ScaleSlot({
 
   return (
     <div className="relative">
-      {value != null && (
-        <span
-          className={`absolute bottom-0 left-1/2 -translate-x-1/2 ${color === "blue" ? "text-blue-400" : "text-red-400"} text-sm font-bold z-10`}
-        >
-          {value}
-        </span>
-      )}
       {card ? (
         <ComboStepCardSlot
           key={`${card.id}-${cardIndex}`}
@@ -253,8 +242,8 @@ export const PendulumStepEditor = ({
       )}
 
       <div className="relative z-10">
-        <div className="mb-3">
-          <div className="flex justify-between items-center gap-1.5 max-[450px]:gap-0.5 w-full mt-4 min-h-[160px]">
+        <div className="mb-[87px]">
+          <div className="flex justify-between items-center gap-1.5 max-[450px]:gap-0.5 w-full mt-4 pt-10 min-h-[160px]">
             {/* LEFT SCALE */}
             <div className="flex flex-col items-center gap-1 mt-2.5 min-w-[36px]">
               <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
@@ -262,8 +251,6 @@ export const PendulumStepEditor = ({
               </span>
               <ScaleSlot
                 card={step.subCards[0] || null}
-                value={step.rightScaleValue ?? null}
-                color="red"
                 cardType="sub"
                 cardIndex={0}
                 {...scaleSlotProps}
@@ -330,8 +317,6 @@ export const PendulumStepEditor = ({
               </span>
               <ScaleSlot
                 card={step.leftSubCards[0] || null}
-                value={step.leftScaleValue ?? null}
-                color="blue"
                 cardType="leftSub"
                 cardIndex={0}
                 {...scaleSlotProps}

@@ -127,18 +127,14 @@ export const ComboStepCard = ({
               <h3 className="text-[11px] font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent uppercase tracking-wide mb-1 text-nowrap">
                 Pendulum Summon
               </h3>
-            <div className="grid grid-cols-3 place-items-center gap-0 min-[390px]:gap-0.5 min-[1030px]:gap-1 min-[1530px]:gap-1.5 translate-y-2.5">
-              {(() => {
-                const pendMain = step.mainCards.slice(0, 6);
-                const pendCount = pendMain.length;
-                return pendMain.map((card, i) => (
-                  <div key={`${card.id}-${i}`} style={pendCount === 1 ? { gridColumn: '2' } : undefined}>
+            <div className="grid place-items-center gap-0 min-[390px]:gap-0.5 min-[1030px]:gap-1 min-[1530px]:gap-1.5 translate-y-2.5" style={(() => { const n = step.mainCards.slice(0, 6).length; return { gridTemplateColumns: `repeat(${n >= 3 ? 3 : n}, auto)`, justifyContent: 'center' }; })()}>
+              {step.mainCards.slice(0, 6).map((card, i) => (
+                  <div key={`${card.id}-${i}`}>
                   <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name}>
                     <img src={card.imageUrlSmall} alt={card.name} className="w-6 h-8 min-[390px]:w-8 min-[390px]:h-11 min-[860px]:w-10 min-[860px]:h-14 min-[1030px]:w-11 min-[1030px]:h-15 min-[1530px]:w-12 min-[1530px]:h-16 object-cover rounded border border-gray-500/50 shadow" />
                   </CardTooltip>
                   </div>
-                ));
-              })()}
+              ))}
             </div>
             </div>
             {/* Right Scale */}
