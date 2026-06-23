@@ -404,7 +404,7 @@ export const ComboStepCard = ({
       </div>
 
       {/* Description - Always centered regardless of card layout */}
-      <div className={`w-full flex flex-col items-center flex-1 ${!hasSideCards && step.stepType !== "PENDULUM" ? 'relative top-12' : ''} ${step.stepType === "PENDULUM" ? 'mt-10' : ''}`}>
+      <div className={`w-full flex flex-col items-center flex-1 ${!hasSideCards && step.stepType !== "PENDULUM" ? 'relative top-12' : ''} ${step.stepType === "PENDULUM" ? 'mt-10' : ''} ${step.subCards.length > 0 && step.leftSubCards.length === 0 && step.stepType !== "PENDULUM" ? 'translate-x-[0px]' : ''} ${step.leftSubCards.length > 0 && step.subCards.length === 0 && step.stepType !== "PENDULUM" ? 'translate-x-[0px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length > 0 && step.stepType !== "PENDULUM" ? 'translate-x-[3px]' : ''}`}>
         <span className={`${_isEditMode ? 'text-xs' : 'text-[10px]'} font-semibold text-blue-400 uppercase tracking-wide`}>
           Description
         </span>
