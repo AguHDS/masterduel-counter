@@ -24,7 +24,7 @@ sudo nano /etc/nginx/sites-available/masterduelcounter
 sudo nginx -t
 # Ver configuración completa
 sudo nginx -T
-`Nota: Acordarse de permitir hasta 3MB como max en la cfg de nginx para evitar errores 413 Payload Too Large`
+`Nota: client_max_body_size 5M en nginx y express.json({ limit: "5mb" }) en backend para evitar errores 413 Payload Too Large`
 
 ## Thumbnails optimizados (Opcional)
 # Pre-generar cache de thumbnails para todas las cartas (10-20 min)
