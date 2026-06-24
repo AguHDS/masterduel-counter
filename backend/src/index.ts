@@ -177,7 +177,7 @@ app.use(
   }),
 );
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
 
 // Serve thumbnails with dynamic generation (must come before static middleware)
 app.use("/api/uploads", cardThumbnails);

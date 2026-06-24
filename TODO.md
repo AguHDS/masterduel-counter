@@ -86,6 +86,7 @@ Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas
 ---
 
 mejoras:
+- en los steps, al arrastrar un step, en vez de intercambiar posiciones, ponerlo justo antes del step al que estas arrastrando, porque sino dificulta el mover un step de un lado a otro.
 - Preguntar si deberiamos crear tests por haber agregado el pendulum a los combo steps. Mostrar los tests de las guias frontend y backend
 - preguntar si la invocacion pendulum hace que el modo edit sea mas lagero, ya que lo es en local.
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
@@ -94,3 +95,10 @@ Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi 
 
 bugs:
 resolviendo:
+por que recibo este error cuando guardo una guia con mas de 18 initial hands que cada una tiene finalboardpreview + comboflow?
+data: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta char…dy>\n<pre>Payload Too Large</pre>\n</body>\n</html>\n', status: 413, statusText: '',
+"Request failed with status 413"
+index-B8B4ZRCV.js:29  POST https://masterduelcounter.com/api/archetypes/122/draft 413 (Content Too Large)
+
+Estoy teniendo este error al querer guardar una guia draft muy larga.
+Que yo sepa no puse ningun limite para impedir que una guia sea muy larga por tener mucho contenido. Tiene que dejarme guardar tanto para drafts como publicaciones publicadas al guardar.
