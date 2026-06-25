@@ -4,10 +4,11 @@ import { getDependencies } from "@/compositionRoot.js";
 /** Search for letters by name in the local db and/or external Api */
 export const searchCardsController = async (req: Request, res: Response) => {
   try {
-    const { query } = req.query;
+    const { query, limit: limitParam } = req.query;
+    const limit = limitParam ? parseInt(limitParam as string, 10) : 50;
     
     const cardService = getDependencies().getCardService();
-    const results = await cardService.searchCards(query as string);
+    const results = await cardService.searchCards(query as string, limit);
     
     res.json({ results });
   } catch (error) {

@@ -11,9 +11,9 @@ export class CardApplicationService implements CardApplicationPort {
     private cardImageStorage: CardImageStorageService,
   ) {}
 
-  async searchCards(query: string): Promise<CardSearchResult[]> {
+  async searchCards(query: string, limit?: number): Promise<CardSearchResult[]> {
     // 1. Search external API for card names
-    const cards = await this.cardApiService.searchCardByNameFromExternalApi(query);
+    const cards = await this.cardApiService.searchCardByNameFromExternalApi(query, limit);
 
     // 2. Check which cards exist locally in database (batch lookup for performance)
     const cardIds = cards.map(card => card.id);

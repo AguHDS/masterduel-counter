@@ -13,11 +13,12 @@ export interface CardSearchResult {
 // Search for cards by name query
 export const searchCards = async (
   query: string,
+  limit = 50,
 ): Promise<CardSearchResult[]> => {
   const response = await axiosClient.get<{ results: CardSearchResult[] }>(
     "/api/cards/search",
     {
-      params: { query },
+      params: { query, limit },
     },
   );
 

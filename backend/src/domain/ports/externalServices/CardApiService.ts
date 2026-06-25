@@ -22,7 +22,7 @@ export interface RawCardData {
 
 export interface CardApiService {
   /** Search for cards by their name in YGOProDeck API */
-  searchCardByNameFromExternalApi(name: string): Promise<RawCardData[]>;
+  searchCardByNameFromExternalApi(name: string, limit?: number): Promise<RawCardData[]>;
   /** Find a card by its ID in YGOProDeck API */
   findCardByIdFromExternalApi(id: number): Promise<RawCardData | null>;
 }

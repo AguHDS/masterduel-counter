@@ -19,7 +19,7 @@ export const useSearchCards = (
 
   return useQuery<CardSearchResult[]>({
     queryKey: queryKeys.cards.search(query),
-    queryFn: () => searchCards(query),
+    queryFn: () => searchCards(query, 50),
     staleTime: QUERY_STALE_TIME.SHORT,
     enabled:
       options?.enabled !== undefined

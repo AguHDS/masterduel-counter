@@ -32,7 +32,7 @@ export class YgoProDeckCardPreviewAdapter implements CardApiService {
     }
   }
 
-  async searchCardByNameFromExternalApi(name: string): Promise<RawCardData[]> {
+  async searchCardByNameFromExternalApi(name: string, limit?: number): Promise<RawCardData[]> {
     try {
       const url = `${this.baseUrl}?fname=${encodeURIComponent(name)}`;
       const response = await this.fetchWithTimeout(url, this.timeout);
@@ -48,7 +48,7 @@ export class YgoProDeckCardPreviewAdapter implements CardApiService {
 
       const data = await response.json();
 
-      return data.data.map(
+      const allCards = data.data.map(
         (card: {
           id: number;
           name: string;
@@ -83,6 +83,8 @@ export class YgoProDeckCardPreviewAdapter implements CardApiService {
           card_images: card.card_images,
         }),
       );
+
+      return limit ? allCards.slice(0, limit) : allCards;
     } catch (error) {
       if (
         error instanceof Error &&

@@ -7,7 +7,7 @@ export interface CardApplicationPort {
    * @param query - Search term (partial or full card name)
    * @returns Array of results with id and name of the found cards
    */
-  searchCards(query: string): Promise<CardSearchResult[]>;
+  searchCards(query: string, limit?: number): Promise<CardSearchResult[]>;
 
   /**
    * Retrieves or creates a card with its YGOProdeck image URLs.

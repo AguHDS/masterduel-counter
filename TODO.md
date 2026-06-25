@@ -90,15 +90,44 @@ mejoras:
 - Preguntar si deberiamos crear tests por haber agregado el pendulum a los combo steps. Mostrar los tests de las guias frontend y backend
 - preguntar si la invocacion pendulum hace que el modo edit sea mas lagero, ya que lo es en local.
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
+- Agregar seccion de Top Cards quiza en la misma tab de cartas, que muestra el % usage de las handtraps y boardbreakers. Tomar este dato de https://www.masterduelmeta.com/top-cards#usage-rate, pero tengo que hacer un sistmea que desde el admin panel me deje ingresar las cartas especificas que quiero que aparezcan en esa tierlist de cartas, ya que en https://www.masterduelmeta.com/top-cards#usage-rate muestra un % usage de TODAS las cartas, y yo quiero % de handtraps/boardbreakers. Tienen que quedar permanente las que yo ingreso como entry.
+Aca tambien tenemos datos mas completos (tcg, masterduel, ocg):
+https://ygoprodeck.com/top/
+Podriamos poner esa feature a la vista en la home justo abajo de las request o arriba de ella
 - fijarse si el screenshot de los stats del trending de usuario se calcula correctamente para cad mes individual y no acarrea cosas del mes anterior. Hay un caso donde un usuario de este mes tiene 2 likes, pero en su unica guia que tiene solo tiene un like, esto es raro.
 Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
 
 bugs:
-resolviendo:
-por que recibo este error cuando guardo una guia con mas de 18 initial hands que cada una tiene finalboardpreview + comboflow?
-data: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta char…dy>\n<pre>Payload Too Large</pre>\n</body>\n</html>\n', status: 413, statusText: '',
-"Request failed with status 413"
-index-B8B4ZRCV.js:29  POST https://masterduelcounter.com/api/archetypes/122/draft 413 (Content Too Large)
+- A veces, al guardar como draft una guia larga con muchas initial hands dice "Request timeout. Please check your connection." En la devtools dice: code: "ECONNABORTED",
+config: 
+adapter: 
+(3) ['xhr', 'http', 'fetch']
+allowAbsoluteUrls: true
+baseURL: "https://masterduelcounter.com"
+data: "{\"guideType\":\"DECK\",\"initialHands\":[{\"card
+env: {FormData: ƒ, Blob: ƒ}
+headers: xs {Accept: 'application/json, text/plain, */*', Content-Type: 'application/json'}
+maxBodyLength: -1
+maxContentLength: -1
+method: "post"
+timeout: 30000
+transformRequest: [ƒ]
+transformResponse: [ƒ]
+transitional: {silentJSONParsing: true, forcedJSONParsing: true, clarifyTimeoutError: false}
+url: "/api/archetypes/122/draft"
+validateStatus: ƒ (t)
+withCredentials: true
+xsrfCookieName: 
+"XSRF-TOKEN"xsrfHeaderName: "X-XSRF-TOKEN"
+[[Prototype]]: Object
+isAxiosError: true
+name: "AxiosError"
+request: XMLHttpRequest {__sentry_xhr_v3__: {…}, setRequestHeader: Proxy(Function), __sentry_xhr_span_id__: '97e4dbf7fc7f798d', onreadystatechange: null, readyState: 4, …}
+userMessage: 
+"Request timeout. Please check your connection."
 
-Estoy teniendo este error al querer guardar una guia draft muy larga.
-Que yo sepa no puse ningun limite para impedir que una guia sea muy larga por tener mucho contenido. Tiene que dejarme guardar tanto para drafts como publicaciones publicadas al guardar.
+url: "/api/archetypes/122/draft"
+
+Se arregla al seguir intentando. Nota: Al guardar una guia muy larga como draft, el proceso de guardado cuando el boton dice "Saving draft..." toma unos 20-30segundos, asi que quiza es un problema de timeout?
+
+resolviendo:
