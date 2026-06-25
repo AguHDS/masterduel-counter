@@ -124,6 +124,7 @@ export const saveArchetypeGuide = async (
   const response = await axiosClient.post<SaveArchetypeGuideResponse>(
     `/api/archetypes/${archetypeId}/register`,
     { guideType, cardPairs, initialHands, title, headerCardId, generalTip, instanceId, comboSteps, draftInstanceId },
+    { timeout: 120000 },
   );
 
   return response.data;
@@ -161,6 +162,7 @@ export const saveDraftGuide = async (
       draftInstanceId,
       guideRequestId,
     },
+    { timeout: 120000 },
   );
   return response.data;
 };

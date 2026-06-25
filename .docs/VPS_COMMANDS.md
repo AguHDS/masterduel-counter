@@ -19,7 +19,7 @@ Los upstreams del backend
 cat /etc/nginx/sites-available/masterduelcounter
 ## editar nginx
 sudo nano /etc/nginx/sites-available/masterduelcounter
-## Verificar nginx
+# Guardar CTRL+O ENTER -> CTRL X
 # Verificar sintaxis
 sudo nginx -t
 # Ver configuración completa
@@ -88,14 +88,12 @@ htop -> Ver uso de CPU, memoria y procesos en tiempo real
 
 CFG NGINX:
 
-----
-
 # Redirect www to non-www
 server {
     server_name www.masterduelcounter.com;
     return 301 https://masterduelcounter.com$request_uri;
 
-    client_max_body_size 3M;
+    client_max_body_size 5M;
 
     listen 443 ssl; # managed by Certbot
     ssl_certificate /etc/letsencrypt/live/masterduelcounter.com/fullchain.pem; # managed by Certbot
@@ -108,7 +106,7 @@ server {
 server {
     server_name masterduelcounter.com;
 
-    client_max_body_size 3M;
+    client_max_body_size 5M;
 
     root /var/www/masterduel-counter/frontend/dist;
     index index.html;
@@ -170,6 +168,7 @@ server {
     location ^~ /api {
         proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
+        proxy_read_timeout 120s;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
@@ -183,6 +182,7 @@ server {
     location ~ ^/archetype/[0-9]+/instance/[0-9]+/?$ {
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
+        proxy_read_timeout 120s;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -193,6 +193,7 @@ server {
     location ~ ^/archetypes/[^/]+/[^/]+/[^/]+-[0-9]+/?$ {
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
+        proxy_read_timeout 120s;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -216,7 +217,7 @@ server {
         return 301 https://$host$request_uri;
     } # managed by Certbot
 
-    client_max_body_size 3M;
+    client_max_body_size 5M;
 
     listen 80;
     server_name masterduelcounter.com;
@@ -231,4 +232,4 @@ server {
     listen 80;
     server_name www.masterduelcounter.com;
     return 404; # managed by Certbot
-}
+} 

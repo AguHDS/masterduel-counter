@@ -98,36 +98,5 @@ Podriamos poner esa feature a la vista en la home justo abajo de las request o a
 Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
 
 bugs:
-- A veces, al guardar como draft una guia larga con muchas initial hands dice "Request timeout. Please check your connection." En la devtools dice: code: "ECONNABORTED",
-config: 
-adapter: 
-(3) ['xhr', 'http', 'fetch']
-allowAbsoluteUrls: true
-baseURL: "https://masterduelcounter.com"
-data: "{\"guideType\":\"DECK\",\"initialHands\":[{\"card
-env: {FormData: ƒ, Blob: ƒ}
-headers: xs {Accept: 'application/json, text/plain, */*', Content-Type: 'application/json'}
-maxBodyLength: -1
-maxContentLength: -1
-method: "post"
-timeout: 30000
-transformRequest: [ƒ]
-transformResponse: [ƒ]
-transitional: {silentJSONParsing: true, forcedJSONParsing: true, clarifyTimeoutError: false}
-url: "/api/archetypes/122/draft"
-validateStatus: ƒ (t)
-withCredentials: true
-xsrfCookieName: 
-"XSRF-TOKEN"xsrfHeaderName: "X-XSRF-TOKEN"
-[[Prototype]]: Object
-isAxiosError: true
-name: "AxiosError"
-request: XMLHttpRequest {__sentry_xhr_v3__: {…}, setRequestHeader: Proxy(Function), __sentry_xhr_span_id__: '97e4dbf7fc7f798d', onreadystatechange: null, readyState: 4, …}
-userMessage: 
-"Request timeout. Please check your connection."
-
-url: "/api/archetypes/122/draft"
-
-Se arregla al seguir intentando. Nota: Al guardar una guia muy larga como draft, el proceso de guardado cuando el boton dice "Saving draft..." toma unos 20-30segundos, asi que quiza es un problema de timeout?
 
 resolviendo:
