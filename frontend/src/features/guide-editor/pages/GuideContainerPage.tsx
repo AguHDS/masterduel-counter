@@ -161,7 +161,8 @@ export const GuideContainerPage = () => {
     (!isCreatingNew && !guideInstanceData) ||
     guideError ||
     error ||
-    !archetypeWithHeaderData?.success
+    (!archetypeWithHeaderData && !isLoading) ||
+    (archetypeWithHeaderData && !archetypeWithHeaderData.success)
   ) {
     return (
       <>
@@ -186,6 +187,9 @@ export const GuideContainerPage = () => {
     );
   }
 
+  if (!archetypeWithHeaderData) {
+    return null;
+  }
   const archetype = archetypeWithHeaderData.archetype;
   const currentGuideTitle = guideInstanceData?.instance.title?.trim();
   const currentGuideType = guideInstanceData?.instance.guideType ?? guideType;
