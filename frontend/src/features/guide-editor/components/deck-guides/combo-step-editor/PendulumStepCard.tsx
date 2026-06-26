@@ -31,11 +31,11 @@ export const PendulumStepCard = ({ step }: PendulumStepCardProps) => {
             return card ? (
               <div key={`${card.id}-${i}`}>
                 <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name}>
-                  <img src={card.imageUrlSmall} alt={card.name} className="w-7 h-10 min-[390px]:w-9 min-[390px]:h-12 min-[860px]:w-12 min-[860px]:h-16 min-[1030px]:w-[3.25rem] min-[1030px]:h-[4.5rem] min-[1530px]:w-14 min-[1530px]:h-[5rem] object-cover rounded border border-gray-500/50 shadow" />
+                  <img src={card.imageUrlSmall} alt={card.name} className="w-7 h-10 min-[390px]:w-9 min-[390px]:h-12 min-[860px]:w-12 min-[860px]:h-16 min-[1030px]:w-10 min-[1030px]:h-14 min-[1530px]:w-14 min-[1530px]:h-[5rem] min-[1750px]:w-14 min-[1750px]:h-[5rem] object-cover rounded border border-gray-500/50 shadow" />
                 </CardTooltip>
               </div>
             ) : (
-              <div key={`empty-${i}`} className="w-7 h-10 min-[390px]:w-9 min-[390px]:h-12 min-[860px]:w-12 min-[860px]:h-16 min-[1030px]:w-[3.25rem] min-[1030px]:h-[4.5rem] min-[1530px]:w-14 min-[1530px]:h-[5rem] invisible" />
+              <div key={`empty-${i}`} className="w-7 h-10 min-[390px]:w-9 min-[390px]:h-12 min-[860px]:w-12 min-[860px]:h-16 min-[1030px]:w-10 min-[1030px]:h-14 min-[1530px]:w-14 min-[1530px]:h-[5rem] min-[1750px]:w-14 min-[1750px]:h-[5rem] invisible" />
             );
           })}
         </div>

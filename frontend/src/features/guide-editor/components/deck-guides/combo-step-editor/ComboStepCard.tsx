@@ -96,7 +96,7 @@ export const ComboStepCard = ({
       </div>
 
       {/* Description - Always centered regardless of card layout */}
-      <div className={`w-full flex flex-col items-center ${!hasSideCards && step.stepType !== "PENDULUM" ? 'mt-12' : ''} ${step.stepType === "PENDULUM" ? 'mt-10' : ''} ${step.stepType === "PENDULUM" ? 'px-4 max-[650px]:px-6' : ''} ${step.subCards.length > 0 && step.leftSubCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[10px]' : ''} ${step.leftSubCards.length > 0 && step.subCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:-translate-x-[6px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length > 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[4px]' : ''}`}>
+      <div className={`w-full flex flex-col items-center ${!hasSideCards && step.stepType !== "PENDULUM" ? 'mt-12' : ''} ${step.stepType === "PENDULUM" ? 'mt-10' : ''} ${step.stepType === "PENDULUM" ? 'px-4 max-[650px]:translate-x-[10px] max-[600px]:translate-x-[30px] max-[499px]:translate-x-[-0px] max-[365px]:translate-x-[15px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[10px]' : ''} ${step.leftSubCards.length > 0 && step.subCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:-translate-x-[6px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length > 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[4px]' : ''}`}>
         <span className={`${_isEditMode ? 'text-xs' : 'text-[10px]'} font-semibold text-blue-400 uppercase tracking-wide`}>
           Description
         </span>
