@@ -25,20 +25,32 @@ export const PendulumStepCard = ({ step }: PendulumStepCardProps) => {
         <h3 className="text-[11px] font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent uppercase tracking-wide mb-1 text-nowrap">
           Pendulum Summon
         </h3>
-        <div className="grid grid-cols-3 place-items-center gap-0 min-[390px]:gap-0.5 min-[1030px]:gap-1 min-[1530px]:gap-1.5 translate-y-2.5">
-          {Array.from({ length: 6 }, (_, i) => {
-            const card = step.mainCards[i];
-            return card ? (
+        {step.mainCards.length > 0 && step.mainCards.length < 3 ? (
+          <div className="flex justify-center gap-0 min-[390px]:gap-0.5 min-[1030px]:gap-1 min-[1530px]:gap-1.5 translate-y-2.5">
+            {step.mainCards.map((card, i) => (
               <div key={`${card.id}-${i}`}>
                 <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name}>
                   <img src={card.imageUrlSmall} alt={card.name} className="w-7 h-10 min-[390px]:w-9 min-[390px]:h-12 min-[860px]:w-12 min-[860px]:h-16 min-[1030px]:w-10 min-[1030px]:h-14 min-[1530px]:w-14 min-[1530px]:h-[5rem] min-[1750px]:w-14 min-[1750px]:h-[5rem] object-cover rounded border border-gray-500/50 shadow" />
                 </CardTooltip>
               </div>
-            ) : (
-              <div key={`empty-${i}`} className="w-7 h-10 min-[390px]:w-9 min-[390px]:h-12 min-[860px]:w-12 min-[860px]:h-16 min-[1030px]:w-10 min-[1030px]:h-14 min-[1530px]:w-14 min-[1530px]:h-[5rem] min-[1750px]:w-14 min-[1750px]:h-[5rem] invisible" />
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 place-items-center gap-0 min-[390px]:gap-0.5 min-[1030px]:gap-1 min-[1530px]:gap-1.5 translate-y-2.5">
+            {Array.from({ length: 6 }, (_, i) => {
+              const card = step.mainCards[i];
+              return card ? (
+                <div key={`${card.id}-${i}`}>
+                  <CardTooltip cardId={card.id} imageUrl={card.imageUrl} cardName={card.name}>
+                    <img src={card.imageUrlSmall} alt={card.name} className="w-7 h-10 min-[390px]:w-9 min-[390px]:h-12 min-[860px]:w-12 min-[860px]:h-16 min-[1030px]:w-10 min-[1030px]:h-14 min-[1530px]:w-14 min-[1530px]:h-[5rem] min-[1750px]:w-14 min-[1750px]:h-[5rem] object-cover rounded border border-gray-500/50 shadow" />
+                  </CardTooltip>
+                </div>
+              ) : (
+                <div key={`empty-${i}`} className="w-7 h-10 min-[390px]:w-9 min-[390px]:h-12 min-[860px]:w-12 min-[860px]:h-16 min-[1030px]:w-10 min-[1030px]:h-14 min-[1530px]:w-14 min-[1530px]:h-[5rem] min-[1750px]:w-14 min-[1750px]:h-[5rem] invisible" />
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col items-center gap-0.5 relative top-16 min-w-[32px] max-[500px]:min-w-[20px] ring-1 ring-purple-500/10 rounded-md bg-purple-950/10">
