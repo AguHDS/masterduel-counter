@@ -81,7 +81,7 @@ export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps
           return (
             <div
               key={step.id}
-              className="flex items-start min-w-0"
+              className={`flex min-w-0 ${step.stepType === "PENDULUM" ? 'items-start' : 'items-stretch'}`}
             >
               <ComboStepCard 
                 step={step} 
@@ -95,7 +95,9 @@ export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps
                 isContext={isContext}
               />
               {index < sortedSteps.length - 1 && (
-                <ComboStepSeparator isEditMode={isEditMode} />
+                step.stepType === "PENDULUM"
+                  ? <div className="self-center"><ComboStepSeparator isEditMode={isEditMode} /></div>
+                  : <ComboStepSeparator isEditMode={isEditMode} />
               )}
             </div>
           );

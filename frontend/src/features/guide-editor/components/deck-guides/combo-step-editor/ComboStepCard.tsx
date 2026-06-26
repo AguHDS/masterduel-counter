@@ -45,7 +45,7 @@ export const ComboStepCard = ({
 
   return (
     <div
-      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : step.stepType !== "PENDULUM" ? 'p-2 pt-[44px] max-[860px]:p-1.5 max-[860px]:pt-[24px]' : 'p-2 pt-6 max-[860px]:p-1.5 max-[860px]:pt-4'} ${
+      className={`relative border-b-2 ${step.stepType === "PENDULUM" ? 'border-purple-500/20 shadow-[0_0_10px_rgba(139,92,246,0.1)] bg-gradient-to-r from-transparent via-purple-950/15 to-transparent' : 'border-blue-800/20'} flex flex-col ${_isEditMode ? 'p-4 pt-8' : step.stepType !== "PENDULUM" ? 'p-2 pt-[44px] max-[860px]:p-1.5 max-[860px]:pt-[24px]' : 'p-2 pt-6 max-[860px]:p-1.5 max-[860px]:pt-4'} ${hasCanceledFlow ? 'pb-8' : ''} ${
         isContext ? 'opacity-70' : ''
       } ${hasSideCards || step.stepType === "PENDULUM" ? 'max-[345px]:overflow-x-auto max-[345px]:overflow-y-hidden' : ''}`}
       style={{
