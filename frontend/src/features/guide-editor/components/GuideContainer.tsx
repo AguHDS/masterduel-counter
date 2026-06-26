@@ -519,7 +519,7 @@ export const GuideContainer = ({
               <div className="absolute right-3 top-[-21px] sm:top-[-24px] lg:top-[-26px] flex items-center justify-between w-full z-20">
                 <button
                   onClick={handleBackClick}
-                  className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 transition-colors text-xs sm:text-xs sm:px-2 sm:py-0.5 lg:text-sm lg:px-3 lg:py-1"
+                  className="flex items-center space-x-2 px-3 py-1 text-blue-500 hover:underline active:text-blue-500/80 transition-colors text-xs sm:text-xs sm:px-2 sm:py-0.5 lg:text-sm lg:px-3 lg:py-1 max-[1023px]:ml-4"
                   aria-label="Go back"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -544,49 +544,51 @@ export const GuideContainer = ({
                 />
               </div>
 
-              <GuideHeader
-                archetypeName={selectedArchetype.name}
-                title={editor.title}
-                generalTip={editor.generalTip}
-                headerCard={editor.headerCard}
-                isEditMode={editor.isEditMode && isOwner}
-                onTitleChange={editor.setTitle}
-                onGeneralTipChange={editor.setGeneralTip}
-                onSelectHeaderCard={(
-                  e?: React.MouseEvent<HTMLButtonElement>,
-                ) => {
-                  if (e?.currentTarget) setHeaderAnchor(e.currentTarget);
-                  editor.setIsSelectingHeader(true);
-                }}
-                views={guideInstanceData?.instance.views || 0}
-                favorites={favorites.favoriteCount}
-                likes={likes.likeCount}
-                userName={guideInstanceData?.userName}
-                userId={guideInstanceData?.instance.userId}
-                userProfilePictureUrl={
-                  guideInstanceData?.userProfilePictureUrl ?? undefined
-                }
-                isCreatingNew={isCreatingNew}
-                onFavoriteToggle={favorites.toggleFavorite}
-                onLikeToggle={likes.toggleLike}
-                isFavorited={favorites.favorited}
-                isLiked={likes.liked}
-                isAuthenticated={isAuthenticated}
-                guideType={guideType}
-                currentUserId={user?.id}
-                hasRecommendedDeck={
-                  guideType === "DECK" &&
-                  (showRecommendedDeck || !!recommendedDeck.deck)
-                }
-                hasHandtraps={pairs.some(
-                  (pair) => pair.section === "HANDTRAP" || pair.section == null,
-                )}
-                hasBoardBreakers={pairs.some(
-                  (pair) => pair.section === "BOARD_BREAKER",
-                )}
-                createdAt={guideInstanceData?.instance.createdAt}
-                guideId={guideInstanceData?.instance.id}
-              />
+              <div className="max-[1023px]:pl-4">
+                <GuideHeader
+                  archetypeName={selectedArchetype.name}
+                  title={editor.title}
+                  generalTip={editor.generalTip}
+                  headerCard={editor.headerCard}
+                  isEditMode={editor.isEditMode && isOwner}
+                  onTitleChange={editor.setTitle}
+                  onGeneralTipChange={editor.setGeneralTip}
+                  onSelectHeaderCard={(
+                    e?: React.MouseEvent<HTMLButtonElement>,
+                  ) => {
+                    if (e?.currentTarget) setHeaderAnchor(e.currentTarget);
+                    editor.setIsSelectingHeader(true);
+                  }}
+                  views={guideInstanceData?.instance.views || 0}
+                  favorites={favorites.favoriteCount}
+                  likes={likes.likeCount}
+                  userName={guideInstanceData?.userName}
+                  userId={guideInstanceData?.instance.userId}
+                  userProfilePictureUrl={
+                    guideInstanceData?.userProfilePictureUrl ?? undefined
+                  }
+                  isCreatingNew={isCreatingNew}
+                  onFavoriteToggle={favorites.toggleFavorite}
+                  onLikeToggle={likes.toggleLike}
+                  isFavorited={favorites.favorited}
+                  isLiked={likes.liked}
+                  isAuthenticated={isAuthenticated}
+                  guideType={guideType}
+                  currentUserId={user?.id}
+                  hasRecommendedDeck={
+                    guideType === "DECK" &&
+                    (showRecommendedDeck || !!recommendedDeck.deck)
+                  }
+                  hasHandtraps={pairs.some(
+                    (pair) => pair.section === "HANDTRAP" || pair.section == null,
+                  )}
+                  hasBoardBreakers={pairs.some(
+                    (pair) => pair.section === "BOARD_BREAKER",
+                  )}
+                  createdAt={guideInstanceData?.instance.createdAt}
+                  guideId={guideInstanceData?.instance.id}
+                />
+              </div>
 
               <GuideTypeContentSection
                 guideType={guideType}

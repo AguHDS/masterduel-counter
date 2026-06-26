@@ -43,7 +43,7 @@ export const ComboFlowSection = ({
   return (
     <div className="mt-8" data-combo-flow-section>
       {/* Header */}
-      <div className="mb-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+      <div className="mb-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 max-[1023px]:pl-4">
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-bold text-blue-300 max-[500px]:text-sm">Combo for</h3>
           <span className="text-lg font-bold text-yellow-200 max-[500px]:text-sm">

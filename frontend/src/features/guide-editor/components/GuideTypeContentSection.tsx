@@ -255,7 +255,7 @@ export const GuideTypeContentSection = ({
         </>
       ) : (
         <>
-          <div className="mt-8">
+          <div className="mt-8 max-[1023px]:pl-4">
             <InitialHandsEditor
               isEditMode={isEditMode && isOwner}
               initialHands={initialHands}
@@ -328,7 +328,7 @@ export const GuideTypeContentSection = ({
             )}
 
           {showRecommendedDeck && (
-            <div id="recommended-deck-section">
+            <div id="recommended-deck-section" className="max-[1023px]:pl-4">
               <RecommendedDeckEditor
                 isEditMode={isEditMode && isOwner}
                 initialTitle={displayTitle}
