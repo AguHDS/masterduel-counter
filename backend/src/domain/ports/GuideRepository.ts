@@ -1,3 +1,4 @@
+import type { FinalBoardPreview } from "@/domain/InitialHand.js";
 import {
   Guide,
   GuideCreateDTO,
@@ -72,6 +73,33 @@ export interface GuideRepository {
   getUserDraftCount(userId: string): Promise<number>;
   /** Save or update a draft guide */
   saveDraft(data: SaveDraftDTO): Promise<Guide>;
+  /** Save guide content (initial hands + combo steps) inside a transaction */
+  saveGuideContent(
+    instanceId: number,
+    guideType: GuideType,
+    initialHands?: Array<{
+      cardIds: number[];
+      description?: string;
+      finalBoard?: FinalBoardPreview;
+    }>,
+    comboSteps?: Array<{
+      initialHandId: number;
+      steps: Array<{
+        mainCardIds: number[];
+        mainCardChains?: (number | null)[];
+        subCardIds: number[];
+        subCardChains?: (number | null)[];
+        leftSubCardIds: number[];
+        leftSubCardChains?: (number | null)[];
+        description?: string;
+        parentCanceledStepIndex?: number;
+        stepOrder: number;
+        stepType?: string | null;
+        leftScaleValue?: number | null;
+        rightScaleValue?: number | null;
+      }>;
+    }>,
+  ): Promise<void>;
   /** Delete expired draft guides (where draftExpiresAt < now) */
   deleteExpiredDrafts(): Promise<number>;
   /** Get guide_request_id values of drafts that will expire, for releasing linked requests */

@@ -12,6 +12,7 @@ import {
   LikeToggleResult,
 } from "@/domain/ports/GuideRepository.js";
 import { PrismaClient } from "@prisma/client";
+import type { FinalBoardPreview } from "@/domain/InitialHand.js";
 
 interface BaseInstanceRow {
   id: number;
@@ -425,135 +426,236 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
       ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       : data.draftExpiresAt ?? null;
 
-    let instanceId: number;
+    let instanceId = 0;
 
-    if (draftInstanceId) {
-      // Update existing draft metadata
-      const updateStmt = this.db.prepare(`
-        UPDATE archetype_instances
-        SET title = ?, header_card_id = ?, general_tip = ?, draft_expires_at = ?, guide_request_id = ?, updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND is_draft = 1
-      `);
-      updateStmt.run(
-        title ?? "Title",
-        headerCardId ?? null,
-        generalTip ?? null,
-        draftExpiresAt ? draftExpiresAt.toISOString() : null,
-        guideRequestId ?? null,
-        draftInstanceId,
-      );
-      instanceId = draftInstanceId;
-
-      // Delete existing card pairs / initial hands before re-inserting
-      if (guideType === "COUNTER") {
-        this.db.prepare(`DELETE FROM archetype_card_pairs WHERE instance_id = ?`).run(instanceId);
-      } else if (guideType === "DECK") {
-        // Cascade deletes combo_steps via FK
-        this.db.prepare(`DELETE FROM initial_hands WHERE instance_id = ?`).run(instanceId);
-      }
-    } else {
-      // Create new draft
-      const insertStmt = this.db.prepare(`
-        INSERT INTO archetype_instances (archetype_id, user_id, title, header_card_id, general_tip, guide_type, is_draft, draft_expires_at, guide_request_id, likes, favorites, views, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, 0, 0, 0, CURRENT_TIMESTAMP)
-      `);
-      const result = insertStmt.run(
-        archetypeId,
-        userId,
-        title ?? "Title",
-        headerCardId ?? null,
-        generalTip ?? null,
-        guideType,
-        draftExpiresAt ? draftExpiresAt.toISOString() : null,
-        guideRequestId ?? null,
-      );
-      instanceId = result.lastInsertRowid as number;
-    }
-
-    // Persist card pairs for COUNTER drafts
-    if (guideType === "COUNTER" && cardPairs && cardPairs.length > 0) {
-      const insertPair = this.db.prepare(`
-        INSERT INTO archetype_card_pairs (instance_id, pair_order, pair_section, comment)
-        VALUES (?, ?, ?, ?)
-      `);
-      const insertTop = this.db.prepare(`
-        INSERT INTO card_pair_top (pair_id, card_id, position) VALUES (?, ?, ?)
-      `);
-      const insertBottom = this.db.prepare(`
-        INSERT INTO card_pair_bottom (pair_id, card_id, position, effectiveness) VALUES (?, ?, ?, ?)
-      `);
-
-      cardPairs.forEach((pair, index) => {
-        const pairResult = insertPair.run(instanceId, index + 1, pair.pairSection ?? null, pair.comment ?? null);
-        const pairId = pairResult.lastInsertRowid as number;
-        pair.topCardIds.forEach((cardId, pos) => insertTop.run(pairId, cardId, pos));
-        pair.bottomCardIds.forEach((bc, pos) => insertBottom.run(pairId, bc.cardId, pos, bc.effectiveness ?? null));
-      });
-    }
-
-    // Persist initial hands for DECK drafts
-    if (guideType === "DECK" && initialHands && initialHands.length > 0) {
-      const insertHand = this.db.prepare(`
-        INSERT INTO initial_hands (instance_id, card_ids, description, final_board_state, position)
-        VALUES (?, ?, ?, ?, ?)
-      `);
-      initialHands.forEach((hand, index) => {
-        insertHand.run(
-          instanceId,
-          JSON.stringify(hand.cardIds),
-          hand.description ?? null,
-          hand.finalBoard ? JSON.stringify(hand.finalBoard) : null,
-          index,
+    const transaction = this.db.transaction(() => {
+      if (draftInstanceId) {
+        // Update existing draft metadata
+        const updateStmt = this.db.prepare(`
+          UPDATE archetype_instances
+          SET title = ?, header_card_id = ?, general_tip = ?, draft_expires_at = ?, guide_request_id = ?, updated_at = CURRENT_TIMESTAMP
+          WHERE id = ? AND is_draft = 1
+        `);
+        updateStmt.run(
+          title ?? "Title",
+          headerCardId ?? null,
+          generalTip ?? null,
+          draftExpiresAt ? draftExpiresAt.toISOString() : null,
+          guideRequestId ?? null,
+          draftInstanceId,
         );
-      });
+        instanceId = draftInstanceId;
 
-      // Persist combo steps if provided
-      if (comboSteps && comboSteps.length > 0) {
-        const createdHands = this.db.prepare(`
-          SELECT id FROM initial_hands WHERE instance_id = ? ORDER BY position ASC
-        `).all(instanceId) as { id: number }[];
+        // Delete existing card pairs / initial hands before re-inserting
+        if (guideType === "COUNTER") {
+          this.db.prepare(`DELETE FROM archetype_card_pairs WHERE instance_id = ?`).run(instanceId);
+        } else if (guideType === "DECK") {
+          // Cascade deletes combo_steps via FK
+          this.db.prepare(`DELETE FROM initial_hands WHERE instance_id = ?`).run(instanceId);
+        }
+      } else {
+        // Create new draft
+        const insertStmt = this.db.prepare(`
+          INSERT INTO archetype_instances (archetype_id, user_id, title, header_card_id, general_tip, guide_type, is_draft, draft_expires_at, guide_request_id, likes, favorites, views, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, 0, 0, 0, CURRENT_TIMESTAMP)
+        `);
+        const result = insertStmt.run(
+          archetypeId,
+          userId,
+          title ?? "Title",
+          headerCardId ?? null,
+          generalTip ?? null,
+          guideType,
+          draftExpiresAt ? draftExpiresAt.toISOString() : null,
+          guideRequestId ?? null,
+        );
+        instanceId = result.lastInsertRowid as number;
+      }
 
-        for (const handCombo of comboSteps) {
-          const realHandId = createdHands[handCombo.initialHandId]?.id;
-          if (!realHandId) continue;
+      // Persist card pairs for COUNTER drafts
+      if (guideType === "COUNTER" && cardPairs && cardPairs.length > 0) {
+        const insertPair = this.db.prepare(`
+          INSERT INTO archetype_card_pairs (instance_id, pair_order, pair_section, comment)
+          VALUES (?, ?, ?, ?)
+        `);
+        const insertTop = this.db.prepare(`
+          INSERT INTO card_pair_top (pair_id, card_id, position) VALUES (?, ?, ?)
+        `);
+        const insertBottom = this.db.prepare(`
+          INSERT INTO card_pair_bottom (pair_id, card_id, position, effectiveness) VALUES (?, ?, ?, ?)
+        `);
 
-          const createdStepsMap = new Map<number, number>();
+        cardPairs.forEach((pair, index) => {
+          const pairResult = insertPair.run(instanceId, index + 1, pair.pairSection ?? null, pair.comment ?? null);
+          const pairId = pairResult.lastInsertRowid as number;
+          pair.topCardIds.forEach((cardId, pos) => insertTop.run(pairId, cardId, pos));
+          pair.bottomCardIds.forEach((bc, pos) => insertBottom.run(pairId, bc.cardId, pos, bc.effectiveness ?? null));
+        });
+      }
 
-          for (let i = 0; i < handCombo.steps.length; i++) {
-            const step = handCombo.steps[i];
-            let parentCanceledStepId: number | null = null;
-            if (step.parentCanceledStepIndex !== undefined) {
-              parentCanceledStepId = createdStepsMap.get(step.parentCanceledStepIndex) ?? null;
+      // Persist initial hands for DECK drafts
+      if (guideType === "DECK" && initialHands && initialHands.length > 0) {
+        const insertHand = this.db.prepare(`
+          INSERT INTO initial_hands (instance_id, card_ids, description, final_board_state, position)
+          VALUES (?, ?, ?, ?, ?)
+        `);
+        initialHands.forEach((hand, index) => {
+          insertHand.run(
+            instanceId,
+            JSON.stringify(hand.cardIds),
+            hand.description ?? null,
+            hand.finalBoard ? JSON.stringify(hand.finalBoard) : null,
+            index,
+          );
+        });
+
+        // Persist combo steps if provided
+        if (comboSteps && comboSteps.length > 0) {
+          const createdHands = this.db.prepare(`
+            SELECT id FROM initial_hands WHERE instance_id = ? ORDER BY position ASC
+          `).all(instanceId) as { id: number }[];
+
+          for (const handCombo of comboSteps) {
+            const realHandId = createdHands[handCombo.initialHandId]?.id;
+            if (!realHandId) continue;
+
+            const createdStepsMap = new Map<number, number>();
+
+            for (let i = 0; i < handCombo.steps.length; i++) {
+              const step = handCombo.steps[i];
+              let parentCanceledStepId: number | null = null;
+              if (step.parentCanceledStepIndex !== undefined) {
+                parentCanceledStepId = createdStepsMap.get(step.parentCanceledStepIndex) ?? null;
+              }
+
+              const stepResult = this.db.prepare(`
+                INSERT INTO combo_steps (initial_hand_id, step_order, description, parent_canceled_step_id, step_type, left_scale_value, right_scale_value)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+              `).run(realHandId, step.stepOrder, step.description ?? null, parentCanceledStepId, step.stepType ?? null, step.leftScaleValue ?? null, step.rightScaleValue ?? null);
+              const stepId = stepResult.lastInsertRowid as number;
+              createdStepsMap.set(i, stepId);
+
+              step.mainCardIds.forEach((cardId, pos) => {
+                this.db.prepare(`INSERT INTO combo_step_main_cards (step_id, card_id, position, chain_number) VALUES (?, ?, ?, ?)`).run(
+                  stepId, cardId, pos, step.mainCardChains?.[pos] ?? null
+                );
+              });
+              step.subCardIds.forEach((cardId, pos) => {
+                this.db.prepare(`INSERT INTO combo_step_sub_cards (step_id, card_id, position, chain_number) VALUES (?, ?, ?, ?)`).run(
+                  stepId, cardId, pos, step.subCardChains?.[pos] ?? null
+                );
+              });
+              (step.leftSubCardIds ?? []).forEach((cardId, pos) => {
+                this.db.prepare(`INSERT INTO combo_step_left_sub_cards (step_id, card_id, position, chain_number) VALUES (?, ?, ?, ?)`).run(
+                  stepId, cardId, pos, step.leftSubCardChains?.[pos] ?? null
+                );
+              });
             }
-
-            const stepResult = this.db.prepare(`
-              INSERT INTO combo_steps (initial_hand_id, step_order, description, parent_canceled_step_id, step_type, left_scale_value, right_scale_value)
-              VALUES (?, ?, ?, ?, ?, ?, ?)
-            `).run(realHandId, step.stepOrder, step.description ?? null, parentCanceledStepId, step.stepType ?? null, step.leftScaleValue ?? null, step.rightScaleValue ?? null);
-            const stepId = stepResult.lastInsertRowid as number;
-            createdStepsMap.set(i, stepId);
-
-            step.mainCardIds.forEach((cardId, pos) => {
-              this.db.prepare(`INSERT INTO combo_step_main_cards (step_id, card_id, position, chain_number) VALUES (?, ?, ?, ?)`).run(
-                stepId, cardId, pos, step.mainCardChains?.[pos] ?? null
-              );
-            });
-            step.subCardIds.forEach((cardId, pos) => {
-              this.db.prepare(`INSERT INTO combo_step_sub_cards (step_id, card_id, position, chain_number) VALUES (?, ?, ?, ?)`).run(
-                stepId, cardId, pos, step.subCardChains?.[pos] ?? null
-              );
-            });
-            (step.leftSubCardIds ?? []).forEach((cardId, pos) => {
-              this.db.prepare(`INSERT INTO combo_step_left_sub_cards (step_id, card_id, position, chain_number) VALUES (?, ?, ?, ?)`).run(
-                stepId, cardId, pos, step.leftSubCardChains?.[pos] ?? null
-              );
-            });
           }
         }
       }
-    }
+    });
+
+    transaction();
 
     return this.findArchetypeInstanceById(instanceId) as Promise<Guide>;
+  }
+
+  async saveGuideContent(
+    instanceId: number,
+    guideType: GuideType,
+    initialHands?: Array<{
+      cardIds: number[];
+      description?: string;
+      finalBoard?: FinalBoardPreview;
+    }>,
+    comboSteps?: Array<{
+      initialHandId: number;
+      steps: Array<{
+        mainCardIds: number[];
+        mainCardChains?: (number | null)[];
+        subCardIds: number[];
+        subCardChains?: (number | null)[];
+        leftSubCardIds: number[];
+        leftSubCardChains?: (number | null)[];
+        description?: string;
+        parentCanceledStepIndex?: number;
+        stepOrder: number;
+        stepType?: string | null;
+        leftScaleValue?: number | null;
+        rightScaleValue?: number | null;
+      }>;
+    }>,
+  ): Promise<void> {
+    const transaction = this.db.transaction(() => {
+      if (guideType === "COUNTER") {
+        this.db.prepare(`DELETE FROM archetype_card_pairs WHERE instance_id = ?`).run(instanceId);
+      } else if (guideType === "DECK") {
+        this.db.prepare(`DELETE FROM initial_hands WHERE instance_id = ?`).run(instanceId);
+      }
+
+      if (guideType === "DECK" && initialHands && initialHands.length > 0) {
+        const insertHand = this.db.prepare(`
+          INSERT INTO initial_hands (instance_id, card_ids, description, final_board_state, position)
+          VALUES (?, ?, ?, ?, ?)
+        `);
+        initialHands.forEach((hand, index) => {
+          insertHand.run(
+            instanceId,
+            JSON.stringify(hand.cardIds),
+            hand.description ?? null,
+            hand.finalBoard ? JSON.stringify(hand.finalBoard) : null,
+            index,
+          );
+        });
+
+        if (comboSteps && comboSteps.length > 0) {
+          const createdHands = this.db.prepare(`
+            SELECT id FROM initial_hands WHERE instance_id = ? ORDER BY position ASC
+          `).all(instanceId) as { id: number }[];
+
+          for (const handCombo of comboSteps) {
+            const realHandId = createdHands[handCombo.initialHandId]?.id;
+            if (!realHandId) continue;
+
+            const createdStepsMap = new Map<number, number>();
+
+            for (let i = 0; i < handCombo.steps.length; i++) {
+              const step = handCombo.steps[i];
+              let parentCanceledStepId: number | null = null;
+              if (step.parentCanceledStepIndex !== undefined) {
+                parentCanceledStepId = createdStepsMap.get(step.parentCanceledStepIndex) ?? null;
+              }
+
+              const stepResult = this.db.prepare(`
+                INSERT INTO combo_steps (initial_hand_id, step_order, description, parent_canceled_step_id, step_type, left_scale_value, right_scale_value)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+              `).run(realHandId, step.stepOrder, step.description ?? null, parentCanceledStepId, step.stepType ?? null, step.leftScaleValue ?? null, step.rightScaleValue ?? null);
+              const stepId = stepResult.lastInsertRowid as number;
+              createdStepsMap.set(i, stepId);
+
+              step.mainCardIds.forEach((cardId, pos) => {
+                this.db.prepare(`INSERT INTO combo_step_main_cards (step_id, card_id, position, chain_number) VALUES (?, ?, ?, ?)`).run(
+                  stepId, cardId, pos, step.mainCardChains?.[pos] ?? null
+                );
+              });
+              step.subCardIds.forEach((cardId, pos) => {
+                this.db.prepare(`INSERT INTO combo_step_sub_cards (step_id, card_id, position, chain_number) VALUES (?, ?, ?, ?)`).run(
+                  stepId, cardId, pos, step.subCardChains?.[pos] ?? null
+                );
+              });
+              (step.leftSubCardIds ?? []).forEach((cardId, pos) => {
+                this.db.prepare(`INSERT INTO combo_step_left_sub_cards (step_id, card_id, position, chain_number) VALUES (?, ?, ?, ?)`).run(
+                  stepId, cardId, pos, step.leftSubCardChains?.[pos] ?? null
+                );
+              });
+            }
+          }
+        }
+      }
+    });
+
+    transaction();
   }
 
   async deleteExpiredDrafts(): Promise<number> {

@@ -251,66 +251,7 @@ export class GuideApplicationService implements GuideInstanceServicePort {
 
       await this.cardPairRepository.CreateManyPairCards(pairsToCreate);
     } else if (guideType === "DECK" && initialHands) {
-      // Delete existing combo steps and initial hands before creating new ones
-      await this.comboStepRepository.deleteComboStepsByInstanceId(instance.id);
-      await this.initialHandRepository.deleteInitialHandsByInstanceId(instance.id);
-      
-      // Create new initial hands
-      await this.initialHandRepository.createManyInitialHands(instance.id, initialHands);
-      
-      // Create combo steps if provided
-      if (comboSteps && comboSteps.length > 0) {
-        // Get the created initial hands to map temporary IDs to real IDs
-        const createdHands = await this.initialHandRepository.findInitialHandsByInstanceId(instance.id);
-        
-        // Process each hand's combo steps
-        for (const handCombo of comboSteps) {
-          // Find the real initial hand ID by position (matches array index)
-          const realHandId = createdHands[handCombo.initialHandId]?.id;
-          
-          if (!realHandId) {
-            continue;
-          }
-          
-          // Create steps in order, tracking their real IDs
-          const createdStepsMap = new Map<number, number>(); // index -> real ID
-          
-          for (let i = 0; i < handCombo.steps.length; i++) {
-            const step = handCombo.steps[i];
-            
-            // Resolve parent canceled step ID from index
-            let parentCanceledStepId: number | null = null;
-            if (step.parentCanceledStepIndex !== undefined) {
-              const parentRealId = createdStepsMap.get(step.parentCanceledStepIndex);
-              if (parentRealId) {
-                parentCanceledStepId = parentRealId;
-              }
-            }
-            
-            // Create the step
-            const createdSteps = await this.comboStepRepository.createManyComboSteps([{
-              initialHandId: realHandId,
-              stepOrder: step.stepOrder,
-              description: step.description || null,
-              parentCanceledStepId,
-              mainCardIds: step.mainCardIds,
-              mainCardChains: step.mainCardChains,
-              subCardIds: step.subCardIds,
-              subCardChains: step.subCardChains,
-              leftSubCardIds: step.leftSubCardIds,
-              leftSubCardChains: step.leftSubCardChains,
-              stepType: step.stepType ?? null,
-              leftScaleValue: step.leftScaleValue ?? null,
-              rightScaleValue: step.rightScaleValue ?? null,
-            }]);
-            
-            // Store the mapping
-            if (createdSteps.length > 0) {
-              createdStepsMap.set(i, createdSteps[0].id);
-            }
-          }
-        }
-      }
+      await this.instanceRepository.saveGuideContent(instance.id, guideType, initialHands, comboSteps);
     }
 
     // Mark archetype as registered if it is not already

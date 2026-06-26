@@ -81,6 +81,10 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 
 ---
 
+Es un error de seguridad que en mi vps haga todo con el root? como lideo con esto sin tener que re-configurar nada
+
+---
+
 Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas 2 estan en OCG y TCG pero no deberian estar en masterduel.
 
 ---
@@ -94,6 +98,7 @@ mejoras:
 Aca tambien tenemos datos mas completos (tcg, masterduel, ocg):
 https://ygoprodeck.com/top/
 Podriamos poner esa feature a la vista en la home justo abajo de las request o arriba de ella
+- implementar ban temporal y por ip
 - fijarse si el screenshot de los stats del trending de usuario se calcula correctamente para cad mes individual y no acarrea cosas del mes anterior. Hay un caso donde un usuario de este mes tiene 2 likes, pero en su unica guia que tiene solo tiene un like, esto es raro.
 Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
 

@@ -147,7 +147,6 @@ export class CardImageStorageService {
     // Check if images already exist (prevent duplicates)
     const exists = await this.imageExists(cardId);
     if (exists) {
-      console.log(`Images for card ${cardId} already exist, skipping download`);
       return {
         imageUrl: this.getApiImageUrl(cardId, "normal"),
         imageUrlSmall: this.getApiImageUrl(cardId, "small"),
@@ -195,8 +194,6 @@ export class CardImageStorageService {
           `Card ${cardId}: Saved ${successfulDownloads.length}/3 images. ` +
           `Failed: ${failedDownloads.map(f => f.type).join(', ')} (likely 404 - card may be token/special)`
         );
-      } else {
-        console.log(`Successfully saved all 3 images for card ${cardId}`);
       }
 
       return {
