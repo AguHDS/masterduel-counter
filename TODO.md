@@ -6,17 +6,13 @@ Lee el archivo .docs\memory.md (en la raiz del proyecto) para tener un buen cont
 
 ---
 
-agregar seccion "Meta decks momento" que muestre los tier 1, 2 y 3 y te lleve a la seccion de guias.
-
----
-
 - Seccion "Most effective cards in current meta" que muestre cartas handtrap tipo droll, fuwalos, etc..."
 - en la stats de homepage, opcion para ordenar tambien por ultimos 30 dias
 
 ---
 
 resolver problema de seguridad en VPS:
-ejecutar Node.js como root es un riesgo de seguridad. Te recomendaría (después de que funcione todo):
+ejecutar Node.js como root es un riesgo de seguridad. Fijarse como hacer la buena practica sin tener que reconfigurar nada
 
 Crear un usuario dedicado
 Cambiar el owner de los archivos
@@ -49,19 +45,11 @@ Hacerlo con la ayuda de un agente y pedirle que no ejecute el comandos para que 
 ---
 
 - Centralizar las peticiones http de las rutas. Mirar ejemplos como backend\src\routes\registerArchetype.ts.
-  Asi evitamos crear archivos de rutas multiples para una misma api. Chequea ruta por ruta.
+Asi evitamos crear archivos de rutas multiples para una misma api. Chequea ruta por ruta.
 
 ---
 
 Evaluar si los useCallbacks estan bien usados. Estan optimizacion y evitando problemas correctamente? o estan siendo usados innecesariamente lo cual hace que el codigo sea mas complejo y gaste recursos sin necesidad? evaluar casos
-
----
-
-en la guias del lista de perfil, hacer borders y background azul para guias deck y rojo para counter o algo que diga que tipo de guia es
-
----
-
-Solo he puesto rate limiter al login y reporte, porque me daba problemas cuando le ponia rate limiter a cosas como visitas en las guias y cosas repetitivas. Si es riesgoso no hacerlo fijarse de implementarlo cuidadosamente en cada operacion que sea un target facil de ataques.
 
 ---
 
@@ -73,19 +61,11 @@ panel de adminimplementar un sistema que permita poner mensajes ed que va a habe
 
 ---
 
-crear .mds explicando cosas clave quew no recordaria de las features,c mo las request por ejemplo, que tienen 24 hs para compeltarse, o las guias guardadas como draft a partir de una request, etc
+crear .mds explicando cosas clave que no recordaria de las features,c mo las request por ejemplo, que tienen 24 hs para compeltarse, o las guias guardadas como draft a partir de una request, etc
 
 ---
 
 las notifications no se borran y han pasado 3 dias ya desde que estan mark as read, chequear cuanto es el timepo de limpieza, y si el cron job esta bien hecho.
-
----
-
-Es un error de seguridad que en mi vps haga todo con el root? como lideo con esto sin tener que re-configurar nada
-
----
-
-Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas 2 estan en OCG y TCG pero no deberian estar en masterduel.
 
 ---
 

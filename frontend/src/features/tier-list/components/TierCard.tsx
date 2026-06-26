@@ -21,7 +21,8 @@ export const TierCard = ({ entry, rank }: TierCardProps) => {
 
   const displayName = entry.displayName || entry.deckName;
   const nameForSlug = entry.linkedArchetypeName || entry.displayName || entry.deckName;
-  const targetPath = `/archetype/${slugifySegment(nameForSlug)}/deck-guides`;
+  const guideSegment = entry.deckGuideCount > 0 || entry.counterGuideCount === 0 ? 'deck-guides' : 'counter-guides';
+  const targetPath = `/archetype/${slugifySegment(nameForSlug)}/${guideSegment}`;
 
   return (
     <Link
