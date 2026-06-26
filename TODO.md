@@ -90,7 +90,6 @@ Mi tierlist de masterduel tiene 2 entries de mas, Ryzeal Mitsurugi y R.B. , esas
 ---
 
 mejoras:
-- en los steps, al arrastrar un step, en vez de intercambiar posiciones, ponerlo justo antes del step al que estas arrastrando, porque sino dificulta el mover un step de un lado a otro.
 - Preguntar si deberiamos crear tests por haber agregado el pendulum a los combo steps. Mostrar los tests de las guias frontend y backend
 - preguntar si la invocacion pendulum hace que el modo edit sea mas lagero, ya que lo es en local.
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.

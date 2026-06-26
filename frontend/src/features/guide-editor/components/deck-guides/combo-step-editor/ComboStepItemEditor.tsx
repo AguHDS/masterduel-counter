@@ -93,7 +93,8 @@ export const ComboStepItemEditor = ({
           draggable
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
-          className="absolute top-1 left-1/2 transform -translate-x-1/2 cursor-grab active:cursor-grabbing py-1 px-3 rounded hover:bg-slate-700/30"
+          className="absolute top-1 left-1/2 transform -translate-x-1/2 cursor-grab active:cursor-grabbing py-2 px-4 rounded hover:bg-slate-700/30"
+          style={{ touchAction: "none" }}
           title="Drag to reorder"
         >
           <div className="grid grid-cols-3 gap-[3px]">

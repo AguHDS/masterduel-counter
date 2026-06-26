@@ -166,10 +166,9 @@ export const swapStepsWithinFlow = (
   }
 
   const reorderedFlowSteps = [...flowSteps];
-  [reorderedFlowSteps[draggedIndex], reorderedFlowSteps[targetIndex]] = [
-    reorderedFlowSteps[targetIndex],
-    reorderedFlowSteps[draggedIndex],
-  ];
+  const [draggedItem] = reorderedFlowSteps.splice(draggedIndex, 1);
+  const insertAt = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
+  reorderedFlowSteps.splice(insertAt, 0, draggedItem);
 
   const updatedFlowSteps = reorderedFlowSteps.map((step, index) => ({
     ...step,
