@@ -69,7 +69,7 @@ export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps
   });
 
   return (
-    <div className="border-y-2 border-blue-500/30 bg-slate-900/40 p-4 max-[700px]:p-0 max-[700px]:-mx-4 max-[700px]:sm:-mx-6 max-[700px]:w-[calc(100%+2rem)] max-[700px]:sm:w-[calc(100%+3rem)]">
+    <div className="border-y-2 border-blue-500/30 bg-slate-900/40 max-[700px]:p-0 max-[700px]:-mx-4 max-[700px]:sm:-mx-6 max-[700px]:w-[calc(100%+2rem)] max-[700px]:sm:w-[calc(100%+3rem)]">
       <div className="relative overflow-hidden rounded-[18px] border border-blue-500/20 bg-slate-950/20 px-3 py-4 sm:px-4">
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.21)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:46px_46px] opacity-20" />
 
@@ -81,7 +81,7 @@ export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps
           return (
             <div
               key={step.id}
-              className="flex items-start min-w-0"
+              className={`flex min-w-0 ${step.stepType === "PENDULUM" ? 'items-start' : 'items-stretch'}`}
             >
               <ComboStepCard 
                 step={step} 
@@ -95,7 +95,9 @@ export const ComboFlowViewer = ({ comboSteps, isEditMode }: ComboFlowViewerProps
                 isContext={isContext}
               />
               {index < sortedSteps.length - 1 && (
-                <ComboStepSeparator isEditMode={isEditMode} />
+                step.stepType === "PENDULUM"
+                  ? <div className="self-center"><ComboStepSeparator isEditMode={isEditMode} /></div>
+                  : <ComboStepSeparator isEditMode={isEditMode} />
               )}
             </div>
           );

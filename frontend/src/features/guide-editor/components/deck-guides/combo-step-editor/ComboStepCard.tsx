@@ -45,9 +45,9 @@ export const ComboStepCard = ({
 
   return (
     <div
-      className={`relative border-b-2 border-blue-800/20 flex flex-col ${_isEditMode ? 'p-4 pt-8' : step.stepType !== "PENDULUM" ? 'p-2 pt-[44px] max-[860px]:p-1.5 max-[860px]:pt-[24px]' : 'p-2 pt-6 max-[860px]:p-1.5 max-[860px]:pt-4'} ${
+      className={`relative border-b-2 ${step.stepType === "PENDULUM" ? 'border-purple-500/20 shadow-[0_0_10px_rgba(139,92,246,0.1)] bg-gradient-to-r from-transparent via-purple-950/15 to-transparent' : 'border-blue-800/20'} flex flex-col ${_isEditMode ? 'p-4 pt-8' : step.stepType !== "PENDULUM" ? 'p-2 pt-[44px] max-[860px]:p-1.5 max-[860px]:pt-[24px]' : 'p-2 pt-6 max-[860px]:p-1.5 max-[860px]:pt-4'} ${hasCanceledFlow ? 'pb-8' : ''} ${
         isContext ? 'opacity-70' : ''
-      } ${hasSideCards || step.stepType === "PENDULUM" ? 'max-[345px]:overflow-x-auto max-[345px]:overflow-y-hidden' : ''}`}
+      } ${hasSideCards || step.stepType === "PENDULUM" ? 'max-[380px]:overflow-x-auto max-[380px]:overflow-y-hidden' : ''} ${step.stepType === "PENDULUM" ? 'max-[650px]:overflow-x-scroll max-[650px]:overflow-y-hidden' : ''}`}
       style={{
         width: _isEditMode ? "370px" : fitToColumn ? "100%" : compactViewWidth,
         minWidth: _isEditMode ? "370px" : fitToColumn ? "0" : compactViewWidth,
@@ -96,7 +96,7 @@ export const ComboStepCard = ({
       </div>
 
       {/* Description - Always centered regardless of card layout */}
-      <div className={`w-full flex flex-col items-center ${!hasSideCards && step.stepType !== "PENDULUM" ? 'mt-12' : ''} ${step.stepType === "PENDULUM" ? 'mt-10' : ''} ${step.subCards.length > 0 && step.leftSubCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[10px]' : ''} ${step.leftSubCards.length > 0 && step.subCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:-translate-x-[6px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length > 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[4px]' : ''}`}>
+      <div className={`w-full flex flex-col items-center ${!hasSideCards && step.stepType !== "PENDULUM" ? 'mt-12' : ''} ${step.stepType === "PENDULUM" ? 'mt-10' : ''} ${step.stepType === "PENDULUM" ? 'px-4 max-[650px]:translate-x-[10px] max-[600px]:translate-x-[30px] max-[499px]:translate-x-[5px] max-[365px]:translate-x-[15px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[10px]' : ''} ${step.leftSubCards.length > 0 && step.subCards.length === 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:-translate-x-[6px]' : ''} ${step.subCards.length > 0 && step.leftSubCards.length > 0 && step.stepType !== "PENDULUM" ? 'max-[860px]:translate-x-[4px]' : ''}`}>
         <span className={`${_isEditMode ? 'text-xs' : 'text-[10px]'} font-semibold text-blue-400 uppercase tracking-wide`}>
           Description
         </span>
