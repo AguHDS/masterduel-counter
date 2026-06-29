@@ -169,6 +169,13 @@ export class GuideRequestApplicationService implements GuideRequestApplicationPo
     return fulfilled;
   }
 
+  async deleteRequest(requestId: number, userId: string): Promise<void> {
+    const request = await this.guideRequestRepository.findGuideRequestById(requestId);
+    if (!request) throw new Error("Request not found.");
+    if (request.requesterId !== userId) throw new Error("You can only delete your own requests.");
+    await this.guideRequestRepository.deleteGuideRequest(requestId);
+  }
+
   async getCompletedRequestsCountByUser(userId: string): Promise<number> {
     return this.guideRequestRepository.countRequestByFulfiller(userId);
   }

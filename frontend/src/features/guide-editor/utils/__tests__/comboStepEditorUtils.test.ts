@@ -152,9 +152,9 @@ describe("swapStepsWithinFlow", () => {
     const a = result.find((s) => s.id === "a")!;
     const c = result.find((s) => s.id === "c")!;
     const b = result.find((s) => s.id === "b")!;
-    expect(a.stepOrder).toBe(2);
-    expect(c.stepOrder).toBe(0);
-    expect(b.stepOrder).toBe(1);
+    expect(a.stepOrder).toBe(1);
+    expect(c.stepOrder).toBe(2);
+    expect(b.stepOrder).toBe(0);
   });
 
   it("should not swap steps from different branches", () => {

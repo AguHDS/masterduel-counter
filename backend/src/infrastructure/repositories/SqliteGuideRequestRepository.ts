@@ -208,6 +208,10 @@ export class SqliteGuideRequestRepository implements GuideRequestRepository {
     });
   }
 
+  public async deleteGuideRequest(requestId: number): Promise<void> {
+    await this.prisma.guideRequest.delete({ where: { id: requestId } });
+  }
+
   public async getRequestCounts(): Promise<GuideRequestCounts> {
     const [open, taken, completed] = await Promise.all([
       this.prisma.guideRequest.count({ where: { status: "OPEN" } }),

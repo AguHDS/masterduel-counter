@@ -6,6 +6,7 @@ import { GuideRequestStatusBadge } from "./GuideRequestStatusBadge";
 import {
   useTakeGuideRequest,
   useCancelTakeGuideRequest,
+  useDeleteGuideRequest,
 } from "../hooks/useGuideRequests";
 import { queryKeys } from "@/lib/query/queryKeys";
 import { adminApi } from "@/features/admin-panel/api/adminApi";
@@ -26,8 +27,9 @@ export const GuideRequestDetailPanel: React.FC<
 > = ({ request, currentUser, onBack, onTakeSuccess, onDeleteSuccess }) => {
   const takeMutation = useTakeGuideRequest();
   const cancelMutation = useCancelTakeGuideRequest();
+  const deleteMutation = useDeleteGuideRequest();
   const queryClient = useQueryClient();
-  const deleteMutation = useMutation({
+  const adminDeleteMutation = useMutation({
     mutationFn: (requestId: number) => adminApi.deleteGuideRequest(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.guideRequests.all });
@@ -47,6 +49,7 @@ export const GuideRequestDetailPanel: React.FC<
   const canCancel = request.status === "TAKEN" && isMyTake;
   const showSignIn = request.status === "OPEN" && !currentUser;
   const canDeleteAsAdmin = currentUser?.role === "admin";
+  const canDeleteAsOwner = !!currentUser && currentUser.id === request.requesterId;
 
   const handleTake = async () => {
     setError("");
@@ -95,7 +98,11 @@ export const GuideRequestDetailPanel: React.FC<
     if (!confirmed) return;
 
     try {
-      await deleteMutation.mutateAsync(request.id);
+      if (canDeleteAsAdmin) {
+        await adminDeleteMutation.mutateAsync(request.id);
+      } else {
+        await deleteMutation.mutateAsync(request.id);
+      }
       onDeleteSuccess?.(request.id);
     } catch (err) {
       const msg =
@@ -202,7 +209,7 @@ export const GuideRequestDetailPanel: React.FC<
         )}
       </div>
 
-      {(canTake || canCancel || showSignIn || canDeleteAsAdmin) && (
+      {(canTake || canCancel || showSignIn || canDeleteAsAdmin || canDeleteAsOwner) && (
         <div className="p-5 border-t border-[#c2901c]/20">
           {showSignIn && (
             <a
@@ -237,16 +244,16 @@ export const GuideRequestDetailPanel: React.FC<
               Cancel My Take
             </button>
           )}
-          {canDeleteAsAdmin && (
+          {(canDeleteAsAdmin || canDeleteAsOwner) && (
             <button
               onClick={handleDeleteRequest}
-              disabled={deleteMutation.isPending}
+              disabled={deleteMutation.isPending || adminDeleteMutation.isPending}
               className="w-full py-2.5 mt-2 rounded-lg border border-red-500/40 text-red-400 text-sm hover:bg-red-500/10 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
             >
-              {deleteMutation.isPending && (
+              {(deleteMutation.isPending || adminDeleteMutation.isPending) && (
                 <Loader2 className="h-4 w-4 animate-spin" />
               )}
-              {!deleteMutation.isPending && <Trash2 className="h-4 w-4" />}
+              {!(deleteMutation.isPending || adminDeleteMutation.isPending) && <Trash2 className="h-4 w-4" />}
               Delete this Request
             </button>
           )}

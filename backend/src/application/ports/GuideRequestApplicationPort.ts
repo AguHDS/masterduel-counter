@@ -67,6 +67,9 @@ export interface GuideRequestApplicationPort {
     notificationService: NotificationApplicationPort,
   ): Promise<GuideRequest>;
 
+  /** Delete a guide request (only the original requester can delete their own) */
+  deleteRequest(requestId: number, userId: string): Promise<void>;
+
   /** Get the number of requests fulfilled by a user */
   getCompletedRequestsCountByUser(userId: string): Promise<number>;
 

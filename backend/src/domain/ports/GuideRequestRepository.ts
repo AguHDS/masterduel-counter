@@ -52,6 +52,9 @@ export interface GuideRequestRepository {
   /** Count completed requests fulfilled by a user */
   countRequestByFulfiller(userId: string): Promise<number>;
 
+  /** Delete a guide request by ID */
+  deleteGuideRequest(requestId: number): Promise<void>;
+
   /** Count anonymous requests (where requesterId IS NULL) */
   countAnonymousRequest(): Promise<number>;
 

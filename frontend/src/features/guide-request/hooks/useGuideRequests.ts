@@ -81,6 +81,19 @@ export function useCancelTakeGuideRequest() {
     },
   });
 }
+/** Delete guide request (owner of the guide) */
+export function useDeleteGuideRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (requestId: number) => guideRequestApi.deleteRequest(requestId),
+    onSuccess: (_data, requestId) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.guideRequests.all });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.guideRequests.detail(requestId),
+      });
+    },
+  });
+}
 
 export function useFulfillGuideRequest() {
   const queryClient = useQueryClient();

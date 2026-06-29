@@ -10,6 +10,7 @@ import { takeGuideRequestController } from "@/http/controllers/guide-request/tak
 import { cancelTakeGuideRequestController } from "@/http/controllers/guide-request/cancelTakeGuideRequestController.js";
 import { fulfillGuideRequestController } from "@/http/controllers/guide-request/fulfillGuideRequestController.js";
 import { getGuideRequestCountsController } from "@/http/controllers/guide-request/getGuideRequestCountsController.js";
+import { deleteGuideRequestController } from "@/http/controllers/guide-request/deleteGuideRequestController.js";
 
 const router = Router();
 
@@ -36,5 +37,8 @@ router.post("/:id/cancel-take", requireAuth, cancelTakeGuideRequestController);
 
 /** Fulfill a guide request by linking it to a saved guide instance */
 router.post("/:id/fulfill", requireAuth, fulfillGuideRequestController);
+
+/** Delete a guide request (only the original requester can delete their own) */
+router.delete("/:id", requireAuth, deleteGuideRequestController);
 
 export default router;

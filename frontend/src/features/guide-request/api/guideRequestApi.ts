@@ -67,6 +67,12 @@ export const guideRequestApi = {
     return res.data.data;
   },
 
+  async deleteRequest(requestId: number): Promise<void> {
+    await axios.delete(`${API_URL}/api/guide-requests/${requestId}`, {
+      withCredentials: true,
+    });
+  },
+
   async getRequestCounts(): Promise<GuideRequestCounts> {
     const res = await axios.get(`${API_URL}/api/guide-requests/counts`);
     return res.data.data;
