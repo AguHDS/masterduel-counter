@@ -12,8 +12,9 @@ interface TierCardProps {
 const tierColors: Record<number, { border: string; glow: string; bg: string }> = {
   0: { border: "border-none", glow: "", bg: "from-sky-950/50 via-violet-900/25 to-slate-950/80" },
   1: { border: "border-none", glow: "", bg: "from-amber-950/50 via-amber-900/20 to-slate-950/80" },
-  2: { border: "border-none", glow: "", bg: "from-slate-800/40 via-slate-900/20 to-slate-950/80" },
+  2: { border: "border-none", glow: "", bg: "from-blue-950/50 via-blue-900/20 to-slate-950/80" },
   3: { border: "border-none", glow: "", bg: "from-orange-950/50 via-orange-900/20 to-slate-950/80" },
+  4: { border: "border-none", glow: "", bg: "from-gray-800/40 via-gray-900/20 to-slate-950/80" },
 };
 
 export const TierCard = ({ entry, rank }: TierCardProps) => {

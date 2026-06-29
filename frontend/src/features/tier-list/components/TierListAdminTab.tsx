@@ -270,10 +270,10 @@ export const TierListAdminTab = () => {
     },
     2: {
       label: "T2",
-      bgGradient: "from-slate-500/30 via-slate-600/25 to-slate-800/35",
-      border: "border-slate-400/25",
-      textColor: "text-slate-300",
-      cardBg: "from-slate-800/40 via-slate-900/20 to-slate-950/80",
+      bgGradient: "from-blue-500/30 via-blue-600/25 to-blue-800/35",
+      border: "border-blue-400/25",
+      textColor: "text-blue-200",
+      cardBg: "from-blue-950/50 via-blue-900/20 to-slate-950/80",
     },
     3: {
       label: "T3",
@@ -281,6 +281,13 @@ export const TierListAdminTab = () => {
       border: "border-orange-600/25",
       textColor: "text-orange-300",
       cardBg: "from-orange-950/50 via-orange-900/20 to-slate-950/80",
+    },
+    4: {
+      label: "T4",
+      bgGradient: "from-gray-400/30 via-gray-500/25 to-gray-700/35",
+      border: "border-gray-400/25",
+      textColor: "text-gray-300",
+      cardBg: "from-gray-800/40 via-gray-900/20 to-slate-950/80",
     },
   };
 

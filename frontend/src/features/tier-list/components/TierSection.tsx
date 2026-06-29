@@ -25,17 +25,23 @@ const tierConfig: Record<number, {
     borderColor: "border-amber-400/30",
     textColor: "text-amber-200",
   },
-  2: {
+   2: {
     label: "T2",
-    bgGradient: "from-slate-500/30 via-slate-600/25 to-slate-800/35",
-    borderColor: "border-slate-400/15",
-    textColor: "text-slate-300",
+    bgGradient: "from-blue-500/30 via-blue-600/25 to-blue-800/35",
+    borderColor: "border-blue-400/30",
+    textColor: "text-blue-200",
   },
   3: {
     label: "T3",
     bgGradient: "from-orange-700/35 via-orange-800/30 to-orange-950/40",
     borderColor: "border-orange-600/20",
     textColor: "text-orange-300",
+  },
+  4: {
+    label: "T4",
+    bgGradient: "from-gray-400/30 via-gray-500/25 to-gray-700/35",
+    borderColor: "border-gray-400/20",
+    textColor: "text-gray-300",
   },
 };
 
