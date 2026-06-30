@@ -51,18 +51,18 @@ function getTopRowBg(rank: number): string {
 
 function getGuideTopRowBg(rank: number): string {
   if (rank === 1)
-    return "!border-l-4 !border-amber-400 bg-gradient-to-r from-amber-400/15 to-transparent !border-t-0 !border-b-0 !border-r-0";
+    return "!border-l-4 !border-yellow-400 bg-gradient-to-r from-yellow-400/20 to-amber-500/10 !border-t-0 !border-b-0 !border-r-0";
   if (rank === 2)
-    return "!border-l-4 !border-sky-400 bg-gradient-to-r from-sky-400/15 to-transparent !border-t-0 !border-b-0 !border-r-0";
+    return "!border-l-4 !border-blue-600 bg-gradient-to-r from-blue-600/20 to-blue-800/10 !border-t-0 !border-b-0 !border-r-0";
   if (rank === 3)
-    return "!border-l-4 !border-orange-600/70 bg-gradient-to-r from-orange-600/15 to-transparent !border-t-0 !border-b-0 !border-r-0";
+    return "!border-l-4 !border-amber-600/60 bg-gradient-to-r from-amber-600/15 to-transparent !border-t-0 !border-b-0 !border-r-0";
   return "";
 }
 
 function getGuideRankColor(rank: number): string {
-  if (rank === 1) return "text-amber-400";
-  if (rank === 2) return "text-sky-400";
-  if (rank === 3) return "text-orange-500";
+  if (rank === 1) return "text-yellow-400";
+  if (rank === 2) return "text-blue-600";
+  if (rank === 3) return "text-amber-600";
   return "text-gray-500";
 }
 

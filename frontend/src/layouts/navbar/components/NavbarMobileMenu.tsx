@@ -311,16 +311,24 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                             });
                             onClose();
                           }}
-                          className="flex items-center gap-2 px-3 py-2.5 cursor-pointer no-underline hover:bg-white/[0.04]"
+                          className={`flex items-center gap-2 px-3 py-2.5 cursor-pointer no-underline hover:bg-white/[0.04] ${
+                            guide.rank === 1
+                              ? "bg-gradient-to-r from-yellow-400/25 to-amber-500/15"
+                              : guide.rank === 2
+                                ? "bg-gradient-to-r from-blue-600/25 to-blue-800/15"
+                                : guide.rank === 3
+                                  ? "bg-gradient-to-r from-amber-600/15 to-amber-800/10"
+                                  : ""
+                          }`}
                         >
                           <div
                             className={`w-7 text-center font-bold text-xs ${
                               guide.rank === 1
                                 ? "text-yellow-400"
                                 : guide.rank === 2
-                                  ? "text-slate-300"
+                                  ? "text-blue-600"
                                   : guide.rank === 3
-                                    ? "text-amber-500"
+                                    ? "text-amber-600"
                                     : "text-gray-500"
                             }`}
                           >

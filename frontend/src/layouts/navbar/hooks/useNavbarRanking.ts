@@ -87,27 +87,27 @@ export function useNavbarRanking(): NavbarRankingState {
     switch (rank) {
       case 1:
         return {
-          bg: "bg-gradient-to-r from-yellow-500/20 to-amber-600/20",
+          bg: "bg-gradient-to-r from-yellow-400/25 to-amber-500/15",
           text: "text-yellow-400",
           icon: "text-yellow-400",
         };
       case 2:
         return {
-          bg: "bg-gradient-to-r from-purple-700/40 to-blue-500/20",
-          text: "text-gray-300",
-          icon: "text-gray-400",
+          bg: "bg-gradient-to-r from-blue-600/25 to-blue-800/15",
+          text: "text-blue-600",
+          icon: "text-blue-600",
         };
       case 3:
         return {
-          bg: "bg-gradient-to-r from-yellow-700/20 to-amber-800/50",
+          bg: "bg-gradient-to-r from-amber-600/15 to-amber-800/10",
           text: "text-amber-600",
-          icon: "text-amber-700",
+          icon: "text-amber-600",
         };
       default:
         return {
-          bg: "bg-blue-950/30",
-          text: "text-blue-300",
-          icon: "text-blue-400",
+          bg: "",
+          text: "text-gray-500",
+          icon: "text-gray-500",
         };
     }
   };
