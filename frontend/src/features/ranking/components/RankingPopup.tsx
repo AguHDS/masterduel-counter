@@ -212,7 +212,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
         }}
       >
         {/* Sub-tabs: GUIDES vs USERS - Segmented control style */}
-        <div className="px-3 pt-3 pb-2">
+        <div className="px-4 pt-3 pb-2">
           <div className="flex bg-black/30 rounded-md p-1 gap-1 border border-[#c2901c]/20">
             <button
               onClick={() => setEntityType("guides")}
@@ -320,7 +320,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                       <span className="flex items-center gap-0.5">
                         <Eye className="w-3 h-3 text-purple-400" />
                         <span className="text-xs text-purple-400 font-medium">
-                          {user.totalViews.toLocaleString()} Views
+                          <span className="max-[694px]:hidden">{user.totalViews.toLocaleString()} Views</span>
                           {isShowingTrending && (
                             <span className="text-[10px] text-purple-300 ml-0.5">
                               (+{monthlyViews.toLocaleString()})
@@ -331,7 +331,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                       <span className="flex items-center gap-0.5">
                         <ThumbsUp className="w-3 h-3 text-emerald-500" />
                         <span className="text-xs text-emerald-400 font-medium">
-                          {user.totalLikes.toLocaleString()} Likes
+                          <span className="max-[694px]:hidden">{user.totalLikes.toLocaleString()} Likes</span>
                           {isShowingTrending && (
                             <span className="text-[10px] text-emerald-300 ml-0.5">
                               (+{monthlyLikes.toLocaleString()})
@@ -343,7 +343,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         <span className="flex items-center gap-0.5">
                           <MailWarning className="w-3 h-3 text-orange-400" />
                           <span className="text-xs text-orange-400 font-medium">
-                            {user.fulfilledRequests} Req
+                            <span className="max-[694px]:hidden">{user.fulfilledRequests} Req</span>
                             {isShowingTrending && (
                               <span className="text-[10px] text-orange-300 ml-0.5">
                                 (+{monthlyRequests.toLocaleString()})
@@ -487,7 +487,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                       <div className="flex items-center gap-2 mt-1">
                         <span className="flex items-center gap-1 text-xs text-purple-400 font-medium">
                           <Eye className="w-3 h-3" />
-                          {(guide.views ?? 0).toLocaleString()} Views
+                          <span className="max-[694px]:hidden">{(guide.views ?? 0).toLocaleString()} Views</span>
                           {isShowingTrending && (
                             <span className="text-[10px] text-purple-300 ml-0.5">
                               (+{monthlyViews.toLocaleString()})
@@ -496,7 +496,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         </span>
                         <span className="flex items-center gap-1 text-xs text-emerald-400 font-medium">
                           <ThumbsUp className="w-3 h-3" />
-                          {guide.likes.toLocaleString()} Likes
+                          <span className="max-[694px]:hidden">{guide.likes.toLocaleString()} Likes</span>
                           {isShowingTrending && (
                             <span className="text-[10px] text-emerald-300 ml-0.5">
                               (+{monthlyLikes.toLocaleString()})
@@ -505,7 +505,7 @@ export const RankingPopup: React.FC<RankingPopupProps> = ({
                         </span>
                         <span className="flex items-center gap-1 text-xs text-yellow-400 font-medium">
                           <Star className="w-3 h-3 fill-current" />
-                          {(guide.favorites ?? 0).toLocaleString()} Favs
+                          <span className="max-[694px]:hidden">{(guide.favorites ?? 0).toLocaleString()} Favs</span>
                           {isShowingTrending && (
                             <span className="text-[10px] text-yellow-300 ml-0.5">
                               (+{monthlyFavorites.toLocaleString()})

@@ -26,7 +26,7 @@ import type {
   TrendingGuideRankingResponse,
 } from "../types/ranking.types";
 import { Avatar } from "@/shared/components/DefaultAvatar";
-import { getRankColor, getRankRowBg } from "../utils/rankingUtils";
+import { getRankColor } from "../utils/rankingUtils";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 
 interface RankingModalProps {
@@ -47,6 +47,23 @@ function getTopRowBg(rank: number): string {
   }
 
   return "";
+}
+
+function getGuideTopRowBg(rank: number): string {
+  if (rank === 1)
+    return "!border-l-4 !border-amber-400 bg-gradient-to-r from-amber-400/15 to-transparent !border-t-0 !border-b-0 !border-r-0";
+  if (rank === 2)
+    return "!border-l-4 !border-sky-400 bg-gradient-to-r from-sky-400/15 to-transparent !border-t-0 !border-b-0 !border-r-0";
+  if (rank === 3)
+    return "!border-l-4 !border-orange-600/70 bg-gradient-to-r from-orange-600/15 to-transparent !border-t-0 !border-b-0 !border-r-0";
+  return "";
+}
+
+function getGuideRankColor(rank: number): string {
+  if (rank === 1) return "text-amber-400";
+  if (rank === 2) return "text-sky-400";
+  if (rank === 3) return "text-orange-500";
+  return "text-gray-500";
 }
 
 function getCurrentMonthLabel(): string {
@@ -407,10 +424,10 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                         e.preventDefault();
                         onUserClick(user.username, user.userId);
                       }}
-                      className={`flex items-center gap-3 px-6 py-3 border-b border-[#c2901c]/10 cursor-pointer no-underline hover:bg-white/[0.03] ${
+                      className={`flex items-center gap-3 px-6 py-3 max-[600px]:px-3 max-[600px]:py-2 border-b border-[#c2901c]/10 cursor-pointer no-underline hover:bg-white/[0.03] ${
                       user.rank <= 3
                         ? getTopRowBg(user.rank)
-                        : getRankRowBg(user.rank)
+                        : "bg-transparent"
                     }`}
                   >
                     <div className="w-10 flex-shrink-0 flex justify-center">
@@ -440,7 +457,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                         <span className="flex items-center gap-1">
                           <Eye className="w-3.5 h-3.5 text-purple-400" />
                           <span className="text-sm text-purple-400 font-medium">
-                            {user.totalViews.toLocaleString()}
+                            <span className="max-[600px]:hidden">{user.totalViews.toLocaleString()}</span>
                             {isShowingTrending && (
                               <span className="text-[10px] text-purple-300 ml-1">
                                 (+{monthlyViews.toLocaleString()})
@@ -451,7 +468,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                         <span className="flex items-center gap-1">
                           <ThumbsUp className="w-3.5 h-3.5 text-emerald-500" />
                           <span className="text-sm text-emerald-400 font-medium">
-                            {user.totalLikes.toLocaleString()}
+                            <span className="max-[600px]:hidden">{user.totalLikes.toLocaleString()}</span>
                             {isShowingTrending && (
                               <span className="text-[10px] text-emerald-300 ml-1">
                                 (+{monthlyLikes.toLocaleString()})
@@ -463,7 +480,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                           <span className="flex items-center gap-1">
                             <BookOpen className="w-3.5 h-3.5 text-orange-400" />
                             <span className="text-sm text-orange-400 font-medium">
-                              {user.fulfilledRequests} Requests
+                              <span className="max-[600px]:hidden">{user.fulfilledRequests} Requests</span>
                               {isShowingTrending && (
                                 <span className="text-[10px] text-orange-300 ml-1">
                                   (+{monthlyRequests.toLocaleString()})
@@ -556,15 +573,15 @@ export const RankingModal: React.FC<RankingModalProps> = ({
                         );
                         onClose();
                       }}
-                      className={`flex items-center gap-4 px-6 py-3 border-b border-[#c2901c]/10 cursor-pointer no-underline hover:bg-white/[0.03] ${
+                      className={`flex items-center gap-4 px-6 py-3 max-[600px]:px-3 max-[600px]:py-2 border-b border-[#c2901c]/10 cursor-pointer no-underline hover:bg-white/[0.03] ${
                         guide.rank <= 3
-                          ? getTopRowBg(guide.rank)
-                          : getRankRowBg(guide.rank)
+                          ? getGuideTopRowBg(guide.rank)
+                          : "bg-transparent"
                       }`}
                     >
                       <div className="w-10 flex-shrink-0 flex justify-center">
                         <span
-                          className={`text-sm font-black tabular-nums ${getRankColor(guide.rank)}`}
+                          className={`text-sm font-black tabular-nums ${getGuideRankColor(guide.rank)}`}
                         >
                           #{guide.rank}
                         </span>

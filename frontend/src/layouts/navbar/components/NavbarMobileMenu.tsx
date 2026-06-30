@@ -9,6 +9,10 @@ import {
   User,
   Shield,
   TrendingUp,
+  Eye,
+  ThumbsUp,
+  MailWarning,
+  Star
 } from "lucide-react";
 import { NotificationBell, NotificationPopup } from "@/features/notifications";
 import { Avatar } from "@/shared/components/DefaultAvatar";
@@ -158,30 +162,30 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
           {isMobileRankingOpen && (
             <div className="ml-2 bg-[#2a2430] rounded-lg border border-[#c2901c]/30 overflow-hidden">
               {/* Main tabs: TRENDING vs ALL-TIME */}
-              <div className="flex gap-2 border-b-2 border-[#c2901c]/30 px-2 pt-2">
+              <div className="grid grid-cols-2 border-b-2 border-[#c2901c]/30">
                 <button
                   onClick={() => onSetMobileRankingType("trending")}
-                  className={`flex-1 py-2 rounded-t-lg text-[10px] font-bold tracking-widest transition-all border-t-2 border-x-2 ${
+                  className={`py-2.5 text-[11px] font-bold tracking-widest transition-all border-t-2 border-x-2 ${
                     mobileRankingType === "trending"
                       ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c]"
                       : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20"
                   }`}
                 >
-                  <div className="flex items-center justify-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
+                  <div className="flex items-center justify-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5" />
                     <span>TREND ({monthLabel})</span>
                   </div>
                 </button>
                 <button
                   onClick={() => onSetMobileRankingType("all-time")}
-                  className={`flex-1 py-2 rounded-t-lg text-[10px] font-bold tracking-widest transition-all border-t-2 border-x-2 ${
+                  className={`py-2.5 text-[11px] font-bold tracking-widest transition-all border-t-2 border-x-2 ${
                     mobileRankingType === "all-time"
                       ? "bg-gradient-to-b from-[#b88818]/30 to-[#b88818]/10 text-[#f4d68f] border-[#c2901c]"
                       : "bg-gradient-to-b from-[#1a1216] to-[#120c0f] text-[#c2901c]/50 border-[#c2901c]/20"
                   }`}
                 >
-                  <div className="flex items-center justify-center gap-1">
-                    <Crown className="w-3 h-3" />
+                  <div className="flex items-center justify-center gap-1.5">
+                    <Crown className="w-3.5 h-3.5" />
                     <span>ALL TIME</span>
                   </div>
                 </button>
@@ -195,8 +199,8 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                     onClick={() => onSetMobileRankingTab(tab)}
                     className={`flex-1 py-2 text-[11px] font-bold tracking-widest transition-all ${
                       mobileRankingTab === tab
-                        ? "bg-[#c2901c] text-black"
-                        : "text-[#c2901c]/60 hover:text-[#c2901c]"
+                        ? "bg-gradient-to-b from-[#c2901c] to-[#a67615] text-black"
+                        : "text-[#c2901c]/60 hover:text-[#c2901c] hover:bg-white/5"
                     }`}
                   >
                     {tab === "guides" ? "GUIDES" : "USERS"}
@@ -204,7 +208,7 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                 ))}
               </div>
 
-              <div className="max-h-72 overflow-y-auto scrollbar-cardpair p-2">
+              <div className="max-h-72 overflow-y-auto scrollbar-cardpair divide-y divide-[#c2901c]/10">
                 {/* Users tab */}
                 {mobileRankingTab === "users" &&
                   (currentUsersLoading ? (
@@ -225,10 +229,10 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                             e.preventDefault();
                             onUserClick(rankUser.username, rankUser.userId);
                           }}
-                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer no-underline ${styles.bg}`}
+                          className={`flex items-center gap-2 px-3 py-2.5 cursor-pointer no-underline hover:bg-white/[0.04] ${styles.bg}`}
                         >
                           <div
-                            className={`w-6 text-center font-bold text-xs ${styles.text}`}
+                            className={`w-7 text-center font-bold text-xs ${styles.text}`}
                           >
                             #{rankUser.rank}
                           </div>
@@ -238,20 +242,33 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                             size="sm"
                           />
                           <div className="flex-1 min-w-0">
-                            <span className="text-white text-sm truncate block">
+                            <span className="text-white text-sm font-medium truncate block">
                               {rankUser.username}
                             </span>
-                            <span className="text-xs text-emerald-400">
-                              {rankUser.totalLikes} Likes
-                              {mobileRankingType === "trending" &&
-                                isTrendingRankUser(rankUser) &&
-                                (rankUser.monthlyLikes ?? 0) > 0 && (
-                                <span className="ml-1 text-[10px] text-emerald-300/80">
-                                  (+{rankUser.monthlyLikes ?? 0})
+                            <div className="flex items-center gap-2.5 text-[10px] mt-0.5">
+                              <span className="flex items-center gap-0.5 text-purple-400">
+                                <Eye className="w-2.5 h-2.5" />
+                                {rankUser.totalViews.toLocaleString()}
+                              </span>
+                              <span className="flex items-center gap-0.5 text-emerald-400">
+                                <ThumbsUp className="w-2.5 h-2.5" />
+                                {rankUser.totalLikes.toLocaleString()}
+                              </span>
+                              {rankUser.fulfilledRequests > 0 && (
+                                <span className="flex items-center gap-0.5 text-orange-400">
+                                  <MailWarning className="w-2.5 h-2.5" />
+                                  {rankUser.fulfilledRequests}
                                 </span>
                               )}
-                            </span>
+                            </div>
                           </div>
+                          {mobileRankingType === "trending" &&
+                            isTrendingRankUser(rankUser) &&
+                            (rankUser.monthlyLikes ?? 0) > 0 && (
+                            <span className="text-[10px] text-emerald-300/60">
+                              +{rankUser.monthlyLikes ?? 0}
+                            </span>
+                          )}
                           {rankUser.rank <= 3 && (
                             <Crown
                               className={`w-3 h-3 flex-shrink-0 ${styles.icon}`}
@@ -294,10 +311,10 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                             });
                             onClose();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-lg cursor-pointer no-underline"
+                          className="flex items-center gap-2 px-3 py-2.5 cursor-pointer no-underline hover:bg-white/[0.04]"
                         >
                           <div
-                            className={`w-6 text-center font-bold text-xs ${
+                            className={`w-7 text-center font-bold text-xs ${
                               guide.rank === 1
                                 ? "text-yellow-400"
                                 : guide.rank === 2
@@ -309,7 +326,7 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                           >
                             #{guide.rank}
                           </div>
-                          <div className="w-9 h-9 flex-shrink-0 rounded overflow-hidden border border-[#c2901c]/20 bg-[#0d0b10]">
+                          <div className="w-10 h-10 flex-shrink-0 rounded-md overflow-hidden border border-[#c2901c]/20 bg-[#0d0b10]">
                             {guide.headerImageUrl ? (
                               <img
                                 src={guide.headerImageUrl}
@@ -323,17 +340,32 @@ export const NavbarMobileMenu: React.FC<NavbarMobileMenuProps> = ({
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <span className="text-white text-sm truncate block">
+                            <span className="text-white text-sm font-medium truncate block leading-snug">
                               {guide.title}
                             </span>
-                            <span className="text-xs text-gray-500 truncate block">
-                              {guide.authorName} · {guide.archetypeName}
+                            <span className="text-[10px] text-gray-500 truncate block">
+                              {guide.authorName}
+                              <span className="text-gray-600"> · </span>
+                              {guide.archetypeName}
+                              <span className="text-gray-600"> · </span>
+                              <span className={isCounter ? "text-amber-500" : "text-blue-400"}>
+                                {isCounter ? "Counter" : "Deck"}
+                              </span>
                             </span>
-                            <span
-                              className={`text-[10px] font-bold ${isCounter ? "text-amber-500" : "text-blue-400"}`}
-                            >
-                              {isCounter ? "Counter Guide" : "Deck Guide"}
-                            </span>
+                            <div className="flex items-center gap-2 text-[10px] mt-0.5">
+                              <span className="flex items-center gap-0.5 text-purple-400">
+                                <Eye className="w-2.5 h-2.5" />
+                                {(guide.views ?? 0).toLocaleString()}
+                              </span>
+                              <span className="flex items-center gap-0.5 text-emerald-400">
+                                <ThumbsUp className="w-2.5 h-2.5" />
+                                {guide.likes.toLocaleString()}
+                              </span>
+                              <span className="flex items-center gap-0.5 text-yellow-400">
+                                <Star className="w-2.5 h-2.5" />
+                                {(guide.favorites ?? 0).toLocaleString()}
+                              </span>
+                            </div>
                           </div>
                         </a>
                       );
