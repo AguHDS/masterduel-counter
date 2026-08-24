@@ -17,6 +17,7 @@ function makeEntry(overrides: Partial<TierListEntry> = {}): TierListEntry {
     format: "masterduel",
     position: 0,
     imageUrl: "http://example.com/card.jpg",
+    imageManuallySet: false,
     source: "scraped",
     isActive: true,
     linkedArchetypeId: null,

@@ -15,6 +15,7 @@ export class SqliteTierListRepository implements TierListRepository {
   }
 
   // Soft-delete: marks removed entries as inactive, upserts current entries preserving linkedArchetype + imageUrl
+  // Syncs image/linked archetype changes across all formats for the same deck (case-insensitive deck name).
   saveEntries(
     format: string,
     input: {
@@ -38,14 +39,15 @@ export class SqliteTierListRepository implements TierListRepository {
        WHERE format = ? AND is_active = 1 AND LOWER(deck_name) = ?`,
     );
     const upsertStmt = this.db.prepare(
-      `INSERT INTO tier_list_entries (id, deck_name, display_name, tier, format, position, image_url, source, linked_archetype_id, linked_archetype_name, is_active, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))
+      `INSERT INTO tier_list_entries (id, deck_name, display_name, tier, format, position, image_url, image_manually_set, source, linked_archetype_id, linked_archetype_name, is_active, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))
        ON CONFLICT(id) DO UPDATE SET
          deck_name = excluded.deck_name,
          display_name = excluded.display_name,
          tier = excluded.tier,
          position = excluded.position,
          image_url = excluded.image_url,
+         image_manually_set = excluded.image_manually_set,
          source = excluded.source,
          linked_archetype_id = excluded.linked_archetype_id,
          linked_archetype_name = excluded.linked_archetype_name,
@@ -53,18 +55,52 @@ export class SqliteTierListRepository implements TierListRepository {
          updated_at = datetime('now')`,
     );
     const existingStmt = this.db.prepare(
-      `SELECT LOWER(deck_name) as key FROM tier_list_entries WHERE format = ? AND is_active = 1`,
+      `SELECT id, LOWER(deck_name) as key, image_url, linked_archetype_id, image_manually_set, is_active
+       FROM tier_list_entries WHERE format = ?`,
+    );
+    // Cross-format sync: when an admin changes an image or linked archetype for a deck,
+    // the same config is applied to that deck in the other two formats.
+    const syncImageStmt = this.db.prepare(
+      `UPDATE tier_list_entries SET image_url = ?, image_manually_set = 1, updated_at = datetime('now')
+       WHERE format != ? AND LOWER(deck_name) = LOWER(?)`,
+    );
+    const syncLinkStmt = this.db.prepare(
+      `UPDATE tier_list_entries SET linked_archetype_id = ?, linked_archetype_name = ?, updated_at = datetime('now')
+       WHERE format != ? AND LOWER(deck_name) = LOWER(?)`,
     );
 
     const transaction = this.db.transaction(() => {
-      const existingRows = existingStmt.all(format) as Array<{ key: string }>;
+      const existingRows = existingStmt.all(format) as Array<{
+        id: number; key: string; image_url: string | null; linked_archetype_id: number | null; image_manually_set: number; is_active: number;
+      }>;
+      const existingById = new Map<number, { image_url: string | null; linked_archetype_id: number | null; image_manually_set: number }>();
       for (const row of existingRows) {
-        if (!savedNames.has(row.key)) {
+        existingById.set(row.id, {
+          image_url: row.image_url,
+          linked_archetype_id: row.linked_archetype_id,
+          image_manually_set: row.image_manually_set,
+        });
+        if (row.is_active === 1 && !savedNames.has(row.key)) {
           softDeleteStmt.run(format, row.key);
         }
       }
 
       for (const entry of input.entries) {
+        const prev = typeof entry.id === "number" ? existingById.get(entry.id) : undefined;
+        const imageChanged = prev
+          ? (entry.imageUrl ?? null) !== prev.image_url
+          : !!entry.imageUrl;
+        const linkChanged = prev
+          ? (entry.linkedArchetypeId ?? null) !== prev.linked_archetype_id
+          : !!entry.linkedArchetypeId;
+        const imageManuallySet = prev
+          ? prev.image_manually_set === 1 || imageChanged
+            ? 1
+            : 0
+          : entry.imageUrl
+            ? 1
+            : 0;
+
         upsertStmt.run(
           entry.id ?? null,
           entry.deckName,
@@ -73,10 +109,23 @@ export class SqliteTierListRepository implements TierListRepository {
           format,
           entry.position,
           entry.imageUrl ?? null,
+          imageManuallySet,
           entry.source,
           entry.linkedArchetypeId ?? null,
           entry.linkedArchetypeName ?? null,
         );
+
+        if (imageChanged) {
+          syncImageStmt.run(entry.imageUrl ?? null, format, entry.deckName);
+        }
+        if (linkChanged) {
+          syncLinkStmt.run(
+            entry.linkedArchetypeId ?? null,
+            entry.linkedArchetypeName ?? null,
+            format,
+            entry.deckName,
+          );
+        }
       }
     });
 
@@ -145,7 +194,9 @@ export class SqliteTierListRepository implements TierListRepository {
     return Promise.resolve();
   }
 
-  // Scraper merge: updates scraped+linked entries, skips manual-only, auto-resets inactive entries
+  // Scraper merge: updates scraped+linked entries, skips manual-only, auto-resets inactive entries.
+  // Entries with admin config (manually set image or linked archetype) are soft-deleted instead of
+  // hard-deleted when they fall out of the meta, so their config survives and is restored on return.
   replaceScrapedEntries(
     format: string,
     entries: Omit<TierListEntry, "id" | "createdAt" | "updatedAt" | "isActive" | "source" | "scrapedAt">[],
@@ -153,14 +204,20 @@ export class SqliteTierListRepository implements TierListRepository {
     const scrapedNames = new Set(entries.map((e) => e.deckName.toLowerCase()));
 
     const existingStmt = this.db.prepare(
-      `SELECT id, LOWER(deck_name) as key, source, is_active, linked_archetype_id FROM tier_list_entries WHERE format = ?`,
+      `SELECT id, LOWER(deck_name) as key, source, is_active, linked_archetype_id, image_manually_set FROM tier_list_entries WHERE format = ?`,
     );
     const existingRows = existingStmt.all(format) as Array<{
-      id: number; key: string; source: string; is_active: number; linked_archetype_id: number | null;
+      id: number; key: string; source: string; is_active: number; linked_archetype_id: number | null; image_manually_set: number;
     }>;
-    const existingMap = new Map<string, { id: number; source: string; isActive: boolean; hasLink: boolean }>();
+    const existingMap = new Map<string, { id: number; source: string; isActive: boolean; hasLink: boolean; hasConfig: boolean }>();
     for (const row of existingRows) {
-      existingMap.set(row.key, { id: row.id, source: row.source, isActive: row.is_active === 1, hasLink: row.linked_archetype_id !== null });
+      existingMap.set(row.key, {
+        id: row.id,
+        source: row.source,
+        isActive: row.is_active === 1,
+        hasLink: row.linked_archetype_id !== null,
+        hasConfig: row.linked_archetype_id !== null || row.image_manually_set === 1,
+      });
     }
 
     const updateStmt = this.db.prepare(
@@ -174,13 +231,21 @@ export class SqliteTierListRepository implements TierListRepository {
     const deleteFallenStmt = this.db.prepare(
       `DELETE FROM tier_list_entries WHERE format = ? AND is_active = 1 AND LOWER(deck_name) = ?`,
     );
+    const softDeleteFallenStmt = this.db.prepare(
+      `UPDATE tier_list_entries SET is_active = 0, updated_at = datetime('now')
+       WHERE format = ? AND is_active = 1 AND LOWER(deck_name) = ?`,
+    );
     const reactivateStmt = this.db.prepare(
       `UPDATE tier_list_entries SET is_active = 1, updated_at = datetime('now')
        WHERE format = ? AND is_active = 0 AND LOWER(deck_name) = ?`,
     );
+    const reactivateWithTierStmt = this.db.prepare(
+      `UPDATE tier_list_entries SET is_active = 1, tier = ?, position = ?, scraped_at = datetime('now'), updated_at = datetime('now')
+       WHERE format = ? AND LOWER(deck_name) = ?`,
+    );
 
     const transaction = this.db.transaction(() => {
-      let updatedCount = 0, insertedCount = 0, skippedManual = 0, skippedInactive = 0, fallenCount = 0, reactivatedCount = 0;
+      let updatedCount = 0, insertedCount = 0, skippedManual = 0, skippedInactive = 0, fallenCount = 0, softFallenCount = 0, reactivatedCount = 0;
 
       for (const entry of entries) {
         const key = entry.deckName.toLowerCase();
@@ -188,7 +253,13 @@ export class SqliteTierListRepository implements TierListRepository {
 
         if (existing) {
           if (!existing.isActive) {
-            skippedInactive++;
+            if (existing.hasConfig) {
+              // Configured entry: deck is back in the meta -> restore with fresh tier/position
+              reactivateWithTierStmt.run(entry.tier, entry.position, format, key);
+              reactivatedCount++;
+            } else {
+              skippedInactive++;
+            }
           } else if (existing.source === "manual" && !existing.hasLink) {
             skippedManual++;
           } else {
@@ -211,13 +282,18 @@ export class SqliteTierListRepository implements TierListRepository {
       for (const [key, existing] of existingMap) {
         if (!scrapedNames.has(key)) {
           if (!existing.isActive) {
-            if (existing.source === "scraped") {
+            if (existing.source === "scraped" && !existing.hasConfig) {
               reactivateStmt.run(format, key);
               reactivatedCount++;
             }
           } else if (existing.source !== "manual") {
-            deleteFallenStmt.run(format, key);
-            fallenCount++;
+            if (existing.hasConfig) {
+              softDeleteFallenStmt.run(format, key);
+              softFallenCount++;
+            } else {
+              deleteFallenStmt.run(format, key);
+              fallenCount++;
+            }
           } else {
             skippedManual++;
           }
@@ -225,7 +301,7 @@ export class SqliteTierListRepository implements TierListRepository {
       }
 
       console.log(
-        `[TierList] Scrape merge: ${updatedCount} updated, ${insertedCount} inserted, ${skippedManual} manual skipped, ${skippedInactive} inactive skipped, ${fallenCount} removed, ${reactivatedCount} reactivated`,
+        `[TierList] Scrape merge: ${updatedCount} updated, ${insertedCount} inserted, ${skippedManual} manual skipped, ${skippedInactive} inactive skipped, ${fallenCount} removed, ${softFallenCount} configured hidden, ${reactivatedCount} reactivated`,
       );
     });
 
@@ -295,6 +371,7 @@ export class SqliteTierListRepository implements TierListRepository {
       format: row.format as string,
       position: row.position as number,
       imageUrl: row.image_url as string | null,
+      imageManuallySet: (row.image_manually_set as number) === 1,
       source: (row.source as string) as "scraped" | "manual",
       isActive: (row.is_active as number) === 1,
       linkedArchetypeId: row.linked_archetype_id as number | null,

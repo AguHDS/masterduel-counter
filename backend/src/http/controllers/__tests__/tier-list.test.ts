@@ -172,6 +172,71 @@ describe("Tier List API", () => {
       expect(res.body.entries[0].linkedArchetypeId).toBe(999);
       expect(res.body.entries[0].linkedArchetypeName).toBe("HERO");
     });
+
+    it("should accept tier 4 entries", async () => {
+      const res = await request(app)
+        .post("/api/tier-list/save")
+        .send({
+          format: "masterduel",
+          entries: [{ deckName: "Trending Deck", tier: 4, position: 0 }],
+        });
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.entries).toHaveLength(1);
+      expect(res.body.entries[0].tier).toBe(4);
+    });
+  });
+
+  describe("Cross-format sync", () => {
+    it("should propagate image and linked archetype changes to the same deck in other formats", async () => {
+      const mdSave = await request(app)
+        .post("/api/tier-list/save")
+        .send({
+          format: "masterduel",
+          entries: [{
+            deckName: "Deck X",
+            tier: 1,
+            position: 0,
+            imageUrl: "img1",
+            linkedArchetypeId: 1,
+            linkedArchetypeName: "A",
+            source: "scraped",
+          }],
+        });
+      expect(mdSave.status).toBe(200);
+      const mdId = mdSave.body.entries[0].id;
+
+      await request(app)
+        .post("/api/tier-list/save")
+        .send({
+          format: "tcg",
+          entries: [{ deckName: "Deck X", tier: 1, position: 0, source: "scraped" }],
+        });
+
+      await request(app)
+        .post("/api/tier-list/save")
+        .send({
+          format: "masterduel",
+          entries: [{
+            id: mdId,
+            deckName: "Deck X",
+            tier: 1,
+            position: 0,
+            imageUrl: "img2",
+            linkedArchetypeId: 2,
+            linkedArchetypeName: "B",
+            source: "scraped",
+          }],
+        });
+
+      const tcgRes = await request(app).get("/api/tier-list?format=tcg");
+      expect(tcgRes.status).toBe(200);
+      const tcgEntry = tcgRes.body.entries.find((e: { deckName: string }) => e.deckName === "Deck X");
+      expect(tcgEntry).toBeDefined();
+      expect(tcgEntry.imageUrl).toBe("img2");
+      expect(tcgEntry.linkedArchetypeId).toBe(2);
+      expect(tcgEntry.linkedArchetypeName).toBe("B");
+    });
   });
 
   describe("Tier List Config", () => {

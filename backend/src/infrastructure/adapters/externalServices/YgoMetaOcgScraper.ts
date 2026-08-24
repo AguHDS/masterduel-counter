@@ -2,6 +2,7 @@ import { ScrapedDeck } from "./YgoMetaTcgScraper.js";
 
 const OCG_API_URL = "https://www.yugiohmeta.com/api/v1/deck-types/rankings?ocg=true&t3Only=false&range=Last%201%20month&limit=200";
 const TIER_2_THRESHOLD = 2.0;
+const TIER_3_THRESHOLD = 1.0;
 
 interface ApiDeckEntry {
   deckType: { name?: string };
@@ -15,7 +16,7 @@ interface ApiResponse {
 
 /**
  * OCG scraper -> calls yugiohmeta.com's JSON API directly
- * Top 3 = Tier 1, >= 2% = Tier 2, < 2% = Tier 3
+ * Top 3 = Tier 1, >= 2% = Tier 2, >= 1% = Tier 3, < 1% = Tier 4
  */
 export class YgoMetaOcgScraper {
   async scrapeTierList(): Promise<ScrapedDeck[]> {
@@ -56,15 +57,17 @@ export class YgoMetaOcgScraper {
         tier = 1;
       } else if (percentage >= TIER_2_THRESHOLD) {
         tier = 2;
-      } else {
+      } else if (percentage >= TIER_3_THRESHOLD) {
         tier = 3;
+      } else {
+        tier = 4;
       }
 
       decks.push({ deckName, tier, imageUrl: null });
     }
 
     console.log(
-      `OCG Scraper Parsed: T1=${decks.filter((d) => d.tier === 1).length}, T2=${decks.filter((d) => d.tier === 2).length}, T3=${decks.filter((d) => d.tier === 3).length}`,
+      `OCG Scraper Parsed: T1=${decks.filter((d) => d.tier === 1).length}, T2=${decks.filter((d) => d.tier === 2).length}, T3=${decks.filter((d) => d.tier === 3).length}, T4=${decks.filter((d) => d.tier === 4).length}`,
     );
 
     return decks;
