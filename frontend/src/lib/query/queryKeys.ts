@@ -27,6 +27,10 @@ const adminKeys = {
     all: ["admin", "stats"] as const,
     dashboard: () => [...adminKeys.stats.all, "dashboard"] as const,
   },
+  server: {
+    all: ["admin", "server"] as const,
+    state: () => [...adminKeys.server.all, "state"] as const,
+  },
 } as const;
 
 const commentKeys = {
@@ -97,5 +101,10 @@ export const queryKeys = {
     all: ["tierList"] as const,
     entries: (format: string) => [...queryKeys.tierList.all, "entries", format] as const,
     config: (format: string) => [...queryKeys.tierList.all, "config", format] as const,
+  },
+
+  siteStatus: {
+    all: ["siteStatus"] as const,
+    current: () => ["siteStatus", "current"] as const,
   },
 } as const;

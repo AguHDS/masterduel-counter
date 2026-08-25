@@ -84,6 +84,28 @@ pm2 start all -> Iniciar todos los servicios
 free -h -> Ver uso de memoria RAM y swap
 htop -> Ver uso de CPU, memoria y procesos en tiempo real
 
+--------------
+
+## Server Management (Admin Panel)
+
+Desde el Admin Panel -> **Server Management** se pueden ejecutar los scripts de mantenimiento sin entrar al VPS:
+
+- **Download Card Images**: `download-all-cards` (corre con `--delay 250` en producción; acepta `--limit`).
+- **Populate Archetypes**: `populate-archetypes` (rápido).
+- **Generate Thumbnails**: `generate-thumbnails`.
+- **Update Card Details**: `update-card-details`.
+- **Migrate Card Images**: `migrate-card-images`.
+- **Restart Server**: `pm2 restart masterduel-backend` (solo producción).
+
+**Cómo funciona:**
+- El backend lanza cada script como un **child process detached** (`node dist/scripts/<script>.js` en prod / `node --import tsx src/scripts/<script>.ts` en dev), con output a `backend/data/task-logs/<id>.log`.
+- Las tareas pesadas (`download-cards`, `generate-thumbnails`, `update-card-details`, `migrate-card-images`) activan **maintenance mode** automáticamente (los usuarios ven "We're doing some improvements"; los admins siguen entrando con un banner).
+- Se puede monitorear el progreso (tail del log) y **cancelar** la tarea desde el panel.
+- Estado persistido en `backend/data/server-state.json` (sobrevive reinicios del backend).
+- Endpoint público `GET /api/status` devuelve `{ maintenance, message }` que usa el frontend para el maintenance screen.
+
+**Nota RAM (VPS ~1GB):** el backend queda corriendo mientras corre una descarga (necesario para reportar progreso). Se mitiga con `--delay 250` y el bajo tráfico del modo mantenimiento. Las tareas que solo tocan filesystem (`download-cards`, `generate-thumbnails`) no escriben a la DB.
+
 -------------
 
 CFG NGINX:

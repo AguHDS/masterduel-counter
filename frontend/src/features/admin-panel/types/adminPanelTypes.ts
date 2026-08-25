@@ -79,4 +79,51 @@ export interface PaginatedUsersResponse {
   totalPages: number;
 }
 
-export type AdminTab = "accounts" | "reports" | "tracking" | "latest-updates" | "tier-list" | "archetypes";
+export type AdminTab = "accounts" | "reports" | "tracking" | "latest-updates" | "tier-list" | "archetypes" | "server";
+
+export type ServerTaskType =
+  | "download-cards"
+  | "populate-archetypes"
+  | "generate-thumbnails"
+  | "update-card-details"
+  | "migrate-card-images";
+
+export type ServerTaskStatus = "running" | "done" | "failed" | "cancelled";
+
+export interface ServerTask {
+  id: string;
+  type: ServerTaskType;
+  status: ServerTaskStatus;
+  startedAt: string;
+  finishedAt: string | null;
+  pid: number | null;
+  logFile: string;
+  exitCode: number | null;
+}
+
+export interface ServerMaintenanceState {
+  enabled: boolean;
+  message: string | null;
+  auto: boolean;
+}
+
+export interface ServerState {
+  maintenance: ServerMaintenanceState;
+  task: ServerTask | null;
+  lastTask: ServerTask | null;
+  logTail: string[];
+}
+
+export interface ServerStateResponse {
+  success: boolean;
+  maintenance: ServerMaintenanceState;
+  task: ServerTask | null;
+  lastTask: ServerTask | null;
+  logTail: string[];
+}
+
+export interface SiteStatus {
+  success: boolean;
+  maintenance: boolean;
+  message: string | null;
+}

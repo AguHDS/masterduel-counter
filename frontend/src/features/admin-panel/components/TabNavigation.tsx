@@ -1,4 +1,4 @@
-import { Users, AlertCircle, BarChart, Newspaper, Swords, Library } from "lucide-react";
+import { Users, AlertCircle, BarChart, Newspaper, Swords, Library, ServerCog } from "lucide-react";
 import type { AdminTab } from "../types/adminPanelTypes";
 
 interface TabNavigationProps {
@@ -17,6 +17,7 @@ export const TabNavigation = ({
     { id: "latest-updates" as AdminTab, label: "Latest Updates", icon: Newspaper },
     { id: "tier-list" as AdminTab, label: "Tier List", icon: Swords },
     { id: "archetypes" as AdminTab, label: "Archetypes", icon: Library },
+    { id: "server" as AdminTab, label: "Server Management", icon: ServerCog },
   ];
 
   return (
@@ -30,7 +31,7 @@ export const TabNavigation = ({
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={`
-              flex items-center gap-2 px-6 py-4 font-medium transition-all relative
+              flex whitespace-nowrap items-center gap-2 px-6 py-4 font-medium transition-all relative
               ${
                 isActive
                   ? "text-white border-b-2 border-yellow-500"
