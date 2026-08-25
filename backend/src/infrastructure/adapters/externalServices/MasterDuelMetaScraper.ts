@@ -24,71 +24,12 @@ export class MasterDuelMetaScraper {
     return this.parseTierList(html);
   }
 
+  /**
+   * Parses the `tier-img-container` sections. Each container = one tier (T1, T2, ...). Engines are
+   * only included from tier 3 onward. The last container region extends to the end of the page,
+   * which is where MDM renders the trending/long-tail decks (that becomes the bottom tier, T4).
+   */
   private parseTierList(html: string): ScrapedDeck[] {
-    const decks: ScrapedDeck[] = [];
-    const seen = new Set<string>();
-
-    const powerRankingsStart = html.indexOf("Power Rankings");
-    if (powerRankingsStart < 0) {
-      return this.parseByTierContainers(html);
-    }
-
-    const popularityStart = html.indexOf("Popularity Rankings", powerRankingsStart);
-    const scopeEnd = popularityStart > 0 ? popularityStart : html.length;
-    const scopeHtml = html.slice(powerRankingsStart, scopeEnd);
-
-    const hrPositions: number[] = [];
-    const hrRegex = /<hr[^>]*\/?>/gi;
-    let hrMatch;
-    while ((hrMatch = hrRegex.exec(scopeHtml)) !== null) {
-      hrPositions.push(hrMatch.index);
-    }
-
-    if (hrPositions.length < 1) {
-      return this.parseByTierContainers(html);
-    }
-
-    const segments: { start: number; end: number; tier: number }[] = [];
-    for (let i = 0; i <= hrPositions.length; i++) {
-      segments.push({
-        start: i === 0 ? 0 : hrPositions[i - 1],
-        end: i < hrPositions.length ? hrPositions[i] : scopeHtml.length,
-        tier: i + 1,
-      });
-    }
-
-    const deckLinkRegex = /\/tier-list\/deck-types\/([^"]+)/gi;
-
-    for (const segment of segments) {
-      const sectionHtml = scopeHtml.slice(segment.start, segment.end);
-      let match;
-      while ((match = deckLinkRegex.exec(sectionHtml)) !== null) {
-        const urlSlug = match[1];
-        const deckName = decodeURIComponent(urlSlug).trim();
-        if (!seen.has(deckName)) {
-          seen.add(deckName);
-          decks.push({ deckName, tier: segment.tier, imageUrl: null });
-        }
-      }
-      deckLinkRegex.lastIndex = 0;
-
-      if (segment.tier >= 3) {
-        const engineRegex = /\/tier-list\/engines\/([^"]+)/gi;
-        let engineMatch;
-        while ((engineMatch = engineRegex.exec(sectionHtml)) !== null) {
-          const deckName = decodeURIComponent(engineMatch[1]).trim() + " Engine";
-          if (!seen.has(deckName)) {
-            seen.add(deckName);
-            decks.push({ deckName, tier: segment.tier, imageUrl: null });
-          }
-        }
-      }
-    }
-
-    return decks;
-  }
-
-  private parseByTierContainers(html: string): ScrapedDeck[] {
     const decks: ScrapedDeck[] = [];
     const seen = new Set<string>();
 

@@ -6,6 +6,7 @@ export interface TierListEntry {
   format: string;
   position: number;
   imageUrl: string | null;
+  imageManuallySet: boolean;
   source: "scraped" | "manual";
   isActive: boolean;
   linkedArchetypeId: number | null;

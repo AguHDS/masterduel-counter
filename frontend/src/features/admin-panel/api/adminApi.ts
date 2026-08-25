@@ -5,6 +5,10 @@ import type {
   SearchUserResult,
   UserInstance,
   PaginatedUsersResponse,
+  ServerStateResponse,
+  ServerTaskType,
+  ServerTask,
+  SiteStatus,
 } from "../types/adminPanelTypes";
 
 interface ApiResponse<T> {
@@ -172,6 +176,50 @@ export const getAllUsers = async (
   return data.data;
 };
 
+/** Server management, get operational state (maintenance + running task + log tail) */
+export const getServerState = async (): Promise<ServerStateResponse> => {
+  const { data } = await axiosClient.get<ServerStateResponse>(
+    "/api/admin/server/state",
+  );
+  return data;
+};
+
+/** Server management - start a maintenance task */
+export const startServerTask = async (
+  type: ServerTaskType,
+  options?: { delay?: number; limit?: number },
+): Promise<{ task: ServerTask }> => {
+  const { data } = await axiosClient.post<{ success: boolean; task: ServerTask }>(
+    "/api/admin/server/tasks",
+    { type, options },
+  );
+  return { task: data.task };
+};
+
+/** Server management - cancel the running task */
+export const cancelServerTask = async (id: string): Promise<void> => {
+  await axiosClient.post(`/api/admin/server/tasks/${id}/cancel`);
+};
+
+/** Server management - manually toggle maintenance mode */
+export const setServerMaintenance = async (
+  enabled: boolean,
+  message?: string | null,
+): Promise<void> => {
+  await axiosClient.put("/api/admin/server/maintenance", { enabled, message });
+};
+
+/** Server management - restart the backend (pm2, production only) */
+export const restartServer = async (): Promise<void> => {
+  await axiosClient.post("/api/admin/server/restart");
+};
+
+/** Public - site status (maintenance flag) for the frontend gate */
+export const getSiteStatus = async (): Promise<SiteStatus> => {
+  const { data } = await axiosClient.get<SiteStatus>("/api/status");
+  return data;
+};
+
 export const adminApi = {
   searchUsers,
   getUser,
@@ -187,4 +235,10 @@ export const adminApi = {
   deleteGuideRequest,
   getTotalUsers,
   getAllUsers,
+  getServerState,
+  startServerTask,
+  cancelServerTask,
+  setServerMaintenance,
+  restartServer,
+  getSiteStatus,
 };

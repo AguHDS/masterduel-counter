@@ -18,6 +18,9 @@ Mejoras_antes_de_prod.md
 # Database files
 /backend/src/data/*.db
 /backend/src/data/*.db-*
+
+# Server management operational state + task logs
+/backend/data/
 /backend/prisma/src/data/*.db
 /backend/prisma/src/data/*.db-*
 *.sqlite

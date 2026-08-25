@@ -16,3 +16,8 @@ export { getArchetypesAdminController } from "./getArchetypesAdminController.js"
 export { createArchetypeAdminController } from "./createArchetypeAdminController.js";
 export { deleteArchetypeAdminController } from "./deleteArchetypeAdminController.js";
 export { updateArchetypeAdminController } from "./updateArchetypeAdminController.js";
+export { getServerStateController } from "./getServerStateController.js";
+export { startServerTaskController } from "./startServerTaskController.js";
+export { cancelServerTaskController } from "./cancelServerTaskController.js";
+export { setServerMaintenanceController } from "./setServerMaintenanceController.js";
+export { restartServerController } from "./restartServerController.js";

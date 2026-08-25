@@ -564,6 +564,7 @@ model TierListEntry {
   format      String   @default("masterduel")
   position    Int      @default(0)
   imageUrl    String?  @map("image_url")
+  imageManuallySet Boolean @default(false) @map("image_manually_set")
   source      String   @default("scraped")
   isActive    Boolean  @default(true) @map("is_active")
   linkedArchetypeId   Int?    @map("linked_archetype_id")

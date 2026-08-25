@@ -18,6 +18,7 @@ import { SupportPage } from "./pages/SupportPage";
 import { useAnalyticsPageTracking } from "./shared/hooks/useAnalyticsPageTracking";
 import { CardsPage } from "./features/cards";
 import { TierListPage } from "./features/tier-list/components/TierListPage";
+import { SiteStatusGate } from "./shared/components/SiteStatusGate";
 
 /**
  * Component that renders all routes and tracks automatically
@@ -95,7 +96,9 @@ function App() {
     <AuthProvider>
       <NotificationProvider>
         <Router>
-          <AppRoutes />
+          <SiteStatusGate>
+            <AppRoutes />
+          </SiteStatusGate>
         </Router>
       </NotificationProvider>
     </AuthProvider>

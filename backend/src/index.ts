@@ -68,6 +68,7 @@ import {
   notifications,
   latestUpdates,
   tierList,
+  status,
 } from "./routes/index.js";
 import auth from "./routes/auth/auth.js";
 import getGuideCardPairs from "./routes/guides/getGuideCardPairs.js";
@@ -282,6 +283,9 @@ app.use("/api/latest-updates", latestUpdates);
 
 // Tier List
 app.use("/api/tier-list", tierList);
+
+// Public site status (server maintenance flag)
+app.use("/api/status", status);
 
 // Sitemap for SEO
 app.use(sitemap);

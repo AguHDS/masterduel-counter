@@ -27,6 +27,7 @@ import getAllGuides from "./guides/getAllGuides.js";
 import getGuidesGeneralStats from "./archetypes/getGuidesGeneralStats.js";
 import latestUpdates from "./latest-updates.js";
 import tierList from "./tier-list.js";
+import status from "./status.js";
 
 export {
   searchArchetype,
@@ -58,4 +59,5 @@ export {
   getGuidesGeneralStats,
   latestUpdates,
   tierList,
+  status,
 };

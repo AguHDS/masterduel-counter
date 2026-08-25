@@ -22,6 +22,11 @@ import {
   createArchetypeAdminController,
   deleteArchetypeAdminController,
   updateArchetypeAdminController,
+  getServerStateController,
+  startServerTaskController,
+  cancelServerTaskController,
+  setServerMaintenanceController,
+  restartServerController,
 } from "@/http/controllers/admin/index.js";
 import {
   deleteUserMiddleware,
@@ -101,5 +106,16 @@ router.get("/archetypes", verifyAdminMiddleware, getArchetypesAdminController);
 router.post("/archetypes", verifyAdminMiddleware, createArchetypeAdminController);
 router.delete("/archetypes/:id", verifyAdminMiddleware, deleteArchetypeAdminController);
 router.put("/archetypes/:id", verifyAdminMiddleware, updateArchetypeAdminController);
+
+// Server Management
+router.get("/server/state", verifyAdminMiddleware, getServerStateController);
+router.post("/server/tasks", verifyAdminMiddleware, startServerTaskController);
+router.post(
+  "/server/tasks/:id/cancel",
+  verifyAdminMiddleware,
+  cancelServerTaskController,
+);
+router.put("/server/maintenance", verifyAdminMiddleware, setServerMaintenanceController);
+router.post("/server/restart", verifyAdminMiddleware, restartServerController);
 
 export default router;

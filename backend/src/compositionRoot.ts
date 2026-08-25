@@ -80,6 +80,10 @@ import { TierListApplicationPort } from "@/application/ports/TierListApplication
 import { TierListApplicationService } from "@/application/services/TierListApplicationService.js";
 import { TierListRepository } from "@/domain/ports/TierListRepository.js";
 import { SqliteTierListRepository } from "@/infrastructure/repositories/SqliteTierListRepository.js";
+import { ServerManagementApplicationPort } from "@/application/ports/ServerManagementApplicationPort.js";
+import { ServerManagementApplicationService } from "@/application/services/ServerManagementApplicationService.js";
+import { ServerStateStore } from "@/infrastructure/server/ServerStateStore.js";
+import { ServerTaskRunner } from "@/infrastructure/server/ServerTaskRunner.js";
 
 export class Dependencies {
   private database: DatabasePort;
@@ -125,6 +129,7 @@ export class Dependencies {
   private latestUpdateService: LatestUpdateApplicationPort | null = null;
   private tierListRepository: TierListRepository | null = null;
   private tierListService: TierListApplicationPort | null = null;
+  private serverManagementService: ServerManagementApplicationPort | null = null;
 
   constructor() {
     this.database = createYugiohDatabase();
@@ -314,6 +319,16 @@ export class Dependencies {
       this.adminService = new AdminApplicationService(this.getAdminRepository());
     }
     return this.adminService;
+  }
+
+  getServerManagementService(): ServerManagementApplicationPort {
+    if (!this.serverManagementService) {
+      this.serverManagementService = new ServerManagementApplicationService(
+        new ServerStateStore(),
+        new ServerTaskRunner(),
+      );
+    }
+    return this.serverManagementService;
   }
 
   getReportRepository(): ReportRepository {

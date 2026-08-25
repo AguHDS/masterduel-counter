@@ -18,6 +18,8 @@ Un cron job (cada 12h) ejecuta `MasterDuelMetaScraper`. El scraper y la persiste
 | Manual | Tier e imagen **congelados**. | Tier siempre sigue al meta. Link + imagen nunca se tocan. |
 | Inactiva (`is_active=0`, admin la borró) | **Skipped**. No se re-inserta. Se reactiva si el deck sale del meta. | Igual. |
 
+**Entries con config de admin** (`image_manually_set=1` o `linkedArchetypeId`): cuando el deck sale del scrape se hacen **soft-delete** (en vez de hard-delete) para conservar la config, y al volver al meta se **reactivan** con tier/posición frescos. Esto evita que la config (imagen custom + arquetipo linkeado) se pierda en decks volátiles de T4/trending.
+
 **Auto-reset**: Si una entry fue soft-deleteada por admin y el deck NO aparece en el nuevo scrape, se reactiva (`is_active=1`). Cuando el deck vuelva al meta, reaparece automaticamente.
 
 **Fallen**: Entradas activas (scraped o manual) cuyo deck no aparece en el scrape → DELETE.
@@ -51,7 +53,8 @@ Cuando se resuelve una imagen para un deck, se usa `CardApplicationService.selec
 
 ```
 TierListEntry:
-  id, deckName, tier (1|2|3), format ("masterduel"), position, imageUrl?
+  id, deckName, tier (1|2|3|4), format ("masterduel"|"tcg"|"ocg"), position, imageUrl?
+  imageManuallySet (imagen elegida a mano por admin, no auto-resuelta)
   source ("scraped"|"manual"), isActive, linkedArchetypeId?, linkedArchetypeName?
   counterGuideCount, deckGuideCount
   scrapedAt?, createdAt, updatedAt
@@ -59,6 +62,10 @@ TierListEntry:
 TierListConfig:
   id, format (unique), scrapingEnabled (default: true), lastScrapedAt?, updatedAt
 ```
+
+## Sync de config entre formatos
+
+La imagen y el arquetipo linkeado de una entry son **la misma entidad** en MD, TCG y OCG. Al guardar desde el admin (`POST /api/tier-list/save`), el backend detecta (por diff contra la fila existente) si cambió la **imagen** o el **arquetipo linkeado** de una entry y aplica ese cambio a todas las entries con el mismo `deckName` (sin distinguir mayúsculas) en los otros dos formatos. La posición y el tier NO se sincronizan (son específicos de cada format). Solo aplica a ediciones futuras; las configs ya divergentes se mantienen hasta que se editen.
 
 ## API Endpoints
 
@@ -125,14 +132,14 @@ Nueva tab en Admin Panel para gestionar archetypes de la DB:
 
 ## Stack
 
-- **Scraping MD**: `MasterDuelMetaScraper` (HTML parsing via `<hr>` separators + fallback `tier-img-container`)
-- **Scraping TCG**: `YgoMetaTcgScraper` (yugiohmeta.com — top 3 decks = T1, rest: ≥2% = T2, <2% = T3)
+- **Scraping MD**: `MasterDuelMetaScraper` (HTML parsing via secciones `tier-img-container`; el parse previo por `<hr>` quedó obsoleto/removido)
+- **Scraping TCG**: `YgoMetaTcgScraper` (yugiohmeta.com — top 3 = T1, ≥2% = T2, ≥1% = T3, <1% = T4)
+- **Scraping OCG**: `YgoMetaOcgScraper` (yugiohmeta.com JSON API — top 3 = T1, ≥2% = T2, ≥1% = T3, <1% = T4)
 - **Imagenes**: `resolveImageForDeck` → `findCardsByArchetype` (DB local) → `selectCard` (descarga + storage) → YGOProDeck hotlink (ultimo recurso)
 - **DB**: better-sqlite3 via `SqliteTierListRepository`
-- **Cron**: `setInterval` cada 12h en `tierListScraperService.ts`. Scrapea ambos formatos (masterduel + tcg). En desarrollo, auto-scrapea 10s post-startup.
+- **Cron**: `setInterval` cada 12h en `tierListScraperService.ts`. Scrapea los 3 formatos (masterduel + tcg + ocg). En desarrollo, auto-scrapea 10s post-startup.
 - **Frontend**: `FloatingCardSearchModal` para seleccion de imagenes en admin. `confirmCards()` al seleccionar para guardar en storage.
 - **Guide counts**: `enrichWithGuideCounts` batch-query `archetype_instances` por `archetype_id` + `guide_type`. Usa `linkedArchetypeId` o matchea `deckName` contra `archetypes`.
-- **Guide counts**: `enrichWithGuideCounts` hace batch query de `archetype_instances` agrupada por `archetype_id` + `guide_type`. Usa `linkedArchetypeId` cuando existe, o matchea por `deckName` en `archetypes`.
 
 ## Flujo verificado de scraping
 
@@ -141,8 +148,7 @@ Backend inicia
   └─ 10s después (dev): tierListScraperService auto-scrape
        └─ MasterDuelMetaScraper.scrapeTierList()
             ├─ fetch HTML de masterduelmeta.com
-            ├─ parsear <hr> separadores → fallback tier-img-container si falla
-            ├─ extraer deck names + tiers
+            ├─ parsear secciones tier-img-container → extraer deck names + tiers
             └─ resolveImageForDeck() para cada deck sin imagen
                  ├─ findCardsByArchetype() en DB
                  │   ├─ encontrado → selectCard() → URL local ✅
@@ -163,13 +169,14 @@ Click "Scrape Now" (admin)
   ├─ Buscar stats `(NNN) PP.PP%` → extraer nombres entre matches
   ├─ Top 3 decks (hero section) → Tier 1
   ├─ Decks con ≥ 2% → Tier 2
-  └─ Decks con < 2% → Tier 3
+  ├─ Decks con ≥ 1% → Tier 3
+  └─ Decks con < 1% → Tier 4
 
 ### OCG scraping (yugiohmeta.com via JSON API)
   ├─ Llama a /api/v1/deck-types/rankings?ocg=true&limit=200
   ├─ API devuelve JSON (objeto o array con un objeto) → extrae deckType.name + decksCount
   ├─ Calcula percentage = decksCount / totalDecks * 100
-  ├─ Top 3 → Tier 1, ≥ 2% → Tier 2, < 2% → Tier 3
+  ├─ Top 3 → Tier 1, ≥ 2% → Tier 2, ≥ 1% → Tier 3, < 1% → Tier 4
   └─ Sin Playwright. Sin dependencias extra. fetch() nativo.
 
 ## URLs en produccion

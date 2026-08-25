@@ -6,10 +6,11 @@ export interface ScrapedDeck {
 
 const TCG_URL = "https://www.yugiohmeta.com/tier-list";
 const TIER_2_THRESHOLD = 2.0;
+const TIER_3_THRESHOLD = 1.0;
 
 /**
  * Scraper for yugiohmeta.com TCG tier list.
- * Top 3 decks (hero section) = Tier 1. Rest: >= 2% = Tier 2, < 2% = Tier 3.
+ * Top 3 decks (hero section) = Tier 1. Rest: >= 2% = Tier 2, >= 1% = Tier 3, < 1% = Tier 4.
  */
 export class YgoMetaTcgScraper {
   async scrapeTierList(): Promise<ScrapedDeck[]> {
@@ -88,15 +89,17 @@ export class YgoMetaTcgScraper {
         tier = 1;
       } else if (deck.percentage >= TIER_2_THRESHOLD) {
         tier = 2;
-      } else {
+      } else if (deck.percentage >= TIER_3_THRESHOLD) {
         tier = 3;
+      } else {
+        tier = 4;
       }
 
       decks.push({ deckName, tier, imageUrl: null });
     }
 
     console.log(
-      `[TCG Scraper] Parsed: T1=${decks.filter((d) => d.tier === 1).length}, T2=${decks.filter((d) => d.tier === 2).length}, T3=${decks.filter((d) => d.tier === 3).length}`,
+      `[TCG Scraper] Parsed: T1=${decks.filter((d) => d.tier === 1).length}, T2=${decks.filter((d) => d.tier === 2).length}, T3=${decks.filter((d) => d.tier === 3).length}, T4=${decks.filter((d) => d.tier === 4).length}`,
     );
 
     return decks;
