@@ -140,6 +140,13 @@ export interface GuideInstanceWithFullDetails {
         imageUrlSmall: string;
         imageUrlCropped: string;
       }>;
+      extraDeck: Array<{
+        id: number;
+        name: string;
+        imageUrl: string;
+        imageUrlSmall: string;
+        imageUrlCropped: string;
+      }>;
       description?: string;
       monsterPositions?: Array<"atk" | "def">;
       extraMonsterPositions?: Array<"atk" | "def">;

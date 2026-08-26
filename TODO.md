@@ -71,9 +71,8 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 
 mejoras
 - Migraciones de la base de datos para no perder datos
-- Migracion de proyecto con estrategias devops (terraform y docker)
+- Migracion de proyecto con estrategias devops (terraform y docker). Tener en cuenta que, al hacer esto probablemente tengamos que cambiar/modificar la feature que maneja los scripts de server management y hace restart con pm2 en el admin pannel, porque si usamos pm2 para restart eso no existiria en docker
 - las imagenes de cartas nuevas aparecen rotas (por ahora solo pasa con cartas nuevas que aun no han salido y no tienen verison cropped, como Ashtra, veré si pasa con otras)
-- A la final board preview, agregar la zona del extra deck para mostrar pendulos (obligatorio?)
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
 - Agregar seccion de Top Cards quiza en la misma tab de cartas, que muestra el % usage de las handtraps y boardbreakers. Tomar este dato de https://www.masterduelmeta.com/top-cards#usage-rate, pero tengo que hacer un sistmea que desde el admin panel me deje ingresar las cartas especificas que quiero que aparezcan en esa tierlist de cartas, ya que en https://www.masterduelmeta.com/top-cards#usage-rate muestra un % usage de TODAS las cartas, y yo quiero % de handtraps/boardbreakers. Tienen que quedar permanente las que yo ingreso como entry.
 Aca tambien tenemos datos mas completos (tcg, masterduel, ocg):
@@ -88,3 +87,4 @@ estamos a 2 de agosto. La guia D/D/D esta en el trending #10 y dice que gano (+5
 Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
 
 resolviendo:
+- A la final board preview, agregar la zona del extra deck para mostrar pendulos

@@ -119,6 +119,17 @@ export const InitialHandsEditor = ({
     }
   }, [isEditMode, initialHands, comboSteps, selectedShowHandId]);
 
+  useEffect(() => {
+    // In edit mode, auto-show the final board preview of the first hand that has one
+    // (so the combo flow and the endboard show together on entry).
+    if (isEditMode && initialHands.length > 0 && !selectedPreviewHandId) {
+      const handWithBoard = initialHands.find((hand) => hand.finalBoard);
+      if (handWithBoard) {
+        setSelectedPreviewHandId(handWithBoard.id);
+      }
+    }
+  }, [isEditMode, initialHands, selectedPreviewHandId]);
+
   const addInitialHand = () => {
     const newHand: InitialHand = {
       id: `hand-${Date.now()}`,
@@ -174,6 +185,7 @@ export const InitialHandsEditor = ({
     hand: [null, null, null, null, null],
     graveyard: [],
     banished: [],
+    extraDeck: [],
   });
 
   const updateHandFinalBoard = (handId: string, board: FieldBoard | null) => {

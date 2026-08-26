@@ -15,6 +15,7 @@ export interface FieldBoard {
   hand: (Card | null)[];
   graveyard: Card[];
   banished: Card[];
+  extraDeck: Card[];
   description?: string;
   monsterPositions?: CardPosition[];
   extraMonsterPositions?: CardPosition[];
@@ -37,7 +38,8 @@ type ZoneType =
   | "spellTrap"
   | "graveyard"
   | "banished"
-  | "hand";
+  | "hand"
+  | "extraDeck";
 
 /**
  * Editor component for managing the final board state
@@ -59,7 +61,7 @@ export const FinalBoardPreview = ({
   } | null>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [hoveringZone, setHoveringZone] = useState<
-    "graveyard" | "banished" | null
+    "graveyard" | "banished" | "extraDeck" | null
   >(null);
   const [isResponsive, setIsResponsive] = useState(false);
 
@@ -146,6 +148,9 @@ export const FinalBoardPreview = ({
       case "banished":
         updatedBoard.banished = [...updatedBoard.banished, card];
         break;
+      case "extraDeck":
+        updatedBoard.extraDeck = [...updatedBoard.extraDeck, card];
+        break;
     }
 
     onFieldBoardChange(updatedBoard);
@@ -203,6 +208,11 @@ export const FinalBoardPreview = ({
           (_, i) => i !== index,
         );
         break;
+      case "extraDeck":
+        updatedBoard.extraDeck = updatedBoard.extraDeck.filter(
+          (_, i) => i !== index,
+        );
+        break;
     }
 
     onFieldBoardChange(updatedBoard);
@@ -249,6 +259,8 @@ export const FinalBoardPreview = ({
         return "border-blue-600/70";
       case "hand":
         return "border-violet-400/70";
+      case "extraDeck":
+        return "border-purple-400/70";
       default:
         return "border-slate-600";
     }
@@ -270,6 +282,8 @@ export const FinalBoardPreview = ({
         return "BANISHED";
       case "hand":
         return "HAND";
+      case "extraDeck":
+        return "EXTRA DECK";
       default:
         return "";
     }
@@ -359,9 +373,52 @@ export const FinalBoardPreview = ({
     );
   };
 
+  const renderHoverPanel = (
+    cards: Card[],
+    label: string,
+    type: "graveyard" | "banished" | "extraDeck",
+  ) => (
+    <div className="absolute left-full ml-2 top-0 min-[1024px]:max-[1448px]:right-full min-[1024px]:max-[1448px]:mr-2 min-[1024px]:max-[1448px]:left-auto min-[1024px]:max-[1448px]:ml-0 max-[580px]:fixed max-[580px]:left-1/2 max-[580px]:top-1/2 max-[580px]:-translate-x-1/2 max-[580px]:-translate-y-1/2 max-[580px]:ml-0 z-50 bg-slate-800 border-2 border-slate-600 rounded-lg p-3 shadow-xl min-w-[200px] max-[580px]:min-w-[260px] max-h-[300px] overflow-y-auto">
+      <div className="text-xs font-bold text-slate-300 mb-2">
+        {label}
+      </div>
+      <div className="space-y-2">
+        {cards.map((card, index) => (
+          <div
+            key={`${type}-hover-${index}`}
+            className="relative group/card"
+          >
+            <div className="flex items-center gap-2 bg-slate-700/50 p-2 rounded overflow-hidden">
+              <img
+                src={card.imageUrlSmall}
+                alt={card.name}
+                className="w-12 h-16 object-cover rounded"
+              />
+              <span className="text-xs text-slate-200 flex-1">
+                {card.name}
+              </span>
+              {isEditMode && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveCard(type, index);
+                  }}
+                  className="w-5 h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity"
+                  title="Remove card"
+                >
+                  <X className="w-3 h-3 text-white" />
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   const renderCountZone = (
     cards: Card[],
-    type: "graveyard" | "banished",
+    type: "graveyard" | "banished" | "extraDeck",
     label: string,
   ) => {
     const borderColor = getZoneBorderColor(type);
@@ -429,48 +486,97 @@ export const FinalBoardPreview = ({
             )}
           </div>
 
-          {hoveringZone === type && count > 0 && (
-            <div className="absolute left-full ml-2 top-0 min-[1024px]:max-[1448px]:right-full min-[1024px]:max-[1448px]:mr-2 min-[1024px]:max-[1448px]:left-auto min-[1024px]:max-[1448px]:ml-0 max-[580px]:fixed max-[580px]:left-1/2 max-[580px]:top-1/2 max-[580px]:-translate-x-1/2 max-[580px]:-translate-y-1/2 max-[580px]:ml-0 z-50 bg-slate-800 border-2 border-slate-600 rounded-lg p-3 shadow-xl min-w-[200px] max-[580px]:min-w-[260px] max-h-[300px] overflow-y-auto">
-              <div className="text-xs font-bold text-slate-300 mb-2">
-                {label}
-              </div>
-              <div className="space-y-2">
-                {cards.map((card, index) => (
-                  <div
-                    key={`${type}-hover-${index}`}
-                    className="relative group/card"
-                  >
-                    <div className="flex items-center gap-2 bg-slate-700/50 p-2 rounded overflow-hidden">
-                      <img
-                        src={card.imageUrlSmall}
-                        alt={card.name}
-                        className="w-12 h-16 object-cover rounded"
-                      />
-                      <span className="text-xs text-slate-200 flex-1">
-                        {card.name}
-                      </span>
-                      {isEditMode && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveCard(type, index);
-                          }}
-                          className="w-5 h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity"
-                          title="Remove card"
-                        >
-                          <X className="w-3 h-3 text-white" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {hoveringZone === type && count > 0 && renderHoverPanel(cards, label, type)}
         </div>
         <span className="text-[7px] sm:text-[8px] md:text-[9px] text-slate-500 font-bold tracking-wider text-center mt-1">
           {label}
         </span>
+      </div>
+    );
+  };
+
+  const renderExtraDeckZone = (cards: Card[], label: string) => {
+    // Optional zone: only render it if it has cards (or it's empty but editable so the admin can add).
+    if (cards.length === 0 && !isEditMode) return null;
+
+    const borderColor = getZoneBorderColor("extraDeck");
+    const count = cards.length;
+    const firstCard = cards[0];
+
+    return (
+      <div className="relative flex flex-col items-center">
+        {count === 0 ? (
+          <button
+            onClick={(e) => {
+              setAnchorElement(e.currentTarget);
+              setSelectingZone({ type: "extraDeck", index: 0 });
+            }}
+            className="w-[104px] sm:w-[116px] flex flex-col items-center gap-1 px-2 py-2 border-2 border-purple-400/70 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-[10px] sm:text-[11px] font-semibold text-center leading-tight"
+            style={{ transform: "rotate(15deg)" }}
+            title="Add extra deck for Pendulum monsters"
+          >
+            <Plus className="w-3.5 h-3.5 shrink-0" />
+            <span>EX PENDULUM MONSTER</span>
+          </button>
+        ) : (
+          <>
+            <div
+              className="relative group"
+              onMouseEnter={() => setHoveringZone("extraDeck")}
+              onMouseLeave={() => setHoveringZone(null)}
+            >
+              <div
+                className={`relative left-[21px] w-16 h-[90px] max-[380px]:w-14 max-[380px]:h-[78px] sm:w-[72px] sm:h-[104px] md:w-20 md:h-28 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 ${borderColor} rounded-[3px] flex items-center justify-center overflow-hidden cursor-pointer shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
+                style={{ transform: "rotate(18deg)" }}
+                onClick={(e) => {
+                  if (!isEditMode) return;
+                  setAnchorElement(e.currentTarget);
+                  setSelectingZone({ type: "extraDeck", index: 0 });
+                }}
+              >
+                <div className="relative w-full h-full group/card-image">
+                  <img
+                    src={firstCard.imageUrlCropped}
+                    alt={firstCard.name}
+                    className="w-full h-full object-cover transition-all duration-200 group-hover/card-image:brightness-50"
+                  />
+                  {isEditMode && (
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/card-image:opacity-100 transition-opacity duration-200 pointer-events-none">
+                      <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                    </div>
+                  )}
+                  {count > 1 && (
+                    <div className="absolute bottom-1 right-1 bg-black/75 text-white text-[9px] sm:text-[10px] px-1 py-0.5 rounded-full">
+                      +{count - 1}
+                    </div>
+                  )}
+                  {isEditMode && count > 0 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveCard("extraDeck", 0);
+                      }}
+                      className="absolute top-1 right-1 w-4 h-4 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 z-10"
+                      title="Remove card"
+                    >
+                      <X className="w-2.5 h-2.5 text-white" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {hoveringZone === "extraDeck" &&
+                count > 0 &&
+                renderHoverPanel(cards, label, "extraDeck")}
+            </div>
+            <span
+              className="text-[8px] sm:text-[9px] text-purple-400 font-bold tracking-wider text-center mt-2"
+              style={{ transform: "rotate(15deg)" }}
+            >
+              {label}
+            </span>
+          </>
+        )}
       </div>
     );
   };
@@ -630,13 +736,20 @@ export const FinalBoardPreview = ({
             )}
 
             <div className="relative">
+              {/* Extra Deck Zone - desktop only, at hand-cards height, slightly right */}
+              <div
+                className={`absolute hidden lg:block ${isEditMode && hasHandCards ? "bottom-14 sm:bottom-16 md:bottom-20" : "bottom-8"} left-6 z-10`}
+              >
+                {renderExtraDeckZone(fieldBoard.extraDeck, "EXTRA DECK")}
+              </div>
+
               {/* Layout principal - Cambia según el modo responsive */}
               <div
                 className={`flex ${isResponsive ? "flex-col" : "flex-col lg:flex-row"} gap-4 max-[425px]:gap-2 sm:gap-6 lg:gap-8 min-[1024px]:max-[1100px]:gap-0 justify-center items-center`}
               >
-                {/* Field Spell Zone */}
+                {/* Field Spell Zone - standalone, stays in its original position */}
                 <div
-                  className={`flex-shrink-0 w-14 sm:w-16 md:w-20 lg:w-24 self-center ${isResponsive ? "order-1" : "order-1 lg:order-1"}`}
+                  className={`flex-shrink-0 w-14 sm:w-16 md:w-20 lg:w-24 self-center order-1`}
                 >
                   <div className="flex-shrink-0 w-full aspect-[5/7]">
                     {renderZone(fieldBoard.fieldSpell, "field", 0)}
@@ -743,11 +856,16 @@ export const FinalBoardPreview = ({
                   className={`
                 ${
                   isResponsive
-                    ? "flex flex-row justify-center items-center gap-6 w-full order-3 mt-4"
+                    ? "relative flex flex-row justify-center items-center gap-4 sm:gap-6 w-full order-3 mt-4"
                     : "flex flex-row lg:flex-col gap-4 sm:gap-6 min-[1024px]:max-[1100px]:gap-4 items-center justify-center self-center order-2 lg:order-3"
                 }
               `}
                 >
+                  {isResponsive && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 pl-1">
+                      {renderExtraDeckZone(fieldBoard.extraDeck, "EXTRA DECK")}
+                    </div>
+                  )}
                   {renderCountZone(fieldBoard.banished, "banished", "BANISH")}
                   {renderCountZone(
                     fieldBoard.graveyard,

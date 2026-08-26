@@ -121,6 +121,7 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
         handCardIds: this.normalizeNullableCardIdArray(parsed.handCardIds, 5),
         graveyardCardIds: this.normalizeCardIdArray(parsed.graveyardCardIds),
         banishedCardIds: this.normalizeCardIdArray(parsed.banishedCardIds),
+        extraDeckCardIds: this.normalizeCardIdArray(parsed.extraDeckCardIds),
         description:
           typeof parsed.description === "string" ? parsed.description : undefined,
         monsterPositions: Array.isArray(parsed.monsterPositions)
@@ -169,6 +170,9 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
         .map((cardId) => cardsById.get(cardId))
         .filter((card): card is FinalBoardCard => card !== undefined),
       banished: finalBoard.banishedCardIds
+        .map((cardId) => cardsById.get(cardId))
+        .filter((card): card is FinalBoardCard => card !== undefined),
+      extraDeck: finalBoard.extraDeckCardIds
         .map((cardId) => cardsById.get(cardId))
         .filter((card): card is FinalBoardCard => card !== undefined),
       description: finalBoard.description,
@@ -294,6 +298,7 @@ export class SqliteInitialHandRepository implements InitialHandRepository {
             ),
             ...finalBoard.graveyardCardIds,
             ...finalBoard.banishedCardIds,
+            ...finalBoard.extraDeckCardIds,
           ]
         : [];
       const uniqueCardIds = [...new Set([...cardIds, ...finalBoardCardIds])];

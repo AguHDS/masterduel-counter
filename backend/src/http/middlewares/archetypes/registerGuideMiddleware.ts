@@ -55,6 +55,13 @@ const validateFinalBoard = (finalBoard: unknown, index: number): string | null =
   }
 
   if (
+    board.extraDeckCardIds !== undefined &&
+    !validateCardIdArray(board.extraDeckCardIds)
+  ) {
+    return `extraDeckCardIds must contain valid card IDs at initialHands index ${index}`;
+  }
+
+  if (
     board.description !== undefined &&
     (typeof board.description !== "string" || board.description.length > 500)
   ) {

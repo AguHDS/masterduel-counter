@@ -73,6 +73,7 @@ export const useSaveInstanceGuide = () => {
         .map((card) => card.id),
       ...hand.finalBoard.graveyard.map((card) => card.id),
       ...hand.finalBoard.banished.map((card) => card.id),
+      ...hand.finalBoard.extraDeck.map((card) => card.id),
     ];
   };
 

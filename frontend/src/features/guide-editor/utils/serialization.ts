@@ -14,6 +14,7 @@ export const isFinalBoardEmpty = (hand: InitialHand): boolean => {
     board.hand.every((card) => card === null) &&
     board.graveyard.length === 0 &&
     board.banished.length === 0 &&
+    board.extraDeck.length === 0 &&
     !board.description
   );
 };
@@ -33,6 +34,7 @@ export const serializeFinalBoard = (
     handCardIds: hand.finalBoard.hand.map((c) => c?.id || null),
     graveyardCardIds: hand.finalBoard.graveyard.map((c) => c.id),
     banishedCardIds: hand.finalBoard.banished.map((c) => c.id),
+    extraDeckCardIds: hand.finalBoard.extraDeck.map((c) => c.id),
     description: hand.finalBoard.description || undefined,
     monsterPositions: hand.finalBoard.monsterPositions?.some(
       (p) => p === "def",
