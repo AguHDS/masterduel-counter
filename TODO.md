@@ -69,7 +69,9 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 
 ---
 
-mejoras:
+mejoras
+- Migraciones de la base de datos para no perder datos
+- Migracion de proyecto con estrategias devops (terraform y docker)
 - las imagenes de cartas nuevas aparecen rotas (por ahora solo pasa con cartas nuevas que aun no han salido y no tienen verison cropped, como Ashtra, veré si pasa con otras)
 - A la final board preview, agregar la zona del extra deck para mostrar pendulos (obligatorio?)
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
@@ -77,13 +79,12 @@ mejoras:
 Aca tambien tenemos datos mas completos (tcg, masterduel, ocg):
 https://ygoprodeck.com/top/
 Podriamos poner esa feature a la vista en la home justo abajo de las request o arriba de ella
-- urgente manejar migraciones. Como hago para tener listas las migraciones por si llego a perder todos los datos? hasta ahora me las salteaba......
 - implementar ban temporal y por ip
-- fijarse si el screenshot de los stats del trending de usuario se calcula correctamente para cad mes individual y no acarrea cosas del mes anterior. Hay un caso donde un usuario de este mes tiene 2 likes, pero en su unica guia que tiene solo tiene un like, esto es raro.
-Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
+- pedir un diagrama de todo mi sistema, desde proyecto, hasta cosas devops y demas para mostrar a un entrevistador
 
 bugs:
 estamos a 2 de agosto. La guia D/D/D esta en el trending #10 y dice que gano (+55) visitas.Eso esta mal porque en 2 dias ni de cerca obtuvo esas visitas. Deben estar seguramente siendo tomadas las visitas del mes pasado para el trending de este mes. Investigar esto.
+- fijarse si el screenshot de los stats del trending de usuario se calcula correctamente para cad mes individual y no acarrea cosas del mes anterior. Hay un caso donde un usuario de este mes tiene 2 likes, pero en su unica guia que tiene solo tiene un like, esto es raro.
+Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
 
 resolviendo:
-- en el admin pannel, boton reiniciar y descargar cartas/imagenes y gestion
