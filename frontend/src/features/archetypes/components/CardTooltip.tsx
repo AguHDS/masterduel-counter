@@ -24,6 +24,7 @@ interface CardTooltipProps {
   cardName: string;
   children: React.ReactNode;
   disabled?: boolean;
+  side?: "left" | "right";
 }
 
 export const CardTooltip = ({
@@ -32,6 +33,7 @@ export const CardTooltip = ({
   cardName,
   children,
   disabled = false,
+  side = "right",
 }: CardTooltipProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<{ x: number; y: number }>({
@@ -86,14 +88,18 @@ export const CardTooltip = ({
     const edgeThreshold = 620;
     const margin = 10;
 
-    let x = mouseX + offset;
-    let y = mouseY + offset;
-
-    if (mouseX > window.innerWidth - edgeThreshold) {
+    let x: number;
+    if (side === "left") {
       x = mouseX - tooltipWidth - offset;
-    } else if (x + tooltipWidth > window.innerWidth - margin) {
-      x = mouseX - tooltipWidth - offset;
+    } else {
+      x = mouseX + offset;
+      if (mouseX > window.innerWidth - edgeThreshold) {
+        x = mouseX - tooltipWidth - offset;
+      } else if (x + tooltipWidth > window.innerWidth - margin) {
+        x = mouseX - tooltipWidth - offset;
+      }
     }
+    let y = mouseY + offset;
 
     if (y + tooltipHeight > window.innerHeight - margin) {
       y = mouseY - tooltipHeight - offset;
@@ -122,7 +128,7 @@ export const CardTooltip = ({
       setIsVisible(true);
       tooltipContext?.setActiveTooltip(tooltipId);
     },
-    [disabled, tooltipContext, tooltipId],
+    [disabled, tooltipContext, tooltipId, calculatePosition],
   );
 
   const hide = useCallback(() => {
@@ -192,17 +198,21 @@ export const CardTooltip = ({
         const tooltipWidth = tooltip.offsetWidth;
         const tooltipHeight = tooltip.offsetHeight;
         const offset = 20;
-        const edgeThreshold = 620;
         const margin = 10;
 
-        let x = mouseX + offset;
-        let y = mouseY + offset;
-
-        if (mouseX > window.innerWidth - edgeThreshold) {
+        let x: number;
+        if (side === "left") {
           x = mouseX - tooltipWidth - offset;
-        } else if (x + tooltipWidth > window.innerWidth - margin) {
-          x = mouseX - tooltipWidth - offset;
+        } else {
+          const edgeThreshold = 620;
+          x = mouseX + offset;
+          if (mouseX > window.innerWidth - edgeThreshold) {
+            x = mouseX - tooltipWidth - offset;
+          } else if (x + tooltipWidth > window.innerWidth - margin) {
+            x = mouseX - tooltipWidth - offset;
+          }
         }
+        let y = mouseY + offset;
 
         if (y + tooltipHeight > window.innerHeight - margin) {
           y = mouseY - tooltipHeight - offset;
@@ -269,7 +279,7 @@ export const CardTooltip = ({
         initialMousePosRef.current.y,
       );
     }
-  }, [isVisible, cardDetails, isLoading]);
+  }, [isVisible, cardDetails, isLoading, schedulePositionUpdate]);
 
   return (
     <>
@@ -278,7 +288,7 @@ export const CardTooltip = ({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
-        className="relative"
+        className="relative w-full h-full"
       >
         {children}
       </div>

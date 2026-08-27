@@ -1,4 +1,7 @@
 api key opengo: sk-1b9U4QacncuLPN634YoZwgBQTCHbRywqKFhkRBP2TwImHuKdvXuJtUHogA3LJ8Gd
+MiniMax M3 → PLAN
+MiMo V2.5 → BUILD
+cosas muy importantes: deepseek v4 flash
 
 prompt inicial:
 Tengo una web sobre yugioh donde usuarios pueden crear sus guias (de tipo counter guide o deck guide)

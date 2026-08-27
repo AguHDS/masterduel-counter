@@ -377,8 +377,9 @@ export const FinalBoardPreview = ({
     cards: Card[],
     label: string,
     type: "graveyard" | "banished" | "extraDeck",
+    position: "left" | "right" = "right",
   ) => (
-    <div className="absolute left-full ml-2 top-0 min-[1024px]:max-[1448px]:right-full min-[1024px]:max-[1448px]:mr-2 min-[1024px]:max-[1448px]:left-auto min-[1024px]:max-[1448px]:ml-0 max-[580px]:fixed max-[580px]:left-1/2 max-[580px]:top-1/2 max-[580px]:-translate-x-1/2 max-[580px]:-translate-y-1/2 max-[580px]:ml-0 z-50 bg-slate-800 border-2 border-slate-600 rounded-lg p-3 shadow-xl min-w-[200px] max-[580px]:min-w-[260px] max-h-[300px] overflow-y-auto">
+    <div className={`absolute ${position === "left" ? "right-full mr-2" : "left-full ml-2"} top-0 min-[1024px]:max-[1448px]:right-full min-[1024px]:max-[1448px]:mr-2 min-[1024px]:max-[1448px]:left-auto min-[1024px]:max-[1448px]:ml-0 max-[580px]:fixed max-[580px]:left-1/2 max-[580px]:top-1/2 max-[580px]:-translate-x-1/2 max-[580px]:-translate-y-1/2 max-[580px]:ml-0 z-50 bg-slate-800 border-2 border-slate-600 rounded-lg p-3 shadow-xl min-w-[200px] max-[580px]:min-w-[260px] max-h-[300px] overflow-y-auto`}>
       <div className="text-xs font-bold text-slate-300 mb-2">
         {label}
       </div>
@@ -433,7 +434,7 @@ export const FinalBoardPreview = ({
           onMouseLeave={() => setHoveringZone(null)}
         >
           <div
-            className={`relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 sm:border-[3px] ${borderColor} rounded-full flex items-center justify-center overflow-hidden cursor-pointer transition-transform hover:scale-105 shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
+            className={`relative w-16 h-16 max-[425px]:w-14 max-[425px]:h-14 max-[360px]:w-12 max-[360px]:h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 sm:border-[3px] ${borderColor} rounded-full flex items-center justify-center overflow-hidden cursor-pointer transition-transform hover:scale-105 shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
             style={{
               clipPath:
                 "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
@@ -511,11 +512,11 @@ export const FinalBoardPreview = ({
               setAnchorElement(e.currentTarget);
               setSelectingZone({ type: "extraDeck", index: 0 });
             }}
-            className="w-[104px] sm:w-[116px] flex flex-col items-center gap-1 px-2 py-2 border-2 border-purple-400/70 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-[10px] sm:text-[11px] font-semibold text-center leading-tight"
+            className="w-16 max-[639px]:w-14 max-[500px]:w-12 sm:w-16 md:w-20 aspect-[5/7] flex flex-col items-center justify-center gap-0.5 px-1 border-2 border-purple-400/70 rounded-[3px] bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-[8px] max-[639px]:text-[7px] sm:text-[9px] font-semibold text-center leading-tight"
             style={{ transform: "rotate(15deg)" }}
             title="Add extra deck for Pendulum monsters"
           >
-            <Plus className="w-3.5 h-3.5 shrink-0" />
+            <Plus className="w-3 h-3 shrink-0 sm:w-3.5 sm:h-3.5" />
             <span>EX PENDULUM MONSTER</span>
           </button>
         ) : (
@@ -526,7 +527,7 @@ export const FinalBoardPreview = ({
               onMouseLeave={() => setHoveringZone(null)}
             >
               <div
-                className={`relative left-[21px] w-16 h-[90px] max-[380px]:w-14 max-[380px]:h-[78px] sm:w-[72px] sm:h-[104px] md:w-20 md:h-28 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 ${borderColor} rounded-[3px] flex items-center justify-center overflow-hidden cursor-pointer shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
+                className={`relative left-[21px] max-[500px]:left-0 w-16 h-[90px] max-[639px]:w-14 max-[639px]:h-[78px] max-[500px]:w-12 max-[500px]:h-[66px] sm:w-16 sm:h-[90px] md:w-20 md:h-28 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 ${borderColor} rounded-[3px] flex items-center justify-center overflow-hidden cursor-pointer shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
                 style={{ transform: "rotate(18deg)" }}
                 onClick={(e) => {
                   if (!isEditMode) return;
@@ -538,13 +539,8 @@ export const FinalBoardPreview = ({
                   <img
                     src={firstCard.imageUrlCropped}
                     alt={firstCard.name}
-                    className="w-full h-full object-cover transition-all duration-200 group-hover/card-image:brightness-50"
+                    className="w-full h-full object-cover"
                   />
-                  {isEditMode && (
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/card-image:opacity-100 transition-opacity duration-200 pointer-events-none">
-                      <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                  )}
                   {count > 1 && (
                     <div className="absolute bottom-1 right-1 bg-black/75 text-white text-[9px] sm:text-[10px] px-1 py-0.5 rounded-full">
                       +{count - 1}
@@ -567,10 +563,10 @@ export const FinalBoardPreview = ({
 
               {hoveringZone === "extraDeck" &&
                 count > 0 &&
-                renderHoverPanel(cards, label, "extraDeck")}
+                renderHoverPanel(cards, label, "extraDeck", "left")}
             </div>
             <span
-              className="text-[8px] sm:text-[9px] text-purple-400 font-bold tracking-wider text-center mt-2"
+              className="text-[8px] sm:text-[9px] text-purple-400 font-bold tracking-wider text-center mt-2 max-[640px]:ml-2 max-[500px]:-ml-6"
               style={{ transform: "rotate(15deg)" }}
             >
               {label}
@@ -762,14 +758,14 @@ export const FinalBoardPreview = ({
                 >
                   {/* Extra Monster Zone */}
                   <div className="flex justify-center gap-8 max-[450px]:gap-8 max-[418px]:gap-6 max-[339px]:gap-4 sm:gap-12 md:gap-16 lg:gap-24">
-                    <div className="flex-shrink-0 w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
+                    <div className="flex-shrink-0 w-16 max-[600px]:w-12 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
                     {fieldBoard.extraMonsters.slice(0, 2).map((card, index) => {
                       const isDef =
                         (fieldBoard.extraMonsterPositions?.[index] ?? 'atk') === 'def';
                       return (
                         <div
                           key={`extra-${index}`}
-                          className="flex-shrink-0 relative w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
+                          className="flex-shrink-0 relative w-16 max-[600px]:w-12 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
                         >
                           {isEditMode && card && (
                             <button
@@ -797,7 +793,7 @@ export const FinalBoardPreview = ({
                         </div>
                       );
                     })}
-                    <div className="flex-shrink-0 w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
+                    <div className="flex-shrink-0 w-16 max-[600px]:w-12 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
                   </div>
 
                   {/* Monster Zones */}
@@ -856,13 +852,13 @@ export const FinalBoardPreview = ({
                   className={`
                 ${
                   isResponsive
-                    ? "relative flex flex-row justify-center items-center gap-4 sm:gap-6 w-full order-3 mt-4"
+                    ? "relative flex flex-row justify-center items-center gap-4 max-[500px]:justify-end max-[500px]:pr-4 max-[500px]:gap-3 max-[425px]:gap-2 max-[360px]:gap-1 sm:gap-6 w-full order-3 mt-4"
                     : "flex flex-row lg:flex-col gap-4 sm:gap-6 min-[1024px]:max-[1100px]:gap-4 items-center justify-center self-center order-2 lg:order-3"
                 }
               `}
                 >
                   {isResponsive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 pl-1">
+                    <div className="absolute left-0 max-[1023px]:left-4 max-[639px]:left-9 top-1/2 -translate-y-1/2 pl-1">
                       {renderExtraDeckZone(fieldBoard.extraDeck, "EXTRA DECK")}
                     </div>
                   )}
