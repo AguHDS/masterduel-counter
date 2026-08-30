@@ -15,6 +15,7 @@ export interface FieldBoard {
   hand: (Card | null)[];
   graveyard: Card[];
   banished: Card[];
+  extraDeck: Card[];
   description?: string;
   monsterPositions?: CardPosition[];
   extraMonsterPositions?: CardPosition[];
@@ -37,7 +38,8 @@ type ZoneType =
   | "spellTrap"
   | "graveyard"
   | "banished"
-  | "hand";
+  | "hand"
+  | "extraDeck";
 
 /**
  * Editor component for managing the final board state
@@ -59,7 +61,7 @@ export const FinalBoardPreview = ({
   } | null>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [hoveringZone, setHoveringZone] = useState<
-    "graveyard" | "banished" | null
+    "graveyard" | "banished" | "extraDeck" | null
   >(null);
   const [isResponsive, setIsResponsive] = useState(false);
 
@@ -146,6 +148,9 @@ export const FinalBoardPreview = ({
       case "banished":
         updatedBoard.banished = [...updatedBoard.banished, card];
         break;
+      case "extraDeck":
+        updatedBoard.extraDeck = [...updatedBoard.extraDeck, card];
+        break;
     }
 
     onFieldBoardChange(updatedBoard);
@@ -203,6 +208,11 @@ export const FinalBoardPreview = ({
           (_, i) => i !== index,
         );
         break;
+      case "extraDeck":
+        updatedBoard.extraDeck = updatedBoard.extraDeck.filter(
+          (_, i) => i !== index,
+        );
+        break;
     }
 
     onFieldBoardChange(updatedBoard);
@@ -249,6 +259,8 @@ export const FinalBoardPreview = ({
         return "border-blue-600/70";
       case "hand":
         return "border-violet-400/70";
+      case "extraDeck":
+        return "border-purple-400/70";
       default:
         return "border-slate-600";
     }
@@ -270,6 +282,8 @@ export const FinalBoardPreview = ({
         return "BANISHED";
       case "hand":
         return "HAND";
+      case "extraDeck":
+        return "EXTRA DECK";
       default:
         return "";
     }
@@ -308,6 +322,7 @@ export const FinalBoardPreview = ({
                 cardId={card.id}
                 imageUrl={card.imageUrl}
                 cardName={card.name}
+                containerClassName="w-full h-full"
               >
                 <img
                   src={card.imageUrlSmall}
@@ -359,9 +374,53 @@ export const FinalBoardPreview = ({
     );
   };
 
+  const renderHoverPanel = (
+    cards: Card[],
+    label: string,
+    type: "graveyard" | "banished" | "extraDeck",
+    position: "left" | "right" = "right",
+  ) => (
+    <div className={`absolute ${position === "left" ? "right-full mr-2" : "left-full ml-2"} top-0 min-[1024px]:max-[1448px]:right-full min-[1024px]:max-[1448px]:mr-2 min-[1024px]:max-[1448px]:left-auto min-[1024px]:max-[1448px]:ml-0 max-[580px]:fixed max-[580px]:left-1/2 max-[580px]:top-1/2 max-[580px]:-translate-x-1/2 max-[580px]:-translate-y-1/2 max-[580px]:ml-0 z-50 bg-slate-800 border-2 border-slate-600 rounded-lg p-3 shadow-xl min-w-[200px] max-[580px]:min-w-[260px] max-h-[300px] overflow-y-auto`}>
+      <div className="text-xs font-bold text-slate-300 mb-2">
+        {label}
+      </div>
+      <div className="space-y-2">
+        {cards.map((card, index) => (
+          <div
+            key={`${type}-hover-${index}`}
+            className="relative group/card"
+          >
+            <div className="flex items-center gap-2 bg-slate-700/50 p-2 rounded overflow-hidden">
+              <img
+                src={card.imageUrlSmall}
+                alt={card.name}
+                className="w-12 h-16 object-cover rounded"
+              />
+              <span className="text-xs text-slate-200 flex-1">
+                {card.name}
+              </span>
+              {isEditMode && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveCard(type, index);
+                  }}
+                  className="w-5 h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity"
+                  title="Remove card"
+                >
+                  <X className="w-3 h-3 text-white" />
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   const renderCountZone = (
     cards: Card[],
-    type: "graveyard" | "banished",
+    type: "graveyard" | "banished" | "extraDeck",
     label: string,
   ) => {
     const borderColor = getZoneBorderColor(type);
@@ -376,7 +435,7 @@ export const FinalBoardPreview = ({
           onMouseLeave={() => setHoveringZone(null)}
         >
           <div
-            className={`relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 sm:border-[3px] ${borderColor} rounded-full flex items-center justify-center overflow-hidden cursor-pointer transition-transform hover:scale-105 shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
+            className={`relative w-16 h-16 max-[425px]:w-14 max-[425px]:h-14 max-[360px]:w-12 max-[360px]:h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 sm:border-[3px] ${borderColor} rounded-full flex items-center justify-center overflow-hidden cursor-pointer transition-transform hover:scale-105 shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
             style={{
               clipPath:
                 "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
@@ -392,7 +451,7 @@ export const FinalBoardPreview = ({
                 <img
                   src={firstCard.imageUrlCropped}
                   alt={firstCard.name}
-                  className="w-full h-full object-cover transition-all duration-200 group-hover/card-image:brightness-50"
+                  className="w-full h-full object-cover group-hover/card-image:brightness-50"
                 />
                 {isEditMode && (
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/card-image:opacity-100 transition-opacity duration-200 pointer-events-none">
@@ -429,48 +488,92 @@ export const FinalBoardPreview = ({
             )}
           </div>
 
-          {hoveringZone === type && count > 0 && (
-            <div className="absolute left-full ml-2 top-0 min-[1024px]:max-[1448px]:right-full min-[1024px]:max-[1448px]:mr-2 min-[1024px]:max-[1448px]:left-auto min-[1024px]:max-[1448px]:ml-0 max-[580px]:fixed max-[580px]:left-1/2 max-[580px]:top-1/2 max-[580px]:-translate-x-1/2 max-[580px]:-translate-y-1/2 max-[580px]:ml-0 z-50 bg-slate-800 border-2 border-slate-600 rounded-lg p-3 shadow-xl min-w-[200px] max-[580px]:min-w-[260px] max-h-[300px] overflow-y-auto">
-              <div className="text-xs font-bold text-slate-300 mb-2">
-                {label}
-              </div>
-              <div className="space-y-2">
-                {cards.map((card, index) => (
-                  <div
-                    key={`${type}-hover-${index}`}
-                    className="relative group/card"
-                  >
-                    <div className="flex items-center gap-2 bg-slate-700/50 p-2 rounded overflow-hidden">
-                      <img
-                        src={card.imageUrlSmall}
-                        alt={card.name}
-                        className="w-12 h-16 object-cover rounded"
-                      />
-                      <span className="text-xs text-slate-200 flex-1">
-                        {card.name}
-                      </span>
-                      {isEditMode && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveCard(type, index);
-                          }}
-                          className="w-5 h-5 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity"
-                          title="Remove card"
-                        >
-                          <X className="w-3 h-3 text-white" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {hoveringZone === type && count > 0 && renderHoverPanel(cards, label, type)}
         </div>
         <span className="text-[7px] sm:text-[8px] md:text-[9px] text-slate-500 font-bold tracking-wider text-center mt-1">
           {label}
         </span>
+      </div>
+    );
+  };
+
+  const renderExtraDeckZone = (cards: Card[], label: string) => {
+    // Optional zone: only render it if it has cards (or it's empty but editable so the admin can add).
+    if (cards.length === 0 && !isEditMode) return null;
+
+    const borderColor = getZoneBorderColor("extraDeck");
+    const count = cards.length;
+    const firstCard = cards[0];
+
+    return (
+      <div
+        className="relative flex flex-col top-2 lg:top-3 max-[639px]:-left-8 max-[500px]:-left-5 max-[450px]:-left-8 items-center p-1"
+        style={{ transform: "rotate(18deg)" }}
+      >
+        {count === 0 ? (
+          <button
+            onClick={(e) => {
+              setAnchorElement(e.currentTarget);
+              setSelectingZone({ type: "extraDeck", index: 0 });
+            }}
+            className="w-16 max-[639px]:w-14 max-[500px]:w-12 sm:w-16 md:w-20 aspect-[5/7] flex flex-col items-center justify-center gap-0.5 px-1 border-2 border-purple-400/70 rounded-[3px] bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-[8px] max-[639px]:text-[7px] sm:text-[9px] font-semibold text-center leading-tight"
+            title="Add extra deck for Pendulum monsters"
+          >
+            <Plus className="w-3 h-3 shrink-0 sm:w-3.5 sm:h-3.5" />
+            <span>EXTRA DECK (PENDULUM)</span>
+          </button>
+        ) : (
+          <>
+            <div
+              className="relative group before:content-[''] before:absolute before:inset-y-[-5px] before:-left-[-14px] before:-right-[24px] before:rounded-[3px] max-[500px]:before:-left-4 max-[500px]:before:-right-4"
+              onMouseEnter={() => setHoveringZone("extraDeck")}
+              onMouseLeave={() => setHoveringZone(null)}
+            >
+              <div
+                className={`relative left-[21px] max-[500px]:left-0 w-16 h-[90px] max-[639px]:w-14 max-[639px]:h-[78px] max-[500px]:w-12 max-[500px]:h-[66px] sm:w-16 sm:h-[90px] md:w-[72px] md:h-24 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 ${borderColor} rounded-[3px] flex items-center justify-center overflow-hidden cursor-pointer shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
+                onClick={(e) => {
+                  if (!isEditMode) return;
+                  setAnchorElement(e.currentTarget);
+                  setSelectingZone({ type: "extraDeck", index: 0 });
+                }}
+              >
+                <div className="relative w-full h-full group/card-image">
+                  <img
+                    src={firstCard.imageUrlCropped}
+                    alt={firstCard.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {count > 1 && (
+                    <div className="absolute bottom-1 right-1 bg-black/75 text-white text-[9px] sm:text-[10px] px-1 py-0.5 rounded-full">
+                      +{count - 1}
+                    </div>
+                  )}
+                  {isEditMode && count > 0 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveCard("extraDeck", 0);
+                      }}
+                      className="absolute top-1 right-1 w-4 h-4 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 z-10"
+                      title="Remove card"
+                    >
+                      <X className="w-2.5 h-2.5 text-white" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {hoveringZone === "extraDeck" &&
+                count > 0 &&
+                renderHoverPanel(cards, label, "extraDeck", "left")}
+            </div>
+            <span
+              className="relative left-[19px] z-20 text-[8px] sm:text-[9px] text-purple-400 font-bold tracking-wider text-center mt-2 max-[640px]:ml-2 max-[500px]:-ml-6"
+            >
+              {label}
+            </span>
+          </>
+        )}
       </div>
     );
   };
@@ -543,10 +646,10 @@ export const FinalBoardPreview = ({
 
       <div className="max-[450px]:-mx-4">
         <div className="flex justify-center">
-        <div className="relative w-full min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-[22px] border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.1)] sm:max-w-[90%] md:max-w-[80%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-visible">
+        <div className="relative w-full b min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-[22px] border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.1)] sm:max-w-[90%] md:max-w-[80%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-visible">
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_35%)]" />
           <div className="pointer-events-none absolute inset-x-4 top-4 h-20 rounded-full bg-blue-500/10 blur-3xl" />
-          <div className="pointer-events-none absolute inset-x-4 max-[450px]:inset-x-0 bottom-10 top-28 max-[450px]:rounded-none rounded-[18px] border border-slate-700/50 bg-gradient-to-b from-slate-950/20 via-slate-950/5 to-indigo-950/20 shadow-[inset_0_0_0_1px_rgba(30,41,59,0.55)]" />
+          <div className="pointer-events-none border-b-0 absolute inset-x-5 max-[450px]:inset-x-0 bottom-10 top-28 max-[450px]:rounded-none rounded-[3px] border border-slate-700/50 bg-gradient-to-t from-slate-950/20 via-slate-950/5 to-indigo-950/20" />
           <div className="pointer-events-none absolute inset-x-10 top-[38%] h-px bg-gradient-to-r from-transparent via-sky-400/15 to-transparent" />
           <div className="pointer-events-none absolute inset-y-28 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-violet-400/10 to-transparent lg:block" />
           <div className="relative z-10">
@@ -630,13 +733,20 @@ export const FinalBoardPreview = ({
             )}
 
             <div className="relative">
+              {/* Extra Deck Zone - desktop only, at hand-cards height, slightly right */}
+              <div
+                className={`absolute hidden lg:block ${isEditMode && hasHandCards ? "bottom-14 sm:bottom-16 md:bottom-20" : "bottom-8"} left-6 z-10`}
+              >
+                {renderExtraDeckZone(fieldBoard.extraDeck, "EXTRA DECK")}
+              </div>
+
               {/* Layout principal - Cambia según el modo responsive */}
               <div
                 className={`flex ${isResponsive ? "flex-col" : "flex-col lg:flex-row"} gap-4 max-[425px]:gap-2 sm:gap-6 lg:gap-8 min-[1024px]:max-[1100px]:gap-0 justify-center items-center`}
               >
-                {/* Field Spell Zone */}
+                {/* Field Spell Zone - standalone, stays in its original position */}
                 <div
-                  className={`flex-shrink-0 w-14 sm:w-16 md:w-20 lg:w-24 self-center ${isResponsive ? "order-1" : "order-1 lg:order-1"}`}
+                  className={`flex-shrink-0 w-14 sm:w-16 md:w-20 lg:w-24 self-center order-1`}
                 >
                   <div className="flex-shrink-0 w-full aspect-[5/7]">
                     {renderZone(fieldBoard.fieldSpell, "field", 0)}
@@ -649,14 +759,14 @@ export const FinalBoardPreview = ({
                 >
                   {/* Extra Monster Zone */}
                   <div className="flex justify-center gap-8 max-[450px]:gap-8 max-[418px]:gap-6 max-[339px]:gap-4 sm:gap-12 md:gap-16 lg:gap-24">
-                    <div className="flex-shrink-0 w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
+                    <div className="flex-shrink-0 w-16 max-[600px]:w-12 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
                     {fieldBoard.extraMonsters.slice(0, 2).map((card, index) => {
                       const isDef =
                         (fieldBoard.extraMonsterPositions?.[index] ?? 'atk') === 'def';
                       return (
                         <div
                           key={`extra-${index}`}
-                          className="flex-shrink-0 relative w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
+                          className="flex-shrink-0 relative w-16 max-[600px]:w-12 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 aspect-[5/7]"
                         >
                           {isEditMode && card && (
                             <button
@@ -684,7 +794,7 @@ export const FinalBoardPreview = ({
                         </div>
                       );
                     })}
-                    <div className="flex-shrink-0 w-16 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
+                    <div className="flex-shrink-0 w-16 max-[600px]:w-12 max-[418px]:w-14 max-[370px]:w-12 sm:w-20 md:w-20 lg:w-24 opacity-0 invisible"></div>
                   </div>
 
                   {/* Monster Zones */}
@@ -743,11 +853,20 @@ export const FinalBoardPreview = ({
                   className={`
                 ${
                   isResponsive
-                    ? "flex flex-row justify-center items-center gap-6 w-full order-3 mt-4"
+                    ? `relative flex flex-col justify-end items-end gap-4 max-[1023px]:pr-4 max-[500px]:flex-row max-[500px]:items-center ${
+                        fieldBoard.extraDeck.length > 0 || isEditMode
+                          ? "max-[500px]:justify-end max-[500px]:pr-4"
+                          : "max-[500px]:justify-center"
+                      } max-[500px]:gap-3 max-[425px]:gap-2 max-[360px]:gap-1 sm:gap-6 w-full order-3 mt-4`
                     : "flex flex-row lg:flex-col gap-4 sm:gap-6 min-[1024px]:max-[1100px]:gap-4 items-center justify-center self-center order-2 lg:order-3"
                 }
               `}
                 >
+                  {isResponsive && (
+                    <div className="absolute left-0 max-[1023px]:left-8 max-[639px]:left-9 top-1/2 -translate-y-1/2 pl-1">
+                      {renderExtraDeckZone(fieldBoard.extraDeck, "EXTRA DECK")}
+                    </div>
+                  )}
                   {renderCountZone(fieldBoard.banished, "banished", "BANISH")}
                   {renderCountZone(
                     fieldBoard.graveyard,
@@ -758,10 +877,10 @@ export const FinalBoardPreview = ({
               </div>
 
               {/* Hand Zone */}
-              <div className={hasHandCards ? "mt-8 sm:mt-10 md:mt-12" : "mt-8"}>
+              <div className={`${hasHandCards ? "mt-8 sm:mt-10 md:mt-12" : "mt-8"} max-[1023px]:-mb-24 max-[1023px]:-translate-y-24 max-[1023px]:z-10 max-[500px]:mb-0 max-[500px]:translate-y-0`}>
                 <div className="flex justify-center">
                   <div
-                    className={`relative flex w-full justify-center items-end rounded-[18px] border border-slate-700/50 bg-gradient-to-b from-slate-950/50 to-slate-950/10 px-4 ${hasHandCards ? "h-24 sm:h-28 md:h-32" : "h-12 sm:h-14 md:h-16"}`}
+                    className={`relative bottom-5 flex w-full justify-center items-end rounded-[18px] px-4 ${hasHandCards ? "h-24 sm:h-28 md:h-32" : "h-12 sm:h-14 md:h-16"}`}
                   >
                     {handCards.length === 0 && !isEditMode ? (
                       <div className="text-gray-500 text-xs sm:text-sm">
@@ -806,7 +925,7 @@ export const FinalBoardPreview = ({
                                 transformOrigin: "center bottom",
                                 zIndex: zIndex,
                                 transition: "transform 0.3s ease",
-                                bottom: "0",
+                                bottom: !isEditMode && handCards.length === 5 ? "12px" : "0",
                               }}
                             >
                               <CardTooltip
@@ -817,7 +936,7 @@ export const FinalBoardPreview = ({
                                 <img
                                   src={card.imageUrlSmall}
                                   alt={card.name}
-                                  className="w-14 h-20 sm:w-16 sm:h-24 md:w-20 md:h-28 object-cover hover:scale-110 hover:-translate-y-4 sm:hover:-translate-y-6 transition-all"
+                                  className={`${!isEditMode && handCards.length === 5 ? "w-12 h-[68px] sm:w-14 sm:h-20 md:w-16 md:h-24" : "w-14 h-20 sm:w-16 sm:h-24 md:w-20 md:h-28"} object-cover hover:scale-110 hover:-translate-y-4 sm:hover:-translate-y-6 transition-all`}
                                 />
                               </CardTooltip>
 
@@ -846,7 +965,7 @@ export const FinalBoardPreview = ({
                   </div>
                 </div>
 
-                {isEditMode && handCards.length < 5 && (
+                {isEditMode && (
                   <div className="flex justify-center mt-4 sm:mt-6">
                     <button
                       onClick={(e) => {

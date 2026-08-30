@@ -63,6 +63,7 @@ export interface InitialHand {
     hand: Array<Card | null>;
     graveyard: Card[];
     banished: Card[];
+    extraDeck: Card[];
     description?: string;
   };
   comboSteps?: ComboStep[];

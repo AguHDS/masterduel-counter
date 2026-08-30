@@ -41,6 +41,7 @@ export interface FinalBoardDTO {
   handCardIds: Array<number | null>;
   graveyardCardIds: number[];
   banishedCardIds: number[];
+  extraDeckCardIds: number[];
   description?: string;
   monsterPositions?: Array<'atk' | 'def'>;
   extraMonsterPositions?: Array<'atk' | 'def'>;

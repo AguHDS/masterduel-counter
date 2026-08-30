@@ -43,7 +43,7 @@ export class ServerManagementApplicationService implements ServerManagementAppli
     return { ...state, logTail };
   }
 
-  startTask(
+  async startTask(
     type: ServerTaskType,
     options: ServerTaskOptions = {},
   ): Promise<{ task: ServerTask }> {
@@ -114,7 +114,7 @@ export class ServerManagementApplicationService implements ServerManagementAppli
       }
     });
 
-    return Promise.resolve({ task });
+    return { task };
   }
 
   cancelTask(id: string): Promise<{ success: boolean; message: string }> {

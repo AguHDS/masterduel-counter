@@ -11,7 +11,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // src/infrastructure/server -> ../../../ -> backend root
-const DATA_DIR = join(__dirname, "../../../data");
+// SERVER_STATE_DIR overrides the location (used by tests to avoid touching backend/data)
+const DATA_DIR =
+  process.env.SERVER_STATE_DIR || join(__dirname, "../../../data");
 const STATE_FILE = join(DATA_DIR, "server-state.json");
 const LOGS_DIR = join(DATA_DIR, "task-logs");
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, X, Trash2, Edit2, Copy } from "lucide-react";
 import { FloatingCardSearchModal } from "../../../archetypes/components/FloatingCardSearchModal";
 import type { Card, ComboStep } from "@/features/archetypes/types";
@@ -25,6 +25,7 @@ interface InitialHandsEditorProps {
   onShowCombo?: (handId: string) => void;
   comboSteps?: Map<string, ComboStep[]>;
   onDuplicateHand?: (originalHandId: string, newHandId: string) => void;
+  onResetComboState?: () => void;
 }
 
 // Module-level helper so Date.now() is not called directly inside the component body
@@ -59,6 +60,7 @@ export const InitialHandsEditor = ({
   onShowCombo,
   comboSteps,
   onDuplicateHand,
+  onResetComboState,
 }: InitialHandsEditorProps) => {
   const [selectingHandId, setSelectingHandId] = useState<string | null>(null);
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
@@ -74,6 +76,8 @@ export const InitialHandsEditor = ({
   );
   // state to manage which hand is being edited
   const [editingHandId, setEditingHandId] = useState<string | null>(null);
+  const finalBoardRef = useRef<HTMLDivElement>(null);
+  const userClickedShowRef = useRef(false);
   const currentPreviewHandId = isEditMode
     ? selectedPreviewHandId
     : selectedShowHandId;
@@ -119,6 +123,17 @@ export const InitialHandsEditor = ({
     }
   }, [isEditMode, initialHands, comboSteps, selectedShowHandId]);
 
+  useEffect(() => {
+    // In edit mode, auto-select and enable editing on the first hand that has one
+    // (so the combo flow and the endboard show together on entry).
+    if (isEditMode && initialHands.length > 0 && !selectedPreviewHandId && !editingHandId) {
+      const handWithBoard = initialHands.find((hand) => hand.finalBoard);
+      const handToSelect = handWithBoard || initialHands[0];
+      setSelectedPreviewHandId(handToSelect.id);
+      setEditingHandId(handToSelect.id);
+    }
+  }, [isEditMode, initialHands, selectedPreviewHandId, editingHandId]);
+
   const addInitialHand = () => {
     const newHand: InitialHand = {
       id: `hand-${Date.now()}`,
@@ -129,6 +144,8 @@ export const InitialHandsEditor = ({
     setEditingHandId(newHand.id);
     // Limpiar preview al crear nueva mano
     setSelectedPreviewHandId(null);
+    // Resetear combo flow del parent
+    onResetComboState?.();
   };
 
   const removeInitialHand = (handId: string) => {
@@ -174,6 +191,7 @@ export const InitialHandsEditor = ({
     hand: [null, null, null, null, null],
     graveyard: [],
     banished: [],
+    extraDeck: [],
   });
 
   const updateHandFinalBoard = (handId: string, board: FieldBoard | null) => {
@@ -304,11 +322,19 @@ export const InitialHandsEditor = ({
 
   // Función para manejar el clic en "Show" en modo no-edición
   const handleShowHandContent = (handId: string) => {
-    // In view mode, the selected hand drives both combo flow and final board preview.
+    userClickedShowRef.current = true;
     setSelectedShowHandId(handId);
-    // Llamar a la función original si existe para mantener compatibilidad
     onShowCombo?.(handId);
   };
+
+  useEffect(() => {
+    if (!isEditMode && currentPreviewHandId && userClickedShowRef.current && finalBoardRef.current) {
+      userClickedShowRef.current = false;
+      setTimeout(() => {
+        finalBoardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [isEditMode, currentPreviewHandId]);
 
   if (!isEditMode && initialHands.length === 0) {
     return null;
@@ -617,7 +643,7 @@ export const InitialHandsEditor = ({
           {currentPreviewHandId &&
             initialHands.find((hand) => hand.id === currentPreviewHandId)
               ?.finalBoard && (
-              <div className="mt-8 pt-4">
+              <div ref={finalBoardRef} className="mt-8 pt-4">
                 <FinalBoardPreview
                   isEditMode={isEditMode}
                   fieldBoard={

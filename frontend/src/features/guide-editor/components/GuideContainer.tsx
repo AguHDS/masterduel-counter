@@ -608,6 +608,10 @@ export const GuideContainer = ({
                 onAddCombo={handleAddCombo}
                 onShowCombo={handleShowCombo}
                 onDuplicateHand={handleDuplicateInitialHand}
+                onResetComboState={() => {
+                  setSelectedHandId(null);
+                  setShowComboFlow(false);
+                }}
                 comboSteps={comboSteps}
                 showComboFlow={showComboFlow}
                 selectedHandComboSteps={getComboStepsForSelectedHand()}

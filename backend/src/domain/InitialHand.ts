@@ -16,6 +16,7 @@ export interface FinalBoardPreview {
   handCardIds: Array<number | null>;
   graveyardCardIds: number[];
   banishedCardIds: number[];
+  extraDeckCardIds: number[];
   description?: string;
   monsterPositions?: Array<CardPosition>;
   extraMonsterPositions?: Array<CardPosition>;
@@ -29,6 +30,7 @@ export interface FinalBoardPreviewWithCards {
   hand: Array<FinalBoardCard | null>;
   graveyard: FinalBoardCard[];
   banished: FinalBoardCard[];
+  extraDeck: FinalBoardCard[];
   description?: string;
   monsterPositions?: Array<CardPosition>;
   extraMonsterPositions?: Array<CardPosition>;

@@ -199,6 +199,7 @@ export const createGetGuideByIdController = (
             hand: hand.finalBoard.hand,
             graveyard: hand.finalBoard.graveyard,
             banished: hand.finalBoard.banished,
+            extraDeck: hand.finalBoard.extraDeck,
             description: hand.finalBoard.description,
             monsterPositions: hand.finalBoard.monsterPositions,
             extraMonsterPositions: hand.finalBoard.extraMonsterPositions,

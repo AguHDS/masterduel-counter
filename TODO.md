@@ -1,4 +1,7 @@
 api key opengo: sk-1b9U4QacncuLPN634YoZwgBQTCHbRywqKFhkRBP2TwImHuKdvXuJtUHogA3LJ8Gd
+MiniMax M3 → PLAN
+MiMo V2.5 → BUILD
+cosas muy importantes: deepseek v4 flash
 
 prompt inicial:
 Tengo una web sobre yugioh donde usuarios pueden crear sus guias (de tipo counter guide o deck guide)
@@ -69,21 +72,23 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 
 ---
 
-mejoras:
+mejoras
+- el deck builder resetea las posiciones custom hechas cuando agrego carta nueva.
+- hacer que el deck se vea mas lindo, tanto el de la guia como el personal, estan muy grandes y es incomodo verlo.
+- Migraciones de la base de datos para no perder datos
+- Migracion de proyecto con estrategias devops (terraform y docker). Tener en cuenta que, al hacer esto probablemente tengamos que cambiar/modificar la feature que maneja los scripts de server management y hace restart con pm2 en el admin pannel, porque si usamos pm2 para restart eso no existiria en docker
 - las imagenes de cartas nuevas aparecen rotas (por ahora solo pasa con cartas nuevas que aun no han salido y no tienen verison cropped, como Ashtra, veré si pasa con otras)
-- A la final board preview, agregar la zona del extra deck para mostrar pendulos (obligatorio?)
 - en Generalstats, mejorarlo con lazy loading (scroll infinito optimizado, no solo 15 items) y un search compartido. Ademas mejorar el diseño ya que tambien tenemos que agregar "total guides". Pensar en un diseño apropiado para un container como este que muestra la cantidad de guias counter/deck y metadata.
 - Agregar seccion de Top Cards quiza en la misma tab de cartas, que muestra el % usage de las handtraps y boardbreakers. Tomar este dato de https://www.masterduelmeta.com/top-cards#usage-rate, pero tengo que hacer un sistmea que desde el admin panel me deje ingresar las cartas especificas que quiero que aparezcan en esa tierlist de cartas, ya que en https://www.masterduelmeta.com/top-cards#usage-rate muestra un % usage de TODAS las cartas, y yo quiero % de handtraps/boardbreakers. Tienen que quedar permanente las que yo ingreso como entry.
 Aca tambien tenemos datos mas completos (tcg, masterduel, ocg):
 https://ygoprodeck.com/top/
 Podriamos poner esa feature a la vista en la home justo abajo de las request o arriba de ella
-- urgente manejar migraciones. Como hago para tener listas las migraciones por si llego a perder todos los datos? hasta ahora me las salteaba......
 - implementar ban temporal y por ip
-- fijarse si el screenshot de los stats del trending de usuario se calcula correctamente para cad mes individual y no acarrea cosas del mes anterior. Hay un caso donde un usuario de este mes tiene 2 likes, pero en su unica guia que tiene solo tiene un like, esto es raro.
-Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
+- pedir un diagrama de todo mi sistema, desde proyecto, hasta cosas devops y demas para mostrar a un entrevistador
 
 bugs:
 estamos a 2 de agosto. La guia D/D/D esta en el trending #10 y dice que gano (+55) visitas.Eso esta mal porque en 2 dias ni de cerca obtuvo esas visitas. Deben estar seguramente siendo tomadas las visitas del mes pasado para el trending de este mes. Investigar esto.
+- fijarse si el screenshot de los stats del trending de usuario se calcula correctamente para cad mes individual y no acarrea cosas del mes anterior. Hay un caso donde un usuario de este mes tiene 2 likes, pero en su unica guia que tiene solo tiene un like, esto es raro.
+Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
 
 resolviendo:
-- en el admin pannel, boton reiniciar y descargar cartas/imagenes y gestion

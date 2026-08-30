@@ -26,7 +26,7 @@ function Wrapper() {
     new Map([["hand-1", [makeStep({ id: "step-a", stepOrder: 0 })]]]),
   );
   const [selectedHandId, setSelectedHandId] = useState<string | null>(null);
-  const [_showComboFlow, setShowComboFlow] = useState(false);
+  const [showComboFlow, setShowComboFlow] = useState(false);
 
   const handlers = useDeckGuideHandlers({
     initialHands,
@@ -38,7 +38,7 @@ function Wrapper() {
     setShowComboFlow,
   });
 
-  return { initialHands, comboSteps, selectedHandId, handlers };
+  return { initialHands, comboSteps, selectedHandId, showComboFlow, handlers };
 }
 
 describe("useDeckGuideHandlers", () => {
@@ -125,5 +125,25 @@ describe("useDeckGuideHandlers", () => {
     // Hand-2 steps should be CHANGED
     const hand2Steps = result.current.comboSteps.get(hand2Id)!;
     expect(hand2Steps[0].description).toBe("Modified Description");
+  });
+
+  it("should reset selectedHandId and showComboFlow when adding a hand", () => {
+    const { result } = renderHook(() => Wrapper());
+
+    act(() => {
+      result.current.handlers.handleSelectHand("hand-1");
+    });
+    act(() => {
+      result.current.handlers.handleShowCombo("hand-1");
+    });
+    expect(result.current.selectedHandId).toBe("hand-1");
+    expect(result.current.showComboFlow).toBe(true);
+
+    act(() => {
+      result.current.handlers.addInitialHand();
+    });
+
+    expect(result.current.selectedHandId).toBeNull();
+    expect(result.current.showComboFlow).toBe(false);
   });
 });

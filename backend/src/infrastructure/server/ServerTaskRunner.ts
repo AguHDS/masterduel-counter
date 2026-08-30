@@ -57,34 +57,14 @@ export class ServerTaskRunner {
     opts: ServerTaskOptions,
     logsDir: string,
   ): SpawnedTask {
-    const config = TASKS[type];
     const logFile = join(logsDir, `${id}.log`);
     // Numeric fd so the child's stdout/stderr go straight to the log file
     const logFd = openSync(logFile, "a");
 
-    const isProd = process.env.NODE_ENV === "production";
-    let command: string;
-    let args: string[];
-
-    if (isProd) {
-      command = process.execPath;
-      args = [
-        join(ROOT_DIR, "dist", "scripts", `${config.source}.js`),
-        ...config.args(opts),
-      ];
-    } else {
-      // Development: run TS source via tsx loader (handles @/ path aliases)
-      command = process.execPath;
-      args = [
-        "--import",
-        "tsx",
-        join(ROOT_DIR, "src", "scripts", `${config.source}.ts`),
-        ...config.args(opts),
-      ];
-    }
+    const { command, args } = this.buildCommand(type, opts);
 
     console.log(
-      `[ServerTaskRunner] Spawning ${type} (${isProd ? "prod" : "dev"}): ${command} ${args.join(" ")}`,
+      `[ServerTaskRunner] Spawning ${type} (${process.env.NODE_ENV === "production" ? "prod" : "dev"}): ${command} ${args.join(" ")}`,
     );
 
     const child = spawn(command, args, {
@@ -97,6 +77,30 @@ export class ServerTaskRunner {
     child.once("exit", () => closeSync(logFd));
 
     return { id, child, logFile };
+  }
+
+  /** Builds the (command, args) for a task. Exposed for unit testing without spawning. */
+  buildCommand(
+    type: ServerTaskType,
+    opts: ServerTaskOptions = {},
+  ): { command: string; args: string[] } {
+    const config = TASKS[type];
+    const isProd = process.env.NODE_ENV === "production";
+    const scriptPath = join(
+      ROOT_DIR,
+      isProd ? "dist" : "src",
+      "scripts",
+      `${config.source}${isProd ? ".js" : ".ts"}`,
+    );
+
+    if (isProd) {
+      return { command: process.execPath, args: [scriptPath, ...config.args(opts)] };
+    }
+    // Development: run TS source via tsx loader (handles @/ path aliases)
+    return {
+      command: process.execPath,
+      args: ["--import", "tsx", scriptPath, ...config.args(opts)],
+    };
   }
 
   /** Checks whether a process with the given PID is currently alive */
