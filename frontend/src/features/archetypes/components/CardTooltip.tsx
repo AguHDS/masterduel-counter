@@ -25,6 +25,7 @@ interface CardTooltipProps {
   children: React.ReactNode;
   disabled?: boolean;
   side?: "left" | "right";
+  containerClassName?: string;
 }
 
 export const CardTooltip = ({
@@ -34,6 +35,7 @@ export const CardTooltip = ({
   children,
   disabled = false,
   side = "right",
+  containerClassName,
 }: CardTooltipProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<{ x: number; y: number }>({
@@ -81,7 +83,7 @@ export const CardTooltip = ({
     }
   }, [disabled, tooltipContext?.activeTooltipId, tooltipId]);
 
-  const calculatePosition = (mouseX: number, mouseY: number) => {
+  const calculatePosition = useCallback((mouseX: number, mouseY: number) => {
     const tooltipWidth = 700;
     const tooltipHeight = 420;
     const offset = 20;
@@ -117,7 +119,7 @@ export const CardTooltip = ({
     }
 
     setPosition({ x, y });
-  };
+  }, [side]);
 
   // For responsive tooltip
   const show = useCallback(
@@ -186,13 +188,12 @@ export const CardTooltip = ({
     }
   };
 
-  const schedulePositionUpdate = (mouseX: number, mouseY: number) => {
+  const schedulePositionUpdate = useCallback((mouseX: number, mouseY: number) => {
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
     }
 
     rafRef.current = requestAnimationFrame(() => {
-      // Use actual tooltip dimensions if available for fine-tuning
       const tooltip = tooltipRef.current;
       if (tooltip) {
         const tooltipWidth = tooltip.offsetWidth;
@@ -233,7 +234,7 @@ export const CardTooltip = ({
       }
       rafRef.current = null;
     });
-  };
+  }, [side]);
 
   // Global click outside to close tooltip (mobile & desktop)
   useEffect(() => {
@@ -288,7 +289,7 @@ export const CardTooltip = ({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
-        className="relative w-full h-full"
+        className={`relative ${containerClassName || ""}`}
       >
         {children}
       </div>

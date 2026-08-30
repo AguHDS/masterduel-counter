@@ -322,6 +322,7 @@ export const FinalBoardPreview = ({
                 cardId={card.id}
                 imageUrl={card.imageUrl}
                 cardName={card.name}
+                containerClassName="w-full h-full"
               >
                 <img
                   src={card.imageUrlSmall}
