@@ -506,7 +506,7 @@ export const FinalBoardPreview = ({
 
     return (
       <div
-        className="relative flex flex-col top-2 lg:top-3 items-center p-1"
+        className="relative flex flex-col top-2 lg:top-3 max-[639px]:-left-8 max-[500px]:-left-5 max-[450px]:-left-8 items-center p-1"
         style={{ transform: "rotate(18deg)" }}
       >
         {count === 0 ? (
@@ -852,10 +852,10 @@ export const FinalBoardPreview = ({
                   className={`
                 ${
                   isResponsive
-                    ? `relative flex flex-row justify-center items-center gap-4 ${
+                    ? `relative flex flex-col justify-end items-end gap-4 max-[500px]:flex-row max-[500px]:items-center ${
                         fieldBoard.extraDeck.length > 0 || isEditMode
                           ? "max-[500px]:justify-end max-[500px]:pr-4"
-                          : ""
+                          : "max-[500px]:justify-center"
                       } max-[500px]:gap-3 max-[425px]:gap-2 max-[360px]:gap-1 sm:gap-6 w-full order-3 mt-4`
                     : "flex flex-row lg:flex-col gap-4 sm:gap-6 min-[1024px]:max-[1100px]:gap-4 items-center justify-center self-center order-2 lg:order-3"
                 }
@@ -876,7 +876,7 @@ export const FinalBoardPreview = ({
               </div>
 
               {/* Hand Zone */}
-              <div className={hasHandCards ? "mt-8 sm:mt-10 md:mt-12" : "mt-8"}>
+              <div className={`${hasHandCards ? "mt-8 sm:mt-10 md:mt-12" : "mt-8"} max-[1023px]:-mb-24 max-[1023px]:-translate-y-24 max-[1023px]:z-10 max-[500px]:mb-0 max-[500px]:translate-y-0`}>
                 <div className="flex justify-center">
                   <div
                     className={`relative bottom-5 flex w-full justify-center items-end rounded-[18px] px-4 ${hasHandCards ? "h-24 sm:h-28 md:h-32" : "h-12 sm:h-14 md:h-16"}`}

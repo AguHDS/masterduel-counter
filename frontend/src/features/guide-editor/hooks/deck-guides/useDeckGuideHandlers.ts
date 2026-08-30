@@ -35,6 +35,8 @@ export const useDeckGuideHandlers = ({
       cards: [],
     };
     setInitialHands([...initialHands, newHand]);
+    setSelectedHandId(null);
+    setShowComboFlow(false);
   };
 
   /**

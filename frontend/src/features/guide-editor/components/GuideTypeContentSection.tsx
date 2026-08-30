@@ -42,6 +42,7 @@ interface GuideTypeContentSectionProps {
   onAddCombo: (handId: string) => void;
   onShowCombo: (handId: string) => void;
   onDuplicateHand?: (originalHandId: string, newHandId: string) => void;
+  onResetComboState?: () => void;
   comboSteps: Map<string, ComboStep[]>;
   showComboFlow: boolean;
   selectedHandComboSteps: ComboStep[];
@@ -102,6 +103,7 @@ export const GuideTypeContentSection = ({
   onAddCombo,
   onShowCombo,
   onDuplicateHand,
+  onResetComboState,
   comboSteps,
   showComboFlow,
   selectedHandComboSteps,
@@ -273,6 +275,7 @@ export const GuideTypeContentSection = ({
               onAddCombo={isEditMode && isOwner ? onAddCombo : undefined}
               onShowCombo={!isEditMode ? onShowCombo : undefined}
               onDuplicateHand={onDuplicateHand}
+              onResetComboState={onResetComboState}
               comboSteps={comboSteps}
             />
           </div>
