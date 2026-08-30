@@ -853,7 +853,7 @@ export const FinalBoardPreview = ({
                   className={`
                 ${
                   isResponsive
-                    ? `relative flex flex-col justify-end items-end gap-4 max-[500px]:flex-row max-[500px]:items-center ${
+                    ? `relative flex flex-col justify-end items-end gap-4 max-[1023px]:pr-4 max-[500px]:flex-row max-[500px]:items-center ${
                         fieldBoard.extraDeck.length > 0 || isEditMode
                           ? "max-[500px]:justify-end max-[500px]:pr-4"
                           : "max-[500px]:justify-center"
@@ -863,7 +863,7 @@ export const FinalBoardPreview = ({
               `}
                 >
                   {isResponsive && (
-                    <div className="absolute left-0 max-[1023px]:left-4 max-[639px]:left-9 top-1/2 -translate-y-1/2 pl-1">
+                    <div className="absolute left-0 max-[1023px]:left-8 max-[639px]:left-9 top-1/2 -translate-y-1/2 pl-1">
                       {renderExtraDeckZone(fieldBoard.extraDeck, "EXTRA DECK")}
                     </div>
                   )}
