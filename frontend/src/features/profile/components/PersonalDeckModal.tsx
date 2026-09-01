@@ -17,7 +17,7 @@ import {
 } from "@/features/archetypes/utils/deckZonePresentation";
 import { DeckBuilderCardSearchModal } from "@/features/archetypes/components/DeckBuilderCardSearchModal";
 import type { CustomDeck } from "../api/customDeckApi";
-import { sortDeckCards } from "@/shared/utils/sortDeckCards";
+import { sortDeckCards, insertCardSorted } from "@/shared/utils/sortDeckCards";
 import { reorderCardsInZone } from "@/features/archetypes/utils/deckDragDrop";
 import type { Card } from "@/features/archetypes/types";
 
@@ -178,13 +178,13 @@ export const PersonalDeckModal = ({
     const deckCard: DeckCard = { ...card, uniqueId: crypto.randomUUID() };
 
     if (targetZone === "main") {
-      setMainDeck((prev) => sortDeckCards([...prev, deckCard]));
+      setMainDeck((prev) => insertCardSorted(prev, deckCard));
       setHasChanges(true);
     } else if (targetZone === "extra") {
-      setExtraDeck((prev) => sortDeckCards([...prev, deckCard]));
+      setExtraDeck((prev) => insertCardSorted(prev, deckCard));
       setHasChanges(true);
     } else if (targetZone === "side") {
-      setSideDeck((prev) => sortDeckCards([...prev, deckCard]));
+      setSideDeck((prev) => insertCardSorted(prev, deckCard));
       setHasChanges(true);
     }
   };
@@ -444,9 +444,9 @@ export const PersonalDeckModal = ({
                   onClick={() => {
                     setIsEditMode(false);
                     if (hasChanges && deck) {
-                      setMainDeck(initializeDeck(deck.mainDeck));
-                      setExtraDeck(initializeDeck(deck.extraDeck));
-                      setSideDeck(initializeDeck(deck.sideDeck || []));
+                      setMainDeck(sortDeckCards(initializeDeck(deck.mainDeck)));
+                      setExtraDeck(sortDeckCards(initializeDeck(deck.extraDeck)));
+                      setSideDeck(sortDeckCards(initializeDeck(deck.sideDeck || [])));
                       setShowSideDeck((deck.sideDeck?.length || 0) > 0);
                       setTitle(deck.title);
                       setHasChanges(false);

@@ -1,4 +1,5 @@
-import { TrendingUp } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { TrendingUp, ChevronDown } from "lucide-react";
 import { useGeneralStats } from "../hooks/useGeneralStats";
 import { useNavigate } from "react-router-dom";
 import { buildArchetypePath } from "@/lib/config/urlHelpers";
@@ -8,9 +9,23 @@ export const GeneralStats = () => {
   const { data: counterData, isLoading: counterLoading, error: counterError } = useGeneralStats(15, 'COUNTER');
   const { data: deckData, isLoading: deckLoading, error: deckError } = useGeneralStats(15, 'DECK');
   const navigate = useNavigate();
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState(0);
 
   const isLoading = counterLoading || deckLoading;
   const error = counterError || deckError;
+
+  // For collapsing the stats section and animating the height
+  const updateHeight = useCallback(() => {
+    if (contentRef.current) {
+      setContentHeight(contentRef.current.scrollHeight);
+    }
+  }, []);
+
+  useEffect(() => {
+    updateHeight();
+  }, [counterData, deckData, updateHeight]);
 
   if (isLoading) {
     return (
@@ -55,13 +70,24 @@ export const GeneralStats = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       <div className="flex items-center gap-3 mb-3">
-        <TrendingUp className="h-5 w-5 text-[#c2901c]" />
-        <h2 className="text-white font-semibold text-lg">General Stats</h2>
+        <div
+          className="flex items-center gap-3 cursor-pointer select-none"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          <TrendingUp className="h-5 w-5 text-[#c2901c]" />
+          <h2 className="text-white font-semibold text-lg">General Stats</h2>
+          <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${isCollapsed ? "" : "rotate-180"}`} />
+        </div>
       </div>
 
-      <div className="bg-[#1c1f2e] rounded-xl border border-[#c2901c]/20 overflow-hidden flex-1 min-h-0 flex flex-col">
+      <div
+        ref={contentRef}
+        className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
+        style={{ maxHeight: isCollapsed ? 0 : `${contentHeight}px` }}
+      >
+        <div className="bg-[#1c1f2e] rounded-xl border border-[#c2901c]/20 overflow-hidden flex-1 min-h-0 flex flex-col">
         <div className="grid grid-cols-2 max-[650px]:grid-cols-1 divide-x max-[650px]:divide-x-0 divide-[#c2901c]/10 max-[650px]:divide-y max-[650px]:divide-[#c2901c]/10 flex-1 min-h-0">
           {/* COUNTER GUIDES */}
           <div className="flex flex-col min-h-0">
@@ -170,6 +196,7 @@ export const GeneralStats = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

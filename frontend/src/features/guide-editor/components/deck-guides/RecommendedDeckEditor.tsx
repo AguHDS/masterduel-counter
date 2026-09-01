@@ -7,7 +7,7 @@ import {
   getDeckZoneLabel,
   type DeckDisplayZone,
 } from "@/features/archetypes/utils/deckZonePresentation";
-import { sortDeckCards } from "@/shared/utils/sortDeckCards";
+import { insertCardSorted } from "@/shared/utils/sortDeckCards";
 import { reorderCardsInZone } from "@/features/archetypes/utils/deckDragDrop";
 import type { Card } from "@/features/archetypes/types";
 
@@ -126,20 +126,20 @@ export const RecommendedDeckEditor = ({
     }
 
     if (targetZone === "main") {
-      const newMainDeck = sortDeckCards([...mainDeck, card]);
+      const newMainDeck = insertCardSorted(mainDeck, card);
       setMainDeck(newMainDeck);
       onDeckChange?.(title, newMainDeck, extraDeck, sideDeck);
       return;
     }
 
     if (targetZone === "extra") {
-      const newExtraDeck = sortDeckCards([...extraDeck, card]);
+      const newExtraDeck = insertCardSorted(extraDeck, card);
       setExtraDeck(newExtraDeck);
       onDeckChange?.(title, mainDeck, newExtraDeck, sideDeck);
       return;
     }
 
-    const newSideDeck = sortDeckCards([...sideDeck, card]);
+    const newSideDeck = insertCardSorted(sideDeck, card);
     setSideDeck(newSideDeck);
     onDeckChange?.(title, mainDeck, extraDeck, newSideDeck);
   };
