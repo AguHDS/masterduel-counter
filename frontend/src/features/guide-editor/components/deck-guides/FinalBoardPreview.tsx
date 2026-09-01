@@ -507,8 +507,8 @@ export const FinalBoardPreview = ({
 
     return (
       <div
-        className="relative flex flex-col top-2 lg:top-3 max-[639px]:-left-8 max-[500px]:-left-5 max-[450px]:-left-8 items-center p-1"
-        style={{ transform: "rotate(18deg)" }}
+        className="relative flex flex-col top-2 lg:top-1 max-[639px]:-left-8 max-[500px]:-left-5 max-[450px]:-left-8 items-center p-1"
+        style={{ transform: "rotate(12deg)" }}
       >
         {count === 0 ? (
           <button
@@ -568,7 +568,7 @@ export const FinalBoardPreview = ({
                 renderHoverPanel(cards, label, "extraDeck", "left")}
             </div>
             <span
-              className="relative left-[19px] z-20 text-[8px] sm:text-[9px] text-purple-400 font-bold tracking-wider text-center mt-2 max-[640px]:ml-2 max-[500px]:-ml-6"
+              className="relative left-[19px] z-20 text-[8px] sm:text-[9px] text-purple-400 font-bold tracking-wider text-center mt-2 max-[640px]:ml-1 max-[500px]:-ml-9"
             >
               {label}
             </span>
