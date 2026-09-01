@@ -372,19 +372,18 @@ export const PersonalDeckModal = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[400] flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-[400] overflow-y-auto bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={handleBackdropClick}
     >
       {/* Flex row: deck builder on the left, search panel on the right */}
-      <div className="flex items-stretch gap-4 flex-wrap justify-center w-full">
+      <div className="flex items-start justify-center w-full min-h-full p-4">
         <div
           onClick={(e) => e.stopPropagation()}
-          className="relative max-h-[90vh] w-full min-[640px]:max-w-[95%] min-[768px]:max-w-[90%] min-[1024px]:max-w-[88%] min-[1280px]:max-w-5xl overflow-auto rounded-[26px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.16)] scrollbar-cardpair"
+          className="relative flex flex-col w-full min-[640px]:max-w-[88%] min-[768px]:max-w-[83%] min-[1024px]:max-w-[78%] min-[1280px]:max-w-5xl max-h-[95vh] overflow-hidden rounded-[3px] border border-blue-500/20 bg-gradient-to-b from-blue-900/10 via-indigo-900/20 to-blue-900/10 shadow-[0_0_44px_rgba(37,99,235,0.16)]"
         >
-          <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_38%)]" />
-          <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute inset-x-1 top-4 h-24  bg-blue-700/10" />
 
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 border-b border-slate-700/70 bg-slate-950/85 px-4 py-3 backdrop-blur-xl">
+          <div className="flex-shrink-0 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 border-b border-slate-700/70 px-4 py-2.5 backdrop-blur-xl relative z-20">
             <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
               {isOwner && isEditMode ? (
                 <input
@@ -434,7 +433,7 @@ export const PersonalDeckModal = ({
                 <button
                   onClick={() => setIsEditMode(true)}
                   disabled={isUpdating}
-                  className="flex items-center gap-1.5 rounded-full border border-sky-400/25 bg-sky-500/15 px-3 py-1.5 text-xs font-semibold text-sky-200  hover:bg-sky-500/22 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-full border border-sky-400/25 bg-sky-500/15 px-3 py-1.5 text-xs font-semibold text-sky-200 opacity-80 hover:opacity-100 hover:bg-sky-500/25 transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Edit2 className="w-3 h-3" />
                   Edit
@@ -496,7 +495,7 @@ export const PersonalDeckModal = ({
               </p>
             </div>
           ) : (
-            <div className="relative z-10 space-y-5 p-4 sm:p-5 max-[400px]:p-3">
+            <div className="relative z-10 flex-1 min-h-0 overflow-auto space-y-2.5 p-3 sm:p-4 max-[400px]:p-2 scrollbar-cardpair">
               <div className="flex flex-wrap items-center gap-2 max-[400px]:gap-1">
                 <span className="rounded-full border border-sky-400/20 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-200/90 max-[400px]:text-[8px] max-[400px]:px-1.5 max-[400px]:py-0.5">
                   {mainDeck.length} main
@@ -513,50 +512,50 @@ export const PersonalDeckModal = ({
 
               {/* Header Card Selection */}
               {isOwner && isEditMode && (
-                <div className="relative overflow-hidden rounded-[20px] border border-sky-400/15 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-indigo-950/80 p-4 shadow-[0_16px_34px_rgba(2,6,23,0.4)]">
+                <div className="relative overflow-hidden rounded-[16px] border border-sky-400/15 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-indigo-950/80 p-2.5 shadow-[0_16px_34px_rgba(2,6,23,0.4)]">
                   <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.1),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.08),transparent_60%)]" />
                   <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.18)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.18)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
                   <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.1)_1px,transparent_1px)] bg-[size:9px_9px] opacity-15" />
                   <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(248,250,252,0.72)_1px,transparent_1.3px)] bg-[size:57px_57px] opacity-15" />
 
-                  <div className="relative z-10 flex items-center gap-3">
+                  <div className="relative z-10 flex items-center gap-2">
                     <div className="flex-shrink-0">
                       {headerCard ? (
                         <div className="relative group">
                           <img
                             src={headerCard.imageUrlCropped}
                             alt={headerCard.name}
-                            className="h-[72px] w-[72px] rounded-2xl border-2 border-cyan-500/70 object-cover shadow-[0_10px_24px_rgba(8,145,178,0.28)]"
+                            className="h-[48px] w-[48px] rounded-xl border-2 border-cyan-500/70 object-cover shadow-[0_10px_24px_rgba(8,145,178,0.28)]"
                           />
                           <button
                             onClick={() => setHeaderCard(null)}
-                            className="absolute -right-1 -top-1 rounded-full bg-red-600 p-1 text-white opacity-0 group-hover:opacity-100"
+                            className="absolute -right-1 -top-1 rounded-full bg-red-600 p-0.5 text-white opacity-0 group-hover:opacity-100"
                           >
-                            <X className="w-3 h-3" />
+                            <X className="w-2.5 h-2.5" />
                           </button>
                         </div>
                       ) : (
-                        <div className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl border-2 border-dashed border-slate-600 bg-slate-950/50">
-                          <Plus className="w-6 h-6 text-slate-500" />
+                        <div className="flex h-[48px] w-[48px] items-center justify-center rounded-xl border-2 border-dashed border-slate-600 bg-slate-950/50">
+                          <Plus className="w-4 h-4 text-slate-500" />
                         </div>
                       )}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <button
                         onClick={(e) =>
                           handleAddCard("header", e.currentTarget)
                         }
-                        className="flex items-center gap-1.5 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-200  hover:bg-cyan-500/16"
+                        className="flex items-center gap-1 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-200 hover:bg-cyan-500/16"
                       >
-                        <Plus className="w-3 h-3" />
-                        <span>
+                        <Plus className="w-2.5 h-2.5" />
+                        <span className="truncate">
                           {headerCard
-                            ? "Change Header Card"
-                            : "Select Header Card"}
+                            ? "Change Header"
+                            : "Select Header"}
                         </span>
                       </button>
                       {headerCard && (
-                        <p className="mt-2 truncate text-sm text-slate-300">
+                        <p className="mt-1 truncate text-xs text-slate-300">
                           {headerCard.name}
                         </p>
                       )}
@@ -606,16 +605,16 @@ export const PersonalDeckModal = ({
                 />
               )}
               {!showSideDeck && !isOwner && !isEditMode ? null : (
-                <div className="rounded-[22px] border border-cyan-400/20 bg-cyan-950/10 p-4 shadow-[0_18px_38px_rgba(2,6,23,0.32)]">
+                <div className="rounded-sm border border-yellow-400/30 bg-gradient-to-br from-[#1a1508] via-[#1f1a0a] to-[#1a1508] p-3 shadow-[0_18px_38px_rgba(2,6,23,0.32)]">
                   <button
                     onClick={() => setIsSideDeckOpen(!isSideDeckOpen)}
-                    className="flex w-full items-center justify-between gap-3 py-2"
+                    className="flex w-full items-center justify-between gap-3 py-1"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-base font-semibold text-white">
+                      <span className="text-sm font-semibold text-white">
                         Side Deck
                       </span>
-                      <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
+                      <span className="rounded-full border border-yellow-400/20 bg-yellow-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90">
                         {sideDeck.length}
                       </span>
                     </div>
@@ -626,18 +625,18 @@ export const PersonalDeckModal = ({
                             e.stopPropagation();
                             handleRemoveSideDeck();
                           }}
-                          className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition-colors hover:bg-red-500/18"
+                          className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 hover:bg-red-500/18"
                         >
                           Remove
                         </button>
                       )}
                       <ChevronDown
-                        className={`w-5 h-5 text-cyan-300 transition-transform duration-200 ${isSideDeckOpen ? "rotate-180" : ""}`}
+                        className={`w-5 h-5 text-yellow-300 ${isSideDeckOpen ? "rotate-180" : ""}`}
                       />
                     </div>
                   </button>
                   <div
-                    className={`overflow-hidden transition-all duration-300 ${isSideDeckOpen ? "max-h-[2000px]" : "max-h-0"}`}
+                    className={`overflow-hidden ${isSideDeckOpen ? "max-h-[2000px]" : "max-h-0"}`}
                   >
                     {showSideDeck ? (
                       <div className="max-h-[40vh] overflow-y-auto">
@@ -668,7 +667,7 @@ export const PersonalDeckModal = ({
                         <div className="text-center pt-4">
                           <button
                             onClick={handleAddSideDeck}
-                            className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-500/16"
+                            className="inline-flex items-center gap-2 rounded-full border border-yellow-400/25 bg-yellow-500/10 px-4 py-2 text-sm font-semibold text-yellow-200 hover:bg-yellow-500/16"
                           >
                             <Plus className="h-4 w-4" />
                             <span>Add Side Deck</span>

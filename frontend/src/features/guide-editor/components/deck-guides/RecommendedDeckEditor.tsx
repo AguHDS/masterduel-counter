@@ -262,7 +262,7 @@ export const RecommendedDeckEditor = ({
                   {extraDeck.length} extra
                 </span>
                 {showSideDeck && (
-                  <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[10px] max-[400px]:text-[8px] max-[400px]:px-1.5 max-[400px]:py-0.5 font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
+                  <span className="rounded-full border border-yellow-400/20 bg-yellow-500/10 px-2.5 py-1 text-[10px] max-[400px]:text-[8px] max-[400px]:px-1.5 max-[400px]:py-0.5 font-semibold uppercase tracking-[0.24em] text-yellow-200/90">
                     {sideDeck.length} side
                   </span>
                 )}
@@ -358,14 +358,14 @@ export const RecommendedDeckEditor = ({
               />
             )}
             {(!showSideDeck && !isEditMode) ? null : (
-              <div className="rounded-[22px] border border-cyan-400/20 bg-cyan-950/10 p-4 shadow-[0_18px_38px_rgba(2,6,23,0.32)]">
+              <div className="rounded-sm border border-yellow-400/30 bg-gradient-to-br from-[#1a1508] via-[#1f1a0a] to-[#1a1508] p-4 shadow-[0_18px_38px_rgba(2,6,23,0.32)]">
                 <button
                   onClick={() => setIsSideDeckOpen(!isSideDeckOpen)}
                   className="flex w-full items-center justify-between gap-3 py-2"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-base font-semibold text-white">Side Deck</span>
-                    <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
+                    <span className="rounded-full border border-yellow-400/20 bg-yellow-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90">
                       {sideDeck.length}
                     </span>
                   </div>
@@ -378,7 +378,7 @@ export const RecommendedDeckEditor = ({
                         Remove
                       </button>
                     )}
-                    <ChevronDown className={`w-5 h-5 text-cyan-300 transition-transform duration-200 ${isSideDeckOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-5 h-5 text-yellow-300 transition-transform duration-200 ${isSideDeckOpen ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
                 <div className={`overflow-hidden transition-all duration-300 ${isSideDeckOpen ? 'max-h-[2000px]' : 'max-h-0'}`}>
@@ -407,7 +407,7 @@ export const RecommendedDeckEditor = ({
                     <div className="text-center pt-4">
                       <button
                         onClick={handleAddSideDeck}
-                        className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition-colors hover:bg-cyan-500/16"
+                        className="inline-flex items-center gap-2 rounded-full border border-yellow-400/25 bg-yellow-500/10 px-4 py-2 text-sm font-semibold text-yellow-200 transition-colors hover:bg-yellow-500/16"
                       >
                         <Plus className="h-4 w-4" />
                         <span>Add Side Deck</span>
