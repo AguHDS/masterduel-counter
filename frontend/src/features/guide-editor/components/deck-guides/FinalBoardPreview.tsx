@@ -435,7 +435,7 @@ export const FinalBoardPreview = ({
           onMouseLeave={() => setHoveringZone(null)}
         >
           <div
-            className={`relative w-16 h-16 max-[425px]:w-14 max-[425px]:h-14 max-[360px]:w-12 max-[360px]:h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 sm:border-[3px] ${borderColor} rounded-full flex items-center justify-center overflow-hidden cursor-pointer transition-transform hover:scale-105 shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
+            className={`relative w-16 h-16 max-[640px]:w-14 max-[640px]:h-14 max-[360px]:w-12 max-[360px]:h-12 sm:w-20 sm:h-20 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 sm:border-[3px] ${borderColor} rounded-full flex items-center justify-center overflow-hidden cursor-pointer transition-transform hover:scale-105 shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
             style={{
               clipPath:
                 "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
@@ -516,7 +516,7 @@ export const FinalBoardPreview = ({
               setAnchorElement(e.currentTarget);
               setSelectingZone({ type: "extraDeck", index: 0 });
             }}
-            className="w-16 max-[639px]:w-14 max-[500px]:w-12 sm:w-16 md:w-20 aspect-[5/7] flex flex-col items-center justify-center gap-0.5 px-1 border-2 border-purple-400/70 rounded-[3px] bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-[8px] max-[639px]:text-[7px] sm:text-[9px] font-semibold text-center leading-tight"
+            className="w-16 max-[639px]:w-14 max-[500px]:w-12 sm:w-16 md:w-14 aspect-[5/7] flex flex-col items-center justify-center gap-0.5 px-1 border-2 border-purple-400/70 rounded-[3px] bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-[8px] max-[639px]:text-[7px] sm:text-[9px] font-semibold text-center leading-tight"
             title="Add extra deck for Pendulum monsters"
           >
             <Plus className="w-3 h-3 shrink-0 sm:w-3.5 sm:h-3.5" />
@@ -530,7 +530,7 @@ export const FinalBoardPreview = ({
               onMouseLeave={() => setHoveringZone(null)}
             >
               <div
-                className={`relative left-[21px] max-[500px]:left-0 w-16 h-[90px] max-[639px]:w-14 max-[639px]:h-[78px] max-[500px]:w-12 max-[500px]:h-[66px] sm:w-16 sm:h-[90px] md:w-[72px] md:h-24 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 ${borderColor} rounded-[3px] flex items-center justify-center overflow-hidden cursor-pointer shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
+                className={`relative left-[21px] max-[500px]:left-0 w-16 h-[90px] max-[639px]:w-14 max-[639px]:h-[78px] max-[500px]:w-12 max-[500px]:h-[66px] sm:w-16 sm:h-[90px] md:w-16 md:h-[88px] bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 ${borderColor} rounded-[3px] flex items-center justify-center overflow-hidden cursor-pointer shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
                 onClick={(e) => {
                   if (!isEditMode) return;
                   setAnchorElement(e.currentTarget);
@@ -646,7 +646,7 @@ export const FinalBoardPreview = ({
 
       <div className="max-[450px]:-mx-4">
         <div className="flex justify-center">
-        <div className="relative w-full b min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-[22px] border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.1)] sm:max-w-[90%] md:max-w-[80%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-visible">
+        <div className="relative w-full b min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-md border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.1)] sm:max-w-[90%] md:max-w-[80%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-visible">
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_35%)]" />
           <div className="pointer-events-none absolute inset-x-4 top-4 h-20 rounded-full bg-blue-500/10 blur-3xl" />
           <div className="pointer-events-none border-b-0 absolute inset-x-5 max-[450px]:inset-x-0 bottom-10 top-28 max-[450px]:rounded-none rounded-[3px] border border-slate-700/50 bg-gradient-to-t from-slate-950/20 via-slate-950/5 to-indigo-950/20" />
@@ -746,12 +746,12 @@ export const FinalBoardPreview = ({
               >
                 {/* Field Spell Zone - standalone, stays in its original position */}
                 <div
-                  className={`flex-shrink-0 w-14 sm:w-16 md:w-20 lg:w-24 self-center order-1`}
+                  className={`flex-shrink-0 w-14 sm:w-16 md:w-20 lg:w-24 self-center order-1 lg:relative lg:top-20`}
                 >
                   <div className="flex-shrink-0 w-full aspect-[5/7]">
                     {renderZone(fieldBoard.fieldSpell, "field", 0)}
                   </div>
-                </div>
+                </div>-1
 
                 {/* Main Board Zones (Extra, Monsters, Spell/Trap) */}
                 <div
@@ -853,17 +853,17 @@ export const FinalBoardPreview = ({
                   className={`
                 ${
                   isResponsive
-                    ? `relative flex flex-col justify-end items-end gap-4 max-[1023px]:pr-4 max-[500px]:flex-row max-[500px]:items-center ${
+                    ? `relative flex flex-col justify-end items-end gap-4 max-[1023px]:pr-4 max-[640px]:-translate-y-4 max-[500px]:translate-y-0 max-[500px]:flex-row max-[500px]:items-center ${
                         fieldBoard.extraDeck.length > 0 || isEditMode
                           ? "max-[500px]:justify-end max-[500px]:pr-4"
                           : "max-[500px]:justify-center"
                       } max-[500px]:gap-3 max-[425px]:gap-2 max-[360px]:gap-1 sm:gap-6 w-full order-3 mt-4`
-                    : "flex flex-row lg:flex-col gap-4 sm:gap-6 min-[1024px]:max-[1100px]:gap-4 items-center justify-center self-center order-2 lg:order-3"
+                    : "flex flex-row lg:flex-col gap-4 sm:gap-6 min-[1024px]:max-[1100px]:gap-4 min-[1024px]:relative min-[1024px]:top-20 items-center justify-center self-center order-2 lg:order-3"
                 }
               `}
                 >
                   {isResponsive && (
-                    <div className="absolute left-0 max-[1023px]:left-8 max-[639px]:left-9 top-1/2 -translate-y-1/2 pl-1">
+                    <div className="absolute left-0 max-[1023px]:left-2 max-[639px]:left-9 top-1/2 -translate-y-1/2 max-[640px]:-translate-y-[60%] pl-1">
                       {renderExtraDeckZone(fieldBoard.extraDeck, "EXTRA DECK")}
                     </div>
                   )}
@@ -877,7 +877,7 @@ export const FinalBoardPreview = ({
               </div>
 
               {/* Hand Zone */}
-              <div className={`${hasHandCards ? "mt-8 sm:mt-10 md:mt-12" : "mt-8"} max-[1023px]:-mb-24 max-[1023px]:-translate-y-24 max-[1023px]:z-10 max-[500px]:mb-0 max-[500px]:translate-y-0`}>
+              <div className={`${hasHandCards ? "mt-8 sm:mt-10 md:mt-12" : "mt-8"} max-[1023px]:-mb-24 max-[1023px]:-translate-y-24 max-[1023px]:z-10 max-[500px]:mb-0 max-[500px]:translate-y-0 ${!isEditMode ? "max-[640px]:pb-10 max-[500px]:pb-0" : ""}`}>
                 <div className="flex justify-center">
                   <div
                     className={`relative bottom-5 flex w-full justify-center items-end rounded-[18px] px-4 ${hasHandCards ? "h-24 sm:h-28 md:h-32" : "h-12 sm:h-14 md:h-16"}`}
