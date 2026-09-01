@@ -57,14 +57,14 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
 
   return (
     <section
-      className={`rounded-[22px] border p-4 shadow-[0_18px_38px_rgba(2,6,23,0.32)] ${zoneStyle.panel}`}
+      className={`rounded-[22px] border p-3 shadow-[0_18px_38px_rgba(2,6,23,0.32)] ${zoneStyle.panel}`}
     >
       <div
-        className={`mb-4 flex flex-wrap items-center justify-between gap-3 py-3 ${zoneStyle.header}`}
+        className={`mb-3 flex flex-wrap items-center justify-between gap-3 py-2 ${zoneStyle.header}`}
       >
         {!hideTitle && (
           <div className="flex items-center gap-2">
-            <span className="text-base font-semibold text-white">{titleLabel}</span>
+            <span className="text-sm font-semibold text-white">{titleLabel}</span>
             <span
               className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${zoneStyle.badge}`}
             >
@@ -89,7 +89,7 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
       </div>
 
       <div
-        className={`relative overflow-hidden rounded-[16px] p-2 shadow-[inset_0_1px_0_rgba(148,163,184,0.06)] ${zoneStyle.grid}`}
+        className={`relative overflow-hidden rounded-[16px] p-1 shadow-[inset_0_1px_0_rgba(148,163,184,0.06)] ${zoneStyle.grid}`}
       >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.1),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.08),transparent_60%)]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.18)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.18)_1px,transparent_1px)] bg-[size:46px_46px] opacity-25" />
@@ -98,7 +98,7 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
 
         <div className="relative z-10">
         {cards.length > 0 ? (
-          <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-8 lg:grid-cols-10">
+          <div className="grid grid-cols-8 gap-px sm:grid-cols-10 lg:grid-cols-12">
             {cards.map((card, index) => (
               <div
                 key={cardKey(card, index)}
@@ -121,7 +121,7 @@ export const DeckZoneSection = <TCard extends DeckRenderableCard>({
                     <img
                       src={card.imageUrlSmall}
                       alt={card.name}
-                      className={`h-auto w-full object-contain ${canEdit ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
+                      className={`h-auto max-h-20 sm:max-h-24 w-full object-contain ${canEdit ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
                     />
                   </CardTooltip>
                 </div>
