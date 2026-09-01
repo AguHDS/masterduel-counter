@@ -646,7 +646,7 @@ export const FinalBoardPreview = ({
 
       <div className="max-[450px]:-mx-4">
         <div className="flex justify-center">
-        <div className="relative w-full b min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-md border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.1)] sm:max-w-[90%] md:max-w-[80%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-visible">
+        <div className="relative w-full b min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-md border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.1)] sm:max-w-[90%] md:max-w-[84%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-visible">
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_35%)]" />
           <div className="pointer-events-none absolute inset-x-4 top-4 h-20 rounded-full bg-blue-500/10 blur-3xl" />
           <div className="pointer-events-none border-b-0 absolute inset-x-5 max-[450px]:inset-x-0 bottom-10 top-28 max-[450px]:rounded-none rounded-[3px] border border-slate-700/50 bg-gradient-to-t from-slate-950/20 via-slate-950/5 to-indigo-950/20" />
