@@ -84,15 +84,15 @@ export const RecommendedDeckEditor = ({
     mainDeck.length > 0 || extraDeck.length > 0 || sideDeck.length > 0;
 
   useEffect(() => {
-    setMainDeck(initialMainDeck);
+    setMainDeck(sortDeckCards(initialMainDeck));
   }, [initialMainDeck]);
 
   useEffect(() => {
-    setExtraDeck(initialExtraDeck);
+    setExtraDeck(sortDeckCards(initialExtraDeck));
   }, [initialExtraDeck]);
 
   useEffect(() => {
-    setSideDeck(initialSideDeck);
+    setSideDeck(sortDeckCards(initialSideDeck));
     setShowSideDeck(initialSideDeck.length > 0);
   }, [initialSideDeck]);
 

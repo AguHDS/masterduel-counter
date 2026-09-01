@@ -90,5 +90,4 @@ estamos a 2 de agosto. La guia D/D/D esta en el trending #10 y dice que gano (+5
 Aunque su guia fue publicada en junio, por que tiene 2 likes? ya probe sacar mi like a ver si seguia teniendo 2 en caso de que no se actualice correctamente el dato pero si se le quita 1 cuando le saco
 
 resolviendo:
-- el deck builder resetea las posiciones custom hechas cuando agrego carta nueva.
-hacer que las ritual esten alfinal, 
+- fijarse si quitar lo de stats en home

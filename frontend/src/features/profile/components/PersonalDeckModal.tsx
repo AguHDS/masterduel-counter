@@ -113,9 +113,9 @@ export const PersonalDeckModal = ({
   // Reset decks when deck prop changes (only in edit mode)
   useEffect(() => {
     if (deck) {
-      setMainDeck(initializeDeck(deck.mainDeck));
-      setExtraDeck(initializeDeck(deck.extraDeck));
-      setSideDeck(initializeDeck(deck.sideDeck || []));
+      setMainDeck(sortDeckCards(initializeDeck(deck.mainDeck)));
+      setExtraDeck(sortDeckCards(initializeDeck(deck.extraDeck)));
+      setSideDeck(sortDeckCards(initializeDeck(deck.sideDeck || [])));
       setShowSideDeck((deck.sideDeck?.length || 0) > 0);
       setTitle(deck.title);
       setIsPublic(deck.isPublic);
@@ -444,9 +444,9 @@ export const PersonalDeckModal = ({
                   onClick={() => {
                     setIsEditMode(false);
                     if (hasChanges && deck) {
-                      setMainDeck(initializeDeck(deck.mainDeck));
-                      setExtraDeck(initializeDeck(deck.extraDeck));
-                      setSideDeck(initializeDeck(deck.sideDeck || []));
+                      setMainDeck(sortDeckCards(initializeDeck(deck.mainDeck)));
+                      setExtraDeck(sortDeckCards(initializeDeck(deck.extraDeck)));
+                      setSideDeck(sortDeckCards(initializeDeck(deck.sideDeck || [])));
                       setShowSideDeck((deck.sideDeck?.length || 0) > 0);
                       setTitle(deck.title);
                       setHasChanges(false);
