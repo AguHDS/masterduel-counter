@@ -56,9 +56,7 @@ export const HomeAllComponents = ({
         <div className="h-px mx-8 bg-slate-600/40" />
 
         <div className="px-8" aria-label="General statistics section">
-          <div className="h-[530px]">
-            <GeneralStats />
-          </div>
+          <GeneralStats />
         </div>
 
         <div className="h-px mx-8 bg-slate-600/40" />
