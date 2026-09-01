@@ -372,19 +372,18 @@ export const PersonalDeckModal = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[400] flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-[400] overflow-y-auto bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={handleBackdropClick}
     >
       {/* Flex row: deck builder on the left, search panel on the right */}
-      <div className="flex items-stretch gap-4 flex-wrap justify-center w-full">
+      <div className="flex items-start justify-center w-full min-h-full p-4">
         <div
           onClick={(e) => e.stopPropagation()}
-          className="relative flex flex-col h-[calc(100vh-2rem)] w-full min-[640px]:max-w-[85%] min-[768px]:max-w-[80%] min-[1024px]:max-w-[75%] min-[1280px]:max-w-5xl overflow-hidden rounded-[26px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.16)]"
+          className="relative flex flex-col w-full min-[640px]:max-w-[88%] min-[768px]:max-w-[83%] min-[1024px]:max-w-[78%] min-[1280px]:max-w-5xl max-h-[95vh] overflow-hidden rounded-[3px] border border-blue-500/20 bg-gradient-to-b from-blue-900/10 via-indigo-900/20 to-blue-900/10 shadow-[0_0_44px_rgba(37,99,235,0.16)]"
         >
-          <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_38%)]" />
-          <div className="pointer-events-none absolute inset-x-4 top-4 h-24 rounded-full bg-blue-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute inset-x-1 top-4 h-24  bg-blue-700/10" />
 
-          <div className="flex-shrink-0 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 border-b border-slate-700/70 bg-slate-950/85 px-4 py-2.5 backdrop-blur-xl relative z-20">
+          <div className="flex-shrink-0 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 border-b border-slate-700/70 px-4 py-2.5 backdrop-blur-xl relative z-20">
             <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
               {isOwner && isEditMode ? (
                 <input
@@ -434,7 +433,7 @@ export const PersonalDeckModal = ({
                 <button
                   onClick={() => setIsEditMode(true)}
                   disabled={isUpdating}
-                  className="flex items-center gap-1.5 rounded-full border border-sky-400/25 bg-sky-500/15 px-3 py-1.5 text-xs font-semibold text-sky-200  hover:bg-sky-500/22 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-full border border-sky-400/25 bg-sky-500/15 px-3 py-1.5 text-xs font-semibold text-sky-200 opacity-80 hover:opacity-100 hover:bg-sky-500/25 transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Edit2 className="w-3 h-3" />
                   Edit
@@ -606,7 +605,7 @@ export const PersonalDeckModal = ({
                 />
               )}
               {!showSideDeck && !isOwner && !isEditMode ? null : (
-                <div className="rounded-[22px] border border-cyan-400/20 bg-cyan-950/10 p-3 shadow-[0_18px_38px_rgba(2,6,23,0.32)]">
+                <div className="rounded-sm border border-yellow-400/30 bg-gradient-to-br from-[#1a1508] via-[#1f1a0a] to-[#1a1508] p-3 shadow-[0_18px_38px_rgba(2,6,23,0.32)]">
                   <button
                     onClick={() => setIsSideDeckOpen(!isSideDeckOpen)}
                     className="flex w-full items-center justify-between gap-3 py-1"
@@ -615,7 +614,7 @@ export const PersonalDeckModal = ({
                       <span className="text-sm font-semibold text-white">
                         Side Deck
                       </span>
-                      <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
+                      <span className="rounded-full border border-yellow-400/20 bg-yellow-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90">
                         {sideDeck.length}
                       </span>
                     </div>
@@ -626,18 +625,18 @@ export const PersonalDeckModal = ({
                             e.stopPropagation();
                             handleRemoveSideDeck();
                           }}
-                          className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition-colors hover:bg-red-500/18"
+                          className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 hover:bg-red-500/18"
                         >
                           Remove
                         </button>
                       )}
                       <ChevronDown
-                        className={`w-5 h-5 text-cyan-300 transition-transform duration-200 ${isSideDeckOpen ? "rotate-180" : ""}`}
+                        className={`w-5 h-5 text-yellow-300 ${isSideDeckOpen ? "rotate-180" : ""}`}
                       />
                     </div>
                   </button>
                   <div
-                    className={`overflow-hidden transition-all duration-300 ${isSideDeckOpen ? "max-h-[2000px]" : "max-h-0"}`}
+                    className={`overflow-hidden ${isSideDeckOpen ? "max-h-[2000px]" : "max-h-0"}`}
                   >
                     {showSideDeck ? (
                       <div className="max-h-[40vh] overflow-y-auto">
@@ -668,7 +667,7 @@ export const PersonalDeckModal = ({
                         <div className="text-center pt-4">
                           <button
                             onClick={handleAddSideDeck}
-                            className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-500/16"
+                            className="inline-flex items-center gap-2 rounded-full border border-yellow-400/25 bg-yellow-500/10 px-4 py-2 text-sm font-semibold text-yellow-200 hover:bg-yellow-500/16"
                           >
                             <Plus className="h-4 w-4" />
                             <span>Add Side Deck</span>

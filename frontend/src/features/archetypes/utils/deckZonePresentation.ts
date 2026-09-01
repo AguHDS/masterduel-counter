@@ -22,7 +22,7 @@ export const DECK_ZONE_STYLES: Record<DeckDisplayZone, DeckZoneStyleConfig> = {
       "bg-gradient-to-r via-blue-900/60",
     badge: "border-sky-400/20 bg-sky-500/10 text-sky-200",
     panel:
-      "border-sky-400/12 bg-gradient-to-br from-[#08111f] via-[#111a2f] to-[#120f23]",
+      "border-sky-400/30 bg-gradient-to-br from-[#08111f] via-[#111a2f] to-[#120f23]",
     grid: "border-sky-500/18 bg-sky-950/18",
     cardFrame: "border-sky-400/28 group-hover/card:border-sky-300/60",
     addButton:
@@ -34,7 +34,7 @@ export const DECK_ZONE_STYLES: Record<DeckDisplayZone, DeckZoneStyleConfig> = {
       "bg-gradient-to-r via-fuchsia-600/25",
     badge: "border-violet-400/20 bg-violet-500/10 text-violet-200",
     panel:
-      "border-violet-400/12 bg-gradient-to-br from-[#0a1020] via-[#171331] to-[#180d27]",
+      "border-violet-400/30 bg-gradient-to-br from-[#0a1020] via-[#171331] to-[#180d27]",
     grid: "border-violet-500/18 bg-violet-950/18",
     cardFrame: "border-violet-400/28 group-hover/card:border-violet-300/60",
     addButton:
@@ -44,14 +44,14 @@ export const DECK_ZONE_STYLES: Record<DeckDisplayZone, DeckZoneStyleConfig> = {
   side: {
     header:
       "bg-gradient-to-r from-transparent via-yellow-600/25 to-transparent",
-    badge: "border-cyan-400/20 bg-cyan-500/10 text-cyan-200",
+    badge: "border-yellow-400/20 bg-yellow-500/10 text-yellow-200",
     panel:
-      "border-cyan-400/12 bg-gradient-to-br from-yellow-800/20 via-yellow-950/40 to-yellow-800/20",
-    grid: "border-cyan-500/18 bg-cyan-950/18",
-    cardFrame: "border-cyan-400/28 group-hover/card:border-yellow-300/60",
+      "border-yellow-400/30 bg-gradient-to-br from-[#1a1508] via-[#1f1a0a] to-[#1a1508]",
+    grid: "border-yellow-500/18 bg-yellow-950/18",
+    cardFrame: "border-yellow-400/28 group-hover/card:border-yellow-300/60",
     addButton:
-      "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/16",
-    label: "text-cyan-200",
+      "border-yellow-400/30 bg-yellow-500/10 text-yellow-200 hover:bg-yellow-500/16",
+    label: "text-yellow-200",
   },
 };
 
