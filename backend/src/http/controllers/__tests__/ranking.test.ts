@@ -16,6 +16,12 @@ let archetypeId: number = 0;
 const card1Id = 99990501;
 const card2Id = 99990502;
 
+function prevMonthString(): string {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  return d.toISOString().slice(0, 7);
+}
+
 // SETUP
 
 beforeAll(async () => {
@@ -56,6 +62,7 @@ beforeEach(async () => {
 
   await prisma.monthlyGuideRanking.deleteMany();
   await prisma.monthlyUserRanking.deleteMany();
+  await prisma.guideMonthlyViews.deleteMany();
   await prisma.comboStepLeftSubCard.deleteMany();
   await prisma.comboStepSubCard.deleteMany();
   await prisma.comboStepMainCard.deleteMany();
@@ -227,6 +234,76 @@ describe("Trending Ranking", () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(Array.isArray(res.body.ranking)).toBe(true);
+  });
+
+  it("should not leak historical views for old guides without a baseline", async () => {
+    const userA = await registerAndLogin(TEST_USER_A, TEST_EMAIL_A);
+    const userB = await registerAndLogin(TEST_USER_B, TEST_EMAIL_B);
+    const guide = await createGuide(userA, "Old Guide No Baseline");
+
+    const { PrismaClient } = await import("@prisma/client");
+    const prisma = new PrismaClient();
+    // Backdate guide to 2 months ago and give it 110 accumulated views
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+    await prisma.archetypeInstance.update({
+      where: { id: guide.id },
+      data: { createdAt: twoMonthsAgo, views: 110 },
+    });
+    // One like so it qualifies for trending
+    await likeGuide(userB, guide.id);
+    await prisma.$disconnect();
+
+    const res = await request(app).get("/api/ranking/trending/guides");
+    const entry = res.body.ranking.find((g: { id: number }) => g.id === guide.id);
+    expect(entry).toBeDefined();
+    expect(entry.monthlyViews).toBe(0); // no baseline -> no leak
+  });
+
+  it("should compute accurate monthly views using the baseline", async () => {
+    const userA = await registerAndLogin(TEST_USER_A, TEST_EMAIL_A);
+    const userB = await registerAndLogin(TEST_USER_B, TEST_EMAIL_B);
+    const guide = await createGuide(userA, "Baseline Guide");
+
+    const { PrismaClient } = await import("@prisma/client");
+    const prisma = new PrismaClient();
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+    await prisma.archetypeInstance.update({
+      where: { id: guide.id },
+      data: { createdAt: twoMonthsAgo, views: 110 },
+    });
+    // Baseline from previous month: guide had 100 views at start of this month
+    await prisma.guideMonthlyViews.create({
+      data: { guideId: guide.id, month: prevMonthString(), totalViews: 100 },
+    });
+    await likeGuide(userB, guide.id);
+    await prisma.$disconnect();
+
+    const res = await request(app).get("/api/ranking/trending/guides");
+    const entry = res.body.ranking.find((g: { id: number }) => g.id === guide.id);
+    expect(entry).toBeDefined();
+    expect(entry.monthlyViews).toBe(10); // 110 - 100
+  });
+
+  it("should count all views for guides created this month", async () => {
+    const userA = await registerAndLogin(TEST_USER_A, TEST_EMAIL_A);
+    const userB = await registerAndLogin(TEST_USER_B, TEST_EMAIL_B);
+    const guide = await createGuide(userA, "New Guide This Month");
+
+    const { PrismaClient } = await import("@prisma/client");
+    const prisma = new PrismaClient();
+    await prisma.archetypeInstance.update({
+      where: { id: guide.id },
+      data: { views: 5 },
+    });
+    await likeGuide(userB, guide.id);
+    await prisma.$disconnect();
+
+    const res = await request(app).get("/api/ranking/trending/guides");
+    const entry = res.body.ranking.find((g: { id: number }) => g.id === guide.id);
+    expect(entry).toBeDefined();
+    expect(entry.monthlyViews).toBe(5);
   });
 });
 

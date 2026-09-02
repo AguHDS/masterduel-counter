@@ -124,6 +124,12 @@ export class SqliteRankingRepository implements RankingRepository {
     return likes * 10 + favorites * 7 + views * 0.1;
   }
 
+  private getPreviousMonth(month: string): string {
+    const [year, monthNum] = month.split("-").map(Number) as [number, number];
+    const d = new Date(Date.UTC(year, monthNum - 2, 1));
+    return d.toISOString().slice(0, 7);
+  }
+
   private async getSortedGuides(): Promise<
     Array<{
       id: number;
@@ -307,39 +313,42 @@ export class SqliteRankingRepository implements RankingRepository {
     const headerCardMap = new Map(headerCards.map((c) => [c.id, c]));
 
     const guideIds = filteredGuides.map((g) => g.id);
-    const previousGuideSnapshots = await this.prisma.monthlyGuideRanking.findMany({
-      where: {
-        guideId: { in: guideIds },
-        month: { lt: month },
-      },
-      select: {
-        guideId: true,
-        views: true,
-      },
-    });
 
-    const previousViewsByGuideId = new Map<number, number>();
-    for (const snapshotRow of previousGuideSnapshots) {
-      const previous = previousViewsByGuideId.get(snapshotRow.guideId) ?? 0;
-      previousViewsByGuideId.set(snapshotRow.guideId, previous + snapshotRow.views);
-    }
+    // Baseline: accumulated views at the START of the queried month.
+    // = row from GuideMonthlyViews of the immediately previous month (captured by the cron
+    // at the end of that month). With this we calculate monthly views as:
+    //   current_accumulated_views - accumulated_views_at_start_of_month
+    const prevMonth = this.getPreviousMonth(month);
+    const baselines = await this.prisma.guideMonthlyViews.findMany({
+      where: {
+        month: prevMonth,
+        guideId: { in: guideIds },
+      },
+      select: { guideId: true, totalViews: true },
+    });
+    const baselineByGuideId = new Map(baselines.map((b) => [b.guideId, b.totalViews]));
 
     // Map results to expected format
     const guides = filteredGuides.map((g) => {
       const headerCard = g.header_card_id
         ? headerCardMap.get(g.header_card_id) || null
         : null;
-      const previousViews = previousViewsByGuideId.get(g.id) ?? 0;
       const guideCreatedMonth = new Date(g.created_at).toISOString().slice(0, 7);
-      const hasPriorSnapshot = previousViewsByGuideId.has(g.id);
-      // If guide existed before this month but has NO prior snapshot data,
-      // we can't determine how many views came from this month vs previous months.
-      // Set monthlyViews to 0 to prevent historical views from leaking into
-      // the current month's trending.
-      const monthlyViews =
-        guideCreatedMonth < month && !hasPriorSnapshot
-          ? 0
-          : Math.max(g.total_views - previousViews, 0);
+      let monthlyViews: number;
+      if (guideCreatedMonth >= month) {
+        // Guide created DURING the queried month -> all its views are from this month.
+        monthlyViews = g.total_views;
+      } else {
+        const baseline = baselineByGuideId.get(g.id);
+        if (baseline != null) {
+          // Reliable baseline exists -> views gained during this month.
+          monthlyViews = Math.max(g.total_views - baseline, 0);
+        } else {
+          // Guide existed before this month but NO baseline from the start of the month.
+          // Cannot separate this month's views from historical views -> 0 to prevent leaking.
+          monthlyViews = 0;
+        }
+      }
 
       return {
         id: g.id,
@@ -812,8 +821,24 @@ export class SqliteRankingRepository implements RankingRepository {
       });
     }
 
+    // Capture baseline of accumulated views for ALL guides of this month.
+    // This allows exact calculation of "views this month" in future months.
+    const allGuides = await this.prisma.archetypeInstance.findMany({
+      select: { id: true, views: true },
+    });
+    await this.prisma.guideMonthlyViews.deleteMany({ where: { month } });
+    if (allGuides.length > 0) {
+      await this.prisma.guideMonthlyViews.createMany({
+        data: allGuides.map((g) => ({
+          guideId: g.id,
+          month,
+          totalViews: g.views,
+        })),
+      });
+    }
+
     console.log(
-      `[RankingRepository] Snapshot saved: ${guideSnapshots.length} guides, ${userSnapshots.length} users`,
+      `[RankingRepository] Snapshot saved: ${guideSnapshots.length} guides, ${userSnapshots.length} users, ${allGuides.length} view baselines`,
     );
   }
 
