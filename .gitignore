@@ -39,6 +39,7 @@ OG_PREVIEW_TESTING_GUIDE.md
 
 # Editor directories and files
 .vscode/*
+.opencode/
 !.vscode/extensions.json
 .idea
 .DS_Store
