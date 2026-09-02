@@ -581,7 +581,19 @@ model TierListConfig {
   format          String   @unique
   scrapingEnabled Boolean  @default(true) @map("scraping_enabled")
   lastScrapedAt   DateTime? @map("last_scraped_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@map("tier_list_config")
+}
+
+model GuideMonthlyViews {
+  id         Int      @id @default(autoincrement())
+  guideId    Int      @map("guide_id")
+  month      String   // Format: YYYY-MM (month that just ended when baseline was captured)
+  totalViews Int      @map("total_views") // Accumulated views at end of `month`
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([guideId, month])
+  @@index([month])
+  @@map("guide_monthly_views")
 }
