@@ -1,12 +1,41 @@
 # Al modificar el esquema:
-`npx prisma db push`
-`npx prisma generate`
-y para los test:
-`cd backend && $env:DATABASE_URL="file:./src/data/test.db"; npx prisma db push`
-`cd backend && $env:DATABASE_URL="file:./src/data/test.db"; npx prisma generate`
 
-**reiniciar backend**
-La diferencia práctica es esta: schema.prisma es la fuente de verdad, y db push simplemente sincroniza la base con ese schema. migrate dev en cambio intenta crear y administrar historial de migraciones, que es lo que no uso
+## Desarrollo (local):
+1. Editar `backend/prisma/schema.prisma`
+2. `npx prisma migrate dev --name descripcion_del_cambio`
+   - Genera la migración SQL y la aplica a la DB local
+   - Corre `prisma generate` automáticamente
+   - NUNCA aceptes "reset database" si Prisma detecta drift: investigar primero
+
+## Producción (VPS):
+- Se aplica automáticamente en cada deploy via GitHub Actions (`npx prisma migrate deploy`)
+- NO correr `npx prisma migrate dev` en producción
+- NO correr `npx prisma db push` en producción
+
+## Tests (DB `test.db`):
+
+**Primera vez SOLO (una vez, porque `test.db` tiene tablas viejas de `db push`):**
+```powershell
+$env:DATABASE_URL="file:./src/data/test.db"; npx prisma migrate resolve --applied 0_init
+```
+
+**En CADA cambio de esquema**, además del `migrate dev` de desarrollo, aplicar la migración a `test.db`:
+```powershell
+$env:DATABASE_URL="file:./src/data/test.db"; npx prisma migrate deploy
+```
+
+> O sea: cada cambio de schema requiere 2 comandos (dev + test). El `resolve --applied 0_init`
+> de `test.db` es solo una vez, NO se repite.
+
+## Verificar estado de migraciones:
+`npx prisma migrate status`
+
+---
+
+La diferencia práctica con el flujo viejo (`db push`): ahora `schema.prisma` sigue siendo la fuente de
+verdad, pero cada cambio se registra como una **migración** con historial en `prisma/migrations/`, y el
+deploy aplica las migraciones pendientes con `prisma migrate deploy` en lugar de sincronizar a ciegas.
+`prisma db push` ya NO se usa.
 
 # Comandos
 
