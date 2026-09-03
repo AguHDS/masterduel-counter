@@ -86,8 +86,6 @@ Podriamos poner esa feature a la vista en la home justo abajo de las request o a
 bugs:
 
 resolviendo:
-npm run simulate-snapshot -> correr al terminar
-(En tests, además: npx prisma db push contra test.db.)
-
-- hacer mas lindo el search cards? nuevo diseño.
-si se busca una carta para header en guia o deck, mostrar la version cropped
+- Agregar migraciones db. Que pasaria con mi metodologia de prisma db push y generate? el deploy.yml deberia de cambiar porque ya no se usaria db push y generate?
+- Agregar backup? como se hace? es un cron que reemplaza un archivo en prod? o que?
+- Agregar rollback? que es?

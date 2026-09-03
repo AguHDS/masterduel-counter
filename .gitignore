@@ -1,4 +1,4 @@
-# Logs
+﻿# Logs
 logs
 *.log
 npm-debug.log*
@@ -23,6 +23,7 @@ Mejoras_antes_de_prod.md
 /backend/data/
 /backend/prisma/src/data/*.db
 /backend/prisma/src/data/*.db-*
+/backend/prisma/src/data/*.db.backup-*
 *.sqlite
 *.sqlite3
 PASOS_VPS_PRODUCCION.md
@@ -39,6 +40,7 @@ OG_PREVIEW_TESTING_GUIDE.md
 
 # Editor directories and files
 .vscode/*
+.opencode/
 !.vscode/extensions.json
 .idea
 .DS_Store
