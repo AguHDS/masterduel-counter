@@ -12,11 +12,6 @@
 - NO correr `npx prisma migrate dev` en producción
 - NO correr `npx prisma db push` en producción
 
-## Tests (DB `test.db`):
-
-**Primera vez SOLO (una vez, porque `test.db` tiene tablas viejas de `db push`):**
-```powershell
-$env:DATABASE_URL="file:./src/data/test.db"; npx prisma migrate resolve --applied 0_init
 ```
 
 **En CADA cambio de esquema**, además del `migrate dev` de desarrollo, aplicar la migración a `test.db`:
@@ -24,7 +19,6 @@ $env:DATABASE_URL="file:./src/data/test.db"; npx prisma migrate resolve --applie
 $env:DATABASE_URL="file:./src/data/test.db"; npx prisma migrate deploy
 ```
 
-> O sea: cada cambio de schema requiere 2 comandos (dev + test). El `resolve --applied 0_init`
 > de `test.db` es solo una vez, NO se repite.
 
 ## Verificar estado de migraciones:
