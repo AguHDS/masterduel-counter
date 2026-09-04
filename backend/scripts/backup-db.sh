@@ -10,7 +10,10 @@ set -euo pipefail
 # Configuración (rutas del VPS)
 DB_PATH="/var/www/masterduel-counter/backend/prisma/src/data/database.db"
 BACKUP_DIR="/var/www/masterduel-counter/backups"
-GDRIVE_REMOTE="gdrive:Random/masterduelcounter"
+# Con el scope drive.file (no sensible), rclone solo ve archivos que él crea.
+# Esta carpeta debe ser creada por rclone (rclone mkdir gdrive:masterduel-counter-backups).
+# Se puede arrastrar dentro de "Random" en el Drive web después; sigue siendo accesible.
+GDRIVE_REMOTE="gdrive:masterduel-counter-backups"
 
 LOCAL_KEEP=7
 REMOTE_KEEP=14
