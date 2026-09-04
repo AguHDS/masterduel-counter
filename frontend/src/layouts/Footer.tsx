@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   InfoModal,
   AboutContent,
   TermsContent,
+  PrivacyContent,
   ContactContent,
   SupportContent,
 } from "@/shared/components/info";
 
-type ModalType = "about" | "terms" | "contact" | "support" | null;
+type ModalType = "about" | "terms" | "privacy" | "contact" | "support" | null;
 
 export const Footer = () => {
   const [openModal, setOpenModal] = useState<ModalType>(null);
+  const navigate = useNavigate();
 
   // Abre el modal cuando se dispara el evento personalizado (desde otras partes de la app)
   useEffect(() => {
@@ -19,10 +22,12 @@ export const Footer = () => {
     return () => window.removeEventListener("open-support", handler);
   }, []);
 
-  const handleOpenModal = (type: ModalType) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    setOpenModal(type);
-  };
+  const handleOpenModal =
+    (type: ModalType, path?: string) => (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (path) navigate(path);
+      setOpenModal(type);
+    };
 
   const handleCloseModal = () => {
     setOpenModal(null);
@@ -59,11 +64,23 @@ export const Footer = () => {
               </span>
 
               <button
-                onClick={handleOpenModal("terms")}
+                onClick={handleOpenModal("terms", "/terms")}
                 className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
                 aria-label="Terms of Service"
               >
                 Terms<span className="max-[450px]:hidden"> of Service</span>
+              </button>
+
+              <span className="text-blue-700" aria-hidden="true">
+                •
+              </span>
+
+              <button
+                onClick={handleOpenModal("privacy", "/privacy")}
+                className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
+                aria-label="Privacy Policy"
+              >
+                Privacy
               </button>
 
               <span className="text-blue-700" aria-hidden="true">
@@ -113,6 +130,14 @@ export const Footer = () => {
         title="Terms of Service & Cookie Policy"
       >
         <TermsContent />
+      </InfoModal>
+
+      <InfoModal
+        isOpen={openModal === "privacy"}
+        onClose={handleCloseModal}
+        title="Privacy Policy"
+      >
+        <PrivacyContent />
       </InfoModal>
 
       <InfoModal

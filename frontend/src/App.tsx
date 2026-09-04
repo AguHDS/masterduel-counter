@@ -19,6 +19,8 @@ import { useAnalyticsPageTracking } from "./shared/hooks/useAnalyticsPageTrackin
 import { CardsPage } from "./features/cards";
 import { TierListPage } from "./features/tier-list/components/TierListPage";
 import { SiteStatusGate } from "./shared/components/SiteStatusGate";
+import { TermsPage } from "./pages/TermsPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
 
 /**
  * Component that renders all routes and tracks automatically
@@ -70,6 +72,8 @@ function AppRoutes() {
       <Route path="/signup" element={<SignUpPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
       <Route
         path="/configuration"
         element={

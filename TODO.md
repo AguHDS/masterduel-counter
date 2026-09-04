@@ -86,6 +86,5 @@ Podriamos poner esa feature a la vista en la home justo abajo de las request o a
 bugs:
 
 resolviendo:
-- Agregar migraciones db. Que pasaria con mi metodologia de prisma db push y generate? el deploy.yml deberia de cambiar porque ya no se usaria db push y generate?
 - Agregar backup? como se hace? es un cron que reemplaza un archivo en prod? o que?
 - Agregar rollback? que es?
