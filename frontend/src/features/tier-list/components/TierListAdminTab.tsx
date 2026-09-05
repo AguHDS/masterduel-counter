@@ -277,14 +277,14 @@ export const TierListAdminTab = () => {
     },
     3: {
       label: "T3",
-      bgGradient: "from-orange-700/35 via-orange-800/30 to-orange-950/40",
-      border: "border-orange-600/25",
+      bgGradient: "from-orange-700/60 via-orange-800/50 to-orange-950/70",
+      border: "border-orange-600/30",
       textColor: "text-orange-300",
       cardBg: "from-orange-950/50 via-orange-900/20 to-slate-950/80",
     },
     4: {
       label: "T4",
-      bgGradient: "from-gray-400/30 via-gray-500/25 to-gray-700/35",
+      bgGradient: "from-gray-500/40 via-gray-600/35 to-gray-700/50",
       border: "border-gray-400/25",
       textColor: "text-gray-300",
       cardBg: "from-gray-800/40 via-gray-900/20 to-slate-950/80",
@@ -394,9 +394,9 @@ export const TierListAdminTab = () => {
             return (
               <div key={tier} className={`flex ${isLast ? "" : "border-b border-slate-500/15"}`}>
                 <div
-                  className={`w-[44px] sm:w-[60px] md:w-[72px] flex-shrink-0 flex flex-col items-center justify-center py-4 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.border}`}
+                  className={`w-[36px] sm:w-[48px] md:w-[56px] flex-shrink-0 flex flex-col items-center justify-center py-3 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.border}`}
                 >
-                  <span className={`text-2xl sm:text-3xl font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_4px_rgba(0,0,0,0.4)]`}>
+                  <span className={`text-xl sm:text-2xl font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_4px_rgba(0,0,0,0.4)]`}>
                     {cfg.label}
                   </span>
                   {tier > 3 && (
@@ -404,18 +404,19 @@ export const TierListAdminTab = () => {
                   )}
                 </div>
 
-                <div className="flex-1 min-w-0 p-4 sm:p-5">
-                  <div className="flex items-center gap-3 mb-3">
-                    <button
-                      onClick={() => addEntry(tier)}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-green-600/20 hover:bg-green-600/40 text-green-400 border border-green-600/40 rounded-lg text-xs font-semibold transition-colors"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      Add Deck
-                    </button>
-                  </div>
+                <div className="flex-1 min-w-0 p-2 sm:p-3">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <button
+                        onClick={() => addEntry(tier)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-green-600/20 hover:bg-green-600/40 text-green-400 border border-green-600/40 rounded-lg text-xs font-semibold transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Add Deck
+                      </button>
+                    </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    <div className={`grid ${tier === 1 ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7'} gap-3`}>
                     {tierEntries.map((entry) => (
                       <div
                         key={entry.id}
@@ -444,7 +445,7 @@ export const TierListAdminTab = () => {
                           {entry.linkedArchetypeName || "Link"}
                         </button>
 
-                        <div className="w-full aspect-[16/10] overflow-hidden relative">
+                        <div className={`w-full ${tier === 1 ? 'aspect-[5/4]' : 'aspect-[3/2]'} overflow-hidden relative`}>
                           {entry.imageUrl ? (
                             <img
                               src={getOptimizedCardImageUrl(entry.imageUrl, { size: "full" })}
@@ -518,6 +519,7 @@ export const TierListAdminTab = () => {
                         </div>
                       </div>
                     ))}
+                    </div>
                   </div>
                 </div>
               </div>

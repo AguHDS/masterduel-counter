@@ -33,14 +33,14 @@ const tierConfig: Record<number, {
   },
   3: {
     label: "T3",
-    bgGradient: "from-orange-700/35 via-orange-800/30 to-orange-950/40",
-    borderColor: "border-orange-600/20",
+    bgGradient: "from-orange-900/70 via-orange-900/70 to-orange-900/70",
+    borderColor: "border-orange-600/30",
     textColor: "text-orange-300",
   },
   4: {
     label: "T4",
-    bgGradient: "from-gray-400/30 via-gray-500/25 to-gray-700/35",
-    borderColor: "border-gray-400/20",
+    bgGradient: "from-gray-700/80 via-gray-800/90 to-gray-700/80",
+    borderColor: "border-gray-400/25",
     textColor: "text-gray-300",
   },
 };
@@ -48,23 +48,24 @@ const tierConfig: Record<number, {
 /** Section displaying the Tier number at the side */
 export const TierSection = ({ tier, entries, globalRank }: TierSectionProps) => {
   const cfg = tierConfig[tier] ?? tierConfig[3];
+  const isTierOne = tier === 1;
 
   if (entries.length === 0) return null;
 
   return (
     <div className="flex border-b border-slate-500/25 last:border-b-0">
       <div
-        className={`w-[44px] sm:w-[60px] md:w-[72px] flex-shrink-0 flex flex-col items-center justify-center py-4 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.borderColor}`}
+        className={`w-[36px] sm:w-[48px] md:w-[56px] flex-shrink-0 flex flex-col items-center justify-center py-3 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.borderColor}`}
       >
-        <span className={`text-2xl sm:text-3xl font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_4px_rgba(0,0,0,0.4)]`}>
+        <span className={`text-xl sm:text-2xl font-black italic tracking-tighter ${cfg.textColor}`}>
           {cfg.label}
         </span>
       </div>
 
-      <div className="flex-1 min-w-0 p-3 sm:p-3 sm:pb-2">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+      <div className="flex-1 min-w-0 p-2 sm:p-2.5">
+        <div className={`grid ${isTierOne ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7'} gap-3`}>
           {entries.map((entry) => (
-            <TierCard key={entry.id} entry={entry} rank={globalRank.get(entry.id) ?? 0} />
+            <TierCard key={entry.id} entry={entry} rank={globalRank.get(entry.id) ?? 0} isTierOne={isTierOne} />
           ))}
         </div>
       </div>

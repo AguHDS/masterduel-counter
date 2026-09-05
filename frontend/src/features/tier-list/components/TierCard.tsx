@@ -7,6 +7,7 @@ import type { TierListEntry } from "../types/tierList.types";
 interface TierCardProps {
   entry: TierListEntry;
   rank: number;
+  isTierOne?: boolean;
 }
 
 const tierColors: Record<number, { border: string; glow: string; bg: string }> = {
@@ -17,7 +18,7 @@ const tierColors: Record<number, { border: string; glow: string; bg: string }> =
   4: { border: "border-none", glow: "", bg: "from-gray-800/40 via-gray-900/20 to-slate-950/80" },
 };
 
-export const TierCard = ({ entry, rank }: TierCardProps) => {
+export const TierCard = ({ entry, rank, isTierOne = false }: TierCardProps) => {
   const colors = tierColors[entry.tier] ?? tierColors[3];
 
   const displayName = entry.displayName || entry.deckName;
@@ -28,10 +29,10 @@ export const TierCard = ({ entry, rank }: TierCardProps) => {
   return (
     <Link
       to={targetPath}
-      className={`relative rounded-lg overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.08)] min-[501px]:shadow-none cursor-pointer group border ${colors.border} transition-all duration-300 bg-gradient-to-b ${colors.bg}`}
+      className={`relative rounded-[3px] overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.08)] min-[501px]:shadow-none cursor-pointer group border ${colors.border} transition-all duration-300 bg-gradient-to-b ${colors.bg}`}
     >
-      <div className="w-full aspect-[16/10] overflow-hidden relative">
-        <span className="absolute top-1.5 left-1.5 z-10 text-amber-400 text-sm font-black leading-none pointer-events-none select-none">
+      <div className={`w-full ${isTierOne ? 'aspect-[11/8]' : 'aspect-[3/2]'} overflow-hidden relative`}>
+        <span className="absolute top-1 left-1 z-10 text-amber-400 text-xs font-black leading-none pointer-events-none select-none">
           #{rank}
         </span>
         {entry.imageUrl ? (
@@ -49,16 +50,16 @@ export const TierCard = ({ entry, rank }: TierCardProps) => {
       </div>
 
       <div
-        className="absolute bottom-0 left-0 right-0 px-3 pt-2.5"
+        className="absolute bottom-0 left-0 right-0 px-2 pt-2"
         style={{
           background: "linear-gradient(to top, rgba(8,10,25,0.80) 25%, rgba(8,10,20,0.0) 100%)",
           WebkitBackdropFilter: "blur(8px)",
         }}
       >
-        <p className="text-slate-100 font-bold text-sm truncate">
+        <p className={`text-slate-100 truncate ${isTierOne ? 'text-sm font-bold' : 'text-[11px] font-bold tracking-wide'}`}>
           {displayName}
         </p>
-        <p className="text-[11px] mt-0.5 max-[500px]:hidden">
+        <p className={`${isTierOne ? 'text-[9px]' : 'text-[8px]'} mt-0.5 max-[500px]:hidden`}>
           <span className="text-amber-600">Counter: {entry.counterGuideCount}</span>
           <span className="text-slate-600">{" "}·{" "}</span>
           <span className="text-cyan-400">Deck: {entry.deckGuideCount}</span>

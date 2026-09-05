@@ -79,7 +79,7 @@ export const TierListPage = () => {
           />
           <div className="absolute inset-0 bg-black/45 pointer-events-none" />
 
-          <div className="relative z-10 max-w-[1400px] mx-auto py-10">
+          <div className="relative z-10 max-w-[1450px] mx-auto py-6">
             <div className="px-4 sm:px-6 lg:px-8 mb-8">
               <div className="flex items-center gap-4 mb-1">
                 <div className="flex-1 hidden sm:block h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
@@ -171,7 +171,7 @@ export const TierListPage = () => {
             )}
 
             {!isLoading && !isError && entries.length > 0 && (
-              <div className="border border-slate-500/10 rounded-xl overflow-hidden bg-slate-800/15 flex flex-col gap-2">
+              <div className="rounded-xl overflow-hidden bg-slate-800/15 flex flex-col gap-2">
                 {tiers.map((tier) => {
                   const tierEntries = entries.filter((e) => e.tier === tier && e.isActive);
                   return <TierSection key={tier} tier={tier} entries={tierEntries} globalRank={globalRank} />;
