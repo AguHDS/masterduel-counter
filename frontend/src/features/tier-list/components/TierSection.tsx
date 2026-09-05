@@ -35,7 +35,7 @@ const tierConfig: Record<number, {
     textColor: "text-amber-200",
     labelSize: "text-2xl sm:text-3xl",
     containerWidth: "w-[36px] sm:w-[52px] md:w-[64px]",
-    gradientColor: "rgba(255,215,0,0.12)",
+    gradientColor: "rgba(236, 223, 45, 0.08)",
     sectionBorder: "border-amber-400/25",
   },
    2: {
@@ -45,7 +45,7 @@ const tierConfig: Record<number, {
     textColor: "text-blue-200",
     labelSize: "text-lg sm:text-xl",
     containerWidth: "w-[28px] sm:w-[36px] md:w-[44px]",
-    gradientColor: "rgba(96,165,250,0.06)",
+    gradientColor: "rgba(86, 149, 227, 0.03)",
     sectionBorder: "border-blue-400/20",
   },
   3: {
@@ -65,7 +65,7 @@ const tierConfig: Record<number, {
     textColor: "text-gray-300",
     labelSize: "text-lg sm:text-xl",
     containerWidth: "w-[28px] sm:w-[36px] md:w-[44px]",
-    gradientColor: "rgba(156,163,175,0.05)",
+    gradientColor: "rgba(156, 163, 175, 0.09)",
     sectionBorder: "border-gray-400/15",
   },
 };
@@ -78,16 +78,16 @@ export const TierSection = ({ tier, entries, globalRank, isLast = false }: TierS
   if (entries.length === 0) return null;
 
   return (
-    <div className={`flex border-b border-slate-500/25 last:border-b-0 relative ${isTierOne ? '-ml-3 sm:-ml-4 md:-ml-5' : ''}`}>
+    <div className={`flex border-b border-slate-500/25 last:border-b-0 relative ${isTierOne ? 'ml-0 sm:-ml-3 md:-ml-4 lg:-ml-5' : ''}`}>
       <div
-        className={`${cfg.containerWidth} flex-shrink-0 flex flex-col items-center justify-center py-3 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.borderColor} ${isTierOne ? 'rounded-tl-xl rounded-bl-xl' : ''} ${isLast ? 'rounded-bl-xl' : ''}`}
+        className={`${cfg.containerWidth} flex-shrink-0 flex flex-col items-center justify-center py-3 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.borderColor} ${isTierOne ? 'rounded-tl-lg rounded-bl-sm' : ''} ${isLast ? 'rounded-bl-md' : ''}`}
       >
         <span className={`${cfg.labelSize} font-black italic tracking-tighter ${cfg.textColor}`}>
           {cfg.label}
         </span>
       </div>
 
-      <div className={`flex-1 min-w-0 p-2 sm:p-2 relative overflow-hidden border ${cfg.sectionBorder} rounded-r-lg`}>
+      <div className={`flex-1 min-w-0 p-2 sm:p-2 relative overflow-hidden border ${cfg.sectionBorder} rounded-r-sm`}>
         <div
           className="absolute inset-0 pointer-events-none"
           style={{

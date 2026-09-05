@@ -129,7 +129,7 @@ export const TierListPage = () => {
               )}
             </div>
 
-            <div className="px-0 sm:px-2 lg:px-4">
+            <div className="px-2 sm:px-3 lg:px-5">
 
             {isLoading && (
               <div className="flex items-center justify-center py-20">
