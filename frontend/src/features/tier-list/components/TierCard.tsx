@@ -10,12 +10,12 @@ interface TierCardProps {
   isTierOne?: boolean;
 }
 
-const tierColors: Record<number, { border: string; glow: string; bg: string }> = {
-  0: { border: "border-none", glow: "", bg: "from-sky-950/50 via-violet-900/25 to-slate-950/80" },
-  1: { border: "border-none", glow: "", bg: "from-amber-950/50 via-amber-900/20 to-slate-950/80" },
-  2: { border: "border-none", glow: "", bg: "from-blue-950/50 via-blue-900/20 to-slate-950/80" },
-  3: { border: "border-none", glow: "", bg: "from-orange-950/50 via-orange-900/20 to-slate-950/80" },
-  4: { border: "border-none", glow: "", bg: "from-gray-800/40 via-gray-900/20 to-slate-950/80" },
+const tierColors: Record<number, { border: string; bg: string }> = {
+  0: { border: "border-sky-400/40", bg: "from-sky-950/50 via-violet-900/25 to-slate-950/80" },
+  1: { border: "border-amber-400/50", bg: "from-amber-950/50 via-amber-900/20 to-slate-950/80" },
+  2: { border: "border-blue-400/40", bg: "from-blue-950/50 via-blue-900/20 to-slate-950/80" },
+  3: { border: "border-orange-400/40", bg: "from-orange-950/50 via-orange-900/20 to-slate-950/80" },
+  4: { border: "border-gray-400/30", bg: "from-gray-800/40 via-gray-900/20 to-slate-950/80" },
 };
 
 export const TierCard = ({ entry, rank, isTierOne = false }: TierCardProps) => {
@@ -29,9 +29,9 @@ export const TierCard = ({ entry, rank, isTierOne = false }: TierCardProps) => {
   return (
     <Link
       to={targetPath}
-      className={`relative rounded-[3px] overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.08)] min-[501px]:shadow-none cursor-pointer group border ${colors.border} transition-all duration-300 bg-gradient-to-b ${colors.bg}`}
+      className={`relative overflow-hidden min-[501px]:shadow-none cursor-pointer group border-t border-l border-r ${colors.border} bg-gradient-to-b ${colors.bg} rounded-bl-[5px] rounded-br-[5px]`}
     >
-      <div className={`w-full ${isTierOne ? 'aspect-[11/8]' : 'aspect-[3/2]'} overflow-hidden relative`}>
+      <div className={`w-full ${isTierOne ? 'aspect-[4/3]' : 'aspect-[3/2]'} overflow-hidden relative`}>
         <span className="absolute top-1 left-1 z-10 text-amber-400 text-xs font-black leading-none pointer-events-none select-none">
           #{rank}
         </span>

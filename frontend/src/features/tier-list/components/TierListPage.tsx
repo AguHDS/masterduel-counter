@@ -129,7 +129,7 @@ export const TierListPage = () => {
               )}
             </div>
 
-            <div className="px-1 sm:px-4 lg:px-6">
+            <div className="px-0 sm:px-2 lg:px-4">
 
             {isLoading && (
               <div className="flex items-center justify-center py-20">
@@ -171,10 +171,10 @@ export const TierListPage = () => {
             )}
 
             {!isLoading && !isError && entries.length > 0 && (
-              <div className="rounded-xl overflow-hidden bg-slate-800/15 flex flex-col gap-2">
-                {tiers.map((tier) => {
+              <div className="rounded-xl bg-slate-800/15 flex flex-col gap-2">
+                {tiers.map((tier, index) => {
                   const tierEntries = entries.filter((e) => e.tier === tier && e.isActive);
-                  return <TierSection key={tier} tier={tier} entries={tierEntries} globalRank={globalRank} />;
+                  return <TierSection key={tier} tier={tier} entries={tierEntries} globalRank={globalRank} isLast={index === tiers.length - 1} />;
                 })}
               </div>
             )}

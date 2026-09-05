@@ -253,6 +253,10 @@ export const TierListAdminTab = () => {
     border: string;
     textColor: string;
     cardBg: string;
+    labelSize: string;
+    containerWidth: string;
+    gradientColor: string;
+    sectionBorder: string;
   }> = {
     0: {
       label: "T0",
@@ -260,6 +264,10 @@ export const TierListAdminTab = () => {
       border: "border-sky-400/30",
       textColor: "text-sky-200",
       cardBg: "from-sky-950/50 via-violet-900/25 to-slate-950/80",
+      labelSize: "text-lg sm:text-xl",
+      containerWidth: "w-[28px] sm:w-[36px] md:w-[44px]",
+      gradientColor: "rgba(125,196,248,0.07)",
+      sectionBorder: "border-sky-400/20",
     },
     1: {
       label: "T1",
@@ -267,6 +275,10 @@ export const TierListAdminTab = () => {
       border: "border-amber-400/30",
       textColor: "text-amber-200",
       cardBg: "from-amber-950/50 via-amber-900/20 to-slate-950/80",
+      labelSize: "text-2xl sm:text-3xl",
+      containerWidth: "w-[36px] sm:w-[52px] md:w-[64px]",
+      gradientColor: "rgba(255,215,0,0.12)",
+      sectionBorder: "border-amber-400/25",
     },
     2: {
       label: "T2",
@@ -274,6 +286,10 @@ export const TierListAdminTab = () => {
       border: "border-blue-400/25",
       textColor: "text-blue-200",
       cardBg: "from-blue-950/50 via-blue-900/20 to-slate-950/80",
+      labelSize: "text-lg sm:text-xl",
+      containerWidth: "w-[28px] sm:w-[36px] md:w-[44px]",
+      gradientColor: "rgba(96,165,250,0.06)",
+      sectionBorder: "border-blue-400/20",
     },
     3: {
       label: "T3",
@@ -281,6 +297,10 @@ export const TierListAdminTab = () => {
       border: "border-orange-600/30",
       textColor: "text-orange-300",
       cardBg: "from-orange-950/50 via-orange-900/20 to-slate-950/80",
+      labelSize: "text-lg sm:text-xl",
+      containerWidth: "w-[28px] sm:w-[36px] md:w-[44px]",
+      gradientColor: "rgba(251,146,60,0.06)",
+      sectionBorder: "border-orange-400/20",
     },
     4: {
       label: "T4",
@@ -288,6 +308,10 @@ export const TierListAdminTab = () => {
       border: "border-gray-400/25",
       textColor: "text-gray-300",
       cardBg: "from-gray-800/40 via-gray-900/20 to-slate-950/80",
+      labelSize: "text-lg sm:text-xl",
+      containerWidth: "w-[28px] sm:w-[36px] md:w-[44px]",
+      gradientColor: "rgba(156,163,175,0.05)",
+      sectionBorder: "border-gray-400/15",
     },
   };
 
@@ -392,11 +416,11 @@ export const TierListAdminTab = () => {
             const isLast = tierIndex === arr.length - 1;
 
             return (
-              <div key={tier} className={`flex ${isLast ? "" : "border-b border-slate-500/15"}`}>
+              <div key={tier} className={`flex ${isLast ? "" : "border-b border-slate-500/15"} ${tier === 1 ? '-ml-3 sm:-ml-4 md:-ml-5' : ''}`}>
                 <div
-                  className={`w-[36px] sm:w-[48px] md:w-[56px] flex-shrink-0 flex flex-col items-center justify-center py-3 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.border}`}
+                  className={`${cfg.containerWidth} flex-shrink-0 flex flex-col items-center justify-center py-3 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.border} ${tier === 1 ? 'rounded-tl-xl rounded-bl-xl' : ''} ${tierIndex === arr.length - 1 ? 'rounded-bl-xl' : ''}`}
                 >
-                  <span className={`text-xl sm:text-2xl font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_4px_rgba(0,0,0,0.4)]`}>
+                  <span className={`${cfg.labelSize} font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_4px_rgba(0,0,0,0.4)]`}>
                     {cfg.label}
                   </span>
                   {tier > 3 && (
@@ -404,8 +428,14 @@ export const TierListAdminTab = () => {
                   )}
                 </div>
 
-                <div className="flex-1 min-w-0 p-2 sm:p-3">
-                  <div>
+                <div className={`flex-1 min-w-0 p-2 sm:p-3 relative overflow-hidden border ${cfg.sectionBorder} rounded-r-lg`}>
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: cfg.gradientColor,
+                    }}
+                  />
+                  <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-2">
                       <button
                         onClick={() => addEntry(tier)}
@@ -416,7 +446,7 @@ export const TierListAdminTab = () => {
                       </button>
                     </div>
 
-                    <div className={`grid ${tier === 1 ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7'} gap-3`}>
+                    <div className={`grid ${tier === 1 ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8'} gap-3`}>
                     {tierEntries.map((entry) => (
                       <div
                         key={entry.id}
@@ -445,7 +475,7 @@ export const TierListAdminTab = () => {
                           {entry.linkedArchetypeName || "Link"}
                         </button>
 
-                        <div className={`w-full ${tier === 1 ? 'aspect-[5/4]' : 'aspect-[3/2]'} overflow-hidden relative`}>
+                        <div className={`w-full ${tier === 1 ? 'aspect-[4/3]' : 'aspect-[3/2]'} overflow-hidden relative`}>
                           {entry.imageUrl ? (
                             <img
                               src={getOptimizedCardImageUrl(entry.imageUrl, { size: "full" })}
