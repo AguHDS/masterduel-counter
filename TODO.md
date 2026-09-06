@@ -87,4 +87,4 @@ Podriamos poner esa feature a la vista en la home justo abajo de las request o a
 bugs:
 
 resolviendo:
-ahora agega el efecto escalera enl a tierlist a ver ocmo queda, la t2,t3,t4 como el t1 q se posiciona mas a la derecha
+ahora imagenes crop buscar

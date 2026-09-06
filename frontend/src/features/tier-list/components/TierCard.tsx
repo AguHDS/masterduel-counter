@@ -10,12 +10,12 @@ interface TierCardProps {
   isTierOne?: boolean;
 }
 
-const tierColors: Record<number, { border: string; bg: string }> = {
-  0: { border: "border-sky-400/40", bg: "from-sky-950/50 via-violet-900/25 to-slate-950/80" },
-  1: { border: "border-amber-400/50", bg: "from-amber-950/50 via-amber-900/20 to-slate-950/80" },
-  2: { border: "border-blue-400/40", bg: "from-blue-950/50 via-blue-900/20 to-slate-950/80" },
-  3: { border: "border-orange-400/40", bg: "from-orange-950/50 via-orange-900/20 to-slate-950/80" },
-  4: { border: "border-gray-400/30", bg: "from-gray-800/40 via-gray-900/20 to-slate-950/80" },
+const tierColors: Record<number, { border: string; bg: string; rankGradient: string }> = {
+  0: { border: "border-sky-400/60", bg: "from-sky-950/50 via-violet-900/25 to-slate-950/30", rankGradient: "from-sky-300 via-violet-400 to-sky-500" },
+  1: { border: "border-yellow-700/40", bg: "from-amber-400 via-sky-400/90 to-amber-200", rankGradient: "from-yellow-200 via-amber-400 to-yellow-300" },
+  2: { border: "border-sky-700/50", bg: "from-blue-950/60 via-blue-300 to-blue-800/70", rankGradient: "from-blue-300 via-sky-200 to-blue-400" },
+  3: { border: "border-orange-400/30", bg: "from-orange-950/50 via-sky-100/60 to-sky-250/70", rankGradient: "from-orange-500 via-amber-400 to-orange-500" },
+  4: { border: "border-slate-500/70", bg: "from-slate-950 via-slate-400/40 to-slate-950", rankGradient: "from-slate-300 via-gray-200 to-slate-400" },
 };
 
 export const TierCard = ({ entry, rank, isTierOne = false }: TierCardProps) => {
@@ -32,9 +32,6 @@ export const TierCard = ({ entry, rank, isTierOne = false }: TierCardProps) => {
       className={`relative overflow-hidden min-[501px]:shadow-none cursor-pointer group border-t border-l border-r ${colors.border} bg-gradient-to-b ${colors.bg} rounded-bl-[5px] rounded-br-[5px]`}
     >
       <div className={`w-full ${isTierOne ? 'aspect-[4/3]' : 'aspect-[3/2]'} overflow-hidden relative`}>
-        <span className="absolute top-1 left-1 z-10 text-amber-400 text-xs font-black leading-none pointer-events-none select-none">
-          #{rank}
-        </span>
         {entry.imageUrl ? (
           <img
             src={getOptimizedCardImageUrl(entry.imageUrl, { size: "full" })}
@@ -47,6 +44,9 @@ export const TierCard = ({ entry, rank, isTierOne = false }: TierCardProps) => {
             <Swords className="w-8 h-8 text-slate-600" />
           </div>
         )}
+        <span className={`absolute font-mono bottom-1 right-1 z-10 bg-gradient-to-r ${colors.rankGradient} bg-clip-text text-transparent font-black leading-none pointer-events-none select-none drop-shadow-[0_0_4px_rgba(251,191,36,0.6)] ${isTierOne ? 'text-sm' : entry.tier === 2 ? 'text-xs' : 'text-[10px]'}`}>
+          #{rank}
+        </span>
       </div>
 
       <div
