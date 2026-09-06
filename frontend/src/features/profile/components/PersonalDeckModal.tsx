@@ -695,6 +695,7 @@ export const PersonalDeckModal = ({
             floating={isFloating}
             autoCloseAfterSelect={false}
             maxHeight="90vh"
+            imageSize={targetZone === "header" ? "cropped" : "small"}
           />
         )}
       </div>

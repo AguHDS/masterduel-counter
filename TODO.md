@@ -83,8 +83,18 @@ https://ygoprodeck.com/top/
 Podriamos poner esa feature a la vista en la home justo abajo de las request o arriba de ella
 - implementar ban temporal y por ip
 - pedir un diagrama de todo mi sistema, desde proyecto, hasta cosas devops y demas para mostrar a un entrevistador
+Documentar bien TODO el sistema de la web, que cosas tiene, por ejemplo:
+💾 Backups automáticos database (24/7)
+🧪 Tests automatizados (CI/CD)
+🚀 Deploy con zero-downtime
+📊 Monitoreo y alertas
+📈 Logging y trazabilidad
+🔄 Migraciones de DB
+🛡️ Rate limiting y protección
+Basicamente, mostrarlo en un README con badges.
 
 bugs:
 
 resolviendo:
-ahora agega el efecto escalera enl a tierlist a ver ocmo queda, la t2,t3,t4 como el t1 q se posiciona mas a la derecha
+- ahora imagenes crop buscar
+- correr los tests automaticamente cuando pusheamos al repo remoto

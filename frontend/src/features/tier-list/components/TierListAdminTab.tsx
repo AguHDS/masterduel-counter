@@ -257,6 +257,8 @@ export const TierListAdminTab = () => {
     containerWidth: string;
     gradientColor: string;
     sectionBorder: string;
+    rowOffset: string;
+    gridCols: string;
   }> = {
     0: {
       label: "T0",
@@ -264,10 +266,12 @@ export const TierListAdminTab = () => {
       border: "border-sky-400/30",
       textColor: "text-sky-200",
       cardBg: "from-sky-950/50 via-violet-900/25 to-slate-950/80",
-      labelSize: "text-lg sm:text-xl",
-      containerWidth: "w-[28px] sm:w-[36px] md:w-[44px]",
+      labelSize: "text-base sm:text-lg",
+      containerWidth: "w-[22px] sm:w-[30px] md:w-[36px]",
       gradientColor: "rgba(125,196,248,0.07)",
       sectionBorder: "border-sky-400/20",
+      rowOffset: "ml-2 sm:ml-1",
+      gridCols: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
     },
     1: {
       label: "T1",
@@ -279,6 +283,8 @@ export const TierListAdminTab = () => {
       containerWidth: "w-[36px] sm:w-[52px] md:w-[64px]",
       gradientColor: "rgba(255,215,0,0.12)",
       sectionBorder: "border-amber-400/25",
+      rowOffset: "ml-0 sm:-ml-3 md:-ml-4 lg:-ml-5",
+      gridCols: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
     },
     2: {
       label: "T2",
@@ -287,9 +293,11 @@ export const TierListAdminTab = () => {
       textColor: "text-blue-200",
       cardBg: "from-blue-950/50 via-blue-900/20 to-slate-950/80",
       labelSize: "text-lg sm:text-xl",
-      containerWidth: "w-[28px] sm:w-[36px] md:w-[44px]",
+      containerWidth: "w-[28px] sm:w-[40px] md:w-[50px]",
       gradientColor: "rgba(96,165,250,0.06)",
       sectionBorder: "border-blue-400/20",
+      rowOffset: "ml-1 sm:-ml-1",
+      gridCols: "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7",
     },
     3: {
       label: "T3",
@@ -297,10 +305,12 @@ export const TierListAdminTab = () => {
       border: "border-orange-600/30",
       textColor: "text-orange-300",
       cardBg: "from-orange-950/50 via-orange-900/20 to-slate-950/80",
-      labelSize: "text-lg sm:text-xl",
-      containerWidth: "w-[28px] sm:w-[36px] md:w-[44px]",
+      labelSize: "text-base sm:text-lg",
+      containerWidth: "w-[28px] sm:w-[38px] md:w-[46px]",
       gradientColor: "rgba(251,146,60,0.06)",
       sectionBorder: "border-orange-400/20",
+      rowOffset: "ml-3 sm:ml-2",
+      gridCols: "grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8",
     },
     4: {
       label: "T4",
@@ -308,10 +318,12 @@ export const TierListAdminTab = () => {
       border: "border-gray-400/25",
       textColor: "text-gray-300",
       cardBg: "from-gray-800/40 via-gray-900/20 to-slate-950/80",
-      labelSize: "text-lg sm:text-xl",
-      containerWidth: "w-[28px] sm:w-[36px] md:w-[44px]",
+      labelSize: "text-sm sm:text-base",
+      containerWidth: "w-[24px] sm:w-[32px] md:w-[38px]",
       gradientColor: "rgba(156,163,175,0.05)",
       sectionBorder: "border-gray-400/15",
+      rowOffset: "ml-5 sm:ml-5 md:ml-6",
+      gridCols: "grid-cols-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10",
     },
   };
 
@@ -416,9 +428,9 @@ export const TierListAdminTab = () => {
             const isLast = tierIndex === arr.length - 1;
 
             return (
-              <div key={tier} className={`flex ${isLast ? "" : "border-b border-slate-500/15"} ${tier === 1 ? '-ml-3 sm:-ml-4 md:-ml-5' : ''}`}>
+              <div key={tier} className={`flex ${isLast ? "" : "border-b border-slate-500/15"} ${cfg.rowOffset}`}>
                 <div
-                  className={`${cfg.containerWidth} flex-shrink-0 flex flex-col items-center justify-center py-3 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.border} ${tier === 1 ? 'rounded-tl-xl rounded-bl-xl' : ''} ${tierIndex === arr.length - 1 ? 'rounded-bl-xl' : ''}`}
+                  className={`${cfg.containerWidth} flex-shrink-0 flex flex-col items-center justify-center py-3 bg-gradient-to-b ${cfg.bgGradient} border-r ${cfg.border} rounded-tl-lg rounded-bl-lg ${tierIndex === arr.length - 1 ? 'rounded-bl-md' : ''}`}
                 >
                   <span className={`${cfg.labelSize} font-black italic tracking-tighter ${cfg.textColor} drop-shadow-[0_0_4px_rgba(0,0,0,0.4)]`}>
                     {cfg.label}
@@ -446,7 +458,7 @@ export const TierListAdminTab = () => {
                       </button>
                     </div>
 
-                    <div className={`grid ${tier === 1 ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8'} gap-3`}>
+                    <div className={`grid ${cfg.gridCols} gap-3`}>
                     {tierEntries.map((entry) => (
                       <div
                         key={entry.id}

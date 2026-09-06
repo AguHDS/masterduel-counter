@@ -14,6 +14,7 @@ interface FloatingCardSearchModalProps {
   title: string;
   anchorElement: HTMLElement | null;
   autoCloseAfterSelect?: boolean;
+  imageSize?: "small" | "cropped";
 }
 
 // Constants
@@ -31,6 +32,7 @@ export const FloatingCardSearchModal = ({
   title,
   anchorElement,
   autoCloseAfterSelect = false,
+  imageSize = "small",
 }: FloatingCardSearchModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -252,7 +254,7 @@ export const FloatingCardSearchModal = ({
       const width = Math.floor(
         (containerSize.width - padding - totalGap) / cols,
       );
-      const imageHeight = Math.floor(width * CARD_ASPECT_RATIO);
+      const imageHeight = Math.floor(width * (imageSize === "cropped" ? 1.05 : CARD_ASPECT_RATIO));
 
       return {
         columnCount: cols,
@@ -260,7 +262,7 @@ export const FloatingCardSearchModal = ({
         cardImageHeight: imageHeight,
         cardHeight: imageHeight + CARD_TEXT_HEIGHT,
       };
-    }, [containerSize.width, getColumnCount]);
+    }, [containerSize.width, getColumnCount, imageSize]);
 
   // Create rows for virtualization
   const cardRows = useMemo(() => {
@@ -447,7 +449,7 @@ export const FloatingCardSearchModal = ({
                                   result.level,
                                 )
                               }
-                              className="group relative flex h-full w-full flex-col overflow-hidden rounded-[16px] border border-slate-700/90 bg-gradient-to-b from-slate-950/95 via-slate-900/92 to-[#130f25]  hover:border-sky-400/60 shadow-[0_10px_22px_rgba(2,6,23,0.35)]"
+                              className={`group relative flex h-full w-full flex-col overflow-hidden border border-slate-700/90 bg-gradient-to-b from-slate-950/95 via-slate-900/92 to-[#130f25]  hover:border-sky-400/60 shadow-[0_10px_22px_rgba(2,6,23,0.35)] ${imageSize === "cropped" ? "rounded-[8px]" : "rounded-[16px]"}`}
                               title={result.name}
                             >
                               {/* Card Image */}
@@ -457,9 +459,9 @@ export const FloatingCardSearchModal = ({
                               >
                                 {result.imageUrlSmallExternal ? (
                                   <img
-                                    src={result.imageUrlSmallExternal}
+                                    src={imageSize === "cropped" ? (result.imageUrlCroppedExternal ?? result.imageUrlSmallExternal) : result.imageUrlSmallExternal}
                                     alt={result.name}
-                                    className="relative z-10 h-full w-full object-contain"
+                                    className={`relative z-10 h-full w-full ${imageSize === "cropped" ? "object-cover" : "object-contain"}`}
                                     loading="lazy"
                                   />
                                 ) : (

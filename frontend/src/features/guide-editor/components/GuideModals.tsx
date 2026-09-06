@@ -46,6 +46,7 @@ export const GuideModals = ({
           title="Select Header Card"
           anchorElement={headerAnchor}
           autoCloseAfterSelect={true}
+          imageSize="cropped"
         />
       )}
 
