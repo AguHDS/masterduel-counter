@@ -516,11 +516,14 @@ export const FinalBoardPreview = ({
               setAnchorElement(e.currentTarget);
               setSelectingZone({ type: "extraDeck", index: 0 });
             }}
-            className="w-16 max-[639px]:w-14 max-[500px]:w-12 sm:w-16 md:w-14 aspect-[5/7] flex flex-col items-center justify-center gap-0.5 px-1 border-2 border-purple-400/70 rounded-[3px] bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-[8px] max-[639px]:text-[7px] sm:text-[9px] font-semibold text-center leading-tight"
-            title="Add extra deck for Pendulum monsters"
+            style={{ transform: "rotate(-12deg) translateX(16px)" }}
+            className="group relative w-[70px] max-[639px]:w-[64px] max-[500px]:w-14 sm:w-[70px] md:w-[66px] h-[96px] max-[639px]:h-[82px] max-[500px]:h-[70px] sm:h-[96px] md:h-[88px] flex flex-col items-center justify-center gap-1 px-2 border-2 border-dashed border-purple-400/60 rounded-lg bg-purple-500/8 hover:bg-purple-500/18 hover:border-purple-400/80 text-purple-300 text-[8px] max-[639px]:text-[7px] sm:text-[9px] font-semibold text-center leading-tight btn-press transition-colors"
           >
-            <Plus className="w-3 h-3 shrink-0 sm:w-3.5 sm:h-3.5" />
-            <span>EXTRA DECK (PENDULUM)</span>
+            <Plus className="w-4 h-4 shrink-0 sm:w-5 sm:h-5 text-purple-400" />
+            <span className="px-0.5">EXTRA DECK<br/>(PENDULUM)</span>
+            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 rounded-lg border border-purple-400/30 bg-slate-900/95 px-3 py-2 text-[10px] font-normal normal-case tracking-normal text-purple-200/90 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+              This option is intended for Pendulum monsters.
+            </div>
           </button>
         ) : (
           <>
