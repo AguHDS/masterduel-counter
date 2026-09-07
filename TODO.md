@@ -84,17 +84,19 @@ Podriamos poner esa feature a la vista en la home justo abajo de las request o a
 - implementar ban temporal y por ip
 - pedir un diagrama de todo mi sistema, desde proyecto, hasta cosas devops y demas para mostrar a un entrevistador
 Documentar bien TODO el sistema de la web, que cosas tiene, por ejemplo:
-💾 Backups automáticos database (24/7)
-🧪 Tests automatizados (CI/CD)
-🚀 Deploy con zero-downtime
-📊 Monitoreo y alertas
-📈 Logging y trazabilidad
-🔄 Migraciones de DB
-🛡️ Rate limiting y protección
+Backups automáticos database (24/7)
+Tests automatizados (CI/CD)
+Deploy con zero-downtime
+Monitoreo y alertas
+Logging y trazabilidad
+Migraciones de DB
+Rate limiting y protección
 Basicamente, mostrarlo en un README con badges.
 
 bugs:
 
 resolviendo:
-- ahora imagenes crop buscar
 - correr los tests automaticamente cuando pusheamos al repo remoto
+- en modo edit, agregar boton de "Add extra deck (pendulum)" aunque ya lo tiene, deberia tener mas forma de boton normal y al clickearlo te hace elegir la imagen. Al hacer hover, debe aparece run tooltip diciendo que es solo para pendulum decks.
+- cuando hacemos hover sobre la imagen a cambiar del guide header, el hover con el "+" aparece mas abajo de la foto.
+- iluminar boton al hacer hover en add card de deck builder
