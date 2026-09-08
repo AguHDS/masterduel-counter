@@ -96,6 +96,6 @@ Basicamente, mostrarlo en un README con badges.
 bugs:
 
 resolviendo:
-- correr los tests automaticamente cuando pusheamos al repo remoto
+- acomodar las imagenes de las entries en tierlist, acomodar la foto de perfil
 - cuando hacemos hover sobre la imagen a cambiar del guide header, el hover con el "+" aparece mas abajo de la foto.
 - iluminar boton al hacer hover en add card de deck builder
