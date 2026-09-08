@@ -696,6 +696,7 @@ export const PersonalDeckModal = ({
             autoCloseAfterSelect={false}
             maxHeight="90vh"
             imageSize={targetZone === "header" ? "cropped" : "small"}
+            deckZone={targetZone === "header" ? "main" : targetZone === "extra" ? "extra" : targetZone === "side" ? "side" : "main"}
           />
         )}
       </div>

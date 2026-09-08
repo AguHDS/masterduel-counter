@@ -17,6 +17,14 @@ export const fetchTierList = async (format = "masterduel"): Promise<TierListEntr
   return res.data.entries ?? [];
 };
 
+/** Admin: fetch soft-deleted (inactive) entries for restore */
+export const fetchInactiveTierList = async (format = "masterduel"): Promise<TierListEntry[]> => {
+  const res = await axiosClient.get<TierListResponse>("/api/tier-list/inactive", {
+    params: { format },
+  });
+  return res.data.entries ?? [];
+};
+
 export const fetchTierListConfig = async (format = "masterduel"): Promise<TierListConfig | null> => {
   const res = await axiosClient.get<TierListConfigResponse>("/api/tier-list/config", {
     params: { format },

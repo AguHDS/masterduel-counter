@@ -441,6 +441,7 @@ export const RecommendedDeckEditor = ({
           panelClassName={!isFloating ? "!w-[464px]" : undefined}
           autoCloseAfterSelect={false}
           maxHeight="80vh"
+          deckZone={targetZone ?? "main"}
         />
       )}
     </div>

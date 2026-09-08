@@ -11,7 +11,7 @@ interface TierCardProps {
 }
 
 const tierColors: Record<number, { border: string; bg: string; rankGradient: string }> = {
-  0: { border: "border-sky-400/60", bg: "from-sky-950/50 via-violet-900/25 to-slate-950/30", rankGradient: "from-sky-300 via-violet-400 to-sky-500" },
+  0: { border: "border-red-500/60", bg: "from-red-950/60 via-red-900/25 to-slate-950/30", rankGradient: "from-red-300 via-red-500 to-red-600" },
   1: { border: "border-yellow-700/40", bg: "from-amber-400 via-sky-400/90 to-amber-200", rankGradient: "from-yellow-200 via-amber-400 to-yellow-300" },
   2: { border: "border-sky-700/50", bg: "from-blue-950/60 via-blue-300 to-blue-800/70", rankGradient: "from-blue-300 via-sky-200 to-blue-400" },
   3: { border: "border-orange-400/30", bg: "from-orange-950/50 via-sky-100/60 to-sky-250/70", rankGradient: "from-orange-500 via-amber-400 to-orange-500" },

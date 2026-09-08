@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query/queryKeys";
 import {
   fetchTierList,
+  fetchInactiveTierList,
   fetchTierListConfig,
   updateTierListConfig,
   triggerScrape,
@@ -22,6 +23,15 @@ export function useTierListConfig(format = "masterduel") {
     queryKey: queryKeys.tierList.config(format),
     queryFn: () => fetchTierListConfig(format),
     staleTime: 60 * 1000,
+  });
+}
+
+/** Admin: soft-deleted (inactive) entries for restore */
+export function useTierListInactive(format = "masterduel") {
+  return useQuery({
+    queryKey: queryKeys.tierList.inactive(format),
+    queryFn: () => fetchInactiveTierList(format),
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -60,6 +70,7 @@ export function useSaveTierList() {
 export function useTierListAdmin(format = "masterduel") {
   const entries = useTierList(format);
   const config = useTierListConfig(format);
+  const inactiveEntries = useTierListInactive(format);
   const toggleScraping = useToggleScraping();
   const triggerScrapeMutation = useTriggerScrape(format);
   const saveMutation = useSaveTierList();
@@ -67,6 +78,7 @@ export function useTierListAdmin(format = "masterduel") {
   return {
     entries,
     config,
+    inactiveEntries,
     toggleScraping,
     triggerScrape: triggerScrapeMutation,
     saveTierList: saveMutation,

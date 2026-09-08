@@ -100,6 +100,7 @@ export const queryKeys = {
   tierList: {
     all: ["tierList"] as const,
     entries: (format: string) => [...queryKeys.tierList.all, "entries", format] as const,
+    inactive: (format: string) => [...queryKeys.tierList.all, "inactive", format] as const,
     config: (format: string) => [...queryKeys.tierList.all, "config", format] as const,
   },
 

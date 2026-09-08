@@ -3,6 +3,8 @@ import { TierListEntry, TierListConfig, TierListSaveInput } from "@/domain/TierL
 export interface TierListApplicationPort {
   /** Get entries for tierlist */
   getEntries(format: string): Promise<TierListEntry[]>;
+  /** Get soft-deleted entries (admin restore) */
+  getInactiveEntries(format: string): Promise<TierListEntry[]>;
   /** Save entries for tierlist */
   saveEntries(format: string, input: TierListSaveInput): Promise<void>;
   /** Update positions for tierlist */

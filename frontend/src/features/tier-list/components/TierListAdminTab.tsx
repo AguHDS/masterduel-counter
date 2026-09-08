@@ -10,6 +10,7 @@ import {
   Search,
   HelpCircle,
   ChevronDown,
+  Trash2,
 } from "lucide-react";
 import { getOptimizedCardImageUrl } from "@/lib/utils/imageOptimization";
 import { FloatingCardSearchModal } from "@/features/archetypes/components/FloatingCardSearchModal";
@@ -39,11 +40,13 @@ export const TierListAdminTab = () => {
   const [format, setFormat] = useState<"masterduel" | "tcg" | "ocg">("masterduel");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { entries, config, toggleScraping, triggerScrape, saveTierList, isSaving, isScraping } =
+  const { entries, config, inactiveEntries, toggleScraping, triggerScrape, saveTierList, isSaving, isScraping } =
     useTierListAdmin(format);
 
   const [editedEntries, setEditedEntries] = useState<EditableEntry[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
+  const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false);
+  const [deletedEntries, setDeletedEntries] = useState<EditableEntry[]>([]);
   const [isCardSearchOpen, setIsCardSearchOpen] = useState(false);
   const [cardSearchAnchor, setCardSearchAnchor] = useState<HTMLElement | null>(null);
   const [cardSearchTargetId, setCardSearchTargetId] = useState<number | null>(null);
@@ -90,6 +93,24 @@ export const TierListAdminTab = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entries.data]);
 
+  useEffect(() => {
+    if (inactiveEntries.data && !hasChanges) {
+      const deleted = inactiveEntries.data.map((e) => ({
+        id: e.id,
+        deckName: e.deckName,
+        displayName: e.displayName,
+        tier: e.tier,
+        position: e.position,
+        imageUrl: e.imageUrl,
+        source: e.source,
+        linkedArchetypeId: e.linkedArchetypeId,
+        linkedArchetypeName: e.linkedArchetypeName,
+      }));
+      setDeletedEntries(deleted);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inactiveEntries.data]);
+
   const markChanged = () => setHasChanges(true);
 
   const updateEntry = (id: number, updates: Partial<EditableEntry>) => {
@@ -103,6 +124,15 @@ export const TierListAdminTab = () => {
     setEditedEntries((prev) =>
       prev.map((e) => (e.id === id ? { ...e, _isDeleted: true } : e)),
     );
+    markChanged();
+  };
+
+  const restoreEntry = (entry: EditableEntry) => {
+    setEditedEntries((prev) => [
+      ...prev,
+      { ...entry, position: prev.length },
+    ]);
+    setDeletedEntries((prev) => prev.filter((e) => e.id !== entry.id));
     markChanged();
   };
 
@@ -262,16 +292,16 @@ export const TierListAdminTab = () => {
   }> = {
     0: {
       label: "T0",
-      bgGradient: "from-sky-400/50 via-violet-400/35 to-violet-700/50",
-      border: "border-sky-400/30",
-      textColor: "text-sky-200",
-      cardBg: "from-sky-950/50 via-violet-900/25 to-slate-950/80",
-      labelSize: "text-base sm:text-lg",
-      containerWidth: "w-[22px] sm:w-[30px] md:w-[36px]",
-      gradientColor: "rgba(125,196,248,0.07)",
-      sectionBorder: "border-sky-400/20",
-      rowOffset: "ml-2 sm:ml-1",
-      gridCols: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
+      bgGradient: "from-red-600/60 via-red-700/45 to-red-900/60",
+      border: "border-red-500/40",
+      textColor: "text-red-200",
+      cardBg: "from-red-950/60 via-red-900/25 to-slate-950/80",
+      labelSize: "text-xl sm:text-1xl relative left-4",
+      containerWidth: "w-[38px] sm:w-[56px] md:w-[66px]",
+      gradientColor: "rgba(239,68,68,0.12)",
+      sectionBorder: "border-red-500/30",
+      rowOffset: "ml-0 sm:-ml-3 md:-ml-4 lg:-ml-8",
+      gridCols: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
     },
     1: {
       label: "T1",
@@ -279,11 +309,11 @@ export const TierListAdminTab = () => {
       border: "border-amber-400/30",
       textColor: "text-amber-200",
       cardBg: "from-amber-950/50 via-amber-900/20 to-slate-950/80",
-      labelSize: "text-2xl sm:text-3xl",
-      containerWidth: "w-[36px] sm:w-[52px] md:w-[64px]",
+      labelSize: "text-xl sm:text-xl flex relative left-2",
+      containerWidth: "w-[32px] sm:w-[46px] md:w-[56px]",
       gradientColor: "rgba(255,215,0,0.12)",
       sectionBorder: "border-amber-400/25",
-      rowOffset: "ml-0 sm:-ml-3 md:-ml-4 lg:-ml-5",
+      rowOffset: "ml-1 sm:-ml-1 md:-ml-2 lg:-ml-4",
       gridCols: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
     },
     2: {
@@ -292,7 +322,7 @@ export const TierListAdminTab = () => {
       border: "border-blue-400/25",
       textColor: "text-blue-200",
       cardBg: "from-blue-950/50 via-blue-900/20 to-slate-950/80",
-      labelSize: "text-lg sm:text-xl",
+      labelSize: "text-lg sm:text-lg",
       containerWidth: "w-[28px] sm:w-[40px] md:w-[50px]",
       gradientColor: "rgba(96,165,250,0.06)",
       sectionBorder: "border-blue-400/20",
@@ -305,7 +335,7 @@ export const TierListAdminTab = () => {
       border: "border-orange-600/30",
       textColor: "text-orange-300",
       cardBg: "from-orange-950/50 via-orange-900/20 to-slate-950/80",
-      labelSize: "text-base sm:text-lg",
+      labelSize: "text-base sm:text-md",
       containerWidth: "w-[28px] sm:w-[38px] md:w-[46px]",
       gradientColor: "rgba(251,146,60,0.06)",
       sectionBorder: "border-orange-400/20",
@@ -372,6 +402,16 @@ export const TierListAdminTab = () => {
             ))}
           </div>
         </div>
+
+        <button
+          onClick={() => setIsRestoreModalOpen(true)}
+          disabled={deletedEntries.length === 0}
+          className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title="Restore deleted entries"
+        >
+          <Trash2 className="w-4 h-4" />
+          Deleted
+        </button>
 
         <button
           onClick={handleScrape}
@@ -487,7 +527,7 @@ export const TierListAdminTab = () => {
                           {entry.linkedArchetypeName || "Link"}
                         </button>
 
-                        <div className={`w-full ${tier === 1 ? 'aspect-[4/3]' : 'aspect-[3/2]'} overflow-hidden relative`}>
+                        <div className={`w-full ${tier <= 1 ? 'aspect-[4/3]' : 'aspect-[3/2]'} overflow-hidden relative`}>
                           {entry.imageUrl ? (
                             <img
                               src={getOptimizedCardImageUrl(entry.imageUrl, { size: "full" })}
@@ -648,6 +688,63 @@ export const TierListAdminTab = () => {
         </div>
       )}
 
+      {/* Restore Deleted Modal */}
+      {isRestoreModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={() => setIsRestoreModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-md max-h-[80vh] flex flex-col rounded-xl border border-red-500/40 bg-[#0d1020] shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-red-500/20">
+              <h3 className="text-red-400 font-bold text-base">Deleted entries</h3>
+              <button
+                onClick={() => setIsRestoreModalOpen(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 overflow-y-auto">
+              {deletedEntries.length === 0 ? (
+                <p className="text-slate-500 text-sm text-center py-8">No deleted entries.</p>
+              ) : (
+                <div className="space-y-2">
+                  {deletedEntries.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="flex items-center gap-3 p-2 rounded-lg border border-slate-600/30 bg-slate-800/40"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-slate-100 text-sm font-semibold truncate">
+                          {entry.displayName || entry.deckName}
+                        </p>
+                        <p className="text-slate-500 text-xs">
+                          {entry.deckName} · T{entry.tier} · {entry.source}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => restoreEntry(entry)}
+                        className="px-3 py-1.5 bg-green-600/20 hover:bg-green-600/40 text-green-400 border border-green-600/40 rounded-lg text-xs font-semibold transition-colors"
+                      >
+                        Restore
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="px-5 py-3 border-t border-slate-600/20 text-slate-400 text-xs">
+              Restored entries appear in the tier list. Click "Save Changes" to keep them.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Save bar */}
       {hasChanges && (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0d1020] border-t border-yellow-600/40 shadow-[0_-4px_12px_-3px_rgba(0,0,0,0.3)] px-6 py-4">
@@ -679,8 +776,8 @@ export const TierListAdminTab = () => {
             <h3 className="text-amber-400 font-bold text-base mb-2">Source: Scraped vs Manual</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li><strong className="text-blue-300">Scraped</strong>: Tier follows the meta (updates on each scrape). Image is never overwritten once set by admin.</li>
-              <li><strong className="text-amber-300">Manual</strong>: Tier and image are <strong>frozen</strong>. The scraper skips this entry entirely. Use this when you want to lock a deck's position.</li>
-              <li>Entries with a <strong>linked archetype</strong> always follow the meta regardless of source.</li>
+              <li><strong className="text-amber-300">Manual</strong>: Tier and image are <strong>frozen</strong> — even if the entry has a linked archetype. The scraper skips this entry entirely. Use this when you want to lock a deck's position (e.g., a Tier 0).</li>
+              <li><strong>Linking</strong> only fixes the displayed name and navigation; it does NOT change whether the tier follows the meta. To keep a linked deck tracking the meta, leave its source as Scraped.</li>
             </ul>
           </div>
           <div>
@@ -690,7 +787,12 @@ export const TierListAdminTab = () => {
           </div>
           <div>
             <h3 className="text-amber-400 font-bold text-base mb-2">Deleting Entries</h3>
-            <p>Click <strong>"X"</strong> on a card and save. The entry is soft-deleted (<code>is_active=0</code>). If the deck later falls out of the meta and then returns, it will <strong>auto-reactivate</strong>. If the deck is still in the meta, the soft-delete is respected and it won't reappear.</p>
+            <p>Click <strong>"X"</strong> on a card and save. The entry is <strong>soft-deleted</strong> (<code>is_active=0</code>) and listed under the <strong>"Deleted"</strong> button.</p>
+            <ul className="list-disc pl-5 space-y-1 mt-1">
+              <li><strong className="text-blue-300">Scraped</strong>: if the deck falls out of the meta it re-activates automatically; if it stays in the meta the soft-delete is respected.</li>
+              <li><strong className="text-amber-300">Manual</strong>: stays deleted and never auto-reactivates.</li>
+              <li>Use <strong>"Restore"</strong> in the Deleted modal to bring any entry back, then click <strong>"Save Changes"</strong>.</li>
+            </ul>
           </div>
         </div>
       </InfoModal>

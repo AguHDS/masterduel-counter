@@ -435,7 +435,7 @@ export const FinalBoardPreview = ({
           onMouseLeave={() => setHoveringZone(null)}
         >
           <div
-            className={`relative w-16 h-16 max-[640px]:w-14 max-[640px]:h-14 max-[360px]:w-12 max-[360px]:h-12 sm:w-20 sm:h-20 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 sm:border-[3px] ${borderColor} rounded-full flex items-center justify-center overflow-hidden cursor-pointer transition-transform hover:scale-105 shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
+            className={`relative w-16 h-16 max-[640px]:w-14 max-[640px]:h-14 max-[360px]:w-12 max-[360px]:h-12 sm:w-20 sm:h-20 min-[640px]:max-[767px]:w-16 min-[640px]:max-[767px]:h-16 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-gradient-to-b from-slate-900 via-slate-950 to-[#140f26] border-2 sm:border-[3px] ${borderColor} rounded-full flex items-center justify-center overflow-hidden cursor-pointer transition-transform hover:scale-105 shadow-[inset_0_1px_0_rgba(148,163,184,0.12),0_12px_26px_rgba(2,6,23,0.45)]`}
             style={{
               clipPath:
                 "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
@@ -516,11 +516,14 @@ export const FinalBoardPreview = ({
               setAnchorElement(e.currentTarget);
               setSelectingZone({ type: "extraDeck", index: 0 });
             }}
-            className="w-16 max-[639px]:w-14 max-[500px]:w-12 sm:w-16 md:w-14 aspect-[5/7] flex flex-col items-center justify-center gap-0.5 px-1 border-2 border-purple-400/70 rounded-[3px] bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-[8px] max-[639px]:text-[7px] sm:text-[9px] font-semibold text-center leading-tight"
-            title="Add extra deck for Pendulum monsters"
+            style={{ transform: "rotate(-12deg) translateX(16px)" }}
+            className="group relative w-[70px] max-[767px]:w-[58px] md:w-[66px] h-[106px] max-[767px]:h-[80px] md:h-[98px] flex flex-col items-center justify-center gap-1 px-3 py-2 border-2 border-dashed border-purple-400/60 rounded-lg bg-purple-500/8 hover:bg-purple-500/18 hover:border-purple-400/80 text-purple-300 text-[8px] max-[639px]:text-[7px] sm:text-[9px] font-semibold text-center leading-tight btn-press transition-colors"
           >
-            <Plus className="w-3 h-3 shrink-0 sm:w-3.5 sm:h-3.5" />
-            <span>EXTRA DECK (PENDULUM)</span>
+            <Plus className="w-4 h-4 shrink-0 sm:w-5 sm:h-5 text-purple-400" />
+            <span className="px-0.5">EXTRA DECK<br/>(PENDULUM)</span>
+            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 rounded-lg border border-purple-400/30 bg-slate-900/95 px-3 py-2 text-[10px] font-normal normal-case tracking-normal text-purple-200/90 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+              This option is intended for Pendulum monsters.
+            </div>
           </button>
         ) : (
           <>
@@ -646,7 +649,7 @@ export const FinalBoardPreview = ({
 
       <div className="max-[450px]:-mx-4">
         <div className="flex justify-center">
-        <div className="relative w-full b min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-md border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.1)] sm:max-w-[90%] md:max-w-[84%] md:p-5 min-[1024px]:max-w-full min-[1781px]:max-w-[65%] overflow-visible">
+        <div className="relative w-full b min-w-[280px] max-w-[98%] max-[767px]:max-w-full rounded-md border border-blue-500/50 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] p-3 shadow-[0_0_40px_rgba(37,99,235,0.1)] sm:max-w-[90%] md:max-w-[84%] md:p-5 min-[1024px]:max-w-[82%] min-[1024px]:max-[1225px]:max-w-[90%] min-[1280px]:max-[1440px]:max-w-[90%] min-[1781px]:max-w-[75%] overflow-visible">
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_42%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.14),transparent_35%)]" />
           <div className="pointer-events-none absolute inset-x-4 top-4 h-20 rounded-full bg-blue-500/10 blur-3xl" />
           <div className="pointer-events-none border-b-0 absolute inset-x-5 max-[450px]:inset-x-0 bottom-10 top-28 max-[450px]:rounded-none rounded-[3px] border border-slate-700/50 bg-gradient-to-t from-slate-950/20 via-slate-950/5 to-indigo-950/20" />
@@ -742,7 +745,7 @@ export const FinalBoardPreview = ({
 
               {/* Layout principal - Cambia según el modo responsive */}
               <div
-                className={`flex ${isResponsive ? "flex-col" : "flex-col lg:flex-row"} gap-4 max-[425px]:gap-2 sm:gap-6 lg:gap-8 min-[1024px]:max-[1100px]:gap-0 justify-center items-center`}
+                className={`flex ${isResponsive ? "flex-col" : "flex-col lg:flex-row"} gap-4 max-[425px]:gap-2 sm:gap-6 lg:gap-8 min-[1024px]:max-[1100px]:gap-0 min-[1101px]:max-[1170px]:gap-2 justify-center items-center`}
               >
                 {/* Field Spell Zone - standalone, stays in its original position */}
                 <div
@@ -863,7 +866,7 @@ export const FinalBoardPreview = ({
               `}
                 >
                   {isResponsive && (
-                    <div className="absolute left-0 max-[1023px]:left-2 max-[639px]:left-9 top-1/2 -translate-y-1/2 max-[640px]:-translate-y-[60%] pl-1">
+                    <div className="absolute left-0 max-[1023px]:left-2 max-[639px]:left-9 top-1/2 -translate-y-1/2 max-[640px]:-translate-y-[60%] max-[420px]:-translate-y-[40%] pl-1">
                       {renderExtraDeckZone(fieldBoard.extraDeck, "EXTRA DECK")}
                     </div>
                   )}

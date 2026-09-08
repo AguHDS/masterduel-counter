@@ -23,6 +23,12 @@ interface DeckBuilderCardSearchModalProps {
   /** Extra classes applied to the outer panel element (e.g. to override width). */
   panelClassName?: string;
   imageSize?: "small" | "cropped";
+  /**
+   * Which deck zone triggered this search panel.
+   * When "extra" or "side", the panel is shorter and pushed lower
+   * (below the middle of the deck builder).
+   */
+  deckZone?: "main" | "extra" | "side";
 }
 
 // Constants
@@ -48,6 +54,7 @@ export const DeckBuilderCardSearchModal = ({
   floating = false,
   panelClassName: extraPanelClassName,
   imageSize = "small",
+  deckZone = "main",
 }: DeckBuilderCardSearchModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -228,9 +235,11 @@ export const DeckBuilderCardSearchModal = ({
     containerSize.width > 0 &&
     cardWidth > 0;
 
+  const isReducedHeight = !floating && (deckZone === "extra" || deckZone === "side");
+
   const panelClassName = floating
     ? `fixed z-[470] right-4 top-16 bottom-4 flex flex-col overflow-hidden rounded-[24px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_64px_rgba(37,99,235,0.28)] w-[300px]${extraPanelClassName ? ` ${extraPanelClassName}` : ""}`
-    : `relative flex flex-col overflow-hidden rounded-[24px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.18)] w-[360px] shrink-0 self-stretch min-h-[420px]${extraPanelClassName ? ` ${extraPanelClassName}` : ""}`;
+    : `relative flex flex-col overflow-hidden rounded-[24px] border border-blue-500/40 bg-gradient-to-br from-[#090d18] via-[#13182b] to-[#190f30] shadow-[0_0_44px_rgba(37,99,235,0.18)] w-[360px] shrink-0 ${isReducedHeight ? "mt-auto h-[65vh] max-h-[65vh]" : "self-stretch h-[78vh] max-h-[78vh] min-h-[320px]"}${extraPanelClassName ? ` ${extraPanelClassName}` : ""}`;
 
   const panel = (
     <div
@@ -422,7 +431,7 @@ export const DeckBuilderCardSearchModal = ({
         )}
 
         {showWelcome && (
-          <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+          <div className="flex h-full flex-col items-center justify-start pt-[12vh] gap-4 px-6 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-[22px] border border-sky-400/20 bg-sky-500/12 shadow-[0_12px_30px_rgba(59,130,246,0.18)]">
               <Search className="h-8 w-8 text-sky-200" />
             </div>

@@ -181,4 +181,74 @@ describe("Tier List scrape merge (config persistence)", () => {
     expect(row!.linkedArchetypeName).toBe("Yubel");
     expect(row!.imageManuallySet).toBe(true);
   });
+
+  it("should NOT update the tier of a manual linked entry that stays in the meta (manual is frozen)", async () => {
+    await seedEntry({
+      deckName: "ManualLinked",
+      tier: 0,
+      source: "manual",
+      linkedArchetypeId: 7,
+      linkedArchetypeName: "Yubel",
+    });
+
+    scraperMocks.masterduel.mockResolvedValue([{ deckName: "ManualLinked", tier: 1, imageUrl: IMG }]);
+
+    const res = await request(app).post("/api/tier-list/scrape").send({ format: "masterduel" });
+    expect(res.status).toBe(200);
+
+    const row = await findEntry("ManualLinked");
+    expect(row).not.toBeNull();
+    expect(row!.isActive).toBe(true);
+    expect(row!.tier).toBe(0);
+    expect(row!.linkedArchetypeId).toBe(7);
+  });
+
+  it("should NOT reactivate an inactive manual configured entry when its deck returns", async () => {
+    await seedEntry({
+      deckName: "GoneManual",
+      tier: 0,
+      source: "manual",
+      isActive: false,
+      linkedArchetypeId: 42,
+      linkedArchetypeName: "Blue Dragon",
+      imageManuallySet: true,
+    });
+
+    scraperMocks.masterduel.mockResolvedValue([{ deckName: "GoneManual", tier: 1, imageUrl: IMG }]);
+
+    const res = await request(app).post("/api/tier-list/scrape").send({ format: "masterduel" });
+    expect(res.status).toBe(200);
+
+    const row = await findEntry("GoneManual");
+    expect(row).not.toBeNull();
+    expect(row!.isActive).toBe(false);
+  });
+
+  it("should list soft-deleted entries via /inactive and restore them via save", async () => {
+    await seedEntry({ deckName: "DeletedManual", tier: 2, source: "manual", isActive: false });
+    await seedEntry({ deckName: "DeletedScraped", tier: 3, source: "scraped", isActive: false });
+
+    const inactive = await request(app).get("/api/tier-list/inactive?format=masterduel");
+    expect(inactive.status).toBe(200);
+    const names = inactive.body.entries.map((e: { deckName: string }) => e.deckName);
+    expect(names).toContain("DeletedManual");
+    expect(names).toContain("DeletedScraped");
+
+    const id = (await findEntry("DeletedManual"))!.id;
+    const saveRes = await request(app).post("/api/tier-list/save").send({
+      format: "masterduel",
+      entries: [
+        { id, deckName: "DeletedManual", tier: 2, position: 0, imageUrl: null, source: "manual" },
+      ],
+    });
+    expect(saveRes.status).toBe(200);
+
+    const restored = await findEntry("DeletedManual");
+    expect(restored!.isActive).toBe(true);
+
+    const inactiveAfter = await request(app).get("/api/tier-list/inactive?format=masterduel");
+    const namesAfter = inactiveAfter.body.entries.map((e: { deckName: string }) => e.deckName);
+    expect(namesAfter).not.toContain("DeletedManual");
+    expect(namesAfter).toContain("DeletedScraped");
+  });
 });
