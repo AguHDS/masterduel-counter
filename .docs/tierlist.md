@@ -15,7 +15,7 @@ Un cron job (cada 12h) ejecuta `MasterDuelMetaScraper`. El scraper y la persiste
 | Source | Sin link | Con link (`linkedArchetypeId`) |
 |--------|---------|-------------------------------|
 | Scraped | Tier sigue al meta. Imagen NUNCA se pisa. | Tier siempre sigue al meta. Link + imagen nunca se tocan. |
-| Manual | Tier e imagen **congelados**. | Tier siempre sigue al meta. Link + imagen nunca se tocan. |
+| Manual | Tier e imagen **congelados**. | **Congelados igualmente.** El link solo arregla nombre/navegacion, no des-congela el tier. |
 | Inactiva (`is_active=0`, admin la borró) | **Skipped**. No se re-inserta. Se reactiva si el deck sale del meta. | Igual. |
 
 **Entries con config de admin** (`image_manually_set=1` o `linkedArchetypeId`): cuando el deck sale del scrape se hacen **soft-delete** (en vez de hard-delete) para conservar la config, y al volver al meta se **reactivan** con tier/posición frescos. Esto evita que la config (imagen custom + arquetipo linkeado) se pierda en decks volátiles de T4/trending.
@@ -90,7 +90,7 @@ Diseno inspirado en prydwen.gg/star-rail/tier-list:
 - Muestra `linkedArchetypeName` si tiene link, sino `deckName`.
 - Click → si tiene `linkedArchetypeId` navega a `/archetype/{id}/counter-guides`, sino navega por slug.
 
-Colores por tier: T1 (amber/gold), T2 (slate/silver), T3 (orange/bronze)
+Colores por tier: T0 (red fuerte, solo manual, arriba y más a la izquierda que T1), T1 (amber/gold), T2 (blue/slate), T3 (orange/bronze), T4 (gray)
 
 ### Navbar
 
@@ -112,14 +112,16 @@ Los nombres de decks en MasterDuelMeta pueden diferir de los archetypes en nuest
 
 - **Admin**: clickea el boton "Link" en una card → busca y selecciona un archetype de nuestra DB
 - **Efecto**: `linkedArchetypeId` + `linkedArchetypeName` se guardan. TierCard publico muestra el nombre linkeado y navega al archetype correcto.
-- **Scraper**: las entradas linkeadas siempre siguen al meta (tier se actualiza), sin importar source. Link + imagen nunca se tocan.
+- **Scraper**: las entradas **scraped** linkeadas siempre siguen al meta (tier se actualiza). Link + imagen nunca se tocan. Las entradas **manual** linkeadas quedan congeladas (el link no des-congela el tier).
 - **Unlink**: boton "Remove link" en el modal para desvincular.
 
 ## Soft-delete y auto-reset
 
-- **Soft-delete**: Al borrar una entry en admin (boton "X" + save), se marca `is_active=0` en vez de DELETE hard.
-- **Auto-reset**: Si el deck sale del meta (no aparece en el scrape), la entry inactiva se reactiva automaticamente. Cuando el deck vuelva al meta meses despues, reaparece sin intervencion.
+- **Soft-delete**: Al borrar una entry en admin (boton "X" + save), se marca `is_active=0` en vez de DELETE hard. La entry queda listada en el boton "Deleted" del admin tab.
+- **Auto-reset (scraped)**: Si el deck sale del meta (no aparece en el scrape), la entry inactiva se reactiva automaticamente. Cuando el deck vuelva al meta meses despues, reaparece sin intervencion.
 - **Respeto**: Si el deck SIGUE en el meta pero el admin lo borro, se respeta el soft-delete (no se re-inserta).
+- **Manual**: una entry manual borrada NUNCA se auto-reactiva. Solo puede volver via el boton **Restore** (modal "Deleted") + Save, o manualmente.
+- **Restore UI**: `GET /api/tier-list/inactive` lista las entries soft-deleteadas; `POST /api/tier-list/save` con el `id` de una entry inactiva la reactiva (el upsert setea `is_active=1`).
 
 ## Admin Archetypes Tab
 
@@ -132,7 +134,7 @@ Nueva tab en Admin Panel para gestionar archetypes de la DB:
 
 ## Stack
 
-- **Scraping MD**: `MasterDuelMetaScraper` (HTML parsing via secciones `tier-img-container`; el parse previo por `<hr>` quedó obsoleto/removido)
+- **Scraping MD**: `MasterDuelMetaScraper` (HTML parsing via secciones `tier-img-container`; el parse previo por `<hr>` quedó obsoleto/removido). El tier de cada sección se resuelve por su label (`alt="Tier N"`/`alt="Trending"`→T4) con fallback a orden de contenedores. Decks y engines se parsean en todos los tiers (MDM renderiza el T1 como links de engine).
 - **Scraping TCG**: `YgoMetaTcgScraper` (yugiohmeta.com — top 3 = T1, ≥2% = T2, ≥1% = T3, <1% = T4)
 - **Scraping OCG**: `YgoMetaOcgScraper` (yugiohmeta.com JSON API — top 3 = T1, ≥2% = T2, ≥1% = T3, <1% = T4)
 - **Imagenes**: `resolveImageForDeck` → `findCardsByArchetype` (DB local) → `selectCard` (descarga + storage) → YGOProDeck hotlink (ultimo recurso)

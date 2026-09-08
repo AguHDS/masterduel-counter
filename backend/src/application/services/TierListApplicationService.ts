@@ -20,6 +20,11 @@ export class TierListApplicationService implements TierListApplicationPort {
     return entries;
   }
 
+  /** Get soft-deleted entries (admin restore) */
+  async getInactiveEntries(format: string): Promise<TierListEntry[]> {
+    return this.tierListRepository.getInactiveEntries(format);
+  }
+
   /** Save tierlist for entry purposes */
   async saveEntries(format: string, input: TierListSaveInput): Promise<void> {
     await this.tierListRepository.saveEntries(format, input);

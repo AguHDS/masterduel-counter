@@ -1,5 +1,6 @@
 import express from "express";
 import { getTierListController } from "@/http/controllers/tier-list/getTierListController.js";
+import { getInactiveTierListController } from "@/http/controllers/tier-list/getInactiveTierListController.js";
 import { getTierListConfigController } from "@/http/controllers/tier-list/getTierListConfigController.js";
 import { updateTierListConfigController } from "@/http/controllers/tier-list/updateTierListConfigController.js";
 import { triggerScrapeController } from "@/http/controllers/tier-list/triggerScrapeController.js";
@@ -10,6 +11,8 @@ const router = express.Router();
 
 // Public: get the current tier list for display
 router.get("/", getTierListController);
+// Admin: get soft-deleted (inactive) entries for restore
+router.get("/inactive", getInactiveTierListController);
 // Admin: read scraping config (enabled, last scrape time)
 router.get("/config", getTierListConfigController);
 // Admin: toggle auto-scraping on/off

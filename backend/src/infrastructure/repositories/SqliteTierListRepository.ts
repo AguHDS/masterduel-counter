@@ -14,6 +14,15 @@ export class SqliteTierListRepository implements TierListRepository {
     return Promise.resolve(rows.map(this.mapRowToEntry));
   }
 
+  // Returns soft-deleted (inactive) entries, newest first, for admin restore
+  getInactiveEntries(format: string): Promise<TierListEntry[]> {
+    const stmt = this.db.prepare(
+      `SELECT * FROM tier_list_entries WHERE format = ? AND is_active = 0 ORDER BY updated_at DESC`,
+    );
+    const rows = stmt.all(format) as Array<Record<string, unknown>>;
+    return Promise.resolve(rows.map(this.mapRowToEntry));
+  }
+
   // Soft-delete: marks removed entries as inactive, upserts current entries preserving linkedArchetype + imageUrl
   // Syncs image/linked archetype changes across all formats for the same deck (case-insensitive deck name).
   saveEntries(
@@ -194,7 +203,8 @@ export class SqliteTierListRepository implements TierListRepository {
     return Promise.resolve();
   }
 
-  // Scraper merge: updates scraped+linked entries, skips manual-only, auto-resets inactive entries.
+  // Scraper merge: updates scraped entries (tier follows the meta), manual entries are always frozen
+  // (tier/image never touched, link or not) and are never auto-reactivated once soft-deleted.
   // Entries with admin config (manually set image or linked archetype) are soft-deleted instead of
   // hard-deleted when they fall out of the meta, so their config survives and is restored on return.
   replaceScrapedEntries(
@@ -209,13 +219,12 @@ export class SqliteTierListRepository implements TierListRepository {
     const existingRows = existingStmt.all(format) as Array<{
       id: number; key: string; source: string; is_active: number; linked_archetype_id: number | null; image_manually_set: number;
     }>;
-    const existingMap = new Map<string, { id: number; source: string; isActive: boolean; hasLink: boolean; hasConfig: boolean }>();
+    const existingMap = new Map<string, { id: number; source: string; isActive: boolean; hasConfig: boolean }>();
     for (const row of existingRows) {
       existingMap.set(row.key, {
         id: row.id,
         source: row.source,
         isActive: row.is_active === 1,
-        hasLink: row.linked_archetype_id !== null,
         hasConfig: row.linked_archetype_id !== null || row.image_manually_set === 1,
       });
     }
@@ -253,14 +262,14 @@ export class SqliteTierListRepository implements TierListRepository {
 
         if (existing) {
           if (!existing.isActive) {
-            if (existing.hasConfig) {
-              // Configured entry: deck is back in the meta -> restore with fresh tier/position
+            if (existing.source === "scraped" && existing.hasConfig) {
+              // Configured scraped entry: deck is back in the meta -> restore with fresh tier/position
               reactivateWithTierStmt.run(entry.tier, entry.position, format, key);
               reactivatedCount++;
             } else {
               skippedInactive++;
             }
-          } else if (existing.source === "manual" && !existing.hasLink) {
+          } else if (existing.source === "manual") {
             skippedManual++;
           } else {
             updateStmt.run(entry.tier, entry.position, format, key);

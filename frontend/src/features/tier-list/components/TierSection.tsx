@@ -22,15 +22,15 @@ const tierConfig: Record<number, {
 }> = {
   0: {
     label: "T0",
-    bgGradient: "from-sky-400/50 via-violet-400/35 to-violet-700/50",
-    borderColor: "border-sky-400/30",
-    textColor: "text-sky-200",
-    labelSize: "text-base sm:text-lg",
-    containerWidth: "w-[22px] sm:w-[30px] md:w-[36px]",
-    gradientColor: "rgba(125,196,248,0.07)",
-    sectionBorder: "border-sky-400/20",
-    rowOffset: "ml-2 sm:ml-1",
-    gridCols: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
+    bgGradient: "from-red-600/60 via-red-700/45 to-red-900/60",
+    borderColor: "border-red-500/40",
+    textColor: "text-red-200",
+    labelSize: "text-base sm:text-2xl",
+    containerWidth: "w-[44px] sm:w-[64px] md:w-[76px]",
+    gradientColor: "rgba(239, 68, 68, 0.14)",
+    sectionBorder: "border-red-500/30",
+    rowOffset: "ml-0 sm:-ml-6 md:-ml-7 lg:-ml-8",
+    gridCols: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
   },
   1: {
     label: "T1",
@@ -85,7 +85,7 @@ const tierConfig: Record<number, {
 /** Section displaying the Tier number at the side */
 export const TierSection = ({ tier, entries, globalRank, isLast = false }: TierSectionProps) => {
   const cfg = tierConfig[tier] ?? tierConfig[3];
-  const isTierOne = tier === 1;
+  const isTierOne = tier <= 1;
 
   if (entries.length === 0) return null;
 

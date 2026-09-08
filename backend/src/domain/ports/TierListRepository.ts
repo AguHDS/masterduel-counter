@@ -3,6 +3,8 @@ import { TierListEntry, TierListConfig, TierListSaveInput } from "@/domain/TierL
 // Data-access contract for tier list entries and config
 export interface TierListRepository {
   getEntries(format: string): Promise<TierListEntry[]>;
+  /** Soft-deleted (inactive) entries for admin restore */
+  getInactiveEntries(format: string): Promise<TierListEntry[]>;
   /** Full replacement used by admin bulk-save (DELETE all + INSERT all) */
   saveEntries(format: string, input: TierListSaveInput): Promise<void>;
   updatePositions(format: string, positions: { id: number; position: number }[]): Promise<void>;

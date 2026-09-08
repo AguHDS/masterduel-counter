@@ -97,6 +97,5 @@ bugs:
 
 resolviendo:
 - correr los tests automaticamente cuando pusheamos al repo remoto
-- en modo edit, agregar boton de "Add extra deck (pendulum)" aunque ya lo tiene, deberia tener mas forma de boton normal y al clickearlo te hace elegir la imagen. Al hacer hover, debe aparece run tooltip diciendo que es solo para pendulum decks.
 - cuando hacemos hover sobre la imagen a cambiar del guide header, el hover con el "+" aparece mas abajo de la foto.
 - iluminar boton al hacer hover en add card de deck builder
