@@ -63,12 +63,12 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, token }: { user: { email: string; name: string }; url: string; token: string }) => {
       const frontendUrl = `${getFrontendUrl()}/reset-password?token=${token}`;
 
-      if (config.nodeEnv === "development") {
-        console.log("\n===== PASSWORD RESET REQUEST (DEVELOPMENT MODE) =====");
+      if (config.nodeEnv !== "production") {
+        console.log("\n===== PASSWORD RESET REQUEST (NON-PRODUCTION MODE) =====");
         console.log(`User: ${user.email}`);
         console.log(`Reset URL: ${frontendUrl}`);
         console.log(`Token: ${token}`);
-        console.log(`In development, copy the URL above and paste in your browser`);
+        console.log(`In non-production, copy the URL above and paste in your browser`);
         console.log("============================================\n");
       } else {
         // Send email in production (don't block if fails)
@@ -88,12 +88,12 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, token }: { user: { email: string; name: string }; url: string; token: string }) => {
       const frontendUrl = `${getFrontendUrl()}/verify-email?token=${token}`;
 
-      if (config.nodeEnv === "development") {
-        console.log("\n===== EMAIL VERIFICATION FOR SIGN UP (DEVELOPMENT MODE) =====");
+      if (config.nodeEnv !== "production") {
+        console.log("\n===== EMAIL VERIFICATION FOR SIGN UP (NON-PRODUCTION MODE) =====");
         console.log(`User: ${user.email}`);
         console.log(`Verification URL: ${frontendUrl}`);
         console.log(`Token: ${token}`);
-        console.log(`In development, copy the URL above and paste in your browser`);
+        console.log(`In non-production, copy the URL above and paste in your browser`);
         console.log("============================================\n");
       } else {
         // Send email in production (don't block registration if fails)
