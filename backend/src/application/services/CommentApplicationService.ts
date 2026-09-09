@@ -42,8 +42,10 @@ export class CommentApplicationService implements CommentApplicationPort {
 
     const comment = await this.commentRepository.createComment(data);
 
-    // Create notifications (async, don't wait)
-    this.createCommentNotification(
+    // Create notifications (awaited so the write completes before the response:
+    // the fire-and-forget version raced the next request's writes to the same
+    // SQLite file, causing intermittent SQLITE_IOERR_DELETE_NOENT errors).
+    await this.createCommentNotification(
       data.instanceId,
       comment.id,
       data.authorId,

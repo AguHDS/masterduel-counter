@@ -310,15 +310,23 @@ export class GuideApplicationService implements GuideInstanceServicePort {
 
     const result = await this.instanceRepository.toggleLikeGuide(instanceId, userId);
 
-    // Create or update notification (async, don't wait)
+    // Update notification (awaited so the write completes before the response:
+    // the fire-and-forget version raced the next request's writes to the same
+    // SQLite file, causing intermittent SQLITE_IOERR_DELETE_NOENT errors)
     if (result.liked) {
       // Like was added
-      this.notificationService.createOrUpdateLikeNotification(instance.userId, instanceId)
-        .catch(error => console.error("Failed to create like notification:", error));
+      try {
+        await this.notificationService.createOrUpdateLikeNotification(instance.userId, instanceId);
+      } catch (error) {
+        console.error("Failed to create like notification:", error);
+      }
     } else {
       // Like was removed
-      this.notificationService.decrementOrDeleteAggregatedNotification(instance.userId, instanceId, "like")
-        .catch(error => console.error("Failed to decrement like notification:", error));
+      try {
+        await this.notificationService.decrementOrDeleteAggregatedNotification(instance.userId, instanceId, "like");
+      } catch (error) {
+        console.error("Failed to decrement like notification:", error);
+      }
     }
 
     return result;
@@ -372,15 +380,23 @@ export class GuideApplicationService implements GuideInstanceServicePort {
 
     // Only notify if favoriting someone else's guide (users can favorite their own)
     if (instance.userId !== userId) {
-      // Create or update notification (async, don't wait)
+      // Update notification (awaited so the write completes before the response:
+      // the fire-and-forget version raced the next request's writes to the same
+      // SQLite file, causing intermittent SQLITE_IOERR_DELETE_NOENT errors).
       if (result.favorited) {
         // Favorite was added
-        this.notificationService.createOrUpdateFavoriteNotification(instance.userId, instanceId)
-          .catch(error => console.error("Failed to create favorite notification:", error));
+        try {
+          await this.notificationService.createOrUpdateFavoriteNotification(instance.userId, instanceId);
+        } catch (error) {
+          console.error("Failed to create favorite notification:", error);
+        }
       } else {
         // Favorite was removed
-        this.notificationService.decrementOrDeleteAggregatedNotification(instance.userId, instanceId, "favorite")
-          .catch(error => console.error("Failed to decrement favorite notification:", error));
+        try {
+          await this.notificationService.decrementOrDeleteAggregatedNotification(instance.userId, instanceId, "favorite");
+        } catch (error) {
+          console.error("Failed to decrement favorite notification:", error);
+        }
       }
     }
 

@@ -36,6 +36,11 @@ export class ViewCountCache {
    * Starts the periodic flush interval
    */
   private startFlushInterval(): void {
+    // Don't run the background flush in tests: it would write to the same
+    // SQLite file while a test's request is mid-write, racing on the rollback
+    // journal (SQLITE_IOERR_DELETE_NOENT). Tests assert on the "counted"
+    // response, which is independent of this aggregate flush.
+    if (process.env.NODE_ENV === "test") return;
     this.flushInterval = setInterval(() => {
       this.flush().catch(error => {
         console.error('Error flushing view counts:', error);
