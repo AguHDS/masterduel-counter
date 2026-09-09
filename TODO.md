@@ -96,4 +96,3 @@ bugs:
 resolviendo:
 - acomodar las imagenes de las entries en tierlist, acomodar la foto de perfil
 - iluminar boton al hacer hover en add card de deck builder
-- reducir las letras para el T4 y el efecto shadow

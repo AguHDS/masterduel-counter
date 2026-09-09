@@ -314,7 +314,7 @@ export const TierListAdminTab = () => {
       gradientColor: "rgba(255,215,0,0.12)",
       sectionBorder: "border-amber-400/25",
       rowOffset: "ml-1 sm:-ml-1 md:-ml-2 lg:-ml-4",
-      gridCols: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
+      gridCols: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
     },
     2: {
       label: "T2",
@@ -327,7 +327,7 @@ export const TierListAdminTab = () => {
       gradientColor: "rgba(96,165,250,0.06)",
       sectionBorder: "border-blue-400/20",
       rowOffset: "ml-1 sm:-ml-1",
-      gridCols: "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7",
+      gridCols: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
     },
     3: {
       label: "T3",
@@ -340,7 +340,7 @@ export const TierListAdminTab = () => {
       gradientColor: "rgba(251,146,60,0.06)",
       sectionBorder: "border-orange-400/20",
       rowOffset: "ml-3 sm:ml-2",
-      gridCols: "grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8",
+      gridCols: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
     },
     4: {
       label: "T4",
@@ -353,21 +353,26 @@ export const TierListAdminTab = () => {
       gradientColor: "rgba(156,163,175,0.05)",
       sectionBorder: "border-gray-400/15",
       rowOffset: "ml-5 sm:ml-5 md:ml-6",
-      gridCols: "grid-cols-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10",
+      gridCols: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
     },
   };
 
-  const sourceBadge = (source: string) => (
-    <span
-      className={`absolute top-2 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-        source === "scraped"
-          ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-          : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-      }`}
-    >
-      {source}
-    </span>
-  );
+  const sourceBadge = (source: string, tier: number) => {
+    const isT4 = tier === 4;
+    const isT3 = tier === 3;
+    const isSmall = tier >= 2;
+    return (
+      <span
+        className={`absolute top-1 right-1 z-10 ${isT4 ? 'px-1 py-0 text-[6px]' : isT3 ? 'px-1.5 py-0 text-[7px]' : isSmall ? 'px-2 py-0.5 text-[8px]' : 'px-2 py-0.5 text-[10px]'} rounded font-bold uppercase tracking-wider ${
+          source === "scraped"
+            ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+            : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+        }`}
+      >
+        {source}
+      </span>
+    );
+  };
 
   return (
     <div>
@@ -511,19 +516,19 @@ export const TierListAdminTab = () => {
                           dragOverId === entry.id ? "border-amber-400/60 shadow-[0_0_6px_-1px_rgba(245,158,11,0.12)]" : "border-slate-600/30"
                         }`}
                       >
-                        {sourceBadge(entry.source)}
+                        {sourceBadge(entry.source, entry.tier)}
 
                         {/* Link Archetype button */}
                         <button
                           onClick={(e) => { e.stopPropagation(); handleOpenLinkModal(entry.id); }}
-                          className={`absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                          className={`absolute ${entry.tier === 4 ? 'top-1 left-1 px-1 py-0 text-[6px]' : entry.tier === 3 ? 'top-2 left-2 px-1.5 py-0 text-[7px]' : entry.tier >= 2 ? 'top-2 left-2 px-2 py-0.5 text-[8px]' : 'top-2 left-2 px-2 py-0.5 text-[10px]'} z-10 rounded font-bold uppercase tracking-wider transition-colors ${
                             entry.linkedArchetypeId
                               ? "bg-green-500/20 text-green-300 border border-green-500/40 hover:bg-green-500/30"
-                              : "bg-slate-500/20 text-slate-400 border border-slate-500/30 hover:bg-slate-500/30"
+                              : "bg-blue-500/25 text-blue-300 border border-blue-500/40 hover:bg-blue-500/35"
                           }`}
                           title={entry.linkedArchetypeId ? `Linked to: ${entry.linkedArchetypeName}` : "Link to archetype"}
                         >
-                          <Link className="w-3 h-3 inline mr-1" />
+                          <Link className={`${entry.tier === 4 ? 'w-1.5 h-1.5' : entry.tier === 3 ? 'w-2 h-2' : entry.tier >= 2 ? 'w-2.5 h-2.5' : 'w-3 h-3'} inline mr-0.5`} />
                           {entry.linkedArchetypeName || "Link"}
                         </button>
 
@@ -542,7 +547,7 @@ export const TierListAdminTab = () => {
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                             <button
                               onClick={(e) => handleOpenCardPicker(entry.id, e.currentTarget)}
-                              className="px-3 py-1.5 bg-amber-500/90 hover:bg-amber-500 text-black text-xs font-bold rounded"
+                              className={`${entry.tier === 4 ? 'px-1.5 py-0.5 text-[8px] mt-4' : entry.tier === 3 ? 'px-1.5 py-0.5 text-[9px]' : entry.tier >= 2 ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs'} bg-amber-500/90 hover:bg-amber-500 text-black font-bold rounded whitespace-nowrap`}
                             >
                               Select Card Image
                             </button>
@@ -550,13 +555,13 @@ export const TierListAdminTab = () => {
                         </div>
 
                         <div
-                          className="px-3 pt-2.5 flex flex-col gap-1.5"
+                          className={`${entry.tier === 4 ? 'px-1.5 pt-1 gap-0.5' : entry.tier >= 2 ? 'px-2 pt-1.5 gap-1' : 'px-3 pt-2.5 gap-1.5'} flex flex-col`}
                           style={{
                             background: "linear-gradient(to top, rgba(8,10,25,0.94) 50%, rgba(8,10,20,0.0) 100%)",
                             WebkitBackdropFilter: "blur(8px)",
                           }}
                         >
-                          <p className="text-slate-500 text-[10px] truncate" title={entry.deckName}>
+                          <p className={`text-slate-500 ${entry.tier === 4 ? 'text-[7px]' : entry.tier >= 2 ? 'text-[8px]' : 'text-[10px]'} truncate`} title={entry.deckName}>
                             Scraper name: {entry.deckName}
                           </p>
                           <input
@@ -564,14 +569,14 @@ export const TierListAdminTab = () => {
                             value={entry.displayName ?? ""}
                             onChange={(e) => updateEntry(entry.id, { displayName: e.target.value || null })}
                             placeholder={entry.deckName}
-                            className="w-full bg-transparent text-slate-100 font-bold text-sm border-b border-slate-600/50 focus:border-amber-500/70 outline-none pb-0.5"
+                            className={`w-full bg-transparent text-slate-100 font-bold ${entry.tier === 4 ? 'text-[10px]' : entry.tier >= 2 ? 'text-xs' : 'text-sm'} border-b border-slate-600/50 focus:border-amber-500/70 outline-none ${entry.tier >= 2 ? 'pb-0' : 'pb-0.5'}`}
                           />
 
-                          <div className="flex items-center gap-2">
+                          <div className={`flex items-center ${entry.tier === 4 ? 'gap-0.5' : entry.tier >= 2 ? 'gap-1' : 'gap-2'}`}>
                             <select
                               value={entry.tier}
                               onChange={(e) => updateEntry(entry.id, { tier: parseInt(e.target.value) })}
-                              className="bg-slate-800 border border-slate-600/50 text-slate-300 text-xs rounded px-2 py-1 outline-none focus:border-amber-500/70"
+                              className={`bg-slate-800 border border-slate-600/50 text-slate-300 ${entry.tier === 4 ? 'text-[9px] px-1 py-0' : entry.tier >= 2 ? 'text-[10px] px-1.5 py-0.5' : 'text-xs px-2 py-1'} rounded outline-none focus:border-amber-500/70 flex-shrink-0`}
                             >
                               <option value={0}>Tier 0</option>
                             <option value={1}>Tier 1</option>
@@ -583,7 +588,7 @@ export const TierListAdminTab = () => {
                             <select
                               value={entry.source}
                               onChange={(e) => updateEntry(entry.id, { source: e.target.value as "scraped" | "manual" })}
-                              className="bg-slate-800 border border-slate-600/50 text-slate-300 text-xs rounded px-2 py-1 outline-none focus:border-amber-500/70"
+                              className={`bg-slate-800 border border-slate-600/50 text-slate-300 ${entry.tier === 4 ? 'text-[9px] px-1 py-0' : entry.tier >= 2 ? 'text-[10px] px-1.5 py-0.5' : 'text-xs px-2 py-1'} rounded outline-none focus:border-amber-500/70 flex-shrink-0`}
                               title="Scraped entries get overwritten on next scrape. Set to Manual to protect your changes."
                             >
                               <option value="scraped">Scraped</option>
@@ -592,10 +597,10 @@ export const TierListAdminTab = () => {
 
                             <button
                               onClick={() => removeEntry(entry.id)}
-                              className="ml-auto p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors"
+                              className={`ml-auto flex-shrink-0 ${entry.tier === 4 ? 'p-0' : entry.tier >= 2 ? 'p-0.5' : 'p-1'} text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors`}
                               title="Remove"
                             >
-                              <X className="w-4 h-4" />
+                              <X className={`${entry.tier === 4 ? 'w-2.5 h-2.5' : entry.tier >= 2 ? 'w-3 h-3' : 'w-4 h-4'}`} />
                             </button>
                           </div>
                         </div>
