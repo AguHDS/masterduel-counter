@@ -73,8 +73,6 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 ---
 
 mejoras
-- Mostrar solo card cropped cuando se quiere usar como preview
-- mostrar una guia diciendo que el extra deck del final board preview es solo para pendulos. Debe ser tooltip
 - Migracion de proyecto con estrategias devops (terraform y docker). Tener en cuenta que, al hacer esto probablemente tengamos que cambiar/modificar la feature que maneja los scripts de server management y hace restart con pm2 en el admin pannel, porque si usamos pm2 para restart eso no existiria en docker
 - Generalstats deberia tener otro diseño, quiza mas informativo?
 - Agregar seccion de Top Cards quiza en la misma tab de cartas, que muestra el % usage de las handtraps y boardbreakers. Tomar este dato de https://www.masterduelmeta.com/top-cards#usage-rate, pero tengo que hacer un sistmea que desde el admin panel me deje ingresar las cartas especificas que quiero que aparezcan en esa tierlist de cartas, ya que en https://www.masterduelmeta.com/top-cards#usage-rate muestra un % usage de TODAS las cartas, y yo quiero % de handtraps/boardbreakers. Tienen que quedar permanente las que yo ingreso como entry.
@@ -97,6 +95,5 @@ bugs:
 
 resolviendo:
 - acomodar las imagenes de las entries en tierlist, acomodar la foto de perfil
-- cuando hacemos hover sobre la imagen a cambiar del guide header, el hover con el "+" aparece mas abajo de la foto.
 - iluminar boton al hacer hover en add card de deck builder
 - reducir las letras para el T4 y el efecto shadow

@@ -218,7 +218,7 @@ export const GuideHeader = ({
             {isEditMode && (
               <button
                 onClick={(e) => onSelectHeaderCard(e)}
-                className="absolute m-auto inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+                className="absolute m-auto inset-0 -translate-y-7 max-[639px]:-translate-y-1 sm:translate-y-0 lg:-translate-y-7 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
                 title="Change Header Card"
               >
                 <Plus className="w-12 h-12 text-white" />
