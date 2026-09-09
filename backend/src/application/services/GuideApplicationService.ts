@@ -355,9 +355,8 @@ export class GuideApplicationService implements GuideInstanceServicePort {
         throw new Error("User not found");
       }
 
-      // Count current favorites
-      const favoritedInstances = await this.instanceRepository.findFavoritedInstancesByUserId(userId);
-      const currentCount = favoritedInstances.length;
+      // Count current favorites (use Prisma directly to avoid cross-connection reads with better-sqlite3)
+      const currentCount = await this.instanceRepository.countFavoritedInstancesByUserId(userId);
       const normalizedRole = user.role.toLowerCase();
 
       const hasUnlimitedFavorites =

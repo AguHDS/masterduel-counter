@@ -742,6 +742,12 @@ export class SqliteArchetypeGuideRepository implements GuideRepository {
     return favorite !== null;
   }
 
+  async countFavoritedInstancesByUserId(userId: string): Promise<number> {
+    return this.prisma.instanceFavorite.count({
+      where: { userId },
+    });
+  }
+
   async findFavoritedInstancesByUserId(userId: string): Promise<GuideListItem[]> {
     const stmt = this.db.prepare(`
       SELECT 
