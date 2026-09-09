@@ -52,6 +52,8 @@ export interface GuideRepository {
   hasUserFavoritedGuide(instanceId: number, userId: string): Promise<boolean>;
   /** Gets all favorited instances by a user */
   findFavoritedInstancesByUserId(userId: string): Promise<GuideListItem[]>;
+  /** Count how many guides a user has favorited */
+  countFavoritedInstancesByUserId(userId: string): Promise<number>;
   /** Increments the view count for an instance by a specified amount */
   incrementViewCount(instanceId: number, incrementBy: number): Promise<void>;
   /** Attempts to register an anonymous viewer for an instance, respecting a cooldown */
