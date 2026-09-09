@@ -52,14 +52,16 @@ export const TierCard = ({ entry, rank, isTierOne = false }: TierCardProps) => {
       <div
         className="absolute bottom-0 left-0 right-0 px-2 pt-2"
         style={{
-          background: "linear-gradient(to top, rgba(8,10,25,0.80) 25%, rgba(8,10,20,0.0) 100%)",
+          background: entry.tier === 4
+            ? "linear-gradient(to top, rgba(8,10,25,0.70) 24%, rgba(8,10,20,0.0) 100%)"
+            : "linear-gradient(to top, rgba(8,10,25,0.80) 25%, rgba(8,10,20,0.0) 100%)",
           WebkitBackdropFilter: "blur(8px)",
         }}
       >
-        <p className={`text-slate-100 truncate ${isTierOne ? 'text-sm font-bold' : 'text-[11px] font-bold tracking-wide'}`}>
+        <p className={`text-slate-100 truncate ${isTierOne ? 'text-sm font-bold' : entry.tier === 4 ? 'text-[9px] font-bold tracking-wide' : entry.tier === 3 ? 'text-[10px] font-bold tracking-wide' : entry.tier === 2 ? 'text-[11px] font-bold tracking-wide' : 'text-sm font-bold tracking-wide'}`}>
           {displayName}
         </p>
-        <p className={`${isTierOne ? 'text-[9px]' : 'text-[8px]'} mt-0.5 max-[500px]:hidden`}>
+        <p className={`${isTierOne ? 'text-[9px]' : entry.tier === 4 ? 'text-[7px]' : entry.tier === 3 ? 'text-[8px]' : entry.tier === 2 ? 'text-[9px]' : 'text-[9px]'} mt-0.5 max-[500px]:hidden`}>
           <span className="text-amber-600">Counter: {entry.counterGuideCount}</span>
           <span className="text-slate-600">{" "}·{" "}</span>
           <span className="text-cyan-400">Deck: {entry.deckGuideCount}</span>
