@@ -28,6 +28,7 @@ interface EditableEntry {
   tier: number;
   position: number;
   imageUrl: string | null;
+  imageOffsetY: number;
   source: "scraped" | "manual";
   linkedArchetypeId: number | null;
   linkedArchetypeName: string | null;
@@ -84,6 +85,7 @@ export const TierListAdminTab = () => {
         tier: e.tier,
         position: e.position,
         imageUrl: e.imageUrl,
+        imageOffsetY: e.imageOffsetY ?? 0,
         source: e.source,
         linkedArchetypeId: e.linkedArchetypeId,
         linkedArchetypeName: e.linkedArchetypeName,
@@ -102,6 +104,7 @@ export const TierListAdminTab = () => {
         tier: e.tier,
         position: e.position,
         imageUrl: e.imageUrl,
+        imageOffsetY: e.imageOffsetY ?? 0,
         source: e.source,
         linkedArchetypeId: e.linkedArchetypeId,
         linkedArchetypeName: e.linkedArchetypeName,
@@ -147,6 +150,7 @@ export const TierListAdminTab = () => {
         tier,
         position: prev.filter((e) => e.tier === tier).length,
       imageUrl: null,
+      imageOffsetY: 0,
       source: "manual",
       linkedArchetypeId: null,
       linkedArchetypeName: null,
@@ -166,6 +170,7 @@ export const TierListAdminTab = () => {
         tier: e.tier,
         position: index,
         imageUrl: e.imageUrl,
+        imageOffsetY: e.imageOffsetY ?? 0,
         source: e.source,
         linkedArchetypeId: e.linkedArchetypeId,
         linkedArchetypeName: e.linkedArchetypeName,
@@ -314,7 +319,7 @@ export const TierListAdminTab = () => {
       gradientColor: "rgba(255,215,0,0.12)",
       sectionBorder: "border-amber-400/25",
       rowOffset: "ml-1 sm:-ml-1 md:-ml-2 lg:-ml-4",
-      gridCols: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
+      gridCols: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
     },
     2: {
       label: "T2",
@@ -327,7 +332,7 @@ export const TierListAdminTab = () => {
       gradientColor: "rgba(96,165,250,0.06)",
       sectionBorder: "border-blue-400/20",
       rowOffset: "ml-1 sm:-ml-1",
-      gridCols: "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7",
+      gridCols: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
     },
     3: {
       label: "T3",
@@ -340,7 +345,7 @@ export const TierListAdminTab = () => {
       gradientColor: "rgba(251,146,60,0.06)",
       sectionBorder: "border-orange-400/20",
       rowOffset: "ml-3 sm:ml-2",
-      gridCols: "grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8",
+      gridCols: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
     },
     4: {
       label: "T4",
@@ -353,21 +358,23 @@ export const TierListAdminTab = () => {
       gradientColor: "rgba(156,163,175,0.05)",
       sectionBorder: "border-gray-400/15",
       rowOffset: "ml-5 sm:ml-5 md:ml-6",
-      gridCols: "grid-cols-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10",
+      gridCols: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
     },
   };
 
-  const sourceBadge = (source: string) => (
-    <span
-      className={`absolute top-2 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-        source === "scraped"
-          ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-          : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-      }`}
-    >
-      {source}
-    </span>
-  );
+  const sourceBadge = (source: string) => {
+    return (
+      <span
+        className={`absolute top-1 right-1 z-10 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
+          source === "scraped"
+            ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+            : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+        }`}
+      >
+        {source}
+      </span>
+    );
+  };
 
   return (
     <div>
@@ -502,28 +509,40 @@ export const TierListAdminTab = () => {
                     {tierEntries.map((entry) => (
                       <div
                         key={entry.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, entry.id)}
-                        onDragEnd={handleDragEnd}
                         onDragOver={(e) => handleDragOver(e, entry.id)}
                         onDrop={(e) => handleDrop(e, entry.id)}
                         className={`relative rounded-lg overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.08)] min-[501px]:shadow-none group border transition-all duration-200 bg-gradient-to-b ${cfg.cardBg} ${
                           dragOverId === entry.id ? "border-amber-400/60 shadow-[0_0_6px_-1px_rgba(245,158,11,0.12)]" : "border-slate-600/30"
                         }`}
                       >
+                        {/* Drag Handle */}
+                        <div
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, entry.id)}
+                          onDragEnd={handleDragEnd}
+                          className="absolute top-1 left-1/2 -translate-x-1/2 z-20 cursor-grab active:cursor-grabbing flex items-center justify-center w-8 h-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Drag to reorder"
+                        >
+                          <div className="grid grid-cols-3 gap-[2px]">
+                            {[...Array(6)].map((_, i) => (
+                              <div key={i} className="w-[4px] h-[4px] rounded-full bg-blue-400" />
+                            ))}
+                          </div>
+                        </div>
+
                         {sourceBadge(entry.source)}
 
                         {/* Link Archetype button */}
                         <button
                           onClick={(e) => { e.stopPropagation(); handleOpenLinkModal(entry.id); }}
-                          className={`absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                          className={`absolute top-1 left-1 z-10 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider transition-colors ${
                             entry.linkedArchetypeId
                               ? "bg-green-500/20 text-green-300 border border-green-500/40 hover:bg-green-500/30"
-                              : "bg-slate-500/20 text-slate-400 border border-slate-500/30 hover:bg-slate-500/30"
+                              : "bg-blue-500/25 text-blue-300 border border-blue-500/40 hover:bg-blue-500/35"
                           }`}
                           title={entry.linkedArchetypeId ? `Linked to: ${entry.linkedArchetypeName}` : "Link to archetype"}
                         >
-                          <Link className="w-3 h-3 inline mr-1" />
+                          <Link className="w-2.5 h-2.5 inline mr-0.5" />
                           {entry.linkedArchetypeName || "Link"}
                         </button>
 
@@ -532,7 +551,8 @@ export const TierListAdminTab = () => {
                             <img
                               src={getOptimizedCardImageUrl(entry.imageUrl, { size: "full" })}
                               alt={entry.deckName}
-                              className="w-full h-full object-cover object-top"
+                              className="w-full h-full object-cover"
+                              style={{ objectPosition: `center ${entry.imageOffsetY ?? 0}%` }}
                             />
                           ) : (
                             <div className="w-full h-full bg-slate-800/60 flex items-center justify-center">
@@ -542,7 +562,7 @@ export const TierListAdminTab = () => {
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                             <button
                               onClick={(e) => handleOpenCardPicker(entry.id, e.currentTarget)}
-                              className="px-3 py-1.5 bg-amber-500/90 hover:bg-amber-500 text-black text-xs font-bold rounded"
+                              className="px-2 py-1 text-[10px] bg-amber-500/90 hover:bg-amber-500 text-black font-bold rounded whitespace-nowrap"
                             >
                               Select Card Image
                             </button>
@@ -550,7 +570,7 @@ export const TierListAdminTab = () => {
                         </div>
 
                         <div
-                          className="px-3 pt-2.5 flex flex-col gap-1.5"
+                          className="px-3 pt-2.5 pb-3 gap-1.5 flex flex-col"
                           style={{
                             background: "linear-gradient(to top, rgba(8,10,25,0.94) 50%, rgba(8,10,20,0.0) 100%)",
                             WebkitBackdropFilter: "blur(8px)",
@@ -559,7 +579,7 @@ export const TierListAdminTab = () => {
                           <p className="text-slate-500 text-[10px] truncate" title={entry.deckName}>
                             Scraper name: {entry.deckName}
                           </p>
-                          <input
+                           <input
                             type="text"
                             value={entry.displayName ?? ""}
                             onChange={(e) => updateEntry(entry.id, { displayName: e.target.value || null })}
@@ -567,11 +587,26 @@ export const TierListAdminTab = () => {
                             className="w-full bg-transparent text-slate-100 font-bold text-sm border-b border-slate-600/50 focus:border-amber-500/70 outline-none pb-0.5"
                           />
 
+                          {entry.imageUrl && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-[9px] text-slate-500 flex-shrink-0">↕</span>
+                              <input
+                                type="range"
+                                min={0}
+                                max={100}
+                                value={entry.imageOffsetY ?? 0}
+                                onChange={(e) => updateEntry(entry.id, { imageOffsetY: parseInt(e.target.value) })}
+                                className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-slate-400"
+                                title={`Position: ${entry.imageOffsetY ?? 0}%`}
+                              />
+                            </div>
+                          )}
+
                           <div className="flex items-center gap-2">
                             <select
                               value={entry.tier}
                               onChange={(e) => updateEntry(entry.id, { tier: parseInt(e.target.value) })}
-                              className="bg-slate-800 border border-slate-600/50 text-slate-300 text-xs rounded px-2 py-1 outline-none focus:border-amber-500/70"
+                              className="bg-slate-800 border border-slate-600/50 text-slate-300 text-xs px-2 py-1 rounded outline-none focus:border-amber-500/70 flex-shrink-0"
                             >
                               <option value={0}>Tier 0</option>
                             <option value={1}>Tier 1</option>
@@ -583,7 +618,7 @@ export const TierListAdminTab = () => {
                             <select
                               value={entry.source}
                               onChange={(e) => updateEntry(entry.id, { source: e.target.value as "scraped" | "manual" })}
-                              className="bg-slate-800 border border-slate-600/50 text-slate-300 text-xs rounded px-2 py-1 outline-none focus:border-amber-500/70"
+                              className="bg-slate-800 border border-slate-600/50 text-slate-300 text-xs px-2 py-1 rounded outline-none focus:border-amber-500/70 flex-shrink-0"
                               title="Scraped entries get overwritten on next scrape. Set to Manual to protect your changes."
                             >
                               <option value="scraped">Scraped</option>
@@ -592,7 +627,7 @@ export const TierListAdminTab = () => {
 
                             <button
                               onClick={() => removeEntry(entry.id)}
-                              className="ml-auto p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors"
+                              className="ml-auto flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors"
                               title="Remove"
                             >
                               <X className="w-4 h-4" />
@@ -792,6 +827,14 @@ export const TierListAdminTab = () => {
               <li><strong className="text-blue-300">Scraped</strong>: if the deck falls out of the meta it re-activates automatically; if it stays in the meta the soft-delete is respected.</li>
               <li><strong className="text-amber-300">Manual</strong>: stays deleted and never auto-reactivates.</li>
               <li>Use <strong>"Restore"</strong> in the Deleted modal to bring any entry back, then click <strong>"Save Changes"</strong>.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-amber-400 font-bold text-base mb-2">Image Positioning</h3>
+            <p>Use the <strong>slider</strong> (↕ icon) on each card to adjust the vertical position of the image within its frame (0% = top, 100% = bottom).</p>
+            <ul className="list-disc pl-5 space-y-1 mt-1">
+              <li>The position is <strong>synced across all formats</strong> (Master Duel, TCG, OCG) — changing it on one format applies to all three.</li>
+              <li>If a deck falls out of the meta, the position is <strong>preserved</strong> as long as the entry has a manually set image, a linked archetype, or a custom position. Otherwise the entry is removed.</li>
             </ul>
           </div>
         </div>

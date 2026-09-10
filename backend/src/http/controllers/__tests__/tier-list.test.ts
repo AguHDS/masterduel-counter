@@ -188,7 +188,7 @@ describe("Tier List API", () => {
   });
 
   describe("Cross-format sync", () => {
-    it("should propagate image and linked archetype changes to the same deck in other formats", async () => {
+    it("should propagate image, linked archetype, and imageOffsetY changes to the same deck in other formats", async () => {
       const mdSave = await request(app)
         .post("/api/tier-list/save")
         .send({
@@ -200,6 +200,7 @@ describe("Tier List API", () => {
             imageUrl: "img1",
             linkedArchetypeId: 1,
             linkedArchetypeName: "A",
+            imageOffsetY: 30,
             source: "scraped",
           }],
         });
@@ -225,6 +226,7 @@ describe("Tier List API", () => {
             imageUrl: "img2",
             linkedArchetypeId: 2,
             linkedArchetypeName: "B",
+            imageOffsetY: 75,
             source: "scraped",
           }],
         });
@@ -236,6 +238,7 @@ describe("Tier List API", () => {
       expect(tcgEntry.imageUrl).toBe("img2");
       expect(tcgEntry.linkedArchetypeId).toBe(2);
       expect(tcgEntry.linkedArchetypeName).toBe("B");
+      expect(tcgEntry.imageOffsetY).toBe(75);
     });
   });
 

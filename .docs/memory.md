@@ -297,8 +297,8 @@ Esto crea las tablas en `test.db`. Repetir si cambia el schema de Prisma.
 - Correr npm run lint en backend y frontend para ver si hay errores a arreglar
 - No hacer unit test de repositorios aislados (backend) (capa HTTP ya los cubre indirectamente)
 - No correr tests, los hago yo manualmente.
-- No correr comandos tipo npx prisma generate o npx prisma db push, lo hare yo manualmente para evitar crasheos.
-- No crear migraciones, ya que soy un unico deb y me manejo con npx prisma db push o npx prisma generate.
+- No correr comandos tipo npx prisma generate, npx prisma db push o npx prisma migrate, lo hare yo manualmente para evitar crasheos.
+- El proyecto usa **migraciones de Prisma** (NO db push). Cuando se modifica schema.prisma, crear la migración con `npx prisma migrate dev --name descripcion_del_cambio`. En producción se aplica con `npx prisma migrate deploy` (via GitHub Actions). Ver `.docs/guide-db.md`.
 - Si agregas nuevos tests de integración, seguí el patrón de los existentes: beforeAll crea fixtures (arquetipos, cards), beforeEach limpia en orden FK-safe, helpers registerAndLogin + createGuide.
 - Si un test falla por timeout, revisá que no haya otro test file usando la misma BD simultáneamente (fileParallelism: false).
 - Documentación de testing detallada en `.docs/tests-guide.md`.
