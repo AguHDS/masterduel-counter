@@ -94,5 +94,6 @@ Basicamente, mostrarlo en un README con badges.
 bugs:
 
 resolviendo:
-- acomodar las imagenes de las entries en tierlist, acomodar la foto de perfil
+- acomodar la foto de perfil
 - iluminar boton al hacer hover en add card de deck builder
+- hacer responsive admin pannel.

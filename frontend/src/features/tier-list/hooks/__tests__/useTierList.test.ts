@@ -27,8 +27,8 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 }
 
 const sampleEntries = [
-  { id: 1, deckName: "Deck A", tier: 1, format: "masterduel", position: 0, imageUrl: null, source: "scraped" as const, isActive: true, linkedArchetypeId: null, linkedArchetypeName: null, counterGuideCount: 2, deckGuideCount: 1, scrapedAt: null, createdAt: "", updatedAt: "" },
-  { id: 2, deckName: "Deck B", tier: 2, format: "masterduel", position: 0, imageUrl: null, source: "manual" as const, isActive: true, linkedArchetypeId: 5, linkedArchetypeName: "HERO", counterGuideCount: 0, deckGuideCount: 3, scrapedAt: null, createdAt: "", updatedAt: "" },
+  { id: 1, deckName: "Deck A", tier: 1, format: "masterduel", position: 0, imageUrl: null, imageOffsetY: 0, source: "scraped" as const, isActive: true, linkedArchetypeId: null, linkedArchetypeName: null, counterGuideCount: 2, deckGuideCount: 1, scrapedAt: null, createdAt: "", updatedAt: "" },
+  { id: 2, deckName: "Deck B", tier: 2, format: "masterduel", position: 0, imageUrl: null, imageOffsetY: 0, source: "manual" as const, isActive: true, linkedArchetypeId: 5, linkedArchetypeName: "HERO", counterGuideCount: 0, deckGuideCount: 3, scrapedAt: null, createdAt: "", updatedAt: "" },
 ];
 
 const sampleConfig = { id: 1, format: "masterduel", scrapingEnabled: true, lastScrapedAt: null, updatedAt: "" };
@@ -144,7 +144,7 @@ describe("useTriggerScrape", () => {
 
 describe("useSaveTierList", () => {
   it("should call saveTierList and invalidate all tier list queries", async () => {
-    const input = { format: "masterduel", entries: [{ deckName: "New", tier: 1, position: 0, imageUrl: null, source: "manual" as const }] };
+    const input = { format: "masterduel", entries: [{ deckName: "New", tier: 1, position: 0, imageUrl: null, imageOffsetY: 0, source: "manual" as const }] };
     mockSaveTierList.mockResolvedValueOnce(sampleEntries);
     mockFetchTierList.mockResolvedValueOnce(sampleEntries);
 

@@ -18,6 +18,7 @@ function makeEntry(overrides: Partial<TierListEntry> = {}): TierListEntry {
     position: 0,
     imageUrl: "http://example.com/card.jpg",
     imageManuallySet: false,
+    imageOffsetY: 0,
     source: "scraped",
     isActive: true,
     linkedArchetypeId: null,

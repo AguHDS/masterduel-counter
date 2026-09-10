@@ -7,6 +7,7 @@ export interface TierListEntry {
   position: number;
   imageUrl: string | null;
   imageManuallySet: boolean;
+  imageOffsetY: number;
   source: "scraped" | "manual";
   isActive: boolean;
   linkedArchetypeId: number | null;
@@ -34,6 +35,7 @@ export interface TierListSaveInput {
     tier: number;
     position: number;
     imageUrl: string | null;
+    imageOffsetY: number;
     source: "scraped" | "manual";
     linkedArchetypeId?: number | null;
     linkedArchetypeName?: string | null;

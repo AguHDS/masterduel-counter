@@ -18,7 +18,7 @@ Un cron job (cada 12h) ejecuta `MasterDuelMetaScraper`. El scraper y la persiste
 | Manual | Tier e imagen **congelados**. | **Congelados igualmente.** El link solo arregla nombre/navegacion, no des-congela el tier. |
 | Inactiva (`is_active=0`, admin la borró) | **Skipped**. No se re-inserta. Se reactiva si el deck sale del meta. | Igual. |
 
-**Entries con config de admin** (`image_manually_set=1` o `linkedArchetypeId`): cuando el deck sale del scrape se hacen **soft-delete** (en vez de hard-delete) para conservar la config, y al volver al meta se **reactivan** con tier/posición frescos. Esto evita que la config (imagen custom + arquetipo linkeado) se pierda en decks volátiles de T4/trending.
+**Entries con config de admin** (`image_manually_set=1`, `linkedArchetypeId` o `imageOffsetY != 0`): cuando el deck sale del scrape se hacen **soft-delete** (en vez de hard-delete) para conservar la config, y al volver al meta se **reactivan** con tier/posición frescos. Esto evita que la config (imagen custom + arquetipo linkeado + posicionamiento de imagen) se pierda en decks volátiles de T4/trending.
 
 **Auto-reset**: Si una entry fue soft-deleteada por admin y el deck NO aparece en el nuevo scrape, se reactiva (`is_active=1`). Cuando el deck vuelva al meta, reaparece automaticamente.
 
@@ -55,6 +55,7 @@ Cuando se resuelve una imagen para un deck, se usa `CardApplicationService.selec
 TierListEntry:
   id, deckName, tier (1|2|3|4), format ("masterduel"|"tcg"|"ocg"), position, imageUrl?
   imageManuallySet (imagen elegida a mano por admin, no auto-resuelta)
+  imageOffsetY (posicion vertical de imagen: 0=top, 100=bottom, default=0. Sincronizado entre formatos)
   source ("scraped"|"manual"), isActive, linkedArchetypeId?, linkedArchetypeName?
   counterGuideCount, deckGuideCount
   scrapedAt?, createdAt, updatedAt
@@ -65,7 +66,7 @@ TierListConfig:
 
 ## Sync de config entre formatos
 
-La imagen y el arquetipo linkeado de una entry son **la misma entidad** en MD, TCG y OCG. Al guardar desde el admin (`POST /api/tier-list/save`), el backend detecta (por diff contra la fila existente) si cambió la **imagen** o el **arquetipo linkeado** de una entry y aplica ese cambio a todas las entries con el mismo `deckName` (sin distinguir mayúsculas) en los otros dos formatos. La posición y el tier NO se sincronizan (son específicos de cada format). Solo aplica a ediciones futuras; las configs ya divergentes se mantienen hasta que se editen.
+La imagen, el arquetipo linkeado y el posicionamiento de imagen (`imageOffsetY`) de una entry son **la misma entidad** en MD, TCG y OCG. Al guardar desde el admin (`POST /api/tier-list/save`), el backend detecta (por diff contra la fila existente) si cambió la **imagen**, el **arquetipo linkeado** o el **imageOffsetY** de una entry y aplica ese cambio a todas las entries con el mismo `deckName` (sin distinguir mayúsculas) en los otros dos formatos. La posición y el tier NO se sincronizan (son específicos de cada format). Solo aplica a ediciones futuras; las configs ya divergentes se mantienen hasta que se editen.
 
 ## API Endpoints
 

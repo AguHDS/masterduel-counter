@@ -35,6 +35,7 @@ interface SeedEntry {
   linkedArchetypeId?: number | null;
   linkedArchetypeName?: string | null;
   imageManuallySet?: boolean;
+  imageOffsetY?: number;
 }
 
 async function seedEntry(data: SeedEntry) {
@@ -51,6 +52,7 @@ async function seedEntry(data: SeedEntry) {
       linkedArchetypeId: data.linkedArchetypeId ?? null,
       linkedArchetypeName: data.linkedArchetypeName ?? null,
       imageManuallySet: data.imageManuallySet ?? false,
+      imageOffsetY: data.imageOffsetY ?? 0,
     },
   });
   await prisma.$disconnect();
@@ -250,5 +252,36 @@ describe("Tier List scrape merge (config persistence)", () => {
     const namesAfter = inactiveAfter.body.entries.map((e: { deckName: string }) => e.deckName);
     expect(namesAfter).not.toContain("DeletedManual");
     expect(namesAfter).toContain("DeletedScraped");
+  });
+
+  // for entries have images manually positioned using the slider
+  it("should soft-delete and reactivate an entry with only imageOffsetY set (no link, no manual image)", async () => {
+    await seedEntry({
+      deckName: "OffsetOnly",
+      tier: 4,
+      source: "scraped",
+      imageOffsetY: 75,
+    });
+
+    // First scrape: deck falls out of meta -> should soft-delete (not hard-delete) because imageOffsetY != 0
+    scraperMocks.masterduel.mockResolvedValue([{ deckName: "Other", tier: 1, imageUrl: IMG }]);
+    await request(app).post("/api/tier-list/scrape").send({ format: "masterduel" });
+
+    const afterFall = await findEntry("OffsetOnly");
+    expect(afterFall).not.toBeNull();
+    expect(afterFall!.isActive).toBe(false);
+    expect(afterFall!.imageOffsetY).toBe(75);
+
+    // Second scrape: deck returns -> should reactivate preserving imageOffsetY
+    scraperMocks.masterduel.mockResolvedValue([
+      { deckName: "OffsetOnly", tier: 2, imageUrl: IMG },
+    ]);
+    await request(app).post("/api/tier-list/scrape").send({ format: "masterduel" });
+
+    const afterReturn = await findEntry("OffsetOnly");
+    expect(afterReturn).not.toBeNull();
+    expect(afterReturn!.isActive).toBe(true);
+    expect(afterReturn!.tier).toBe(2);
+    expect(afterReturn!.imageOffsetY).toBe(75);
   });
 });

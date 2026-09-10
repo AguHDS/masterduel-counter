@@ -36,7 +36,8 @@ export const TierCard = ({ entry, rank, isTierOne = false }: TierCardProps) => {
           <img
             src={getOptimizedCardImageUrl(entry.imageUrl, { size: "full" })}
             alt={entry.deckName}
-            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            style={{ objectPosition: `center ${entry.imageOffsetY ?? 0}%` }}
             loading="lazy"
           />
         ) : (

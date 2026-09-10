@@ -35,6 +35,7 @@ export class SqliteTierListRepository implements TierListRepository {
         tier: number;
         position: number;
         imageUrl: string | null;
+        imageOffsetY: number;
         source: string;
         linkedArchetypeId?: number | null;
         linkedArchetypeName?: string | null;
@@ -48,8 +49,8 @@ export class SqliteTierListRepository implements TierListRepository {
        WHERE format = ? AND is_active = 1 AND LOWER(deck_name) = ?`,
     );
     const upsertStmt = this.db.prepare(
-      `INSERT INTO tier_list_entries (id, deck_name, display_name, tier, format, position, image_url, image_manually_set, source, linked_archetype_id, linked_archetype_name, is_active, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))
+      `INSERT INTO tier_list_entries (id, deck_name, display_name, tier, format, position, image_url, image_manually_set, image_offset_y, source, linked_archetype_id, linked_archetype_name, is_active, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))
        ON CONFLICT(id) DO UPDATE SET
          deck_name = excluded.deck_name,
          display_name = excluded.display_name,
@@ -57,6 +58,7 @@ export class SqliteTierListRepository implements TierListRepository {
          position = excluded.position,
          image_url = excluded.image_url,
          image_manually_set = excluded.image_manually_set,
+         image_offset_y = excluded.image_offset_y,
          source = excluded.source,
          linked_archetype_id = excluded.linked_archetype_id,
          linked_archetype_name = excluded.linked_archetype_name,
@@ -64,10 +66,10 @@ export class SqliteTierListRepository implements TierListRepository {
          updated_at = datetime('now')`,
     );
     const existingStmt = this.db.prepare(
-      `SELECT id, LOWER(deck_name) as key, image_url, linked_archetype_id, image_manually_set, is_active
+      `SELECT id, LOWER(deck_name) as key, image_url, linked_archetype_id, image_manually_set, image_offset_y, is_active
        FROM tier_list_entries WHERE format = ?`,
     );
-    // Cross-format sync: when an admin changes an image or linked archetype for a deck,
+    // Cross-format sync: when an admin changes an image, linked archetype, or image offset for a deck,
     // the same config is applied to that deck in the other two formats.
     const syncImageStmt = this.db.prepare(
       `UPDATE tier_list_entries SET image_url = ?, image_manually_set = 1, updated_at = datetime('now')
@@ -77,17 +79,22 @@ export class SqliteTierListRepository implements TierListRepository {
       `UPDATE tier_list_entries SET linked_archetype_id = ?, linked_archetype_name = ?, updated_at = datetime('now')
        WHERE format != ? AND LOWER(deck_name) = LOWER(?)`,
     );
+    const syncOffsetStmt = this.db.prepare(
+      `UPDATE tier_list_entries SET image_offset_y = ?, updated_at = datetime('now')
+       WHERE format != ? AND LOWER(deck_name) = LOWER(?)`,
+    );
 
     const transaction = this.db.transaction(() => {
       const existingRows = existingStmt.all(format) as Array<{
-        id: number; key: string; image_url: string | null; linked_archetype_id: number | null; image_manually_set: number; is_active: number;
+        id: number; key: string; image_url: string | null; linked_archetype_id: number | null; image_manually_set: number; image_offset_y: number; is_active: number;
       }>;
-      const existingById = new Map<number, { image_url: string | null; linked_archetype_id: number | null; image_manually_set: number }>();
+      const existingById = new Map<number, { image_url: string | null; linked_archetype_id: number | null; image_manually_set: number; image_offset_y: number }>();
       for (const row of existingRows) {
         existingById.set(row.id, {
           image_url: row.image_url,
           linked_archetype_id: row.linked_archetype_id,
           image_manually_set: row.image_manually_set,
+          image_offset_y: row.image_offset_y ?? 0,
         });
         if (row.is_active === 1 && !savedNames.has(row.key)) {
           softDeleteStmt.run(format, row.key);
@@ -102,6 +109,9 @@ export class SqliteTierListRepository implements TierListRepository {
         const linkChanged = prev
           ? (entry.linkedArchetypeId ?? null) !== prev.linked_archetype_id
           : !!entry.linkedArchetypeId;
+        const offsetChanged = prev
+          ? (entry.imageOffsetY ?? 0) !== (prev.image_offset_y ?? 0)
+          : (entry.imageOffsetY ?? 0) !== 0;
         const imageManuallySet = prev
           ? prev.image_manually_set === 1 || imageChanged
             ? 1
@@ -119,6 +129,7 @@ export class SqliteTierListRepository implements TierListRepository {
           entry.position,
           entry.imageUrl ?? null,
           imageManuallySet,
+          entry.imageOffsetY ?? 0,
           entry.source,
           entry.linkedArchetypeId ?? null,
           entry.linkedArchetypeName ?? null,
@@ -134,6 +145,9 @@ export class SqliteTierListRepository implements TierListRepository {
             format,
             entry.deckName,
           );
+        }
+        if (offsetChanged) {
+          syncOffsetStmt.run(entry.imageOffsetY ?? 0, format, entry.deckName);
         }
       }
     });
@@ -214,10 +228,10 @@ export class SqliteTierListRepository implements TierListRepository {
     const scrapedNames = new Set(entries.map((e) => e.deckName.toLowerCase()));
 
     const existingStmt = this.db.prepare(
-      `SELECT id, LOWER(deck_name) as key, source, is_active, linked_archetype_id, image_manually_set FROM tier_list_entries WHERE format = ?`,
+      `SELECT id, LOWER(deck_name) as key, source, is_active, linked_archetype_id, image_manually_set, image_offset_y FROM tier_list_entries WHERE format = ?`,
     );
     const existingRows = existingStmt.all(format) as Array<{
-      id: number; key: string; source: string; is_active: number; linked_archetype_id: number | null; image_manually_set: number;
+      id: number; key: string; source: string; is_active: number; linked_archetype_id: number | null; image_manually_set: number; image_offset_y: number;
     }>;
     const existingMap = new Map<string, { id: number; source: string; isActive: boolean; hasConfig: boolean }>();
     for (const row of existingRows) {
@@ -225,7 +239,7 @@ export class SqliteTierListRepository implements TierListRepository {
         id: row.id,
         source: row.source,
         isActive: row.is_active === 1,
-        hasConfig: row.linked_archetype_id !== null || row.image_manually_set === 1,
+        hasConfig: row.linked_archetype_id !== null || row.image_manually_set === 1 || (row.image_offset_y ?? 0) !== 0,
       });
     }
 
@@ -381,6 +395,7 @@ export class SqliteTierListRepository implements TierListRepository {
       position: row.position as number,
       imageUrl: row.image_url as string | null,
       imageManuallySet: (row.image_manually_set as number) === 1,
+      imageOffsetY: (row.image_offset_y as number) ?? 0,
       source: (row.source as string) as "scraped" | "manual",
       isActive: (row.is_active as number) === 1,
       linkedArchetypeId: row.linked_archetype_id as number | null,
