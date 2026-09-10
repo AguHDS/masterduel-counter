@@ -80,6 +80,7 @@ export class TierListApplicationService implements TierListApplicationPort {
         position: i,
         imageUrl,
         imageManuallySet: false,
+        imageOffsetY: 0,
         displayName: null,
         linkedArchetypeId: null,
         linkedArchetypeName: null,
