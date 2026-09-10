@@ -1,15 +1,9 @@
-api key opengo: sk-1b9U4QacncuLPN634YoZwgBQTCHbRywqKFhkRBP2TwImHuKdvXuJtUHogA3LJ8Gd
 MiniMax M3 → PLAN
 MiMo V2.5 → BUILD
 cosas muy importantes: deepseek v4 flash
 
-prompt inicial:
-Tengo una web sobre yugioh donde usuarios pueden crear sus guias (de tipo counter guide o deck guide)
-Lee el archivo .docs\memory.md (en la raiz del proyecto) para tener un buen contexto del proyecto
-
 ---
 
-- Seccion "Most effective cards in current meta" que muestre cartas handtrap tipo droll, fuwalos, etc..."
 - en la stats de homepage, opcion para ordenar tambien por ultimos 30 dias
 
 ---
@@ -74,7 +68,7 @@ las notifications no se borran y han pasado 3 dias ya desde que estan mark as re
 
 mejoras
 - Migracion de proyecto con estrategias devops (terraform y docker). Tener en cuenta que, al hacer esto probablemente tengamos que cambiar/modificar la feature que maneja los scripts de server management y hace restart con pm2 en el admin pannel, porque si usamos pm2 para restart eso no existiria en docker
-- Generalstats deberia tener otro diseño, quiza mas informativo?
+- hacer responsive admin pannel.
 - Agregar seccion de Top Cards quiza en la misma tab de cartas, que muestra el % usage de las handtraps y boardbreakers. Tomar este dato de https://www.masterduelmeta.com/top-cards#usage-rate, pero tengo que hacer un sistmea que desde el admin panel me deje ingresar las cartas especificas que quiero que aparezcan en esa tierlist de cartas, ya que en https://www.masterduelmeta.com/top-cards#usage-rate muestra un % usage de TODAS las cartas, y yo quiero % de handtraps/boardbreakers. Tienen que quedar permanente las que yo ingreso como entry.
 Aca tambien tenemos datos mas completos (tcg, masterduel, ocg):
 https://ygoprodeck.com/top/
@@ -94,6 +88,5 @@ Basicamente, mostrarlo en un README con badges.
 bugs:
 
 resolviendo:
-- acomodar la foto de perfil
 - iluminar boton al hacer hover en add card de deck builder
-- hacer responsive admin pannel.
+- Generalstats deberia tener otro diseño, quiza mas informativo?

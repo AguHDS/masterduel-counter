@@ -8,6 +8,8 @@ export const useProfileEditor = (userId: string) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -43,23 +45,63 @@ export const useProfileEditor = (userId: string) => {
     },
   });
 
-  const handleFileSelect = useCallback((file: File) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+  const readFileAsDataUrl = useCallback(
+    (file: File): Promise<string> =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error("Could not read file"));
+        reader.readAsDataURL(file);
+      }),
+    [],
+  );
 
-    const maxSize = 3 * 1024 * 1024; // 3MB, if change, also change backend limit size validation
-    if (file.size > maxSize) {
-      setFileError(
-        `File is too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). Maximum size is 3MB.`,
-      );
-      setSelectedFile(null);
-    } else {
+  const handleFileSelect = useCallback(
+    async (file: File) => {
+      const maxSize = 3 * 1024 * 1024; // 3MB, if change, also change backend limit size validation
+      if (file.size > maxSize) {
+        setFileError(
+          `File is too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). Maximum size is 3MB.`,
+        );
+        setSelectedFile(null);
+        return;
+      }
+
       setFileError(null);
-      setSelectedFile(file);
-    }
+
+      try {
+        const dataUrl = await readFileAsDataUrl(file);
+        setCropImageSrc(dataUrl);
+        setIsCropperOpen(true);
+      } catch (error) {
+        console.error("Error reading selected file:", error);
+        setFileError("Could not read the selected image.");
+      }
+    },
+    [readFileAsDataUrl],
+  );
+
+  const handleCropConfirm = useCallback(
+    async (croppedFile: File) => {
+      try {
+        const dataUrl = await readFileAsDataUrl(croppedFile);
+        setPreviewUrl(dataUrl);
+        setSelectedFile(croppedFile);
+      } catch (error) {
+        console.error("Error reading cropped file:", error);
+        setFileError("Could not process the cropped image.");
+        return;
+      }
+
+      setIsCropperOpen(false);
+      setCropImageSrc(null);
+    },
+    [readFileAsDataUrl],
+  );
+
+  const handleCropCancel = useCallback(() => {
+    setIsCropperOpen(false);
+    setCropImageSrc(null);
   }, []);
 
   const handleBioChange = useCallback((value: string) => {
@@ -108,6 +150,8 @@ export const useProfileEditor = (userId: string) => {
     setSelectedFile(null);
     setPreviewUrl(null);
     setFileError(null);
+    setIsCropperOpen(false);
+    setCropImageSrc(null);
   }, []);
 
   return {
@@ -116,9 +160,13 @@ export const useProfileEditor = (userId: string) => {
     selectedFile,
     previewUrl,
     fileError,
+    isCropperOpen,
+    cropImageSrc,
     isSaving: updateBioMutation.isPending || uploadPhotoMutation.isPending,
     isDeletingPhoto: deletePhotoMutation.isPending,
     handleFileSelect,
+    handleCropConfirm,
+    handleCropCancel,
     handleBioChange,
     handleSaveChanges,
     handleDeletePhoto,
