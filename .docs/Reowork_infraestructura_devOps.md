@@ -7,10 +7,10 @@ Transformar la infraestructura actual (configuración manual en VPS) a un entorn
 - Web completa y funcional
 - VPS con configuración manual (Nginx, Node, PM2)
 - Storage local en el VPS (sin servicios cloud externos)
-- CI/CD básico con GitHub Actions (deploy simple por SSH)
+- CI/CD básico con GitHub Actions (deploy simple por SSH, usa .github\workflows\ci.yml y .github\workflows\deploy.yml)
 - Sin uso de docker
 
-## Tareas pendientes
+## Tareas pendientes (Plan hecho con mi conocimiento limitado, se puede/debe mejorar)
 
 ### Fase 1: Infraestructure as a code
 - [ ] Crear configuración Terraform para el droplet de DigitalOcean
@@ -27,23 +27,21 @@ Transformar la infraestructura actual (configuración manual en VPS) a un entorn
 - [ ] Eliminar instalación manual de dependencias en el VPS
 
 ### Fase 3: CI/CD Real
-- [ ] Agregar tests al pipeline de GitHub Actions
 - [ ] Build de imágenes Docker en el pipeline
 - [ ] Push de imágenes al registry
 - [ ] Deploy automático con Docker Compose en el VPS
 - [ ] Rollback automático si el health check falla
-- [ ] Notificaciones de deploy exitoso/fallido (Discord/Telegram)
+- [ ] Notificaciones de deploy exitoso/fallido (Discord/Email, o algo mas sencillo) -> este paso es necesario realmenmte?
 
 ### Fase 4: Alta Disponibilidad Básica
-- [ ] Health check endpoint en la aplicación
+- [ ] Health check endpoint en la aplicación (posiblemente en el la feature admin pannel - server management)
 - [ ] Configurar PM2 en modo cluster (múltiples instancias)
 - [ ] Auto-restart si el proceso muere
-- [ ] Almacenamiento de backups automatizado (cron para base de datos)
 
 ### Fase 5: Observabilidad
 - [ ] Instalar Prometheus con exporters en el VPS
 - [ ] Dashboard en Grafana con métricas básicas (CPU, memoria, uptime)
-- [ ] Alertas por email o Telegram cuando:
+- [ ] Alertas por email cuando:
   - Servidor caído
   - CPU > 80%
   - Memoria > 80%
@@ -57,7 +55,7 @@ Transformar la infraestructura actual (configuración manual en VPS) a un entorn
   - Cómo hacer rollback
   - Cómo monitorear
   - Decisiones técnicas y trade-offs
-  - Costos mensuales
+  - Cosas necesarias importantes a saber
 - [ ] Documentar escenarios de fallo y recuperación
 
 ## Notas importantes
@@ -65,3 +63,5 @@ Transformar la infraestructura actual (configuración manual en VPS) a un entorn
 - Usar variables de entorno para secretos (nunca hardcodear)
 - Probar cada fase en local antes de aplicarla al VPS
 - Documentar cada error y solución encontrada
+
+Nota (desde la ignorancia): Tener en cuenta que, al hacer esto probablemente tengamos que cambiar/modificar la feature Server Management que maneja los scripts de server y hace restart con pm2 en el admin pannel, porque al usar pm2 para el restart, esto no funcionaria con docker. Es asi??
