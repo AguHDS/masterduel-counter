@@ -308,7 +308,7 @@ export const CardPairItem = ({
                       src={card.imageUrlSmall}
                       alt={card.name}
                       draggable={false}
-                      className="object-cover rounded-sm cursor-pointer pointer-events-none"
+                      className="object-scale-down rounded-sm cursor-pointer pointer-events-none"
                       style={{
                         width: `${topCardWidth}px`,
                         height: `${topCardHeight}px`,
@@ -464,7 +464,7 @@ export const CardPairItem = ({
                         src={card.imageUrlSmall}
                         alt={card.name}
                         draggable={false}
-                        className="object-cover rounded-md cursor-pointer pointer-events-none"
+                        className="object-scale-down rounded-sm cursor-pointer pointer-events-none"
                         style={{
                           width: `${bottomCardWidth}px`,
                           height: `${bottomCardHeight}px`,
@@ -633,7 +633,7 @@ export const CardPairItem = ({
                           <img
                             src={card.imageUrlSmall}
                             alt={card.name}
-                            className="object-cover rounded border border-none cursor-pointer shadow-sm"
+                            className="object-scale-down rounded border border-none cursor-pointer shadow-sm"
                             style={{
                               width: `${singleSlotCardWidth}px`,
                               height: `${singleSlotCardHeight}px`,
@@ -674,7 +674,7 @@ export const CardPairItem = ({
                             <img
                               src={card.imageUrlSmall}
                               alt={card.name}
-                              className="object-cover rounded border border-none cursor-pointer shadow-sm"
+                              className="object-scale-down rounded border border-none cursor-pointer shadow-sm"
                               style={{
                                 width: `${singleSlotCardWidth}px`,
                                 height: `${singleSlotCardHeight}px`,
