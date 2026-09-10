@@ -6,6 +6,7 @@ import { FavoriteDecksEditor } from "../components/FavoriteDecksEditor";
 import { ProfileGuideList } from "../components/ProfileGuideList";
 import { PersonalDeckList } from "../components/PersonalDeckList";
 import { ProfileLeftSidebar } from "../components/ProfileLeftSidebar";
+import { ProfilePictureCropperModal } from "../components/ProfilePictureCropperModal";
 import { ProfileTabBar } from "../components/ProfileTabBar";
 import { ProfileRightSidebar } from "../components/ProfileRightSidebar";
 import { profileApi } from "../api/profileApi";
@@ -91,7 +92,11 @@ export const ProfilePage = () => {
     fileError,
     isSaving,
     isDeletingPhoto,
+    isCropperOpen,
+    cropImageSrc,
     handleFileSelect,
+    handleCropConfirm,
+    handleCropCancel,
     handleBioChange,
     handleSaveChanges,
     handleDeletePhoto,
@@ -490,6 +495,13 @@ export const ProfilePage = () => {
           targetName={profile?.userName || userId}
         />
       )}
+
+      <ProfilePictureCropperModal
+        open={isCropperOpen}
+        imageSrc={cropImageSrc}
+        onConfirm={handleCropConfirm}
+        onCancel={handleCropCancel}
+      />
     </>
   );
 };

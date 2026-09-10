@@ -112,6 +112,47 @@ export const ProfileLeftSidebar = ({
             )}
           </div>
 
+          {isEditMode && isOwner && (
+            <div className="space-y-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={onFileInputChange}
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isSaving}
+                className="relative w-full py-2 group overflow-hidden rounded disabled:opacity-50"
+              >
+                <div className="absolute inset-0 border border-amber-600/40 rounded group-hover:border-amber-500/60 transition-colors" />
+                <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+                <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+                <span className="relative flex items-center justify-center gap-1.5 text-amber-300/80 font-bold text-[10px] tracking-[0.18em] uppercase group-hover:text-amber-300 transition-colors">
+                  <Camera className="w-3.5 h-3.5" />
+                  Change Photo
+                </span>
+              </button>
+
+              {profile?.profilePictureUrl && (
+                <button
+                  onClick={onDeletePhoto}
+                  disabled={isDeletingPhoto || isSaving}
+                  className="relative w-full py-2 group overflow-hidden rounded disabled:opacity-50"
+                >
+                  <div className="absolute inset-0 border border-red-700/40 rounded group-hover:border-red-600/60 transition-colors" />
+                  <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
+                  <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
+                  <span className="relative flex items-center justify-center gap-1.5 text-red-400/80 font-bold text-[10px] tracking-[0.18em] uppercase group-hover:text-red-400 transition-colors">
+                    <Flame className="w-3.5 h-3.5" />
+                    {isDeletingPhoto ? "Deleting..." : "Delete Photo"}
+                  </span>
+                </button>
+              )}
+            </div>
+          )}
+
           <div className="flex flex-col">
             {/* Stats with Icons */}
             <div className="flex items-center justify-between px-3 py-2 bg-purple-950/30 rounded-lg border border-yellow-600/20">
@@ -178,47 +219,6 @@ export const ProfileLeftSidebar = ({
               </span>
             </div>
           </div>
-
-          {isEditMode && isOwner && (
-            <div className="space-y-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={onFileInputChange}
-                className="hidden"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isSaving}
-                className="relative w-full py-2 group overflow-hidden rounded disabled:opacity-50"
-              >
-                <div className="absolute inset-0 border border-amber-600/40 rounded group-hover:border-amber-500/60 transition-colors" />
-                <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
-                <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
-                <span className="relative flex items-center justify-center gap-1.5 text-amber-300/80 font-bold text-[10px] tracking-[0.18em] uppercase group-hover:text-amber-300 transition-colors">
-                  <Camera className="w-3.5 h-3.5" />
-                  Change Photo
-                </span>
-              </button>
-
-              {profile?.profilePictureUrl && (
-                <button
-                  onClick={onDeletePhoto}
-                  disabled={isDeletingPhoto || isSaving}
-                  className="relative w-full py-2 group overflow-hidden rounded disabled:opacity-50"
-                >
-                  <div className="absolute inset-0 border border-red-700/40 rounded group-hover:border-red-600/60 transition-colors" />
-                  <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
-                  <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
-                  <span className="relative flex items-center justify-center gap-1.5 text-red-400/80 font-bold text-[10px] tracking-[0.18em] uppercase group-hover:text-red-400 transition-colors">
-                    <Flame className="w-3.5 h-3.5" />
-                    {isDeletingPhoto ? "Deleting..." : "Delete Photo"}
-                  </span>
-                </button>
-              )}
-            </div>
-          )}
 
           {/* Best Guides */}
           <div className="space-y-3">
