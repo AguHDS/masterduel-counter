@@ -121,6 +121,6 @@ pm2 restart masterduel-backend || pm2 start npm --name "masterduel-backend" -- s
 - **Script:** `/var/www/masterduel-counter/backend/scripts/backup-db.sh`.
 - **Los archivos de backup son sensibles** (contienen datos de usuarios). No los subas a repositorios públicos.
 
-`Datos del client id (google cloud project)`:
-`client id:` 609196549793-gfe6lo11rruejv7jvf3h262l6bae2cgk.apps.googleusercontent.com
-`client secret:` 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
+`Datos del client id en bitwarden(google cloud project)`:
+`client id:` 609196549...
+`client secret:` GOCSPX-M...

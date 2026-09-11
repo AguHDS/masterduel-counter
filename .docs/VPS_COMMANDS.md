@@ -1,10 +1,3 @@
-## Conexión al Servidor VPS
-```bash
-ssh root@104.236.51.1
-# Password: project-TON618a
-cd /var/www/masterduel-counter
-```
-
 ## Rebuildear backend
 - npm run build
 - pm2 restart masterduel-backend
