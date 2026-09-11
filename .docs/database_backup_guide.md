@@ -7,7 +7,7 @@ Este documento explica cómo funciona el backup automático y cómo **restaurar*
 - **Cuándo:** todos los días a las 3 AM (cron en el VPS).
 - **Script:** `/var/www/masterduel-counter/backend/scripts/backup-db.sh`
 - **Qué guarda:**
-  - **Local (VPS):** los últimos **7** backups en `/var/www/masterduel-counter/backups/`
+  - **Local (VPS):** los últimos **7** backups en `/var/www/masterduel-counter/backups/` (se puede ver con`ls -lt /var/www/masterduel-counter/backups/ | wc -l`)
   - **Remoto (Google Drive):** los últimos **14** backups en `masterduel-counter-backups/` (via rclone)
 - **Formato:** `database_YYYYMMDD_HHMMSS.db.gz` (SQLite comprimido con gzip).
 - **Log:** `/var/log/db-backup.log`
