@@ -105,6 +105,7 @@ pm2 restart masterduel-backend || pm2 start npm --name "masterduel-backend" -- s
 | Problema | Solución |
 |---|---|
 | El backup no corre | Revisar `tail -100 /var/log/db-backup.log`. Confirmar que el cron está: `crontab -l`. |
+| Cron falla con `Permission denied` | El script perdió el bit de ejecución. Fix: `chmod +x /var/www/masterduel-counter/backend/scripts/backup-db.sh` (y asegurar que quede con modo `100755` en git). |
 | Error `sqlite3: command not found` | Instalar: `sudo apt-get install -y sqlite3`. |
 | Error `rclone: command not found` | Instalar rclone (ver BackupPlan.md, Paso 4). |
 | Error de OAuth en rclone | El token expiró o fue revocado. Re-hacer `rclone config` en la PC con browser y volver a copiar `rclone.conf` a la VPS (BackupPlan.md, Pasos 2-3). |
