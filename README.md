@@ -33,7 +33,15 @@
 
 ## Documentation
 
-All the information about the project is available in the `.docs` directory.
+Find information about architecture, design and important features in `.docs` directory.
+- `.docs\Database_backup_guide.md` -> info related with db backup system
+- `.docs\Guide-db.md` (temporary) -> useful comands for dev
+- `.docs\Memory.md` -> memory file with extense information about the project
+- `.docs\Rate-limiter.md` -> rate-limiter information
+- `Scripts` -> custom scripts for management
+- `.docs\Tests-guide.md` -> info to understand how we work with tests
+- `.docs\features\Server-management.md` -> server management feature
+- `.docs\features\Tierlist.md` -> tierlist feature
 
 ## Website
 

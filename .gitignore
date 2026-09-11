@@ -13,7 +13,7 @@ dist-ssr
 *.local
 /backend/.env
 /frontend/.env
-Mejoras_antes_de_prod.md
+local
 
 # Database files
 /backend/src/data/*.db
