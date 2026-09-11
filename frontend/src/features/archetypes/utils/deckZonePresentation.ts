@@ -26,7 +26,7 @@ export const DECK_ZONE_STYLES: Record<DeckDisplayZone, DeckZoneStyleConfig> = {
     grid: "border-sky-500/18 bg-sky-950/18",
     cardFrame: "border-sky-400/28 group-hover/card:border-sky-300/60",
     addButton:
-      "border-sky-400/30 bg-sky-500/10 text-sky-200 hover:bg-sky-500/16",
+      "border-sky-400/30 bg-sky-500/10 text-sky-200 hover:bg-slate-700/20 active:bg-slate-900/70",
     label: "text-sky-200",
   },
   extra: {
@@ -38,7 +38,7 @@ export const DECK_ZONE_STYLES: Record<DeckDisplayZone, DeckZoneStyleConfig> = {
     grid: "border-violet-500/18 bg-violet-950/18",
     cardFrame: "border-violet-400/28 group-hover/card:border-violet-300/60",
     addButton:
-      "border-violet-400/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/16",
+      "border-violet-400/30 bg-violet-500/10 text-violet-200 hover:bg-slate-700/20 active:bg-slate-900/70",
     label: "text-violet-200",
   },
   side: {
@@ -50,7 +50,7 @@ export const DECK_ZONE_STYLES: Record<DeckDisplayZone, DeckZoneStyleConfig> = {
     grid: "border-yellow-500/18 bg-yellow-950/18",
     cardFrame: "border-yellow-400/28 group-hover/card:border-yellow-300/60",
     addButton:
-      "border-yellow-400/30 bg-yellow-500/10 text-yellow-200 hover:bg-yellow-500/16",
+      "border-yellow-400/30 bg-yellow-500/10 text-yellow-200 hover:bg-slate-700/20 active:bg-slate-900/70",
     label: "text-yellow-200",
   },
 };
