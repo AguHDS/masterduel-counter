@@ -74,23 +74,22 @@ export const DeckGuideHelp = ({ isOpen, onClose }: DeckGuideHelpProps) => {
             <ul className="list-disc list-inside text-gray-300 space-y-1 text-xs">
               <li>
                 <span className="text-blue-300 font-medium">
-                  Left mini cards:
+                  Left cards:
                 </span>{" "}
-                Use these cards to show the material cards you use to summon the
-                main card.
+                Represent the materials needed for the main card.
               </li>
               <li>
                 <span className="text-blue-300 font-medium">
-                  Right mini cards:
+                  Right cards:
                 </span>{" "}
-                The result of the activation effect of the main card's sequence.
+                All cards involved in the main card's effect.
               </li>
               <li>
                 <span className="text-blue-300 font-medium">
                   <span className="text-red-500">Negated flow:</span>
                 </span>{" "}
-                You can put a secondary combo route for each step you have by
-                clicking the "Negated?" label.
+                You can make a "Canceled" flow for each step in your combo. This represent an alternative route
+                in case it gets negated.
               </li>
               <li>
                 <span className="text-blue-300 font-medium">Comment:</span> Give
