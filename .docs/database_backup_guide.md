@@ -35,7 +35,7 @@ ls -lt /var/www/masterduel-counter/backups/
 
 # 3. Descomprimir el backup elegido
 gunzip /var/www/masterduel-counter/backups/database_20260902_030000.db.gz
-# �  genera database_20260902_030000.db
+# genera database_20260902_030000.db
 
 # 4. (Precaución) respaldar la DB actual por si acaso
 cp /var/www/masterduel-counter/backend/prisma/src/data/database.db \
@@ -54,7 +54,7 @@ pm2 start masterduel-backend
 pm2 logs masterduel-backend --lines 30
 ```
 
-### Procedimiento (restaurar desde Google Drive � si el VPS murió o no hay backup local)
+### Procedimiento (restaurar desde Google Drive si el VPS murió o no hay backup local)
 
 ```bash
 # 1. (Si el VPS sigue vivo) descargar el backup desde Drive
@@ -115,12 +115,8 @@ pm2 restart masterduel-backend || pm2 start npm --name "masterduel-backend" -- s
 
 ## Datos importantes
 
-- **Backup local (VPS):** `/var/www/masterduel-counter/backups/` � últimos 7.
-- **Backup remoto (Google Drive):** `masterduel-counter-backups/` � últimos 14.
+- **Backup local (VPS):** `/var/www/masterduel-counter/backups/` últimos 7.
+- **Backup remoto (Google Drive):** `masterduel-counter-backups/` últimos 14.
 - **Log:** `/var/log/db-backup.log`.
 - **Script:** `/var/www/masterduel-counter/backend/scripts/backup-db.sh`.
 - **Los archivos de backup son sensibles** (contienen datos de usuarios). No los subas a repositorios públicos.
-
-`Datos del client id en bitwarden(google cloud project)`:
-`client id:` 609196549...
-`client secret:` GOCSPX-M...
